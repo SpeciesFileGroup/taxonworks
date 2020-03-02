@@ -14,7 +14,7 @@ export default function ({ commit, state, dispatch }, taxon) {
     taxon_name.taxon_name.taxon_name_classifications_attributes = taxon.taxon_name_classifications_attributes
   }
   createTaxonName(taxon_name).then(response => {
-    history.pushState(null, null, `/tasks/nomenclature/new_taxon_name/${response.id}`)
+    history.pushState(null, null, `/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.id}`)
     commit(MutationNames.SetTaxon, response)
     commit(MutationNames.SetHardValidation, undefined)
     dispatch('loadSoftValidation', 'taxon_name')

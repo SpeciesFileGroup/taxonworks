@@ -49,8 +49,7 @@
                   label="label_html"
                   :add-params="{
                     'type[]': 'Protonym',
-                    'nomenclature_group[]': 'SpeciesGroup',
-                    valid: true
+                    'nomenclature_group[]': 'SpeciesGroup'
                   }"/>
               </template>
               <ul
@@ -159,7 +158,7 @@ import BlockLayout from '../../../../components/blockLayout.vue'
 import SmartSelector from 'components/switch.vue'
 import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   components: {
@@ -227,8 +226,10 @@ export default {
     taxonIdFormOtu (newVal) {
       if (newVal) {
         GetTaxon(newVal).then(response => {
-          this.listsTaxon.quick.unshift(response)
-          this.viewTaxon = 'quick'
+          if(response.type == 'Protonym' && response.rank_string.indexOf('SpeciesGroup') > -1) {
+            this.listsTaxon.quick.unshift(response)
+            this.viewTaxon = 'quick'
+          }
         })
       }
     },

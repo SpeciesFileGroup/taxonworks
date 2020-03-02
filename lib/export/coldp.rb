@@ -1,6 +1,5 @@
 require 'zip'
 
-
 module Export
 
   # TODO: Explore https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
@@ -17,7 +16,7 @@ module Export
   # Exports to the Catalog of Life in the new "coldp" format.
   module Coldp
 
-    FILETYPES = %w{Description Name Synonym Taxon VernacularName}.freeze
+    FILETYPES = %w{Description Name Synonym VernacularName}.freeze
 
     # @return [Scope]
     #   should return the full set of Otus (= Taxa in CoLDP) that are to
@@ -27,7 +26,7 @@ module Export
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
-      a = o.taxon_name.descendants
+      a = o.taxon_name.self_and_descendants
       ::Otu.joins(:taxon_name).where(taxon_name: a) 
     end
 
@@ -49,14 +48,13 @@ module Export
         end 
 
         zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate( Otu.find(otu_id), ref_csv) }
+        zipfile.get_output_stream('Taxon.csv') { |f| f.write Export::Coldp::Files::Taxon.generate( otus, otu_id, ref_csv) }
 
         ref_csv.rewind
         zipfile.get_output_stream('References.csv') { |f| f.write ref_csv.string }
         ref_csv.close
       end
       
-      # TODO: 
-
       zip_file_path
     end 
 
@@ -82,9 +80,25 @@ module Export
         request: request,
         expires: 2.days.from_now
       )
+      
       ColdpCreateDownloadJob.perform_later(otu, download)
 
       download
+    end
+
+    # TODO - perhaps a utilities file --
+
+    # @return [Boolean]
+    def self.original_field(taxon_name)
+      (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
+    end
+
+    # TaxonWorks does not keep a seperate ID for ICZN names 
+    #   that differ from their original combination.  Ultimately
+    #   if it moves to use a Combination::Original method then
+    #   we can use those IDs. The present rendering is a hack.
+    def self.current_taxon_name_id(taxon_name)
+      taxon_name.id.to_s + '/current'
     end
 
   end

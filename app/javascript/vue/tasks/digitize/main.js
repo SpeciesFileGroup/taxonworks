@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import vueResource from 'vue-resource'
-import L from 'leaflet'
 import vueShortkey from 'vue-shortkey'
 import App from './app.vue'
 import { newStore } from './store/store.js'

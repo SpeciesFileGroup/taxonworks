@@ -8,27 +8,58 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     before(:all) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
-      @species    = @subspecies.ancestor_at_rank('species')
-      @subgenus   = @subspecies.ancestor_at_rank('subgenus')
-      @genus      = @subspecies.ancestor_at_rank('genus')
-      @tribe      = @subspecies.ancestor_at_rank('tribe')
-      @family     = @subspecies.ancestor_at_rank('family')
-      @root       = @subspecies.root
+      @species = @subspecies.ancestor_at_rank('species')
+      @subgenus = @subspecies.ancestor_at_rank('subgenus')
+      @genus = @subspecies.ancestor_at_rank('genus')
+      @tribe = @subspecies.ancestor_at_rank('tribe')
+      @family = @subspecies.ancestor_at_rank('family')
+      @root = @subspecies.root
     end
 
     after(:all) do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all
 
-      # TODO: find out why this exists and resolve - presently leaving sources in the models
       Citation.delete_all
       Source.destroy_all
       TaxonNameHierarchy.delete_all
     end
 
-    # TODO: this all needs to go
-    context 'double checking FactoryBot' do
+    context '#year_of_publication' do
+      specify 'format 1' do
+        taxon_name.year_of_publication = 123
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
 
+      specify 'format 2' do
+        taxon_name.year_of_publication = '123' 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
+
+      specify 'format 3' do
+        taxon_name.year_of_publication = nil 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to be_empty
+      end
+
+      specify 'format 4' do
+        taxon_name.year_of_publication = 1920 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to be_empty
+      end
+
+      specify 'format 4' do
+        taxon_name.year_of_publication = 2999 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
+    end
+
+
+    # TODO: this all needs to go
+    context 'lint checking FactoryBot' do
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
         (@subspecies.ancestors + [@subspecies]).each do |i|
@@ -101,46 +132,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(taxon_name.errors.include?(:type)).to be_truthy
       end
 
-      context 'proper taxon rank' do
-        specify 'parent rank is higher' do
-          taxon_name.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-          taxon_name.parent = @species
-          taxon_name.valid?
-          expect(taxon_name.errors.include?(:parent_id)).to be_truthy
-        end
-
-        specify 'child rank is lower' do
-          phylum             = FactoryBot.create(:iczn_phylum)
-          kingdom            = phylum.ancestor_at_rank('kingdom')
-          kingdom.rank_class = Ranks.lookup(:iczn, 'subphylum')
-          kingdom.valid?
-          expect(kingdom.errors.include?(:rank_class)).to be_truthy
-        end
-
-        specify 'a new taxon rank in the same group' do
-          t            = FactoryBot.create(:iczn_kingdom)
-          t.rank_class = Ranks.lookup(:iczn, 'genus')
-          t.valid?
-          expect(t.errors.include?(:rank_class)).to be_truthy
-        end
-
-        specify 'a parent from different project' do
-          t            = FactoryBot.create(:iczn_kingdom)
-          t.valid?
-          expect(t.errors.include?(:project_id)).to be_falsey
-          t.project_id = 1000
-          t.valid?
-          expect(t.errors.include?(:project_id)).to be_truthy
-      end
-      end
-
       context 'source' do
         specify 'when provided, is type Source::Bibtex' do
-          h                 = FactoryBot.build(:source_human)
+          h  = FactoryBot.build(:source_human)
           taxon_name.source = h
           taxon_name.valid?
           expect(taxon_name.errors.include?(:base)).to be_truthy
-          b                 = FactoryBot.build(:source_bibtex)
+          b = FactoryBot.build(:source_bibtex)
           taxon_name.source = b
           taxon_name.valid?
 

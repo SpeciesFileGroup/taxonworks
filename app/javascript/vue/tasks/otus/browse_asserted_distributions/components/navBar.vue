@@ -47,9 +47,9 @@
 <script>
 
 import { GetNavigationOtu } from '../request/resources'
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
-import OtuRadial from 'components/otu/otu_radial/radial'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
+import OtuRadial from 'components/radials/object/radial'
 
 export default {
   components: {

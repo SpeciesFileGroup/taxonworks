@@ -16,7 +16,7 @@ module BatchLoad
       @collecting_events    = {}
       @taxon_determinations = {}
       @otus                 = {}
-      super(args)
+      super(**args)
     end
 
     # rubocop:disable Metrics/MethodLength

@@ -1,5 +1,5 @@
 <%= content_for :add do -%>
-  <%= content_tag(:li, link_to('New asserted distribution by map', new_asserted_distribution_task_path(asserted_distribution: AssertedDistribution.new(otu: @otu).attributes), data: {turbolinks: false} )) %>
+  <%= content_tag(:li, link_to('New asserted distribution by map', new_asserted_distribution_from_map_task_path(asserted_distribution: AssertedDistribution.new(otu: @otu).attributes), data: {turbolinks: false} )) %>
 <% end %>
 
 <%= content_for :report do -%>
@@ -9,6 +9,11 @@
 
 <%= content_for :associated do -%>
   <%= on_loan_tag(@otu) -%>
+<% end %>
+
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, otus_redirect(@otu) )   %>
+  <%= content_tag(:li, otus_radial(@otu) )   %>
 <% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @otu}) -%>

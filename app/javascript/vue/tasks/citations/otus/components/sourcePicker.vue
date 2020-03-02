@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     loadSource: function (item) {
-      this.$http.get('/sources/' + item.id).then(response => {
+      this.$http.get(`/sources/${item.id}.json`).then(response => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
         this.showModal = false
       })

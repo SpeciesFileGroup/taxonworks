@@ -10,9 +10,9 @@ export default function ({ commit, dispatch, state }) {
         commit(MutationNames.SetCollectionObject, coCreated)
         commit(MutationNames.AddCollectionObject, coCreated)
         let promises = []
-        promises.push(dispatch(ActionNames.SaveDeterminations))
         promises.push(dispatch(ActionNames.SaveTypeMaterial))
         promises.push(dispatch(ActionNames.SaveIdentifier))
+        promises.push(dispatch(ActionNames.SaveDeterminations))
         Promise.all(promises).then(() => {
           state.settings.saving = false
           state.settings.lastSave = Date.now()

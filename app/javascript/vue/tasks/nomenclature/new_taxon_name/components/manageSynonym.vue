@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isInvalid && validTaxon">
+  <div v-if="isInvalid && validTaxon && childrenList.length">
     <spinner-component
       :full-screen="true"
       legend="Saving changes..."
@@ -123,7 +123,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 import Expand from './expand.vue'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
@@ -165,10 +165,10 @@ export default {
     taxon: {
       handler(newVal) {
         if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-          this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}`).then(res => {
+          this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            this.$http.get(`/taxon_names?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
+            this.$http.get(`/taxon_names.json?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
               this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
               this.isLoading = false
             })

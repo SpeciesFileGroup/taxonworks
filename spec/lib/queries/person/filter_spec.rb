@@ -29,6 +29,18 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:query) { Queries::Person::Filter.new({}) }
 
+  context '#levenshtein_similar' do
+    specify '#last_name containing apostrophy' do
+      query.last_name = "D'Urso"
+      expect(query.levenshtein_similar.pluck(:id)).to contain_exactly()
+    end
+
+    specify '#first_name containing apostrophy' do
+      query.first_name = "D'Urso"
+      expect(query.levenshtein_similar.pluck(:id)).to contain_exactly()
+    end
+  end
+
   specify '#last_name_starting_with' do
     query.last_name_starts_with = 'S'
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p4.id)

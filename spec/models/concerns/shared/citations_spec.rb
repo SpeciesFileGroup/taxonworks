@@ -105,8 +105,8 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
 
   context 'ordering by source date' do
     let!(:a) { TestCitable.create }
-    let!(:b) {TestCitable.create}
-    let!(:c) {TestCitable.create}
+    let!(:b) { TestCitable.create }
+    let!(:c) { TestCitable.create }
 
     let(:youngest_source) { FactoryBot.create(:valid_source_bibtex, year: Time.now.year) }
     let(:young_source) { FactoryBot.create(:valid_source_bibtex, year: 2010) }
@@ -120,6 +120,11 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
       Citation.create!(citation_object: a, source: oldest_source)
       Citation.create!(citation_object: b, source: young_source)
       Citation.create!(citation_object: c, source: old_source)
+    end
+
+    specify '#nomenclature_date' do
+      Citation.create!(citation_object: a, source: FactoryBot.create(:valid_source, year: 1999), is_original: true)
+      expect(a.nomenclature_date.year).to eq(1999)
     end
 
     context '.without_citations' do

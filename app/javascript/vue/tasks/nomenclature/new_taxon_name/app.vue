@@ -1,6 +1,17 @@
 <template>
   <div id="new_taxon_name_task">
-    <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
+    <div class="flex-separate middle">
+      <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
+      <autocomplete
+        class="autocomplete-search-bar"
+        url="/taxon_names/autocomplete"
+        param="term"
+        :add-params="{ 'type[]': 'Protonym' }"
+        label="label_html"
+        placeholder="Search a taxon name..."
+        @getItem="loadTaxon"
+        :clearAfter="true"/>
+    </div>
     <div>
       <nav-header :menu="menu"/>
       <div class="flexbox horizontal-center-content align-start">
@@ -34,7 +45,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['GenusGroup', 'FamilyGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
@@ -96,6 +107,7 @@
 </template>
 
 <script>
+import Autocomplete from 'components/autocomplete'
 import showForThisGroup from './helpers/showForThisGroup'
 import SourcePicker from './components/sourcePicker.vue'
 import RelationshipPicker from './components/relationshipPicker.vue'
@@ -120,6 +132,7 @@ import { ActionNames } from './store/actions/actions'
 
 export default {
   components: {
+    Autocomplete,
     Etymology,
     SourcePicker,
     Spinner,
@@ -134,7 +147,7 @@ export default {
     PickOriginalCombination,
     TypeBlock,
     GenderBlock,
-    CheckChanges,
+    CheckChanges
   },
   computed: {
     getTaxon () {
@@ -199,7 +212,7 @@ export default {
     this.addShortcutsDescription()
   },
   methods: {
-    addShortcutsDescription() {
+    addShortcutsDescription () {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
@@ -233,6 +246,9 @@ export default {
           return resolve(true)
         })
       })
+    },
+    loadTaxon (taxon) {
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`, '_self')
     }
   }
 }
@@ -244,6 +260,12 @@ export default {
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
+
+    .autocomplete-search-bar {
+      input {
+        width: 500px;
+      }
+    }
 
     .cleft, .cright {
       min-width: 350px;

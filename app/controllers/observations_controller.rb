@@ -99,7 +99,7 @@ class ObservationsController < ApplicationController
   private
 
   def set_observation
-    @observation = Observation.find(params[:id])
+    @observation = Observation.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def observation_params

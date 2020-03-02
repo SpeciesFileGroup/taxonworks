@@ -102,7 +102,7 @@ class ProtocolsController < ApplicationController
 
   private
   def set_protocol
-    @protocol = Protocol.find(params[:id])
+    @protocol = Protocol.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def protocol_params

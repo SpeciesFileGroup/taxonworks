@@ -35,7 +35,7 @@
 </template>
 <script>
 
-import radialAnnotator from 'components/annotator/annotator.vue'
+import radialAnnotator from 'components/radials/annotator/annotator.vue'
 import placementComponent from './placement.vue'
 
 export default {

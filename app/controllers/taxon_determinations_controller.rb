@@ -12,13 +12,9 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
-  end
-
-  def filter_params
-    params.permit(otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
   end
 
   def list
@@ -122,5 +118,9 @@ class TaxonDeterminationsController < ApplicationController
         roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
         otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       )
+    end
+
+    def filter_params
+      params.permit(:collection_object_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
     end
 end

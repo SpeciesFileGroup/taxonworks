@@ -9,7 +9,7 @@ FactoryBot.define do
   
   trait :parent_is_root do
     callback(:after_build, :before_create, :after_stub) do |protonym|
-      t = TaxonName.where(project_id: $project_id, parent_id: nil).limit(1)
+      t = TaxonName.where(project_id: Current.project_id, parent_id: nil).limit(1)
       if t.any?
         protonym.parent = t.first
       else
@@ -17,10 +17,10 @@ FactoryBot.define do
       end
     end
     #  parent {
-    #    p =  Protonym.where(parent_id: nil, project_id: $project_id)
+    #    p =  Protonym.where(parent_id: nil, project_id: Curren.project_id)
     #    if p.blank?
     #      # !! Note the strategy, build, not create, and provide a dummy ID so that validation passes when TaxonName#parent.id is checked.
-    #      name = FactoryBot.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.number(digits: 5)
+    #      name = FactoryBot.build(:root_taxon_name) #  #  #  #  # , id: Faker::Number.unique.number(digits: 5)
     #    else
     #      name = p.first
     #    end

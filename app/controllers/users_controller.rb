@@ -42,7 +42,7 @@ class UsersController < ApplicationController
   # PATCH or PUT /users/:id
   def update
     respond_to do |format|
-      if @user.update_attributes(user_params)
+      if @user.update(user_params)
         format.html do
           flash[:success] = 'Changes to your account information have been saved.'
           redirect_to @user
@@ -98,14 +98,14 @@ class UsersController < ApplicationController
   def set_password
     @user = User.find_by_password_reset_token!(Utilities::RandomToken.digest(params[:token]))
 
-    Current.user_id = @user.id # $user_id = @user.id WHY?
+    Current.user_id = @user.id #  WHY?
 
     @user.require_password_presence
     
     @user.password_reset_token = nil
     @user.is_flagged_for_password_reset = false
 
-    if @user.update_attributes(params.require(:user).permit([:password, :password_confirmation]))
+    if @user.update(params.require(:user).permit([:password, :password_confirmation]))
       flash[:notice] = 'Password successfuly changed.'
       redirect_to root_path
     else

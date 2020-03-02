@@ -28,16 +28,14 @@ describe 'tasks/exports/coldp', type: :feature, group: [:collection_objects] do
         end
 
         context 'when selecting an OTU and hitting download' do
-          xit 'show the download is being created' do
+          it 'show the download is being created' do
             fill_autocomplete('otu_id_for_coldp', with: @otu.name, select: @otu.id)
             
             # TODO: Cannot find a way to have the job queued and run later, so currently generating directly...
             perform_enqueued_jobs do
               click_on('Download')
             end
-            expect(page).to have_content('Status: Download creation is in progress...')
-
-            click_on('Download', exact: true)
+            expect(Features::Downloads::download_content).to_not be_empty
           end
         end
       end

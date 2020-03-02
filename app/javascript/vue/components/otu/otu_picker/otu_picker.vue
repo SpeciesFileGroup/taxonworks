@@ -2,6 +2,7 @@
   <div class="vue-otu-picker">
     <div class="horizontal-left-content">
       <autocomplete
+        :input-id="inputId"
         url="/otus/autocomplete"
         class="separate-right"
         label="label_html"
@@ -65,6 +66,10 @@ export default {
     Autocomplete
   },
   props: {
+    inputId: {
+      type: String,
+      default: undefined
+    },
     clearAfter: {
       type: Boolean,
       default: false

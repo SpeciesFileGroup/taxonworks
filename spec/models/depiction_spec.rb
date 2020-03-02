@@ -9,7 +9,6 @@ RSpec.describe Depiction, type: :model, groups: [:images] do
     depiction.image_attributes = {image_file: image_file}
     depiction.depiction_object = specimen
     expect(depiction.save).to be_truthy
-
     expect(depiction.image.reload).to be_truthy
   end
 
@@ -24,6 +23,18 @@ RSpec.describe Depiction, type: :model, groups: [:images] do
       expect(bm.utime/last_utime).to be <= 5
       last_utime = bm.utime
     end
+  end
+
+  specify '#svg_clip 1' do
+    a = FactoryBot.build(:valid_depiction)
+    a.svg_clip = 'asfdasdf<a>'
+    expect{a.save}.to raise_error ActiveRecord::StatementInvalid, /PG::InvalidXmlContent: ERROR:  invalid XML content/
+  end
+
+  specify '#svg_clip 2' do
+    a = FactoryBot.build(:valid_depiction)
+    a.svg_clip = '<clipPath></clipPath>'
+    expect(a.save).to be_truthy
   end
 
 end

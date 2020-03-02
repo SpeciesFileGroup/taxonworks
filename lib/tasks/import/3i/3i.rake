@@ -262,7 +262,6 @@ namespace :tw do
           end
 
         end
-
       end
 
       def main_build_loop_3i
@@ -1893,7 +1892,7 @@ namespace :tw do
               type = @type_type_3i[row['Type'].downcase]
               unless type.nil?
                 type = type + 's' if o.type == 'Lot'
-                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, collection_object: o, type_type: type )
                 o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')

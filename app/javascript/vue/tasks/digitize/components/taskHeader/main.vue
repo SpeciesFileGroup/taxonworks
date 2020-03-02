@@ -1,39 +1,63 @@
 <template>
-  <div class="panel content separate-bottom">
-    <div class="middle flex-separate">
+  <nav-bar>
+    <div class="flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
-          url="/identifiers/autocomplete"
+          class="separate-right"
+          url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
           param="term"
           :clear-after="true"
-          @getItem="loadAssessionCode"
-          :add-params="{
-            'identifier_object_types[]': ['CollectionObject'],
-          }"
+          @getItem="loadAssessionCode($event.id)"
           min="1"/>
-        <span
-          class="separate-left"
-          v-if="identifier.id"
-          v-html="identifier.object_tag"/>
+        <soft-validation
+          v-if="collectionObject.id"
+          class="margin-small-left margin-small-right"/>
+        <template>
+          <a
+            class="separate-left"
+            v-if="collectionObject.id"
+            :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
+            v-html="collectionObject.object_tag"/>
+          <span v-else>New record</span>
+        </template>
       </div>
       <div class="horizontal-left-content">
-      <tippy-component
-        v-if="hasChanges"
-        animation="scale"
-        placement="bottom"
-        size="small"
-        arrow-size="small"
-        :inertia="true"
-        :arrow="true"
-        :content="`<p>You have unsaved changes.</p>`">
-        <template v-slot:trigger>
-          <div
-            class="medium-icon separate-right"
-            data-icon="warning"/>
-        </template>
-      </tippy-component>
+        <div 
+          class="margin-medium-right"
+          v-if="collectionObject.id">
+          <ul class="context-menu">
+            <li>
+              <span
+                v-if="navigation.previous"
+                @click="loadAssessionCode(navigation.previous)"
+                class="link cursor-pointer">Previous</span>
+              <span v-else>Previous</span>
+            </li>
+            <li>
+              <span
+                v-if="navigation.next"
+                @click="loadAssessionCode(navigation.next)"
+                class="link cursor-pointer">Next</span>
+              <span v-else>Next</span>
+            </li>
+          </ul>
+        </div>
+        <tippy-component
+          v-if="hasChanges"
+          animation="scale"
+          placement="bottom"
+          size="small"
+          :inertia="true"
+          :arrow="true"
+          :content="`<p>You have unsaved changes.</p>`">
+          <template v-slot:trigger>
+            <div
+              class="medium-icon separate-right"
+              data-icon="warning"/>
+          </template>
+        </tippy-component>
         <recent-component
           class="separate-right"
           @selected="loadCollectionObject($event)"/>
@@ -59,7 +83,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </nav-bar>
 </template>
 
 <script>
@@ -70,12 +94,17 @@
   import RecentComponent from './recent.vue'
   import GetMacKey from 'helpers/getMacKey.js'
   import { TippyComponent } from 'vue-tippy'
+  import NavBar from 'components/navBar'
+  import AjaxCall from 'helpers/ajaxCall'
+  import SoftValidation from './softValidation'
 
   export default {
     components: {
       Autocomplete,
       RecentComponent,
-      TippyComponent
+      TippyComponent,
+      NavBar,
+      SoftValidation
     },
     computed: {
       identifier() {
@@ -99,10 +128,24 @@
         return this.settings.lastChange > this.settings.lastSave
       }
     },
+    data () {
+      return {
+        navigation: {
+          next: undefined,
+          previous: undefined
+        }
+      }
+    },
     watch: {
       collectionObject: {
-        handler(newVal) {
+        handler(newVal, oldVal) {
           this.settings.lastChange = Date.now()
+          if(newVal.id && oldVal.id != newVal.id) {
+            AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
+              this.navigation.next = response.headers.map['navigation-next']
+              this.navigation.previous = response.headers.map['navigation-previous']
+            })
+          }
         },
         deep: true
       },
@@ -112,18 +155,6 @@
         },
         deep: true
       }
-    },
-    mounted() {
-      window.addEventListener('scroll', () => {
-        let element = this.$el
-        if (element) {
-          if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 164)) {
-            element.classList.add('fixed-bar')
-          } else {
-            element.classList.remove('fixed-bar')
-          }
-        }
-      })
     },
     methods: {
       getMacKey: GetMacKey,
@@ -152,9 +183,9 @@
           this.$store.commit(MutationNames.SetTaxonDeterminations, [])
         })
       },
-      loadAssessionCode(object) {
+      loadAssessionCode(id) {
         this.$store.dispatch(ActionNames.ResetWithDefault)
-        this.$store.dispatch(ActionNames.LoadDigitalization, object.identifier_object_id)
+        this.$store.dispatch(ActionNames.LoadDigitalization, id)
       },
       loadCollectionObject(co) {
         this.resetStore()

@@ -26,8 +26,8 @@ class TaxonNameClassification < ApplicationRecord
 
   before_validation :validate_taxon_name_classification
   before_validation :validate_uniqueness_of_latinized
-  validates_presence_of :taxon_name, presence: true
-  validates_presence_of :type, presence: true
+  validates_presence_of :taxon_name
+  validates_presence_of :type
   validates_uniqueness_of :taxon_name_id, scope: :type
 
   validate :nomenclature_code_matches
@@ -59,6 +59,12 @@ class TaxonNameClassification < ApplicationRecord
   # TODO: helper method 
   def self.label
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
+  end
+
+  # @return class
+  #   this method calls Module#module_parent
+  def self.parent
+    self.module_parent
   end
 
   # @return [String]
@@ -164,7 +170,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def set_cached_names_for_taxon_names
     begin
-      TaxonName.transaction do
+      TaxonName.transaction_with_retry do
         t = taxon_name
 
         if type_name =~ /(Fossil|Hybrid|Candidatus)/

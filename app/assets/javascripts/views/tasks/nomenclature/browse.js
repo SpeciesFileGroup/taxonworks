@@ -43,16 +43,17 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     if(taxonType == 'Combination')
-      $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId);
-
-    TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
-      if (/^\d+$/.test(taxonId)) {
-        if(taxonType == 'Combination')
-          window.open('/tasks/nomenclature/new_combination/index?taxon_name_id=' + taxonId, '_self');
-        else
-          window.open('/tasks/nomenclature/new_taxon_name/index?taxon_name_id=' + taxonId, '_self');
-      }
-    });
+      $('.edit-taxon-name').attr('href', '/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId);
+    if(!document.querySelector('#browse-collection-object')) {
+      TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+t", "Edit taxon name", "Browse nomenclature", function () {
+        if (/^\d+$/.test(taxonId)) {
+          if(taxonType == 'Combination')
+            window.open('/tasks/nomenclature/new_combination?taxon_name_id=' + taxonId, '_self');
+          else
+            window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self');
+        }
+      });
+    }
 
     $('.filter .open').on('click', function () {
       $(this).css('transform', 'rotate(' + ($(this).rotationInfo().deg + 180) + 'deg)');

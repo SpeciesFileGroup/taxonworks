@@ -65,6 +65,9 @@ export default {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+    parent () {
+      return this.$store.getters[GetterNames.GetParent]
+    },
     ranks () {
       return this.$store.getters[GetterNames.GetAllRanks]
     },
@@ -95,11 +98,23 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    parent: {
+      handler: function (val, oldVal) {
+        if(oldVal) {
+          if(!this.taxon.id) {
+            this.rankClass = undefined
+          }
+          this.refresh()
+        }
+      },
+      deep: true,
+      immediate: true
     }
   },
   methods: {
     refresh: function () {
-      if (this.rankClass == undefined) {
+      if (this.rankClass == undefined && !this.taxon.id) {
         if (this.rankGroup) {
           this.ranks[this.childOfParent[this.rankGroup]].find(item => {
             if (this.defaultRanks.indexOf(item.name) >= 0) {

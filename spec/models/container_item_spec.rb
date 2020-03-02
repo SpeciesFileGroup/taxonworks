@@ -29,8 +29,8 @@ describe ContainerItem, type: :model, group: :containers do
         container_item.valid?
       }
 
-      specify 'contained_object' do
-        expect(container_item.errors.include?(:contained_object)).to be_truthy
+      specify 'contained_object_id' do
+        expect(container_item.errors.include?(:contained_object_id)).to be_truthy
       end
     end
 
@@ -144,7 +144,7 @@ describe ContainerItem, type: :model, group: :containers do
         a = Specimen.create!
         b = Specimen.create!
         ci1 = ContainerItem.create!(contained_object: a, container_id: c.id)
-        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, `Contained object is already in a container_item`
+        expect {ContainerItem.create!(contained_object: c, container_id: c.id)}.to raise_error ActiveRecord::RecordInvalid, 'Validation failed: Contained object is already in a container_item'
       end
     end
 

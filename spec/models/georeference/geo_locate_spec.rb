@@ -2,8 +2,7 @@ require 'rails_helper'
 
 describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
-  let(:geo_locate) { Georeference::GeoLocate.new }
-  let(:geo_locate2) { Georeference::GeoLocate.new }
+  let(:geo_locate) { Georeference::GeoLocate.new(collecting_event: CollectingEvent.new) }
   let(:request_params) { {country: 'USA', state: 'IL', doPoly: 'true', locality: 'Urbana'} }
   let(:request) { Georeference::GeoLocate::Request.new(request_params) }
   let(:response) { VCR.use_cassette('geo-locate-with-request') { request.response } }
@@ -11,21 +10,45 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     VCR.use_cassette('geo-locate-with-build') { Georeference::GeoLocate.build(request_params) }
   }
 
+  context '.parse_iframe_result' do
+    let(:p_tab) { "40.110588\t-88.20727" }
+    let(:all_tab) { "40.110588\t-88.20727\t5592\t40.1274870207,-88.1855449175,40.1258740207,-88.1855149175,40.1258630207,-88.1852939175"}
+    let(:p_space) { "40.110588 -88.20727" }
+    let(:all_space) { "40.110588  -88.20727 5592     40.1274870207,-88.1855449175,40.1258740207,-88.1855149175,40.1258630207,-88.1852939175"}
+
+    specify 'from copy-paste - tab' do
+      expect(Georeference::GeoLocate.parse_iframe_result(p_tab)).to contain_exactly("40.110588", "-88.20727", nil, nil)
+    end
+
+    specify 'from copy-paste, error -tab' do
+      expect(Georeference::GeoLocate.parse_iframe_result(all_tab)).to contain_exactly( "40.110588", "-88.20727", "5592", [["-88.1852939175", "40.1258630207"], ["-88.1855149175", "40.1258740207"], ["-88.1855449175", "40.1274870207"]] )
+    end
+
+    specify 'from copy-paste - space' do
+      expect(Georeference::GeoLocate.parse_iframe_result(p_space)).to contain_exactly("40.110588", "-88.20727", nil, nil)
+    end
+
+    specify 'from copy-paste, error - space' do
+      expect(Georeference::GeoLocate.parse_iframe_result(all_space)).to contain_exactly( "40.110588", "-88.20727", "5592", [["-88.1852939175", "40.1258630207"], ["-88.1855149175", "40.1258740207"], ["-88.1855449175", "40.1274870207"]] )
+    end
+
+  end
+
   # Behaviour -
   #   all values, regardless of whether they are clicked on, are saved to iFrame
-  iframe_example_values = {drawn_polygon:                            '|||33.219077,-97.166004,41.974734,' \
-                                        '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
-                           drawn_point:                              '36.816903|-112.986316||',
-                           drawn_point_with_uncertainty:             '41.449859|-98.220691|1907|',
-                           drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
-                                                                        '41.53125216994986,-98.32855566566684,' \
-                                                                        '41.53125216994986,-98.11282633433316,' \
-                                                                        '41.368465830050134,-98.11282633433316,' \
-                                                                        '41.53125216994986,-98.32855566566684',
-                           georeferenced_point_no_polygon:           '52.65|-106.333333|3036|Unavailable'
+  iframe_example_values = {
+    drawn_polygon: '|||33.219077,-97.166004,41.974734,' \
+    '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
+    drawn_point: '36.816903|-112.986316||',
+    drawn_point_with_uncertainty: '41.449859|-98.220691|1907|',
+    drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
+    '41.53125216994986,-98.32855566566684,' \
+    '41.53125216994986,-98.11282633433316,' \
+    '41.368465830050134,-98.11282633433316,' \
+    '41.53125216994986,-98.32855566566684',
+    georeferenced_point_no_polygon: '52.65|-106.333333|3036|Unavailable'
   }
 
-  # "POLYGON ((-98.32855566566684 41.53125216994986 0.0, -98.11282633433316 41.53125216994986 0.0, -98.11282633433316 41.368465830050134 0.0, -98.32855566566684 41.368465830050134 0.0, -98.32855566566684 41.53125216994986 0.0))"
   context '.parse_iframe_result' do
     specify 'for point alone' do
       expect(Georeference::GeoLocate.parse_iframe_result(iframe_example_values[:drawn_point]))
@@ -39,7 +62,7 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
 
     specify 'for point, uncertainty, and polygon' do
       expect(Georeference::GeoLocate
-               .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
+        .parse_iframe_result(iframe_example_values[:drawn_point_with_polygon_and_uncertainty]))
         .to eq(['41.449859', '-98.220691', '9100',
                 [["-98.32855566566684", "41.53125216994986"], ["-98.11282633433316", "41.368465830050134"],
                  ["-98.11282633433316", "41.53125216994986"], ["-98.32855566566684", "41.53125216994986"]]])
@@ -47,21 +70,17 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   end
 
   context 'building a new instance from a copied iframe response' do
-    before {
-      geo_locate.collecting_event = CollectingEvent.new
-    }
-
     specify 'is valid for a drawn point with no further metadata' do
       geo_locate.iframe_response = iframe_example_values[:drawn_point]
       expect(geo_locate.valid?).to be_truthy, geo_locate.errors.full_messages.join(' ')
     end
 
     specify 'finds previously created point' do
-      geo_locate.iframe_response = iframe_example_values[:drawn_point]
-      geo_locate.save!
-      geo_locate2.collecting_event = CollectingEvent.new
-      geo_locate2.iframe_response = iframe_example_values[:drawn_point]
-      # geo_locate2.save
+      geo_locate.update!(iframe_response: iframe_example_values[:drawn_point])
+      geo_locate2 = Georeference::GeoLocate.new(
+        collecting_event: CollectingEvent.new,
+        iframe_response: iframe_example_values[:drawn_point]
+      )
       expect(geo_locate2.geographic_item.id).to eq(geo_locate.geographic_item.id)
     end
 
@@ -93,12 +112,10 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   end
 
   context 'building a Georeference::GeoLocate with #build' do
-    before(:each) {
-      @a = georeference_from_build
-    }
+    let(:a) { georeference_from_build }
 
     specify '#build builds a Georeference::GeoLocate instance' do
-      expect(@a.class).to eq(Georeference::GeoLocate)
+      expect(a.class).to eq(Georeference::GeoLocate)
     end
 
     specify '#build(request_params) passes' do
@@ -108,28 +125,28 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     end
 
     specify 'with a collecting event #build produces a valid instance' do
-      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
-      expect(@a.valid?).to be_truthy
+      a.collecting_event = FactoryBot.build(:valid_collecting_event)
+      expect(a.valid?).to be_truthy
     end
 
     specify 'a built, valid, instance is geometrically(?) correct' do
-      @a.collecting_event = FactoryBot.build(:valid_collecting_event)
-      expect(@a.save).to be_truthy
-      expect(@a.error_geographic_item.geo_object.contains?(@a.geographic_item.geo_object)).to be_truthy
+      a.collecting_event = FactoryBot.build(:valid_collecting_event)
+      expect(a.save).to be_truthy
+      expect(a.error_geographic_item.geo_object.contains?(a.geographic_item.geo_object)).to be_truthy
     end
 
     specify 'with invalid parameters returns a Georeference::GeoLocate instance with errors on :base' do
       VCR.use_cassette('geo-locate-with-build-using-empty-country-param') do
-        @a = Georeference::GeoLocate.build(country: '')
-        expect(@a.errors.include?(:api_request)).to be_truthy
+        a = Georeference::GeoLocate.build(country: '')
+        expect(a.errors.include?(:api_request)).to be_truthy
       end
     end
 
     specify '#with doPoly false instance should have no error polygon' do
       VCR.use_cassette('geo-locate-with-build-using-false-doPoly-param') do
-        @a = Georeference::GeoLocate.build({country: 'usa', state: 'IL',
+        a = Georeference::GeoLocate.build({country: 'usa', state: 'IL',
                                             doPoly:  'false', locality: 'Urbana'})
-        expect(@a.error_geographic_item.nil?).to be_truthy
+        expect(a.error_geographic_item.nil?).to be_truthy
       end
     end
 
@@ -137,9 +154,9 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
     # circle of uncertainty provided by current GPS units.
     specify 'with doUncert false error_radius should be 3(?)' do
       VCR.use_cassette('geo-locate-with-build-using-false-doUncert-param') do
-        @a = Georeference::GeoLocate.build({country:  'usa', state: 'IL', doPoly: 'true',
+        a = Georeference::GeoLocate.build({country:  'usa', state: 'IL', doPoly: 'true',
                                             locality: 'Urbana', doUncert: 'false'})
-        expect(@a.error_radius).to eq(3)
+        expect(a.error_radius).to eq(3)
       end
     end
   end

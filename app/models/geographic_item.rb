@@ -26,8 +26,6 @@ require 'rgeo'
 #   @return [String]
 #     Rails STI, determines the geography column as well
 #
-#
-#
 # Key methods in this giant library
 #
 # `#geo_object` - return a RGEO object representation
@@ -44,7 +42,7 @@ class GeographicItem < ApplicationRecord
   attr_accessor :geometry
 
   # @return [Boolean, RGeo object]
-  # @params value [Hash in GeoJSON format] ?! 
+  # @params value [Hash in GeoJSON format] ?!
   # TODO: WHY! boolean not nil, or object
   # Used to build geographic items from a shape [ of what class ] !?
   attr_accessor :shape
@@ -566,7 +564,7 @@ class GeographicItem < ApplicationRecord
     # @param [String] 'ASC' or 'DESC'
     # @return [Scope]
     def ordered_by_area(direction = 'ASC')
-      order("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}")
+      order(Arel.sql("ST_Area(#{GeographicItem::GEOMETRY_SQL.to_sql}) #{direction}"))
     end
 
     # @return [Scope]
@@ -712,7 +710,7 @@ class GeographicItem < ApplicationRecord
           }.join(' or ')
           q = 'FALSE' if q.blank? # this will prevent the invocation of *ALL* of the GeographicItems, if there are
           # no GeographicItems in the request (see CollectingEvent.name_hash(types)).
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -748,7 +746,7 @@ class GeographicItem < ApplicationRecord
         else
           # column = points, geometry = square
           q = "ST_Contains(ST_GeomFromEWKT('srid=4326;#{geometry}'), #{column_name}::geometry)"
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -789,7 +787,7 @@ class GeographicItem < ApplicationRecord
             GeographicItem.reverse_containing_sql(column_name, geographic_item.to_param,
                                                   geographic_item.geo_object_type)
           }.join(' or ')
-          where(q) # .excluding(geographic_items)
+          where(q) # .not_including(geographic_items)
       end
     end
 
@@ -835,7 +833,7 @@ class GeographicItem < ApplicationRecord
 
     # @param [GeographicItem]
     # @return [Scope]
-    def excluding(geographic_items)
+    def not_including(geographic_items)
       where.not(id: geographic_items)
     end
 
@@ -1041,7 +1039,7 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # !!TODO: migrate these to use native column calls 
+  # !!TODO: migrate these to use native column calls
 
   # @return [RGeo instance, nil]
   #  the Rgeo shape (See http://rubydoc.info/github/dazuma/rgeo/RGeo/Feature)
@@ -1107,7 +1105,6 @@ class GeographicItem < ApplicationRecord
         "FROM geographic_items WHERE id=#{id};").first['a'])
   end
 
-  # rubocop:disable Style/StringHashKeys
   # @return [Hash]
   #   the shape as a GeoJSON Feature with some item metadata
   def to_geo_json_feature
@@ -1120,7 +1117,6 @@ class GeographicItem < ApplicationRecord
      }
     }
   end
-  # rubocop:enable Style/StringHashKeys
 
   # '{"type":"Feature","geometry":{"type":"Point","coordinates":[2.5,4.0]},"properties":{"color":"red"}}'
   # '{"type":"Feature","geometry":{"type":"Polygon","coordinates":"[[[-125.29394388198853, 48.584480409793],
@@ -1263,8 +1259,6 @@ class GeographicItem < ApplicationRecord
   def multi_polygon_to_hash(_multi_polygon)
     {polygons: to_a}
   end
-
-  # validation
 
   # @return [Boolean] iff there is one and only one shape column set
   def some_data_is_provided

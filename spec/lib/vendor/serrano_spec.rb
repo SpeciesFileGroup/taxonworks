@@ -39,10 +39,17 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         end
       end
 
-      specify 'naked_doi' do
+      specify 'naked_doi 1' do
         VCR.use_cassette('source_from_naked_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.class).to eq(Source::Bibtex)
+        end
+      end
+
+      specify 'naked_doi sets DOI' do
+        VCR.use_cassette('source_from_naked_doi') do
+          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          expect(s.doi).to eq(naked_doi)
         end
       end
 
@@ -78,7 +85,7 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     }
 
     specify 'text1' do
-      expect(src1.cached_string('text')).to eq('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+      expect(src1.cached_string('text')).to start_with('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     # Hacked Zootaxa format
@@ -93,8 +100,8 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     end
 
     specify 'html1' do
-      expect(src1.cached_string('html')).to eq(
-        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086.')
+      expect(src1.cached_string('html')).to start_with(
+        'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available from: https://doi.org/10.5962%2Fbhl.title.1086')
     end
 
     # Hacked Zootaxa format

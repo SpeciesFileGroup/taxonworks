@@ -2,7 +2,7 @@ module ConfidencesHelper
 
   def confidence_tag(confidence)
     return nil if confidence.nil?
-    content_tag(:span, confidence.confidence_level.name, style: "background-color: #{confidence.confidence_level.css_color};")
+    controlled_vocabulary_term_tag(confidence.confidence_level)
   end
 
   def confidence_link(confidence)

@@ -14,6 +14,7 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
+        # Should likely (include(geographic_area: [geographic_area_type]))
         @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
       }
     end
@@ -106,7 +107,7 @@ class AssertedDistributionsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
+      @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)
       digest_cookie(params[:file].tempfile, :batch_asserted_distributions_md5)
       render 'asserted_distributions/batch_load/simple/preview'
     else
@@ -117,7 +118,7 @@ class AssertedDistributionsController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
-      @result =  BatchLoad::Import::AssertedDistributions.new(batch_params)
+      @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
         render 'asserted_distributions/batch_load/simple/create' and return

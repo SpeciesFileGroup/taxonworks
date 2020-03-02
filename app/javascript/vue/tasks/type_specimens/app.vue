@@ -26,6 +26,7 @@
           class="cright item separate-left">
           <div id="cright-panel">
             <type-box class="separate-bottom"/>
+            <soft-validation/>
           </div>
         </div>
       </div>
@@ -35,6 +36,7 @@
 
 <script>
 
+import SoftValidation from './components/softValidation.vue'
 import nameSection from './components/nameSection.vue'
 import typeMaterialSection from './components/typeMaterial.vue'
 import metadataSection from './components/metadataSection.vue'
@@ -48,6 +50,7 @@ import setParamsId from './helpers/setParamsId'
 
 export default {
   components: {
+    SoftValidation,
     nameSection,
     typeBox,
     typeMaterialSection,

@@ -23,7 +23,7 @@
   </tr>
 </template>
 <script>
-  import RadialAnnotator from 'components/annotator/annotator'
+  import RadialAnnotator from 'components/radials/annotator/annotator'
   import OtuRadial from 'components/otu/otu'
   export default {
     components: {

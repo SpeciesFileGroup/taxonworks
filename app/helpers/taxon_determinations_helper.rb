@@ -4,7 +4,7 @@ module TaxonDeterminationsHelper
   #    a descriptor, contains name only (if you want to include the identifier use collection_object_tag) 
   def taxon_determination_tag(taxon_determination) 
     return nil if taxon_determination.nil?
-    ['determined as', determination_tag(taxon_determination) ].join(' ').html_safe
+    ['det.', determination_tag(taxon_determination) ].join(' ').html_safe
   end
 
   # @return [String]
@@ -36,7 +36,7 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   the date clause of the determination
   def taxon_determination_on(taxon_determination)
-    taxon_determination.date ? "on #{taxon_determination.date}" : nil
+    !taxon_determination.date.blank? ? "on #{taxon_determination.date}" : nil
   end
 
 end

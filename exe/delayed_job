@@ -2,4 +2,4 @@
 set -e
 
 cd /app
-exec chpst -u app env QUEUE=coldp_export /usr/bin/bundle exec rails jobs:work
+exec chpst -u app env QUEUE=coldp_export,basic_nomenclature_export /usr/bin/bundle exec rails jobs:work

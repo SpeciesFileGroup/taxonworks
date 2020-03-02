@@ -263,6 +263,25 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
   end
 
+  context '#dwc_occurrences', group: :darwin_core do
+    let!(:ce) { CollectingEvent.create!(start_date_year: 2010) }
+    let!(:s) { Specimen.create!(collecting_event: ce) }
+
+    specify 'dwc_occurrence_persisted?' do
+      expect(s.dwc_occurrence_persisted?).to be_truthy
+    end
+
+    specify 'updating ce updates dwc_occurrence' do
+      ce.update!(start_date_year: 2012)
+      expect(s.dwc_occurrence.reload.eventDate).to match('2012')
+    end
+
+    specify 'does not update with no_dwc_occurrence_index: true' do
+      ce.update!(start_date_year: 2012, no_dwc_occurrence: true)
+      expect(s.dwc_occurrence.eventDate).to match('2010')
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

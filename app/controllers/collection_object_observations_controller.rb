@@ -107,7 +107,7 @@ class CollectionObjectObservationsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_collection_object_observation
-      @collection_object_observation = CollectionObjectObservation.find(params[:id])
+      @collection_object_observation = CollectionObjectObservation.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

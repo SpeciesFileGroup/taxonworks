@@ -95,7 +95,7 @@ class NamespacesController < ApplicationController
 
   def preview_simple_batch_load 
     if params[:file] 
-      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
       render 'namespaces/batch_load/simple/preview'
     else
@@ -106,7 +106,7 @@ class NamespacesController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Simple_namespaces_md5)
-      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(batch_params)
+      @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} namespaces were created."
         render 'namespaces/batch_load/simple/create' and return
@@ -128,7 +128,7 @@ class NamespacesController < ApplicationController
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
   end
 
   def batch_params

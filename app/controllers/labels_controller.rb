@@ -83,7 +83,7 @@ class LabelsController < ApplicationController
   private
   
     def set_label
-      @label = Label.find(params[:id])
+      @label = Label.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
     def filter_params

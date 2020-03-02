@@ -24,6 +24,19 @@ RSpec.describe UserMailer, type: :mailer do
     end
   end
 
+  describe 'maintenance_email' do
+    let(:mail) { UserMailer.maintenance_email("test message") }
+    subject = 'TaxonWorks - Upcoming maintenance'
+
+    it "sets the subject to \"#{subject}\"" do
+      expect(mail.subject).to eq(subject)
+    end
+
+    it 'renders "TaxonWorks <noreply@#{Settings.mail_domain}>" as mail sender' do
+      expect(mail.header[:from].value).to eq(['TaxonWorks <noreply@example.com>'])
+    end
+  end
+
   describe 'send_password_reset' do
     let(:mail) { UserMailer.password_reset_email(user, 'PASSWORD_TOKEN') }
     subject = 'Password reset request for TaxonWorks'

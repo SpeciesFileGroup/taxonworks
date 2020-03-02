@@ -21,15 +21,16 @@ RSpec.describe 'TypeMaterials', type: :feature do
       let!(:p) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: root, by: @user, project: project) } 
       let!(:s) { factory_bot_create_for_user_and_project(:valid_specimen, @user, @project) }
       before do
-        10.times {
-          FactoryBot.create(:valid_type_material,
-                             material: s,
-                             protonym: p,
-                             type: 'paratype',
-                             project: @project,
-                             creator: @user,
-                             updater: @user
-                            )
+        3.times {
+          FactoryBot.create(
+            :valid_type_material,
+            collection_object: s,
+            protonym: p,
+            type: 'paratype',
+            project: @project,
+            creator: @user,
+            updater: @user
+          )
         }
 
         describe 'GET /type_materials' do
@@ -57,9 +58,11 @@ RSpec.describe 'TypeMaterials', type: :feature do
     context 'creating a new type_materials' do
       context 'testing the new type_materials form' do
         #  - a namespace short name 'INHSIC' is created
-        let(:namesp) { FactoryBot.create(:namespace, {creator: @user, updater: @user,
-                                                       name: 'INHSIC', short_name: 'INHSIC',
-                                                       verbatim_short_name: 'INHSIC'}) }
+        let(:namesp) { FactoryBot.create(
+          :namespace, {
+            creator: @user, updater: @user,
+            name: 'INHSIC', short_name: 'INHSIC',
+            verbatim_short_name: 'INHSIC'}) }
 
         #  - a specimen is created
         let(:specimen) { FactoryBot.create(:valid_specimen, user_project_attributes(@user, @project)) }
@@ -99,7 +102,7 @@ RSpec.describe 'TypeMaterials', type: :feature do
           # NOTES: still not finding the correct record.
           # I fill out the Material field with 'INHSIC 1234'
           #      and I click on the only record returned*
-          fill_autocomplete('biological_object_id_for_type_material', with: 'INHSIC 1234', select: specimen.id )
+          fill_autocomplete('collection_object_id_for_type_material', with: 'INHSIC 1234', select: specimen.id )
 
           select('paratype', from: 'type_material_type_type') # select 'paratype' from the dropdown
           click_button 'Create Type material' # click the 'Create type material' button

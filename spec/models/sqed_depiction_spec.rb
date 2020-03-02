@@ -8,7 +8,7 @@ RSpec.describe SqedDepiction, type: :model do
   context 'validation' do
     before { sqed_depiction.valid? }
 
-    specify 'depiction is required' do
+    specify 'depiction_id is required' do
       expect(sqed_depiction.errors.include?(:depiction)).to be_truthy
     end
 

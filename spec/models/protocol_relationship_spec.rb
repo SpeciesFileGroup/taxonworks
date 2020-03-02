@@ -12,7 +12,7 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       }
 
       specify 'protocol_id' do
-        expect(protocol_relationship.errors.include?(:protocol)).to be_truthy
+        expect(protocol_relationship.errors.include?(:protocol_id)).to be_truthy
       end
     end
     context 'raises for polymorphic fields' do
