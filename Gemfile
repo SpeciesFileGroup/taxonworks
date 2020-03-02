@@ -93,8 +93,7 @@ gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.5.8'
 gem 'dwc-archive', '~> 1.0.1'
 #gem 'biodiversity', '~> 4.0', '>= 4.0.2'
-gem 'biodiversity', path: './biodiversity/'
-#gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: '19-memleak'
+gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: '19-memleak'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Minor Utils/helpers
