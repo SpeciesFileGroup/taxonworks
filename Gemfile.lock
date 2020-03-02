@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 30fd3fe3bd9b4e8c0a432faba4878b51733501ac
+  revision: d80e84bbe3295e064304d43d1101f16a93642865
   branch: 19-memleak
   specs:
     biodiversity (4.0.3)
