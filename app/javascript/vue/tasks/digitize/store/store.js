@@ -34,6 +34,10 @@ function makeInitialState () {
           day_made: false,
           dates: false,
           roles_attributes: false
+        },
+        biological_association: {
+          relationship: false,
+          related: false
         }
       },
       sortable: false
