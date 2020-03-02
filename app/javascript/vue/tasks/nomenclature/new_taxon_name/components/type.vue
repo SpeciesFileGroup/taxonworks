@@ -46,10 +46,14 @@
             param="term"/>
         </hard-validation>
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
-          <a
-            :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
-            target="_blank">Add type specimens
-          </a>
+          <ul class="no_bullets context-menu">
+            <li>
+              <a :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`">Quick</a>
+            </li>
+            <li>
+              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+            </li>
+          </ul>
           <hr>
           <ul class="no_bullets">
             <li
