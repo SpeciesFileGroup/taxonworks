@@ -157,7 +157,7 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     journal = "{Bib}TeX journal of \{funny\} ch\'{a}r{\aa}cter{\$}",
                                     year = {2003}})
 
-        a = BibTeX.parse(citation_string).convert(:latex)
+        a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.save!).to be_truthy
@@ -180,7 +180,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             author = {August Brauer},
             title = {Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.}
           }"
-        a = BibTeX.parse(citation_string).convert(:latex)
+        a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('text')).to start_with('Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution. Available from: http://dx.doi.org/10.5962/bhl.title.1086')
@@ -200,7 +200,7 @@ describe Source::Bibtex, type: :model, group: :sources do
             title = {A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P.~hallasi Kondratieff {\&} Kirchner},
             journal = {{ZooKeys}}
           }"
-        a = BibTeX.parse(citation_string).convert(:latex)
+        a = BibTeX::Bibliography.parse(citation_string, filter: :latex)
         entry = a.first
         src = Source::Bibtex.new_from_bibtex(entry)
         expect(src.cached_string('html')).to eq('Grubbs, S., Baumann, R., DeWalt, R. &amp; Tweddale, T. (2014) A review of the Nearctic genus Prostoia (Ricker) (Plecoptera, Nemouridae), with the description of a new species and a surprising range extension for P. hallasi Kondratieff &amp; Kirchner. <i>ZooKeys</i> 401, 11–30.')
@@ -1065,7 +1065,7 @@ describe Source::Bibtex, type: :model, group: :sources do
                                     year = {1999}})
       }
 
-      let(:bibtex_entry) { BibTeX.parse(citation_string).first }
+      let(:bibtex_entry) { BibTeX::Bibliography.parse(citation_string).first }
       let(:a) { Source::Bibtex.new_from_bibtex(bibtex_entry) }
 
       before { a.save }

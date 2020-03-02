@@ -41,7 +41,7 @@ module TaxonWorks
 
         if b
           Source::Bibtex.new_from_bibtex(
-            BibTeX.parse(b).convert(:latex).first
+            BibTeX::Bibliography.parse(b, filter: :latex).first
           )
         else
           Source::Verbatim.new(verbatim: a ? a : citation)
