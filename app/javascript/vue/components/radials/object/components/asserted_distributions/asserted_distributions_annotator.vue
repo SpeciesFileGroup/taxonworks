@@ -199,7 +199,6 @@
           is_original: undefined
         }]
         this.editCitation = undefined
-        console.log(this.$refs.source)
         this.$refs.source.cleanCitation()
       },
       newAsserted() {
