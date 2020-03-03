@@ -4,7 +4,6 @@ branches:
     - master
     - development
     - /v\d+\.\d+\.\d+/
-    - biodiversity
 env:
   global:
     - TEST_WORKERS=5
@@ -74,6 +73,7 @@ jobs:
       env:
         - TEST_WORKER=4
     - stage: deliver
+      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal
       services:
         - docker
@@ -87,6 +87,13 @@ jobs:
         - docker-compose logs
       script:
         - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
+      after_success:
+        - |
+          [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
+          [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
+          docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
+          docker push sfgrp/taxonworks:$DOCKER_TAG
 notifications:
   email:
     recipients:
