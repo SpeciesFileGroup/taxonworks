@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      @click="onModal"
+      @click="openModal"
       type="button"
       :disabled="!collectingEvent.id"
       class="button normal-input button-default">
@@ -15,7 +15,7 @@
       class="disabled">Verbatim coordinates match</i>
     <modal-component
       class="modal-georeferences"
-      @close="onModal"
+      @close="closeModal"
       v-show="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
@@ -90,9 +90,15 @@ export default {
     }
   },
   methods: {
-    onModal () {
+    openModal () {
       this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
-        this.show = !this.show
+        this.show = true
+        this.$emit('onModal', this.show)
+      })
+    },
+    closeModal () {
+      this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
+        this.show = false
         this.$emit('onModal', this.show)
       })
     }
