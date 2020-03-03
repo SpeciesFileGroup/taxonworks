@@ -1,12 +1,4 @@
 GIT
-  remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: d80e84bbe3295e064304d43d1101f16a93642865
-  branch: 19-memleak
-  specs:
-    biodiversity (4.0.3)
-      ffi (~> 1.11)
-
-GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
@@ -101,6 +93,8 @@ GEM
     bindex (0.8.1)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
+    biodiversity (4.0.3)
+      ffi (~> 1.11)
     brakeman (4.8.0)
     builder (3.2.4)
     byebug (11.1.1)
@@ -546,7 +540,7 @@ DEPENDENCIES
   better_errors (~> 2.4)
   bibtex-ruby (~> 5.1.1)
   binding_of_caller
-  biodiversity!
+  biodiversity (~> 4.0, >= 4.0.3)
   brakeman (~> 4.6, >= 4.6.1)
   bundler (~> 2.0)
   byebug (~> 11.1)
