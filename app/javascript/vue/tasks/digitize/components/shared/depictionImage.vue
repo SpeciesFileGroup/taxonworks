@@ -62,7 +62,7 @@
         depiction.image.alternatives.thumb.image_file_url">
     <zoom-image
       v-if="depiction.svg_view_box != null"
-      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, windowWidth(), 400)"
+      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, windowWidth()*0.75, 400)"
       :width="depiction.image.width"
       :height="depiction.image.height"/>
   </div>

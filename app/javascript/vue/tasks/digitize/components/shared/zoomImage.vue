@@ -2,6 +2,7 @@
   <div>
     <button
       type="button"
+      class="button button-default"
       @click="show = true">
       Zoom
     </button>
