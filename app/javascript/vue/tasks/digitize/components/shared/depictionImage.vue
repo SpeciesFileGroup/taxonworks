@@ -133,13 +133,13 @@ export default {
     },
     getImageUrl (id, box, imageWidth, imageHeight) {
       let [ x, y, width, height ] = box.split(' ')
-      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/100`
+      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
     },
     windowWidth () {
       return window.innerWidth
     },
     windowHeight () {
-      return (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 500
+      return (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 400
     }
   }
 }
