@@ -133,7 +133,7 @@ export default {
     },
     getImageUrl (id, box, imageWidth, imageHeight) {
       let [ x, y, width, height ] = box.split(' ')
-      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
+      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/400`
     }
   }
 }
