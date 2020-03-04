@@ -62,7 +62,7 @@
         depiction.image.alternatives.thumb.image_file_url">
     <zoom-image
       v-if="depiction.svg_view_box != null"
-      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.width, depiction.image.height)"
+      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, windowWidth(), 400)"
       :width="depiction.image.width"
       :height="depiction.image.height"/>
   </div>
@@ -84,6 +84,11 @@ export default {
     depiction: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    windowHeight () {
+      window.innerHeight
     }
   },
   data: function () {
@@ -134,6 +139,9 @@ export default {
     getImageUrl (id, box, imageWidth, imageHeight) {
       let [ x, y, width, height ] = box.split(' ')
       return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/400`
+    },
+    windowWidth () {
+      return window.innerWidth
     }
   }
 }
