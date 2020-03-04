@@ -523,3 +523,11 @@ match_nomenclature_task:
     - nomenclature
   status: prototype
   description: 'A quick and dirty batch based check to see if names are in the system.'
+match_collection_objects_task:
+  hub: true
+  name: 'Collection object match'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Use a quick list of catalog numbers or ids to find collection objects.'
