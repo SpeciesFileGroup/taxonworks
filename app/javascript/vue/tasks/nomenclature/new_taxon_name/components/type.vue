@@ -33,23 +33,20 @@
         <hard-validation
           field="type"
           v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)">
-          <autocomplete
+          <quick-taxon-name
             slot="body"
-            url="/taxon_names/autocomplete"
-            label="label_html"
-            display="label"
-            min="3"
-            event-send="autocompleteType"
             @getItem="addTaxonType"
-            placeholder="Search taxon name for the new relationship..."
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': childOfParent[getRankGroup.toLowerCase()] }"
-            param="term"/>
+            :group="childOfParent[getRankGroup.toLowerCase()]"/>
         </hard-validation>
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
-          <a
-            :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
-            target="_blank">Add type specimens
-          </a>
+          <ul class="no_bullets context-menu">
+            <li>
+              <a :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`">Quick</a>
+            </li>
+            <li>
+              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+            </li>
+          </ul>
           <hr>
           <ul class="no_bullets">
             <li
@@ -92,7 +89,7 @@
           <label for="type-picker-showall">Show all</label>
         </div>
         <p class="inline">
-          <span v-html="taxonRelation.label_html"/>
+          <span v-html="taxonRelation.hasOwnProperty('label_html') ? taxonRelation.label_html : taxonRelation.object_tag"/>
           <span
             type="button"
             title="Undo"
@@ -134,6 +131,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
+import QuickTaxonName from './quickTaxonName'
 
 import { GetTypeMaterial } from '../request/resources.js'
 
@@ -144,6 +142,7 @@ export default {
     Expand,
     TreeDisplay,
     ListCommon,
+    QuickTaxonName,
     HardValidation
   },
   computed: {

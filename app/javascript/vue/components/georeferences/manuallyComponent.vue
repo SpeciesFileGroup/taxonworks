@@ -2,26 +2,26 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="show = true">Enter coordinates</button>
+      @click="openModal">Enter coordinates</button>
     <modal-component
       v-if="show"
       @close="show = false">
       <h3 slot="header">Create georeference</h3>
       <div slot="body">
         <div class="field">
-          <label>Latitude:</label>
+          <label>Latitude</label>
           <input
             type="text"
             v-model="shape.lat">
         </div>
         <div class="field">
-          <label>Longitude:</label>
+          <label>Longitude</label>
           <input 
             type="text"
             v-model="shape.long">
         </div>
         <div class="field">
-          <label>Range distance:</label>
+          <label>Range distance</label>
           <label
             v-for="range in ranges"
             :key="range">
@@ -87,6 +87,10 @@ export default {
         long: undefined,
         range: 0
       }
+    },
+    openModal () {
+      this.show = true
+      this.shape = this.resetShape()
     }
   }
 }

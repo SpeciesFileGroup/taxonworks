@@ -291,7 +291,7 @@ class Georeference::GeoLocate < Georeference
     # @param [JSON object] request
     def initialize(request)
       @result           = JSON.parse(call_api(Georeference::GeoLocate::API_HOST, request))
-      request.succeeded = true if @result['numResults'].to_i == 1
+      request.succeeded = true if @result['numResults'].to_i > 0
     end
 
     # @return [String] coordinates from the response set.

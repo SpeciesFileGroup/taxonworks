@@ -291,6 +291,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :match, controller: 'tasks/nomenclature/match' do
+        get :index, as: 'match_nomenclature_task'
+      end
+
     scope :stats, controller: 'tasks/nomenclature/stats' do
       get '', action: :index, as: 'index_stats_task'
     end

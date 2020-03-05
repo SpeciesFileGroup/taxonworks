@@ -225,12 +225,7 @@ export default {
   watch: {
     taxonIdFormOtu (newVal) {
       if (newVal) {
-        GetTaxon(newVal).then(response => {
-          if(response.type == 'Protonym' && response.rank_string.indexOf('SpeciesGroup') > -1) {
-            this.listsTaxon.quick.unshift(response)
-            this.viewTaxon = 'quick'
-          }
-        })
+        this.getTaxon(newVal)
       }
     },
     origin_citation_attributes: {
@@ -241,6 +236,9 @@ export default {
     }
   },
   mounted: function () {
+    let urlParams = new URLSearchParams(window.location.search)
+    let taxonId = urlParams.get('taxon_name_id')
+
     GetTypes().then(response => {
       this.types = response
     })
@@ -250,6 +248,11 @@ export default {
       this.listsTaxon = response
       this.optionsTaxon.push('search')
       this.viewTaxon = selectFirstSmartOption(response, this.optionsTaxon)
+
+      if (/^\d+$/.test(taxonId)) {
+        this.selectTaxon(taxonId)
+        this.getTaxon(taxonId)
+      }
     })
 
     GetSourceSmartSelector().then(response => {
@@ -260,6 +263,14 @@ export default {
     })
   },
   methods: {
+    getTaxon (taxonId) {
+      GetTaxon(taxonId).then(response => {
+        if(response.type == 'Protonym' && response.rank_string.indexOf('SpeciesGroup') > -1) {
+          this.listsTaxon.quick.unshift(response)
+          this.viewTaxon = 'quick'
+        }
+      })
+    },
     selectTaxon (taxonId) {
       this.$store.dispatch(ActionNames.GetTaxon, taxonId)
     },

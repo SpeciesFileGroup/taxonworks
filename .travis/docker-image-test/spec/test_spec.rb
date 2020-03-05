@@ -71,6 +71,32 @@ describe "Docker image test", js: true do
     end
   end
 
+  context 'when basic nomenclature export is fired up' do
+    before(:each) do
+      click_on 'test_project'
+    end
+
+    it 'runs asynchronously' do
+      visit 'tasks/exports/nomenclature/download_basic?taxon_name_id=1'
+      expect(page).to have_content('Status: Download creation is in progress...')
+      sleep 10 # Wait for page to auto-refresh (download should be available by then)
+      expect(page).to have_content('Status: Ready to download')
+    end
+  end
+
+  context 'when using Biodiversity' do
+    before(:each) do
+      click_on 'test_project'
+    end
+
+    it 'returns Testidae as result' do
+      visit '/taxon_names/autocomplete.json?term=Test'
+      expect(page).to have_content('Testidae')
+    end
+  end
+
+
+
   # TODO: Make this test inside taxonworks container (without installing anything extra).
   #       This is currently self-tested in Dockerfile
   # context 'ImageMagick settings' do

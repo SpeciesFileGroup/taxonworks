@@ -16,6 +16,7 @@ function makeInitialState () {
       lastSave: 0,
       lastChange: 0,
       saveIdentifier: true,
+      isLocked: false,
       locked: {
         biocuration: false,
         identifier: false,
@@ -34,6 +35,10 @@ function makeInitialState () {
           day_made: false,
           dates: false,
           roles_attributes: false
+        },
+        biological_association: {
+          relationship: false,
+          related: false
         }
       },
       sortable: false

@@ -9,7 +9,7 @@ RSpec.describe SqedDepiction, type: :model do
     before { sqed_depiction.valid? }
 
     specify 'depiction_id is required' do
-      expect(sqed_depiction.errors.include?(:depiction_id)).to be_truthy
+      expect(sqed_depiction.errors.include?(:depiction)).to be_truthy
     end
 
     specify 'Foo is not a valid layout' do

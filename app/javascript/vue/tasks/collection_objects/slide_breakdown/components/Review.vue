@@ -9,6 +9,7 @@
       <thead>
         <tr>
           <th>Radial annotator</th>
+          <th>Quick forms</th>
           <th>Edit</th>
           <th>Total</th>
           <th>Family</th>
@@ -36,7 +37,12 @@
             <radial-annotator :global-id="item.global_id"/>
           </td>
           <td>
-            <radial-object :global-id="item.global_id"/>
+            <radial-object
+              button-class="btn-co-radial"
+              :global-id="item.global_id"/>
+          </td>
+          <td>
+            <radial-navigation :global-id="item.global_id"/>
           </td>
           <td>{{ item.dwc_attributes.individualCount }}</td>
           <td>{{ item.dwc_attributes.family }}</td>
@@ -66,7 +72,8 @@
 <script>
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import RadialNavigation from 'components/radials/navigation/radial'
+import RadialObject from 'components/radials/object/radial'
 import { Report } from '../request/resource'
 import { GetterNames } from '../store/getters/getters'
 import sledImage from '../const/sledImage'
@@ -74,6 +81,7 @@ import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
+    RadialNavigation,
     RadialAnnotator,
     SpinnerComponent,
     RadialObject
