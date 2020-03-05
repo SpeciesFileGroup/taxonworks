@@ -53,10 +53,6 @@ jobs:
         - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
-        - psql --version
-        - psql -c 'CREATE DATABASE taxonworks_test;' -U postgres
-        - psql -c 'CREATE EXTENSION Postgis;' -U postgres -d taxonworks_test
-        - psql -c 'CREATE ROLE travis SUPERUSER LOGIN CREATEDB;' -U postgres
         - cp config/application_settings.yml.travis config/application_settings.yml
         - cp config/database.yml.travis config/database.yml
         - cp config/secrets.yml.example config/secrets.yml
