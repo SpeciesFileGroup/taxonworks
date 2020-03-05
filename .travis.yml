@@ -29,7 +29,7 @@ jobs:
       services:
         - postgresql
       addons:
-        postgresql: "12"
+        postgresql: "11"
         firefox: "latest"
         apt:
           packages:
@@ -40,9 +40,9 @@ jobs:
       before_install:
         - sudo apt-get update
         - sudo apt-get --yes remove postgresql\*
-        - sudo apt-get install -y postgresql-12-postgis-3
-        - sudo cp /etc/postgresql/{9.6,12}/main/pg_hba.conf
-        - sudo service postgresql restart 12
+        - sudo apt-get install -y postgresql-11-postgis-3
+        - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
+        - sudo service postgresql restart 11
         - nvm install 10.15.3
       env:
           - TEST_WORKER=0

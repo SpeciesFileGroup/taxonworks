@@ -13,13 +13,13 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Until we move to update Ubuntu
 RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 # TaxonWorks dependancies
 RUN apt-get update && \
       apt-get install -y locales software-properties-common \ 
-      postgresql-client-10 \
+      postgresql-client-11 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
