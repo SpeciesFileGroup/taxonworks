@@ -60,7 +60,7 @@ class ControlledVocabularyTermsController < ApplicationController
     respond_to do |format|
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
         format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: 'Controlled vocabulary term was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @controlled_vocabulary_term.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
