@@ -107,9 +107,10 @@
 
   <div class="flex-seperate">
     <ul class="context-menu actions">
+      <li> <%= collection_object_radial_tag(@result.sqed_depiction.depiction_object.metamorphosize) %> </li>
       <li> <%= tag_default_icon(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= radial_annotator(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
-      <li> <%= radial_object_tag(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
+      <li> <%= radial_navigation_tag(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= submit_tag('Save and next w/out data [n]', id: :save_and_next) -%>  </li>
       <li> <%= submit_tag('Save and next', id: :save_and_next_nearby) -%>  </li>
       <li> <%= submit_tag -%> </li>

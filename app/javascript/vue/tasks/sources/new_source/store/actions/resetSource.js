@@ -4,6 +4,8 @@ import newSource from '../../const/source'
 export default ({ state, commit }) => {
   let source = newSource()
   let locked = state.settings.lock
+  state.settings.lastEdit = 0
+  state.settings.lastSave = 0
 
   Object.keys(locked).forEach(key => {
     source[key] = locked[key] ? state.source[key] : undefined

@@ -110,7 +110,8 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+        # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
 
@@ -250,7 +251,6 @@ module Queries
         clauses
       end
 
-
       def base_merge_clauses
         clauses = []
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
@@ -312,7 +312,7 @@ module Queries
       def type_material_facet 
         return nil if type_specimen_taxon_name_id.nil?
 
-        w = type_materials_table[:biological_object_id].eq(table[:id])
+        w = type_materials_table[:collection_object_id].eq(table[:id])
           .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
 
         ::CollectionObject.where(

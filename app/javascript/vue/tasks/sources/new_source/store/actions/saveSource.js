@@ -4,6 +4,7 @@ import { CreateSource, UpdateSource, LoadSoftValidation } from '../../request/re
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
+  state.settings.saving = true
   if(state.source.id) {
     UpdateSource(state.source).then(response => {
       commit(MutationNames.SetSource, response.body)
@@ -16,7 +17,11 @@ export default ({ state, commit }) => {
       LoadSoftValidation(response.body.global_id).then(response => {
         commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
       })
+      state.settings.saving = false
+      state.settings.lastSave = Date.now() + 100
       TW.workbench.alert.create('Source was successfully updated.', 'notice')
+    }, () => {
+      state.settings.saving = false
     })
   } else {
     CreateSource(state.source).then(response => {
@@ -30,7 +35,11 @@ export default ({ state, commit }) => {
       LoadSoftValidation(response.body.global_id).then(response => {
         commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
       })
+      state.settings.saving = false
+      state.settings.lastSave = Date.now() + 100
       TW.workbench.alert.create('Source was successfully created.', 'notice')
+    }, () => {
+      state.settings.saving = false
     })
   }
 }

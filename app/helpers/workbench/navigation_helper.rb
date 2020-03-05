@@ -1,6 +1,6 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
-  NO_NEW_FORMS = %w{Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
   # Slideout panels
@@ -242,7 +242,7 @@ module Workbench::NavigationHelper
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
   end
 
-  def radial_object_tag(object)
+  def radial_navigation_tag(object)
     content_tag(:span, '', data: { 'global-id' => object.to_global_id.to_s, 'radial-object' => 'true'})
   end
 

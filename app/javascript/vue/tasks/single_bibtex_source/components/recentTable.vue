@@ -27,9 +27,9 @@
 </template>
 
 <script>
-import RadialAnnotator from '../../../components/annotator/annotator'
-import AddToProject from '../../../components/addToProjectSource'
-import PinComponent from '../../../components/pin'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import AddToProject from 'components/addToProjectSource'
+import PinComponent from 'components/pin'
 
 export default {
   components: {

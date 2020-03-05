@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      @click="onModal"
+      @click="openModal"
       type="button"
       :disabled="!collectingEvent.id"
       class="button normal-input button-default">
@@ -10,19 +10,22 @@
         ({{ count }})
       </template>
     </button>
+    <i
+      v-if="verbatimGeoreferenceAlreadyCreated"
+      class="disabled">Verbatim coordinates match</i>
     <modal-component
       class="modal-georeferences"
-      @close="onModal"
+      @close="closeModal"
       v-show="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
         <georeferences
           :show="show"
-          @onGeoreferences="count = $event.length"
+          @onGeoreferences="georeferences = $event"
           :zoom="5"
           :lat="lat"
           :lng="lng"
-          :geographic-area="geoArea"
+          :geographic-area="geographicArea"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -53,24 +56,27 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    geographicArea () {
+      if(!this.$store.getters[GetterNames.GetGeographicArea]) return
+      return this.$store.getters[GetterNames.GetGeographicArea]['shape']
+    },
+    verbatimGeoreferenceAlreadyCreated () {
+      return this.georeferences.find(item => {
+        return item.geo_json.geometry.type === 'Point' &&
+          Number(item.geo_json.geometry.coordinates[0]) === Number(this.lng) &&
+          Number(item.geo_json.geometry.coordinates[1]) === Number(this.lat)
+      })
+    },
+    count () {
+      return this.georeferences.length
     }
   },
   watch: {
     collectingEvent: {
       handler (newVal, oldVal) {
         if(!newVal.id) {
-          this.count = 0
-        }
-        if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
-        this.geoId = newVal.geographic_area_id
-        if(newVal.geographic_area_id) {
-          GetGeographicArea(newVal.geographic_area_id).then(response => {
-            if(response.shape) {
-              this.geoArea = response.shape
-            }
-          })
-        } else {
-          this.geoArea = undefined
+          this.georeferences = []
         }
       },
       deep: true,
@@ -80,15 +86,19 @@ export default {
   data () {
     return {
       show: false,
-      count: 0,
-      geoArea: undefined,
-      geoId: undefined
+      georeferences: []
     }
   },
   methods: {
-    onModal () {
+    openModal () {
       this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
-        this.show = !this.show
+        this.show = true
+        this.$emit('onModal', this.show)
+      })
+    },
+    closeModal () {
+      this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
+        this.show = false
         this.$emit('onModal', this.show)
       })
     }

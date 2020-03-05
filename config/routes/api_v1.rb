@@ -27,13 +27,16 @@ namespace :api, defaults: {format: :json} do
     defaults authenticate_user_or_project: true do
       get '/otus', to: '/otus#index'
 
+      get '/downloads/:id', to: '/downloads#api_show'
+      get '/downloads', to: '/downloads#api_index'
+      get '/downloads/:id/file', to: '/downloads#api_file'
+
+
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
 
-      get '/downloads/:id', to: '/downloads/#api_show'
-      get '/downloads/:id/file', to: '/downloads/#api_file'
     end
 
     # Authenticate membership at the data controller level

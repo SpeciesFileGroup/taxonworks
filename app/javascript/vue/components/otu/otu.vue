@@ -2,7 +2,7 @@
   <div class="otu-radial">
     <span 
       class="circle-button button-default"
-      :title="redirect ? 'Otu browse' : 'Otu radial'"
+      :title="redirect ? 'Otu browse' : 'Quick forms'"
       :class="[{ 'button-submit': emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>
@@ -47,7 +47,7 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
-  import OtuRadial from './otu_radial/radial'
+  import OtuRadial from 'components/radials/object/radial'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {

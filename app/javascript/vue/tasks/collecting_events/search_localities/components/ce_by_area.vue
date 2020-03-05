@@ -64,13 +64,12 @@
     methods: {
       getAreaData() {
         this.isLoading = true;
-        let geo_ids = [];
-        this.geographicAreaList.forEach(area => {
-          geo_ids.push(area.id)
-        });
+        let geo_ids = this.geographicAreaList.map(area => { return area.id })
         let params = {
-          spatial_geographic_area_ids: geo_ids
-        };
+          'geographic_area_ids[]': geo_ids,
+          spatial_geographic_areas: true
+        }
+
         this.$http.get('/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
           this.$emit('jsonUrl', response.url)

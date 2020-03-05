@@ -3,7 +3,8 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json, :metadata_badge]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -22,6 +23,11 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  def biocuration_classifications
+    @biocuration_classifications = @collection_object.biocuration_classifications
+   render '/biocuration_classifications/index' 
+  end
+
   # DEPRECATED
   # GET /collection_objects/dwca/123 # SHOULD BE dwc
   def dwca
@@ -31,7 +37,10 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end

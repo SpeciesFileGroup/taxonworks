@@ -4,17 +4,20 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    [
-      collection_object_deaccession_tag(collection_object),
-      collection_object.type,
+    [ collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
-      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first),
+      "[#{collection_object.type[(0..2)].capitalize}]",
     ].compact.join('&nbsp;').html_safe
   end
 
   def collection_object_link(collection_object)
     return nil if collection_object.nil?
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
+  end
+
+  def collection_object_radial_tag(collection_object)
+    content_tag(:span, '', data: { 'global-id' => collection_object.to_global_id.to_s, 'collection-object-radial' => 'true'})
   end
 
   def label_for_collection_object(collection_object)
@@ -53,12 +56,12 @@ module CollectionObjectsHelper
 
   def collection_object_deaccession_tag(collection_object)
     return nil if collection_object.nil? || (collection_object.deaccession_reason.blank? && collection_object.deaccessioned_at.nil?)
-    msg = ['SPECIMEN DEACCESSIONED"', collection_object.deaccession_reason, collection_object.deaccessioned_at&.year].compact.join(' - ')
-    content_tag(:span, collection_object , class: [
+    msg = ['DEACCESSIONED"', collection_object.deaccession_reason, collection_object.deaccessioned_at&.year].compact.join(' - ')
+    content_tag(:span, msg, class: [
       :feedback,
       'feedback-thin',
-      'feedback-warning'
-    ])
+      'feedback-danger'
+    ]).html_safe
   end
 
   # @return [Array [Identifier, String (type)], nil]

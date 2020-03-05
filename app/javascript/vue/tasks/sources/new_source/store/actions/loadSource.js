@@ -17,6 +17,8 @@ export default ({ state, commit }, id) => {
     })
 
     setParam('/tasks/sources/new_source', 'source_id', response.body.id)
+    console.log("se")
+    state.settings.lastSave = Date.now()
   }, () => {
     TW.workbench.alert.create('No source was found with that ID.', 'alert')
     history.pushState(null, null, `/tasks/sources/new_source`)

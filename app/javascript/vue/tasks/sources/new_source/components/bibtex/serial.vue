@@ -44,7 +44,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
 import DefaultPin from 'components/getDefaultPin'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'
 

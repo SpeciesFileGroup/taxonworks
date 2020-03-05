@@ -5,25 +5,25 @@
       <button
         @click="$emit('update')"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }}
       </button>
       <button
         @click="$emit('updateNext', Number(navigate.next))"
         :disabled="!navigate.next"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }} and next
       </button>
       <button
         @click="$emit('updateNew')"
         type="button"
-        class="button normal-input button-submit margin-medium-right full_width">
+        class="button button-input button-submit margin-medium-right full_width">
         {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
-        :disabled="!sledImage.id"
-        class="inline full_width"
+        :disabled="summary.length === 0"
+        class="inline"
         @confirm="updateSled"/>
     </div>
     <ul v-if="sledImage.metadata.length > 0 && summary.length === 0">
@@ -33,7 +33,7 @@
       <li v-if="collectionObject.taxon_determinations_attributes.length">
         <span>Taxon determination will be added</span>
       </li>
-      <li v-if="identifier.namespace_id && identifier.identifier">
+      <li v-if="identifier.namespace_id && identifier.identifier && sledImage.step_identifier_on">
         <span>Catalogue number will be added.</span>
       </li>
       <li v-if="collectionObject.tags_attributes.length">
@@ -100,6 +100,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+  .button-input {
+    min-height: 28px;
+  }
 </style>

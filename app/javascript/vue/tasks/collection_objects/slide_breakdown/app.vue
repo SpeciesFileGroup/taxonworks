@@ -44,6 +44,32 @@
               v-model="vlines"
             />
           </template>
+          <template
+            v-for="(hline, index) in hlines"
+            v-if="index > 0 && index < hlines.length-1 && !disabledPanel">
+            <remove-line
+              :style="{
+                top: `${removeButtonPosition(hline, style.viewer.marginTop)}px`,
+                right: 0,
+                transform: 'translateY(-50%)'
+              }"
+              v-model="hlines"
+              :position="index"
+            />
+          </template>
+          <template
+            v-for="(vline, index) in vlines"
+            v-if="index > 0 && index < vlines.length-1 && !disabledPanel">
+            <remove-line
+              :style="{ 
+                left: `${removeButtonPosition(vline, style.viewer.marginLeft)}px`,
+                transform: 'translateX(-50%)',
+                top: `${removeButtonPosition(hlines[hlines.length-1], style.viewer.marginBottom)}px`
+              }"
+              v-model="vlines"
+              :position="index"
+            />
+          </template>
           <div :style="style.viewer">
             <sled 
               ref="sled"
@@ -102,6 +128,7 @@ import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
 import AddLine from './components/AddLine'
+import RemoveLine from './components/grid/RemoveLine'
 import SwitchComponent from 'components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
@@ -117,6 +144,7 @@ export default {
   components: {
     Sled,
     AddLine,
+    RemoveLine,
     SwitchComponent,
     AssignComponent,
     ReviewComponent,
@@ -185,7 +213,9 @@ export default {
         viewer: {
           position: 'relative',
           marginLeft: '30px',
-          marginTop: '50px'
+          marginRight: '30px',
+          marginTop: '50px',
+          marginBottom: '60px'
         }
       }
     }
@@ -315,7 +345,7 @@ export default {
           let ajaxRequest = new XMLHttpRequest()
           
           this.image = response.body
-          ajaxRequest.open('GET', response.body.image_file_url)
+          ajaxRequest.open('GET', response.body.image_display_url)
           ajaxRequest.responseType = 'blob'
           ajaxRequest.onload = () => {
             let blob = ajaxRequest.response
@@ -350,10 +380,13 @@ export default {
     getPosition (line, next) {
       return (next ? line + ((next - line ) / 2) : line)
     },
-    getButtonPosition(lines, index, margin) {
+    getButtonPosition (lines, index, margin) {
       return this.getPosition(lines[index], lines[index+1]) / this.scale + parseInt(margin)
     },
-    setLines(cells) {
+    removeButtonPosition (line, margin) {
+      return line / this.scale + parseInt(margin)
+    },
+    setLines (cells) {
       let xlines = []
       let ylines = []
       cells.forEach(cell => {
@@ -365,7 +398,7 @@ export default {
       this.vlines = [...new Set(xlines)]
       this.hlines = [...new Set(ylines)]
     },
-    convertToMatrix(metadata) {
+    convertToMatrix (metadata) {
       let i = []
 
       metadata.forEach(cell => {
@@ -391,6 +424,7 @@ export default {
       return inc
     },
     setIdentifiers (metadata, summary = undefined) {
+      if(!this.sledImage.step_identifier_on) return metadata.map(cell => { cell.textfield = undefined; return cell })
       if(summary && summary.length) {
         return metadata.map(cell => {
           cell.textfield = summary[cell.row][cell.column].identifier

@@ -490,6 +490,14 @@ browse_collecting_events_task:
     - collecting_event 
   status: prototype
   description: 'View individual collecting events and their related.'
+biological_relationship_composer_task:
+  hub: true
+  name: 'Compose biological relationships'
+  related:
+  categories:
+    - biology
+  status: prototype
+  description: 'Define and add properties to biological relationships, e.g. things like "host/paraiste".'
 grid_digitize_task:
   hub: true
   name: 'Grid digitizer'
@@ -499,3 +507,19 @@ grid_digitize_task:
     - image
   status: prototype
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
+export_basic_nomenclature_task:
+  hub: true
+  name: 'Download nomenclature (basic)'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
+match_nomenclature_task:
+  hub: true
+  name: 'Match names'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'A quick and dirty batch based check to see if names are in the system.'

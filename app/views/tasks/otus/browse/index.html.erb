@@ -7,7 +7,7 @@
     <div class="horizontal-left-content middle">
       <%= @otu.sources_by_topic_id(t.id).order('sources.cached').collect{|s| 
         (source_author_year_tag(s) + 
-        radial_object_tag(s)).html_safe
+        radial_navigation_tag(s)).html_safe
       }.join('; ').html_safe -%>
     </div>
   <%- end %> 

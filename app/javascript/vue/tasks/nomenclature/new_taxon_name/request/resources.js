@@ -14,6 +14,7 @@ const createTaxonName = function (taxon) {
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
       return resolve(response.body)
     }, response => {
+      TW.workbench.alert.create(response.bodyText, 'error')
       return reject(response.body)
     })
   })
@@ -30,6 +31,7 @@ const updateTaxonName = function (taxon) {
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, 'notice')
       return resolve(response.body)
     }, response => {
+      TW.workbench.alert.create(response.bodyText, 'error')
       return reject(response.body)
     })
   })
@@ -59,7 +61,7 @@ const updateTaxonRelationship = function (relationship) {
     Vue.http.patch(`/taxon_name_relationships/${relationship.taxon_name_relationship.id}`, relationship).then(response => {
       return resolve(response.body)
     }, response => {
-      console.log(response)
+      return reject(response)
     })
   })
 }

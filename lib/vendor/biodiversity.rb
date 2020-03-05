@@ -11,11 +11,11 @@ module TaxonWorks
       
       RANK_MAP = {
         genus: :uninomial, #  :genus,
-        subgenus: :infragenus,
-        species: :species,
-        subspecies: :infraspecies,
-        variety: :infraspecies,
-        form: :infraspecies
+        subgenus: :infragenericEpithet,
+        species: :specificEpithet,
+        subspecies: :infraspecificEpithets,
+        variety: :infraspecificEpithets,
+        form: :infraspecificEpithets
       }.freeze
 
       class Result
@@ -81,7 +81,7 @@ module TaxonWorks
           n, @citation = preparse
 
           begin
-            @parse_result ||= ScientificNameParser.new.parse(n)
+            @parse_result ||= ::Biodiversity::Parser.parse(n)
           rescue NoMethodError => e
             case e.message
             when /canonical/
@@ -91,12 +91,13 @@ module TaxonWorks
             end
           end
 
+          @parse_result[:scientificName] = parse_result[:normalized]
           @parse_result
         end
 
         # @return [Boolean]
         def parseable
-          @parseable = parse_result[:scientificName][:parsed] if @parseable.nil?
+          @parseable = parse_result[:parsed] && parse_result[:unparsedTail].blank? if @parseable.nil?
           @parseable 
         end
 
@@ -109,33 +110,31 @@ module TaxonWorks
         # @return [Hash]
         def detail
           if parseable 
-            a = parse_result[:scientificName]
-            a ||= parse_result[:uninomial]
-            return a[:details].first if a[:details]                 
+            return parse_result[:details].first if parse_result[:details]
           end
           {}
         end
 
         # @return [String, nil]
         def genus
-          (detail[:genus] && detail[:genus][:string]) || (detail[:uninomial] && detail[:uninomial][:string])
+          (detail[:genus] && detail[:genus][:value]) || (detail[:uninomial] && detail[:uninomial][:value])
         end
 
         # @return [String, nil] 
         def subgenus
-          detail[:infragenus] && detail[:infragenus][:string]
+          detail[:infragenericEpithet] && detail[:infragenericEpithet][:value]
         end
 
         # @return [String, nil]
         def species
           a = detail
-          (a[:species] && a[:species][:string]) ||
-            (a[:annotation_identification] && a[:species] && a[:species][:species] && a[:species][:species][:string]) || nil
+          (a[:specificEpithet] && a[:specificEpithet][:value]) ||
+            (a[:annotation_identification] && a[:specificEpithet] && a[:specificEpithet][:specificEpithet] && a[:specificEpithet][:specificEpithet][:value]) || nil
         end
 
         # @return [String, nil]
         def subspecies
-          infraspecies('n/a')
+          infraspecies(nil)
         end
 
         # @return [String, nil]
@@ -145,14 +144,14 @@ module TaxonWorks
 
         # @return [String, nil]
         def form
-          infraspecies('form')
+          infraspecies('f.')
         end
 
         # @return [String, nil]
         def infraspecies(biodiversity_rank)
-          if m = detail[:infraspecies]
+          if m = detail[:infraspecificEpithets]
             m.each do |n|
-              return n[:string] if n[:rank] == biodiversity_rank
+              return n[:value] if n[:rank] == biodiversity_rank
             end
           end
           nil 
@@ -177,14 +176,14 @@ module TaxonWorks
         def authorship
           d = detail[RANK_MAP[finest_rank]]
           d = d.last if d.kind_of?(Array)
-          return nil unless d
-          d[:basionymAuthorTeam]
+          return nil unless d && d[:authorship]
+          d[:authorship][:basionymAuthorship]
         end
 
         # @return [String, nil]
         def author
           if a = authorship
-            Utilities::Strings.authorship_sentence(a[:author])
+            Utilities::Strings.authorship_sentence(a[:authors])
           else
             nil
           end
@@ -197,7 +196,7 @@ module TaxonWorks
         # @return [String, nil]
         def year
           if a = authorship
-            return a[:year]
+            return a[:year][:value] if a[:year]
           end
           nil
         end
@@ -393,11 +392,9 @@ module TaxonWorks
         end
 
         def author_word_position 
-          if a = parse_result[:scientificName] 
-            if b = a[:positions]
-              c = b.select{|k,v| v[0] == 'author_word'}.keys.min
-              p = [name.length, c].compact.min
-            end
+          if a = parse_result[:positions]
+            b = (a.detect { |v| v[0] == 'authorWord'})&.at(1)
+            p = [name.length, b].compact.min
           end
         end
 

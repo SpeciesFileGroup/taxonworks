@@ -49,7 +49,7 @@ class Namespace < ApplicationRecord
   validates_uniqueness_of :name, :short_name
 
   # autosave rebuilds the .cache on related records
-  has_many :identifiers, autosave: true, dependent: :restrict_with_error
+  has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
   scope :used_recently, -> { joins(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ) }

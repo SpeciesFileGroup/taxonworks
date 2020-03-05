@@ -3,7 +3,6 @@ branches:
   only:
     - master
     - development
-    - sled 
     - /v\d+\.\d+\.\d+/
 env:
   global:

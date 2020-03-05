@@ -141,7 +141,6 @@ class Image < ApplicationRecord
     # create a utility library called "GeoConvert" and define single method
     # that will convert from degrees min sec to decimal degree
     # - maybe 2 versions? - one returns string, other decimal?
-
   end
 
   # Returns the true, unscaled height/width ratio
@@ -230,6 +229,7 @@ class Image < ApplicationRecord
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
+    # img.crop(x, y, width, height, true)
     cropped = img.crop(
       params[:x].to_i,
       params[:y].to_i,
@@ -334,10 +334,13 @@ class Image < ApplicationRecord
   end
 
   private
+
   # Converts image to blob and releases memory of img (image cannot be used afterwards)
   # @param [Magick::Image] img
-  # @return [String]
+  # @return [String] a JPG representation of the image
+  # !! Always converts to .jpg, this may need abstraction later
   def self.to_blob!(img)
+    img.format = 'jpg'
     blob = img.to_blob
     img.destroy!
     blob

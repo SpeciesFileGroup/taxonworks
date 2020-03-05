@@ -161,11 +161,15 @@
 
     .matrix {
       background-image: image-url("matrix.svg");
-    } 
+    }
 
     .dna {
       background-image: image-url("helix.svg");
-    } 
+    }
+
+    .image {
+      background-image: image-url("image.svg");
+    }
 
   }
 
@@ -263,8 +267,8 @@
     }
     .active {
       background-color: $default_text;
-      width: 17px;
-      height: 17px;
+      width: 15px;
+      height: 15px;
     }
   }
   @media screen and (min-height:1000px) {

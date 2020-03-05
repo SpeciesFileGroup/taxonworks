@@ -41,7 +41,7 @@
   import CollectionEventLayout from './components/collectionEvent/main.vue'
   import TypeMaterial from './components/typeMaterial/typeMaterial.vue'
   import BiologicalAssociation from './components/biologicalAssociation/main.vue'
-  import { GetUserPreferences } from './request/resources.js'
+  import { GetUserPreferences, GetProjectPreferences } from './request/resources.js'
   import { MutationNames } from './store/mutations/mutations.js'
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
@@ -86,6 +86,10 @@
         this.$store.commit(MutationNames.SetPreferences, response)
       })
 
+      GetProjectPreferences().then(response => {
+        this.$store.commit(MutationNames.SetProjectPreferences, response)
+      })
+
       if (/^\d+$/.test(coId)) {
         this.$store.dispatch(ActionNames.LoadDigitalization, coId)
       }
@@ -100,7 +104,7 @@
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Save and new', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Browse collection object', 'Comprehensive digitization task')
       },

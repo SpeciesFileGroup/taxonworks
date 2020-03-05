@@ -26,8 +26,8 @@ class TaxonNameClassification < ApplicationRecord
 
   before_validation :validate_taxon_name_classification
   before_validation :validate_uniqueness_of_latinized
-  validates_presence_of :taxon_name, presence: true
-  validates_presence_of :type, presence: true
+  validates_presence_of :taxon_name
+  validates_presence_of :type
   validates_uniqueness_of :taxon_name_id, scope: :type
 
   validate :nomenclature_code_matches

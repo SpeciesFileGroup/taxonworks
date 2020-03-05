@@ -53,8 +53,8 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
 import Autocomplete from 'components/autocomplete'
 

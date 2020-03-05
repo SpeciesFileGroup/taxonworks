@@ -93,7 +93,7 @@
   import Spinner from 'components/spinner.vue'
   import Expand from './expand.vue'
   import PinComponent from 'components/pin.vue'
-  import RadialAnnotator from 'components/annotator/annotator'
+  import RadialAnnotator from 'components/radials/annotator/annotator'
 
   export default {
     components: {

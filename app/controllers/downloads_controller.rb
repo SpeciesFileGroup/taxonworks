@@ -2,6 +2,7 @@ class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download_api, only: [:api_file, :api_show]
 
   # GET /downloads
   # GET /downloads.json
@@ -26,7 +27,7 @@ class DownloadsController < ApplicationController
 
   # PATCH /downloads/1
   # PATCH /downloads/1.json
-  def update 
+  def update
     @download.update(download_params)
     render action: :show
   end
@@ -47,18 +48,32 @@ class DownloadsController < ApplicationController
     end
   end
 
+  def api_index
+    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id) # .page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/downloads/api/index.json.jbuilder'
+  end
+
   def api_file
-    send_file @download.file_path
+    if @download.ready?
+      @download.increment!(:times_downloaded)
+      send_file @download.file_path
+    else
+      render json: { success: false }
+    end
   end
 
   def api_show
-    render '/downloads/api/index.json.jbuilder'
+    render '/downloads/api/show.json.jbuilder'
   end
 
   private
 
   def set_download
     @download = Download.unscoped.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
+  def set_download_api
+    @download = Download.unscoped.where(is_public: true, project_id: sessions_current_project_id).find(params[:id])
   end
 
   def download_params

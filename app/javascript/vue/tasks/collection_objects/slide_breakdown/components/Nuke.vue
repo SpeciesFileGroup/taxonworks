@@ -3,7 +3,7 @@
     <button
       type="button"
       :disabled="disabled"
-      class="button normal-input button-delete full_width"
+      class="button normal-input button-delete "
       @click="showModal = true">Nuke
     </button>
     <modal-component

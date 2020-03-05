@@ -10,6 +10,20 @@ module TaxonWorks
         CUTOFF
       end
 
+      class CrossRefLaTeX
+        include Singleton
+
+        def apply(value)
+          if value.is_a? String
+            value = value.gsub(/\$\\less\$\/?\w+\$\\greater\$/,
+              '$\less$i$\greater$' => '<i>', '$\less$/i$\greater$' => '</i>',
+              '$\less$em$\greater$' => '<i>', '$\less$/em$\greater$' => '</i>' # Some times <em> is used for scientific names, making sense to translate to TW-supported <i>
+            )
+          end
+          ::LaTeX.decode(value)
+        end
+      end
+
       # Create a new Source instance from a full text citatation.
       # By default, try to detect and clean up a DOI (with/out "http" preamble)
       # Then try to resolve the citation against Crossref
@@ -41,7 +55,7 @@ module TaxonWorks
 
         if b
           Source::Bibtex.new_from_bibtex(
-            BibTeX.parse(b).convert(:latex).first
+            BibTeX::Bibliography.parse(b, filter: CrossRefLaTeX.instance).first
           )
         else
           Source::Verbatim.new(verbatim: a ? a : citation)

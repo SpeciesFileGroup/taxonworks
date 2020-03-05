@@ -29,7 +29,9 @@ RUN apt-get update && \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* && \
+      wget https://gitlab.com/gogna/gnparser/uploads/643872fc2c63d9218e5612c5f545c511/gnparser-v0.13.0-linux.tar.gz && \
+      tar xf gnparser-v0.13.0-linux.tar.gz -C /usr/local/bin
 
 RUN locale-gen en_US.UTF-8
 

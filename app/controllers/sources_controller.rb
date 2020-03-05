@@ -26,11 +26,6 @@ class SourcesController < ApplicationController
   def show
   end
 
-  # GET /sources/new
-  def new
-    @source = Source.new
-  end
-
   # POST /sources/1/clone.json
   def clone
     @source = @source.clone
@@ -42,6 +37,12 @@ class SourcesController < ApplicationController
 
   # GET /sources/1/edit
   def edit
+    redirect_to new_source_task_path(source_id: @source.id), notice: 'Editing in new interface.'
+  end
+
+  # GET /sources/new
+  def new
+    redirect_to new_source_task_path, notice: "Redirected to new interface."
   end
 
   # POST /sources
@@ -49,13 +50,13 @@ class SourcesController < ApplicationController
   def create
     @source = new_source 
     respond_to do |format|
-      if @source.save
+      if @source&.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source&.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -181,11 +182,7 @@ class SourcesController < ApplicationController
   private
 
   def new_source
-    if params[:bibtex_input].blank?
-      Source.new(source_params)
-    else
-      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
-    end
+    (params[:bibtex_input].blank? ? Source.new(source_params) : Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])) || nil
   end
 
   def autocomplete_params

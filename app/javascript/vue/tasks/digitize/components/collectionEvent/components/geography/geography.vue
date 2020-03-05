@@ -116,6 +116,14 @@
       },
       collectingEvent() {
         return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      geographicAreaShape: { 
+        get () {
+          return this.$store.getters[GetterNames.GetGeographicArea]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetGeographicArea, value)
+        }
       }
     },
     data() {
@@ -140,6 +148,7 @@
           if(newVal.geographic_area_id) {
             GetGeographicArea(newVal.geographic_area_id).then(response => {
               this.selectGeographicArea(response)
+              this.geographicAreaShape = response
             })
           } else {
             this.selected = undefined
@@ -151,7 +160,8 @@
           }
         }
       },
-      deep: true
+      deep: true,
+      immediate: true
     },
     mounted () {
       this.GetSmartSelector()
@@ -160,6 +170,7 @@
       clearSelection() {
         this.selected = undefined
         this.geographicArea = null
+        this.geographicAreaShape = undefined
       },
       GetSmartSelector() {
         GetGeographicSmartSelector().then(response => {

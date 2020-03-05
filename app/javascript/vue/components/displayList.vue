@@ -4,7 +4,7 @@
     name="list-complete"
     tag="ul">
     <li
-      v-for="item in list"
+      v-for="(item, index) in list"
       :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
@@ -29,7 +29,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
-          @click="deleteItem(item)">Remove
+          @click="deleteItem(item, index)">Remove
         </span>
       </div>
     </li>
@@ -37,8 +37,8 @@
 </template>
 <script>
 
-import RadialAnnotator from './annotator/annotator.vue'
-import RadialObject from './radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 
 export default {
   components: {
@@ -108,14 +108,16 @@ export default {
       }
       return false
     },
-    deleteItem(item) {
+    deleteItem(item, index) {
       if(this.deleteWarning) {
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
+          this.$emit('deleteIndex', index)
         }
       }
       else {
         this.$emit('delete', item)
+        this.$emit('deleteIndex', index)
       }
     }
   }
