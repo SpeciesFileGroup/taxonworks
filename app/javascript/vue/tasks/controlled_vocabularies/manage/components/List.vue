@@ -4,9 +4,9 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th>Word</th>
-          <th>Definition</th>
-          <th>Uses</th>
+          <th @click="sortTable('name')">Name</th>
+          <th @click="sortTable('definition')">Definition</th>
+          <th @click="sortTable('count')">Uses</th>
           <th>Edit</th>
           <th>Destroy</th>
           <th>Browse</th>
@@ -33,6 +33,7 @@
         </tr>
       </tbody>
     </table>
+    <span>{{ list.length }} records.</span>
   </div>
 </template>
 
@@ -56,7 +57,8 @@ export default {
   data () {
     return {
       list: [],
-      isLoading: false
+      isLoading: false,
+      ascending: false
     }
   },
   watch: {
@@ -95,6 +97,18 @@ export default {
       else {
         this.list.unshift(item)
       }
+    },
+    sortTable (sortProperty) {
+      let that = this
+      function compare (a,b) {
+        if (a[sortProperty] < b[sortProperty])
+          return (that.ascending ? -1 : 1)
+        if (a[sortProperty] > b[sortProperty])
+          return (that.ascending ? 1 : -1)
+        return 0
+      }
+      this.list.sort(compare)
+      this.ascending = !this.ascending
     }
   }
 }
