@@ -1,7 +1,7 @@
 <template>
-  <div class="full_width margin-medium-left">
+  <div class="three_quarter_width margin-medium-left">
     <spinner-component v-if="isLoading"/>
-    <table>
+    <table class="full_width">
       <thead>
         <tr>
           <th>Word</th>

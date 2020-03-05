@@ -10,7 +10,7 @@
       :options="types"/>
     <h3>{{ cvtTypes[view] }}</h3>
     <div class="flex-separate margin-medium-top">
-      <div class="full_width">
+      <div class="one_quarter_width">
       <div class="panel content ">
         <form
           @submit="createCTV"
