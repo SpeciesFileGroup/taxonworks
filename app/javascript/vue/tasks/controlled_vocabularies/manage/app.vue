@@ -74,11 +74,13 @@ import URI_RELATION_TYPES from './constants/uri_relation_types'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import { CONTROLLED_VOCABULARY_TERM } from './constants/controlled_vocabulary_term'
 
-import { CreateControlledVocabularyTerm, UpdateControlledVocabularyTerm } from './request/resources'
+import { CreateControlledVocabularyTerm, UpdateControlledVocabularyTerm, GetControlledVocabularyTerm } from './request/resources'
 
 import SwitchComponent from 'components/switch.vue'
 import ListComponent from './components/List.vue'
 import SpinnerComponent from 'components/spinner'
+
+import CloneFromObject from 'helpers/cloneFromObject'
 
 export default {
   components: {
@@ -111,6 +113,16 @@ export default {
       immediate: true
     }
   },
+  mounted () {
+    let urlParams = new URLSearchParams(window.location.search)
+    let ctvId = urlParams.get('controlled_vocabulary_term')
+
+    if (/^\d+$/.test(ctvId)) {
+      GetControlledVocabularyTerm(ctv).then(response => {
+        this.setCTV(response.body)
+      })
+    }
+  },
   methods: {
     capitalizeString (line) {
       return line.split(' ').map(word => { return work.charAt(0).toUpperCase() }).join('')
@@ -135,7 +147,7 @@ export default {
       e.preventDefault()
     },
     setCTV(ctv) {
-      this.controlled_vocabulary_term = ctv
+      this.controlled_vocabulary_term = CloneFromObject(CONTROLLED_VOCABULARY_TERM(), ctv)
     },
     afterSave(ctv) {
       this.$refs.list.addCTV(ctv)

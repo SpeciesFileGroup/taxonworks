@@ -8,6 +8,10 @@ const DestroyControlledVocabularyTerm = (id) => {
   return AjaxCall('delete', `/controlled_vocabulary_terms/${id}.json`)
 }
 
+const GetControlledVocabularyTerm = (id) => {
+  return AjaxCall('get', `/controlled_vocabulary_term/${id}.json`)
+}
+
 const GetControlledVocabularyTerms = (param) => {
   return AjaxCall('get', `/controlled_vocabulary_terms.json`, { params: param })
 }
@@ -19,6 +23,7 @@ const UpdateControlledVocabularyTerm = (ctv) => {
 export {
   CreateControlledVocabularyTerm,
   DestroyControlledVocabularyTerm,
+  GetControlledVocabularyTerm,
   GetControlledVocabularyTerms,
   UpdateControlledVocabularyTerm
 }

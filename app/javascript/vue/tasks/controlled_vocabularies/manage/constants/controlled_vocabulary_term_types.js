@@ -1,8 +1,8 @@
 export default {
-  Keyword: 'Help one',
-  Topic: 'Help one',
-  Predicate: 'Help one',
-  ConfidenceLevel: 'Help one',
-  BiologicalGroup: 'Help one',
-  BiocurationClass: 'Help one'
+  Keyword: 'A keyword is the value used in tag',
+  Topic: 'Help tip',
+  Predicate: 'Help tip',
+  ConfidenceLevel: 'Help tip',
+  BiologicalGroup: 'Help tip',
+  BiocurationClass: 'Help tip'
 }

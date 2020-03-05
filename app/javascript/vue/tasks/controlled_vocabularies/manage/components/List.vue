@@ -16,7 +16,7 @@
         <tr v-for="(item, index) in list">
           <td v-html="item.object_tag"></td>
           <td>{{ item.definition }}</td>
-          <td>uses</td>
+          <td>{{ item.count }}</td>
           <td>
             <span
               class="button button-circle btn-edit"
