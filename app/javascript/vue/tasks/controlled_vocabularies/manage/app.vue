@@ -119,6 +119,7 @@ export default {
 
     if (/^\d+$/.test(ctvId)) {
       GetControlledVocabularyTerm(ctvId).then(response => {
+        this.view = response.body.type
         this.setCTV(response.body)
       })
     }
