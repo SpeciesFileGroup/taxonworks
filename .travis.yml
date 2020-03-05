@@ -83,6 +83,7 @@ jobs:
         - export REVISION=$(git rev-parse --short HEAD)
         - cd .travis
         - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
+        - docker build https://github.com/postgis/docker-postgis.git#master:/11-3.0 -t mdillon/postgis:11-3.0
         - docker-compose build --parallel
         - docker-compose up -d --no-build
         - docker-compose logs
