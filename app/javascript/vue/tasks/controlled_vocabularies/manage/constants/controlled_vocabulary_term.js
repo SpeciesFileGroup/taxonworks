@@ -5,7 +5,6 @@ export const CONTROLLED_VOCABULARY_TERM = () => {
     name: '',
     definition: '',
     css_color: undefined,
-    uri: undefined,
-    uri_relation: undefined
+    uri: undefined
   }
 }

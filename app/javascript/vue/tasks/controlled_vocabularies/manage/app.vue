@@ -10,7 +10,8 @@
       :options="types"/>
     <h3>{{ cvtTypes[view] }}</h3>
     <div class="flex-separate margin-medium-top">
-      <div class="panel content full_width">
+      <div class="full_width">
+      <div class="panel content ">
         <form
           @submit="createCTV"
           class="label-above">
@@ -41,17 +42,6 @@
               type="text"
               v-model="controlled_vocabulary_term.uri">
           </div>
-          <div class="field">
-            <label>Uri relation</label>
-            <select v-model="controlled_vocabulary_term.uri_relation">
-              <option
-                v-for="item in uriRelationTypes"
-                :key="item"
-                :value="item">
-                {{ item }}
-              </option>
-            </select>
-          </div>
           <button
             type="submit"
             class="button normal-input button-submit"
@@ -59,6 +49,7 @@
             {{ controlled_vocabulary_term.id ? 'Update' : 'Create' }}
           </button>
         </form>
+      </div>
       </div>
       <list-component
         ref="list"
@@ -70,7 +61,6 @@
 
 <script>
 
-import URI_RELATION_TYPES from './constants/uri_relation_types'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import { CONTROLLED_VOCABULARY_TERM } from './constants/controlled_vocabulary_term'
 
@@ -99,7 +89,6 @@ export default {
   data () {
     return {
       cvtTypes: CVT_TYPES,
-      uriRelationTypes: URI_RELATION_TYPES,
       controlled_vocabulary_term: CONTROLLED_VOCABULARY_TERM(),
       isSaving: false,
       view: 'Keyword'
