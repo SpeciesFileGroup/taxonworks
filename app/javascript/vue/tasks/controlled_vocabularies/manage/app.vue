@@ -118,7 +118,7 @@ export default {
     let ctvId = urlParams.get('controlled_vocabulary_term')
 
     if (/^\d+$/.test(ctvId)) {
-      GetControlledVocabularyTerm(ctv).then(response => {
+      GetControlledVocabularyTerm(ctvId).then(response => {
         this.setCTV(response.body)
       })
     }

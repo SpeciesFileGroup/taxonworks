@@ -9,7 +9,7 @@ const DestroyControlledVocabularyTerm = (id) => {
 }
 
 const GetControlledVocabularyTerm = (id) => {
-  return AjaxCall('get', `/controlled_vocabulary_term/${id}.json`)
+  return AjaxCall('get', `/controlled_vocabulary_terms/${id}.json`)
 }
 
 const GetControlledVocabularyTerms = (param) => {
