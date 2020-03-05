@@ -8,7 +8,7 @@ when 'Keyword'
 when 'ConfidenceLevel'
   controlled_vocabulary_term.confidences.count
 when 'Topic'
-  controlled_vocabulary_term.contents.count
+  controlled_vocabulary_term.contents.count + controlled_vocabulary_term.citations.count
 when 'Predicate'
   controlled_vocabulary_term.internal_attributes.count
 when 'BiologicalProperty'
