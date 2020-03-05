@@ -25,7 +25,6 @@ module Queries::Concerns::Identifiers
     # Match on cached
     attr_accessor :identifier
 
-    # USED?!
     # Match like or exact on cached 
     attr_accessor :identifier_exact
 
