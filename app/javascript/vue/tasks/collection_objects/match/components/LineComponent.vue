@@ -1,40 +1,120 @@
 <template>
-  <div class="panel content">
-    <div class="flex-separate">
-      <template v-if="(Array.isArray(records) && records.length) || Object.keys(records).length">
-        <span><b>{{ value }}</b></span>
-        <span>{{ Array.isArray(records) ? records.length : Object.keys(records).length }} records.</span>
-      </template>
-      <template v-else>
-        <span>
-          <b>{{ value }}</b>
-        </span>
-        <span>
-          Unmatched
-        </span>
-      </template>
+  <div>
+    <navbar-component>
+      <div class="flex-separate">
+        <ul class="no_bullets context-menu">
+          <li
+            class="capitalize"
+            v-for="item in show">
+            <label>
+              <input
+                type="radio"
+                :value="item"
+                v-model="filter">
+                {{ item }}
+            </label>
+          </li>
+        </ul>
+        <div class="horizontal-left-content">
+          <button
+            type="button"
+            class="margin-small-right"
+            @click="selectAll">
+            Select all
+          </button>
+          <compare-component
+            :compare="compare"/>
+        </div>
+      </div>
+    </navbar-component>
+    <div
+      v-for="(match, recordId) in matchList"
+      :key="recordId"
+      v-if="filterView(match)"
+      class="panel content">
+      <div class="flex-separate">
+        <template v-if="(Array.isArray(match) && match.length) || Object.keys(match).length">
+          <span><b>{{ recordId }}</b></span>
+          <span>{{ Array.isArray(match) ? match.length : Object.keys(match).length }} records.</span>
+        </template>
+        <template v-else>
+          <span>
+            <b>{{ recordId }}</b>
+          </span>
+          <span>
+            Unmatched
+          </span>
+        </template>
+      </div>
+      <ul v-if="match.length">
+        <li v-for="record in match">
+          <label>
+            <input
+              :value="record.id"
+              v-model="selected"
+              type="checkbox">
+          </label>
+          <a
+            :href="`/tasks/collection_objects/browse?collection_object_id=${record.id}`"
+            v-html="record.object_tag"/>
+        </li>
+      </ul>
     </div>
-    <ul v-if="records.length">
-      <li v-for="record in records">
-        <a
-          :href="`/tasks/collection_objects/browse?collection_object_id=${record.id}`"
-          v-html="record.object_tag"/>
-      </li>
-    </ul>
   </div>
 </template>
 
 <script>
 
+import ModalComponent from 'components/modal'
+import CompareComponent from './CompareComponent'
+import NavbarComponent from 'components/navBar'
+
 export default {
+  components: {
+    ModalComponent,
+    CompareComponent,
+    NavbarComponent
+  },
   props: {
-    value: {
-      type: String,
-      required: true
+    matchList: {
+      type: Object,
+      default: () => { return {} }
+    }
+  },
+  computed: {
+    compare() {
+      if(this.selected.length == 2) {
+        let list = [].concat(...Object.values(this.matchList).filter(item => { return Array.isArray(item) }))
+        return [
+          list.find(item => { return item.id == this.selected[0] }),
+          list.find(item => { return item.id == this.selected[1] })
+        ]
+      }
+      else {
+        return []
+      }
+    }
+  },
+  data () {
+    return {
+      selected: [],
+      show: ['matches', 'unmatched', 'both'],
+      filter: 'both',
+    }
+  },
+  methods: {
+    selectAll() {
+      this.selected = [].concat(...Object.values(this.matchList).filter(item => { return Array.isArray(item) })).map(item => { return item.id })
     },
-    records: {
-      type: [Object, Array],
-      required: true
+    filterView (record) {
+      switch(this.filter) {
+        case 'matches':
+          return record.length
+        case 'unmatched':
+          return !record.length
+        default:
+          return true
+      }
     }
   }
 }
