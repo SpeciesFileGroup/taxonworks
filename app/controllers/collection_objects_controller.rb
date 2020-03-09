@@ -50,7 +50,12 @@ class CollectionObjectsController < ApplicationController
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
-      o.get_dwc_occurrence
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
     end
     render json: o.dwc_occurrence_attribute_values
   end
@@ -60,7 +65,13 @@ class CollectionObjectsController < ApplicationController
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
-      o.get_dwc_occurrence
+
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
     end
     render json: o.dwc_occurrence_attributes
   end
