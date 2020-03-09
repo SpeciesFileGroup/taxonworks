@@ -13,11 +13,11 @@ const GetCollectingEvent = (id) => {
 }
 
 const GetDWC = (id) => {
-  return AjaxCall('get', `/collection_objects/${id}/dwc_verbose`)
+  return AjaxCall('get', `/collection_objects/${id}/dwc_verbose?rebuild=true`)
 }
 
 const CreateTag = (data) => {
-  return AjaxCall('post', `/tags.json`, { tags: data })
+  return AjaxCall('post', `/tags.json`, { tag: data })
 }
 
 export {
