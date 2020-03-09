@@ -12,8 +12,18 @@ const GetCollectingEvent = (id) => {
   return AjaxCall('get', `/collecting_events/${id}.json`)
 }
 
+const GetDWC = (id) => {
+  return AjaxCall('get', `/collection_objects/${id}/dwc_verbose`)
+}
+
+const CreateTag = (data) => {
+  return AjaxCall('post', `/tags.json`, { tags: data })
+}
+
 export {
   GetCollectionObject,
   GetCollectionObjectById,
-  GetCollectingEvent
+  GetCollectingEvent,
+  CreateTag,
+  GetDWC
 }
