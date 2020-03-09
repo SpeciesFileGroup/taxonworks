@@ -13,11 +13,15 @@
 
 import SwitchComponent from 'components/switch'
 import TagComponent from './Assign/Tags'
+import DeterminationComponent from './Assign/Determinations'
+import LoanComponent from './Assign/Loans'
 
 export default {
   components: {
     SwitchComponent,
-    TagComponent
+    DeterminationComponent,
+    TagComponent,
+    LoanComponent
   },
   props: {
     ids: {

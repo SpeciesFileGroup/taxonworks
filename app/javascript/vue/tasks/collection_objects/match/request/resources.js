@@ -20,10 +20,20 @@ const CreateTag = (data) => {
   return AjaxCall('post', `/tags.json`, { tag: data })
 }
 
+const CreateDetermination = (data) => {
+  return AjaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
+}
+
+const UpdateLoan = (data) => {
+  return AjaxCall('patch', `/loans.json`, { loan: data })
+}
+
 export {
+  CreateDetermination,
+  CreateTag,
+  GetCollectingEvent,
   GetCollectionObject,
   GetCollectionObjectById,
-  GetCollectingEvent,
-  CreateTag,
-  GetDWC
+  GetDWC,
+  UpdateLoan
 }

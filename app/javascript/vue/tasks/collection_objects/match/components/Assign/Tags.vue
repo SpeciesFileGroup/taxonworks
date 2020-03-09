@@ -1,13 +1,15 @@
 <template>
   <div class="panel content">
-    <spinner-component v-if="isLoading"/>
+    <spinner-component
+      v-if="isSaving"
+      legend="Saving..."/>
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Keyword'}"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
-      klass="Image"
+      klass="Tag"
       @selected="addTag"/>
   </div>
 </template>
@@ -32,7 +34,8 @@ export default {
   data () {
     return {
       view: undefined,
-      maxPerCall: 5
+      maxPerCall: 5,
+      isSaving: false
     }
   },
   methods: {
@@ -60,7 +63,8 @@ export default {
         if(position < this.ids.length)
           this.addTag(selectedTag, position)
         else {
-          this.isLoading = false
+          this.isSaving = false
+          TW.workbench.alert.create('Tag items was successfully created.', 'notice')
         }
       })
     },
