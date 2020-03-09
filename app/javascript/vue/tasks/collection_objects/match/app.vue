@@ -7,7 +7,7 @@
     <div class="horizontal-left-content align-start">
       <div class="full_width margin-small-right">
         <input-component @lines="lines = $event"/>
-        <div class="flex-separate">
+        <div class="flex-separate margin-medium-bottom">
           <button
             class="button normal-input button-default"
             type="button"
@@ -27,9 +27,12 @@
             </li>
           </ul>
         </div>
+        <assign-component
+          :ids="ids"/>
       </div>
       <div class="full_width margin-small-left">
         <line-component
+          @selected="ids = $event"
           class="margin-small-bottom"
           :match-list="matches"/>
       </div>
@@ -41,6 +44,7 @@
 
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
+import AssignComponent from './components/AssignComponent'
 import { GetCollectionObject, GetCollectionObjectById } from './request/resources'
 import SpinnerComponent from 'components/spinner'
 
@@ -48,11 +52,13 @@ export default {
   components: {
     InputComponent,
     LineComponent,
+    AssignComponent,
     SpinnerComponent,
   },
   data () {
     return {
       lines: [],
+      ids: [],
       maxPerCall: 1,
       exact: false,
       isLoading: false,

@@ -99,7 +99,15 @@ export default {
     return {
       selected: [],
       show: ['matches', 'unmatched', 'both'],
-      filter: 'both',
+      filter: 'both'
+    }
+  },
+  watch: {
+    selected: {
+      handler(newVal) {
+        this.$emit('selected', newVal)
+      },
+      deep: true
     }
   },
   methods: {
