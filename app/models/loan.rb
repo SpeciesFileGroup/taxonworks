@@ -164,6 +164,46 @@ class Loan < ApplicationRecord
     retval
   end
 
+  # @return [Scope]
+  #   the max 10 most recently used loans 
+  def self.used_recently
+    t = LoanItem.arel_table
+    k = Loan.arel_table 
+
+    # i is a select manager
+    i = t.project(t['loan_id'], t['created_at']).from(t)
+      .where(t['created_at'].gt( 3.weeks.ago ))
+      .order(t['created_at'])
+      .take(10)
+      .distinct
+
+    # z is a table alias 
+    z = i.as('recent_t')
+
+    Loan.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['loan_id'].eq(k['id'])))
+    )
+  end
+
+  def self.select_optimized(user_id, project_id)
+    h = {
+      recent: (
+        Loan.where(project_id: project_id, created_by_id: user_id, created_at: 1.day.ago..Time.now)
+        .limit(5)
+        .order(:created_at).to_a +
+      Loan.joins(:loan_items)
+        .where(project_id: project_id) # !! do not scope to person, multiple people might work on same loan?
+        .used_recently.limit(5)
+        .distinct
+      ).uniq, 
+
+      pinboard: Loan.pinned_by(user_id).where(project_id: project_id).to_a
+    }
+
+    h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    h
+  end
+
   protected
 
   def clone_attributes
