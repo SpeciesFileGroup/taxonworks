@@ -97,6 +97,7 @@ resources :collection_objects do
     get 'biocuration_classifications', defaults: {format: :json}
 
     get 'dwc', defaults: {format: :json}
+    get 'dwc_verbose', defaults: {format: :json}
     get 'depictions', constraints: {format: :html}
     get 'containerize'
     get 'dwca', defaults: {format: :json}

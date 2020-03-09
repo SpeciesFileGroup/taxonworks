@@ -45,7 +45,7 @@ class CollectionObjectsController < ApplicationController
     render '/dwc_occurrences/dwc_index'
   end
 
-  # GET /collection_objects/dwc/123 
+  # GET /collection_objects/123/dwc
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
@@ -53,6 +53,16 @@ class CollectionObjectsController < ApplicationController
       o.get_dwc_occurrence
     end
     render json: o.dwc_occurrence_attribute_values
+  end
+
+  # GET /collection_objects/123/dwc_verbose
+  def dwc_verbose
+    o = nil
+    ActiveRecord::Base.connection_pool.with_connection do
+      o = CollectionObject.find(params[:id])
+      o.get_dwc_occurrence
+    end
+    render json: o.dwc_occurrence_attributes
   end
 
   # Intent is DWC fields + quick summary fields for reports
