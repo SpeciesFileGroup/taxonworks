@@ -1,5 +1,6 @@
 <template>
   <div class="panel content">
+    <spinner-component v-if="isLoading"/>
     <h2>Tags</h2>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
@@ -15,10 +16,12 @@
 
 import SmartSelector from 'components/smartSelector'
 import { CreateTag } from '../../request/resources'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
-    SmartSelector
+    SmartSelector,
+    SpinnerComponent
   },
   props: {
     ids: {
@@ -29,19 +32,38 @@ export default {
   data () {
     return {
       view: undefined,
+      maxPerCall: 5
     }
   },
   methods: {
-    async addTag (tag) {
-      for(let i = 0; i < this.ids.length; i++) {
-        const tag = {
-          keyword_id: tag.id,
-          tag_object_id: this.ids[i], 
-          tag_object_type: 'CollectionObject'
+    addTag (selectedTag, position = 0) {
+      let promises = []
+
+      for(let i = 0; i < this.maxPerCall; i++) {
+        if(position < this.ids.length) {
+          promises.push(new Promise((resolve, reject) => {
+            const tag = {
+              keyword_id: selectedTag.id,
+              tag_object_id: this.ids[i],
+              tag_object_type: 'CollectionObject'
+            }
+            CreateTag(tag).then(response => {
+              resolve()
+            }, () => {
+              resolve()
+            })
+          }))
+          position++
         }
-        await CreateTag(tag)
       }
-    }
+      Promise.all(promises).then(response => {
+        if(position < this.ids.length)
+          this.addTag(selectedTag, position)
+        else {
+          this.isLoading = false
+        }
+      })
+    },
   }
 }
 </script>
