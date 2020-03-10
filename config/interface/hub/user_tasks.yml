@@ -528,5 +528,5 @@ manage_controlled_vocabulary_terms_task:
   name: 'Manage controlled vocabulary terms'
   related:
   categories:
-  status: prototype
+  status: stable 
   description: 'View and create custom fields, tags, etc. used throughout TaxonWorks.'
