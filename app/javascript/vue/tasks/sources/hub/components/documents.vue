@@ -5,9 +5,9 @@
         v-for="item in documents"
         :key="item.id">
         <a
-          data-icon="download"
-          :href="item.document.file_url">
-          pdf
+          class="btn-download circle-button"
+          :href="item.document.file_url"
+          download>
         </a>
       </li>
     </ul>

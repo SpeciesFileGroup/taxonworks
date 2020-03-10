@@ -25,6 +25,16 @@ module DocumentationHelper
       data: {icon: :download} ) 
   end
 
+  def documentation_download(documentation)
+    return nil if documentation.nil?
+    link_to(
+      '',
+      documentation.document.document_file.url(),
+      class: ['circle-button', 'btn-download'],
+      download: documentation.document.document_file_file_name,
+      title: documentation.document.document_file_file_name) 
+  end
+
   def documentation_links(object)
     object.documentation.collect{ |o| documentation_download_link(o)}.join("&nbsp;|&nbsp;").html_safe
   end
