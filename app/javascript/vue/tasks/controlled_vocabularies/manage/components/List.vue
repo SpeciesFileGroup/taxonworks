@@ -9,7 +9,6 @@
           <th @click="sortTable('count')">Uses</th>
           <th>Edit</th>
           <th>Destroy</th>
-          <th>Browse</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +28,6 @@
               class="button button-circle btn-delete"
               @click="removeCTV(index)"/>
           </td>
-          <td><radial-navigation :global-id="item.global_id"/></td>
         </tr>
       </tbody>
     </table>
@@ -40,12 +38,10 @@
 <script>
 
 import { GetControlledVocabularyTerms, DestroyControlledVocabularyTerm } from '../request/resources'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
 import SpinnerComponent from 'components/spinner.vue'
 
 export default {
   components: {
-    RadialNavigation,
     SpinnerComponent
   },
   props: {
