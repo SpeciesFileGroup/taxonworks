@@ -104,7 +104,7 @@ export default {
   },
   mounted () {
     let urlParams = new URLSearchParams(window.location.search)
-    let ctvId = urlParams.get('controlled_vocabulary_term')
+    let ctvId = urlParams.get('controlled_vocabulary_term_id')
 
     if (/^\d+$/.test(ctvId)) {
       GetControlledVocabularyTerm(ctvId).then(response => {
