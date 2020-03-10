@@ -15,6 +15,9 @@
   <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
 </ul>
 
+<br> 
+<% if @observation_matrix.cell_count < 10000 %>
+
 <table id="observation_matrices">
   <thead>
     <tr>
@@ -45,3 +48,9 @@
     <% end %>
   </tbody>
 </table>
+
+<% else %>
+  <div>
+    <span class="feedback feedback-info"> Matrix is too large (&gt; 10k cells) to currently display. </span>
+  </div>
+<% end %>
