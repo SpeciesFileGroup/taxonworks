@@ -24,12 +24,12 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # GET /controlled_vocabulary_terms/new
   def new
-    @controlled_vocabulary_term = ControlledVocabularyTerm.new
-    @return_path = params.permit(:return_path)[:return_path]
+    redirect_to manage_controlled_vocabulary_terms_task_path and return
   end
 
   # GET /controlled_vocabulary_terms/1/edit
   def edit
+    redirect_to manage_controlled_vocabulary_terms_task_path(controlled_vocabulary_term_id: @controlled_vocabulary_term.id) and return
   end
 
   # POST /controlled_vocabulary_terms
