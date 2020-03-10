@@ -8,7 +8,13 @@
     <switch-component
       v-model="view"
       :options="types"/>
-    <h3>{{ cvtTypes[view] }}</h3>
+    <h3>
+      {{ cvtTypes[view] }}
+      <a
+        v-if="linkFor.includes(view)"
+        href="/tasks/controlled_vocabularies/biocuration/build_collection">Manage biocuration classes and groups
+      </a>
+    </h3>
     <div class="flex-separate margin-medium-top">
       <div class="one_quarter_width">
       <div class="panel content ">
@@ -91,7 +97,8 @@ export default {
       cvtTypes: CVT_TYPES,
       controlled_vocabulary_term: CONTROLLED_VOCABULARY_TERM(),
       isSaving: false,
-      view: 'Keyword'
+      view: 'Keyword',
+      linkFor: ['BiocurationClass', 'BiocurationGroup']
     }
   },
   watch: {
