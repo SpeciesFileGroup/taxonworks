@@ -7,6 +7,7 @@
           <th @click="sortTable('name')">Name</th>
           <th @click="sortTable('definition')">Definition</th>
           <th @click="sortTable('count')">Uses</th>
+          <th>Show</th>
           <th>Edit</th>
           <th>Destroy</th>
         </tr>
@@ -18,6 +19,9 @@
             v-html="item.object_tag"></td>
           <td>{{ item.definition }}</td>
           <td>{{ item.count }}</td>
+          <td>
+            <a :href="`/controlled_vocabulary_terms/${item.id}`">Show</a>
+          </td>
           <td>
             <span
               class="button button-circle btn-edit"
