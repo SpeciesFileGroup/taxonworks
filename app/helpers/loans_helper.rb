@@ -10,6 +10,10 @@ module LoansHelper
       loan.recipient_address].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ').html_safe
   end
 
+  def label_for_loan(loan)
+    "loan #{loan.id}"
+  end
+
   def loan_identifier(loan)
     loan.identifiers.where(type: 'Identifier::Local::LoanCode').first
   end
