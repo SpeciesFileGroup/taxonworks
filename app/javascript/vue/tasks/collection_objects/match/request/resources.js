@@ -24,8 +24,8 @@ const CreateDetermination = (data) => {
   return AjaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
 }
 
-const UpdateLoan = (data) => {
-  return AjaxCall('patch', `/loans.json`, { loan: data })
+const UpdateLoan = (id, data) => {
+  return AjaxCall('patch', `/loans/${id}.json`, { loan: data })
 }
 
 export {
