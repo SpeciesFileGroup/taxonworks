@@ -22,11 +22,31 @@
         :global-id="globalId"
         :citation="citation"
         @create="updateCitation"/>
-      <display-list
-        :label="['topic', 'object_tag']"
-        :list="citation.citation_topics"
-        @delete="deleteTopic"
-        class="list"/>
+      <table class="full_width">
+        <thead>
+          <tr>
+            <th>Topic</th>
+            <th>Pages</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in citation.citation_topics">
+            <td v-html="item.topic.object_tag"/>
+            <td>
+              <topic-pages
+                v-model="citation.citation_topics[index]"
+                :citation-id="citation.id"
+                @update="updateCitation"/>
+            </td>
+            <td class="horizontal-right-content">
+              <span
+                class="button circle-button btn-delete"
+                @click="deleteTopic"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
@@ -34,13 +54,11 @@
 
   import CRUD from '../../request/crud.js'
   import annotatorExtend from '../annotatorExtend.js'
-  import Autocomplete from 'components/autocomplete.vue'
-  import DisplayList from '../displayList.vue'
   import TableList from './table.vue'
-  import DefaultElement from 'components/getDefaultPin.vue'
   import CitationNew from './new.vue'
   import CitationEdit from './edit.vue'
   import CitationTopic from './topic.vue'
+  import TopicPages from './pagesUpdate'
 
   export default {
     mixins: [CRUD, annotatorExtend],
@@ -48,10 +66,8 @@
       CitationNew,
       CitationEdit,
       CitationTopic,
-      DefaultElement,
-      Autocomplete,
-      DisplayList,
-      TableList
+      TableList,
+      TopicPages
     },
     computed: {
       validateFields() {
@@ -108,6 +124,11 @@
           this.list.push(response.body)
           this.citation = response.body
           TW.workbench.alert.create('Citation was successfully created.', 'notice')
+        })
+      },
+      updateTopic(topic) {
+        this.update(`/citation_topics/${topic.id}.json`, { citation_topic: topic }).then(response => {
+          TW.workbench.alert.create('Topic was successfully updated.', 'notice')
         })
       }
     }

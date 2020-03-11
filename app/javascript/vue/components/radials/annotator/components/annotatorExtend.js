@@ -28,9 +28,8 @@ const vueAnnotator = {
     }
   },
   mounted: function () {
-    let that = this
     this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
-      that.list = response.body
+      this.list = response.body
     })
   },
   watch: {
