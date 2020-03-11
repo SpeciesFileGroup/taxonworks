@@ -19,7 +19,7 @@
         <table class="full_width">
           <thead>
             <tr>
-              <th>CO Propierties</th>
+              <th>CO Properties</th>
               <th>
                 <span v-html="compare[0].object_tag"/>
               </th>
@@ -42,7 +42,7 @@
           </tbody>
           <thead>
             <tr>
-              <th>CE Propierties</th>
+              <th>CE Properties</th>
               <th>
                 <span 
                   v-if="compareCE[0]"
