@@ -12,6 +12,11 @@
       <%= f.text_field :initialize_start_page %>
     </div>
 
+    <div class="field">
+      <%= f.label :is_public, data: {help: 'Whether this is exposed to public APIs.'} %><br>
+      <%= f.check_box :is_public %>
+    </div>
+
     <div class="actions">
       <%= f.submit %>
     </div>

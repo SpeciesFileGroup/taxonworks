@@ -14,6 +14,12 @@
 
 <%= content_for :associated do %>
 
+
+  <% if @source.documentation.where('documents.project_id = ?', sessions_current_project_id) -%>
+    <h3> Documents </h3>
+   <%= documentation_links(@source) -%>
+  <% end %>
+
   <% if source_in_other_project?(@source) -%>
     <%= content_tag(:div, 'This source is used in another project.', class: [:feedback, 'feedback-warning']) -%>
   <% end %>

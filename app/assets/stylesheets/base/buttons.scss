@@ -144,6 +144,11 @@
   background-image: image-url("w_trash.svg");
 }
 
+.btn-download {
+  background-color: $color-secondary-2-4;
+  background-image: image-url("w_download.svg");
+}
+
 .btn-edit {
   background-color: $color-action-button;
   background-image: image-url("w_pencil.svg");

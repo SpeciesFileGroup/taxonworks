@@ -12,7 +12,7 @@ namespace :tw do
   task server_name: [:environment] do
     @args ||= {}
     n = @args[:server_name]
-    n ||= 'localhost'
+    n ||= (ENV['database_host'] || 'localhost')
     @args[:server_name] = n
   end
 

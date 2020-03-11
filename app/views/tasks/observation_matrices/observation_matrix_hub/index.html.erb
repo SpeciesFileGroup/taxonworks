@@ -22,8 +22,8 @@
           <td> <%= om.name -%> </td>
           <td> <%= om.observation_matrix_rows.count -%> </td> 
           <td> <%= om.observation_matrix_columns.count -%> </td> 
-          <td> <%= link_to('View', observation_matrix_view_task_path(observation_matrix_id: om)) if om.cell_count < 10000-%> </td> 
-          <td> <%= link_to('Edit', new_matrix_task_path(om)) -%> </td>
+          <td> <%= link_to('View', observation_matrix_view_task_path(observation_matrix_id: om.id)) -%> </td> 
+          <td> <%= link_to('Edit', new_matrix_task_path(observation_matrix_id: om.id)) -%> </td>
           <td> <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%> </td>
         <% end %>
       <% end %>

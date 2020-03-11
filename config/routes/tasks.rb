@@ -239,6 +239,10 @@ scope :tasks do
   end
 
   scope :controlled_vocabularies do
+      scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
+        get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
+      end
+
     scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
       get 'index', as: 'index_topics_hub_task'
     end

@@ -12,7 +12,10 @@ class ObservationMatrixRowsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrix_rows = ObservationMatrixRow.where(filter_params).where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+        @observation_matrix_rows = ObservationMatrixRow.where(filter_params)
+          .where(project_id: sessions_current_project_id)
+          .order('observation_matrix_rows.position')
+          .page(params[:page]).per(params[:per])
       }
     end
   end
@@ -41,7 +44,7 @@ class ObservationMatrixRowsController < ApplicationController
   end
 
   private
-  
+
   def set_matrix_row
     @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params[:id])
   end
