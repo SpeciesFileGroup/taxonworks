@@ -15,6 +15,11 @@
         <slot
           name="options"
           :item="item"/>
+        <a
+          v-if="download" 
+          class="btn-download circle-button"
+          :href="getPropertyValue(item, download)"
+          download/>
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -48,6 +53,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    download: {
+      type: String,
+      default: undefined
     },
     label: {
       type: [String, Array],
@@ -118,6 +127,19 @@ export default {
       else {
         this.$emit('delete', item)
         this.$emit('deleteIndex', index)
+      }
+    },
+    getPropertyValue(item, stringPath) {
+      let keys = stringPath.split('.')
+      if(keys.length === 1) {
+        return item[stringPath]
+      }
+      else {
+        let value = item
+        keys.forEach(key => {
+          value = value[key]
+        })
+        return value
       }
     }
   }

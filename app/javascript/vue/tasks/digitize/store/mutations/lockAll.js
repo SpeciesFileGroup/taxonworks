@@ -1,22 +1,20 @@
-export default function(state) {
-  state.settings.locked = {
-    biocuration: true,
-    identifier: true,
-    collecting_event: true,
-    collection_object: {
-      buffered_determinations: true,
-      buffered_collecting_event: true,
-      buffered_other_labels: true,
-      repository_id: true,
-      preparation_type_id: true
-    },
-    taxon_determination: {
-      otu_id: true,
-      year_made: true,
-      month_made: true,
-      day_made: true,
-      roles_attributes: true,    
-      dates: true      
-    }
+export default function(state, value) {
+  let allLock = state.settings.locked
+  let isLocked = !state.settings.isLocked
+
+  function setValueForAll(lockOption, value) {
+    Object.keys(lockOption).forEach(key => {
+      if(typeof lockOption[key] === 'object') {
+        Object.keys(lockOption[key]).forEach(lvl2 => {
+          lockOption[key][lvl2] = value
+        })
+      }
+      else {
+        lockOption[key] = value
+      }
+    })
+    return lockOption
   }
+  state.settings.locked = setValueForAll(allLock, isLocked)
+  state.settings.isLocked = isLocked
 }

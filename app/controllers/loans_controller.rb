@@ -92,6 +92,11 @@ class LoansController < ApplicationController
     send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
   end
 
+  # GET /loans/select_options
+  def select_options
+    @loans = Loan.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   private
 
   def set_loan

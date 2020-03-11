@@ -54,6 +54,7 @@
       label="object_tag"
       :list="list"
       :pdf="true"
+      download="document.file_url"
       @delete="removeItem"
       class="list"/>
   </div>
@@ -64,7 +65,7 @@
   import annotatorExtend from '../components/annotatorExtend.js'
   import Autocomplete from 'components/autocomplete.vue'
   import Dropzone from 'components/dropzone.vue'
-  import DisplayList from './displayList.vue'
+  import DisplayList from 'components/displayList.vue'
 
   export default {
     mixins: [CRUD, annotatorExtend],

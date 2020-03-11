@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_12_151008) do
+ActiveRecord::Schema.define(version: 2020_03_10_213009) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -594,6 +594,7 @@ ActiveRecord::Schema.define(version: 2020_02_12_151008) do
     t.jsonb "page_map", default: {}
     t.integer "page_total"
     t.string "document_file_fingerprint"
+    t.boolean "is_public"
     t.index ["document_file_content_type"], name: "index_documents_on_document_file_content_type"
     t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name"
     t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size"
