@@ -155,7 +155,7 @@ scope :tasks do
 
   scope :collection_objects do
       scope :match, controller: 'tasks/collection_objects/match' do
-        get :index, as: 'match_collection_objects_task'
+        get '/', action: :index, as: 'match_collection_objects_task'
       end
 
       scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
