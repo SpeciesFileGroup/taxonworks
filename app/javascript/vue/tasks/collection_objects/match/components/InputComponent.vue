@@ -3,7 +3,7 @@
     <textarea
       v-model="text"
       class="full_width"
-      placeholder="Write names..."
+      placeholder="Identifiers, one per line."
       rows="10">
     </textarea>
   </div>
