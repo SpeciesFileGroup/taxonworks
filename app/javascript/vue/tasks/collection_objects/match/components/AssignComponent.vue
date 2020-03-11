@@ -5,7 +5,7 @@
       v-model="view"/>
     <component
       :ids="ids"
-      :is="`${view}Component`"/>
+      :is="`${view.replace(' ', '')}Component`"/>
   </div>
 </template>
 
@@ -15,13 +15,15 @@ import SwitchComponent from 'components/switch'
 import TagComponent from './Assign/Tags'
 import DeterminationComponent from './Assign/Determinations'
 import LoanComponent from './Assign/Loans'
+import CollectingEventComponent from './Assign/CollectingEvents'
 
 export default {
   components: {
     SwitchComponent,
     DeterminationComponent,
     TagComponent,
-    LoanComponent
+    LoanComponent,
+    CollectingEventComponent
   },
   props: {
     ids: {
@@ -31,7 +33,7 @@ export default {
   },
   data () {
     return {
-      tabs: ['Tag', 'Loan', 'Determination'],
+      tabs: ['Tag', 'Loan', 'Determination', 'Collecting Event'],
       view: 'Tag'
     }
   }

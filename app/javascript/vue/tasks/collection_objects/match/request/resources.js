@@ -24,6 +24,10 @@ const CreateDetermination = (data) => {
   return AjaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
 }
 
+const UpdateCollectionObject = (id, co) => {
+  return AjaxCall('patch', `/collection_objects/${id}.json`, { collection_object: co })
+}
+
 const UpdateLoan = (id, data) => {
   return AjaxCall('patch', `/loans/${id}.json`, { loan: data })
 }
@@ -35,5 +39,6 @@ export {
   GetCollectionObject,
   GetCollectionObjectById,
   GetDWC,
+  UpdateCollectionObject,
   UpdateLoan
 }
