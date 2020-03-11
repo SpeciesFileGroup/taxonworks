@@ -20,7 +20,7 @@
         <input
           v-model="citation.is_original"
           type="checkbox">
-        Is original
+        Is original (does not apply to topics)
       </label>
       <default-element
         class="separate-left"
