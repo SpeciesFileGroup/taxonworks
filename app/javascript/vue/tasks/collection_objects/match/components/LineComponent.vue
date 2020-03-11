@@ -35,7 +35,6 @@
       <div class="flex-separate">
         <template v-if="(Array.isArray(match) && match.length) || Object.keys(match).length">
           <span><b>{{ recordId }}</b></span>
-          <span>{{ Array.isArray(match) ? match.length : Object.keys(match).length }} records.</span>
         </template>
         <template v-else>
           <span>
