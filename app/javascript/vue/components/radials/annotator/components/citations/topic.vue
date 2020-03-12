@@ -10,7 +10,20 @@
       pin-section="Topics"
       pin-type="Topic"
       target="Citation"
-      @selected="addTopic"/>
+      :add-tabs="['all']"
+      @selected="addTopic">
+      <div
+        v-if="slotProps.view === 'all'"
+        class="flex-wrap-row"
+        slot-scope="slotProps">
+        <div 
+          v-for="item in topicsAllList"
+          :key="item.id"
+          class="margin-medium-bottom cursor-pointer"
+          v-html="item.object_tag"
+          @click="addTopic(item)"/>
+      </div>
+    </smart-selector>
     <div class="field margin-medium-top">
       <input
         type="text"
@@ -73,8 +86,14 @@
     data() {
       return {
         pages: undefined,
-        topicsSelected: []
+        topicsSelected: [],
+        topicsAllList: undefined
       }
+    },
+    mounted () {
+      this.getList('/controlled_vocabulary_terms.json?type[]=Topic').then(response => {
+        this.topicsAllList = response.body
+      })
     },
     methods: {
       topicAlreadyCreated(topic) {
