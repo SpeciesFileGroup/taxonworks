@@ -142,12 +142,14 @@
         handler(newVal, oldVal) {
           this.settings.lastChange = Date.now()
           if(newVal.id && oldVal.id != newVal.id) {
-            this.loadingNavigation = true
-            AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
-              this.navigation.next = response.headers.map['navigation-next']
-              this.navigation.previous = response.headers.map['navigation-previous']
-              this.loadingNavigation = false
-            })
+            if(!this.loadingNavigation) {
+              this.loadingNavigation = true
+              AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
+                this.navigation.next = response.headers.map['navigation-next']
+                this.navigation.previous = response.headers.map['navigation-previous']
+                this.loadingNavigation = false
+              })
+            }
           }
         },
         deep: true
