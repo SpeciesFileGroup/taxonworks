@@ -1,7 +1,6 @@
 <template>
   <div>
     <div
-      
       class="radial-annotator">
       <modal
         v-if="display"
@@ -52,7 +51,7 @@
       </modal>
       <span
         v-if="showBottom"
-        :title="buttonTitle"
+        :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
         type="button"
         class="circle-button"
         :class="[buttonClass]"
