@@ -57,6 +57,7 @@ class SledImagesController < ApplicationController
     params[:collection_object]&.permit(
       :total,
       :collecting_event_id,
+      :repository_id,
       identifiers_attributes: [:namespace_id, :identifier, :type],
       notes_attributes: [:text],
       tags_attributes: [:id, :_destroy, :keyword_id],
