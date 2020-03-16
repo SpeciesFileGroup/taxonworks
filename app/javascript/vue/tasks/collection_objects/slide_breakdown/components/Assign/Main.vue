@@ -4,6 +4,7 @@
     <span><i>Added to all collection objects accordingly</i></span>
     <catalog-number class="margin-medium-bottom margin-medium-top"/>
     <repository-component class="margin-medium-bottom"/>
+    <preparation-type class="margin-medium-bottom"/>
     <taxon-determination class="margin-medium-bottom"/>
     <collecting-event class="margin-medium-bottom"/>
     <tag-component class="margin-medium-bottom"/>
@@ -21,6 +22,7 @@ import TagComponent from './Tag'
 import TaxonDetermination from './TaxonDetermination'
 import CollectingEvent from './CollectingEvent'
 import RepositoryComponent from './Repository'
+import PreparationType from './PreparationType'
 
 export default {
   components: {
@@ -30,7 +32,8 @@ export default {
     TagComponent,
     TaxonDetermination,
     CollectingEvent,
-    RepositoryComponent
+    RepositoryComponent,
+    PreparationType
   }
 }
 </script>

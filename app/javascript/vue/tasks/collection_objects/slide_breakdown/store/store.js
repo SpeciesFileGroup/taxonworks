@@ -16,6 +16,7 @@ function makeInitialState () {
       total: 1, 
       collecting_event_id: undefined,
       repository_id: undefined,
+      preparation_type_id: undefined,
       identifiers_attributes: [],
       notes_attributes: [],
       tags_attributes: [],

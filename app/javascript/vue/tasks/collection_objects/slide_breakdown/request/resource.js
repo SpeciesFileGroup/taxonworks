@@ -8,6 +8,10 @@ const GetSledImage = (id) => {
   return ajaxCall('get', `/sled_images/${id}.json`)
 }
 
+const GetPreparationTypes = function () {
+  return ajaxCall('get', `/preparation_types.json`)
+}
+
 const UpdateSledImage = (id, data) => {
   return ajaxCall('patch', `/sled_images/${id}.json`, data)
 }
@@ -45,5 +49,6 @@ export {
   NavigationSled,
   Report,
   GetUserPreferences,
+  GetPreparationTypes,
   UpdateUserPreferences
 }
