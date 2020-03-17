@@ -11,7 +11,8 @@
       v-if="expand"
       class="content">
       <span class="middle">
-        <span class="mark-box button-default separate-right"/> Specimen
+        <span class="mark-box button-default separate-right"/>
+          <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Specimen</a>
       </span>
       <ul class="no_bullets">
         <li>

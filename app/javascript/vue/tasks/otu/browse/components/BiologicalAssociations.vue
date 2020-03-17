@@ -3,7 +3,9 @@
     <a name="biological-associations"/>
     <ul class="no_bullets">
       <li v-for="biologicalAssociation in biologicalAssociations">
-        <span v-html="biologicalAssociation.object_tag"/>
+        <a
+          :href="`/biological_associations/${biologicalAssociation.id}`"
+          v-html="biologicalAssociation.object_tag"/>
       </li>
     </ul>
   </section-panel>
