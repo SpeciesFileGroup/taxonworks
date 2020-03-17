@@ -13,7 +13,7 @@ export default function ({ commit, state }) {
   if(locked) {
     newIdentifier.namespace_id = state.identifier.namespace_id
   }
-  if(state.settings.increment) {
+  if(state.settings.increment && !state.container) {
     newIdentifier.identifier = IncrementIdentifier(identifier)
   }
 
