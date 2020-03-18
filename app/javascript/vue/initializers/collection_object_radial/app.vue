@@ -3,6 +3,7 @@
     :id="id"
     type="graph"
     button-class="btn-co-radial"
+    button-title="Collection object quick forms"
     :global-id="globalId"/>
 </template>
 <script>

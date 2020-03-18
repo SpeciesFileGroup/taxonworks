@@ -179,6 +179,11 @@
             this.processQueue()
           })
         }
+        if(!this.settings.locked.biological_association.relationship)
+          this.biologicalRelationship = undefined
+        if(!this.settings.locked.biological_association.related) {
+          this.biologicalRelation = undefined
+        }
       },
     },
     methods: {

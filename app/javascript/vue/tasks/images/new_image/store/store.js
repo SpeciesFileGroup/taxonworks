@@ -35,7 +35,9 @@ function makeInitialState () {
     taxon_determinations: [],
     newCOForSqed: true,
     collection_object: {
-      total: 1
+      total: 1,
+      repository_id: undefined,
+      preparation_type_id: undefined
     },
     depiction: {
       caption: ''
