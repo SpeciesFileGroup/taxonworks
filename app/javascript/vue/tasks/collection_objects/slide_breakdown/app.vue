@@ -255,7 +255,9 @@ export default {
           }
           if(sledResponse.body.metadata.length) {
             this.setLines(this.setIdentifiers(sledResponse.body.metadata, sledResponse.body.summary))
-            this.$refs.sled.cells = sledResponse.body.metadata
+            this.$nextTick(() => {
+              this.$refs.sled.cells = sledResponse.body.metadata
+            })
           }
 
           this.isLoading = false
@@ -268,19 +270,26 @@ export default {
   methods: {
     loadPreferences () {
       GetUserPreferences().then(response => {
+        let that = this
         this.preferences = response.body
+        if (this.sledImage.summary.length) return
         let sizes = this.preferences.layout[this.configString]
         if(sizes) {
           this.vlines = sizes.columns.map(column => column * this.image.width),
           this.hlines = sizes.rows.map(row => row * this.image.height)
+          if(sizes.metadata)
+            this.$nextTick(()=> {
+              that.$refs.sled.cells = that.$refs.sled.cells.map((cell, index) => { cell.metadata = sizes.metadata[index] == 'null' ? null : sizes.metadata[index]; return cell })
+            })
         }
       })
     },
     savePreferences () {
       let columns = this.vlines.map(line => { return ScaleValue(line, 0, this.image.width, 0, 1) })
       let rows = this.hlines.map(line => { return ScaleValue(line, 0, this.image.height, 0, 1) })
+      let metadata = this.$refs.sled.cells.map(cell => { return `${cell.metadata}` })
 
-      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows } }).then(response => {
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows, metadata: metadata } }).then(response => {
         this.preferences = response.body
       })
     },
@@ -290,6 +299,7 @@ export default {
       })
     },
     processCells (cells) {
+      if (this.sledImage.summary.length) return
       this.sledImage.metadata = cells
     },
     createSled (load = false, id = undefined) {
@@ -325,8 +335,11 @@ export default {
             this.sledImage = response.body
           }
           if(response.body.metadata.length) {
+            let that = this
             this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
-            this.$refs.sled.cells = response.body.metadata
+            this.$nextTick(() => {
+              that.$refs.sled.cells = response.body.metadata
+            })
           }
 
           this.isLoading = false
