@@ -170,7 +170,7 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- in is likely not the most optimal
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- is likely not the most optimal
           ).arel.exists
         )
       end
@@ -328,6 +328,7 @@ module Queries
         clauses = []
 
         clauses += [
+          parent_id_facet,
           author_facet,
           cached_name,
           year_facet,
