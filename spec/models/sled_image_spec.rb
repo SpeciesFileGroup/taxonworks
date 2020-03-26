@@ -73,13 +73,15 @@ RSpec.describe SledImage, type: :model, group: :image do
 
   let(:namespace) { FactoryBot.create(:valid_namespace) }
   let(:keyword) { FactoryBot.create(:valid_keyword) }
+  let(:otu) { FactoryBot.create(:valid_otu) } 
 
   let(:collection_object_params) {
     {
       total: 1,
       identifiers_attributes: [ {identifier: 0, type: 'Identifier::Local::CatalogNumber', namespace_id: namespace.id} ] ,
       notes_attributes: [ { text: 'Hello' } ],
-      tags_attributes: [ { keyword_id: keyword.id } ]
+      tags_attributes: [ { keyword_id: keyword.id } ],
+      taxon_determinations_attributes: [ { otu_id: otu.id} ]
     }}
 
   context '#summary' do
@@ -130,6 +132,10 @@ RSpec.describe SledImage, type: :model, group: :image do
       expect(Depiction.where(sled_image: sled_image).all.count).to eq(9)
     end
 
+    specify 'taxon_determinations' do
+      expect(TaxonDetermination.all.count).to eq(9)
+    end
+
     specify 'tags' do
       expect(Tag.all.count).to eq(9)
     end
@@ -147,6 +153,38 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.destroy
       expect(CollectionObject.all.reload.count).to eq(0)
     end
+  end
+
+  context 'existing objects/identifiers' do
+    let!(:oe) { Specimen.create!(identifiers_attributes: [{type: 'Identifier::Local::CatalogNumber', namespace_id: namespace.id, identifier: 0}]) }
+
+    before do
+      sled_image.update!(
+        metadata: metadata,
+        image: image,
+        collection_object_params: collection_object_params
+      )
+    end
+
+    specify 'depictions' do
+      expect(oe.depictions.reload.count).to eq(1)
+    end
+
+    # Are not added!
+    specify 'notes' do
+      expect(oe.notes.reload.count).to eq(0)
+    end
+
+    # Are not added!
+    specify 'tags' do
+      expect(oe.tags.reload.count).to eq(0)
+    end
+
+    # Are not added!
+    specify 'taxon_determinations' do
+      expect(oe.taxon_determinations.reload.count).to eq(0)
+    end
+
   end
 
   specify '#new_collection_object' do

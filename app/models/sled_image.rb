@@ -218,11 +218,28 @@ class SledImage < ApplicationRecord
             }
           ]
         )
-        c = CollectionObject.new(p)
-        if c.identifiers.first
-          c.identifiers.first.identifier = identifier_for(i)
+
+        j = identifier_for(i)
+
+        # Check to see if object exists
+        if k = Identifier::Local::CatalogNumber.where(p[:identifiers_attributes].first.merge(identifier: j)).first
+          # Remove the identifier attributes, identifier exists
+          p.delete :identifiers_attributes
+          p.delete :tags_attributes
+          p.delete :notes_attributes
+          p.delete :taxon_determinations_attributes
+
+          k.identifier_object.update!(p)
+        else
+          c = CollectionObject.new(p)
+
+          if c.identifiers.first
+            c.identifiers.first.identifier = identifier_for(i)
+          end
+
+          c.save!
         end
-        c.save!
+
       end
     rescue ActiveRecord::RecordInvalid => e
       errors.add(:base, e.message)
