@@ -38,6 +38,10 @@
 #   been included in TW then a new short name must be minted, and a verbatim_short_name used to indicate the
 #   physically/and or historically recorded value.
 #
+# @!attribute delimiter
+#   @return [String, nil]
+#      Defines the character(s) to be placed between the namespace short name and the identifier
+#
 class Namespace < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps

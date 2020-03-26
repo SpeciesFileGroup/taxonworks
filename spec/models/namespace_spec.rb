@@ -56,6 +56,22 @@ describe Namespace, type: :model do
     end
   end
 
+  context 'updates' do
+    before { namespace.update!(name: 'AA', short_name: 'A') }
+    let(:i) { Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: FactoryBot.create(:valid_otu), identifier: 0) }
+
+    specify 'cached 1' do
+      expect(i.cached).to eq('A 0')
+    end
+
+    context 'after' do
+      before { namespace.update!(name: 'AA', short_name: 'B', delimiter: '_') }
+      specify 'cached 1' do
+        expect(i.reload.cached).to eq('B_0')
+      end
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end

@@ -43,7 +43,7 @@ class Identifier::Local < Identifier
 
   # @return string
   def delimiter
-    a = read_attribute(:delimiter)
+    a = namespace&.read_attribute(:delimiter)
     return '' if a == 'NONE' 
     [a, ' '].compact.first
   end
