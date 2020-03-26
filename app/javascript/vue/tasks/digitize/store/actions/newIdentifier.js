@@ -6,10 +6,9 @@ export default function ({ commit, state }) {
   let newIdentifier = NewIdentifier()
   let locked = state.settings.locked.identifier
   let identifier = state.identifier.identifier
-  
-  if (state.container) {
-    newIdentifier.identifier_object_type = 'Container'
-  }
+
+  newIdentifier.identifier_object_type = state.container ? 'Container' : 'CollectionObject'
+
   if(locked) {
     newIdentifier.namespace_id = state.identifier.namespace_id
   }
