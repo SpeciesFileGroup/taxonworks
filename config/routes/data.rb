@@ -655,7 +655,6 @@ resources :topics, only: [:create] do
     get :index, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     get 'get_definition/:id', action: 'get_definition'
-    get :autocomplete
     get :lookup_topic
     get :list
   end

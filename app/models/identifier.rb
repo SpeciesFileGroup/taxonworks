@@ -59,6 +59,8 @@ class Identifier < ApplicationRecord
   #   validates_presence_of :identifier_object_type, :identifier_object_id
   validates_presence_of :type, :identifier
 
+  validates :identifier, presence: true
+
   # TODO: DRY to IsData? Test. 
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
