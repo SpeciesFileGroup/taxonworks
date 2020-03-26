@@ -176,7 +176,7 @@ class SledImage < ApplicationRecord
       c = s['column'].to_i
       m[r] ||= []
       m[r][c] = nil if !s['metadata'].blank?
-      next if !s['metadata'].blank?
+      next if !s['metadata'].blank? || _first_identifier.nil?
 
       inc = r + c - i[r][c] + _first_identifier
       v = nil
@@ -222,7 +222,7 @@ class SledImage < ApplicationRecord
         j = identifier_for(i)
 
         # Check to see if object exists
-        if k = Identifier::Local::CatalogNumber.where(p[:identifiers_attributes].first.merge(identifier: j)).first
+        if j && k = Identifier::Local::CatalogNumber.where(p[:identifiers_attributes].first.merge(identifier: j)).first
           # Remove the identifier attributes, identifier exists
           p.delete :identifiers_attributes
           p.delete :tags_attributes

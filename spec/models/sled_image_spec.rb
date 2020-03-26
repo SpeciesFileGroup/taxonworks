@@ -184,7 +184,6 @@ RSpec.describe SledImage, type: :model, group: :image do
     specify 'taxon_determinations' do
       expect(oe.taxon_determinations.reload.count).to eq(0)
     end
-
   end
 
   specify '#new_collection_object' do
