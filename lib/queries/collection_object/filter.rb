@@ -260,7 +260,7 @@ module Queries
           type_material_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
-          created_modified_facet, # See Queries::Concerns::Users
+          created_updated_facet, # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
