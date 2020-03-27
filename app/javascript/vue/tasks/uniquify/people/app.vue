@@ -41,7 +41,7 @@
       :full-screen="true"
       :legend="isLoading ? 'Loading...' : 'Merging...'"
       :logo-size="{ width: '100px', height: '100px'}"/>
-    <div class="flexbox">
+    <div class="horizontal-left-content">
       <div class="flexbox">
         <div
           v-show="showSearch"
