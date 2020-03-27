@@ -43,7 +43,7 @@ class Repository < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:name, :acronym]
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
-  validates_presence_of :name, :url, :acronym, :status
+  validates_presence_of :name, :acronym
 
   scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ) }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }

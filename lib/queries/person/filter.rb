@@ -1,5 +1,6 @@
 module Queries
   module Person
+
     class Filter
 
       # - use similar/identical methods in IsData
@@ -16,8 +17,11 @@ module Queries
         @first_name = params[:first_name]
         @last_name = params[:last_name]
         @last_name_starts_with = params[:last_name_starts_with]
-
         @levenshtein_cuttoff = params[:levenshtein_cuttoff] || 4
+        
+        set_identifier(params)
+        set_tags_params(params)
+        set_alternate_value(params)
       end
 
       # @return [Arel::Table]
