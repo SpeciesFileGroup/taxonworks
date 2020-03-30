@@ -529,7 +529,7 @@ manage_controlled_vocabulary_terms_task:
   related:
   categories:
   status: stable 
-  description: 'View and create custom fields, tags, etc. used throughout TaxonWorks.'
+  description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
   name: 'Collection object match'
@@ -538,3 +538,11 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
+work_report_task:
+  hub: true
+  name: 'Collection object work report'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
