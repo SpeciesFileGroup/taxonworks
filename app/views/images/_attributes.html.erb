@@ -13,8 +13,6 @@
   <%= link_to(short_url(@image.image_file.url(:thumb)), short_url(@image.image_file.url(:thumb)))  -%>
 </p>
 
-
-
 <div class="easyzoom easyzoom--overlay">
   <a href="<%= @image.image_file.url(:medium) %>">
     <%= image_tag(@image.image_file.url(:medium), 'class' => 'imageZoom') %>

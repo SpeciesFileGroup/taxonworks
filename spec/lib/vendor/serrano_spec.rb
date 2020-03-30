@@ -28,7 +28,7 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
     end
 
     context 'from DOI text' do
-      let(:naked_doi) {'10.3897/zookeys.20.205'}
+      let(:naked_doi) {'10.11646/zootaxa.4674.4.8'}
       let(:https_doi) {'https://doi.org/' + naked_doi}
       let(:http_doi) {'http://dx.doi.org/' + naked_doi}
 
@@ -64,6 +64,13 @@ describe TaxonWorks::Vendor::Serrano, type: :model, group: [:sources] do
         VCR.use_cassette('source_from_http_doi') do
           s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: http_doi)
           expect(s.class).to eq(Source::Bibtex)
+        end
+      end
+
+      specify 'remove html tags encoded as $\less$TAG$\greater$ except for <em>/<i>' do
+        VCR.use_cassette('source_from_naked_doi') do
+          s = TaxonWorks::Vendor::Serrano.new_from_citation(citation: naked_doi)
+          expect(s.title).to include('<i>Tachycines</i>')
         end
       end
     end

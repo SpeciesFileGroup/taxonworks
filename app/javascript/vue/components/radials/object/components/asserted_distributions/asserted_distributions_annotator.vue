@@ -16,17 +16,28 @@
         ref="source"
         @lock="lockSource = $event"
         :display="displayLabel"/>
-      <button
-        type="button"
-        class="button normal-input button-submit"
-        v-if="asserted_distribution.id"
-        @click="createAsserted">Create
-      </button>
+      <template v-if="asserted_distribution.id">
+        <button
+          v-if="editCitation"
+          type="button"
+          class="button normal-input button-submit"
+          @click="createAsserted">Update
+        </button>
+        <button
+          v-else
+          type="button"
+          class="button normal-input button-submit"
+          @click="createAsserted">Create
+        </button>
+      </template>
       <display-list
+        class="margin-medium-top"
         v-if="asserted_distribution.id"
         :list="asserted_distribution.citations"
+        :edit="true"
+        @edit="setEditCitation"
         @delete="removeCitation"
-        label="object_tag"/>
+        label="citation_source_body"/>
       <div>
         <spinner
           v-if="!asserted_distribution.citations_attributes[0].source_id || asserted_distribution.id"
@@ -45,6 +56,7 @@
         :href="`/tasks/gis/otu_distribution_data/${metadata.object_id}`"
         target="blank">Map</a>
     </div>
+    <h3>In this geographic area</h3>
     <table-list 
       class="separate-top"
       :header="['Geographic area', 'Absent', '']"
@@ -114,13 +126,26 @@
         displayGeographic: undefined,
         editTitle: undefined,
         lockSource: false,
-        lockGeo: false
+        lockGeo: false,
+        editCitation: undefined
       }
     },
     mounted() {
       this.asserted_distribution.otu_id = this.splittedGlobalId
     },
     methods: {
+      setEditCitation(citation) {
+        let data = {
+          id: citation.id,
+          is_absent: undefined,
+          pages: citation.pages,
+          source_id: citation.source_id,
+          is_original: citation.is_original,
+          citation_source_body: citation.citation_source_body
+        }
+        this.editCitation = citation
+        this.$refs.source.setCitation(data)
+      },
       createAsserted() {
         if(!this.existingArea) {
           this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
@@ -167,6 +192,14 @@
         this.asserted_distribution.citations = item.citations
         this.asserted_distribution.otu_id = item.otu_id
         this.asserted_distribution.geographic_area_id = item.geographic_area_id
+        this.asserted_distribution.citations_attributes = [{
+          id: undefined,
+          source_id: undefined,
+          pages: undefined,
+          is_original: undefined
+        }]
+        this.editCitation = undefined
+        this.$refs.source.cleanCitation()
       },
       newAsserted() {
         this.displayLabel = ''
@@ -184,6 +217,7 @@
         }
       },
       setSource(source) {
+        this.asserted_distribution.citations_attributes[0].id = source.id
         this.asserted_distribution.citations_attributes[0].source_id = source.source_id
         this.asserted_distribution.citations_attributes[0].pages = source.pages
         this.asserted_distribution.citations_attributes[0].is_absent = source.is_absent

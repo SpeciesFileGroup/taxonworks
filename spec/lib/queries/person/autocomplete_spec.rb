@@ -10,6 +10,27 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
 
   let(:query) { Queries::Person::Autocomplete.new('') }
 
+  context 'alternate values' do
+    let!(:a1) { AlternateValue::Abbreviation.create!(alternate_value_object: p1, alternate_value_object_attribute: :last_name, value: 'S.') }
+    let!(:a2) { AlternateValue::Misspelling.create!(alternate_value_object: p4, alternate_value_object_attribute: :first_name, value: 'Geerge') }
+    let!(:a3) { AlternateValue::AlternateSpelling.create!(alternate_value_object: p5, alternate_value_object_attribute: :last_name, value: 'Tartero') }
+
+    specify '1' do
+      query.terms = 'S.'
+      expect(query.autocomplete_alternate_values_last_name.map(&:id)).to contain_exactly(p1.id) 
+    end
+
+    specify '2' do
+      query.terms = 'Geerge'
+      expect(query.autocomplete_alternate_values_first_name.map(&:id)).to contain_exactly(p4.id) 
+    end
+
+    specify '3' do
+      query.terms = 'Tartero'
+      expect(query.autocomplete.map(&:id)).to contain_exactly(p5.id) 
+    end
+  end
+
   specify '#normalize 1' do
     expect(query.normalize('Smith,Sarah')).to eq('Smith, Sarah')
   end

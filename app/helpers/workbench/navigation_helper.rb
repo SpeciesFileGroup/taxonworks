@@ -1,6 +1,6 @@
 # Methods for 1) generating paths; or 2) generating links.
 module Workbench::NavigationHelper
-  NO_NEW_FORMS = %w{Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
   # Slideout panels

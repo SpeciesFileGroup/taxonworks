@@ -15,6 +15,14 @@
         }"
         @getItem="getTaxon"/>
     </div>
+    <span
+      class="horizontal-left-content"
+      v-if="value">
+      <span v-html="value.object_tag"/>
+      <span
+        class="button circle-button btn-undo button-default"
+        @click="$emit('input', undefined)"/>
+    </span>
   </div>
 </template>
 

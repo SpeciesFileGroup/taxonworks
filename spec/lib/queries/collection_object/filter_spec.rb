@@ -54,6 +54,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       }
 
       t = SledImage.create!(image: FactoryBot.create(:valid_image), metadata: [ m ], collection_object_params: {total: 1})
+    
       query.sled_image_id = t.id
       expect(query.all.map.size).to eq(1)
     end
@@ -82,7 +83,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
     context '#user_id' do
       specify 'updated 1' do
-        query.user_target = 'modified'
+        query.user_target = 'updated'
         query.user_date_start = '1999-01-01'
         query.user_date_end = '2002-01-01'
         query.user_id = Current.user_id
@@ -90,7 +91,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
 
       specify 'updated 2' do
-        query.user_target = 'modified'
+        query.user_target = 'updated'
         query.user_date_start = '2001-01-01'
         query.user_id = Current.user_id
         expect(query.all.map(&:id)).to contain_exactly(co1.id)

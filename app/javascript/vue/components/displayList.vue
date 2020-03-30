@@ -4,7 +4,7 @@
     name="list-complete"
     tag="ul">
     <li
-      v-for="item in list"
+      v-for="(item, index) in list"
       :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
@@ -15,6 +15,11 @@
         <slot
           name="options"
           :item="item"/>
+        <a
+          v-if="download" 
+          class="btn-download circle-button"
+          :href="getPropertyValue(item, download)"
+          download/>
         <radial-annotator
           v-if="annotator"
           :global-id="item.global_id"/>
@@ -29,7 +34,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
-          @click="deleteItem(item)">Remove
+          @click="deleteItem(item, index)">Remove
         </span>
       </div>
     </li>
@@ -48,6 +53,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    download: {
+      type: String,
+      default: undefined
     },
     label: {
       type: [String, Array],
@@ -108,14 +117,29 @@ export default {
       }
       return false
     },
-    deleteItem(item) {
+    deleteItem(item, index) {
       if(this.deleteWarning) {
         if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
           this.$emit('delete', item)
+          this.$emit('deleteIndex', index)
         }
       }
       else {
         this.$emit('delete', item)
+        this.$emit('deleteIndex', index)
+      }
+    },
+    getPropertyValue(item, stringPath) {
+      let keys = stringPath.split('.')
+      if(keys.length === 1) {
+        return item[stringPath]
+      }
+      else {
+        let value = item
+        keys.forEach(key => {
+          value = value[key]
+        })
+        return value
       }
     }
   }

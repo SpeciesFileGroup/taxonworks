@@ -9,6 +9,8 @@
           v-model="collectionObject.total">
       </div>
     </fieldset>
+    <repository-component/>
+    <preparation-type/>
     <taxon-determination class="separate-top"/>
   </div>
 </template>
@@ -16,12 +18,17 @@
 <script>
 
 import TaxonDetermination from './determination'
+import RepositoryComponent from './repository'
+import PreparationType from './preparationType'
+
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 
 export default {
   components: {
-    TaxonDetermination
+    TaxonDetermination,
+    RepositoryComponent,
+    PreparationType
   },
   computed: {
     collectionObject: {

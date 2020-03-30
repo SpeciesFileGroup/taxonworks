@@ -132,12 +132,20 @@
         :disabled="!otuId"
         class="button normal-input button-submit separate-top"
         @click="addDetermination">Add</button>
-      <display-list
-        :list="list"
-        @delete="removeTaxonDetermination"
-        :radial-object="true"
-        set-key="otu_id"
-        label="object_tag"/>
+      <draggable
+        class="table-entrys-list"
+        element="ul"
+        v-model="list"
+        @end="updatePosition">
+        <li
+          class="list-complete-item flex-separate middle"
+          v-for="(item, index) in list">
+          <span v-html="item.object_tag"/>
+          <span
+            class="circle-button btn-delete"
+            @click="removeTaxonDetermination(item)"/>
+        </li>
+      </draggable>
     </div>
   </block-layout>
 </template>
@@ -158,6 +166,7 @@ import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
+import Draggable from 'vuedraggable'
 
 
 export default {
@@ -168,7 +177,8 @@ export default {
     BlockLayout,
     DisplayList,
     PinDefault,
-    LockComponent
+    LockComponent,
+    Draggable
   },
   computed: {
     collectionObject() {
@@ -233,8 +243,13 @@ export default {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
       }
     },
-    list() {
+    list: {
+      get () {
       return this.$store.getters[GetterNames.GetTaxonDeterminations]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTaxonDeterminations, value)
+      }
     }
   },
   data() {
@@ -323,7 +338,12 @@ export default {
       this.day = today.getDate()
       this.month = today.getMonth() + 1
       this.year = today.getFullYear()
-    }
+    },
+    updatePosition () {
+      for(let i = 0; i < this.list.length; i++) {
+        this.list[i].position = (i + 1)
+      }
+    },
   }
 }
 </script>

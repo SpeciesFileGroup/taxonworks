@@ -87,6 +87,6 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:document_file, :initialize_start_page)  
+    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)  
   end
 end

@@ -95,7 +95,7 @@ class DocumentationController < ApplicationController
   def documentation_params
     params.require(:documentation).permit(
       :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity, :position,
-      document_attributes: [:document_file]
+      document_attributes: [:document_file, :is_public]
     )
   end
 end

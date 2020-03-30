@@ -84,6 +84,18 @@ describe "Docker image test", js: true do
     end
   end
 
+  context 'when using Biodiversity' do
+    before(:each) do
+      click_on 'test_project'
+    end
+
+    it 'returns Testidae as result' do
+      visit '/taxon_names/autocomplete.json?term=Test'
+      expect(page).to have_content('Testidae')
+    end
+  end
+
+
 
   # TODO: Make this test inside taxonworks container (without installing anything extra).
   #       This is currently self-tested in Dockerfile

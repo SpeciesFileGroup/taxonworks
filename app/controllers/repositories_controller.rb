@@ -78,7 +78,7 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
+    @repositories = Queries::Repository::Autocomplete.new(params[:term], autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
@@ -93,13 +93,15 @@ class RepositoriesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
+  def autocomplete_params
+    params.permit(alternate_value_type: []).to_h.symbolize_keys
+  end
+
   def set_repository
     @repository = Repository.find(params[:id])
     @recent_object = @repository
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def repository_params
     params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
   end

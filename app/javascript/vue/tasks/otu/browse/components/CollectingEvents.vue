@@ -6,7 +6,9 @@
         v-for="(item, index) in collectingEvents"
         :key="item.id"
         v-if="index < max || showAll">
-        <span v-html="item.object_tag"/>
+        <a
+          :href="`/collecting_events/${item.id}`"
+          v-html="item.object_tag"/>
       </li>
     </ul>
     <template v-if="collectingEvents.length > max">

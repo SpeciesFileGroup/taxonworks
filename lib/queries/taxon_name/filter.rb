@@ -1,10 +1,11 @@
 module Queries
   module TaxonName 
 
+    # https://api.taxonworks.org/#/taxon_names
     class Filter < Queries::Query
 
       include Queries::Concerns::Tags
- 
+
       # @param name [String]
       #  Matches against cached.  See also exact.
       attr_accessor :name
@@ -36,6 +37,12 @@ module Queries
       # @return
       #   Return the taxon name(s) with this/these ids 
       attr_accessor :taxon_name_id
+
+      # @params parent_id[] [Array]
+      #   An array of taxon_name_id.
+      # @return
+      #   Return all immediate children to any of these parent names
+      attr_accessor :parent_id
 
       # @param descendants [Boolean]
       # ['true' or 'false'] on initialize
@@ -119,6 +126,7 @@ module Queries
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @taxon_name_id = params[:taxon_name_id] || []
+        @parent_id = params[:parent_id] || []
         @taxon_name_relationship = params[:taxon_name_relationship] || [] 
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
         @taxon_name_type = params[:taxon_name_type]
@@ -162,7 +170,7 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameHierarchy.where(
             ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- in is likely not the most optimal
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- is likely not the most optimal
           ).arel.exists
         )
       end
@@ -277,6 +285,11 @@ module Queries
         end
       end
 
+      def parent_id_facet 
+        return nil if parent_id.empty?
+          table[:parent_id].eq_any(parent_id)
+      end
+
       def author_facet 
         return nil if author.blank?
         if exact
@@ -315,6 +328,7 @@ module Queries
         clauses = []
 
         clauses += [
+          parent_id_facet,
           author_facet,
           cached_name,
           year_facet,

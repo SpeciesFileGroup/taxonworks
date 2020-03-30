@@ -5,7 +5,11 @@
       <div class="content">
         <div>
           <div class="flex-separate">
-            <span class="section-title">{{ title }}</span>
+            <div>
+              <span class="section-title">{{ title }}</span>
+              <slot name="title">
+              </slot>
+            </div>
             <div class="horizontal-left-content">
               <div
                 class="option-box button-default cursor-pointer"

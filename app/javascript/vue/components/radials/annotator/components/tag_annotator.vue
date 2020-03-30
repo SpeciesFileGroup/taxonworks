@@ -30,11 +30,12 @@
       <div slot="body">
         <template v-for="keyword in preferences[view]">
           <button
-            :style="{ borderRightColor: keyword.css_color, borderRightWidth: '4px', borderRightStyle: 'solid' }"
             v-if="!tagAlreadyCreated(keyword)"
             @click="createWithId(keyword.id)"
             type="button"
-            class="normal-input button-submit tag_button"> {{ keyword.name }} </button>
+            class="button normal-input button-submit margin-small-right margin-small-bottom"> 
+            <span v-html="keyword.object_tag"/>
+          </button>
         </template>
       </div>
     </modal>
@@ -112,7 +113,7 @@ export default {
     return {
       preferences: undefined,
       view: 'quick',
-      tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new keyword'],
+      tabOptions: ['quick', 'recent', 'pinboard', 'all'],
       tag: {
         keyword_attributes: {
           name: '',

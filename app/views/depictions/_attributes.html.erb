@@ -8,6 +8,11 @@
   <%= link_to( depiction_tag(@depiction, size: :original), @depiction.image.image_file.url ) %>
 </p>
 
+<p>
+  <strong>Image id:</strong>
+  <%= @depiction.image.id %>
+</p>
+
 <div class="attribute_set" data-title="Caption etc.">
   <p>
     <strong>Caption</strong>

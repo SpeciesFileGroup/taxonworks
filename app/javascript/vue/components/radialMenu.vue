@@ -73,6 +73,15 @@ export default {
         }
       }
     },
+    colorCount: {
+      type: Object,
+      default: function () {
+        return {
+          background: '#006ebf',
+          text: '#FFFFFF'
+        }
+      }
+    },
     circleStyle: {
       type: Object,
       default: () => {
@@ -334,8 +343,8 @@ export default {
         var angle = Math.radians(this.getSegmentSize(i))
 
         if (this.menu[i]['total']) {
-          this.drawOption('green', angle, this.width / 2 - 30, this.width / 2 - 4, segmentWidth)
-          this.drawText(this.findNewPoint(this.width / 2, this.height / 2, Math.degrees(angle) + ((segmentWidth) / 2), this.width / 2 - 14), this.menu[i].total, '#FFFFFF')
+          this.drawOption(this.colorCount.background, angle, this.width / 2 - 30, this.width / 2 - 4, segmentWidth)
+          this.drawText(this.findNewPoint(this.width / 2, this.height / 2, Math.degrees(angle) + ((segmentWidth) / 2), this.width / 2 - 14), this.menu[i].total, this.colorCount.text)
         }
 
         if (this.optionSelected == this.menu[i]) {
