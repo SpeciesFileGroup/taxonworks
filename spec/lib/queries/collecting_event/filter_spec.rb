@@ -19,6 +19,16 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     start_date_day: 18,
     print_label: 'THERE: under the stars:18-2-2000') }
 
+  context 'otus' do
+    let!(:o) { Otu.create!(name: 'foo') }
+    let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
+
+    specify '#otu_ids' do
+      q = Queries::CollectingEvent::Filter.new(otu_ids: [o.id])
+      expect(q.all).to contain_exactly(ce1)
+    end
+  end
+
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
   # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
@@ -46,6 +56,20 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     query.start_date_year = 2000
     query.start_date_month = 3
     expect(query.all).to contain_exactly()
+  end
+
+  specify 'md5 1' do
+    ce2.update(verbatim_label: 'QQQQ')
+    query.md5_verbatim_label = true
+    query.in_labels = 'QQQ'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify 'md5 2' do
+    ce2.update(verbatim_label: 'QQQQ')
+    query.md5_verbatim_label = true
+    query.in_labels = 'QQQQ'
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify 'between date range 1' do

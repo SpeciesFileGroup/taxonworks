@@ -23,4 +23,3 @@ if combination.origin_citation
     json.partial! '/citations/attributes', citation: combination.origin_citation
   end
 end
-

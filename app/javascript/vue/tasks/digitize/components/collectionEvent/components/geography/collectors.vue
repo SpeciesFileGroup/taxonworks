@@ -11,6 +11,7 @@
       class="separate-bottom">
       <ul v-if="lists[view].length" class="no_bullets">
         <li
+          class="horizontal-left-content"
           v-for="item in lists[view]"
           :key="item.id"
           v-if="!roleExist(item.id)">
@@ -57,6 +58,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventRoles, value)
       }
+    },
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     }
   },
   data() {
@@ -64,6 +68,13 @@ export default {
       options: [],
       view: 'new/Search',
       lists: undefined
+    }
+  },
+  watch: {
+    collectionObject(newVal) {
+      if(!newVal.id) {
+        this.GetSmartSelector()
+      }
     }
   },
   mounted() {
@@ -81,7 +92,7 @@ export default {
     },
     roleExist(id) {
       return (this.collectors.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && role.person_id == id
       }) ? true : false)
     },
     addRole(role) {

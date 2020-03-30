@@ -16,11 +16,13 @@ module Shared::Identifiers
     # !! This only is able to match numeric identifiers, other results are excluded !!
     # Careful, a potential security issue here
     scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
-      .where("identifiers.identifier ~ '\^\\d\+\$'")
-      .order(Arel.sql("CAST(identifiers.identifier AS integer) #{o}"))
+      .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
+      .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{o}"))
       .references(:identifiers) }
 
-    scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) { with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted) }
+    scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
+      with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
+    }
   end
 
   module ClassMethods
@@ -68,12 +70,40 @@ module Shared::Identifiers
       q = with_identifier_type(identifier_type) if !identifier_type.blank?
       q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if !namespace_id.blank?
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
-      q 
+      q
     end
   end
 
   def identified?
     self.identifiers.any?
+  end
+
+  def next_by_identifier
+    if i = identifiers.order(:position).first
+      self.class
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .first
+    else
+      nil
+    end
+  end
+
+  def previous_by_identifier
+    if i = identifiers.order(:position).first
+      self.class
+        .where(project_id: project_id)
+        .where.not(id: id)
+        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
+        .where(Utilities::Strings.is_i?(i.identifier) ?
+               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .first
+    else
+      nil
+    end
   end
 
   protected

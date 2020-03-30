@@ -16,15 +16,11 @@ class BiologicalAssociationsController < ApplicationController
           .new(filter_params)
           .all
           .where(project_id: sessions_current_project_id)
-          .page(params[:page] || 1).per(500)
+          .page(params[:page] || 1).per(params[:per] || 500)
       }
     end
   end
-
-  def filter_params
-    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
-  end
-  
+ 
   # GET /biological_associations/1
   # GET /biological_associations/1.json
   def show
@@ -92,19 +88,29 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   private
-  # Use callbacks to share common setup or constraints between actions.
-  def set_biological_association
-    @biological_association = BiologicalAssociation.find(params[:id])
+  
+  def filter_params
+    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
+
+    # Shallow resource hack
+    if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
+       params[:any_global_id] = c.to_global_id.to_s 
+    end
+    params
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
+  def set_biological_association
+    @biological_association = BiologicalAssociation.where(project_id: sessions_current_project_id).find(params[:id])
+  end
+
   def biological_association_params
     params.require(:biological_association).permit(
       :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, 
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,
-      origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
+      origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )
   end
 end

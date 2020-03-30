@@ -226,11 +226,13 @@ class CollectingEvent < ApplicationRecord
   has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
-  after_create do 
+  has_many :otus, through: :collection_objects
+
+  after_create do
     if with_verbatim_data_georeference
       generate_verbatim_data_georeference(true)
     end
-  end 
+  end
 
   before_save :set_times_to_nil_if_form_provided_blank
 
@@ -240,8 +242,10 @@ class CollectingEvent < ApplicationRecord
 
   def update_dwc_occurrences
     # reload is required!
-    collection_objects.reload.each do |o|
-      o.set_dwc_occurrence 
+    if collection_objects.count < 40
+      collection_objects.reload.each do |o|
+        o.set_dwc_occurrence
+      end
     end
   end
 
@@ -313,7 +317,7 @@ class CollectingEvent < ApplicationRecord
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
           .limit(5)
-          .distinct.to_a + 
+          .distinct.to_a +
         CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
@@ -332,7 +336,7 @@ class CollectingEvent < ApplicationRecord
     # @param [CollectingEvent Scope] collecting_events
     # @return [Scope] without self (if included)
     # TODO: DRY, use general form of this
-    def excluding(collecting_events)
+    def not_including(collecting_events)
       where.not(id: collecting_events)
     end
 
@@ -353,7 +357,7 @@ class CollectingEvent < ApplicationRecord
 
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
-    # TODO: ARELIZE, likely in lib/queries
+    # TODO: deprecate for lib/queries/collecting_event
     def filter_by(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
@@ -407,14 +411,14 @@ class CollectingEvent < ApplicationRecord
         exit
       end
 
-      passed    = 0
-      failed    = 0
+      passed = 0
+      failed = 0
       attempted = 0
 
       CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
         next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
         attempted += 1
-        g         = c.generate_verbatim_data_georeference(true)
+        g = c.generate_verbatim_data_georeference(true)
         if g.errors.empty?
           passed += 1
           puts "created for #{c.id}"
@@ -429,13 +433,7 @@ class CollectingEvent < ApplicationRecord
       puts "attempted: #{attempted}"
       true
     end
-
-    # @return [Array] of strings of only the non-cached and non-housekeeping column names
-    def data_attributes
-      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at project_id}
-                                  .include?(c) || c =~ /^cached/ }
-    end
-  end # << end class methods
+  end
 
   # @param [String] lat
   # @param [String] long
@@ -443,18 +441,19 @@ class CollectingEvent < ApplicationRecord
   # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
+  #   TODO: deprecate
   def similar_lat_longs(lat, long, project_id, piece = '', include_values = true)
     sql = '('
-    sql += "verbatim_label LIKE '%#{sql_tick_fix(lat)}%'" unless lat.blank?
-    sql += " or verbatim_label LIKE '%#{sql_tick_fix(long)}%'" unless long.blank?
-    sql += " or verbatim_label LIKE '%#{sql_tick_fix(piece)}%'" unless piece.blank?
+    sql += "verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(lat)}%'" unless lat.blank?
+    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(long)}%'" unless long.blank?
+    sql += " or verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(piece)}%'" unless piece.blank?
     sql += ')'
     sql += ' and (verbatim_latitude is null or verbatim_longitude is null)' unless include_values
 
     retval = CollectingEvent.where(sql)
-               .with_project_id(project_id)
-               .order(:id)
-               .where.not(id: id).distinct
+      .with_project_id(project_id)
+      .order(:id)
+      .where.not(id: id).distinct
     retval
   end
 
@@ -465,6 +464,14 @@ class CollectingEvent < ApplicationRecord
     end
     return true if georeferences.any?
     false
+  end
+
+  def has_some_date?
+    !verbatim_date.blank? || some_start_date? || some_end_date?
+  end
+
+  def has_collectors?
+    !verbatim_collectors.blank? || collectors.any?
   end
 
   # @return [Boolean]
@@ -506,7 +513,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Time]
-  #   This is for the purposes of computation, not display! 
+  #   This is for the purposes of computation, not display!
   def start_date
     Utilities::Dates.nomenclature_date(start_date_day, start_date_month, start_date_year)
   end
@@ -629,7 +636,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo change 'id in (?)' to some other sql construct
     pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # @return [Scope]
@@ -655,7 +662,7 @@ class CollectingEvent < ApplicationRecord
 
     # @todo Directly map this
     pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
-    pieces.excluding(self)
+    pieces.not_including(self)
   end
 
   # DEPRECATED for shared code
@@ -1001,7 +1008,7 @@ class CollectingEvent < ApplicationRecord
   #   4.  updated_on
   #   5.  id
   def next_without_georeference
-    CollectingEvent.excluding(self).
+    CollectingEvent.not_including(self).
       includes(:georeferences).
       where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
       order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
@@ -1036,12 +1043,12 @@ class CollectingEvent < ApplicationRecord
   # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
   def map_center
     case map_center_method
-    when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid
-    when :verbatim_map_center
-      verbatim_map_center
     when :preferred_georeference
       preferred_georeference.geographic_item.centroid
+    when :verbatim_map_center
+      verbatim_map_center
+    when :geographic_area
+      geographic_area.default_geographic_item.geo_object.centroid
     else
       nil
     end
@@ -1055,7 +1062,6 @@ class CollectingEvent < ApplicationRecord
     retval = 0.0
     if georeferences.count > 0
       retval = Georeference.where(collecting_event_id: self.id).order(:position).limit(1)[0].latitude.to_f
-      # retval = georeferences.first?.latitude
     end
     retval.round(6)
   end
@@ -1124,10 +1130,6 @@ class CollectingEvent < ApplicationRecord
   end
 
   protected
-
-  def sql_tick_fix(item)
-    item.gsub("'", "''")
-  end
 
   def set_cached
     v = [verbatim_label, print_label, document_label].compact.first

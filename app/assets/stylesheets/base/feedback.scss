@@ -7,6 +7,7 @@
   margin-bottom: 1rem;
   border-radius: .25rem;
   border: 1px solid;
+  line-height: 1.9
 }
 
 .feedback-thin {
@@ -42,7 +43,6 @@
   color: $color-primary-4;
   background-color: $color-primary-0;
   border-color: $color-primary-3;
-
 }
 
 // yellow
@@ -122,4 +122,3 @@
   @extend .small_space;
   background-color: $color-secondary-1-2;
 }
-

@@ -9,7 +9,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
   context 'asserting gender with a TaxonNameClassification' do
     before {
-      genus.update_attributes(taxon_name_classifications_attributes: [{type: 'TaxonNameClassification::Latinized::Gender::Masculine' }])  
+      genus.update(taxon_name_classifications_attributes: [{type: 'TaxonNameClassification::Latinized::Gender::Masculine' }])  
     }
 
     specify '#gender_instance' do
@@ -36,7 +36,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     context 'with gender attributes set' do
       before do 
-        species.update_attributes(
+        species.update(
           masculine_name: 'vitus',
           feminine_name: 'vita',
           neuter_name: 'vitum'

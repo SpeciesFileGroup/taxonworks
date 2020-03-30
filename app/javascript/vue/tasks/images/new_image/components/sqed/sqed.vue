@@ -7,11 +7,7 @@
     <div class="content">
       <h2>Staged image</h2>
       <div class="flex-separate">
-        <div class="separate-right">
-          <new-object class="separate-top"/>
-        </div>
         <pattern-component
-          class="separate-left"
           v-model="pattern"
           :patterns="extractionPatterns"
         />
@@ -39,6 +35,18 @@
             :style="{ 'background-color': sqed_depiction_attributes.boundary_color }"
             :class="{ hasBorder: sqed_depiction_attributes.has_border }"
           />
+          <div 
+            v-else
+            class="panel horizontal-center-content middle pattern-box">
+            <h3>Choose a pattern</h3>
+          </div>
+        </div>
+      </div>
+      <div class="margin-large-top separate-bottom horizontal-left-content align-start">
+        <new-object/>
+        <div class="full_width separate-left">
+          <tags-component class="panel-section"/>
+          <data-attributes class="panel-section separate-top"/>
         </div>
       </div>
       <div class="separate-top">
@@ -70,6 +78,9 @@ import LepStageLayout from './layouts/lep_stage'
 import VerticalSplitLayout from './layouts/vertical_split'
 import SpinnerComponent from 'components/spinner'
 
+import TagsComponent from '../tags'
+import DataAttributes from '../dataAttributes'
+
 import { GetSqedMetadata } from '../../request/resources.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
@@ -88,7 +99,9 @@ export default {
     HorizontalSplitLayout,
     HorizontalOffsetCrossLayout,
     VerticalSplitLayout,
-    SpinnerComponent
+    SpinnerComponent,
+    TagsComponent,
+    DataAttributes
   },
   computed: {
     componentExist() {
@@ -158,5 +171,14 @@ export default {
 <style scoped>
   .hasBorder {
     border: 4px solid gray
+  }
+  .pattern-box {
+    height: 200px;
+    width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #F5F5F5;
+    border-radius: 3px;
   }
 </style>

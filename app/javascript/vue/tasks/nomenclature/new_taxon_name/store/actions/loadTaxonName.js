@@ -6,14 +6,16 @@ import filterObject from '../../helpers/filterObject'
 export default function ({ commit, dispatch }, id) {
   return new Promise(function (resolve, reject) {
     loadTaxonName(id).then(response => {
-      if(response.hasOwnProperty('parent')) {
+      if (response.hasOwnProperty('parent')) {
         commit(MutationNames.SetNomenclaturalCode, response.nomenclatural_code)
         commit(MutationNames.SetTaxon, filterObject(response))
         dispatch('setParentAndRanks', response.parent)
         dispatch('loadSoftValidation', 'taxon_name')
         resolve(response)
-      }
-      else {
+      } else {
+        if (response.name === 'Root') {
+          TW.workbench.alert.create('Root can not be edited', 'error')
+        }
         reject(response)
       }
     }, (response) => {

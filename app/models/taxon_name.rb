@@ -126,6 +126,13 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
+  # @return class
+  #   this method calls Module#module_parent
+  # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
+  #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
+  def self.parent
+    self.module_parent
+  end
 
   has_closure_tree
 
@@ -166,7 +173,11 @@ class TaxonName < ApplicationRecord
   #   When true cached values are not built
   attr_accessor :no_cached
 
-  after_save :create_new_combination_if_absent
+  # TODO: this was not implemented and tested properly
+  # I think the intent is *before* save, i.e. the name will change
+  # to a new cached value, so let's record the old one
+  #  after_save :create_new_combination_if_absent
+ 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -176,7 +187,6 @@ class TaxonName < ApplicationRecord
 
   validate :validate_rank_class_class,
     # :check_format_of_name,
-    :validate_parent_rank_is_higher,
     :validate_parent_from_the_same_project,
     :validate_parent_is_set,
     :check_new_rank_class,
@@ -185,6 +195,8 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
+  
+  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -199,6 +211,8 @@ class TaxonName < ApplicationRecord
   has_one :source_classified_as, through: :source_classified_as_relationship, source: :object_taxon_name
 
   has_many :otus, inverse_of: :taxon_name, dependent: :restrict_with_error
+  has_many :taxon_determinations, through: :otus
+  has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
@@ -234,9 +248,11 @@ class TaxonName < ApplicationRecord
 
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    scoping do
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -286,7 +302,6 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  scope :with_cached_html, -> (html) { where(cached_html: html) } # WHY? - DEPRECATE for cached
 
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
@@ -440,6 +455,21 @@ class TaxonName < ApplicationRecord
     try(:source).try(:year)
   end
 
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_year
+    a = cached_author_year&.match(/\d{4}/)
+    a ? a[0] : nil
+  end
+
+  # @return String, nil
+  #  # virtual attribute, to ultimately be fixed in db
+  def cached_author
+    cached_author_year&.gsub(/,\s\d+/, '')
+  end
+
+  # !! Overrides Shared::Citations#nomenclature_date
+  #
   # @return [Time]
   #   effective date of publication, used to determine nomenclatural priority
   def nomenclature_date
@@ -537,6 +567,14 @@ class TaxonName < ApplicationRecord
   # @return [String] combination of cached and cached_author_year.
   def cached_name_and_author_year
     [cached, cached_author_year].compact.join(' ')
+  end
+
+  # @return [String, nil]
+  #   derived from cached_author_year
+  #   !! DO NOT USE IN building cached !!
+  #   See also app/helpers/taxon_names_helper
+  def original_author_year
+    cached_author_year&.gsub(/^\(|\)$/, '')
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
@@ -705,31 +743,33 @@ class TaxonName < ApplicationRecord
     return n
   end
 
-  def create_new_combination_if_absent
-    return true unless type == 'Protonym'
-    if !TaxonName.with_cached_html(cached_html).count == 0
-      begin
-        TaxonName.transaction do
-          c = Combination.new
-          safe_self_and_ancestors.each do |i|
-            case i.rank
-              when 'genus'
-                c.genus = i
-              when 'subgenus'
-                c.subgenus = i
-              when 'species'
-                c.species = i
-              when 'subspecies'
-                c.subspecies = i
-            end
-          end
-          c.save
-        end
-      rescue
-      end
-      false
-    end
-  end
+  # def create_new_combination_if_absent
+  # return true unless type == 'Protonym'
+  # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
+  #  
+  #  if TaxonName.where(cached: cached, project_id: project_id).any?
+  #    begin
+  #      TaxonName.transaction do
+  #        c = Combination.new
+  #        safe_self_and_ancestors.each do |i|
+  #          case i.rank
+  #            when 'genus'
+  #              c.genus = i
+  #            when 'subgenus'
+  #              c.subgenus = i
+  #            when 'species'
+  #              c.species = i
+  #            when 'subspecies'
+  #              c.subspecies = i
+  #          end
+  #        end
+  #        c.save
+  #      end
+  #    rescue
+  #    end
+  #    false
+  #  end
+  # end
 
   def clear_cached(update: false)
     assign_attributes(
@@ -823,7 +863,6 @@ class TaxonName < ApplicationRecord
     if self.new_record?
       ancestors_through_parents
     else
-
       self.self_and_ancestors.reload.to_a.reverse ## .self_and_ancestors returns empty array!!!!!!!
     end
   end
@@ -840,6 +879,14 @@ class TaxonName < ApplicationRecord
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
     data
+  end
+
+  def ancestor_hash
+    h = {}
+    safe_self_and_ancestors.each do |n|
+      h[n.rank] = n.name
+    end
+    h
   end
 
   # @!return [ { rank => [prefix, name] }
@@ -896,7 +943,7 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-    return name if rank_class =~ /Ictv/
+    return name if rank_class.to_s =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     
     d = full_name_hash
@@ -1218,18 +1265,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  def validate_parent_rank_is_higher
-    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
-      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
-      end
-
-      if (rank_class != rank_class_was) && children && !children.empty? && RANKS.index(rank_string) >= children.collect { |r| RANKS.index(r.rank_string).to_i }.max
-        errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
-      end
-    end
-  end
-
   def validate_parent_from_the_same_project
     if parent && !project_id.blank?
       errors.add(:project_id, "The parent taxon is not from the same project") if project_id != parent.project_id
@@ -1260,19 +1295,13 @@ class TaxonName < ApplicationRecord
     true
   end
 
+  # Note- prior version prevented groups from moving when set in error, and was far too strict
   def check_new_rank_class
-    # rank_class_was is a AR macro
-
     if (rank_class != rank_class_was) && !rank_class_was.nil?
 
       if rank_class_was == 'NomenclaturalRank' && rank_class_changed?
         errors.add(:rank_class, 'Root can not have a new rank')
         return
-      end
-
-      old_rank_group = rank_class_was.safe_constantize.parent
-      if type == 'Protonym' && rank_class.parent != old_rank_group
-        errors.add(:rank_class, "A new taxon rank (#{rank_name}) should be in the #{old_rank_group.rank_name} rank group")
       end
     end
   end

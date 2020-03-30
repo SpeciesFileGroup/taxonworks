@@ -143,6 +143,7 @@ export default {
           this.$emit('result', this.coList)
         }
         this.$emit('urlRequest', response.url)
+        this.$emit('pagination', response)
         this.searching = false
         if(this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
@@ -154,7 +155,8 @@ export default {
     initParams () {
       return {
         settings: {
-          per: 1000
+          per: 500,
+          page: 1
         },
         biocurations: {
           biocuration_class_ids: []
@@ -207,6 +209,11 @@ export default {
           geographic_area_ids: []
         }
       }
+    },
+    loadPage(page) {
+      console.log(page)
+      this.params.settings.page = page 
+      this.searchForCollectionObjects()
     },
     setDays(days) {
       var date = new Date();

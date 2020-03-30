@@ -1,7 +1,11 @@
 import ajaxCall from 'helpers/ajaxCall'
 
 const GetSource = (id) => {
-  return ajaxCall('get', `/sources/${id}`)
+  return ajaxCall('get', `/sources/${id}.json`)
+}
+
+const GetRecentSources = () => {
+  return ajaxCall('get', `/sources.json?per=10&recent=true`)
 }
 
 const CreateSource = (source) => {
@@ -30,6 +34,7 @@ const LoadSoftValidation = function (global_id) {
 
 export {
   GetSource,
+  GetRecentSources,
   CreateSource,
   UpdateSource,
   UpdateUserPreferences,

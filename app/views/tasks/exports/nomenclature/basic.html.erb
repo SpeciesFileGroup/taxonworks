@@ -1,0 +1,21 @@
+<h1> Basic nomenclature exports </h1>
+<div> 
+  <%= form_tag(download_basic_nomenclature_task_path, method: :get) do %>
+    <p> Export a CSV with all child names, including the selected name. All rows are valid, synonyms are added as a column to each row. </p>
+
+    <div class="field">
+      <%= label_tag :taxon_name, 'Taxon name', data: {help: 'All children of this selected name will be exported.'} %> <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select', locals: {
+        controller: '/taxon_names',
+        object: '',
+        method: 'taxon_name_id',
+        tag_id: 'taxon_name_id_for_basic_download',
+        display: nil,
+        size: 60} %>
+    </div>
+
+    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
+  <% end %>
+</div>
+
+

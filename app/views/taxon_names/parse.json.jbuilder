@@ -24,3 +24,9 @@ json.other_matches do
     end
   end
 end
+
+if @combination
+  json.combination do
+    json.partial! '/combinations/attributes', combination: @combination
+  end
+end

@@ -25,7 +25,7 @@ describe Otu, type: :model, group: :otu do
 
       specify '.batch_preview takes hash of arguments' do
         hsh = {file: file, stuff: :things}
-        expect(Otu.batch_preview(hsh)).to be_truthy
+        expect(Otu.batch_preview(**hsh)).to be_truthy
       end
 
       specify '.batch_preview returns an Array' do
@@ -58,19 +58,19 @@ describe Otu, type: :model, group: :otu do
       }
 
       specify 'returns an array' do
-        expect(Otu.batch_create(params).class).to eq(Array)
+        expect(Otu.batch_create(**params).class).to eq(Array)
       end
 
       specify 'returns an array of Otus' do
-        expect(Otu.batch_create(params).first.class).to eq(Otu)
+        expect(Otu.batch_create(**params).first.class).to eq(Otu)
       end
 
       specify 'returns named Otus' do
-        expect(Otu.batch_create(params).first.name).to eq('Aus')
+        expect(Otu.batch_create(**params).first.name).to eq('Aus')
       end
 
       specify 'returns multiple Otus' do
-        expect(Otu.batch_create(params).count).to eq(2)
+        expect(Otu.batch_create(**params).count).to eq(2)
       end
     end
   end

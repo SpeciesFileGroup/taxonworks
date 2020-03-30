@@ -9,14 +9,14 @@
 <script>
 
 import L from 'leaflet'
-import 'leaflet.pm'
+import '@geoman-io/leaflet-geoman-free'
 
 delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
+  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default
 })
 
 export default {
@@ -123,7 +123,7 @@ export default {
       drawnItems: undefined,
       drawControl: undefined,
       tiles: {
-        osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 18
         }),
@@ -273,12 +273,7 @@ export default {
     },
     geoJSON (geoJsonFeatures) {
       if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-
       this.addGeoJsonLayer(geoJsonFeatures)
-
-      if (this.fitBounds) {
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
-      }
     },
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
@@ -288,6 +283,13 @@ export default {
           index = index + 1
           return that.randomShapeStyle(index)
         },
+        filter: function (feature) {
+          if(feature.properties.hasOwnProperty('geographic_area')) {
+            L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })).addTo(that.drawnItems)
+            return false 
+          }
+          return true
+        },
         onEachFeature: this.onMyFeatures,
         pointToLayer: function (feature, latlng) {
           let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
@@ -295,6 +297,10 @@ export default {
           return shape
         }
       }).addTo(this.drawnItems)
+      
+      if (this.fitBounds) {
+        this.mapObject.fitBounds(this.drawnItems.getBounds())
+      }
     },
     getRandomColor() {
       const letters = '0123456789ABCDEF'
@@ -329,6 +335,7 @@ export default {
         'pm:edit': this.editedLayer,
         click: this.zoomToFeature
       })
+      layer.pm.disable()
     },
     zoomToFeature (e) {
       const layer = e.target

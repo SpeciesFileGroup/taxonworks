@@ -25,7 +25,7 @@
 
   import Pin from 'components/pin'
   import AddToProject from 'components/addToProjectSource'
-  import RadialObject from 'components/radial_object/radialObject'
+  import RadialObject from 'components/radials/navigation/radial'
 
   export default {
     components: {

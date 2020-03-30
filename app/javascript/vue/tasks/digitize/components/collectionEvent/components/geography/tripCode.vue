@@ -26,7 +26,7 @@
           <template v-if="identifier.namespace_id">
             <div class="middle separate-top">
               <span data-icon="ok"/>
-              <p class="separate-right" v-html="namespaceSelected"/>
+              <p class="separate-right" v-html="namespaceSelected ? namespaceSelected : identifier.cached"/>
               <span
                 class="circle-button button-default btn-undo"
                 @click="identifier.namespace_id = undefined"/>
@@ -106,7 +106,8 @@
         saveRequest: undefined,
         options: [],
         lists: [],
-        view: 'search'
+        view: 'search',
+        namespaceSelected: undefined
       }
     },
     watch: {

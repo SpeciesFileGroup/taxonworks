@@ -11,7 +11,7 @@ module Workbench::LayoutHelper
       content_tag(:span) do
         [ 'SANDBOX - build',
           (Settings.sandbox_short_commit_sha ?
-           link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:regular_type]) :
+           link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:font_subtitle]) :
            'unknown SHA'
           ),
           'on',  

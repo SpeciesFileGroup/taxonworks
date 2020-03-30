@@ -40,7 +40,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
     end_date_year = end_date[0]
     end_date_month = end_date[1]
     end_date_day = end_date[2]
-    if ce.update_attributes({start_date_year: start_date[0],
+    if ce.update({start_date_year: start_date[0],
         start_date_month: start_date[1],
         start_date_day: start_date[2],
         end_date_year: end_date[0],
@@ -84,7 +84,7 @@ class Tasks::CollectingEvents::Parse::Stepwise::DatesController < ApplicationCon
           end_date_year = end_date[0]
           end_date_month = end_date[1]
           end_date_day = end_date[2]
-          if ce.update_attributes({start_date_year: start_date[0],
+          if ce.update({start_date_year: start_date[0],
               start_date_month: start_date[1],
               start_date_day: start_date[2],
               end_date_year: end_date[0],

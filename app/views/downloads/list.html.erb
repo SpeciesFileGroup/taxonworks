@@ -6,6 +6,7 @@
     <%= fancy_th_tag(name: 'Name') -%>
     <%= fancy_th_tag(name: 'Description') -%>
     <%= fancy_th_tag(name: 'Expires') -%>
+    <%= fancy_th_tag(name: 'Is Public?') -%>
     <%= fancy_th_tag(name: 'Times downloaded') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
@@ -15,9 +16,10 @@
   <tbody>
   <% @downloads.each do |download| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= download.name %></td>
+          <td><%= download.name.html_safe %></td>
           <td><%= download.description %></td>
           <td>in <%= distance_of_time_in_words Time.now - download.expires %></td>
+          <td><%= download.is_public %></td>
           <td><%= download.times_downloaded %></td>
           <%= fancy_metadata_cells_tag(download) -%>
       <% end %>

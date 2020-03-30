@@ -37,6 +37,14 @@
 #     a z coordinate for this item in its container
 #
 class ContainerItem < ApplicationRecord
+  # @return class
+  #   this method calls Module#module_parent
+  # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
+  #       when https://github.com/ClosureTree/closure_tree/issues/346 is fixed.
+  def self.parent
+    self.module_parent
+  end
+
   has_closure_tree
 
   include Housekeeping
@@ -49,7 +57,7 @@ class ContainerItem < ApplicationRecord
   belongs_to :contained_object, polymorphic: true
 
   # !! this will prevent accepts_nested assignments if we add this
-  validates_presence_of :contained_object
+  validates_presence_of :contained_object_id
 
   validate :parent_contained_object_is_container
   validate :contained_object_is_container_when_parent_id_is_blank

@@ -16,7 +16,7 @@ module CollectionObject::BiologicalExtensions
     has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
     has_many :taxon_names, through: :otus
 
-    has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :biological_object_id, inverse_of: :material, dependent: :restrict_with_error
+    has_many :type_designations, class_name: 'TypeMaterial', foreign_key: :collection_object_id, inverse_of: :collection_object, dependent: :restrict_with_error
 
     has_one :current_taxon_determination, -> {order(:position)}, class_name: 'TaxonDetermination', foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object
     has_one :current_otu, through: :current_taxon_determination, source: :otu
@@ -34,6 +34,17 @@ module CollectionObject::BiologicalExtensions
   # @return [String] if a determination exists, and the Otu in the determination has a taxon name then return the taxon name at the rank supplied
   def name_at_rank_string(rank)
     current_taxon_name.try(:ancestor_at_rank, rank).try(:cached_html)
+  end
+
+  # @return [Boolean]
+  def reject_taxon_determinations(attributed)
+    attributed['otu_id'].blank? && attributed[:otu]&.id.blank?
+  end
+
+  def reject_otus(attributed)
+    a = attributed['taxon_name_id']
+    b = attributed['name']
+    a.blank? && b.blank?
   end
 
 end

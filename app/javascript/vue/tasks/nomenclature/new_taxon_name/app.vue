@@ -3,6 +3,7 @@
     <div class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <autocomplete
+        class="autocomplete-search-bar"
         url="/taxon_names/autocomplete"
         param="term"
         :add-params="{ 'type[]': 'Protonym' }"
@@ -44,7 +45,7 @@
           </div>
           <div
             class="new-taxon-name-block"
-            v-if="showForThisGroup(['GenusGroup'], getTaxon)">
+            v-if="showForThisGroup(['GenusGroup', 'FamilyGroup'], getTaxon)">
             <spinner
               :show-spinner="false"
               :show-legend="false"
@@ -247,7 +248,7 @@ export default {
       })
     },
     loadTaxon (taxon) {
-      window.open(`/tasks/nomenclature/new_taxon_name/${taxon.id}`, '_self')
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`, '_self')
     }
   }
 }
@@ -259,6 +260,12 @@ export default {
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
+
+    .autocomplete-search-bar {
+      input {
+        width: 500px;
+      }
+    }
 
     .cleft, .cright {
       min-width: 350px;

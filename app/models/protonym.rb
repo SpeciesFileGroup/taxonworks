@@ -1,5 +1,5 @@
 # Nested ness of this should get all the relationships?
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # Force the loading of TaxonNameRelationships in all worlds.  This allows us to edit without restarting in development.
 # Dir[Rails.root.to_s + '/app/models/taxon_name_relationship/**/*.rb'].sort.each {|file| require_dependency file }
@@ -26,6 +26,7 @@ class Protonym < TaxonName
 
   validate :validate_rank_class_class,
     :validate_parent_rank_is_higher,
+    :validate_child_rank_is_equal_or_lower,
     :check_new_rank_class,
     :check_new_parent_class,
     :validate_source_type,
@@ -61,7 +62,7 @@ class Protonym < TaxonName
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
 
-  has_many :type_materials, class_name: 'TypeMaterial'
+  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym 
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
@@ -116,7 +117,7 @@ class Protonym < TaxonName
   scope :without_taxon_name_classification, -> (taxon_name_class_name) { where('"taxon_names"."id" not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type LIKE ?)', "#{taxon_name_class_name}")}
   scope :without_taxon_name_classification_array, -> (taxon_name_class_name_array) { where('"taxon_names"."id" not in (SELECT taxon_name_id FROM taxon_name_classifications WHERE type in (?))', taxon_name_class_name_array) }
   scope :without_taxon_name_classifications, -> { includes(:taxon_name_classifications).where(taxon_name_classifications: {taxon_name_id: nil}) }
-  scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.biological_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
+  scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.collection_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
   scope :with_homonym_or_suppressed, -> { includes(:taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'").references(:taxon_name_relationships) }
   scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
@@ -128,18 +129,55 @@ class Protonym < TaxonName
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
 
-  # TODO: isn't this the way to do it now? (It does not work, may need extra investigation. DD)
-  #   scope :that_is_valid, -> {where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') }
-
-  # This was crazy!
-  # scope :that_is_valid, -> {
-  #   joins('LEFT OUTER JOIN taxon_name_relationships tnr ON taxon_names.id = tnr.subject_taxon_name_id').
-  #   where("taxon_names.id NOT IN (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE type ILIKE 'TaxonNameRelationship::Iczn::Invalidating%' OR type ILIKE 'TaxonNameRelationship::Icn::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Icnp::Unaccepting%' OR type ILIKE 'TaxonNameRelationship::Ictv::Unaccepting%')")
-  # }
   scope :is_species_group, -> { where("rank_class ILIKE '%speciesgroup%'") }
   scope :is_genus_group, -> { where("rank_class ILIKE '%genusgroup%'") }
+  scope :is_family_group, -> { where("rank_class ILIKE '%family%'") }
 
   scope :is_species_or_genus_group, -> {  where("rank_class ILIKE '%speciesgroup%' OR rank_class ILIKE '%genusgroup%'")   }
+
+  scope :is_original_name, -> { where("cached_author_year NOT ILIKE '(%'") }
+  scope :is_not_original_name, -> { where("cached_author_year ILIKE '(%'") }
+
+  # @return [Protonym]
+  #   a name ready to become the root
+  def self.stub_root(project_id: nil, by: nil)
+    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
+  end
+
+  def self.family_group_base(name_string)
+    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
+    $1 || name_string
+  end
+
+  def self.family_group_name_at_rank(name_string, rank_string)
+    if name_string == family_group_base(name_string)
+      name_string
+    else
+      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+    end
+  end
+
+  # @param rank ['speciesgroup' or 'genusgroup' or 'family']
+  #    scope to names used in taxon determinations
+  def self.names_at_rank_group_for_collection_objects(rank = 'speciesgroup')
+    h = ::TaxonNameHierarchy.arel_table
+    t = ::TaxonName.arel_table
+    t1 = ::TaxonName.arel_table.alias('tndet')
+    d = ::TaxonDetermination.arel_table
+    o = ::Otu.arel_table
+
+    q = t.join(h, Arel::Nodes::InnerJoin).on(
+      t[:id].eq(h[:ancestor_id])
+    ).join(t1, Arel::Nodes::InnerJoin).on(
+      h[:descendant_id].eq(t1[:id])
+    ).join(o, Arel::Nodes::InnerJoin).on(
+      t1[:id].eq(o[:id])
+    ).join(d, Arel::Nodes::InnerJoin).on(
+      o[:id].eq(d[:otu_id])
+    )
+
+    joins(q.join_sources).where(t[:rank_class].matches('%' + rank + '%').to_sql).distinct
+  end
 
   # @return [Array of Strings]
   #   genera where the species was placed
@@ -273,25 +311,6 @@ class Protonym < TaxonName
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end
 
-  # @return [Protonym]
-  #   a name ready to become the root
-  def self.stub_root(project_id: nil, by: nil)
-    Protonym.new(name: 'Root', rank_class: 'NomenclaturalRank', parent_id: nil, project_id: project_id, by: by)
-  end
-
-  def self.family_group_base(name_string)
-    name_string.match(/(^.*)(ini|ina|inae|idae|oidae|odd|ad|oidea)$/)
-    $1 || name_string
-  end
-
-  def self.family_group_name_at_rank(name_string, rank_string)
-    if name_string == family_group_base(name_string)
-      name_string
-    else
-      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
-    end
-  end
-
   # @return [ TypeMaterial, [] ]  ?!
   def get_primary_type
     return [] unless self.rank_class.parent.to_s =~ /Species/
@@ -343,7 +362,7 @@ class Protonym < TaxonName
     return true if taxon1_types.empty? && taxon2_types.empty? # both are empty !! If they are both empty then they don't have the same type, the have no types  !!
     return false if taxon1_types.empty? || taxon2_types.empty? # one is empty
 
-    taxon1_types.map(&:biological_object_id) == taxon2_types.map(&:biological_object_id) # collect{|i| i.biological_object_id}
+    taxon1_types.map(&:collection_object_id) == taxon2_types.map(&:collection_object_id) # collect{|i| i.collection_object_id}
   end
 
   # return [Array]
@@ -397,7 +416,6 @@ class Protonym < TaxonName
   end
 
   def is_homonym_or_suppressed?
-
   end
 
   # @return [Boolean]
@@ -423,6 +441,12 @@ class Protonym < TaxonName
 
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
+  end
+
+  # @return Boolean
+  #   could also be determined by parens in cached_author year
+  def is_original_name?
+    cached_author_year =~ /\(/ ? false : true
   end
 
   def reduce_list_of_synonyms(list)
@@ -516,7 +540,7 @@ class Protonym < TaxonName
 
   # @return [Boolean]
   #   Wraps set_original_combination with result from Biodiversity parse
-  #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one. 
+  #   !!You must can optionally pre-calculate a disambiguated protonym if you wish to use one.
   # @param biodiversity_result [ Biodiversity.result ]
   # @param relationship_housekeeping [Hash] like `{project_id: 22, created_by_id: 2}`
   def build_original_combination_from_biodiversity(biodiversity_result, relationship_housekeeping = {})
@@ -536,9 +560,9 @@ class Protonym < TaxonName
     return false if combination.nil?
     combination.protonyms_by_rank.each do |rank, p|
       send("original_#{rank}=", p)
-    end 
+    end
 
-    if !relationship_housekeeping.empty? 
+    if !relationship_housekeeping.empty?
       combination.protonyms_by_rank.each do |rank, p|
         r = send("original_#{rank}_relationship")
         r.write_attributes(relationship_housekeeping)
@@ -550,25 +574,28 @@ class Protonym < TaxonName
   def get_original_combination
     return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
     e = original_combination_elements
-    return nil if e.none? 
+    return nil if e.none?
 
     # Weird, why?
     # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
-    return e[:species] if rank_class =~ /Ictv/
+    #
+    # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
+    # and this didn't do what you think it did, it's was returning an Array of two things
+    return e[:species][1] if rank_class.to_s =~ /Ictv/
 
-    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) } 
-    
+    p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
+
     s = p.flatten.compact.join(' ')
     s.blank? ? nil : s
   end
 
   def original_combination_elements
-    elements = { } 
+    elements = { }
     return elements if rank.blank?
 
     this_rank = rank.to_sym
 
-    # Why this? 
+    # Why this?
     #   We need to apply gender to "internal" names for original combinations, everything
     #   but the last name
     # DD: if we have subspecies, the species name should be used not in the original form,
@@ -579,7 +606,7 @@ class Protonym < TaxonName
     r = original_combination_relationships.reload.sort{|a,b| ORIGINAL_COMBINATION_RANKS.index(a.type) <=> ORIGINAL_COMBINATION_RANKS.index(b.type) }
 
     # get gender from first
-    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name 
+    gender = original_genus&.gender_name # r.first.subject_taxon_name.gender_name
 
     # apply gender to everything but the last
     total = r.count - 1
@@ -596,7 +623,7 @@ class Protonym < TaxonName
     # DD: we do not require it, it is optional
     if !r.empty? && r.collect{|i| i.subject_taxon_name}.last.lowest_rank_coordinated_taxon.id != lowest_rank_coordinated_taxon.id
       if elements[this_rank].nil?
-        elements[this_rank] = [original_name] 
+        elements[this_rank] = [original_name]
       end
     end
 
@@ -621,7 +648,7 @@ class Protonym < TaxonName
     n = verbatim_name.nil? ? name_with_misspelling(nil) : verbatim_name
     n = "(#{n})" if n && rank_name == 'subgenus'
     n
-  end 
+  end
 
   def get_original_combination_html
     return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
@@ -656,9 +683,9 @@ class Protonym < TaxonName
     related_through_original_combination_relationships = []
     combination_relationships = []
 
-    TaxonName.transaction do
+    TaxonName.transaction_with_retry do
       if is_genus_or_species_rank?
-        dependants = Protonym.descendants_of(self).to_a
+        dependants = Protonym.unscoped.descendants_of(self).to_a
         related_through_original_combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('OriginalCombination')
         combination_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_contains('::Combination')
       end
@@ -687,10 +714,11 @@ class Protonym < TaxonName
       end
 
       # Update values in Combinations
-      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
-        i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html)
+      combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |j|
+        j.update_columns(
+          cached: j.get_full_name,
+          cached_html: j.get_full_name_html,
+          cached_author_year: j.get_author_and_year)
       end
 
       classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
@@ -759,6 +787,29 @@ class Protonym < TaxonName
 
   def validate_rank_class_class
     errors.add(:rank_class, 'Rank not found') unless RANKS.include?(rank_string)
+  end
+
+  def validate_child_rank_is_equal_or_lower
+    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+      if rank_class_changed?
+        a = children.where(type: 'Protonym').pluck(:rank_class)
+        v = RANKS.index(rank_string)
+        a.each do |b|
+          if v >= RANKS.index(b)
+            errors.add(:rank_class, "The rank of this taxon (#{rank_name}) should be higher than the ranks of children")
+            break
+          end
+        end
+      end
+    end
+  end
+
+  def validate_parent_rank_is_higher
+    if parent && !rank_class.blank? && rank_string != 'NomenclaturalRank'
+      if RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+        errors.add(:parent_id, "The parent rank (#{parent.rank_class.rank_name}) is not higher than the rank (#{rank_name}) of this taxon")
+      end
+    end
   end
 
   def set_cached

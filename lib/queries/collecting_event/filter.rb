@@ -19,6 +19,9 @@ module Queries
       # Wildcard wrapped matching any label
       attr_accessor :in_labels
 
+      # If true then in_labels checks only the MD5 
+      attr_accessor :md5_verbatim_label
+
       # TODO: remove for exact/array
       # Wildcard wrapped matching verbatim_locality via ATTRIBUTES
       attr_accessor :in_verbatim_locality
@@ -50,6 +53,9 @@ module Queries
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
+      # @return [Array]
+      attr_accessor :otu_ids
+
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
@@ -64,9 +70,12 @@ module Queries
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
-        
+
+        @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
 
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+
+        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
@@ -113,7 +122,7 @@ module Queries
      #end
 
       def wkt_facet
-        return nil if wkt.nil?
+        return nil if wkt.blank?
         a = RGeo::WKRep::WKTParser.new
         b = a.parse(wkt)
         spatial_query(b.geometry_type.to_s, wkt) 
@@ -154,9 +163,21 @@ module Queries
         table[:verbatim_label].matches(t).or(table[:print_label].matches(t)).or(table[:document_label].matches(t))
       end
 
+      def matching_verbatim_label_md5
+        return nil unless md5_verbatim_label && !in_labels.blank?
+        md5 = ::Utilities::Strings.generate_md5(in_labels) 
+
+        table[:md5_of_verbatim_label].eq(md5)
+      end
+
       def matching_geographic_area_ids
         return nil if geographic_area_ids.empty? || spatial_geographic_areas
         table[:geographic_area_id].eq_any(geographic_area_ids)
+      end
+
+      def matching_otu_ids
+        return nil if otu_ids.empty?
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_ids}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
       end
 
       def matching_verbatim_locality
@@ -173,6 +194,7 @@ module Queries
         clauses += [
           between_date_range,
           matching_geographic_area_ids,
+          matching_verbatim_label_md5,
           matching_any_label,
           matching_verbatim_locality,
         ].compact!
@@ -183,7 +205,7 @@ module Queries
       def base_merge_clauses
         clauses = [
           matching_keyword_ids,
-
+          matching_otu_ids,
           wkt_facet,
           geo_json_facet,
 
@@ -228,7 +250,7 @@ module Queries
         elsif b
           q = b.distinct
         else
-          q = ::CollectingEvent.all
+          q = ::CollectingEvent.includes(:identifiers, :roles, :pinboard_items, :geographic_area, georeferences: [:geographic_item, :error_geographic_item]).all
         end
         
         q = q.order(updated_at: :desc).limit(recent) if recent

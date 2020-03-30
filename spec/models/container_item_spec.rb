@@ -29,8 +29,8 @@ describe ContainerItem, type: :model, group: :containers do
         container_item.valid?
       }
 
-      specify 'contained_object' do
-        expect(container_item.errors.include?(:contained_object)).to be_truthy
+      specify 'contained_object_id' do
+        expect(container_item.errors.include?(:contained_object_id)).to be_truthy
       end
     end
 

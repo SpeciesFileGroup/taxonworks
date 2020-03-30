@@ -60,7 +60,11 @@
 
     [data-icon="expand"] {
       background-image: image-url("expand.svg");
-    }    
+    }
+
+    [data-icon="w_expand"] {
+      background-image: image-url("w_expand.svg");
+    }
 
     [data-icon="citation"] {
       background-image: image-url("citation.svg");
@@ -76,7 +80,11 @@
 
     [data-icon="contract"] {
       background-image: image-url("contract.svg");
-    }           
+    }
+    
+    [data-icon="w_contract"] {
+      background-image: image-url("w_contract.svg");
+    }    
 
     [data-icon="chain"] {
       background-image: image-url("chain.svg");
@@ -96,7 +104,11 @@
 
     [data-icon="scroll-v"] {
       background-image: image-url("scroll-v.svg");
-    }   
+    }
+
+    [data-icon="w_scroll-v"] {
+      background-image: image-url("w_scroll-v.svg");
+    }
 
     [data-icon="scroll-h"] {
       background-image: image-url("scroll-h.svg");
@@ -111,7 +123,15 @@
     }     
 
     [data-icon="add"] {
-      background-image: image-url("plus.svg");
+      background-image: image-url("add.svg");
+    }
+
+    [data-icon="w_plus"] {
+      background-image: image-url("bplus.svg");
+    }
+
+    [data-icon="w_less"] {
+      background-image: image-url("w_less.svg");
     }
 
     [data-icon="icons"] {
@@ -160,7 +180,11 @@
 
     [data-icon="reset"] {
       background-image: image-url("restart.svg");
-    }        
+    }  
+    
+    [data-icon="swap"] {
+      background-image: image-url("swap.svg");
+    }  
 
     [data-icon="task"] {
       background-image: image-url("task.svg");

@@ -387,7 +387,7 @@ class Source::Bibtex < Source
 
   # @return [BibTeX::Entry]
   def self.new_from_bibtex_text(text = nil)
-    a = BibTeX.parse(text).convert(:latex).first
+    a = BibTeX::Bibliography.parse(text).convert(:latex).first
     new_from_bibtex(a)
   end
 
@@ -661,7 +661,7 @@ class Source::Bibtex < Source
     Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
-  # @return [Date]
+  # @return [Date || Time] <sigh>
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date
     if !persisted?
@@ -670,7 +670,6 @@ class Source::Bibtex < Source
       read_attribute(:cached_nomenclature_date)
     end
   end
-
 
   # not used - move to a helper method if we want something not persisted
   def bibtex_bibliography_for_zootaxa

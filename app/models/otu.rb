@@ -39,16 +39,16 @@ class Otu < ApplicationRecord
   
   include Shared::IsData
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes]
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
 
   belongs_to :taxon_name, inverse_of: :otus
 
-  has_many :asserted_distributions, inverse_of: :otu
+  has_many :asserted_distributions, inverse_of: :otu, dependent: :restrict_with_error
 
-  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject 
-  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
+  has_many :biological_associations, as: :biological_association_subject, inverse_of: :biological_association_subject, dependent: :restrict_with_error
+  has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation', dependent: :restrict_with_error
 
-  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy
+  has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
 
   has_many :extracts, through: :collection_objects, source: :derived_extracts
@@ -58,7 +58,7 @@ class Otu < ApplicationRecord
   has_many :collecting_events, -> { distinct }, through: :collection_objects
 
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles # @proceps dependent: what?
+  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
@@ -66,28 +66,18 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  has_many :observations, inverse_of: :otu
+  has_many :observations, inverse_of: :otu, dependent: :restrict_with_error
   has_many :descriptors, through: :observations
 
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id: taxon_name_id) }
   scope :with_name, -> (name) { where(name: name) }
 
-  # @return [Otu, nil, false]
-  def parent_otu
-    return nil if taxon_name_id.blank?
-    taxon_name.ancestors.each do |a|
-      if a.otus.load.count == 1
-        return a.otus.first
-      elsif a.otus.count > 1
-        return false 
-      else
-        return nil
-      end
-    end
-    nil
+  # @return Scope
+  def self.alphabetically
+    includes(:taxon_name).select('otus.*, taxon_names.cached').references(:taxon_names).order('taxon_names.cached ASC')
   end
 
-    # @param [Integer] otu_id
+  # @param [Integer] otu_id
   # @param [String] rank_class
   # @return [Scope]
   #    Otu.joins(:taxon_name).where(taxon_name: q).to_sql
@@ -153,6 +143,21 @@ class Otu < ApplicationRecord
   soft_validate(:sv_duplicate_otu, set: :duplicate_otu)
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
+
+  # @return [Otu, nil, false]
+  def parent_otu
+    return nil if taxon_name_id.blank?
+    taxon_name.ancestors.each do |a|
+      if a.otus.load.count == 1
+        return a.otus.first
+      elsif a.otus.count > 1
+        return false 
+      else
+        return nil
+      end
+    end
+    nil
+  end
 
   # @return [Array]
   #   all bilogical associations this Otu is part of
@@ -253,7 +258,7 @@ class Otu < ApplicationRecord
     Gis::GeoJSON.aggregation([a_ds, c_os, c_es], :distribution)
   end
 
-  # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`
+  # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(used_on = '')
@@ -266,6 +271,8 @@ class Otu < ApplicationRecord
           BiologicalAssociation.arel_table
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
+        else
+          return Otu.none
         end
 
     p = Otu.arel_table 

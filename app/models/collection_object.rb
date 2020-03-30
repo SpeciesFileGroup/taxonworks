@@ -58,7 +58,6 @@
 #   The date when the object was removed from tracking.  If provide then Repository must be null?! TODO: resolve
 #
 class CollectionObject < ApplicationRecord
-
   include GlobalID::Identification
   include Housekeeping
 
@@ -88,6 +87,8 @@ class CollectionObject < ApplicationRecord
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
+
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -199,24 +200,6 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # @return [Identifier::Local::CatalogNumber, nil]
-  #   the first (position) catalog number for this collection object
-  def preferred_catalog_number
-    Identifier::Local::CatalogNumber.where(identifier_object: self).first
-  end
-
-  # return [Boolean]
-  #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
-    self.class <= BiologicalCollectionObject ? true : false
-  end
-
-  def annotations
-    h = annotations_hash
-    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
-    h
-  end
-
   # TODO: Deprecate.  Used?!
   # @param [Scope] scope of selected CollectionObjects
   # @param [Hash] col_defs selected headers and types
@@ -272,7 +255,6 @@ class CollectionObject < ApplicationRecord
       end
     end
   end
-
 
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
@@ -533,8 +515,8 @@ class CollectionObject < ApplicationRecord
     end
 
     retval = CollectionObject.joins(:collecting_event)
-               .where(collecting_events_clause)
-               .where(area_objects_clause)
+      .where(collecting_events_clause)
+      .where(area_objects_clause)
     retval
   end
 
@@ -548,44 +530,21 @@ class CollectionObject < ApplicationRecord
     joins(:collecting_event).where(q.between_date_range.to_sql)
   end
 
-  def sv_missing_accession_fields
-    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
-    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
-  end
-
-  def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
-    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
-    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
-  end
-
-  def sv_missing_collecting_event
-    # see biological_collection_object
-  end
-
-  def sv_missing_preparation_type
-    # see biological_collection_object
-  end
-
-  def sv_missing_repository
-    # WHY? -  see biological_collection_object
-  end
-
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(used_on = '')
-    t = case used_on 
+    t = case used_on
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
 
-    p = CollectionObject.arel_table 
+    p = CollectionObject.arel_table
 
     # i is a select manager
-    i = case used_on 
+    i = case used_on
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
@@ -600,13 +559,13 @@ class CollectionObject < ApplicationRecord
             .order(t['updated_at'])
         end
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
     j = case used_on
-        when 'BiologicalAssociation' 
+        when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])  
+            z['biological_association_subject_id'].eq(p['id'])
           ))
         else
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
@@ -633,36 +592,49 @@ class CollectionObject < ApplicationRecord
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end
 
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 
-  def next_by_identifier
-    if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
-      .limit(1).first
-    else
-      nil
-    end
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object
+  def preferred_catalog_number
+    Identifier::Local::CatalogNumber.where(identifier_object: self).first
   end
 
-  def previous_by_identifier
-    if i = identifiers.order(:position).first
-    CollectionObject
-      .where(project_id: project_id)
-      .where.not(id: id) 
-      .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC') 
-      .where(Utilities::Strings.is_i?(i.identifier) ?
-        ["CAST(identifiers.identifier AS integer) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
-      .limit(1).first
-    else
-      nil
-    end 
+  # return [Boolean]
+  #    True if instance is a subclass of BiologicalCollectionObject
+  def biological?
+    self.class <= BiologicalCollectionObject ? true : false
+  end
+
+  def annotations
+    h = annotations_hash
+    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    h
+  end
+
+  def sv_missing_accession_fields
+    soft_validations.add(:accessioned_at, 'Date is not selected') if self.accessioned_at.nil? && !self.accession_provider.nil?
+    soft_validations.add(:base, 'Provider is not selected') if !self.accessioned_at.nil? && self.accession_provider.nil?
+  end
+
+  def sv_missing_deaccession_fields
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
+    soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
+  end
+
+  def sv_missing_collecting_event
+    # see biological_collection_object
+  end
+
+  def sv_missing_preparation_type
+    # see biological_collection_object
+  end
+
+  def sv_missing_repository
+    # WHY? -  see biological_collection_object
   end
 
   protected
@@ -684,27 +656,6 @@ class CollectionObject < ApplicationRecord
       self.type = 'RangedLot'
     end
     true
-  end
-
-  def reject_otus(attributed)
-    a = attributed['taxon_name_id']
-    b = attributed['name']
-    a.blank? && b.blank?
-  end
-
-  # @return [Boolean]
-  def reject_taxon_determinations(attributed)
-    a = attributed['otu_id']
-    b = attributed['otu']
-    c = attributed['otu_attributes']
-    d = true
-    if c
-      d = c['name'].blank? && c['taxon_name_id'].blank? && c['taxon_name'].blank?
-    end
-
-    return true if a.blank? && b.blank? && d
-    return true if a.present? && b.present? && c.present?
-    false
   end
 
   def reject_collecting_event(attributed)

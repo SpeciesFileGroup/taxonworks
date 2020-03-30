@@ -77,7 +77,7 @@
 
 <script>
 
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
 import { RouteNames } from 'routes/routes'
 

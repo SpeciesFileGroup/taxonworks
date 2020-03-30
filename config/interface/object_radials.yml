@@ -29,13 +29,22 @@ Combination:
 CollectionObject:
   tasks:
     - browse_collection_objects_task
-    - collection_objects_filter_task
     - comprehensive_collection_object_task
-    - report_dwc_task
+    - browse_collecting_events_task
+    - collection_objects_filter_task
     - build_biocuration_groups_task
+    - report_dwc_task
   config: 
     recent: true
   edit: comprehensive_collection_object_task
+  new: comprehensive_collection_object_task
+CollectingEvent:
+  tasks:
+    - browse_collecting_events_task
+    - comprehensive_collection_object_task
+    - filter_collecting_events_task
+  config: 
+    recent: true
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task 
@@ -92,6 +101,6 @@ TaxonName:
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task
-  home: browse_nomenclature_task
+  new: new_taxon_name_task
   config:
     recent: true

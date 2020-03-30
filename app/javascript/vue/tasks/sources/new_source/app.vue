@@ -35,6 +35,11 @@
           </template>
         </div>
         <div class="horizontal-right-content">
+          <span
+            v-if="unsave"
+            class="medium-icon margin-small-right"
+            title="You have unsaved changes."
+            data-icon="warning"/>
           <button
             v-shortkey="[getMacKey(), 's']"
             @shortkey="saveSource"
@@ -66,6 +71,12 @@
             BibTeX
           </button>
           <button
+            @click="showRecent = true"
+            class="button normal-input button-default button-size separate-left"
+            type="button">
+            Recent
+          </button>
+          <button
             v-shortkey="[getMacKey(), 'n']"
             @shortkey="reset"
             @click="reset"
@@ -77,6 +88,9 @@
       </div>
     </nav-bar>
     <source-type/>
+    <recent-component
+      v-if="showRecent"
+      @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
       <component class="full_width" :is="section"/>
       <right-section class="separate-left"/>
@@ -93,14 +107,15 @@
 <script>
 
 import SourceType from './components/sourceType'
+import RecentComponent from './components/recent'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
-import RadialAnnotator from 'components/annotator/annotator'
-import RadialObject from 'components/radial_object/radialObject'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
 
@@ -128,7 +143,8 @@ export default {
     RightSection,
     BibtexButton,
     AddSource,
-    NavBar
+    NavBar,
+    RecentComponent
   },
   computed: {
     section () {
@@ -145,12 +161,25 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    unsave() {
+      let settings = this.$store.getters[GetterNames.GetSettings]
+      return settings.lastSave < settings.lastEdit
     }
   },
   data () {
     return {
       showModal: false,
-      showBibtex: false
+      showBibtex: false,
+      showRecent: false
+    }
+  },
+  watch: {
+    source: { 
+      handler () {
+        this.settings.lastEdit = Date.now()
+      },
+      deep: true
     }
   },
   mounted () {

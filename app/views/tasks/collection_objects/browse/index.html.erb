@@ -1,7 +1,7 @@
 <h1 class="task_header"> Browse collection objects </h1>
 
 <div id="browse-view" data-collection-object-id="<%= @collection_object.id %>">
-  <div class="panel content">
+  <div id="browse-collection-object" class="panel content">
     <div class="flex-separate middle">
 
       <div class="middle">
@@ -24,11 +24,12 @@
 
       <span class="right_float flex-separate">
         <ul class="context-menu">
+          <li><%= collection_object_radial_tag(@collection_object) %></li>
           <li><%= radial_annotator(@collection_object) %></li>
           <li><%= confidence_default_icon(@collection_object) %></li>
           <li><%= tag_default_icon(@collection_object) %></li>
           <li><%= pin_item_to_pinboard_link(@collection_object, sessions_current_user) %></li>
-          <li><%= radial_object_tag(@collection_object) %></li>
+          <li><%= radial_navigation_tag(@collection_object) %></li>
         </ul>
       </span>
     </div>
@@ -47,8 +48,8 @@
         </div>
 
         <div class="navigation-controls">
-          <%= link_to('Previous', browse_collection_objects_task_path( collection_object_id: previous_object(@collection_object) ),class: 'navigation-item') -%>
-          <%= link_to('Next', browse_collection_objects_task_path( collection_object_id: next_object(@collection_object) ), class: 'navigation-item') -%>
+          <%= link_to('Previous', browse_collection_objects_task_path( collection_object_id: @collection_object.previous ),class: 'navigation-item') -%>
+          <%= link_to('Next', browse_collection_objects_task_path( collection_object_id: @collection_object.next ), class: 'navigation-item') -%>
         </div>
 
         <div class="navigation-controls">

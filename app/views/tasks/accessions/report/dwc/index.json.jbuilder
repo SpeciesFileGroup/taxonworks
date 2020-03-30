@@ -1,3 +1,4 @@
+# DEPRECATE for collection_objects/summary
 json.array! @collection_objects do |c|
 
   json.id c.id

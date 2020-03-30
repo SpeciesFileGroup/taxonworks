@@ -3,7 +3,8 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -22,6 +23,11 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  def biocuration_classifications
+    @biocuration_classifications = @collection_object.biocuration_classifications
+   render '/biocuration_classifications/index' 
+  end
+
   # DEPRECATED
   # GET /collection_objects/dwca/123 # SHOULD BE dwc
   def dwca
@@ -29,12 +35,17 @@ class CollectionObjectsController < ApplicationController
     render json: @dwc_occurrence.to_json
   end
 
+  # Render DWC fields *only*
   def dwc_index
-    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
 
+  # GET /collection_objects/dwc/123 
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
@@ -42,6 +53,12 @@ class CollectionObjectsController < ApplicationController
       o.get_dwc_occurrence
     end
     render json: o.dwc_occurrence_attribute_values
+  end
+
+  # Intent is DWC fields + quick summary fields for reports
+  # !! As currently implemented rebuilds DWC all 
+  def report
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
   # GET /collection_objects/1
@@ -52,6 +69,9 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
+  end
+
+  def metadata_badge
   end
 
   # GET /collection_objects/1/images
@@ -125,7 +145,7 @@ class CollectionObjectsController < ApplicationController
         format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.full_messages.join('; '))}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; '))}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
       end
     end
@@ -198,7 +218,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
@@ -209,7 +229,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/castor/create' and return
@@ -224,7 +244,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_buffered_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Buffered_collection_objects_md5)
       render 'collection_objects/batch_load/buffered/preview'
     else
@@ -235,7 +255,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_buffered_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Buffered_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/buffered/create' and return
@@ -283,10 +303,12 @@ class CollectionObjectsController < ApplicationController
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
-      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
+      tags_attributes: [:id, :_destroy, :keyword_id],
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
 
@@ -314,6 +336,7 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
+      :md5_verbatim_label,
       :in_verbatim_locality,
       :geo_json,
       :wkt,
@@ -324,17 +347,21 @@ class CollectionObjectsController < ApplicationController
       :ancestor_id, 
       :current_determinations,
       :validity,
+      :user_id,
       :user_target,
-      :user_start_date,
-      :user_end_date,
+      :user_date_start,
+      :user_date_end,
       :identifier,
       :identifier_start,
       :identifier_end,
       :identifier_exact,
       :namespace_id,
+      :sled_image_id,
+      :depicted,
       :never_loaned,
       :loaned,
       :on_loan,
+      :type_specimen_taxon_name_id,
       :spatial_geographic_areas,
       otu_ids: [],
       keyword_ids: [],
@@ -343,7 +370,6 @@ class CollectionObjectsController < ApplicationController
       biocuration_class_ids: [],
       biological_relationship_ids: []
       
-      #  keyword_ids: [],
       #  collecting_event: {
       #   :recent,
       #   keyword_ids: []

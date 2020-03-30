@@ -172,6 +172,7 @@ module Queries
           autocomplete_wildcard_author_exact_year,
           autocomplete_exact_author,
           autocomplete_identifier_identifier_exact,
+          autocomplete_exact_id,
           autocomplete_start_of_author,  
           autocomplete_wildcard_anywhere_exact_year,
           autocomplete_identifier_cached_like,

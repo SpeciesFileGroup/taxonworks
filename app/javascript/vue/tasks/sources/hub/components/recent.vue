@@ -23,7 +23,7 @@
           class="list-complete-item">
           <td>
             <a
-              :href="`/sources/${item.id}`"
+              :href="`/tasks/sources/new_source?source_id=${item.id}`"
               v-html="item.object_tag"/>
           </td>
           <td> {{ item.year }} </td>
@@ -61,7 +61,7 @@
 
 import { GetRecentSources } from '../request/resources.js'
 import PinComponent from 'components/pin.vue'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProjectSource from 'components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'

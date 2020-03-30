@@ -10,17 +10,22 @@
         ({{ count }})
       </template>
     </button>
+    <i
+      v-if="verbatimGeoreferenceAlreadyCreated"
+      class="disabled">Verbatim coordinates match</i>
     <modal-component
       class="modal-georeferences"
       @close="onModal"
-      v-if="show">
+      v-show="show">
       <h3 slot="header">Georeferences</h3>
       <div slot="body">
         <georeferences
-          @onGeoreferences="count = $event.length"
+          :show="show"
+          @onGeoreferences="georeferences = $event"
           :zoom="5"
           :lat="lat"
           :lng="lng"
+          :geographic-area="geographicArea"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -33,7 +38,9 @@
 
 import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
+import { GetGeographicArea } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters.js'
+import { ActionNames } from '../../../../store/actions/actions'
 
 export default {
   components: {
@@ -49,18 +56,45 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    geographicArea () {
+      if(!this.$store.getters[GetterNames.GetGeographicArea]) return
+      return this.$store.getters[GetterNames.GetGeographicArea]['shape']
+    },
+    verbatimGeoreferenceAlreadyCreated () {
+      return this.georeferences.find(item => {
+        return item.geo_json.geometry.type === 'Point' &&
+          Number(item.geo_json.geometry.coordinates[0]) === Number(this.lng) &&
+          Number(item.geo_json.geometry.coordinates[1]) === Number(this.lat)
+      })
+    },
+    count () {
+      return this.georeferences.length
+    }
+  },
+  watch: {
+    collectingEvent: {
+      handler (newVal, oldVal) {
+        if(!newVal.id) {
+          this.georeferences = []
+        }
+      },
+      deep: true,
+      immediate: true
     }
   },
   data () {
     return {
       show: false,
-      count: 0
+      georeferences: []
     }
   },
   methods: {
     onModal () {
-      this.show = !this.show
-      this.$emit('onModal', this.show)
+      this.$store.dispatch(ActionNames.SaveCollectionEvent, this.collectingEvent).then(() => {
+        this.show = !this.show
+        this.$emit('onModal', this.show)
+      })
     }
   }
 }

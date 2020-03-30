@@ -22,6 +22,7 @@
             v-if="view == 'new/Search' && !otuId"
             class="horizontal-left-content">
             <otu-picker
+              input-id="determination-otu-autocomplete"
               @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
             <pin-default
               class="separate-left"
@@ -72,9 +73,9 @@
             class="separate-bottom">
             <ul class="no_bullets">
               <li
-                v-for="item in listsDeterminator[viewDeterminer]"
+                v-for="(item, index) in listsDeterminator[viewDeterminer]"
                 v-if="!roleExist(item.id)"
-                :key="item.id"
+                :key="index"
                 :value="item.id">
                 <label>
                   <input
@@ -97,19 +98,19 @@
         <div class="separate-right">
           <label>Year</label>
           <input
-            type="text"
+            type="number"
             v-model="year">
         </div>
         <div class="separate-right separate-left">
           <label>Month</label>
           <input
-            type="text"
+            type="number"
             v-model="month">
         </div>
         <div class="separate-left">
           <label>Day</label>
           <input
-            type="text"
+            type="number"
             v-model="day">
         </div>
         <div>
@@ -127,6 +128,7 @@
       </div>
       <button
         type="button"
+        id="determination-add-button"
         :disabled="!otuId"
         class="button normal-input button-submit separate-top"
         @click="addDetermination">Add</button>
@@ -249,6 +251,9 @@ export default {
   watch: {
     collectionObject(newVal) {
       this.$refs.rolepicker.reset()
+      if(!newVal.id) {
+        this.loadSmartSelectors()
+      }
     },
     otuId(newVal) {
       if(newVal) {
@@ -270,24 +275,26 @@ export default {
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
     }
-
-    GetOtuSmartSelector().then(response => {
-      this.options = orderSmartSelector(Object.keys(response))
-      this.options.push('new/Search')
-      this.lists = response
-      this.view = selectFirstSmartOption(response, this.options)
-    })
-    GetTaxonDeterminatorSmartSelector().then(response => {
-      this.optionsDeterminer = orderSmartSelector(Object.keys(response))
-      this.optionsDeterminer.push('new/Search')
-      this.listsDeterminator = response
-      this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
-    })
+    this.loadSmartSelectors()
   },
   methods: {
+    loadSmartSelectors() {
+      GetOtuSmartSelector().then(response => {
+        this.options = orderSmartSelector(Object.keys(response))
+        this.options.push('new/Search')
+        this.lists = response
+        this.view = selectFirstSmartOption(response, this.options)
+      })
+      GetTaxonDeterminatorSmartSelector().then(response => {
+        this.optionsDeterminer = orderSmartSelector(Object.keys(response))
+        this.optionsDeterminer.push('new/Search')
+        this.listsDeterminator = response
+        this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
+      })
+    },
     roleExist(id) {
       return (this.roles.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && role.person_id == id
       }) ? true : false)
     },
     addRole(role) {
@@ -299,11 +306,13 @@ export default {
       this.$store.dispatch(ActionNames.SaveDetermination)
     },
     addDetermination() {
-      let taxonDetermination = this.$store.getters[GetterNames.GetTaxonDetermination]
 
-      if(this.list.find((determination) => { return determination.otu_id == taxonDetermination.otu_id })) { return }
-      taxonDetermination.object_tag = `${this.otuSelected}`
-      this.$store.commit(MutationNames.AddTaxonDetermination, taxonDetermination)
+      if(this.list.find((determination) => { 
+          return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
+        })
+      ) { return }
+      this.taxonDetermination.object_tag = `${this.otuSelected}`
+      this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
     removeTaxonDetermination(determination) {
@@ -326,7 +335,7 @@ export default {
     }
     .date-fields {
       input {
-        max-width: 60px;
+        max-width: 80px;
       }
     }
       .vue-autocomplete-input {

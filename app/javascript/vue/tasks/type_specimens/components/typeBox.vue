@@ -42,8 +42,8 @@
 <script>
 
 import displayList from 'components/displayList.vue'
-import radialAnnotator from 'components/annotator/annotator.vue'
-import RadialObject from 'components/radial_object/radialObject.vue'
+import radialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 

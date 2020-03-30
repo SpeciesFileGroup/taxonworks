@@ -20,6 +20,11 @@ scope :tasks do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
     end
+
+    scope :nomenclature, controller: 'tasks/exports/nomenclature' do
+      get 'basic', action: :basic, as: 'export_basic_nomenclature_task'
+      get 'download_basic', as: 'download_basic_nomenclature_task'
+    end
   end
 
   scope :matrix_image do
@@ -29,7 +34,7 @@ scope :tasks do
   end
 
   scope :browse_annotations, controller: 'tasks/browse_annotations' do
-    get 'index', as: 'browse_annotations_task'
+    get '/', action: :index, as: 'browse_annotations_task'
   end
 
   scope :citations do
@@ -117,9 +122,13 @@ scope :tasks do
   end
 
   scope :collecting_events do
-    scope :search_locality, controller: 'tasks/collecting_events/search_locality' do
-      get 'index', as: 'index_search_locality_task'
-    end 
+    scope :browse, controller: 'tasks/collecting_events/browse' do
+      get '/', action: :index, as: 'browse_collecting_events_task'
+    end
+
+    scope :filter, controller: 'tasks/collecting_events/filter' do
+      get '/', action: :index, as: 'filter_collecting_events_task'
+    end
 
     scope :parse do
       scope :stepwise do
@@ -145,6 +154,14 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
+        get :index, as: 'grid_digitize_task'
+      end
+
+      scope :summary, controller: 'tasks/collection_objects/summary' do
+        get '/', action: :index, as: 'collection_object_summary_task'
+      end
+
     scope :filter, controller: 'tasks/collection_objects/filter' do
       get '/', as: 'collection_objects_filter_task', action: :index
     end
@@ -156,7 +173,7 @@ scope :tasks do
 
   scope :accessions do
     scope :comprehensive, controller: 'tasks/accessions/comprehensive' do
-      get 'index', as: 'comprehensive_collection_object_task'
+      get '/', action: :index, as: 'comprehensive_collection_object_task'
     end
 
     scope :report do
@@ -203,6 +220,12 @@ scope :tasks do
   scope :biological_associations do
     scope :dot, controller: 'tasks/biological_associations/dot' do
       get 'by_project/:project_id', action: :project_dot_graph, as: :biological_associations_dot_graph_task
+    end
+  end
+
+  scope :biological_relationships do
+    scope :composer, controller: 'tasks/biological_relationships/composer' do
+      get '/', action: :index, as: 'biological_relationship_composer_task'
     end
   end
 
@@ -262,16 +285,20 @@ scope :tasks do
   end
 
   scope :nomenclature do
-      scope :stats, controller: 'tasks/nomenclature/stats' do
-        get :index, as: 'index_stats_task'
+      scope :match, controller: 'tasks/nomenclature/match' do
+        get :index, as: 'match_nomenclature_task'
       end
 
+    scope :stats, controller: 'tasks/nomenclature/stats' do
+      get '', action: :index, as: 'index_stats_task'
+    end
+
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
-      get 'index', as: 'new_combination_task'
+      get '', action: :index, as: 'new_combination_task'
     end
 
     scope :new_taxon_name, controller: 'tasks/nomenclature/new_taxon_name' do
-      get '(:id)', action: :index, as: 'new_taxon_name_task'
+      get '', action: :index, as: 'new_taxon_name_task'
     end
 
     scope :catalog do
@@ -317,9 +344,9 @@ scope :tasks do
   end
 
   scope :otus do
-      scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
-        get :index, as: 'index_browse_asserted_distributions_task'
-      end
+    scope :browse_asserted_distributions, controller: 'tasks/otus/browse_asserted_distributions' do
+      get :index, as: 'index_browse_asserted_distributions_task'
+    end
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
@@ -349,7 +376,7 @@ scope :tasks do
     scope :syncronize_otus, controller: 'tasks/taxon_names/syncronize_otus' do
       get 'index', as: 'syncronize_otus_to_nomenclature_task'
       post 'index', as: 'preview_syncronize_otus_to_nomenclature_task'
-      post 'syncronize', as: 'syncronize_otus_task' 
+      post 'syncronize', as: 'syncronize_otus_task'
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do

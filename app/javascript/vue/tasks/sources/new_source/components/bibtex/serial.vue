@@ -4,6 +4,7 @@
       <fieldset class="full_width">
         <legend>Serial</legend>
         <smart-selector
+          input-id="serials-autocomplete"
           model="serials"
           klass="source"
           label="name"
@@ -11,12 +12,15 @@
         <div
           class="middle separate-top"
           v-if="selected">
-          <span
-            class="separate-right"
-            v-html="selected.name"/>
-          <span
-            class="button-circle btn-undo button-default separate-left"
-            @click="unset"/>
+          <div class="horizontal-left-content">
+            <span
+              class="separate-right"
+              v-html="selected.name"/>
+            <radial-object :global-id="selected.global_id"/>
+            <span
+              class="button-circle btn-undo button-default separate-left"
+              @click="unset"/>
+          </div>
         </div>
       </fieldset>
       <div class="vertical-content">
@@ -40,6 +44,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
 import DefaultPin from 'components/getDefaultPin'
+import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'
 
@@ -47,7 +52,8 @@ export default {
   components: {
     SmartSelector,
     LockComponent,
-    DefaultPin
+    DefaultPin,
+    RadialObject
   },
   computed: {
     source: {
@@ -77,7 +83,7 @@ export default {
       handler(newVal, oldVal) {
         if(newVal && newVal.serial_id) {
           if(!oldVal || oldVal.serial_id != newVal.serial_id) {
-            AjaxCall('get', `/serials/${newVal.serial_id}`).then(response => {
+            AjaxCall('get', `/serials/${newVal.serial_id}.json`).then(response => {
               this.selected = response.body
             })
           }
@@ -96,7 +102,7 @@ export default {
       this.source.serial_id = null
     },
     getDefault (id) {
-      AjaxCall('get', `/serials/${id}`).then(response => {
+      AjaxCall('get', `/serials/${id}.json`).then(response => {
         this.selected = response.body
       })
     }

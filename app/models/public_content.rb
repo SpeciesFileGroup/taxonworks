@@ -1,19 +1,18 @@
-# PublicContent definition...
-# @todo
+# A snapshot of the working content that is OK for public consumption. 
 #
 # * This needs work to resolve b/w OTU and other content.
 #
 # @!attribute otu_id
 #   @return [Integer]
-#   @todo
+#     they Otu 
 #
 # @!attribute topic_id
 #   @return [Integer]
-#   @todo
+#     the topic
 #
 # @!attribute text
 #   @return [String]
-#   @todo
+#      the meat 
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -21,7 +20,7 @@
 #
 # @!attribute content_id
 #   @return [Integer]
-#   @todo
+#     pointer to the working version 
 #
 class PublicContent < ApplicationRecord
   include Housekeeping
@@ -30,8 +29,7 @@ class PublicContent < ApplicationRecord
   belongs_to :topic
   belongs_to :content
 
-  validates_presence_of :text
-  validates :topic, presence: true
+  validates_presence_of :text, :topic_id
 
   def version
     self.content.version

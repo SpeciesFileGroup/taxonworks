@@ -204,7 +204,7 @@ module Workbench::SessionsHelper
   end
 
   def project_settings_link
-    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project)) : nil
+    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project), data: {project_id: sessions_current_project_id}) : nil
   end
 
   def administration_link

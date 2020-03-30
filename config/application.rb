@@ -26,6 +26,9 @@ module TaxonWorks
     # TODO: clean module/class names so that this works:
     # config.autoload_paths += Dir[ Rails.root.join('lib', '**/') ]
 
+    # Fix deprecation warning by adopting future Rails 6.1 behaviour
+    config.action_dispatch.return_only_media_type_on_content_type = false
+
     config.autoload_paths << "#{Rails.root}/lib"
     config.autoload_paths << "#{Rails.root}/lib/vendor"
 

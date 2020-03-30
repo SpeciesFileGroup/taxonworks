@@ -13,7 +13,7 @@
         v-model="source.month">
         <option
           v-for="(month, index) in months"
-          :value="(index + 1)"
+          :value="month.substring(0,3).toLowerCase()"
           :key="month">
           {{ month }}
         </option>
@@ -28,7 +28,7 @@
     <div class="field separate-right">
       <label v-help.section.BibTeX.yearSuffix>Year suffix</label><br>
       <input
-        type="number"
+        type="text"
         v-model="source.year_suffix">
     </div>
     <div class="field">

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 14.6 14.6" style="enable-background:new 0 0 14.6 14.6;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#00C72E;stroke:#FFFFFF;stroke-width:3;stroke-miterlimit:10;}
+	.st1{fill:#FFFFFF;}
+</style>
+<g>
+	<path class="st0" d="M-12.3,10.3"/>
+</g>
+<g>
+	<polygon class="st1" points="2.5,6.4 4.2,3.6 3.2,1.9 0.5,6.4 	"/>
+	<polygon class="st1" points="4.1,11 2.5,8.1 0.5,8.1 3.1,12.7 	"/>
+	<polygon class="st1" points="5.6,2.7 8.9,2.7 9.9,1 4.6,1 	"/>
+	<polygon class="st1" points="12.1,8.1 10.4,11 11.4,12.7 14.1,8.1 	"/>
+	<polygon class="st1" points="9,11.9 5.5,11.9 4.6,13.6 10,13.6 	"/>
+	<polygon class="st1" points="10.4,3.5 12.1,6.4 14.1,6.4 11.4,1.8 	"/>
+</g>
+<circle class="st1" cx="7.4" cy="7.3" r="2.6"/>
+</svg>

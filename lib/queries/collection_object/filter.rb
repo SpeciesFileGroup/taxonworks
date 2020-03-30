@@ -74,6 +74,18 @@ module Queries
       #   nil - not applied
       attr_accessor :dwc_indexed
 
+      # @return [True, False, nil]
+      #   true - index is built
+      #   false - index is not built
+      #   nil - not applied
+      attr_accessor :depicted
+
+      # @return [Protonym#id, nil]
+      attr_accessor :type_specimen_taxon_name_id
+
+      # @return [SledImage#id, nil]
+      attr_accessor :sled_image_id
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -85,7 +97,7 @@ module Queries
         @otu_ids = params[:otu_ids] || []
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
-        @ancestor_id = params[:ancestor_id]
+        @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
 
         @current_determinations = (params[:current_determinations]&.downcase == 'true' ? true : false) if !params[:current_determinations].nil?
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
@@ -98,9 +110,15 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params)
+        # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
+
+        @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
+
+        @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
+        @depicted = (params[:depicted]&.downcase == 'true' ? true : false) if !params[:depicted].nil?
 
         set_identifier(params)
         set_tags_params(params)
@@ -127,6 +145,16 @@ module Queries
       end
 
       # @return [Arel::Table]
+      def type_materials_table 
+        ::TypeMaterial.arel_table
+      end
+
+      # @return [Arel::Table]
+      def depiction_table 
+        ::Depiction.arel_table
+      end
+
+      # @return [Arel::Table]
       def taxon_determination_table 
         ::TaxonDetermination.arel_table
       end
@@ -134,6 +162,16 @@ module Queries
       def biocuration_facet
         return nil if biocuration_class_ids.empty?
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids}) 
+      end
+
+      def depicted_facet 
+        return nil if !depicted
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions) 
+      end
+
+      def sled_image_facet 
+        return nil if sled_image_id.nil?
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
       end
 
       def biological_relationship_ids_facet
@@ -213,13 +251,13 @@ module Queries
         clauses
       end
 
-
       def base_merge_clauses
         clauses = []
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
           otus_facet,
+          type_material_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
           created_modified_facet, # See Queries::Concerns::Users
@@ -231,7 +269,9 @@ module Queries
           dwc_indexed_facet,
           never_loaned_facet,
           biocuration_facet,
-          biological_relationship_ids_facet
+          biological_relationship_ids_facet,
+          sled_image_facet,
+          depicted_facet,
         ]
 
         clauses.compact!
@@ -266,6 +306,18 @@ module Queries
 
         q = q.order(updated_at: :desc) if recent
         q
+      end
+
+      # @return [Scope]
+      def type_material_facet 
+        return nil if type_specimen_taxon_name_id.nil?
+
+        w = type_materials_table[:collection_object_id].eq(table[:id])
+          .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+
+        ::CollectionObject.where(
+          ::TypeMaterial.where(w).arel.exists
+        )
       end
 
       # @return [Scope]

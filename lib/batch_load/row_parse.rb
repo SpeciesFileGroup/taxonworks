@@ -49,7 +49,7 @@ class BatchLoad::RowParse
 
   # @return [Array]
   def all_objects
-    objects.collect { |type, objs| objs }.flatten
+    objects.collect { |type, objs| objs }.flatten.compact
   end
 
   # @return [Integer]

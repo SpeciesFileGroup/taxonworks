@@ -13,7 +13,7 @@
         tag="tbody">
         <tr
           v-for="item in list"
-          :key="item.id"
+          :key="rowKey ? item[rowKey] : item.id"
           class="list-complete-item">
           <td
             v-for="attr in attributes"
@@ -39,7 +39,7 @@
 </template>
 <script>
 
-  import RadialAnnotator from './annotator/annotator.vue'
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
   export default {
     components: {
@@ -61,6 +61,10 @@
         default: () => {
           return []
         }
+      },
+      rowKey: {
+        type: String,
+        default: undefined
       },
       destroy: {
         type: Boolean,

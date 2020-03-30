@@ -14,12 +14,15 @@ function makeInitialState () {
     settings: {
       saving: false,
       loading: false,
+      lastSave: 0,
+      lastEdit: 0,
       lock: {
         type: false,
         language_id: false,
         serial_id: false,
         bibtex_type: false
       },
+      addToSource: false,
       sortable: false
     },
     preferences: {

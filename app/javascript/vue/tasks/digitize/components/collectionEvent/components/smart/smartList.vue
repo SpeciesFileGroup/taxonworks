@@ -9,9 +9,8 @@
             :checked="collectingEvent.id == item.id"
             type="radio"
             name="ce-smart">
-          {{ item.object_tag }}
+          <span v-html="item.object_tag"/>
         </label>
-
       </li>
     </ul>
   </div>

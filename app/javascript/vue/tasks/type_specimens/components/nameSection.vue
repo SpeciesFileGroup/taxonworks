@@ -19,8 +19,7 @@
           min="2"
           :add-params="{
             'type[]': 'Protonym',
-            'nomenclature_group[]': 'SpeciesGroup',
-            valid: true
+            'nomenclature_group[]': 'SpeciesGroup'
         }"/>
       </div>
       <display-list

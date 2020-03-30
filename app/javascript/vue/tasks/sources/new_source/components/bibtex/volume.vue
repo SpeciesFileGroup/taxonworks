@@ -41,7 +41,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   input[type="number"] {
     width: 80px;
   }

@@ -37,7 +37,27 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
     # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
     # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
-   
+  
+    specify '#depicted' do
+     t = FactoryBot.create(:valid_depiction, depiction_object: co1)
+      query.depicted = true
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#sled_image_id' do
+      m =  {
+        "index": 0,
+        "upperCorner": {"x":0, "y":0},
+        "lowerCorner": {"x":2459.5, "y":1700.75},
+        "row": 0,
+        "column": 0
+      }
+
+      t = SledImage.create!(image: FactoryBot.create(:valid_image), metadata: [ m ], collection_object_params: {total: 1})
+      query.sled_image_id = t.id
+      expect(query.all.map.size).to eq(1)
+    end
+
     specify '#collecting_event_query' do
       expect(query.collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
     end
@@ -90,7 +110,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
-    context 'determinations and hierarchical search' do
+    context 'determinations, types and hierarchical search' do
       let!(:co3) { Specimen.create! } # only determination
 
       let!(:root) { FactoryBot.create(:root_taxon_name) }
@@ -119,6 +139,15 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td4) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co2, otu: o1) } # current
 
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
+
+      context 'type_material' do
+        let!(:tm) { TypeMaterial.create(collection_object: co1, protonym: species1, type_type: 'holotype') }
+
+        specify '#type_specimen_taxon_name_id' do
+          query.type_specimen_taxon_name_id = species1.id
+          expect(query.all.map(&:id)).to contain_exactly(co1.id)
+        end
+      end
 
       specify 'all specimens ever determined as an Otu' do
         # current_deteriminations = nil
@@ -211,10 +240,23 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
-    specify '#tags on collecting_vent' do
+    specify '#tags on collection_object' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      query.keyword_ids = [t.keyword_id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collecting_event' do
       t = FactoryBot.create(:valid_tag, tag_object: ce1)
       query.collecting_event_query.keyword_ids = [t.keyword_id]
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collection_object 2' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      p = {keyword_ids: [t.keyword_id]}
+      q = Queries::CollectionObject::Filter.new(p)
+      expect(q.all.map(&:id)).to contain_exactly(co1.id)
     end
 
     context 'biological_relationships' do
