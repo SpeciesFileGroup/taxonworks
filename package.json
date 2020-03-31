@@ -2,7 +2,7 @@
   "dependencies": {
     "@geoman-io/leaflet-geoman-free": "^2.5.0",
     "@ibm/plex": "^4.0.2",
-    "@rails/webpacker": "^4.2.2",
+    "@rails/webpacker": "^5.0.0",
     "@sfgrp/sled": "^0.5.0",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",
