@@ -95,11 +95,11 @@
         </template>
       </fieldset>
       <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-right">
-          <label>Year</label>
+        <div class="separate-left">
+          <label>Day</label>
           <input
             type="number"
-            v-model="year">
+            v-model="day">
         </div>
         <div class="separate-right separate-left">
           <label>Month</label>
@@ -107,11 +107,11 @@
             type="number"
             v-model="month">
         </div>
-        <div class="separate-left">
-          <label>Day</label>
+        <div class="separate-right">
+          <label>Year</label>
           <input
             type="number"
-            v-model="day">
+            v-model="year">
         </div>
         <div>
           <label>&nbsp</label>
