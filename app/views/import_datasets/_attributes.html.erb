@@ -1,0 +1,47 @@
+<p>
+  <strong>Status:</strong>
+  <%= @import_dataset.status %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @import_dataset.description %>
+</p>
+
+<p>
+<strong>Source file:</strong>
+  <%= link_to "Download", @import_dataset.source.url(:original, false) %>
+</p>
+
+<div data-view="development" class="attribute_set" data-title="Dataset metadata">
+  <p>
+    <strong>Type:</strong>
+    <%= @import_dataset.type %>
+  </p>
+
+  <p>
+    <strong>Import dataset source file name:</strong>
+    <%= @import_dataset.source_file_name %>
+  </p>
+
+  <p>
+    <strong>Import dataset source content type:</strong>
+    <%= @import_dataset.source_content_type %>
+  </p>
+
+  <p>
+    <strong>Import dataset source file size:</strong>
+    <%= @import_dataset.source_file_size %>
+  </p>
+
+  <p>
+    <strong>Import dataset source updated at:</strong>
+    <%= @import_dataset.source_updated_at %>
+  </p>
+
+  <p>
+    <strong>Metadata:</strong>
+    <%= @import_dataset.metadata %>
+  </p>
+
+</div>

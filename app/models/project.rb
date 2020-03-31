@@ -96,6 +96,7 @@ class Project < ApplicationRecord
      Descriptor
      ProjectMember
      Download
+     ImportDataset
     }
   
   has_many :project_members, dependent: :restrict_with_error

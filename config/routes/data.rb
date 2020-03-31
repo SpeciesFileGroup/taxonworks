@@ -292,6 +292,10 @@ resources :images do
   end
 end
 
+resources :import_datasets do
+  concerns [:data_routes]
+end
+
 resources :keywords, only: [] do
   collection do
     get :autocomplete

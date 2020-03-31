@@ -1,0 +1,5 @@
+<%= content_for :icon_navigation do -%>
+  <li><%= import_dataset_download(@import_dataset) %></li>
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @import_dataset}) -%>
