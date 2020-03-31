@@ -356,6 +356,7 @@ class CollectionObjectsController < ApplicationController
     a = params.permit(
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collection_object_type,
       :in_labels,
       :md5_verbatim_label,
       :in_verbatim_locality,

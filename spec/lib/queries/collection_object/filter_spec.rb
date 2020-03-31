@@ -28,7 +28,8 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       updated_at: '2001-01-01'
     ) }
 
-    let!(:co2) { Specimen.create!(
+    let!(:co2) { Lot.create!(
+      total: 2,
       collecting_event: ce2,
       created_at: '2015-01-01',
       updated_at: '2015-01-01'
@@ -57,6 +58,11 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     
       query.sled_image_id = t.id
       expect(query.all.map.size).to eq(1)
+    end
+
+    specify '#collection_object_type' do
+      query.collection_object_type = 'Lot'
+      expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
     specify '#collecting_event_query' do
