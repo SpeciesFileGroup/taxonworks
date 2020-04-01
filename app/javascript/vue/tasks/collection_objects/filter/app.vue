@@ -73,27 +73,36 @@
               Select all
             </button>
           </div>
-          <div>
-            <select v-model="per">
-              <option
-                v-for="records in maxRecords"
-                :key="records" 
-                :value="records">
-                {{ records }}
-              </option>
-            </select>
-            records per page.
+        </div>
+        <div
+          class="flex-separate margin-medium-bottom"
+          v-if="pagination">
+          <pagination-component
+            v-if="pagination"
+            @nextPage="loadPage"
+            :pagination="pagination"/>
+          <div class="horizontal-left-content">
+            <span
+              v-if="list.data.length"
+              class="horizontal-left-content">{{ list.data.length }} records.
+            </span>
+            <div class="margin-small-left">
+              <select v-model="per">
+                <option
+                  v-for="records in maxRecords"
+                  :key="records"
+                  :value="records">
+                  {{ records }}
+                </option>
+              </select>
+              records per page.
+            </div>
           </div>
         </div>
         <list-component
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
-        <pagination-component
-          class="margin-large-bottom"
-          v-if="pagination"
-          @nextPage="loadPage"
-          :pagination="pagination"/>
         <h2
           v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.

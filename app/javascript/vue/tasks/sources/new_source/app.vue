@@ -31,7 +31,7 @@
             <radial-annotator :global-id="source.global_id"/>
             <radial-object :global-id="source.global_id"/>
             <add-source
-              :project_source_id="source.project_source_id"
+              :project-source-id="source.project_source_id"
               :id="source.id"/>
           </template>
         </div>

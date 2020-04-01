@@ -671,24 +671,11 @@ class Source::Bibtex < Source
     end
   end
 
-  # not used - move to a helper method if we want something not persisted
-  def bibtex_bibliography_for_zootaxa
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    v = volume
-    v = v + '(' + number + ')' unless number.blank?
-    v = [stated_year, v].compact.join(', ') if !stated_year.blank? and stated_year != year
-    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
-
   # rubocop:disable Metrics/MethodLength
   # @return [BibTeX::Entry]
   #   entry equivalent to self, this should round-trip with no changes
   def to_bibtex
-    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
@@ -766,12 +753,8 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this Source as an entry
   def bibtex_bibliography
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
+    TaxonWorks::Vendor::BibtexRuby.bibliography([self])
+ end
 
   # @param [String] style
   # @param [String] format

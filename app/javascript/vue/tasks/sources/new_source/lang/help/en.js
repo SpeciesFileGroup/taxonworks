@@ -1,4 +1,4 @@
-//  New taxon name
+//  New source task
 //  language: en
 
 export default {
