@@ -190,7 +190,12 @@ class SourcesController < ApplicationController
   end
 
   def filter_params
-    params.permit(:query_term, :project_id, :recent, author_ids: [])
+    params.permit(
+      :query_term,
+      :project_id,
+      :recent, 
+      author_ids: []
+    )
   end
 
   def set_source

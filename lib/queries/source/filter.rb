@@ -2,8 +2,70 @@ module Queries
   module Source
     class Filter < Queries::Query
 
+      include Queries::Concerns::Tags
+
+      # @project_id from Queries::Query
+      #   if provided then only Sources in this project are returned
+
+      # @query_term from Queries::Query
+
+      # @return author [String, nil]
+      #   !! matches `cached_author`
+      attr_accessor :author 
+
+      # @return [Boolean, nil]
+      # @params exact_author ['true', 'false', nil]
+      attr_accessor :exact_author 
+
+      # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
 
+      # @params year_start [Integer, nil]
+      attr_accessor :year_start
+
+      # @params year_end [Integer, nil]
+      attr_accessor :year_end
+
+      # @params title [String, nil]
+      attr_accessor :title
+
+      # @return [Boolean, nil]
+      # @params exact_title ['true', 'false', nil]
+      attr_accessor :exact_title
+
+      # @return [Boolean, nil]
+      # @params citations ['true', 'false', nil]
+      attr_accessor :citations
+
+      # @return [Boolean, nil]
+      # @params roles ['true', 'false', nil]
+      attr_accessor :roles
+
+      # @return [Boolean, nil]
+      # @params documentation ['true', 'false', nil]
+      attr_accessor :documentation
+
+      # @return [Boolean, nil]
+      # @params nomenclature ['true', 'false', nil]
+      attr_accessor :nomenclature
+
+      # @return [Boolean, nil]
+      # @params with_doi ['true', 'false', nil]
+      attr_accessor :with_doi
+
+      # @return [Array, nil]
+      # @params citation_object_type  [Array of ObjectType]
+      attr_accessor :citation_object_type
+
+      # @return [Boolean, nil]
+      # @params tags ['true', 'false', nil]
+      attr_accessor :tags
+
+      # @return [Boolean, nil]
+      # @params notes ['true', 'false', nil]
+      attr_accessor :notes
+
+      # TODO: deprecate
       attr_accessor :recent
 
       # @param [Hash] params
@@ -13,6 +75,8 @@ module Queries
         @author_ids = params[:author_ids] || []
         @recent = params[:recent].blank? ? nil : true 
         build_terms
+        set_identifier(params)
+        set_tag
       end
 
       # @return [ActiveRecord::Relation]
