@@ -546,3 +546,11 @@ work_report_task:
     - collection_object
   status: prototype
   description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
+filter_sources_task:
+  hub: true
+  name: 'Filter sources'
+  related:
+  categories:
+    - sources
+  status: prototype
+  description: 'Filter sources'
