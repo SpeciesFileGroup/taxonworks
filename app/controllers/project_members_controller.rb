@@ -1,7 +1,7 @@
 class ProjectMembersController < ApplicationController
 
-  before_action :require_superuser_sign_in, except: [:update_clipboard, :index]
-  before_action :require_sign_in_and_project_selection, only: [:update_clipboard]
+  before_action :require_superuser_sign_in, except: [:update_clipboard, :index, :clipboard]
+  before_action :require_sign_in_and_project_selection, only: [:update_clipboard, :clipboard]
 
   before_action :set_project_member, only: [:edit, :update, :destroy]
   before_action :set_member_project, only: [:many_new, :new, :create_many]

@@ -102,6 +102,10 @@ scope :tasks do
   end
 
   scope :sources do
+      scope :filter, controller: 'tasks/sources/filter' do
+        get '/', action: :index, as: 'filter_sources_task'
+      end
+
     scope :new_source, controller: 'tasks/sources/new_source' do
       get '/', action: :index, as: 'new_source_task'
       get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
@@ -113,11 +117,6 @@ scope :tasks do
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
       get '/', action: :index, as: 'new_bibtex_source_task'
-    end
-
-    scope :find, controller: 'tasks/sources/find' do
-      get '/', action: :index, as: 'find_sources_task'
-      get 'find', as: 'find_sources_query_task'
     end
   end
 

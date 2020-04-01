@@ -19,7 +19,6 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
 import TableList from 'components/table_list'
 import SpinnerComponent from 'components/spinner'
 import { ActionNames } from '../store/actions/actions'

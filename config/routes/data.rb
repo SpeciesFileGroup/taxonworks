@@ -229,7 +229,7 @@ resources :downloads, except: [:edit, :new, :create] do
     get 'list'
   end
   member do
-    get 'download_file'
+    get 'file'
   end
 end
 
@@ -581,6 +581,8 @@ resources :sources do
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
+    get :citation_object_types, defaults: {format: :json}
+    get :generate, defaults: {format: :json}
   end
 
   member do

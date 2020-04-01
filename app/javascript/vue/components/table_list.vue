@@ -125,6 +125,7 @@
   .vue-table-container {
     padding: 0px;
     position: relative;
+    word-break: break-all;
   }
 
   .vue-table {
