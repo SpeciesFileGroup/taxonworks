@@ -148,7 +148,7 @@ class SqedDepiction < ApplicationRecord
 
     if progress == true
       SqedDepiction.clear_stale_progress(self)
-      q = q.where.not(in_progress: true)
+      q = q.where(in_progress: nil)
     end
 
     a = q.where('id > ?', id).order(:id).limit(after)
