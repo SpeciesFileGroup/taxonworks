@@ -7,12 +7,19 @@ module NamespacesHelper
 
   def namespace_autocomplete_tag(namespace)
     return nil if namespace.nil?
-    a = [
-      (namespace.institution.blank? ? nil : ( [content_tag(:span, namespace.institution, class: :subtle), '<br>'].join.html_safe  )),
-      namespace.short_name,
-      (namespace.verbatim_short_name.blank? ? nil : content_tag(:span, '[' + namespace.verbatim_short_name + ']', class: :warning ).html_safe ),
-      content_tag(:span, namespace.name,  class: :subtle )
-    ].compact.join(' ').html_safe
+    r = []
+
+    if namespace.verbatim_short_name.blank?
+      r.push namespace.short_name
+    else
+      r.push content_tag(:span, '[' + namespace.verbatim_short_name + ']', class: [:feedback, 'feedback-thin', 'feedback-warning'] )
+    end
+
+    if !namespace.institution.blank?
+      r.push content_tag(:span, namespace.name, class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
+    end
+
+    r.join('<br/>').html_safe
   end
 
   def namespace_link(namespace)
@@ -37,4 +44,4 @@ module NamespacesHelper
                options_for_select(Namespace.pluck(:short_name).uniq),
                prompt: 'Select a namespace')
   end
-end
+
