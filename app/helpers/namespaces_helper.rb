@@ -44,4 +44,4 @@ module NamespacesHelper
                options_for_select(Namespace.pluck(:short_name).uniq),
                prompt: 'Select a namespace')
   end
-
+end
