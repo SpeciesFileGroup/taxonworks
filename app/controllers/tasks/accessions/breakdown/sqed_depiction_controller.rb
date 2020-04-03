@@ -59,7 +59,7 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     @sqed_depiction = SqedDepiction.where(project_id: sessions_current_project_id).find(params[:id])
     @sqed_depiction.update_column(:in_progress, Time.now)
     # TODO: Run jobs in background with admin task.
-    @sqed_depiction.preprocess
+    # @sqed_depiction.preprocess
   end
 
 end
