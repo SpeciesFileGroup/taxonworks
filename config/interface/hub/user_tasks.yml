@@ -99,6 +99,7 @@ simple_specimen_task:
   categories:
     - collection_object
     - collecting_event
+    - image
   status: prototype
 new_asserted_distribution_from_map_task:
   hub: true
@@ -356,11 +357,12 @@ index_topics_hub_task:
   status: prototype
   description: 'Report on the usage of Topics.'
 index_new_image_task:
-  description: 'Add images via drag-and-drop.  Applies attribution and depiction metadata across sets of added images.  Add staged specimen images.'
+  description: 'Add images via drag-and-drop. Applies attribution and depiction metadata across sets of added images. Add staged specimen images.'
   hub: true
   name: 'New image'
   related:
   categories:
+    - image
     - collecting_event
     - collection_object
   status: prototype
@@ -529,7 +531,7 @@ manage_controlled_vocabulary_terms_task:
   related:
   categories:
   status: stable 
-  description: 'View and create custom fields, tags, etc. used throughout TaxonWorks.'
+  description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
   name: 'Collection object match'
@@ -538,3 +540,11 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
+work_report_task:
+  hub: true
+  name: 'Collection object work report'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'

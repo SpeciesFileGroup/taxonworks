@@ -42,6 +42,12 @@
       <li v-if="collectionObject.notes_attributes.length">
         <span>{{ collectionObject.notes_attributes.length }} notes will be added.</span>
       </li>
+      <li v-if="collectionObject.preparation_type_id">
+        <span>Preparation type will be added.</span>
+      </li>
+      <li v-if="collectionObject.repository_id">
+        <span>Repository type will be added.</span>
+      </li>
     </ul>
   </div>
 </template>
