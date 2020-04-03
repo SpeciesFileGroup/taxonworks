@@ -97,8 +97,11 @@ namespace :tw do
 
               jr = j.rotate(rotate)
 
+              j.destroy! # free memory/cache
+              
               File.delete(original_file)
               jr.write(original_file)
+              jr.destroy! # free memory/cache
             rescue
               FileUtils.cp(temp_original, original_file)
               raise

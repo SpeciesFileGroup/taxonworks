@@ -99,6 +99,7 @@ simple_specimen_task:
   categories:
     - collection_object
     - collecting_event
+    - image
   status: prototype
 new_asserted_distribution_from_map_task:
   hub: true
@@ -356,11 +357,12 @@ index_topics_hub_task:
   status: prototype
   description: 'Report on the usage of Topics.'
 index_new_image_task:
-  description: 'Add images via drag-and-drop.  Applies attribution and depiction metadata across sets of added images.  Add staged specimen images.'
+  description: 'Add images via drag-and-drop. Applies attribution and depiction metadata across sets of added images. Add staged specimen images.'
   hub: true
   name: 'New image'
   related:
   categories:
+    - image
     - collecting_event
     - collection_object
   status: prototype

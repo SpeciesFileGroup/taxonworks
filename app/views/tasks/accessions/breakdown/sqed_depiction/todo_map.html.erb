@@ -2,8 +2,7 @@
 
 <p> Overview: 
 <%= sqed_done_tag(sessions_current_project_id) -%> done. <%= sqed_not_done_tag(sessions_current_project_id) -%> remaining. <br>
-<%= page_entries_info @sqed_depictions %></p>
-<p>
+<%= page_entries_info @sqed_depictions %>.  <%= SqedDepiction.where(project_id: sessions_current_project_id).where.not(in_progress: nil).count(:all) -%> in progress.</p>
 
 <fieldset title="Navigate">
   <legend> Navigate </legend>
@@ -21,6 +20,7 @@
 
   <div class="item item2">
     <h3> Stage images </h3>
-    <%= waxy_layout(@sqed_depictions) -%>
+    <p><i> Purple borders indicate record is in progress </i></p>
+    <%= sqed_waxy_layout(@sqed_depictions) -%>
   </div>
 </div>
