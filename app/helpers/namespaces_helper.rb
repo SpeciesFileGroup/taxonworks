@@ -15,8 +15,10 @@ module NamespacesHelper
       r.push content_tag(:span, '[' + namespace.verbatim_short_name + ']', class: [:feedback, 'feedback-thin', 'feedback-warning'] )
     end
 
+    r.push content_tag(:span, namespace.name, class: [:feedback, 'feedback-thin', 'feedback-primary'] )
+
     if !namespace.institution.blank?
-      r.push content_tag(:span, namespace.name, class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
+      r.push content_tag(:span, namespace.institution, class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
     end
 
     r.join('<br/>').html_safe
