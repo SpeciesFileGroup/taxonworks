@@ -253,7 +253,6 @@ class Image < ApplicationRecord
   # @param [ActionController::Parameters] params
   # @return [Magick::Image]
   def self.scaled_to_box(params)
-    byebug
     c = cropped(params)
     ratio = c.columns.to_f / c.rows.to_f
     box_ratio = params[:box_width].to_f / params[:box_height].to_f
