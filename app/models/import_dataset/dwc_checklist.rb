@@ -5,4 +5,16 @@ class ImportDataset::DwcChecklist < ImportDataset
   def self.model_name
     ImportDataset.model_name
   end
+
+  def initialize(params)
+    super(params)
+
+    if params[:source]
+      CSV.read(params[:source].tempfile, headers: true, col_sep: "\t").each do |row|
+        record = DatasetRecord::DwcTaxon.new(status: "Pending")
+        record.initialize_data_fields(row.to_h)
+        dataset_records << record
+      end
+    end
+  end
 end

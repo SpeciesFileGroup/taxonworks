@@ -194,6 +194,11 @@ resources :data_attributes, except: [:show] do
   end
 end
 
+resources :dataset_records do
+  concerns [:data_routes]
+end
+
+
 resources :depictions do
   concerns [:data_routes]
   collection do

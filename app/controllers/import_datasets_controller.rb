@@ -31,7 +31,7 @@ class ImportDatasetsController < ApplicationController
     @import_dataset = ImportDataset::DwcChecklist.new(import_dataset_params)
 
     respond_to do |format|
-      if @import_dataset.save
+      if @import_dataset.save!
         format.html { redirect_to @import_dataset, notice: 'Import dataset was successfully created.' }
         format.json { render :show, status: :created, location: @import_dataset }
       else

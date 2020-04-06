@@ -34,6 +34,8 @@ class ImportDataset < ApplicationRecord
 
   attribute :status, :string, default: "Pending"
 
+  has_many :dataset_records
+
   has_attached_file :source,
     filename_cleaner:  Utilities::CleanseFilename
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_25_105300) do
+ActiveRecord::Schema.define(version: 2020_04_03_142131) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -483,6 +483,24 @@ ActiveRecord::Schema.define(version: 2020_03_25_105300) do
     t.index ["project_id"], name: "index_data_attributes_on_project_id"
     t.index ["type"], name: "index_data_attributes_on_type"
     t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
+  end
+
+  create_table "dataset_records", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.jsonb "data_fields", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
+    t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
+    t.index ["import_dataset_id", "type"], name: "index_dataset_records_on_import_dataset_id_and_type"
+    t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
+    t.index ["project_id"], name: "index_dataset_records_on_project_id"
+    t.index ["updated_by_id"], name: "index_dataset_records_on_updated_by_id"
   end
 
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
@@ -2013,6 +2031,8 @@ ActiveRecord::Schema.define(version: 2020_03_25_105300) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_records", "import_datasets"
+  add_foreign_key "dataset_records", "projects"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
