@@ -25,11 +25,13 @@
       <label>Identifier</label>
       <div class="horizontal-left-content">
         <input
+          v-model="identifier.identifier"
           class="full_width"
           type="text">
         <button
           class="button normal-input button-default margin-small-left"
           type="button"
+          :disabled="!filledIdentifier"
           @click="addIdentifier">
           Add
         </button>
@@ -78,6 +80,9 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    filledIdentifier () {
+      return this.identifier.namespace && this.identifier.identifier
     }
   },
   data () {
