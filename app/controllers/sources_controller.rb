@@ -66,6 +66,15 @@ class SourcesController < ApplicationController
     @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
+  # GET /sources/citation_object_types.json
+  def citation_object_types
+   render json: Source.joins(:citations)
+     .where(citations: {project_id: sessions_current_project_id})
+     .select('citations.project_id, citations.citation_object_type')
+     .distinct
+     .pluck(:citation_object_type).sort
+  end
+
   def parse
     error_message = 'Unknown'
 

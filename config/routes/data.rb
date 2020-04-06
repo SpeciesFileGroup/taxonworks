@@ -581,6 +581,7 @@ resources :sources do
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
+    get :citation_object_types, defaults: {format: :json}
   end
 
   member do
