@@ -1,9 +1,11 @@
 <template>
   <div>
-    <div class="field">
+    <h2>Authors</h2>
+    <div class="field label-above">
       <label>Author</label>
       <input
         type="text"
+        class="full_width"
         v-model="source.author">
       <label class="horizontal-left-content">
         <input
@@ -12,24 +14,30 @@
         Exact
       </label>
     </div>
-    <div class="field">
-      <label>Authors</label>
+    <fieldset>
+      <legend>Authors</legend>
       <smart-selector
         model="people"
         target="Author"
         @selected="addAuthor">
       </smart-selector>
-    </div>
+    </fieldset>
+    <display-list
+      :list="authors"
+      label="object_tag"
+      @deleteIndex="removeAuthor"/>
   </div>
 </template>
 
 <script>
 
 import SmartSelector from 'components/smartSelector'
+import DisplayList from 'components/displayList'
 
 export default {
   components: {
-    SmartSelector
+    SmartSelector,
+    DisplayList
   },
   props: {
     value: {
@@ -62,7 +70,12 @@ export default {
   },
   methods: {
     addAuthor (author) {
-      this.authors.push(author)
+      if (!this.source.author_ids.includes(author.id)) {
+        this.authors.push(author)
+      }
+    },
+    removeAuthor (index) {
+      this.authors.splice(index, 1)
     }
   }
 }

@@ -1,9 +1,10 @@
 <template>
   <div>
-    <div class="field">
+    <div class="field label-above">
       <label>Title</label>
       <input
         type="text"
+        class="full_width"
         v-model="source.title">
       <label class="horizontal-left-content">
         <input

@@ -29,6 +29,9 @@
       <title-component v-model="params.source"/>
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
+      <by-records-component v-model="params.byRecordsWith"/>
+      <tags-component v-model="params.keywords"/>
+      <identifier-component v-model="params.identifiers"/>
     </div>
   </div>
 </template>
@@ -41,13 +44,19 @@ import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import AuthorsComponent from './filters/authors'
 import DateComponent from './filters/date'
+import ByRecordsComponent from './filters/records'
+import TagsComponent from './filters/tags'
+import IdentifierComponent from './filters/identifiers'
 
 export default {
   components: {
     SpinnerComponent,
     TitleComponent,
     AuthorsComponent,
-    DateComponent
+    DateComponent,
+    ByRecordsComponent,
+    TagsComponent,
+    IdentifierComponent
   },
   computed: {
     getMacKey () {
@@ -106,16 +115,23 @@ export default {
           title: undefined,
           year: undefined,
           exact_title: undefined,
+          citation_object_type: undefined,
+        },
+        byRecordsWith: {
           citations: undefined,
           roles: undefined,
           documentation: undefined,
           nomenclature: undefined,
           with_doi: undefined,
-          citation_object_type: undefined,
           tags: undefined,
-          notes: undefined,
-          keyword_ids: [],
-          identifiers: []
+          notes: undefined
+        },
+        keywords: [],
+        identifiers: {
+          identifiers: [],
+          identifiers_start: undefined,
+          identifiers_end: undefined,
+          identifier_exact: undefined
         }
       }
     },

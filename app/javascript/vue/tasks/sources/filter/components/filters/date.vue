@@ -1,15 +1,16 @@
 <template>
   <div>
-    <div class="field">
+    <h2>Date</h2>
+    <div class="field label-above">
       <label>Start year</label>
       <input
-        type="text"
+        type="date"
         v-model="source.year_start">
     </div>
-    <div class="field">
+    <div class="field label-above">
       <label>End year</label>
       <input
-        type="text"
+        type="date"
         v-model="source.year_end">
     </div>
   </div>
