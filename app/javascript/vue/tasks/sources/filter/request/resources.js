@@ -8,17 +8,12 @@ const GetUsers = () => {
   return ajaxCall('get', '/project_members.json')
 }
 
-const GetCollectingEventSmartSelector = () => {
-  return ajaxCall('get', '/collecting_events/select_options')
-}
-
-const GetKeywordSmartSelector = () => {
-  return ajaxCall('get', '/keywords/select_options?klass=CollectionObject')
+const GetCitationTypes = () => {
+  return ajaxCall('get', '/sources/citation_object_types.json')
 }
 
 export {
   GetSources,
   GetUsers,
-  GetCollectingEventSmartSelector,
-  GetKeywordSmartSelector
+  GetCitationTypes
 }

@@ -10,6 +10,16 @@
         pin-section="Namespaces"
         pin-type="Namespace"
         @selected="setNamespace"/>
+      <div
+        class="horizontal-left-content"
+        v-if="identifier.namespace">
+        <span
+          class="margin-small-right"
+          v-html="identifier.namespace.object_tag"/>
+        <span
+          class="button circle-button btn-undo button-default"
+          @click="identifier.namespace = undefined"/>
+      </div>
     </fieldset>
     <div class="field label-above">
       <label>Identifier</label>

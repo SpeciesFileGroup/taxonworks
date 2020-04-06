@@ -1,6 +1,13 @@
 <template>
   <div>
     <div class="field label-above">
+      <label>Search text</label>
+      <input
+        type="text"
+        class="full_width"
+        v-model="source.query_term">
+    </div>
+    <div class="field label-above">
       <label>Title</label>
       <input
         type="text"

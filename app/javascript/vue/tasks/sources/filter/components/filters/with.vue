@@ -1,0 +1,71 @@
+<template>
+  <div>
+    <h2>{{ title }}</h2>
+    <ul class="no_bullets">
+      <li
+        v-for="option in options">
+        <label class="capitalize">
+          <input
+            :value="option.value"
+            v-model="optionValue"
+            type="radio">
+          {{ option.label }}
+        </label>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    title: {
+      type: String,
+      required: true
+    },
+    value: {
+      type: Boolean,
+      default: undefined
+    },
+    values: {
+      type: Array,
+      default: () => { return [] }
+    }
+  },
+  computed: {
+    optionValue: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
+  data () {
+    return {
+      options: [
+        {
+          label: 'Both',
+          value: undefined
+        },
+        {
+          label: 'with',
+          value: true
+        },
+        {
+          label: 'without',
+          value: false
+        }
+      ]
+    }
+  },
+  created () {
+    if (this.values.length) {
+      this.values.forEach((label, index) => {
+        this.options[index].label = label
+      })
+    }
+  }
+}
+</script>

@@ -29,9 +29,42 @@
       <title-component v-model="params.source"/>
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
-      <by-records-component v-model="params.byRecordsWith"/>
       <tags-component v-model="params.keywords"/>
       <identifier-component v-model="params.identifiers"/>
+      <citation-types-component v-model="params.citation_object_type"/>
+      <with-component
+        title="In project"
+        :values="['Both', 'Yes', 'No']"
+        v-model="params.in_project"
+      />
+      <with-component
+        title="Citations"
+        v-model="params.byRecordsWith.citations"
+      />
+      <with-component
+        title="DOI"
+        v-model="params.byRecordsWith.with_doi"
+      />
+      <with-component
+        title="Roles"
+        v-model="params.byRecordsWith.roles"
+      />
+      <with-component
+        title="Tags"
+        v-model="params.byRecordsWith.tags"
+      />
+      <with-component
+        title="Notes"
+        v-model="params.byRecordsWith.notes"
+      />
+      <with-component
+        title="Documentation"
+        v-model="params.byRecordsWith.documentation"
+      />
+      <with-component
+        title="Nomenclatural"
+        v-model="params.byRecordsWith.nomenclature"
+      />
     </div>
   </div>
 </template>
@@ -44,9 +77,10 @@ import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import AuthorsComponent from './filters/authors'
 import DateComponent from './filters/date'
-import ByRecordsComponent from './filters/records'
 import TagsComponent from './filters/tags'
 import IdentifierComponent from './filters/identifiers'
+import CitationTypesComponent from './filters/citationTypes'
+import WithComponent from './filters/with'
 
 export default {
   components: {
@@ -54,9 +88,10 @@ export default {
     TitleComponent,
     AuthorsComponent,
     DateComponent,
-    ByRecordsComponent,
     TagsComponent,
-    IdentifierComponent
+    IdentifierComponent,
+    CitationTypesComponent,
+    WithComponent
   },
   computed: {
     getMacKey () {
@@ -106,7 +141,6 @@ export default {
         },
         source: {
           query_term: undefined,
-          project_id: undefined,
           author: undefined,
           exact_author: undefined,
           author_ids: [],
@@ -115,7 +149,7 @@ export default {
           title: undefined,
           year: undefined,
           exact_title: undefined,
-          citation_object_type: undefined,
+          in_project: undefined
         },
         byRecordsWith: {
           citations: undefined,
@@ -126,6 +160,7 @@ export default {
           tags: undefined,
           notes: undefined
         },
+        citation_object_type: [],
         keywords: [],
         identifiers: {
           identifiers: [],
