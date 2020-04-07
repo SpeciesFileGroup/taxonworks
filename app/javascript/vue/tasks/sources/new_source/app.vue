@@ -20,6 +20,7 @@
       <div class="flex-separate full_width">
         <div class="middle">
           <span
+            class="word_break"
             v-if="source.id"
             v-html="source.cached"/>
           <span v-else>New record</span>
