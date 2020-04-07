@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
+    get :index, as: 'index_dwca_import_task'
+    post 'upload'
+    get ':id/workbench', action: :workbench, as: 'workbench_dwca_import_task'
+  end
+
   scope :asserted_distributions do
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'

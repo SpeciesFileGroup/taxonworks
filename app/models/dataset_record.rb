@@ -23,13 +23,16 @@ class DatasetRecord < ApplicationRecord
   validates :data_fields, presence: true
 
   def initialize_data_fields(field_data)
-    self.data_fields = field_data.map do |field_name, value|
-      { 
-        field_name => {
-          "value" => value,
-          "original_value" => value,
-          "frozen" => false }
+    data_fields = {}
+
+    field_data.each do |field_name, value|
+      data_fields[field_name] = {
+        "value" => value,
+        "original_value" => value,
+        "frozen" => false
       }
     end
+
+    self.data_fields = data_fields
   end  
 end

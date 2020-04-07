@@ -538,3 +538,13 @@ match_collection_objects_task:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
+index_dwca_import_task:
+  hub: true
+  name: 'Darwin Core Archive (DwC-A) import'
+  related:
+  categories:
+    - nomenclature
+    - collecting_event
+    - collection_object
+  status: prototype
+  description: 'Import Darwin Core Archive data into project.'
