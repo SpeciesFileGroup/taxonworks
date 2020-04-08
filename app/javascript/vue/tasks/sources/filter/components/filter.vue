@@ -58,8 +58,8 @@
         v-model="params.byRecordsWith.notes"
       />
       <with-component
-        title="Documentation"
-        v-model="params.byRecordsWith.documentation"
+        title="Documents"
+        v-model="params.byRecordsWith.documents"
       />
       <with-component
         title="Nomenclatural"
@@ -154,7 +154,7 @@ export default {
         byRecordsWith: {
           citations: undefined,
           roles: undefined,
-          documentation: undefined,
+          documents: undefined,
           nomenclature: undefined,
           with_doi: undefined,
           tags: undefined,
