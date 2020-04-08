@@ -62,9 +62,8 @@ module Queries
       # @params citation_object_type  [Array of ObjectType]
       attr_accessor :citation_object_type
 
-      # @return [Boolean, nil]
-      # @params tags ['true', 'false', nil]
-      attr_accessor :tags
+      # From lib/queries/concerns/tags.rb 
+      # attr_accessor :tags
 
       # @return [Boolean, nil]
       # @params notes ['true', 'false', nil]
@@ -100,54 +99,16 @@ module Queries
 
         @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
 
+        @notes = (params[:notes]&.downcase == 'true' ? true : false) if !params[:notes].nil?
+
+        @citation_object_type = params[:citation_object_type] || []
+
         @recent = params[:recent].blank? ? nil : true 
         build_terms
         set_identifier(params)
         set_tags_params(params)
       end
-
-      # DEPRECATED
-      # @return [ActiveRecord::Relation]
-      def or_clauses
-        clauses = [
-          only_ids,               # only intgers provided
-          cached,                 # should hit titles when provided alone, unfragmented string matches
-          fragment_year_matches   # keyword style ANDs years
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.or(b)
-        end
-        a
-      end
-
-      def merge_clauses
-        clauses = [
-          author_ids_facet,
-          citation_facet,
-          document_facet,
-          in_project_facet,
-          nomenclature_facet,
-          role_facet,
-          with_doi_facet
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [String]
-      def where_sql
-        return ::Source.none if or_clauses.nil?
-        or_clauses.to_sql
-      end
-
+  
       # @return [ActiveRecord::Relation, nil]
       #   if user provides 5 or fewer strings and any number of years look for any string && year
       def fragment_year_matches
@@ -197,11 +158,6 @@ module Queries
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
-      # @return [ActiveRecord::Relation]
-      def by_project_all
-        ::Source.where(where_sql).limit(500).distinct.order(:cached).joins(:project_sources).where(member_of_project_id.to_sql)
-      end
-
       # @return [Arel::Table]
       def table
         ::Source.arel_table
@@ -240,7 +196,6 @@ module Queries
         end
       end
 
-
       # TODO: move to generalized code in identifiers concern
       def with_doi_facet
         return nil if with_doi.nil?
@@ -265,7 +220,19 @@ module Queries
           ::Source.joins(:roles).distinct
         else
           ::Source.left_outer_joins(:roles)
-            .where(roles: {role_object_id: nil})
+            .where(roles: {id: nil})
+        end
+      end
+
+      # TODO: move to a concern
+      def note_facet
+        return nil if notes.nil?
+
+        if notes 
+          ::Source.joins(:notes).distinct
+        else
+          ::Source.left_outer_joins(:notes)
+            .where(notes: {id: nil})
         end
       end
 
@@ -279,6 +246,13 @@ module Queries
           ::Source.left_outer_joins(:documents)
             .where(documents: {id: nil})
         end
+      end
+
+      # TODO: move to citation concern
+      def citation_object_type_facet
+        return nil if citation_object_type.empty?
+        ::Source.joins(:citations)
+          .where(citations: {citation_object_type: citation_object_type})
       end
 
       def nomenclature_facet
@@ -299,6 +273,34 @@ module Queries
         project_sources_table[:project_id].eq(project_id)
       end
 
+      def merge_clauses
+        clauses = [
+          author_ids_facet,
+          citation_facet,
+          citation_object_type_facet,
+          document_facet,
+          in_project_facet,
+          nomenclature_facet,
+          role_facet,
+          with_doi_facet,
+          matching_keyword_ids,
+          tag_facet,
+          note_facet,
+          identifier_between_facet,
+          identifier_facet,
+          identifier_namespace_facet,
+        ].compact
+
+        return nil if clauses.empty?
+
+        a = clauses.shift
+        clauses.each do |b|
+          a = a.merge(b)
+        end
+        a
+      end
+
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
@@ -307,7 +309,7 @@ module Queries
           cached,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
-          year_facet,
+         year_facet,
         ].compact
 
         return nil if clauses.empty?
@@ -336,6 +338,24 @@ module Queries
         end
         q
       end
+
+      # DEPRECATED
+      # @return [ActiveRecord::Relation]
+      # def or_clauses
+      #   clauses = [
+      #     only_ids,               # only intgers provided
+      #     cached,                 # should hit titles when provided alone, unfragmented string matches
+      #     fragment_year_matches   # keyword style ANDs years
+      #   ].compact
+
+      #   a = clauses.shift
+      #   clauses.each do |b|
+      #     a = a.or(b)
+      #   end
+      #   a
+      # end
+
+
 
       ## @return [ActiveRecord::Relation]
       #def all

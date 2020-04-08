@@ -201,24 +201,31 @@ class SourcesController < ApplicationController
   def filter_params
     params[:project_id] = sessions_current_project_id
     params.permit(
-      :query_term,
-      :project_id,
       :author,
-      :exact_author,
-      :author_ids,
-      :year_start,
-      :year_end,
-      :title,
-      :exact_title,
       :citations,
-      :roles,
       :documents,
+      :exact_author,
+      :exact_title,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :namespace_id,
       :nomenclature,
-      :with_doi,
-      :citation_object_type,
-      :tags,
+      :notes,
+      :project_id,
+      :query_term,
       :recent, 
-      author_ids: []
+      :roles,
+      :tags,
+      :title,
+      :with_doi,
+      :year_end,
+      :year_start,
+      author_ids: [],
+      citation_object_type: [],
+      author_ids: [],
+      keyword_ids: []
     )
   end
 

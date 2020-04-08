@@ -8,15 +8,82 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   include_examples 'source queries'
 
   let(:query) {  Queries::Source::Filter.new({})  }
+  let!(:doi) { '10.11646/stuff.1234.5.6' }
+
+  # Duplicate f() with collection objects
+  # Should be in identifiers concern specs ...
+  specify '#identifier' do
+    i = Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi ) 
+    query.identifier = doi
+    query.identifier_exact = true
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#namespace_id' do
+    i = Identifier::Local::Import.create!(namespace: FactoryBot.create(:valid_namespace), identifier: '123', identifier_object: s1)
+    query.namespace_id = i.namespace.id
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+  # end should be in identifiers concern
+
+
+  specify '#keyword_ids 1' do
+    k = Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
+    query.keyword_ids = [k.keyword.id]
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#with_note 1' do
+    Note.create!(text: 'my note', note_object: s1)
+    query.notes = true
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#with_note 2' do
+    Note.create!(text: 'test', note_object: s1)
+    Note.create!(text: 'tube', note_object: s1)
+    query.notes = true
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#with_note 3 (without notes)' do
+    query.notes = false 
+    expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
+  end
+
+  specify '#with_tag 1' do
+    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
+    query.tags = true
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#with_tag 1 (distinct)' do
+    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
+    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
+    query.tags = true
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#citation_object_type 1' do
+    Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name))
+    query.citation_object_type = ['TaxonName'] 
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#citation_object_type 2' do
+    Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name))
+    query.citation_object_type = ['Specimen'] 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
 
   specify '#with_doi 1' do
-    Identifier::Global::Doi.create!(identifier_object: s1, identifier: 'http://dx.doi.org/10.11646/stuff.1234.5.6')
+    Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi)
     query.with_doi = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
   specify '#with_doi 2' do
-    Identifier::Global::Doi.create!(identifier_object: s2, identifier: 'http://dx.doi.org/10.11646/stuff.1234.5.6')
+    Identifier::Global::Doi.create!(identifier_object: s2, identifier: doi)
     query.with_doi = false
     expect(query.all.map(&:id)).to contain_exactly( *all_source_ids - [s2.id] )
   end
