@@ -295,6 +295,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_genus
+      return true if self.rank_class.rank_name == 'genus'
       return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_genus != t.original_genus
@@ -325,6 +326,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subgenus
+      return true if self.rank_class.rank_name == 'subgenus'
       return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_subgenus != t.original_subgenus
@@ -355,6 +357,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_species
+      return true if self.rank_class.rank_name == 'species'
       return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_species != t.original_species
@@ -385,6 +388,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subspecies
+      return true if self.rank_class.rank_name == 'subspecies'
       return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_subspecies != t.original_subspecies
@@ -415,6 +419,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_variety
+      return true if self.rank_class.rank_name == 'variety'
       return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_variety != t.original_variety
@@ -445,6 +450,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_form
+      return true if self.rank_class.rank_name == 'form'
       return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
       list_of_coordinated_names.each do |t|
         if self.original_form != t.original_form
@@ -1007,7 +1013,9 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      soft_validations.add(:base, 'Taxon name author role is not selected') if self.roles.empty?
+      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied?
+        soft_validations.add(:base, 'Taxon name author role is not selected')
+      end
     end
 
     def sv_year_is_not_required
