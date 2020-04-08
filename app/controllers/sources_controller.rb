@@ -68,11 +68,11 @@ class SourcesController < ApplicationController
 
   # GET /sources/citation_object_types.json
   def citation_object_types
-   render json: Source.joins(:citations)
-     .where(citations: {project_id: sessions_current_project_id})
-     .select('citations.project_id, citations.citation_object_type')
-     .distinct
-     .pluck(:citation_object_type).sort
+    render json: Source.joins(:citations)
+      .where(citations: {project_id: sessions_current_project_id})
+      .select('citations.project_id, citations.citation_object_type')
+      .distinct
+      .pluck(:citation_object_type).sort
   end
 
   def parse
@@ -199,9 +199,24 @@ class SourcesController < ApplicationController
   end
 
   def filter_params
+    params[:project_id] = sessions_current_project_id
     params.permit(
       :query_term,
       :project_id,
+      :author,
+      :exact_author,
+      :author_ids,
+      :year_start,
+      :year_end,
+      :title,
+      :exact_title,
+      :citations,
+      :roles,
+      :documents,
+      :nomenclature,
+      :with_doi,
+      :citation_object_type,
+      :tags,
       :recent, 
       author_ids: []
     )
