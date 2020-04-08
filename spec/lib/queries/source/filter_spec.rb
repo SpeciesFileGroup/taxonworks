@@ -10,6 +10,11 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let(:query) {  Queries::Source::Filter.new({})  }
   let!(:doi) { '10.11646/stuff.1234.5.6' }
 
+  specify '#source_type' do
+    query.source_type = 'Source::Verbatim' 
+    expect(query.all.map(&:id)).to contain_exactly( s1.id, s6.id )
+  end
+
   # Duplicate f() with collection objects
   # Should be in identifiers concern specs ...
   specify '#identifier' do

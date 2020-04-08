@@ -3,6 +3,7 @@ module Queries
     class Filter < Queries::Query
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Users
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
@@ -69,8 +70,9 @@ module Queries
       # @params notes ['true', 'false', nil]
       attr_accessor :notes
 
-      # TODO: deprecate
-      attr_accessor :recent
+      # @return [String, nil]
+      # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] 
+      attr_accessor :source_type
 
       # @param [Hash] params
       def initialize(params)
@@ -103,10 +105,12 @@ module Queries
 
         @citation_object_type = params[:citation_object_type] || []
 
-        @recent = params[:recent].blank? ? nil : true 
+        @source_type = params[:source_type]
+
         build_terms
         set_identifier(params)
         set_tags_params(params)
+        set_user_dates(params)
       end
   
       # @return [ActiveRecord::Relation, nil]
@@ -119,6 +123,11 @@ module Queries
         else
           nil
         end
+      end
+
+      def source_type_facet
+        return nil if source_type.blank?
+        table[:type].eq(source_type)
       end
 
       def year_facet
@@ -289,6 +298,7 @@ module Queries
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
+          created_updated_facet, # See Queries::Concerns::Users
         ].compact
 
         return nil if clauses.empty?
@@ -300,7 +310,6 @@ module Queries
         a
       end
 
-
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = []
@@ -309,7 +318,8 @@ module Queries
           cached,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
-         year_facet,
+          source_type_facet,
+          year_facet,
         ].compact
 
         return nil if clauses.empty?
