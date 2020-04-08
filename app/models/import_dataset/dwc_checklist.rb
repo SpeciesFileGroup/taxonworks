@@ -10,11 +10,17 @@ class ImportDataset::DwcChecklist < ImportDataset
     super(params)
 
     if params[:source]
-      CSV.read(params[:source].tempfile, headers: true, col_sep: "\t").each do |row|
+      rows = CSV.read(params[:source].tempfile, headers: true, col_sep: "\t")
+
+      rows.each do |row|
         record = DatasetRecord::DwcTaxon.new(status: "Pending")
         record.initialize_data_fields(row.to_h)
         dataset_records << record
       end
+
+      self.metadata = {
+        core_headers: rows.first.to_h.keys
+      }
     end
   end
 end

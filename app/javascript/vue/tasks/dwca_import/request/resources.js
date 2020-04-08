@@ -1,7 +1,11 @@
 import AjaxCall from 'helpers/ajaxCall'
 
-const GetImport = (id) => {
-  return AjaxCall('get', `/tasks/dwca_import/${id}/workbench`)
+const GetDataset = (id) => {
+  return AjaxCall('get', `/import_datasets/${id}.json`)
+}
+
+const GetDatasetRecords = (id) => {
+  return AjaxCall('get', `/import_datasets/${id}/dataset_records.json`)
 }
 
 const UpdateRow = (rowId) => {
@@ -13,7 +17,8 @@ const ImportRows = (rowsId) => {
 }
 
 export {
-  GetImport,
+  GetDataset,
+  GetDatasetRecords,
   UpdateRow,
   ImportRows
 }

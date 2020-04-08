@@ -14,7 +14,9 @@
         v-for="(row, index) in table.rows"
         class="contextMenuCells"
         :class="{ 'even': (index % 2 == 0) }"
-        :row="row"/>
+        :id="row.id"
+        :row="row.data_fields"
+        :headers="table.headers"/>
     </tbody>
   </table>
 </template>

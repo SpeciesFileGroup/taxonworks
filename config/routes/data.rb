@@ -194,11 +194,6 @@ resources :data_attributes, except: [:show] do
   end
 end
 
-resources :dataset_records do
-  concerns [:data_routes]
-end
-
-
 resources :depictions do
   concerns [:data_routes]
   collection do
@@ -299,6 +294,7 @@ end
 
 resources :import_datasets do
   concerns [:data_routes]
+  resources :dataset_records
 end
 
 resources :keywords, only: [] do

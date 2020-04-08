@@ -3,10 +3,10 @@
   <div id="vue-task-dwca-import-new">
     <h1>DwC-A file upload</h1>
     <div
-      v-if="dwcImport"
+      v-if="table"
       class="overflow-scroll">
       <table-component
-        :table="dwcImport.core_table"/>
+        :table="table"/>
     </div>
     <new-import v-else/>
   </div>
@@ -16,7 +16,7 @@
 
 import NewImport from './components/NewImport'
 import TableComponent from './components/table'
-import { GetImport } from './request/resources'
+import { GetDataset, GetDatasetRecords } from './request/resources'
 
   export default {
     components: {
@@ -25,12 +25,19 @@ import { GetImport } from './request/resources'
     },
     data (){
       return {
-        dwcImport: undefined
+        table: undefined
       }
     },
     mounted () {
-      GetImport(new URLSearchParams(window.location.search).get('import_dataset_id')).then(response => {
-        this.dwcImport = response.body
+      let id = new URLSearchParams(window.location.search).get('import_dataset_id')
+      let table = {}
+
+      GetDataset(id).then(response => {
+        table.headers = response.body.metadata.core_headers
+        return GetDatasetRecords(id)
+      }).then(response => {
+        table.rows = response.body
+        this.table = table
       })
     }
   }

@@ -1,8 +1,8 @@
 <template>
   <tr>
     <cell-component
-      v-for="(cell, index) in row"
-      :cell="cell"/>
+      v-for="(header, index) in headers"
+      :cell="row[header].value"/>
   </tr>
 </template>
 
@@ -15,8 +15,12 @@ export default {
     CellComponent
   },
   props: {
-    row: {
+    headers: {
       type: Array,
+      required: true
+    },
+    row: {
+      type: Object,
       required: true
     }
   }

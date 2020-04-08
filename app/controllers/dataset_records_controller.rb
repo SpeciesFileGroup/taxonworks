@@ -2,11 +2,12 @@ class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_dataset_record, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
 
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = DatasetRecord.all
+    @dataset_records = ImportDataset.find(params[:import_dataset_id]).dataset_records.page(params[:page]).per(params[:per] || 100)
   end
 
   # GET /dataset_records/1
@@ -71,6 +72,6 @@ class DatasetRecordsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def dataset_record_params
-      params.require(:dataset_record).permit(:data)
+      params.require(:dataset_record).permit(:data_fields)
     end
 end
