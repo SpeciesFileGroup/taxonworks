@@ -968,7 +968,7 @@ module Protonym::SoftValidationExtensions
         relationships = relationships.sort_by{|r| r.type_class.order_index }
         ids = relationships.collect{|r| r.subject_taxon_name_id}
         if !ids.include?(self.id)
-          unless list_of_coordinated_names.each{|r| r.id} & ids
+          if (list_of_coordinated_names.each{|r| r.id} & ids).empty?
             soft_validations.add(:base, "Missing relationship: The original rank of #{self.cached_html} is not specified in the original combination.")
           end
         elsif ids.last != self.id
