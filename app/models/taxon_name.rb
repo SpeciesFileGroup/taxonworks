@@ -1358,19 +1358,25 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_original_publication
-    if !self.cached_misspelling && !self.name_is_misapplied?
+    if true #!self.cached_misspelling && !self.name_is_misapplied?
+
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.pages.blank?
         soft_validations.add(:base, 'Original citation pages are not indicated')
-      elsif !self.source.pages.blank? && self.origin_citation.pages =~ /\A[0-9]+\z/
-        matchdata = self.source.pages.match(/(\d+)[-–](\d+)|(\d+)/)
-        if matchdata
-          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
-          minP = 1 if minP == maxP && maxP.to_s == self.source.pages && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
-          unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-            soft_validations.add(:base, "Original citation is out of the source page range")
+      elsif !self.source.pages.blank?
+        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        if matchdata1
+          citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
+          citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
+          matchdata = self.source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+          if citMinP && citMaxP && matchdata
+            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+            minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
+            unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
+              soft_validations.add(:base, 'Original citation is out of the source page range')
+            end
           end
         end
       end
