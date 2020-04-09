@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-separate middle">
-      <h1>Collection objects filter</h1>
+      <h1>Filter sources</h1>
       <ul class="context-menu">
         <li>
           <label>
@@ -44,19 +44,17 @@
         class="separate-right"
         ref="filterComponent"
         v-show="activeFilter"
+        @params="params = $event"
         @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
         @result="loadList"
-        @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width">
         <div 
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
-            <csv-button
-              :url="urlRequest"
-              :options="{ fields: csvFields }"/>
+            <csv-button :list="list"/>
             <span class="separate-left separate-right">|</span>
             <button
               v-if="ids.length"
@@ -68,9 +66,15 @@
             <button
               v-else
               type="button"
-              @click="ids = coIds"
+              @click="ids = sourceIDs"
               class="button normal-input button-default">
               Select all
+            </button>
+            <span class="separate-left separate-right">|</span>
+            <button
+              @click="getBibtex"
+              class="button normal-input button-default">
+              Download Bibtex
             </button>
           </div>
           <div>
@@ -107,9 +111,11 @@
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from './components/csvDownload'
+import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
+
+import { DownloadBibtex } from './request/resources'
 
 export default {
   components: {
@@ -120,25 +126,18 @@ export default {
   },
   computed: {
     csvFields () {
-      if (!Object.keys(this.list).length) return []
-      return this.list.column_headers.map((item, index) => {
-        return {
-          label: item,
-          value: (row, field) => row[index] || field.default,
-          default: ''
-        }
-      })
-    },
-    coIds () {
-      return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
+      return []
     },
     recordsFound () {
-      return Object.keys(this.list).length && this.list.data.length
+      return this.list.length
+    },
+    sourceIDs () {
+      return this.list.map(item => { return item.id })
     }
   },
   data () {
     return {
-      list: {},
+      list: [],
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
@@ -147,7 +146,8 @@ export default {
       ids: [],
       pagination: undefined,
       maxRecords: [50, 100, 250, 500, 1000],
-      per: 500
+      per: 500,
+      params: undefined
     }
   },
   watch: {
@@ -159,7 +159,7 @@ export default {
   methods: {
     resetTask () {
       this.alreadySearch = false
-      this.list = {}
+      this.list = []
       this.urlRequest = ''
       this.pagination = undefined
     },
@@ -181,11 +181,14 @@ export default {
     },
     newSearch () {
       if (!this.append) {
-        this.list = {}
+        this.list = []
       }
     },
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
+    },
+    getBibtex () {
+      DownloadBibtex(this.params)
     },
     getPagination: GetPagination
   }

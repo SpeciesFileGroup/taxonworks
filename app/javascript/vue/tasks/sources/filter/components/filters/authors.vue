@@ -19,8 +19,7 @@
       <smart-selector
         model="people"
         target="Author"
-        @selected="addAuthor">
-      </smart-selector>
+        @selected="addAuthor"/>
     </fieldset>
     <display-list
       :list="authors"
@@ -61,6 +60,14 @@ export default {
     }
   },
   watch: {
+    value: {
+      handler (newVal, oldVal) {
+        if (!newVal.author_ids.length && oldVal.author_ids.length) {
+          this.authors = []
+        }
+      },
+      deep: true
+    },
     authors: {
       handler (newVal) {
         this.source.author_ids = this.authors.map(author => { return author.id })

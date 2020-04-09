@@ -31,7 +31,7 @@ export default {
       default: undefined
     }
   },
-  data() {
+  data () {
     return {
       csvFile: undefined,
       isLoading: false,
@@ -40,10 +40,10 @@ export default {
   },
   watch: {
     list: {
-      handler(newVal) {
-        if(newVal.length)
+      handler (newVal) {
+        if (newVal.length)
           this.parseJSONToCSV()
-        else 
+        else
           this.csvFile = undefined
       },
       deep: true,

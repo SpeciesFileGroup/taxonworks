@@ -22,16 +22,18 @@
         type="button"
         :disabled="emptyParams"
         v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchForCollectionObjects"
-        @click="searchForCollectionObjects">
+        @shortkey="searchSources"
+        @click="searchSources">
         Search
       </button>
       <title-component v-model="params.source"/>
+      <type-component v-model="params.source.source_type"/>
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
-      <tags-component v-model="params.keywords"/>
-      <identifier-component v-model="params.identifiers"/>
-      <citation-types-component v-model="params.citation_object_type"/>
+      <tags-component v-model="params.source.keyword_ids"/>
+      <identifier-component v-model="params.identifier"/>
+      <citation-types-component v-model="params.source.citation_object_type"/>
+      <users-component v-model="params.user"/>
       <with-component
         title="In project"
         :values="['Both', 'Yes', 'No']"
@@ -72,7 +74,6 @@
 <script>
 
 import TitleComponent from './filters/title'
-import { GetSources } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import AuthorsComponent from './filters/authors'
@@ -81,6 +82,10 @@ import TagsComponent from './filters/tags'
 import IdentifierComponent from './filters/identifiers'
 import CitationTypesComponent from './filters/citationTypes'
 import WithComponent from './filters/with'
+import TypeComponent from './filters/type'
+import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+
+import { GetSources } from '../request/resources.js'
 
 export default {
   components: {
@@ -91,7 +96,9 @@ export default {
     TagsComponent,
     IdentifierComponent,
     CitationTypesComponent,
-    WithComponent
+    WithComponent,
+    TypeComponent,
+    UsersComponent
   },
   computed: {
     getMacKey () {
@@ -115,21 +122,22 @@ export default {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    searchForCollectionObjects () {
+    searchSources () {
       if (this.emptyParams) return
       this.searching = true
       this.$emit('newSearch')
-      const params = Object.assign({}, this.params.source)
+      const params = Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user)
 
       GetSources(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.url)
         this.$emit('pagination', response)
+        this.$emit('params', params)
         this.searching = false
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-      }, () => { 
+      }, () => {
         this.searching = false
       })
     },
@@ -149,7 +157,11 @@ export default {
           title: undefined,
           year: undefined,
           exact_title: undefined,
-          in_project: undefined
+          in_project: undefined,
+          source_type: undefined,
+          citation_object_type: [],
+          keyword_ids: [],
+          users: []
         },
         byRecordsWith: {
           citations: undefined,
@@ -160,13 +172,18 @@ export default {
           tags: undefined,
           notes: undefined
         },
-        citation_object_type: [],
-        keywords: [],
-        identifiers: {
-          identifiers: [],
+        identifier: {
+          namespace_id: undefined,
+          identifier: undefined,
           identifiers_start: undefined,
           identifiers_end: undefined,
           identifier_exact: undefined
+        },
+        user: {
+          user_id: undefined,
+          user_target: undefined,
+          user_date_start: undefined,
+          user_date_end: undefined
         }
       }
     },

@@ -13,16 +13,23 @@
         pin-type="Keyword"
         @selected="addKeyword"/>
     </fieldset>
+    <display-list
+      :list="keywords"
+      label="object_tag"
+      @deleteIndex="removeKeyword"
+      />
   </div>
 </template>
 
 <script>
 
 import SmartSelector from 'components/smartSelector'
+import DisplayList from 'components/displayList'
 
 export default {
   components: {
-    SmartSelector
+    SmartSelector,
+    DisplayList
   },
   props: {
     value: {
@@ -46,6 +53,11 @@ export default {
     }
   },
   watch: {
+    value (newVal, oldVal) {
+      if (!newVal.length && oldVal.length) {
+        this.keywords = []
+      }
+    },
     keywords: {
       handler (newVal) {
         this.params = this.keywords.map(keyword => { return keyword.id })
@@ -58,6 +70,9 @@ export default {
       if (!this.params.includes(keyword.id)) {
         this.keywords.push(keyword)
       }
+    },
+    removeKeyword (index) {
+      this.keywords.splice(index, 1)
     }
   }
 }

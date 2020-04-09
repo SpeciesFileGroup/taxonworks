@@ -1,59 +1,62 @@
 <template>
   <div>
     <h2>Identifiers</h2>
-    <fieldset>
-      <legend>Namespace</legend>
-      <smart-selector
-        class="margin-medium-top"
-        model="namespaces"
-        klass="Source"
-        pin-section="Namespaces"
-        pin-type="Namespace"
-        @selected="setNamespace"/>
-      <div
-        class="horizontal-left-content"
-        v-if="identifier.namespace">
-        <span
-          class="margin-small-right"
-          v-html="identifier.namespace.object_tag"/>
-        <span
-          class="button circle-button btn-undo button-default"
-          @click="identifier.namespace = undefined"/>
-      </div>
-    </fieldset>
-    <div class="field label-above">
+    <div class="field">
       <label>Identifier</label>
-      <div class="horizontal-left-content">
+      <br>
+      <input 
+        type="text"
+        v-model="identifier.identifier">
+    </div>
+    <div class="field">
+      <ul class="no_bullets">
+        <li
+          v-for="item in match"
+          :key="item.value">
+          <label>
+            <input
+              type="radio"
+              :value="item.value"
+              :disabled="!identifier.identifier || !identifier.identifier.length"
+              v-model="identifier.identifier_exact"
+              name="match-radio">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul>
+    </div>
+    <h3>In range</h3>
+    <div class="horizontal-left-content">
+      <div class="field separate-right">
+        <label>Start:</label>
+        <br>
+        <input 
+          type="text"
+          v-model="identifier.identifier_start">
+      </div>
+      <div class="field">
+        <label>End:</label>
+        <br>
         <input
-          v-model="identifier.identifier"
-          class="full_width"
-          type="text">
-        <button
-          class="button normal-input button-default margin-small-left"
-          type="button"
-          :disabled="!filledIdentifier"
-          @click="addIdentifier">
-          Add
-        </button>
+          type="text"
+          v-model="identifier.identifier_end">
       </div>
     </div>
-    <div class="field label-above">
-      <label>Identifier exact</label>
-      <input
-        v-model="params.identifier_exact"
-        type="checkbox">
-    </div>
-    <div class="field label-above">
-      <label>Identifier start</label>
-      <input
-        v-model="params.identifier_start"
-        type="text">
-    </div>
-    <div class="field label-above">
-      <label>Identifier end</label>
-      <input
-        type="text"
-        v-model="params.identifier_end">
+    <h3>Namespace</h3>
+    <smart-selector
+      class="margin-medium-top"
+      model="namespaces"
+      klass="Source"
+      pin-section="Namespaces"
+      pin-type="Namespace"
+      @selected="setNamespace"/>
+    <div
+      v-if="namespace"
+      class="middle flex-separate separate-top">
+      <span v-html="namespace.object_tag"/>
+      <span 
+        class="button button-circle btn-undo button-default"
+        @click="unsetNamespace"/>
     </div>
   </div>
 </template>
@@ -69,58 +72,63 @@ export default {
   props: {
     value: {
       type: Object,
-      default: undefined
+      required: true
     }
   },
   computed: {
-    params: {
+    identifier: {
       get () {
         return this.value
       },
       set (value) {
         this.$emit('input', value)
       }
-    },
-    filledIdentifier () {
-      return this.identifier.namespace && this.identifier.identifier
-    }
-  },
-  data () {
-    return {
-      identifiers: [],
-      identifier: this.newIdentifier()
     }
   },
   watch: {
-    identifiers: {
-      handler (newVal) {
-        this.params.identifiers = this.identifiers.map(item => {
-          return {
-            namespace_id: item.namespace.id,
-            identifier: item.identifier
-          }
-        })
+    identifier: {
+      handler(newVal) {
+        if(!newVal.identifier || !newVal.identifier.length) {
+          this.identifier.identifier_exact = undefined
+        }
       },
       deep: true
     }
   },
+  data () {
+    return {
+      smartLists: {},
+      view: undefined,
+      options: [],
+      namespace: undefined,
+      match: [
+        {
+          label: 'Exact',
+          value: true
+        },
+        {
+          label: 'Partial',
+          value: undefined
+        }
+      ]
+    }
+  },
   methods: {
-    newIdentifier () {
-      return {
-        identifier: undefined,
-        namespace: undefined
+    setNamespace(namespace) {
+      if(namespace.hasOwnProperty('label_html')) {
+        namespace.object_tag = namespace.label_html
       }
+      this.namespace = namespace
+      this.identifier.namespace_id = namespace.id
     },
-    setNamespace (namespace) {
-      this.identifier.namespace = namespace
-    },
-    addIdentifier () {
-      this.identifiers.push(this.identifier)
-      this.identifier = this.newIdentifier()
+    unsetNamespace() {
+      this.namespace = undefined
+      this.identifier.namespace_id = undefined
     }
   }
 }
 </script>
+
 <style scoped>
   /deep/ .vue-autocomplete-input {
     width: 100%

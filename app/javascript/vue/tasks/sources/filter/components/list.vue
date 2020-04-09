@@ -1,44 +1,59 @@
 <template>
   <div
-    v-if="Object.keys(list).length"
+    v-if="list.length"
     class="full_width overflow-scroll">
     <table class="full_width">
       <thead>
         <tr>
-          <th>Source</th>
-          <template
-            v-for="(item, index) in list.column_headers">
-            <th
-              v-if="index > 2"
-              @click="sortTable(index)">{{item}}
-            </th>
-          </template>
+          <th>
+            <tag-all :ids="ids"/>
+          </th>
+          <th
+            class="capitalize"
+            v-for="item in sort"
+            @click="sortTable(item)">
+            {{item}}
+          </th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr
           class="contextMenuCells"
-          :class="{ even: indexR % 2 }"
-          v-for="(row, indexR) in list.data"
-          :key="row[0]">
+          :class="{ even: index % 2 }"
+          v-for="(item, index) in list"
+          :key="item.id">
           <td>
             <input
               v-model="ids"
-              :value="row[0]"
+              :value="item.id"
               type="checkbox">
           </td>
           <td>
-            <a
-              :href="`/tasks/collection_objects/browse?collection_object_id=${row[0]}`"
-              target="_blank">
-              Show
-            </a>
+            <span>{{ item.id }}</span>
           </td>
-          <template v-for="(item, index) in row">
-            <td v-if="index > 2">
-              <span>{{item}}</span>
-            </td>
-          </template>
+          <td>
+            <span v-html="item.cached"/>
+          </td>
+          <td>
+            <span>{{ item.year }}</span>
+          </td>
+          <td>
+            <span>{{ item.type }}</span>
+          </td>
+          <td>
+            <div class="flex-wrap-row">
+              <pdf-button
+                v-for="pdf in item.documents"
+                :pdf="pdf"/>
+            </div>
+          </td>
+          <td>
+            <div class="horizontal-left-content">
+              <radial-annotator :global-id="item.global_id"/>
+              <radial-navigation :global-id="item.global_id"/>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -51,11 +66,22 @@
 
 <script>
 
+import RadialNavigation from 'components/radials/navigation/radial'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import TagAll from 'tasks/collection_objects/filter/components/tagAll'
+import PdfButton from 'components/pdfButton'
+
 export default {
+  components: {
+    RadialNavigation,
+    RadialAnnotator,
+    PdfButton,
+    TagAll
+  },
   props: {
     list: {
-      type: Object,
-      default: undefined
+      type: Array,
+      default: () => { return [] }
     },
     value: {
       type: Array,
@@ -74,7 +100,8 @@ export default {
   },
   data () {
     return {
-      ascending: false
+      ascending: false,
+      sort: ['id', 'cached', 'year', 'type', 'documents']
     }
   },
   methods: {
@@ -87,7 +114,7 @@ export default {
           return (that.ascending ? 1 : -1)
         return 0
       }
-      this.list.data.sort(compare)
+      this.list.sort(compare)
       this.ascending = !this.ascending
     }
   }

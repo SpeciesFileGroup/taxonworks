@@ -4,13 +4,13 @@
     <div class="field label-above">
       <label>Start year</label>
       <input
-        type="date"
+        type="text"
         v-model="source.year_start">
     </div>
     <div class="field label-above">
       <label>End year</label>
       <input
-        type="date"
+        type="text"
         v-model="source.year_end">
     </div>
   </div>

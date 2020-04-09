@@ -12,8 +12,13 @@ const GetCitationTypes = () => {
   return ajaxCall('get', '/sources/citation_object_types.json')
 }
 
+const DownloadBibtex = (params) => {
+  return ajaxCall('get', '/sources/download_bibtex.json', { params: params })
+}
+
 export {
   GetSources,
   GetUsers,
-  GetCitationTypes
+  GetCitationTypes,
+  DownloadBibtex
 }
