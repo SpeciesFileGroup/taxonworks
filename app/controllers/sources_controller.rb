@@ -14,6 +14,10 @@ class SourcesController < ApplicationController
       format.json {
         @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
+      format.bib {
+        # TODO - handle count and download
+        @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+      }
     end
   end
 
@@ -188,6 +192,9 @@ class SourcesController < ApplicationController
     send_data Export::Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
+  def generate_bibtex_download
+  end
+
   private
 
   def new_source
@@ -228,7 +235,6 @@ class SourcesController < ApplicationController
       :year_start,
       author_ids: [],
       citation_object_type: [],
-      author_ids: [],
       keyword_ids: []
     )
   end
