@@ -154,6 +154,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :match, controller: 'tasks/collection_objects/match' do
+        get '/', action: :index, as: 'match_collection_objects_task'
+      end
+
       scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
         get :index, as: 'grid_digitize_task'
       end
@@ -177,6 +181,11 @@ scope :tasks do
     end
 
     scope :report do
+        scope :work, controller: 'tasks/accessions/report/work' do
+          get '/', action: :index, as: 'work_report_task'
+          get :data, as: 'work_data_task'
+        end
+
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
         get 'row/:id', action: :row
@@ -235,6 +244,10 @@ scope :tasks do
   end
 
   scope :controlled_vocabularies do
+      scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
+        get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
+      end
+
     scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
       get 'index', as: 'index_topics_hub_task'
     end

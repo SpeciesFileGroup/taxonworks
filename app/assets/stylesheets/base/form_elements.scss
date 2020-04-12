@@ -151,14 +151,16 @@ form div.required {
 }
 
 .field {
-  &.label_above {
-    br {
-      display: inline;
-    }
+  &.label_above, &.label-above {
     label {
-      float: left;
       display: block;
     }
+  }
+}
+
+.label-above {
+  label {
+    display: block;
   }
 }
 

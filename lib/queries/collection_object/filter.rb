@@ -1,15 +1,13 @@
 module Queries
   module CollectionObject
-    # !! does not inherit from base query
 
     # TODO 
-    # - use date processing?
+    # - use date processing? / DateConcern
     # - remove all prepended 'query'
     # - add tests(?) for unchecked params
     # - syncronize with GIS/GEO
 
-    # Use DateConcern
-
+    # !! does not inherit from base query
     class Filter
 
       include Queries::Concerns::Tags
@@ -18,9 +16,14 @@ module Queries
 
       # TODO: look for name collisions with CE filter
 
+      # @param [String, nil]
+      #    one of 'Specimen', 'Lot', or 'RangedLot'
+      attr_accessor :collection_object_type
+
+      # @param [String, nil]
+      #  'true' - order by updated_at
+      #  'false', nil - do not apply ordering
       # @return [Boolen, nil]
-      #  true - order by updated_at
-      #  false, nil - do not apply ordering 
       attr_accessor :recent 
 
       # [Array]
@@ -98,6 +101,7 @@ module Queries
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
+        @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
 
         @current_determinations = (params[:current_determinations]&.downcase == 'true' ? true : false) if !params[:current_determinations].nil?
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
@@ -109,6 +113,8 @@ module Queries
         @biocuration_class_ids = params[:biocuration_class_ids] || []
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
+
+
 
         # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
         @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
@@ -164,6 +170,11 @@ module Queries
         ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids}) 
       end
 
+      def type_facet 
+        return nil if collection_object_type.nil?
+        table[:type].eq(collection_object_type)
+      end
+
       def depicted_facet 
         return nil if !depicted
         ::CollectionObject::BiologicalCollectionObject.joins(:depictions) 
@@ -201,7 +212,7 @@ module Queries
           ::CollectionObject.dwc_not_indexed
       end
 
-    # @return Scope
+      # @return Scope
       def collecting_event_ids_facet
         return nil if collecting_event_ids.empty?
         table[:collecting_event_id].eq_any(collecting_event_ids)
@@ -245,7 +256,8 @@ module Queries
         clauses = []
 
         clauses += [
-          collecting_event_ids_facet
+          collecting_event_ids_facet,
+          type_facet
         ]
         clauses.compact!
         clauses
@@ -260,7 +272,7 @@ module Queries
           type_material_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
-          created_modified_facet, # See Queries::Concerns::Users
+          created_updated_facet, # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,

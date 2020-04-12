@@ -1,60 +1,72 @@
 <template>
-  <div>
-    <fieldset>
-      <legend>Related</legend>
-      <switch-component
-        class="separate-bottom"
-        :options="tabOptions"
-        v-model="view"
-        name="related"/>
-      <template v-if="otuView">
+  <fieldset class="full_width">
+    <legend>Related</legend>
+    <switch-component
+      class="separate-bottom"
+      :options="tabOptions"
+      v-model="view"
+      name="related"/>
+    <template v-if="otuView">
+      <div class="horizontal-left-content full_width">
         <switch-component
           class="separate-bottom"
           :options="Object.keys(smartOtu)"
           v-model="viewOtu"
           :add-option="['search']"
           name="switch-otu"/>
-        <template v-if="smartOtu[viewOtu]">
-          <tag-item
-            v-for="item in smartOtu[viewOtu]"
-            :item="item"
-            :class="{ 'button-default': selected == item.id }"
-            display="object_tag"
-            @select="sendRelated(item)"
-            :key="item.id"/>
-        </template>
-        <otu-autocomplete
-          v-else
-          @getItem="sendRelated($event)"/>
+        <pin-default
+          class="separate-left"
+          section="Otus"
+          @getItem="sendRelated({ id: $event.id, object_tag: $event.label })"
+          type="Otu"/>
+      </div>
+      <template v-if="smartOtu[viewOtu]">
+        <tag-item
+          v-for="item in smartOtu[viewOtu]"
+          :item="item"
+          :class="{ 'button-default': selected == item.id }"
+          display="object_tag"
+          @select="sendRelated(item)"
+          :key="item.id"/>
       </template>
+      <otu-autocomplete
+        v-else
+        @getItem="sendRelated($event)"/>
+    </template>
 
-      <template v-else>
+    <template v-else>
+      <div class="horizontal-left-content full_width">
         <switch-component
           class="separate-bottom"
           :options="Object.keys(smartCollectionObject)"
           v-model="viewCollectionObject"
           :add-option="['search']"
           name="switch-collection"/>
-        <template v-if="smartCollectionObject[viewCollectionObject]">
-          <tag-item
-            v-for="item in smartCollectionObject[viewCollectionObject]"
-            :item="item"
-            :class="{ 'button-default': selected == item.id }"
-            display="object_tag"
-            @select="sendRelated(item)"
-            :key="item.id"/>
-        </template>
-        <autocomplete
-          v-else
-          url="/collection_objects/autocomplete"
-          label="label"
-          min="2"
-          @getItem="sendRelated($event)"
-          placeholder="Select a collection object"
-          param="term"/>
+        <pin-default
+          class="separate-left"
+          section="CollectionObjects"
+          @getItem="sendRelated({ id: $event.id, object_tag: $event.label })"
+          type="CollectionObject"/>
+      </div>
+      <template v-if="smartCollectionObject[viewCollectionObject]">
+        <tag-item
+          v-for="item in smartCollectionObject[viewCollectionObject]"
+          :item="item"
+          :class="{ 'button-default': selected == item.id }"
+          display="object_tag"
+          @select="sendRelated(item)"
+          :key="item.id"/>
       </template>
-    </fieldset>
-  </div>
+      <autocomplete
+        v-else
+        url="/collection_objects/autocomplete"
+        label="label"
+        min="2"
+        @getItem="sendRelated($event)"
+        placeholder="Select a collection object"
+        param="term"/>
+    </template>
+  </fieldset>
 </template>
 
 <script>
@@ -63,6 +75,7 @@
   import TagItem from '../shared/item_tag.vue'
   import SwitchComponent from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
+  import PinDefault from 'components/getDefaultPin.vue'
 
   import { GetOtuBiologicalAssociationsSmartSelector, GetCOBiologicalAssociationSmartSelector } from '../../request/resources.js'
 
@@ -71,7 +84,8 @@
       TagItem,
       SwitchComponent,
       Autocomplete,
-      OtuAutocomplete
+      OtuAutocomplete,
+      PinDefault
     },
     computed: {
       otuView() {

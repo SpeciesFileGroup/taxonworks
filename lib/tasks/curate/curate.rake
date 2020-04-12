@@ -39,11 +39,16 @@ namespace :tw do
     task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
       project_id = ENV['project_id']
 
+      empty = ENV['tw_sqed_calculate_empty'] == 'true' ? true : false
+
       a = SqedDepiction.where(project_id: project_id).order(:id)
+
+      a = a.where(result_boundary_coordinates: nil) if empty
+
       id_min = a.first.try(:id)
       id_max = a.last.try(:id)
 
-      puts Rainbow("id range for project #{project_id} is #{id_min}-#{id_max}.").blue
+      puts Rainbow("id range (empty: #{empty}) for project #{project_id} is #{id_min}-#{id_max}.").blue
 
       records = a.where('id > ?', @args[:id_start] - 1).where('id < ?', @args[:id_end] + 1)
 
@@ -97,8 +102,11 @@ namespace :tw do
 
               jr = j.rotate(rotate)
 
+              j.destroy! # free memory/cache
+              
               File.delete(original_file)
               jr.write(original_file)
+              jr.destroy! # free memory/cache
             rescue
               FileUtils.cp(temp_original, original_file)
               raise

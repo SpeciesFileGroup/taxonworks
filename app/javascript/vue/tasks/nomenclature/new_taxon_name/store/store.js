@@ -23,7 +23,7 @@ function makeInitialState () {
       masculine_name: undefined,
       neuter_name: undefined,
       origin_citation: undefined,
-      taxon_name_author_roles: undefined,
+      taxon_name_author_roles: [],
       roles_attributes: [],
       etymology: ''
     },

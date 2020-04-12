@@ -2,7 +2,7 @@ module TopicsHelper
 
   def topic_tag(topic)
     return nil if topic.nil?
-    topic.name
+    controlled_vocabulary_term_tag(topic)
   end
 
   def topics_search_form

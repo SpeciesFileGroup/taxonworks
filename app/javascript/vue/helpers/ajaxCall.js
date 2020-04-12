@@ -24,14 +24,7 @@ const ajaxCall = function (type, url, data = null) {
 
 const handleError = function (json) {
   if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
-
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>') + '<br>'
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
+  TW.workbench.alert.create(Object.values(json).join('<br>'), 'error')
 }
 
 export default ajaxCall

@@ -16,10 +16,11 @@
         </li>
       </ul>
     </div>
-    <nav-bar> 
+    <nav-bar>
       <div class="flex-separate full_width">
         <div class="middle">
           <span
+            class="word_break"
             v-if="source.id"
             v-html="source.cached"/>
           <span v-else>New record</span>
@@ -87,7 +88,7 @@
         </div>
       </div>
     </nav-bar>
-    <source-type/>
+    <source-type class="margin-medium-bottom"/>
     <recent-component
       v-if="showRecent"
       @close="showRecent = false"/>

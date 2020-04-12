@@ -1,73 +1,68 @@
 <template>
   <div>
     <h4>Topics</h4>
-    <div
-      class="switch-radio separate-bottom"
-      v-if="preferences">
-      <template
-      v-for="(item, index) in tabOptions">
-        <template v-if="preferences[item].length && preferences[item].find(topicItem => { return !topicAlreadyCreated(topicItem) })">
-          <input
-            v-model="view"
-            :value="item"
-            :id="`switch-picker-${index}`"
-            name="switch-picker-options"
-            type="radio"
-            class="normal-input button-active"
-          >
-          <label
-            :for="`switch-picker-${index}`"
-            class="capitalize">{{ item }}
-          </label>
-        </template>
-      </template>
+    <smart-selector
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{'type[]' : 'Topic'}"
+      get-url="/controlled_vocabulary_terms/"
+      model="topics"
+      klass="Topic"
+      pin-section="Topics"
+      pin-type="Topic"
+      target="Citation"
+      :add-tabs="['all']"
+      @selected="addTopic">
+      <div
+        v-if="slotProps.view === 'all'"
+        class="flex-wrap-row"
+        slot-scope="slotProps">
+        <div 
+          v-for="item in topicsAllList"
+          :key="item.id"
+          class="margin-medium-bottom cursor-pointer"
+          v-html="item.object_tag"
+          @click="addTopic(item)"/>
+      </div>
+    </smart-selector>
+    <div class="field margin-medium-top">
+      <input
+        type="text"
+        class="normal-input inline pages"
+        v-model="pages"
+        placeholder="Pages">
     </div>
-
-    <template v-if="preferences">
-      <div class="field">
-        <template v-for="option in tabOptions">
-          <template
-            v-if="view === option"
-            v-for="item in preferences[view]">
-            <topic-item
-              v-if="!topicAlreadyCreated(item)"
-              :key="item.id"
-              :topic="item"
-              :class="{ 'button-default': (topic && topic.topic_id === item.id) }"
-              @select="topic.topic_id = $event.id"/>
-          </template>
-        </template>
-      </div>
-      <div class="field">
-        <input
-          type="text"
-          class="normal-input inline pages"
-          v-model="topic.pages"
-          placeholder="Pages">
-      </div>
-      <button
-        :disabled="!validateFields"
-        type="button"
-        class="button normal-input button-submit separate-bottom"
-        @click="sendTopic">Create
-      </button>
-    </template>
+    <div
+      v-if="topicsSelected.length"
+      class="margin-medium-top margin-medium-bottom">
+      <h3>Selected topics</h3>
+      <ul class="no_bullets">
+        <li v-for="topic in topicsSelected">
+          <span v-html="topic.object_tag"/>
+        </li>
+      </ul>
+    </div>
+    <button
+      :disabled="!validateFields"
+      type="button"
+      class="button normal-input button-submit separate-bottom"
+      @click="sendTopic">Create
+    </button>
   </div>
 </template>
 
 <script>
 
   import CRUD from '../../request/crud'
-  import Autocomplete from 'components/autocomplete.vue'
   import Modal from 'components/modal.vue'
   import TopicItem from './topicItem.vue'
+  import SmartSelector from 'components/smartSelector'
 
   export default {
     mixins: [CRUD],
     components: {
       Modal,
-      Autocomplete,
-      TopicItem
+      TopicItem,
+      SmartSelector
     },
     props: {
       globalId: {
@@ -85,39 +80,36 @@
     },
     computed: {
       validateFields() {
-        return this.topic.topic_id
+        return this.topicsSelected.length
       }
     },
     data() {
       return {
-        preferences: undefined,
-        view: 'quick',
-        tabOptions: ['quick', 'recent', 'pinboard', 'all'],
-        topic: this.newTopic()
+        pages: undefined,
+        topicsSelected: [],
+        topicsAllList: undefined
       }
     },
-    mounted() {
-      this.loadTabList('Topic');
+    mounted () {
+      this.getList('/controlled_vocabulary_terms.json?type[]=Topic').then(response => {
+        this.topicsAllList = response.body
+      })
     },
     methods: {
-      newTopic() {
-        return {
-          topic_id: undefined,
-          pages: undefined
-        }
-      },
       topicAlreadyCreated(topic) {
         return this.citation.citation_topics.find(item => { return topic.id == item.topic_id })
       },
       sendTopic() {
         this.$emit('create', {
           id: this.citation.id,
-          citation_topics_attributes: [{
-            topic_id: this.topic.topic_id,
-            pages: this.topic.pages
-          }]
+          citation_topics_attributes: this.topicsSelected.map(topic => { 
+            return {
+              topic_id: topic.id,
+              pages: this.pages
+            }
+          })
         })
-        this.topic = this.newTopic();
+        this.topicsSelected = []
       },
       setViewWithTopics(listView) {
         let keys = Object.keys(listView);
@@ -130,24 +122,9 @@
           }
         })
       },
-      loadTabList (type) {
-        let tabList
-        let allList
-        let promises = []
-        let that = this
-
-        promises.push(this.getList(`/topics/select_options?klass=${this.objectType}&target=Citation`).then(response => {
-          tabList = response.body
-        }))
-        promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-          allList = response.body
-        }))
-
-        Promise.all(promises).then(() => {
-          tabList['all'] = allList
-          that.preferences = tabList
-          that.setViewWithTopics(tabList);
-        })
+      addTopic(topic) {
+        if (this.topicsSelected.find(item => item.id === topic.id) || this.topicAlreadyCreated(topic)) return
+        this.topicsSelected.push(topic)
       }
     }
   }

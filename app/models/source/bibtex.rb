@@ -387,7 +387,7 @@ class Source::Bibtex < Source
 
   # @return [BibTeX::Entry]
   def self.new_from_bibtex_text(text = nil)
-    a = BibTeX.parse(text).convert(:latex).first
+    a = BibTeX::Bibliography.parse(text, filter: :latex).first
     new_from_bibtex(a)
   end
 

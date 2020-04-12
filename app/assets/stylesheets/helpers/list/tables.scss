@@ -8,9 +8,7 @@ table {
   border-spacing: 0;
   background-color: $panel_background;
   border-collapse: collapse;  
-  // font-weight: 300;
-  margin-top: $standard_padding;
-  margin-bottom: $standard_padding;
+
   .underlined_elements {
       border-spacing: 0; 
   }
@@ -88,5 +86,9 @@ table {
     td {
       border-left:1px solid transparent;
     }
+  }
+
+  .highlight {
+    background-color: #E3E8E3 !important;
   }
 }

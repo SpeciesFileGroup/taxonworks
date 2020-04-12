@@ -60,6 +60,7 @@
 import Vue from 'vue'
 import MatrixRowCoder from './MatrixRowCoder/MatrixRowCoder.vue'
 import MatrixRowCoderRequest from './request/MatrixRowCoderRequest'
+import SetParam from 'helpers/setParam'
 import { newStore } from './store/store'
 
 export default {
@@ -103,6 +104,7 @@ export default {
     loadMatrix () {
       var props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
+      SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', props.rowId)
       new Vue({
         el: '#matrix_row_coder',
         store,

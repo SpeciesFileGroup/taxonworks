@@ -18,7 +18,14 @@
         </template>
       </div>
     </div>
-
+    <div class="margin-medium-bottom">
+      <label>
+        <input
+          v-model="isPublic"
+          type="checkbox">
+          Is public?
+      </label>
+    </div>
     <div
       class="field"
       v-if="display == 0">
@@ -54,6 +61,7 @@
       label="object_tag"
       :list="list"
       :pdf="true"
+      download="document.file_url"
       @delete="removeItem"
       class="list"/>
   </div>
@@ -64,7 +72,7 @@
   import annotatorExtend from '../components/annotatorExtend.js'
   import Autocomplete from 'components/autocomplete.vue'
   import Dropzone from 'components/dropzone.vue'
-  import DisplayList from './displayList.vue'
+  import DisplayList from 'components/displayList.vue'
 
   export default {
     mixins: [CRUD, annotatorExtend],
@@ -84,6 +92,7 @@
         optionList: ['drop', 'pick', 'pinboard'],
         list: [],
         documentation: this.newDocumentation(),
+        isPublic: undefined,
         dropzone: {
           timeout: 0,
           paramName: 'documentation[document_attributes][document_file]',
@@ -115,6 +124,8 @@
       },
       'sending': function (file, xhr, formData) {
         formData.append('documentation[annotated_global_entity]', decodeURIComponent(this.globalId))
+        if (this.isPublic)
+          formData.append('documentation[document_attributes][is_public]', this.isPublic)
       },
       updateFigure() {
         this.update(`/depictions/${this.depiction.id}`, this.depiction).then(response => {

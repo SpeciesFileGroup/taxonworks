@@ -18,7 +18,7 @@ export default {
   },
   watch: {
     text (newVal) {
-      this.$emit('lines', newVal.split('\n').filter(line => { return line.length }))
+      this.$emit('lines', newVal.split('\n').filter(line => { return line.trim().length }))
     }
   }
 }

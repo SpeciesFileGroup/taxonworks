@@ -2,8 +2,9 @@ module DocumentationHelper
 
   def documentation_tag(documentation)
     return nil if documentation.nil?
-    string = [documentation.documentation_object_type, ': ',
-              object_tag(documentation.documentation_object)].join.html_safe
+    string = [
+      documentation.documentation_object_type, ': ',
+      object_tag(documentation.documentation_object)].join.html_safe
     string
   end
 
@@ -25,9 +26,18 @@ module DocumentationHelper
       data: {icon: :download} ) 
   end
 
-  def documentation_links(object)
-    object.documentation.collect{ |o| documentation_download_link(o)}.join("&nbsp;|&nbsp;").html_safe
+  def documentation_download(documentation)
+    return nil if documentation.nil?
+    link_to(
+      '',
+      documentation.document.document_file.url(),
+      class: ['circle-button', 'btn-download'],
+      download: documentation.document.document_file_file_name,
+      title: documentation.document.document_file_file_name) 
   end
 
+  def documentation_links(object)
+    object.documentation.where('documentation.project_id = ?', sessions_current_project_id).collect{ |o| documentation_download_link(o)}.join("&nbsp;|&nbsp;")&.html_safe
+  end
 
 end

@@ -13,7 +13,11 @@ const GetCollectionObjectSmartSelector = function () {
 }
 
 const GetOtuSmartSelector = function () {
-  return ajaxCall('get', '/otus/select_options')
+  return ajaxCall('get', '/otus/select_options?target=Depiction')
+}
+
+const GetPreparationTypes = function () {
+  return ajaxCall('get', `/preparation_types.json`)
 }
 
 const GetOtu = function (id) {
@@ -78,6 +82,7 @@ export {
   GetSourceSmartSelector,
   GetSqedMetadata,
   GetOtuSmartSelector,
+  GetPreparationTypes,
   UpdateAttribution,
   UpdateDepiction,
   DestroyImage

@@ -11,7 +11,7 @@
         @getId="getObject"
         :type="pinType"/>
     </div>
-    <template>
+    <template v-if="!addTabs.includes(view)">
       <ul
         v-if="view && view != 'search'"
         class="no_bullets">
@@ -40,9 +40,9 @@
           display="label"
           @getItem="getObject($event.id)"/>
       </div>
-      <slot>
-      </slot>
     </template>
+    <slot :view="view">
+    </slot>
   </div>
 </template>
 
@@ -117,6 +117,10 @@ export default {
     pinType: {
       type: String,
       default: undefined
+    },
+    addTabs: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   data () {
@@ -124,6 +128,11 @@ export default {
       lists: {},
       view: undefined,
       options: []
+    }
+  },
+  watch: {
+    view(newVal) {
+      this.$emit('onTabSelected', newVal)
     }
   },
   mounted () {
@@ -137,6 +146,7 @@ export default {
           this.view = 'search'
         }
       }
+      this.options = this.options.concat(this.addTabs)
     })
   },
   methods: {

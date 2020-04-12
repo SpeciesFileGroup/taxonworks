@@ -25,7 +25,6 @@ module GeographicAreasHelper
     s.html_safe
   end
 
-
   def geographic_area_link(geographic_area, link_text = nil)
     return nil if geographic_area.nil?
     link_text ||= geographic_area.name

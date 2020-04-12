@@ -1,1 +1,5 @@
+<%= content_for :icon_navigation do -%>
+  <li><%= document_download(@document) %></li>
+<% end %>
+
 <%= render(partial: 'shared/data/project/show', locals: {object: @document}) -%>

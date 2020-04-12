@@ -1,6 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
 import { CreateContainerItem, UpdateIdentifier } from '../../request/resources'
-import { ActionNames } from '../actions/actions'
 import Vue from 'vue'
 
 export default function ({ commit, state, dispatch }, coObject) {
