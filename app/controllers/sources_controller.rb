@@ -196,7 +196,7 @@ class SourcesController < ApplicationController
   def generate 
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
     @download = ::Export::Bibtex.download(sources, request.url)
-    render action: :show, controller: :downloads
+    render '/downloads/show' 
     # redirect_to download_file_download_path(download)
   end
 
