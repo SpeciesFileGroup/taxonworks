@@ -109,7 +109,7 @@ export default {
     },
     generateLinks () {
       this.isLoading = true
-      GetGenerateLinks(this.params).then(response => {
+      GetGenerateLinks(Object.assign({}, this.params, { is_public: true })).then(response => {
         this.links = response.body
         this.isLoading = false
       })
