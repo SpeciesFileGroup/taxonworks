@@ -192,8 +192,8 @@ class SourcesController < ApplicationController
     send_data Export::Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
-  # GET /sources/download_bibtex
-  def download_bibtex
+  # GET /sources/generate
+  def generate 
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
     download = ::Export::Bibtex.download(sources, request.url)
     redirect_to download_file_download_path(download)

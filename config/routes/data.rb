@@ -582,7 +582,7 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
     get :citation_object_types, defaults: {format: :json}
-    get :download_bibtex
+    get :generate
   end
 
   member do
