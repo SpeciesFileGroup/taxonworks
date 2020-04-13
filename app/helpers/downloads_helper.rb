@@ -12,7 +12,7 @@ module DownloadsHelper
   def download_file_api_url(download)
     return nil if download.nil?
     if sessions_current_project.api_access_token
-        api_v1_download_file_url(download)
+      api_v1_download_file_url(download, project_token: sessions_current_project.api_access_token)
     else
       nil
     end
