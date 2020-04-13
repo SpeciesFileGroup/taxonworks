@@ -78,6 +78,8 @@ module Queries
       def initialize(params)
         @query_string = params[:query_term]
 
+        @project_id = params[:project_id] # TODO: also in Queries::Query
+
         @in_project = (params[:in_project]&.downcase == 'true' ? true : false) if !params[:in_project].nil?
 
         @exact_author = (params[:exact_author]&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
@@ -189,7 +191,7 @@ module Queries
             .where(project_sources: {project_id: project_id})
         else
           ::Source.left_outer_joins(:project_sources)
-            .where(project_sources: {project_id: nil}).select('sources.id').distinct
+            .where(project_sources: {id: nil}).select('sources.id').distinct
         end
       end
 
@@ -201,7 +203,7 @@ module Queries
           ::Source.joins(:citations).distinct
         else
           ::Source.left_outer_joins(:citations)
-            .where(citations: {source_id: nil})
+            .where(citations: {id: nil})
         end
       end
 

@@ -222,6 +222,7 @@ class SourcesController < ApplicationController
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :in_project,
       :namespace_id,
       :nomenclature,
       :notes,
