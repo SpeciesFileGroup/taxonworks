@@ -2,6 +2,7 @@ class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
+  after_action -> { set_pagination_headers(:sources) }, only: [:index ], if: :json_request?
 
   # GET /sources
   # GET /sources.json
