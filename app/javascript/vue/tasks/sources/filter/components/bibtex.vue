@@ -31,7 +31,7 @@
           <span>Share link:</span>
           <div
             class="middle">
-            <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : 'Project has no API link' }}</pre>
+            <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : noApiMessage }}</pre>
             <clipboard-button
               v-if="links.api_file_url"
               :text="links.api_file_url"/>
@@ -74,7 +74,8 @@ export default {
       isLoading: false,
       url: undefined,
       showModal: false,
-      links: undefined
+      links: undefined,
+      noApiMessage: 'To share your project administrator must create an API token.'
     }
   },
   watch: {

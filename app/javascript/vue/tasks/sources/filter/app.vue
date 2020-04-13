@@ -95,7 +95,7 @@
           @nextPage="loadPage"
           :pagination="pagination"/>
         <h2
-          v-if="alreadySearch && !list"
+          v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.
         </h2>
       </div>
@@ -173,8 +173,7 @@ export default {
         )
         newList.data = concat
         this.list = newList
-      }
-      else {
+      } else {
         this.list = newList
       }
       this.alreadySearch = true
