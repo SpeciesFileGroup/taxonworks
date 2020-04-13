@@ -195,9 +195,8 @@ class SourcesController < ApplicationController
   # GET /sources/generate.json?<filter params>
   def generate 
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
-    @download = ::Export::Bibtex.download(sources, request.url)
+    @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
     render '/downloads/show' 
-    # redirect_to download_file_download_path(download)
   end
 
   private

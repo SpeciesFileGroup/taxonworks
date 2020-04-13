@@ -17,7 +17,7 @@ module Export
       zip_file_path
     end
 
-    def self.download(sources, request = nil)
+    def self.download(sources, request = nil, is_public = false)
       file_path = ::Export::Bibtex.export(sources)
 
       ::Download.create!(
@@ -26,17 +26,19 @@ module Export
         filename: filename,
         source_file_path: file_path,
         request: request,
-        expires: 2.days.from_now
+        expires: 2.days.from_now,
+        is_public: is_public
       )
     end
 
-    def self.download_async(taxon_name, request = nil)
+    def self.download_async(taxon_name, request = nil, is_public = false)
       download = ::Download.create!(
         name: name,
         description: DESCRIPTION,
         filename: filename,
         request: request,
-        expires: 2.days.from_now
+        expires: 2.days.from_now,
+        is_public: is_public
      )
 
       BasicNomenclatureCreateDownloadJob.perform_later(taxon_name, download)

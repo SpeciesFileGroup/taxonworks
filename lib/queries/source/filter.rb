@@ -261,7 +261,7 @@ module Queries
       def citation_object_type_facet
         return nil if citation_object_type.empty?
         ::Source.joins(:citations)
-          .where(citations: {citation_object_type: citation_object_type})
+          .where(citations: {citation_object_type: citation_object_type}).distinct
       end
 
       def nomenclature_facet
