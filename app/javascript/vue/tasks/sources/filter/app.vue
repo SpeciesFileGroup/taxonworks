@@ -47,6 +47,7 @@
         @params="params = $event"
         @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
+        @pagination="pagination = getPagination($event)"
         @result="loadList"
         @reset="resetTask"/>
       <div class="full_width">
@@ -89,11 +90,18 @@
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
-        <pagination-component
-          class="margin-large-bottom"
-          v-if="pagination"
-          @nextPage="loadPage"
-          :pagination="pagination"/>
+        <div
+          class="flex-separate margin-large-bottom margin-medium-top"
+          :class="{ 'separate-left': activeFilter }">
+          <pagination-component
+            v-if="pagination"
+            @nextPage="loadPage"
+            :pagination="pagination"/>
+          <span
+            v-if="list.length"
+            class="horizontal-left-content">{{ list.length }} records.
+          </span>
+        </div>
         <h2
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.

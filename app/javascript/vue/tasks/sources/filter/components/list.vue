@@ -57,10 +57,6 @@
         </tr>
       </tbody>
     </table>
-    <span
-      v-if="list.length"
-      class="horizontal-left-content">{{ list.length }} records.
-    </span>
   </div>
 </template>
 

@@ -127,7 +127,7 @@ export default {
       if (this.emptyParams) return
       this.searching = true
       this.$emit('newSearch')
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user, this.params.settings))
 
       GetSources(params).then(response => {
         this.$emit('result', response.body)
@@ -201,6 +201,10 @@ export default {
       const tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
+    },
+    loadPage (page) {
+      this.params.settings.page = page
+      this.searchSources()
     },
   }
 }
