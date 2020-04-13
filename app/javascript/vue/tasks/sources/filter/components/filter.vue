@@ -26,6 +26,12 @@
         @click="searchSources">
         Search
       </button>
+      <with-component
+        class="margin-medium-bottom"
+        title="In project"
+        :values="['Both', 'Yes', 'No']"
+        v-model="params.in_project"
+      />
       <title-component v-model="params.source"/>
       <type-component v-model="params.source.source_type"/>
       <authors-component v-model="params.source"/>
@@ -34,11 +40,6 @@
       <identifier-component v-model="params.identifier"/>
       <citation-types-component v-model="params.source.citation_object_type"/>
       <users-component v-model="params.user"/>
-      <with-component
-        title="In project"
-        :values="['Both', 'Yes', 'No']"
-        v-model="params.in_project"
-      />
       <with-component
         title="Citations"
         v-model="params.byRecordsWith.citations"
@@ -157,7 +158,7 @@ export default {
           title: undefined,
           year: undefined,
           exact_title: undefined,
-          in_project: undefined,
+          in_project: true,
           source_type: undefined,
           citation_object_type: [],
           keyword_ids: [],

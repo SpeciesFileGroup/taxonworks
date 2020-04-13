@@ -16,9 +16,14 @@ const GetBibtex = (params) => {
   return ajaxCall('get', '/sources.bib', { params: params })
 }
 
+const GetGenerateLinks = (params) => {
+  return ajaxCall('get', '/sources/generate', { params: params })
+}
+
 export {
   GetSources,
   GetUsers,
   GetCitationTypes,
-  GetBibtex
+  GetBibtex,
+  GetGenerateLinks
 }

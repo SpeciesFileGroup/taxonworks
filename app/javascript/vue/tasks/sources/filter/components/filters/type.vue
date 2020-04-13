@@ -6,9 +6,9 @@
         <label class="capitalize">
           <input
             v-model="type"
-            :value="key"
+            :value="item"
             type="radio">
-          {{ item }}
+          {{ key }}
         </label>
       </li>
     </ul>
@@ -36,9 +36,10 @@ export default {
   data () {
     return {
       types: {
-        'Source::Bibtex': 'Bibtex',
-        'Source::Verbatim': 'Verbatim',
-        'Source::Human': 'Human'
+        Any: undefined,
+        Bibtex: 'Source::Bibtex',
+        Verbatim: 'Source::Verbatim',
+        Human: 'Source::Human'
       }
     }
   }

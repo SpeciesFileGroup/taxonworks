@@ -71,13 +71,6 @@
               Select all
             </button>
             <span class="separate-left separate-right">|</span>
-            <button
-              type="button"
-              @click="createDownloadLink()"
-              class="button normal-input button-default">
-              Download Bibtex
-            </button>
-            <span class="separate-left separate-right">|</span>
             <bibtex-button :params="params"/>
           </div>
           <div>
@@ -118,6 +111,7 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 import BibtexButton from './components/bibtex'
+import PlatformKey from 'helpers/getMacKey'
 
 export default {
   components: {
@@ -159,6 +153,9 @@ export default {
       this.loadPage(1)
     }
   },
+  mounted () {
+    TW.workbench.keyboard.createLegend(`${PlatformKey()}+s`, 'Search', 'Filter sources')
+  },
   methods: {
     resetTask () {
       this.alreadySearch = false
@@ -189,18 +186,6 @@ export default {
     },
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
-    },
-    createDownloadLink () {
-      var a = window.document.createElement('a');
-      a.href = `/sources/download_bibtex?${this.getParamString()}`
-      a.download = this.filename
-
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    },
-    getParamString () {
-      return new URLSearchParams(this.params).toString()
     },
     getPagination: GetPagination
   }

@@ -7,7 +7,7 @@
       type="button"
       class="button normal-input button-default"
       @click="loadBibtex">
-      Generate bibtex
+      BibTeX
     </button>
     <modal-component
       v-if="showModal"
@@ -20,12 +20,29 @@
         </textarea>
       </div>
       <div slot="footer">
-        <p>Share link:</p>
-        <div class="middle">
-          <pre class="margin-small-right">{{ url }}</pre>
-          <clipboard-button
-            :text="url"/>
-        </div>
+        <button
+          v-if="!links"
+          type="button"
+          class="button normal-input button-default"
+          @click="generateLinks">
+          Generate download
+        </button>
+        <template v-else>
+          <span>Share link:</span>
+          <div
+            class="middle">
+            <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : 'Project has no API link' }}</pre>
+            <clipboard-button
+              v-if="links.api_file_url"
+              :text="links.api_file_url"/>
+          </div>
+        </template>
+        <button
+          type="button"
+          @click="createDownloadLink()"
+          class="button normal-input button-default">
+          Download Bibtex
+        </button>
       </div>
     </modal-component>
   </div>
@@ -37,7 +54,7 @@ import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import ClipboardButton from 'components/clipboardButton'
 
-import { GetBibtex } from '../request/resources'
+import { GetBibtex, GetGenerateLinks } from '../request/resources'
 
 export default {
   components: {
@@ -56,7 +73,16 @@ export default {
       bibtex: undefined,
       isLoading: false,
       url: undefined,
-      showModal: false
+      showModal: false,
+      links: undefined
+    }
+  },
+  watch: {
+    params: {
+      handler (newVal) {
+        this.links = undefined
+      },
+      deep: true
     }
   },
   methods: {
@@ -64,9 +90,25 @@ export default {
       this.showModal = true
       this.isLoading = true
       GetBibtex(this.params).then(response => {
-        this.url = `${window.location.protocol}//${window.location.host}${response.url}`
         this.bibtex = response.body
         this.isLoading = false
+      })
+    },
+    getParamString () {
+      return new URLSearchParams(this.params).toString()
+    },
+    createDownloadLink () {
+      var a = window.document.createElement('a')
+      a.href = `/sources.bib?${this.getParamString()}`
+      a.download = 'sources.bib'
+
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    },
+    generateLinks () {
+      GetGenerateLinks(this.params).then(response => {
+        this.links = response.body
       })
     }
   }
@@ -76,7 +118,7 @@ export default {
   textarea {
     height: 60vh;
   }
-  
+
   /deep/ .modal-container {
     min-width: 80vw;
     min-height: 60vh;
