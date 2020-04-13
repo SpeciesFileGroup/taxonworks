@@ -132,7 +132,7 @@ export default {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.url)
         this.$emit('pagination', response)
-        this.$emit('params', params)
+        this.$emit('params', this.filterEmptyParams(params))
         this.searching = false
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
@@ -190,7 +190,7 @@ export default {
     filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
-        if (object[key] === '') {
+        if (object[key] === '' || object[key] === undefined || (Array.isArray(object[key]) && !object[key].length)) {
           delete object[key]
         }
       })

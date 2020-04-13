@@ -50,7 +50,7 @@
         @result="loadList"
         @reset="resetTask"/>
       <div class="full_width">
-        <div 
+        <div
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
@@ -72,10 +72,13 @@
             </button>
             <span class="separate-left separate-right">|</span>
             <button
-              @click="getBibtex"
+              type="button"
+              @click="createDownloadLink()"
               class="button normal-input button-default">
               Download Bibtex
             </button>
+            <span class="separate-left separate-right">|</span>
+            <bibtex-button :params="params"/>
           </div>
           <div>
             <select v-model="per">
@@ -114,15 +117,15 @@ import ListComponent from './components/list'
 import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
-
-import { DownloadBibtex } from './request/resources'
+import BibtexButton from './components/bibtex'
 
 export default {
   components: {
     PaginationComponent,
     FilterComponent,
     ListComponent,
-    CsvButton
+    CsvButton,
+    BibtexButton
   },
   computed: {
     csvFields () {
@@ -187,8 +190,17 @@ export default {
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
-    getBibtex () {
-      DownloadBibtex(this.params)
+    createDownloadLink () {
+      var a = window.document.createElement('a');
+      a.href = `/sources/download_bibtex?${this.getParamString()}`
+      a.download = this.filename
+
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    },
+    getParamString () {
+      return new URLSearchParams(this.params).toString()
     },
     getPagination: GetPagination
   }
