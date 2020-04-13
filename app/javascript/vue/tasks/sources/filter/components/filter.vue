@@ -127,13 +127,13 @@ export default {
       if (this.emptyParams) return
       this.searching = true
       this.$emit('newSearch')
-      const params = Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user)
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user))
 
       GetSources(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.url)
         this.$emit('pagination', response)
-        this.$emit('params', this.filterEmptyParams(params))
+        this.$emit('params', params)
         this.searching = false
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
