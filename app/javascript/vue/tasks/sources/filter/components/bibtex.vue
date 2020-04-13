@@ -64,7 +64,7 @@ export default {
       this.showModal = true
       this.isLoading = true
       GetBibtex(this.params).then(response => {
-        this.url = response.url
+        this.url = `${window.location.protocol}//${window.location.host}${response.url}`
         this.bibtex = response.body
         this.isLoading = false
       })
