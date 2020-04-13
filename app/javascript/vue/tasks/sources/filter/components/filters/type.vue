@@ -39,7 +39,7 @@ export default {
         Any: undefined,
         Bibtex: 'Source::Bibtex',
         Verbatim: 'Source::Verbatim',
-        Human: 'Source::Human'
+        Person: 'Source::Human'
       }
     }
   }

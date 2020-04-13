@@ -54,8 +54,6 @@
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
-            <csv-button :list="list"/>
-            <span class="separate-left separate-right">|</span>
             <button
               v-if="ids.length"
               type="button"
@@ -70,6 +68,8 @@
               class="button normal-input button-default">
               Select all
             </button>
+            <span class="separate-left separate-right">|</span>
+            <csv-button :list="list"/>
             <span class="separate-left separate-right">|</span>
             <bibtex-button :params="params"/>
           </div>
