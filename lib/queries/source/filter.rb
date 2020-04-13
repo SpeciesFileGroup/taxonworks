@@ -77,37 +77,24 @@ module Queries
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
-
-        @project_id = params[:project_id] # TODO: also in Queries::Query
-
-        @in_project = (params[:in_project]&.downcase == 'true' ? true : false) if !params[:in_project].nil?
-
-        @exact_author = (params[:exact_author]&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
+        
         @author = params[:author]
-
-        @exact_title = (params[:exact_title]&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
-        @title = params[:title]
-
-        @year_start = params[:year_start]
-        @year_end = params[:year_end]
-
         @author_ids = params[:author_ids] || []
-
-        @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
-
-        @roles = (params[:roles]&.downcase == 'true' ? true : false) if !params[:roles].nil?
-
-        @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
-
-        @nomenclature = (params[:nomenclature]&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
-
-        @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
-
-        @notes = (params[:notes]&.downcase == 'true' ? true : false) if !params[:notes].nil?
-
         @citation_object_type = params[:citation_object_type] || []
-
+        @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
+        @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
+        @exact_author = (params[:exact_author]&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
+        @exact_title = (params[:exact_title]&.downcase == 'true' ? true : false) if !params[:exact_title].nil?
+        @in_project = (params[:in_project]&.downcase == 'true' ? true : false) if !params[:in_project].nil?
+        @nomenclature = (params[:nomenclature]&.downcase == 'true' ? true : false) if !params[:nomenclature].nil?
+        @notes = (params[:notes]&.downcase == 'true' ? true : false) if !params[:notes].nil?
+        @project_id = params[:project_id] # TODO: also in Queries::Query
+        @roles = (params[:roles]&.downcase == 'true' ? true : false) if !params[:roles].nil?
         @source_type = params[:source_type]
+        @title = params[:title]
+        @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
+        @year_end = params[:year_end]
+        @year_start = params[:year_start]
 
         build_terms
         set_identifier(params)

@@ -230,6 +230,7 @@ class SourcesController < ApplicationController
       :query_term,
       :recent, 
       :roles,
+      :source_type,
       :tags,
       :title,
       :user_date_end,
