@@ -29,7 +29,7 @@ namespace :api, defaults: {format: :json} do
 
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'
-      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file_api
+      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
 
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'

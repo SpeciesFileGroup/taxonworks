@@ -9,10 +9,10 @@ module DownloadsHelper
     link_to(download_tag(download), download)
   end
 
-  def download_api_url(download)
+  def download_file_api_url(download)
     return nil if download.nil?
     if sessions_current_project.api_access_token
-        api_v1_download_file_api_url(download)
+        api_v1_download_file_url(download)
     else
       nil
     end
