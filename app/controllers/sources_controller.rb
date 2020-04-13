@@ -13,11 +13,11 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 500)
       }
       format.bib {
         # TODO - handle count and download
-        @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 2000)
       }
     end
   end
