@@ -112,7 +112,21 @@ module Queries
         set_tags_params(params)
         set_user_dates(params)
       end
-  
+
+      # @return [Arel::Table]
+      def table
+        ::Source.arel_table
+      end
+
+      # @return [Arel::Table]
+      def project_sources_table
+        ::ProjectSource.arel_table
+      end
+ 
+      def base_query
+        ::Source.select('*')
+      end
+
       # @return [ActiveRecord::Relation, nil]
       #   if user provides 5 or fewer strings and any number of years look for any string && year
       def fragment_year_matches
@@ -165,20 +179,6 @@ module Queries
         b = b.as('z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Source.arel_table
-      end
-
-      def role_table
-        ::Role.arel_table
-      end
-
-      # @return [Arel::Table]
-      def project_sources_table
-        ::ProjectSource.arel_table
       end
 
       def in_project_facet
@@ -277,11 +277,6 @@ module Queries
         end
       end
 
-      # @return [Arel::Nodes::Equatity]
-      def member_of_project_id
-        project_sources_table[:project_id].eq(project_id)
-      end
-
       def merge_clauses
         clauses = [
           author_ids_facet,
@@ -348,42 +343,6 @@ module Queries
         end
         q
       end
-
-      # DEPRECATED
-      # @return [ActiveRecord::Relation]
-      # def or_clauses
-      #   clauses = [
-      #     only_ids,               # only intgers provided
-      #     cached,                 # should hit titles when provided alone, unfragmented string matches
-      #     fragment_year_matches   # keyword style ANDs years
-      #   ].compact
-
-      #   a = clauses.shift
-      #   clauses.each do |b|
-      #     a = a.or(b)
-      #   end
-      #   a
-      # end
-
-
-
-      ## @return [ActiveRecord::Relation]
-      #def all
-      #  a = or_clauses
-      #  b = merge_clauses
-      #  q = nil
-      #  if a && b
-      #    q = b.where(a).distinct
-      #  elsif a
-      #    q = ::Source.where(a).distinct
-      #  elsif b
-      #    q = b.distinct
-      #  else
-      #    q = ::Source.all
-      #  end
-      #  q = q.order(updated_at: :desc) if recent
-      #  q 
-      #end
 
     end
   end

@@ -144,6 +144,10 @@ module Queries
         ::TaxonName.arel_table
       end
 
+      def base_query
+        ::TaxonName.select('*')
+      end
+
       def year=(value)
         @year = value.to_s
       end
