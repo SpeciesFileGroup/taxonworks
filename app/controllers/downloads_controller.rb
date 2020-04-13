@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file]
   before_action :set_download_api, only: [:api_file, :api_show]
 
   # GET /downloads
