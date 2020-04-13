@@ -30,7 +30,7 @@
         class="margin-medium-bottom"
         title="In project"
         :values="['Both', 'Yes', 'No']"
-        v-model="params.in_project"
+        v-model="params.source.in_project"
       />
       <title-component v-model="params.source"/>
       <type-component v-model="params.source.source_type"/>

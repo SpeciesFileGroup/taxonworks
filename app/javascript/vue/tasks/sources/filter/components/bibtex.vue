@@ -108,8 +108,10 @@ export default {
       document.body.removeChild(a)
     },
     generateLinks () {
+      this.isLoading = true
       GetGenerateLinks(this.params).then(response => {
         this.links = response.body
+        this.isLoading = false
       })
     }
   }

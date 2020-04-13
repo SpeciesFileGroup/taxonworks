@@ -5,12 +5,14 @@
       <label>Start year</label>
       <input
         type="text"
+        :maxlength="4"
         v-model="source.year_start">
     </div>
     <div class="field label-above">
       <label>End year</label>
       <input
         type="text"
+        :maxlength="4"
         v-model="source.year_end">
     </div>
   </div>
