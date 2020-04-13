@@ -274,8 +274,9 @@ module Queries
             .where(citations: {citation_object_type: ['TaxonName', 'TaxonNameRelationship', 'TaxonNameClassification', 'TypeMaterial']})
             .distinct
         else
-          ::Source.left_outer_joins(:citations).
-            where("(citations.citation_object_type NOT IN ('TaxonName','TaxonNameRelationship','TaxonNameClassification','TypeMaterial')) OR (citations.source_id is null)")
+          ::Source.left_outer_joins(:citations)
+            .where("(citations.citation_object_type NOT IN ('TaxonName','TaxonNameRelationship','TaxonNameClassification','TypeMaterial')) OR (citations.id is null)")
+            .distinct
         end
       end
 
