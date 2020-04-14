@@ -4,6 +4,9 @@
       <h1>Filter sources</h1>
       <ul class="context-menu">
         <li>
+          <a href="/tasks/sources/hub">Source hub</a>
+        </li>
+        <li>
           <label>
             <input
               type="checkbox"

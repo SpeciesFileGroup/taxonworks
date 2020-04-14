@@ -48,7 +48,7 @@
           </td>
           <td>
             <add-to-project-source
-              :project_source_id="item.project_source_id"
+              :project-source-id="item.project_source_id"
               :id="item.id"/>
           </td>
         </tr>

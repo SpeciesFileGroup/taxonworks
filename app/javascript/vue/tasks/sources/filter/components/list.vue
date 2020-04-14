@@ -14,6 +14,7 @@
             @click="sortTable(item)">
             {{item}}
           </th>
+          <th>In project</th>
           <th></th>
         </tr>
       </thead>
@@ -49,6 +50,11 @@
             </div>
           </td>
           <td>
+            <add-to-project
+              :id="item.id"
+              :project-source-id="item.project_source_id"/>
+          </td>
+          <td>
             <div class="horizontal-left-content">
               <radial-annotator :global-id="item.global_id"/>
               <radial-navigation :global-id="item.global_id"/>
@@ -66,13 +72,15 @@ import RadialNavigation from 'components/radials/navigation/radial'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
+import AddToProject from 'components/addToProjectSource'
 
 export default {
   components: {
     RadialNavigation,
     RadialAnnotator,
     PdfButton,
-    TagAll
+    TagAll,
+    AddToProject
   },
   props: {
     list: {
