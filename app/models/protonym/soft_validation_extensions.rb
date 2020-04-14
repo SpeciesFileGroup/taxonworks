@@ -42,6 +42,8 @@ module Protonym::SoftValidationExtensions
       sv_parent_priority: { set: :parent_priority, has_fix: false},
       sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
       sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_family_is_invalid: { set: :family_is_invalid, has_fix: false},
+      sv_family_is_invalid_no_substitute: { set: :family_is_invalid, has_fix: false},
       sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_source_not_older_then_description: { set: :dates, has_fix: false},
@@ -93,7 +95,7 @@ module Protonym::SoftValidationExtensions
     def sv_missing_substitute_name
       if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
         if self.iczn_set_as_synonym_of.nil? && is_available?
-          soft_validations.add(:base, 'Missing relationship: The name is a homonym, but the substitute name is not selected')
+          soft_validations.add(:base, 'Missing relationship: The name is a homonym, but a substitute name is not selected')
         end
       end
     end
@@ -888,7 +890,30 @@ module Protonym::SoftValidationExtensions
  #           end
           end
         end
+      end
+    end
 
+    def sv_family_is_invalid
+      if persisted? && is_family_rank? && is_available?
+        tg = type_genus
+        if tg && (!TaxonNameRelationship.where_subject_is_taxon_name(tg).homonym_or_suppressed.empty? ||
+            !TaxonNameClassification.where_taxon_name(tg).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty? )
+          if self.id == self.lowest_rank_coordinated_taxon.id
+            if TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Iczn::Available::Invalid').empty?
+              soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} is invalid due to the homonymy or suppression of its type genus")
+            end
+          end
+        end
+      end
+    end
+
+    def sv_family_is_invalid_no_substitute
+      if persisted? && is_family_rank? && self.id == self.lowest_rank_coordinated_taxon.id
+        if !TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Iczn::Available::Invalid').empty?
+          if self.iczn_set_as_synonym_of.nil?
+            soft_validations.add(:base, 'Missing relationship: The name is invalid, but a substitute name is not selected')
+          end
+        end
       end
     end
 
