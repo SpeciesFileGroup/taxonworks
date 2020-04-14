@@ -118,6 +118,14 @@ export default {
       perRequest: 10
     }
   },
+  mounted () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const params = Object.fromEntries(urlParams)
+
+    if (Object.keys(params).length) {
+      this.getSources(params)
+    }
+  },
   methods: {
     resetFilter () {
       this.$emit('reset')
@@ -125,10 +133,13 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      this.searching = true
-      this.$emit('newSearch')
       const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user, this.params.settings))
 
+      this.getSources(params)
+    },
+    getSources (params) {
+      this.searching = true
+      this.$emit('newSearch')
       GetSources(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.url)
