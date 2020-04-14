@@ -18,19 +18,21 @@
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
-          <td class="vue-table-options">
-            <radial-annotator
-              v-if="annotator"
-              :global-id="item.global_id"/>
-            <span
-              v-if="edit"
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
-            <span
-              v-if="destroy"
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-left-content">
+              <radial-annotator
+                v-if="annotator"
+                :global-id="item.global_id"/>
+              <span
+                v-if="edit"
+                class="circle-button btn-edit"
+                @click="$emit('edit', Object.assign({}, item))"/>
+              <span
+                v-if="destroy"
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>
