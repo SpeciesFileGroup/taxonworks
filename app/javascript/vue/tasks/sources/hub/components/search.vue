@@ -42,6 +42,10 @@ export default {
       {
         label: 'Find sources',
         url: '/tasks/sources/find'
+      },
+{
+        label: 'Filter sources',
+        url: '/tasks/sources/filter'
       }]
     }
   },
