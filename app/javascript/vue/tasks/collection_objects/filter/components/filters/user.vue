@@ -28,6 +28,7 @@
         <br>
         <input 
           type="date"
+          class="date-input"
           :disabled="!user.user_id || !user.user_target"
           v-model="user.user_date_start">
       </div>
@@ -36,8 +37,16 @@
         <br>
         <input
           type="date"
+          class="date-input"
           :disabled="!user.user_id || !user.user_target"
           v-model="user.user_date_end">
+        <button
+          type="button"
+          :disabled="!user.user_id || !user.user_target"
+          class="button normal-input button-default"
+          @click="setActualDate">
+          Now
+        </button>
       </div>
     </div>
   </div>
@@ -100,6 +109,11 @@ export default {
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
+  },
+  methods: {
+    setActualDate () {
+      this.user.user_date_end = new Date().toISOString().split('T')[0]
+    }
   }
 }
 </script>
