@@ -21,6 +21,11 @@
           {{ item.label }}
         </option>
       </select>
+      <span
+        class="margin-small-left"
+        v-if="!user.user_id"
+        data-icon="warning"
+        title="Select a user first to pick a date" />
     </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
