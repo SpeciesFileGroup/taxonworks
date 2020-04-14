@@ -145,7 +145,7 @@ module Queries
       end
 
       def base_query
-        ::TaxonName.select('*')
+        ::TaxonName.select('taxon_names.*')
       end
 
       def year=(value)

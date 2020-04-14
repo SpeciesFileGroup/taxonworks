@@ -95,7 +95,7 @@ module Queries
       end
       
       def base_query
-        ::CollectingEvent
+        ::CollectingEvent.select('collecting_events.*')
       end
 
       def attribute_clauses

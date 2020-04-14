@@ -113,7 +113,7 @@ module Queries
       end
  
       def base_query
-        ::Source.select('*')
+        ::Source.select('sources.*')
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -244,6 +244,7 @@ module Queries
         else
           ::Source.left_outer_joins(:documents)
             .where(documents: {id: nil})
+            .distinct
         end
       end
 

@@ -9,16 +9,17 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   let(:query) {  Queries::Source::Filter.new({})  }
   let!(:doi) { '10.11646/stuff.1234.5.6' }
+  let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
   specify '#source_type' do
-    query.source_type = 'Source::Verbatim' 
+    query.source_type = 'Source::Verbatim'
     expect(query.all.map(&:id)).to contain_exactly( s1.id, s6.id )
   end
 
   # Duplicate f() with collection objects
   # Should be in identifiers concern specs ...
   specify '#identifier' do
-    i = Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi ) 
+    i = Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi )
     query.identifier = doi
     query.identifier_exact = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
@@ -52,7 +53,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#with_note 3 (without notes)' do
-    query.notes = false 
+    query.notes = false
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
 
@@ -71,13 +72,13 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   specify '#citation_object_type 1' do
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name))
-    query.citation_object_type = ['TaxonName'] 
+    query.citation_object_type = ['TaxonName']
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
   specify '#citation_object_type 2' do
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name))
-    query.citation_object_type = ['Specimen'] 
+    query.citation_object_type = ['Specimen']
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
@@ -176,20 +177,20 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#project_id / in_project 1' do
-    query.project_id = Current.project_id 
-    query.in_project = true 
+    query.project_id = Current.project_id
+    query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
   specify '#project_id / in_project 1' do
     ProjectSource.create!(source: s1, project_id: Current.project_id)
-    query.project_id = Current.project_id 
-    query.in_project = false 
+    query.project_id = Current.project_id
+    query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
   specify '#project_id / in_project 2' do
-    query.project_id = Current.project_id 
+    query.project_id = Current.project_id
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
@@ -197,8 +198,8 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   specify '#project_id / in_project 3' do
     ProjectSource.create!(source: s1, project_id: Current.project_id)
     ProjectSource.create!(source: s2, project_id: FactoryBot.create(:valid_project).id)
-    query.project_id = Current.project_id 
-    query.in_project = true 
+    query.project_id = Current.project_id
+    query.in_project = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
@@ -213,4 +214,27 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
+  context 'all' do
+    before do
+      query.user_id = Current.user_id
+      query.user_target = 'created'
+      query.user_date_start = '2001-1-2'
+      query.user_date_end = tomorrow
+      query.documents = true
+      query.in_project = true
+    end
+
+    specify 'vanilla' do
+      expect(query.all.map(&:id)).to contain_exactly()
+    end
+
+    specify 'pagination' do
+      expect(query.all.page(1).per(1).map(&:id)).to contain_exactly()
+    end
+
+    specify 'order' do
+      q = query.all.order(:cached)
+      expect(q.map(&:id)).to contain_exactly()
+    end
+  end
 end
