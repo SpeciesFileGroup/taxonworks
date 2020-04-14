@@ -56,7 +56,7 @@ namespace :tw do
 
       i = 0
       begin
-        records.order(:id).in_groups_of(20, false) do |group|
+        records.order(:id).in_groups_of(3, false) do |group|
           ApplicationRecord.transaction do
             print Rainbow("Writing\n").bold
             group.each do |o|
@@ -68,7 +68,7 @@ namespace :tw do
           end
         end
       rescue
-        puts Rainbow('Error, current batch of 20 records not written.').red.bold
+        puts Rainbow('Error, current batch of 3 records not written.').red.bold
         raise
       end
     end
