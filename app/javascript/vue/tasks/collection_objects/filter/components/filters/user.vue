@@ -1,6 +1,13 @@
 <template>
   <div>
-    <h2>User</h2>
+    <h2 class="flex-separate">
+      User
+      <span
+        class="margin-small-left"
+        v-if="!user.user_id || !user.user_target"
+        data-icon="warning"
+        title="Select a user and date range first to pick a date"/>
+    </h2>
     <div class="field">
       <select v-model="user.user_id">
         <option
@@ -21,11 +28,6 @@
           {{ item.label }}
         </option>
       </select>
-      <span
-        class="margin-small-left"
-        v-if="!user.user_id"
-        data-icon="warning"
-        title="Select a user first to pick a date" />
     </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
