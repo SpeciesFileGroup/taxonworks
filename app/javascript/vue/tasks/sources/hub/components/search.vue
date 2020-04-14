@@ -36,10 +36,6 @@ export default {
     return {
       tasks: [
         {
-          label: 'Alphabetical list of source authors',
-          url: '/tasks/people/author'
-        },
-        {
           label: 'Filter sources',
           url: '/tasks/sources/filter'
         }
@@ -58,6 +54,12 @@ export default {
         label: 'My recent sources',
         url: `/tasks/sources/filter?in_project=true&user_id=${userId}&user_target=updated&user_date_start=${twoWeeksAgo}&user_date_end=${today}&per=500&page=1`
       }
+    )
+    this.tasks.push(
+      {
+        label: 'Alphabetical list of source authors',
+        url: '/tasks/people/author'
+      },
     )
   },
   methods: {
