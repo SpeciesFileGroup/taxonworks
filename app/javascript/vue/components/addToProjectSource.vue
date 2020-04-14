@@ -1,19 +1,18 @@
 <template>
-  <button
+  <span
     v-if="!createdSourceID"
     @click="create"
-    type="button"
-    class="button normal-input button-submit">
+    title="Add to project"
+    class="button circle-button button-submit btn-add-to-project">
     Add to project
-  </button>
-  <button
+  </span>
+  <span
     v-else
     @click="remove"
-    type="button"
-    class="button normal-input button-delete">
+    title="Remove from project"
+    class="button circle-button button-delete btn-add-to-project">
     Remove from project
-  </button>
-
+  </span>
 </template>
 
 <script>
@@ -39,11 +38,13 @@ export default {
     create () {
       this.$http.post('/project_sources.json', {project_source: this.project_source}).then(response => {
         this.createdSourceID = response.body.id
+        TW.workbench.alert.create('Source was added to project successfully', 'notice')
       })
     },
     remove () {
       this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
-        this.createdSourceID = undefined;
+        this.createdSourceID = undefined
+        TW.workbench.alert.create('Source was removed from project successfully', 'notice')
       })
     }
   },
