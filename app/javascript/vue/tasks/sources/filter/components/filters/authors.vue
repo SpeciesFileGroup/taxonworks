@@ -19,6 +19,9 @@
       <smart-selector
         model="people"
         target="Author"
+        :autocomplete-params="{
+          roles: ['SourceAuthor', 'SourceEditor']
+        }"
         @selected="addAuthor"/>
     </fieldset>
     <display-list
