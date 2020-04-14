@@ -6,6 +6,7 @@
     <button
       type="button"
       class="button normal-input button-default"
+      :disabled="params.source_type != sourceType && params.source_type != undefined"
       @click="loadBibtex">
       BibTeX
     </button>
@@ -75,6 +76,7 @@ export default {
       url: undefined,
       showModal: false,
       links: undefined,
+      sourceType: 'Source::Bibtex',
       noApiMessage: 'To share your project administrator must create an API token.'
     }
   },

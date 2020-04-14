@@ -72,7 +72,8 @@
             <span class="separate-left separate-right">|</span>
             <csv-button :list="list"/>
             <span class="separate-left separate-right">|</span>
-            <bibtex-button :params="params"/>
+            <bibtex-button
+              :params="params"/>
           </div>
           <div>
             <select v-model="per">
@@ -86,12 +87,8 @@
             records per page.
           </div>
         </div>
-        <list-component
-          v-model="ids"
-          :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
         <div
-          class="flex-separate margin-large-bottom margin-medium-top"
+          class="flex-separate margin-medium-bottom"
           :class="{ 'separate-left': activeFilter }">
           <pagination-component
             v-if="pagination"
@@ -102,6 +99,10 @@
             class="horizontal-left-content">{{ list.length }} records.
           </span>
         </div>
+        <list-component
+          v-model="ids"
+          :class="{ 'separate-left': activeFilter }"
+          :list="list"/>
         <h2
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.

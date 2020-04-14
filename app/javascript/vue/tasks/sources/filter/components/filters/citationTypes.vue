@@ -3,12 +3,12 @@
     <h2>Citations type</h2>
     <ul class="no_bullets">
       <li v-for="type in types">
-        <label>
+        <label class="capitalize">
           <input
             type="checkbox"
             :value="type"
             v-model="citationTypes">
-          {{ type }}
+          <span class="capitalize-first-letter">{{ decamelize(type) }}</span>
         </label>
       </li>
     </ul>
@@ -18,6 +18,7 @@
 <script>
 
 import { GetCitationTypes } from '../../request/resources'
+import Decamelize from 'helpers/decamelize'
 
 export default {
   props: {
@@ -45,10 +46,9 @@ export default {
     GetCitationTypes().then(response => {
       this.types = response.body
     })
+  },
+  methods: {
+    decamelize: Decamelize
   }
 }
 </script>
-
-<style>
-
-</style>

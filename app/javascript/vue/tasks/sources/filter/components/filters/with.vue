@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>{{ title }}</h2>
-    <ul class="no_bullets">
+    <ul class="no_bullets context-menu">
       <li
         v-for="option in options">
         <label class="capitalize">
