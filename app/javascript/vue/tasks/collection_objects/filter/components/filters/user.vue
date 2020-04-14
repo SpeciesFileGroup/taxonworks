@@ -4,7 +4,7 @@
       User
       <span
         class="margin-small-left"
-        v-if="!user.user_id || !user.user_target"
+        v-if="!user.user_id || !user.user_target || (!user.user_date_start && !user.user_date_end)"
         data-icon="warning"
         title="Select a user and date range first to pick a date"/>
     </h2>

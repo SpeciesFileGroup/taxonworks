@@ -19,14 +19,6 @@
             Show JSON Request
           </label>
         </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="append">
-            Append results
-          </label>
-        </li>
       </ul>
     </div>
     <div
