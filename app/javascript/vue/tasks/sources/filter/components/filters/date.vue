@@ -1,19 +1,21 @@
 <template>
   <div>
     <h2>Date</h2>
-    <div class="field label-above">
-      <label>Start year</label>
-      <input
-        type="text"
-        :maxlength="4"
-        v-model="source.year_start">
-    </div>
-    <div class="field label-above">
-      <label>End year</label>
-      <input
-        type="text"
-        :maxlength="4"
-        v-model="source.year_end">
+    <div class="horizontal-left-content">
+      <div class="field label-above margin-medium-right">
+        <label>Start year</label>
+        <input
+          type="text"
+          :maxlength="4"
+          v-model="source.year_start">
+      </div>
+      <div class="field label-above">
+        <label>End year</label>
+        <input
+          type="text"
+          :maxlength="4"
+          v-model="source.year_end">
+      </div>
     </div>
   </div>
 </template>
