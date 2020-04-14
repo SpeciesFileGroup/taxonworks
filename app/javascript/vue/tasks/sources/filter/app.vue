@@ -159,6 +159,7 @@ export default {
   },
   mounted () {
     TW.workbench.keyboard.createLegend(`${PlatformKey()}+s`, 'Search', 'Filter sources')
+    TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
   },
   methods: {
     resetTask () {
