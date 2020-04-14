@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Available::Invalid::SuppressionOfTypeGenus < TaxonNameClassification::Iczn::Available::Invalid
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_Temporary2_to_be_replaced'.freeze
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000120'.freeze
 
   def classification_label
     'invalid due to suppression of type genus'
