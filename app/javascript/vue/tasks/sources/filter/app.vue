@@ -75,17 +75,6 @@
             <bibtex-button
               :params="params"/>
           </div>
-          <div>
-            <select v-model="per">
-              <option
-                v-for="records in maxRecords"
-                :key="records"
-                :value="records">
-                {{ records }}
-              </option>
-            </select>
-            records per page.
-          </div>
         </div>
         <div
           class="flex-separate margin-medium-bottom"
@@ -94,10 +83,24 @@
             v-if="pagination"
             @nextPage="loadPage"
             :pagination="pagination"/>
-          <span
+          <div
             v-if="list.length"
-            class="horizontal-left-content">{{ list.length }} records.
-          </span>
+            class="horizontal-left-content">
+            <span
+              class="horizontal-left-content">{{ list.length }} records.
+            </span>
+            <div class="margin-small-left">
+              <select v-model="per">
+                <option
+                  v-for="records in maxRecords"
+                  :key="records"
+                  :value="records">
+                  {{ records }}
+                </option>
+              </select>
+              records per page.
+            </div>
+          </div>
         </div>
         <list-component
           v-model="ids"
