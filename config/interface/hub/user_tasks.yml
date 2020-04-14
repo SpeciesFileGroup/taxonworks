@@ -380,14 +380,6 @@ new_source_task:
    - source
   status: prototype
   description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
-find_sources_task:
-  hub: true
-  name: 'Find sources'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Find sources and list them via a simple keyword/year based search.'  
 new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
@@ -553,4 +545,4 @@ filter_sources_task:
   categories:
     - sources
   status: prototype
-  description: 'Filter sources'
+  description: 'Filter and find sources then download or share bibliographies.'
