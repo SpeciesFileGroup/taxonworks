@@ -78,6 +78,8 @@ module SqedToTaxonworks
         @sqed_result ||= sqed.result
       rescue NoMethodError # TODO - better handling in Sqed
         @sqed_result = nil 
+      rescue RuntimeError, 'ImageMagick library function failed to return a result.'
+        @sqed_result = nil
       end
     end
 
