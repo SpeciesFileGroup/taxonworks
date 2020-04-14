@@ -176,19 +176,27 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#project_id / in_project 1' do
-    query.project_id = 1
+    query.project_id = Current.project_id 
     query.in_project = true 
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
+  specify '#project_id / in_project 1' do
+    ProjectSource.create!(source: s1, project_id: Current.project_id)
+    query.project_id = Current.project_id 
+    query.in_project = false 
+    expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
+  end
+
   specify '#project_id / in_project 2' do
-    query.project_id = 1
+    query.project_id = Current.project_id 
     query.in_project = false
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
 
   specify '#project_id / in_project 3' do
     ProjectSource.create!(source: s1, project_id: Current.project_id)
+    ProjectSource.create!(source: s2, project_id: FactoryBot.create(:valid_project).id)
     query.project_id = Current.project_id 
     query.in_project = true 
     expect(query.all.map(&:id)).to contain_exactly(s1.id)

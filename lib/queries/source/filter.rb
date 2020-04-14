@@ -178,7 +178,8 @@ module Queries
             .where(project_sources: {project_id: project_id})
         else
           ::Source.left_outer_joins(:project_sources)
-            .where(project_sources: {source_id: nil}).distinct
+            .where("project_sources.project_id != ? OR project_sources.id IS NULL", Current.project_id)
+            .distinct
         end
       end
 
