@@ -906,7 +906,7 @@ class TaxonName < ApplicationRecord
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
 
-      if is_genus_or_species_rank?
+      if i.is_genus_or_species_rank?
         if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
