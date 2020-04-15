@@ -569,5 +569,6 @@ filter_sources_task:
   related:
   categories:
     - sources
+    - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
