@@ -5,6 +5,7 @@
       <input
         type="text"
         class="full_width"
+        name="source.query_term"
         v-model="source.query_term">
     </div>
     <div class="field label-above">
@@ -12,6 +13,7 @@
       <input
         type="text"
         class="full_width"
+        name="source.title"
         v-model="source.title">
       <label class="horizontal-left-content">
         <input

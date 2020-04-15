@@ -229,7 +229,7 @@ resources :downloads, except: [:edit, :new, :create] do
     get 'list'
   end
   member do
-    get 'file'
+    get 'download_file'
   end
 end
 
