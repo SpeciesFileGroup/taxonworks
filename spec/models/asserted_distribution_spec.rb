@@ -21,7 +21,6 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   end
 
   context 'validation' do
-
     context 'required base attributes' do
       before { asserted_distribution.valid? }
 
@@ -37,7 +36,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'a citation is required' do
       before {
         asserted_distribution.geographic_area = geographic_area
-        asserted_distribution.otu             = otu
+        asserted_distribution.otu = otu
       }
 
       specify 'absence of #source, #origin_citation, #citations invalidates' do
@@ -103,14 +102,14 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
     specify 'duplicate record' do
       ad1 = FactoryBot.create(:valid_asserted_distribution)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution,
-                                     otu_id:             ad1.otu_id,
-                                     geographic_area_id: ad1.geographic_area_id)
+      ad2 = FactoryBot.build_stubbed(
+        :valid_asserted_distribution,
+        otu_id: ad1.otu_id,
+        geographic_area_id: ad1.geographic_area_id)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
     end
-
   end
 
   context 'soft validation' do
@@ -141,10 +140,9 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     specify 'creates some number of ADs' do
       point = ce_a.georeferences.first.geographic_item.geo_object
       areas = GeographicArea.find_by_lat_long(point.y, point.x)
-      stubs = AssertedDistribution.stub_new(
-        {otu:              otu.id,
-         source:           source.id,
-         geographic_areas: areas}).map(&:geographic_area)
+      stubs = AssertedDistribution.stub_new( {otu: otu.id,
+                                              source: source.id,
+                                              geographic_areas: areas}).map(&:geographic_area)
       expect(stubs.map(&:name)).to include('A', 'E')
     end
   end
