@@ -13,6 +13,7 @@
       <autocomplete
         url="/namespaces/autocomplete"
         label="label_html"
+        display="label"
         min="2"
         placeholder="Namespaces"
         @getItem="setNamespace"
