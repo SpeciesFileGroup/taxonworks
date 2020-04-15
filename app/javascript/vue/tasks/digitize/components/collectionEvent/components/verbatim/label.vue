@@ -60,6 +60,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)
       }
+    },
+    collectingEvent () {
+      return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
   data () {
@@ -70,11 +73,13 @@ export default {
   },
   methods: {
     searchCE () {
-      if(this.label) {
+      if (this.label) {
         GetCEMd5Label(this.label).then(response => {
-          if(response.length) {
+          if (response.length) {
             this.CEFounded = response
-            this.showModal = true
+            if (!response.find(item => { return item.id === this.collectingEvent.id })) {
+              this.showModal = true
+            }
           }
         })
       }
