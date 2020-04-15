@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe DownloadsController, type: :routing do
+RSpec.describe DownloadsController, type: :routing, group: [:downloads] do
   describe "routing" do
     it "routes to #index" do
       expect(:get => "/downloads").to route_to("downloads#index")

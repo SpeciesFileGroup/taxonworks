@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Downloads', type: :feature do
+describe 'Downloads', type: :feature, group: [:downloads] do
   let(:index_path) { downloads_path }
   let(:page_title) { 'Downloads' }
 

@@ -23,7 +23,7 @@ require 'rails_helper'
 # removed from Rails core in Rails 5, but can be added back in via the
 # `rails-controller-testing` gem.
 
-RSpec.describe DownloadsController, type: :controller do
+RSpec.describe DownloadsController, type: :controller, group: [:downloads] do
   before(:each) {
     sign_in
   }
