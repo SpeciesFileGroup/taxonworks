@@ -147,7 +147,7 @@
         this.$refs.source.setCitation(data)
       },
       createAsserted() {
-        if(!this.existingArea) {
+        if(true) {
           this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
             this.addToList(response.body)
           })
