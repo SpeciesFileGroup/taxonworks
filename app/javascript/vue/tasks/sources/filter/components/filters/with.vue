@@ -7,6 +7,7 @@
         <label class="capitalize">
           <input
             :value="option.value"
+            :name="name"
             v-model="optionValue"
             type="radio">
           {{ option.label }}
@@ -19,6 +20,10 @@
 <script>
 export default {
   props: {
+    name: {
+      type: String,
+      required: true
+    },
     title: {
       type: String,
       required: true

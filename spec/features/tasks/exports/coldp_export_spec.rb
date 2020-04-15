@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'tasks/exports/coldp', type: :feature, group: [:collection_objects] do
+describe 'tasks/exports/coldp', type: :feature, group: [:collection_objects, :downloads] do
   include ActiveJob::TestHelper
 
   context 'with test file' do

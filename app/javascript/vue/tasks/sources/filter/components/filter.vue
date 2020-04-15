@@ -29,6 +29,7 @@
       <with-component
         class="margin-medium-bottom"
         title="In project"
+        name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
         v-model="params.source.in_project"
       />
