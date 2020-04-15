@@ -120,7 +120,7 @@ class Protonym < TaxonName
   scope :with_type_material_array, ->  (type_material_array) { joins('LEFT OUTER JOIN "type_materials" ON "type_materials"."protonym_id" = "taxon_names"."id"').where("type_materials.collection_object_id in (?) AND type_materials.type_type in ('holotype', 'neotype', 'lectotype', 'syntype', 'syntypes')", type_material_array) }
   scope :with_type_of_taxon_names, -> (type_id) { includes(:related_taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification%' AND taxon_name_relationships.subject_taxon_name_id = ?", type_id).references(:related_taxon_name_relationships) }
   scope :with_homonym_or_suppressed, -> { includes(:taxon_name_relationships).where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total'").references(:taxon_name_relationships) }
-  scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
+  scope :without_homonym_or_suppressed, -> { where("id not in (SELECT subject_taxon_name_id FROM taxon_name_relationships WHERE taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Homonym%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Usage%' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Misapplication' OR taxon_name_relationships.type LIKE 'TaxonNameRelationship::Iczn::Invalidating::Suppression::Total')") }
   scope :with_primary_homonym, -> (primary_homonym) {where(cached_primary_homonym: primary_homonym)}
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
@@ -655,9 +655,10 @@ class Protonym < TaxonName
     v = get_original_combination
     if !v.blank? && is_hybrid?
       w = v.split(' ')
-      w[-1] = ('×' + w[-1]).gsub('×(', '(×')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])')
       v = w.join(' ')
     end
+    v = v.gsub(') [sic]', ' [sic])') if !v.blank?
     v = Utilities::Italicize.taxon_name(v)
     v = '† ' + v if !v.blank? && is_fossil?
     v
@@ -728,10 +729,14 @@ class Protonym < TaxonName
       classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         i.update_columns(
           cached: i.get_full_name,
-          cached_html: i.get_full_name_html
-        )
+          cached_html: i.get_full_name_html,
+          cached_author_year: i.get_author_and_year)
       end
 
+      misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
+      misspelling_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+        i.update_columns(cached_author_year: i.get_author_and_year)
+      end
     end
   end
 
@@ -814,7 +819,7 @@ class Protonym < TaxonName
 
   def set_cached
     super
-    set_cached_names_for_dependants # !!! do we run set cached names 2 x !?!
+    set_cached_names_for_dependants
     set_cached_original_combination
     set_cached_original_combination_html
     set_cached_homonymy

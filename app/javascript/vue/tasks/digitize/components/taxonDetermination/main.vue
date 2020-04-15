@@ -141,9 +141,14 @@
           class="list-complete-item flex-separate middle"
           v-for="(item, index) in list">
           <span v-html="item.object_tag"/>
-          <span
-            class="circle-button btn-delete"
-            @click="removeTaxonDetermination(item)"/>
+          <div class="horizontal-left-content">
+            <radial-annotator
+              v-if="item.hasOwnProperty('global_id')"
+              :global-id="item.global_id"/>
+            <span
+              class="circle-button btn-delete"
+              @click="removeTaxonDetermination(item)"/>
+          </div>
         </li>
       </draggable>
     </div>
@@ -167,6 +172,7 @@ import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
 import Draggable from 'vuedraggable'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 
 export default {
@@ -175,10 +181,10 @@ export default {
     RolePicker,
     OtuPicker,
     BlockLayout,
-    DisplayList,
     PinDefault,
     LockComponent,
-    Draggable
+    Draggable,
+    RadialAnnotator
   },
   computed: {
     collectionObject() {

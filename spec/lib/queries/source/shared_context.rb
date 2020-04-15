@@ -1,4 +1,3 @@
-
 shared_context 'source queries' do 
   let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
   let(:p2) { FactoryBot.create(:valid_person, last_name: 'Jones') }
@@ -42,4 +41,6 @@ shared_context 'source queries' do
   )}
 
   let!(:s6) { Source::Verbatim.create!(verbatim: 'foo' )  }
+  
+  let!(:all_source_ids) { [s1.id, s2.id, s3.id, s4.id, s5.id, s6.id] }
 end

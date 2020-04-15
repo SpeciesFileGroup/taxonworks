@@ -418,14 +418,6 @@ new_source_task:
    - new
   status: prototype
   description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
-find_sources_task:
-  hub: true
-  name: 'Find sources'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Find sources and list them via a simple keyword/year based search.'  
 new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
@@ -571,3 +563,11 @@ work_report_task:
     - collection_object
   status: prototype
   description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
+filter_sources_task:
+  hub: true
+  name: 'Filter sources'
+  related:
+  categories:
+    - sources
+  status: prototype
+  description: 'Filter and find sources then download or share bibliographies.'

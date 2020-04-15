@@ -73,6 +73,10 @@ $font_light: 300;
   white-space: pre-wrap;
 }
 
+.word-keep-all {
+  word-break: keep-all;
+}
+
 .line-nowrap {
   white-space: nowrap
 }

@@ -137,7 +137,7 @@ module Queries
       end
 
       def base_query
-        ::CollectionObject.select('*')
+        ::CollectionObject.select('collection_objects.*')
       end
 
       # @return [Arel::Table]

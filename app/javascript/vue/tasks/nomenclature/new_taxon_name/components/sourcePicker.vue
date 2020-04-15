@@ -287,7 +287,9 @@ export default {
       this.$store.commit(MutationNames.SetRoles, list)
     },
     removeSource: function (id) {
-      this.$store.dispatch(ActionNames.RemoveSource, id)
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$store.dispatch(ActionNames.RemoveSource, id)
+      }
     },
     updateTaxonName: function () {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
