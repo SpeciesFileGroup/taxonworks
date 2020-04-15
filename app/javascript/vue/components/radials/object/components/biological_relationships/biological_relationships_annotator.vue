@@ -72,7 +72,7 @@
         </h3>
         <h3
           v-else
-          class="subtle relation-title">Choose relation</h3>
+          class="subtle relation-title">Choose related OTU/collection object</h3>
       </template>
     </div>
 
