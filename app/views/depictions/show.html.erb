@@ -5,6 +5,11 @@
 <%= content_for :associated do -%>
   <% if @depiction.sqed_depiction -%>
     <h3> Sqed Depiction </h3>
+
+    <p><strong>In progress:</strong>
+      <%= @depiction.sqed_depiction.in_progress || 'No'  %>
+    </p>
+
     <p>
     <strong>Metadata map:</strong>
     <%= @depiction.sqed_depiction.metadata_map %>

@@ -39,20 +39,24 @@ namespace :tw do
     task recalculate_sqed_boundaries: [:environment, :project_id, :id_start, :id_end] do |t|
       project_id = ENV['project_id']
 
+      all = ENV['tw_sqed_calculate_all'] == 'true' ? true : false
+
       a = SqedDepiction.where(project_id: project_id).order(:id)
+
+      a = a.where(result_boundary_coordinates: nil) unless all
+
       id_min = a.first.try(:id)
       id_max = a.last.try(:id)
 
-      puts Rainbow("id range for project #{project_id} is #{id_min}-#{id_max}.").blue
-
+      puts Rainbow("id range (all: #{all}) for project #{project_id} is #{id_min}-#{id_max}.").blue
       records = a.where('id > ?', @args[:id_start] - 1).where('id < ?', @args[:id_end] + 1)
-
       puts Rainbow("Processing #{records.count} sqed_depictions.").blue
 
       i = 0
-      begin
-        records.order(:id).in_groups_of(20, false) do |group|
-          ApplicationRecord.transaction do
+
+      records.order(:id).in_groups_of(3, false) do |group|
+        ApplicationRecord.transaction_with_retry do
+          begin
             print Rainbow("Writing\n").bold
             group.each do |o|
               o.preprocess
@@ -60,11 +64,12 @@ namespace :tw do
               i += 1
             end
             print Rainbow("...saved.\n").bold
+
+          rescue RuntimeError => e
+            puts Rainbow("Error: #{e}. Current batch of 3 records not written, skipping.").red.bold
+            next
           end
         end
-      rescue
-        puts Rainbow('Error, current batch of 20 records not written.').red.bold
-        raise
       end
     end
 
@@ -97,8 +102,11 @@ namespace :tw do
 
               jr = j.rotate(rotate)
 
+              j.destroy! # free memory/cache
+              
               File.delete(original_file)
               jr.write(original_file)
+              jr.destroy! # free memory/cache
             rescue
               FileUtils.cp(temp_original, original_file)
               raise

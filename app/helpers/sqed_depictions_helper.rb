@@ -93,7 +93,7 @@ module SqedDepictionsHelper
     link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false') 
   end
 
-  def waxy_layout(sqed_depictions)
+  def sqed_waxy_layout(sqed_depictions)
     layout = Waxy::Geometry::Layout.new(
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
       Waxy::Geometry::Point.new(20,20), # size
@@ -106,8 +106,8 @@ module SqedDepictionsHelper
     sqed_depictions.each do |i|
       a = Waxy::Meta.new
       a.size = sqed_waxy_metadata(i)
-      a.stroke = 'grey'
-      a.link = sqed_depiction_breakdown_task_path(i).html_safe
+      a.stroke = i.in_progress? ? 'purple' : 'grey'
+      a.link = i.in_progress? && !(i.updated_by_id == sessions_current_user_id) ? nil : sqed_depiction_breakdown_task_path(i).html_safe
       a.link_title = "#{i.id.to_s} created #{time_ago_in_words(i.created_at)} ago by #{user_tag(i.creator)}"
       meta.unshift a
     end

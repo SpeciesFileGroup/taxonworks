@@ -778,6 +778,14 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zookeys', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('entomological-society-of-america', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('florida-entomologist', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zoological-journal-of-the-linnean-society', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('systematic-biology', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-annotated-bibliography', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-fullnote-bibliography-16th-edition', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-library-list', format) # the current TaxonWorks default ... make a constant
 
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end

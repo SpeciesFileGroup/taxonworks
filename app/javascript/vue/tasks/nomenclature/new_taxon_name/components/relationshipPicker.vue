@@ -41,7 +41,7 @@
               :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
               param="term"/>
             <button
-              v-if="Object.keys(insertaeSedis).includes(nomenclaturalCode)"
+              v-if="Object.keys(incertaeSedis).includes(nomenclaturalCode)"
               type="button"
               class="button normal-input button-default margin-small-left"
               @click="setInsertaeSedis">
@@ -61,7 +61,7 @@
               @click="taxonRelation = undefined"/>
           </p>
           <ul class="no_bullets">
-            <li @click="addEntry(insertaeSedis[nomenclaturalCode])">
+            <li @click="addEntry(incertaeSedis[nomenclaturalCode])">
               <label>
                 <input type="radio">
                 Insertae sedis
@@ -222,7 +222,7 @@ export default {
       lists: undefined,
       view: 'search',
       isInsertaeSedis: false,
-      insertaeSedis: {
+      incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
         ictv: { type: 'TaxonNameRelationship::Ictv::Accepting::UncertainPlacement' }
       }

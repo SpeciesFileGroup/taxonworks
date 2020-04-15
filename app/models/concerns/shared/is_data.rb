@@ -93,13 +93,16 @@ module Shared::IsData
   end
 
   # @return [Boolean]
-  def is_in_use?
+  # @params exclude [Array]
+  #   of symbols
+  def is_in_use?(exclude = [])
     self.class.reflect_on_all_associations(:has_many).each do |r|
-      return true if self.send(r.name).count > 0
+      next if exclude.include?(r.name)
+      return true if self.send(r.name).count(:all) > 0
     end
 
     self.class.reflect_on_all_associations(:has_one).each do |r|
-      return true if self.send(r.name).count > 0
+      return true if self.send(r.name).count(:all) > 0
     end
 
     false
