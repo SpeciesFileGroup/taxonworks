@@ -729,10 +729,14 @@ class Protonym < TaxonName
       classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         i.update_columns(
           cached: i.get_full_name,
-          cached_html: i.get_full_name_html
-        )
+          cached_html: i.get_full_name_html,
+          cached_author_year: i.get_author_and_year)
       end
 
+      misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
+      misspelling_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
+        i.update_columns(cached_author_year: i.get_author_and_year)
+      end
     end
   end
 
