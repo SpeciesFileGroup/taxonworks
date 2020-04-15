@@ -905,11 +905,13 @@ class TaxonName < ApplicationRecord
     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
-      method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      #misspelling = i.cached_misspelling ? ' [sic]' : nil
 
-      if self.respond_to?(method)
-        data[rank] = send(method, i, gender)
+      if is_genus_or_species_rank?
+        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+          data[rank] = [nil, i.name_with_misspelling(gender)]
+        else
+          data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+        end
       else
         data[rank] = i.name
       end
@@ -949,8 +951,15 @@ class TaxonName < ApplicationRecord
     d = full_name_hash
     elements = []
     elements.push(d['genus']) unless (not_binomial? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
-    elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
-    elements.push ['(', d['superspecies'], ')']
+    #elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
+    elements.push ['(', d['subgenus'], ')']
+    elements.push ['(', d['infragenus'], ')'] if rank_name == 'infragenus'
+    elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
+    elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
+    elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
+    elements.push ['(', d['supersuperspecies'], ')'] if rank_name == 'supersuperspecies'
+    elements.push ['(', d['superspecies'], ')'] if rank_name == 'superspecies'
+    elements.push ['(', d['subsuperspecies'], ')'] if rank_name == 'subsuperspecies'
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
@@ -969,62 +978,6 @@ class TaxonName < ApplicationRecord
     n = Utilities::Italicize.taxon_name(n) if is_italicized?
     n = '† ' + n if is_fossil?
     n
-  end
-
-  def genus_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def subgenus_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def section_name_elements(*args)
-    ['sect.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subsection_name_elements(*args)
-    ['subsect.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def series_name_elements(*args)
-    ['ser.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subseries_name_elements(*args)
-    ['subser.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def superspecies_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def species_group_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def species_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def subspecies_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def variety_name_elements(*args)
-    ['var.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subvariety_name_elements(*args)
-    ['subvar.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def form_name_elements(*args)
-    ['f.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subform_name_elements(*args)
-    ['subf.', args[0].name_with_misspelling(args[1])]
   end
 
   # @return [String]
