@@ -38,8 +38,8 @@ class DownloadsController < ApplicationController
     @downloads = Download.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
   end
 
-  # GET /downloads/1/download_file
-  def download_file
+  # GET /downloads/1/file
+  def file
     if @download.ready?
       @download.increment!(:times_downloaded)
       send_file @download.file_path

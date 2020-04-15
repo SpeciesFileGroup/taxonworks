@@ -14,8 +14,8 @@ RSpec.describe DownloadsController, type: :routing do
       expect(:get => "/downloads/1").to route_to("downloads#show", :id => "1")
     end
 
-    it "routes to #download_file" do
-      expect(:get => "/downloads/1/download_file").to route_to("downloads#download_file", :id => "1")
+    it "routes to #file" do
+      expect(:get => "/downloads/1/file").to route_to("downloads#file", :id => "1")
     end
 
     it "routes to #destroy" do
