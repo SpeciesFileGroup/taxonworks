@@ -154,12 +154,12 @@ module SqedDepictionsHelper
   def sqed_waxy_legend_tag
     l = ''
     {
-      0 => 'identifier(s)',
-      1 => 'buffered collecting event',
-      2 => 'buffered deterimination',
-      3 => 'buffered other labels',
-      4 => 'collecting event',
-      5 => 'taxon deterimination(s)'
+      0 => 'Identifier(s)',
+      1 => 'Buffered collecting event',
+      2 => 'Buffered determination',
+      3 => 'Buffered other labels',
+      4 => 'Collecting event',
+      5 => 'Taxon determination(s)'
     }.each do |i,label|
       l << sqed_waxy_legend_section_tag(i, label)
     end
