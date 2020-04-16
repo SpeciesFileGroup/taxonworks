@@ -4,7 +4,7 @@
       <label>
         <input
           type="checkbox"
-          v-model="identifier.is_metadata_depiction">
+          v-model="depiction.is_metadata_depiction">
           Is metadata depiction
       </label>
     </p>
@@ -17,12 +17,12 @@ import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   computed: {
-    identifier: {
+    depiction: {
       get () {
-        return this.$store.getters[GetterNames.GetIdentifier]
+        return this.$store.getters[GetterNames.GetDepiction]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetIdentifier, value)
+        this.$store.commit(MutationNames.SetDepiction, value)
       }
     }
   }
