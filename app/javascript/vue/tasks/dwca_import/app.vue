@@ -1,6 +1,10 @@
 <!-- https://www.itsolutionstuff.com/post/file-upload-using-vue-js-axios-phpexample.html -->
 <template>
   <div id="vue-task-dwca-import-new">
+    <spinner-component
+      :full-screen="true"
+      legend="Loading records..."
+      v-if="isLoading"/>
     <h1>DwC-A file upload</h1>
     <div
       v-if="table"
@@ -20,23 +24,25 @@ import NewImport from './components/NewImport'
 import TableComponent from './components/table'
 import { GetDataset, GetDatasetRecords } from './request/resources'
 import GetPagination from 'helpers/getPagination'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
     NewImport,
-    TableComponent
+    TableComponent,
+    SpinnerComponent
   },
   data () {
     return {
       importId: undefined,
       table: undefined,
-      pagination: undefined
+      pagination: undefined,
+      isLoading: false
     }
   },
   mounted () {
     const ID = new URLSearchParams(window.location.search).get('import_dataset_id')
     if (ID) {
-      this.importId = ID
       this.loadDataset(ID)
     }
 
@@ -52,13 +58,17 @@ export default {
   },
   methods: {
     loadDatasetRecords (id, page = undefined) {
+      this.isLoading = true
       GetDatasetRecords(id, { page: page }).then(response => {
         this.pagination = GetPagination(response)
         this.table.rows = this.table.rows.concat(response.body)
+        this.isLoading = false
       })
     },
     loadDataset (id) {
       let table = {}
+      this.importId = id
+      this.isLoading = true
       GetDataset(id).then(response => {
         table.headers = response.body.metadata.core_headers
         return GetDatasetRecords(id)
@@ -66,6 +76,7 @@ export default {
         table.rows = response.body
         this.pagination = GetPagination(response)
         this.table = table
+        this.isLoading = false
       })
     }
   }
