@@ -1,8 +1,9 @@
 <template>
-  <table>
+  <table class="position-relative">
     <thead>
       <tr>
-        <th 
+        <th
+          class="position-sticky"
           v-for="(item, index) in table.headers"
           :key="index">
           {{ item }}
@@ -38,6 +39,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style scoped>
+  th {
+    top: 0
+  }
 </style>

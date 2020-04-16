@@ -4,8 +4,8 @@ const GetDataset = (id) => {
   return AjaxCall('get', `/import_datasets/${id}.json`)
 }
 
-const GetDatasetRecords = (id) => {
-  return AjaxCall('get', `/import_datasets/${id}/dataset_records.json`)
+const GetDatasetRecords = (id, params) => {
+  return AjaxCall('get', `/import_datasets/${id}/dataset_records.json`, { params: params })
 }
 
 const UpdateRow = (rowId) => {

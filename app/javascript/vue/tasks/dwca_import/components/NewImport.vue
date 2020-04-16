@@ -23,7 +23,7 @@
         @vdropzone-error="error"
         ref="dwcDropzone"
         id="dropzone-dropzone"
-        url="/tasks/dwca_import/upload"
+        url="/import_datasets.json"
         :use-custom-dropzone-options="true"
         :dropzone-options="dropzone"/>
     </div>
@@ -50,8 +50,8 @@ export default {
       name: '',
       isUploading: false,
       dropzone: {
-        paramName: 'dwc_import[file]',
-        url: '/tasks/dwca_import/upload',
+        paramName: 'import_dataset[source]',
+        url: '/import_datasets.json',
         uploadMultiple: false,
         autoProcessQueue: true,
         parallelUploads: 1,
@@ -65,14 +65,14 @@ export default {
   },
   methods: {
     success (file, response) {
+      this.$emit('onCreate', response)
       this.$refs.dwcDropzone.removeFile(file)
     },
-    sending: function (file, xhr, formData) {
+    sending (file, xhr, formData) {
       this.isUploading = true
-      formData.append('dwc_import[name]', this.name)
+      formData.append('import_dataset[description]', this.name)
     },
-    completeQueue(file, response) {
-      this.$emit('created', this.firstUploaded)
+    completeQueue (file, response) {
       this.isUploading = false
     },
     error () {
