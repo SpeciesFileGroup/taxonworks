@@ -7,10 +7,11 @@
 <fieldset title="Navigate">
   <legend> Navigate </legend>
   <%= paginate @sqed_depictions %><br>
-  <%= sqed_first_with_data_tag(sessions_current_project_id)-%>&nbsp;
-  <%= sqed_first_without_data_tag(sessions_current_project_id) -%>&nbsp;
-  <%= sqed_last_with_data_tag(sessions_current_project_id) -%>&nbsp;
-  <%= sqed_last_without_data_tag(sessions_current_project_id) -%>&nbsp;
+  <%= sqed_first_with_data_tag -%>&nbsp;
+  <%= sqed_first_without_data_tag -%>&nbsp;
+  <%= sqed_last_with_data_tag -%>&nbsp;
+  <%= sqed_last_without_data_tag -%>&nbsp;
+  <%= sqed_last_by_user_tag -%>&nbsp;
 </fieldset><br>
 
 <div class="flexbox" data-turbolinks="false" id="todo_map">

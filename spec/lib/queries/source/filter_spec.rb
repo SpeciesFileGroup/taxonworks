@@ -101,9 +101,9 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#nomenclature 2' do
-    a = Citation.create!(source: s1, citation_object: FactoryBot.create(:valid_specimen)) # dummy citation
+    a = Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name)) # dummy citation
     query.nomenclature = false
-    expect(query.all.map(&:id)).to contain_exactly( *all_source_ids )
+    expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
   specify '#documents 1' do
@@ -141,6 +141,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   specify '#title, #exact_title' do
     query.title = 'Creatures from the Black Lagoon.'
+    query.exact_title = true
     expect(query.all.map(&:id)).to contain_exactly(s5.id)
   end
 
@@ -172,7 +173,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
 
   specify '#author' do
-    query.author = 'Smith'
+    query.author = 'Smit'
     expect(query.all.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 

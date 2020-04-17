@@ -39,11 +39,11 @@ module TaxonNames::CatalogHelper
     [ 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
       history_author_year(t, c),                  # author year of the subject, or protonym
-      history_statuses(i),                        # TaxonNameClassification summary
       history_subject_original_citation(i),
       history_other_name(i, r),                   # The TaxonNameRelaltionship
       history_in_taxon_name(t, c),                           #  citation for related name
       history_pages(c),                           #  pages for citation of related name
+      history_statuses(i),                        # TaxonNameClassification summary
       history_citation_notes(c),                  # Notes on the citation
       history_topics(c),                          # Topics on the citation
       history_type_material(i),
@@ -167,8 +167,13 @@ module TaxonNames::CatalogHelper
   
   def history_type_material(entry_item)
     return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
+
+
     [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
-      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
+
+#      citations_tag(entry_item.base_object&.type_taxon_name_relationship)
+      (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') + citations_tag(entry_item.base_object&.type_taxon_name_relationship)) : '')
+#      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
     ].compact.join.html_safe
   end
 

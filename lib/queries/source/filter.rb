@@ -15,7 +15,6 @@ module Queries
       attr_accessor :in_project
 
       # @return author [String, nil]
-      #   !! matches `cached_author`
       attr_accessor :author 
 
       # @return [Boolean, nil]
@@ -192,6 +191,7 @@ module Queries
         else
           ::Source.left_outer_joins(:citations)
             .where(citations: {id: nil})
+            .distinct
         end
       end
 

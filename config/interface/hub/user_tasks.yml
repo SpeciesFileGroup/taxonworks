@@ -569,5 +569,13 @@ filter_sources_task:
   related:
   categories:
     - sources
+    - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
+project_data_task:
+  hub: true
+  name: 'Project data overview and download'
+  related:
+  categories:
+  status: prototype
+  description: 'Quick stats and download options for the overall project.'

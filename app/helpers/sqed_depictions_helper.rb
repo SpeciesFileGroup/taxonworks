@@ -57,15 +57,15 @@ module SqedDepictionsHelper
     [a,b].compact.join.html_safe
   end
 
-  def sqed_last_with_data_tag(project_id)
-    if o = SqedDepiction.with_collection_object_data.where(project_id: project_id).last
+  def sqed_last_with_data_tag
+    if o = SqedDepiction.with_collection_object_data.where(project_id: sessions_current_project_id).last
       content_tag(:span, ('Last with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
   end
 
-  def sqed_last_without_data_tag(project_id)
+  def sqed_last_without_data_tag
     if o = SqedDepiction.where(project_id: sessions_current_project_id).without_collection_object_data.last
       content_tag(:span, ('Last without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning', 'feedback-thin'])
     else
@@ -73,7 +73,7 @@ module SqedDepictionsHelper
     end
   end
 
-  def sqed_first_without_data_tag(project_id)
+  def sqed_first_without_data_tag
     if o = SqedDepiction.where(project_id: sessions_current_project_id).without_collection_object_data.first
       content_tag(:span, ('First without data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-warning', 'feedback-thin'])
     else
@@ -81,9 +81,23 @@ module SqedDepictionsHelper
     end
   end
   
-  def sqed_first_with_data_tag(project_id)
+  def sqed_first_with_data_tag
     if o = SqedDepiction.where(project_id: sessions_current_project_id).with_collection_object_data.first
       content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
+    else
+      nil
+    end
+  end
+
+  def sqed_last_by_user_tag
+    if o = SqedDepiction.joins(:collection_object)
+      .where(
+        project_id: sessions_current_project_id,
+        updated_by_id: sessions_current_user_id)
+      .with_collection_object_data
+      .order('collection_objects.updated_at')
+      .first
+      content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
@@ -154,12 +168,12 @@ module SqedDepictionsHelper
   def sqed_waxy_legend_tag
     l = ''
     {
-      0 => 'identifier(s)',
-      1 => 'buffered collecting event',
-      2 => 'buffered deterimination',
-      3 => 'buffered other labels',
-      4 => 'collecting event',
-      5 => 'taxon deterimination(s)'
+      0 => 'Identifier(s)',
+      1 => 'Buffered collecting event',
+      2 => 'Buffered determination',
+      3 => 'Buffered other labels',
+      4 => 'Collecting event',
+      5 => 'Taxon determination(s)'
     }.each do |i,label|
       l << sqed_waxy_legend_section_tag(i, label)
     end

@@ -99,6 +99,9 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+    scope :data, controller: 'tasks/projects/data' do
+      get '/', action: :index, as: 'project_data_task'
+    end
   end
 
   scope :sources do

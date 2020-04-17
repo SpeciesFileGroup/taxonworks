@@ -86,6 +86,13 @@ class DocumentationController < ApplicationController
     end
   end
 
+  # inflection errors
+  # GET /documentation/download
+  # def download
+  #   send_data Export::Download.generate_csv(
+  #     Documentation.where(project_id: sessions_current_project_id)), type: 'text', filename: "documentation_#{DateTime.now}.csv"
+  # end
+
   private
 
   def set_documentation

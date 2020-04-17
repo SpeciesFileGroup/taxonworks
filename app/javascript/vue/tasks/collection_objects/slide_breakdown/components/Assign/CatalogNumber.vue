@@ -13,14 +13,6 @@
         </label>
       </li>
     </ul>
-    <p>
-      <label>
-        <input
-          type="checkbox"
-          v-model="identifier.is_metadata_depiction">
-          Is metadata depiction
-      </label>
-    </p>
     <smart-selector
       class="margin-medium-top"
       model="namespaces"
