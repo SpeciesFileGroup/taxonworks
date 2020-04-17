@@ -22,7 +22,7 @@ export default {
   props: {
     name: {
       type: String,
-      required: true
+      default: () => { return (Math.random().toString(36).substr(2, 5)) }
     },
     title: {
       type: String,
