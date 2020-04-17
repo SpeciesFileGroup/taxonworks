@@ -190,7 +190,11 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Export::Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(
+      Source.joins(:project_sources)
+      .where(project_sources: {project_id: sessions_current_project_id})
+      .all),
+    type: 'text', filename: "sources_#{DateTime.now}.csv"
   end
 
   # GET /sources/generate.json?<filter params>
