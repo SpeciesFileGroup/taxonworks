@@ -16,6 +16,9 @@
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   props: {
     id: {
@@ -36,15 +39,17 @@ export default {
   },
   methods: {
     create () {
-      this.$http.post('/project_sources.json', {project_source: this.project_source}).then(response => {
+      AjaxCall('post', '/project_sources.json', {project_source: this.project_source}).then(response => {
         this.createdSourceID = response.body.id
         TW.workbench.alert.create('Source was added to project successfully', 'notice')
       })
     },
     remove () {
-      this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
+      AjaxCall('delete', `/project_sources/${this.createdSourceID}.json`).then(response => {
         this.createdSourceID = undefined
         TW.workbench.alert.create('Source was removed from project successfully', 'notice')
+      }, (response) => {
+
       })
     }
   },
