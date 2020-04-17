@@ -38,9 +38,18 @@ class ProjectSourcesController < ApplicationController
     @project_source.destroy 
 
     respond_to do |format|
-      format.html { redirect_to sources_url }
-      format.json { head :no_content }
-      format.js { render :create }
+      if @project_source.destroy
+        format.html { redirect_to sources_url }
+        format.json { head :no_content }
+        format.js { render :create }
+      else
+        format.html {
+          flash[:notice] = "Failed to remove source from project. #{@project_source.error_messages}."
+          render source_path(@project_source.source)
+        }
+        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.js { }
+      end
     end
   end
 
