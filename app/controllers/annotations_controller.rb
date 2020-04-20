@@ -12,5 +12,4 @@ class AnnotationsController < ApplicationController
   # GET /annotations/types (JSON)
   def types
   end
-
 end

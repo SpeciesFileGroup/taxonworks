@@ -2,6 +2,8 @@
 
 require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank'
 
+# Crossreference with http://api.col.plus/vocab/nomcode
+
 # !! All constants are now composed of Strings only.  They must not reference a class. !!
 #
 # Contains NOMEN classes of rank/hierarchy in various format.

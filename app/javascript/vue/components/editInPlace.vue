@@ -47,6 +47,9 @@ export default {
           this.$refs.inputtext.focus()
         })
       }
+      else {
+        this.$emit('end', this.value)
+      }
     }
   },
   data() {

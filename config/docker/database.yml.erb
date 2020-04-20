@@ -8,7 +8,7 @@ development:
   adapter: postgis
   encoding: utf8 
   postgis_extension: true
-  pool: 5
+  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
   database: taxonworks_development 
   username: taxonworks_development
   password:
@@ -17,7 +17,7 @@ test:
   adapter: postgis
   encoding: utf8 
   postgis_extension: true
-  pool: 5
+  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: taxonworks_test 
   password:
@@ -26,7 +26,7 @@ production:
   adapter: postgis
   encoding: utf8 
   postgis_extension: true
-  pool: 5
+  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
   host: <%= ENV['POSTGRES_HOST'] %>
   database: <%= ENV['POSTGRES_DB'] %>
   username: <%= ENV['POSTGRES_USER'] %>

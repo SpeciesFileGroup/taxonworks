@@ -10,7 +10,7 @@
       Clone
     </button>
     <modal-component
-      v-if="showModal"
+      v-show="showModal"
       @close="showModal = false">
       <h3 slot="header">Clone taxon name</h3>
       <div slot="body">
@@ -32,9 +32,9 @@
         <input
           type="text"
           class="full_width"
-          autofocus
           v-model="inputValue"
           @keypress.enter.prevent="cloneTaxon()"
+          ref="inputtext"
           :placeholder="`Write ${checkWord} to continue`">
       </div>
       <div slot="footer">
@@ -81,43 +81,67 @@ export default {
         {
           label: 'Name',
           value: 'name',
-          lock: true
+          lock: true,
+          default: true
         },
         {
           label: 'Parent',
           value: 'parent_id',
-          lock: true
+          lock: true,
+          default: true
         },
         {
           label: 'Rank',
           value: 'rank_class',
-          lock: true
+          lock: true,
+          default: true
         },
         {
           label: 'Author',
           value: 'verbatim_author',
-          lock: false
+          lock: false,
+          default: true
         },
         {
           label: 'Year',
           value: 'verbatim_year',
-          lock: false
+          lock: false,
+          default: true
         },
         {
           label: 'Original source',
           value: 'origin_citation',
-          lock: false
+          lock: false,
+          default: true
+        },
+        {
+          label: 'Persons',
+          value: 'taxon_name_author_roles',
+          lock: false,
+          default: true
         },
         {
           label: 'Original combination relationships',
           value: 'original_combination',
-          lock: false
+          lock: false,
+          default: false
         }
       ]
     }
   },
+  watch: {
+    showModal: {
+      handler (newVal) {
+        if(newVal) {
+          this.$nextTick(() => {
+            this.$refs.inputtext.focus()
+          })
+        }  
+      }
+    }
+  },
   mounted () {
-    this.copyValues = this.fieldsToCopy.map(item => { return item.value })
+    this.copyValues = this.fieldsToCopy.filter(item => { return item.default }).map(item => { return item.value })
   },
   methods: {
     cloneTaxon () {

@@ -1,0 +1,110 @@
+require: rubocop-rails
+
+# inherit_from: .rubocop_todo.yml
+
+# Documentation: http://www.rubydoc.info/gems/rubocop
+
+AllCops:
+  TargetRubyVersion: 2.4
+  DisabledByDefault: true
+  MaxFilesInCache: 8000 # Limit growth of cache
+  Exclude:
+    - 'db/**/*'
+    - 'script/**/*'
+    - 'tmp/**/*'
+    - 'node_modules/**/*'
+    - '.yardoc/**/*'
+    - '.idea/**/*'
+    - '.bundle/**/*'
+    - 'coverage/**/*'
+    - 'volumes/**/*'
+    - 'public/packs/**/*'
+    - 'public/packs-test/**/*'
+    - 'bin/**/*'
+
+Rails:
+  Enabled: true
+
+Style/StringLiterals:
+  Enabled: true
+#  AutoCorrect: false
+
+Style/StringHashKeys:
+  Enabled: true
+
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: ruby19
+#  AutoCorrect: false
+
+Metrics/LineLength:
+  Enabled: false
+  Max: 120
+  AllowHeredoc: true
+  AllowURI: true
+  URISchemes: [http, https]
+  IgnoreCopDirectives: false
+
+Metrics/MethodLength:
+  Enabled: true
+  CountComments: false
+  Max: 25
+
+Metrics/ClassLength:
+  Enabled: true
+  CountComments: false
+  Max: 1000
+
+Layout/IndentationWidth:
+  Enabled: true
+  Width: 2
+
+Lint/MissingCopEnableDirective:
+  Enabled: true
+
+Metrics/BlockNesting:
+  Enabled: true
+
+Lint/ReturnInVoidContext:
+  Enabled: true
+
+Lint/StringConversionInInterpolation:
+  Enabled: true
+
+Lint/UselessAccessModifier:
+  Enabled: true
+
+Performance/Size:
+  Enabled: true
+
+Rails/Date:
+  Enabled: true
+
+Rails/SaveBang:
+  Enabled: true
+
+Style/LineEndConcatenation:
+  Enabled: true
+
+Style/MutableConstant:
+  Enabled: true
+
+Lint/DuplicateCaseCondition:
+  Enabled: true
+
+# TODO: select possible additions by setting `Enabled: true`
+
+#Lint/UnneededCopDisableDirective:
+#  Enabled: false
+
+# Layout/EmptyLines:
+#   Enabled: false
+
+# Layout/EmptyLinesAroundAccessModifier:
+#   Enabled: false
+#
+# Lint/InterpolationCheck:
+#   Enabled: false
+
+# Lint/RegexpAsCondition:
+#   Enabled: false

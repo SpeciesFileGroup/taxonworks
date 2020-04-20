@@ -22,7 +22,10 @@
 #
 class Identifier::Local < Identifier
 
-  validates :namespace, presence: true
+  # This must exist, rather than namespace: true, because we don't have database side not null in the model.  We also don't accept nested
+  # namespaces in this belongs to.
+  validates :namespace_id, presence: true
+
   validates_uniqueness_of :identifier, scope: [:namespace_id, :project_id, :type], message: lambda { |error, attributes| "#{attributes[:value]} already taken"}
 
   # Exact match on identifier + namespace
@@ -38,8 +41,15 @@ class Identifier::Local < Identifier
 
   protected
 
+  # @return string
+  def delimiter
+    a = namespace&.read_attribute(:delimiter)
+    return '' if a == 'NONE' 
+    [a, ' '].compact.first
+  end
+
   def set_cached
-    update_column(:cached, namespace.short_name + ' ' + identifier.to_s)
+    update_column(:cached, [namespace.verbatim_short_name, namespace.short_name].compact.first + delimiter + identifier.to_s)
   end
 
 end

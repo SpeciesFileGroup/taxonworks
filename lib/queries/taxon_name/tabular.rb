@@ -91,7 +91,6 @@ module Queries
       end
 
       def base_query
-
         q = table
         h = hierarchy_table     
 

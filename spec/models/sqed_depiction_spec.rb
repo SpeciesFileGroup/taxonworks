@@ -8,7 +8,7 @@ RSpec.describe SqedDepiction, type: :model do
   context 'validation' do
     before { sqed_depiction.valid? }
 
-    specify 'depiction is required' do
+    specify 'depiction_id is required' do
       expect(sqed_depiction.errors.include?(:depiction)).to be_truthy
     end
 
@@ -22,7 +22,6 @@ RSpec.describe SqedDepiction, type: :model do
       sqed_depiction.valid?
       expect(sqed_depiction.errors.include?(:layout)).to be_falsey
     end
-
   end
 
   context 'jsonb fields' do
@@ -52,8 +51,16 @@ RSpec.describe SqedDepiction, type: :model do
     specify ':has_border' do
       expect(valid_sqed_depiction.extraction_metadata[:has_border]).to eq(false)
     end
-
   end
 
+  specify '#rebuild 1' do
+    valid_sqed_depiction.rebuild = true
+    expect(valid_sqed_depiction.save!).to be_truthy
+  end
+
+  specify '#rebuild 2' do
+    valid_sqed_depiction.update(rebuild: true)
+    expect(valid_sqed_depiction.save!).to be_truthy
+  end
 
 end

@@ -2,7 +2,7 @@ require 'fileutils'
 
 ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
-# ./bin/webpack-dev-serverrake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+# ./bin/webpack-dev-server
 
 # clean dump "localhost_2018-08-06_190510UTC.dump"
 # 3i + odonata dump "localhost_2018-08-14_171558UTC.dump"
@@ -262,7 +262,6 @@ namespace :tw do
           end
 
         end
-
       end
 
       def main_build_loop_3i
@@ -1893,7 +1892,7 @@ namespace :tw do
               type = @type_type_3i[row['Type'].downcase]
               unless type.nil?
                 type = type + 's' if o.type == 'Lot'
-                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, material: o, type_type: type )
+                tm = TypeMaterial.create(protonym_id: otu.taxon_name_id, collection_object: o, type_type: type )
                 o.tags.find_or_create_by!(keyword: @data.keywords['Allotype']) if row['Type'] == 'Allotype'
                 if tm.id.nil?
                   o.data_attributes.create(type: 'ImportAttribute', import_predicate: 'type_material_error', value: 'Type material was not created. There are some inconsistensies.')

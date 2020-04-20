@@ -7,30 +7,43 @@ const ajaxCall = function (type, url, data = null) {
   Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
-      console.log(response)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
       return resolve(response.body)
     }, response => {
-      console.log(response)
-      handleError(response.body)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
+      handleError(response)
       return reject(response)
     })
   })
 }
 
 const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
+  if ((typeof json !== 'object') || (json.status === 404)) return
+  let errors = Object.keys(json.body)
   let errorMessage = ''
 
+  if(errors.length === 1 && 'success') return
   errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
+    errorMessage += json[item].join('<br>') + '<br>'
   })
 
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetProjectPreferences = function () {
+  return ajaxCall('get', `/project_preferences.json`)
+}
+
 const GetUserPreferences = function () {
   return ajaxCall('get', `/preferences.json`)
+}
+
+const GetSoftValidation = function (globalId) {
+  return ajaxCall('get', `/soft_validations/validate`, { params: { global_id: globalId } })
 }
 
 const CheckForExistingIdentifier = function (namespaceId, identifier) {
@@ -42,11 +55,15 @@ const GetIdentifiersFromCO = function (id) {
 }
 
 const GetLabelsFromCE = function (id) {
-  return ajaxCall('get', `/labels?label_object_id=${id}&label_object_type=CollectingEvent`)
+  return ajaxCall('get', `/labels.json?label_object_id=${id}&label_object_type=CollectingEvent`)
 }
 
 const GetRecentCollectionObjects = function () {
   return ajaxCall('get', `/tasks/accessions/report/dwc.json?per=10`)
+}
+
+const GetCEMd5Label = function (label) {
+  return ajaxCall('get', `/collecting_events`, { params: { md5_verbatim_label: true, in_labels: label } })
 }
 
 const UpdateUserPreferences = function (id, data) {
@@ -102,11 +119,19 @@ const GetTaxonDeterminationCO = function (id) {
 }
 
 const GetTypeMaterialCO = function (id) {
-  return ajaxCall('get', `/type_materials.json?biological_object_id=${id}`)
+  return ajaxCall('get', `/type_materials.json?collection_object_id=${id}`)
 }
 
 const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
+}
+
+const GetGeographicAreaByCoords = function (lat,long) {
+  return ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+}
+
+const GetGeographicArea = function (id) {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
 
 const GetTypes = function () {
@@ -143,6 +168,10 @@ const UpdateIdentifier = function (data) {
 
 const UpdateCollectionEvent = function (data) {
   return ajaxCall('patch', `/collecting_events/${data.id}.json`, { collecting_event: data })
+}
+
+const GetContainer = function (globalId) {
+  return ajaxCall('get', `/containers/for`, { params: { global_id: globalId } })
 }
 
 const CreateContainer = function (data) {
@@ -290,6 +319,9 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetProjectPreferences,
+  GetCEMd5Label,
+  GetSoftValidation,
   CheckForExistingIdentifier,
   CloneCollectionEvent,
   GetLabelsFromCE,
@@ -311,6 +343,7 @@ export {
   GetOtuSmartSelector,
   GetCollectingEventsSmartSelector,
   GetTypeDesignatorSmartSelector,
+  GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
   GetNamespace,
@@ -354,5 +387,7 @@ export {
   DestroyBiologicalAssociation,
   CreateContainer,
   CreateContainerItem,
-  GetNamespacesSmartSelector
+  GetContainer,
+  GetNamespacesSmartSelector,
+  GetGeographicArea
 }

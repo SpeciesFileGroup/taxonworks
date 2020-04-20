@@ -1,4 +1,4 @@
-json.extract! citation_topic, :id, :citation_id, :topic_id, :created_by_id, :updated_by_id, :project_id
+json.extract! citation_topic, :id, :citation_id, :topic_id, :pages, :created_by_id, :updated_by_id, :project_id
 json.url citation_topic_url(citation_topic, format: :json)
 
 json.topic do |t|

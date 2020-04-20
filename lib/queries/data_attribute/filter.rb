@@ -11,7 +11,12 @@ module Queries
       attr_accessor :options
 
       # Params specific to DataAttribute
-      attr_accessor :value, :controlled_vocabulary_term_id, :import_predicate, :type, :object_global_id, :attribute_subject_type, :attribute_subject_id
+      attr_accessor :value
+
+      # @return [Array] 
+      attr_accessor :controlled_vocabulary_term_id
+
+      attr_accessor :import_predicate, :type, :object_global_id, :attribute_subject_type, :attribute_subject_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -50,7 +55,7 @@ module Queries
       def matching_subject
         if o = object_for
           table['attribute_subject_id'].eq(o.id).and(
-              table['attribute_subject_type'].eq(o.metamorphosize.class.name)
+            table['attribute_subject_type'].eq(o.metamorphosize.class.name)
           )
         else
           nil
@@ -84,7 +89,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_controlled_vocabulary_term_id
-        controlled_vocabulary_term_id.blank? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
+        controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].eq_any(controlled_vocabulary_term_id)
       end
 
       # @return [ActiveRecord object, nil]

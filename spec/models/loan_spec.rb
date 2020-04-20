@@ -23,7 +23,7 @@ describe Loan, type: :model, group: :loans do
     }
 
     before do 
-      loan.update_attributes(cloned_attributes)  
+      loan.update(cloned_attributes)  
     end
 
     context '#clone_from clones' do

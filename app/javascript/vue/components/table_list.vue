@@ -13,24 +13,26 @@
         tag="tbody">
         <tr
           v-for="item in list"
-          :key="item.id"
+          :key="rowKey ? item[rowKey] : item.id"
           class="list-complete-item">
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
-          <td class="vue-table-options">
-            <radial-annotator
-              v-if="annotator"
-              :global-id="item.global_id"/>
-            <span
-              v-if="edit"
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
-            <span
-              v-if="destroy"
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-left-content">
+              <radial-annotator
+                v-if="annotator"
+                :global-id="item.global_id"/>
+              <span
+                v-if="edit"
+                class="circle-button btn-edit"
+                @click="$emit('edit', Object.assign({}, item))"/>
+              <span
+                v-if="destroy"
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>
@@ -39,7 +41,7 @@
 </template>
 <script>
 
-  import RadialAnnotator from './annotator/annotator.vue'
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
   export default {
     components: {
@@ -61,6 +63,10 @@
         default: () => {
           return []
         }
+      },
+      rowKey: {
+        type: String,
+        default: undefined
       },
       destroy: {
         type: Boolean,
@@ -119,9 +125,9 @@
 </script>
 <style lang="scss">
   .vue-table-container {
-    overflow-y: scroll;
     padding: 0px;
     position: relative;
+    word-break: break-all;
   }
 
   .vue-table {

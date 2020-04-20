@@ -1,39 +1,57 @@
-# Helpers for queries that reference Identifier
+# Helpers for queries that reference Tags
+# Assumes `def table` in included record
 module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
-  attr_accessor :keyword_ids
+  included do
+    # @return [Array]
+    attr_accessor :keyword_ids
+
+    # @return [Boolean, nil]
+    # @params tags ['true', 'false', nil]
+    attr_accessor :tags
+  end
+
+  def set_tags_params(params)
+    @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
+    @wtags = (params[:wtags]&.downcase == 'true' ? true : false) if !params[:wtags].nil?
+  end
 
   # @return [Arel::Table]
   def tag_table 
     ::Tag.arel_table
   end
 
+  def keyword_ids=(value = [])
+    @keyword_ids = value
+  end
+
+  # a merge
   def matching_keyword_ids
     return nil if keyword_ids.empty?
-    o = table
+    k = table.name.classify.safe_constantize
     t = ::Tag.arel_table
-
-    a = o.alias("a_")
-    b = o.project(a[Arel.star]).from(a)
-
-    c = t.alias('t1')
-
-    b = b.join(c, Arel::Nodes::OuterJoin)
-      .on(
-        a[:id].eq(c[:tag_object_id])
-      .and(c[:tag_object_type].eq(table.name.classify))
+    k.where(
+      ::Tag.where(
+        t[:tag_object_id].eq(table[:id]).and(
+          t[:tag_object_type].eq(table.name.classify)).and(
+            t[:keyword_id].eq_any(keyword_ids)
+          )
+      ).arel.exists
     )
+  end
 
-    e = c[:keyword_id].not_eq(nil)
-    f = c[:keyword_id].eq_any(keyword_ids)
+  def tag_facet
+    return nil if tags.nil?
+    k = table.name.classify.safe_constantize
 
-    b = b.where(e.and(f))
-    b = b.group(a['id'])
-    b = b.as('tz5_')
-
-    _a = table.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+    if tags
+      k.joins(:tags).distinct
+    else
+      k.left_outer_joins(:tags)
+        .where(tags: {id: nil})
+    end
   end
 
 end

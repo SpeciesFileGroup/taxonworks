@@ -5,7 +5,7 @@ json.set! :types do
     json.klass 'Tag'
     json.url tags_url
     json.select_options_url select_options_keywords_url
-    json.all_select_option_url '/controlled_vocabulary_terms.json?of_type[]=Keyword'
+    json.all_select_option_url '/controlled_vocabulary_terms.json?type[]=Keyword'
     json.total Tag.where(project_id: sessions_current_project_id).count
     ar = Tag.where(project_id: sessions_current_project_id).select(:tag_object_type).distinct.order(:tag_object_type).pluck(:tag_object_type)
     json.used_on klass_and_labels(ar)
@@ -16,7 +16,7 @@ json.set! :types do
     json.klass 'Confidence'
     json.url confidences_url
     json.select_options_url select_options_confidence_levels_url
-    json.all_select_option_url '/controlled_vocabulary_terms.json?of_type[]=Keyword'
+    json.all_select_option_url '/controlled_vocabulary_terms.json?type[]=Keyword'
     json.total Confidence.where(project_id: sessions_current_project_id).count
     ar = Confidence.where(project_id: sessions_current_project_id).select(:confidence_object_type).distinct.order(:confidence_object_type).pluck(:confidence_object_type)
     json.used_on klass_and_labels(ar)
@@ -27,7 +27,7 @@ json.set! :types do
     json.klass 'DataAttribute'
     json.url data_attributes_url
     json.select_options_url select_options_predicates_url
-    json.all_select_option_url '/controlled_vocabulary_terms.json?of_type[]=Predicate'
+    json.all_select_option_url '/controlled_vocabulary_terms.json?type[]=Predicate'
     json.total DataAttribute.where(project_id: sessions_current_project_id).count
     ar = DataAttribute.where(project_id: sessions_current_project_id).select(:attribute_subject_type).distinct.order(:attribute_subject_type).pluck(:attribute_subject_type)
     json.used_on klass_and_labels(ar)

@@ -1,8 +1,10 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collection_object, only: [:show, :edit, :update, :destroy, :containerize,
-                                               :depictions, :images, :geo_json]
+  before_action :set_collection_object, only: [
+    :show, :edit, :update, :destroy, :containerize,
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -16,9 +18,68 @@ class CollectionObjectsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @collection_objects = filtered_collection_objects
       }
     end
+  end
+
+  def biocuration_classifications
+    @biocuration_classifications = @collection_object.biocuration_classifications
+   render '/biocuration_classifications/index' 
+  end
+
+  # DEPRECATED
+  # GET /collection_objects/dwca/123 # SHOULD BE dwc
+  def dwca
+    @dwc_occurrence = CollectionObject.includes(:dwc_occurrence).find(params[:id]).get_dwc_occurrence # find or compute for
+    render json: @dwc_occurrence.to_json
+  end
+
+  # Render DWC fields *only*
+  def dwc_index
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
+    @klass = ::CollectionObject
+    render '/dwc_occurrences/dwc_index'
+  end
+
+  # GET /collection_objects/123/dwc
+  def dwc
+    o = nil
+    ActiveRecord::Base.connection_pool.with_connection do
+      o = CollectionObject.find(params[:id])
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
+    end
+    render json: o.dwc_occurrence_attribute_values
+  end
+
+  # GET /collection_objects/123/dwc_verbose
+  def dwc_verbose
+    o = nil
+    ActiveRecord::Base.connection_pool.with_connection do
+      o = CollectionObject.find(params[:id])
+
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
+    end
+    render json: o.dwc_occurrence_attributes
+  end
+
+  # Intent is DWC fields + quick summary fields for reports
+  # !! As currently implemented rebuilds DWC all 
+  def report
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
   # GET /collection_objects/1
@@ -29,6 +90,9 @@ class CollectionObjectsController < ApplicationController
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
+  end
+
+  def metadata_badge
   end
 
   # GET /collection_objects/1/images
@@ -99,10 +163,10 @@ class CollectionObjectsController < ApplicationController
     @collection_object.destroy
     respond_to do |format|
       if @collection_object.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + errors.messages)}
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; '))}
         format.json {render json: @collection_object.errors, status: :unprocessable_entity}
       end
     end
@@ -134,7 +198,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
   end
 
   # GET collection_objects/batch_load
@@ -153,8 +217,9 @@ class CollectionObjectsController < ApplicationController
   end
 
   def create_simple_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile,
-                                                :batch_collection_objects_md5)
+    if params[:file] && digested_cookie_exists?(
+        params[:file].tempfile,
+        :batch_collection_objects_md5)
       @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
@@ -174,7 +239,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_castor_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Castor_collection_objects_md5)
       render 'collection_objects/batch_load/castor/preview'
     else
@@ -185,7 +250,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_castor_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::CastorInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/castor/create' and return
@@ -200,7 +265,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_buffered_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Buffered_collection_objects_md5)
       render 'collection_objects/batch_load/buffered/preview'
     else
@@ -211,7 +276,7 @@ class CollectionObjectsController < ApplicationController
 
   def create_buffered_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Buffered_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(batch_params)
+      @result = BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
         render 'collection_objects/batch_load/buffered/create' and return
@@ -230,9 +295,28 @@ class CollectionObjectsController < ApplicationController
 
   private
 
+  def destroy_redirect
+    if request.referer =~ /tasks\/collection_objects\/browse/
+      if o = @collection_object.next_by_identifier
+        browse_collection_objects_path(collection_object_id: o.id)
+      else
+        browse_collection_objects_path
+      end
+    else
+      collection_objects_path
+    end
+  end
+
+  def filtered_collection_objects
+    Queries::CollectionObject::Filter.
+      new(filter_params).all.where(project_id: sessions_current_project_id).
+      page(params[:page]).per(params[:per] || 500).
+      order('collection_objects.id')
+  end
+
   def set_collection_object
     @collection_object = CollectionObject.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object     = @collection_object
+    @recent_object = @collection_object
   end
 
   def collection_object_params
@@ -240,18 +324,21 @@ class CollectionObjectsController < ApplicationController
       :total, :preparation_type_id, :repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
-      :buffered_other_labels, :deaccessioned_at, :deaccession_reason,
+      :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
       :contained_in,
       collecting_event_attributes: [],  # needs to be filled out!
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
+      tags_attributes: [:id, :_destroy, :keyword_id],
+      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
     )
   end
 
   def batch_params
     params.permit(:file, :import_level, :source_id, :otu_id)
-        .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
+      .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
+  # TODO: not used?
   def user_map
     {
       user_header_map: {
@@ -261,11 +348,58 @@ class CollectionObjectsController < ApplicationController
         'start_year'  => 'start_date_year',
         'end_day'     => 'end_date_day',
         'end_month'   => 'end_date_month',
-        'end_year'    => 'end_date_year'}}
+        'end_year'    => 'end_date_year'}
+    }
   end
 
   def filter_params
-    params.permit(:recent)
+    a = params.permit(
+      :recent,
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :ancestor_id, 
+      :collection_object_type,
+      :current_determinations,
+      :depicted,
+      :end_date,
+      :geo_json,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :in_labels,
+      :in_verbatim_locality,
+      :loaned,
+      :md5_verbatim_label,
+      :namespace_id,
+      :never_loaned,
+      :on_loan,
+      :partial_overlap_dates,
+      :radius,
+      :sled_image_id,
+      :spatial_geographic_areas,
+      :start_date,
+      :type_specimen_taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :wkt,
+      otu_ids: [],
+      keyword_ids: [],
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      biocuration_class_ids: [],
+      biological_relationship_ids: []
+      
+      #  collecting_event: {
+      #   :recent,
+      #   keyword_ids: []
+      # }
+    )
+
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
   end 
 
 end

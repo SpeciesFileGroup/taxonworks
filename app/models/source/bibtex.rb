@@ -122,8 +122,7 @@ require 'namecase'
 #   The sponsoring institution of a technical report
 #
 # @!attribute journal
-#   @return[String] the name of the journal (serial) associated with this source
-#   @return [nil] means the attribute is not stored in the database.
+#   @return[String, nil] the name of the journal (serial) associated with this source
 #   BibTeX standard field (required for types: )(optional for types:)
 #   A TW required attribute (TW requires a value in one of the required attributes.)
 #   A journal name. Many BibTeX processors have standardized abbreviations for many journals
@@ -323,14 +322,14 @@ class Source::Bibtex < Source
   belongs_to :source_language, class_name: 'Language', foreign_key: :language_id, inverse_of: :sources
 
   has_many :author_roles, -> { order('roles.position ASC') }, class_name: 'SourceAuthor',
-           as: :role_object, validate: true
+    as: :role_object, validate: true
 
   has_many :authors, -> { order('roles.position ASC') }, through: :author_roles, source: :person, validate: true
-  
+
   has_many :editor_roles, -> { order('roles.position ASC') }, class_name: 'SourceEditor',
-           as: :role_object, validate: true
+    as: :role_object, validate: true
   has_many :editors, -> { order('roles.position ASC') }, through: :editor_roles, source: :person, validate: true
- 
+
   accepts_nested_attributes_for :authors, :editors, :author_roles, :editor_roles, allow_destroy: true
 
   before_validation :create_authors, if: -> { !authors_to_create.nil? }
@@ -344,8 +343,9 @@ class Source::Bibtex < Source
     if: -> { !month.blank? || !stated_year.blank? },
     message: 'is required when month or stated_year is provided'
 
-  validates :year, date_year: {min_year: 1000, max_year: Time.now.year + 2,
-                               message:  'must be an integer greater than 999 and no more than 2 years in the future'}
+  validates :year, date_year: {
+    min_year: 1000, max_year: Time.now.year + 2,
+    message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
   validates_presence_of :month,
     unless: -> { day.blank? },
@@ -387,18 +387,19 @@ class Source::Bibtex < Source
 
   # @return [BibTeX::Entry]
   def self.new_from_bibtex_text(text = nil)
-    a = BibTeX.parse(text).convert(:latex).first
+    a = BibTeX::Bibliography.parse(text, filter: :latex).first
     new_from_bibtex(a)
   end
 
   # Instantiates a Source::Bibtex instance from a BibTeX::Entry
-  # Note: note conversion is handled in note setter.
-  #       identifiers are handled in associated setter.
-  # !! Unrecognized attributes are added as import attributes.
+  # Note:
+  #    * note conversion is handled in note setter.
+  #    * identifiers are handled in associated setter.
+  #    * !! Unrecognized attributes are added as import attributes.
   #
   # Usage:
   #    a = BibTeX::Entry.new(bibtex_type: 'book', title: 'Foos of Bar America', author: 'Smith, James', year: 1921)
-  #    b = Source::Bibtex.new(a)
+  #    b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
   # @return [Source::BibTex.new] a new instance
@@ -433,7 +434,7 @@ class Source::Bibtex < Source
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (self.serial.blank? ? nil : self.serial.name)].compact.first
+    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
   end
 
   # @return [String]
@@ -608,7 +609,12 @@ class Source::Bibtex < Source
   #   the identifier of this type, relies on Identifier to enforce has_one for Global identifiers
   #   !! behaviour for Identifier::Local types may be unexpected
   def identifier_string_of_type(type_value)
-    identifiers.where(type: type_value).first.try(:identifier)
+    # Also handle in memory
+    identifiers.each do |i|
+      return i.identifier if i.type == type_value
+    end
+    nil
+    # identifiers.where(type: type_value).first&.identifier
   end
 
  #endregion getters & setters
@@ -655,7 +661,7 @@ class Source::Bibtex < Source
     Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
   end
 
-  # @return [Date]
+  # @return [Date || Time] <sigh>
   #  An memoizer, getter for cached_nomenclature_date, computes if not .persisted?
   def cached_nomenclature_date
     if !persisted?
@@ -665,25 +671,11 @@ class Source::Bibtex < Source
     end
   end
 
-
-  # not used - move to a helper method if we want something not persisted
-  def bibtex_bibliography_for_zootaxa
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    v = volume
-    v = v + '(' + number + ')' unless number.blank?
-    v = [stated_year, v].compact.join(', ') if !stated_year.blank? and stated_year != year
-    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
-
   # rubocop:disable Metrics/MethodLength
   # @return [BibTeX::Entry]
   #   entry equivalent to self, this should round-trip with no changes
   def to_bibtex
-    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
@@ -693,12 +685,11 @@ class Source::Bibtex < Source
 
     b.year = year_with_suffix if !year_suffix.blank?
     b[:keywords] = verbatim_keywords     unless verbatim_keywords.blank?
+    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank?
 
-    b[:note] = concatenated_notes_string if !concatenated_notes_string.blank? # see Notable
-    
     unless serial.nil?
       b[:journal] = serial.name
-      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn') # of_type(:issn)
+      issns  = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
@@ -706,18 +697,18 @@ class Source::Bibtex < Source
 
     unless serial.nil?
       b[:journal] = serial.name
-      issns = serial.identifiers.where(type: 'Identifier::Global::Issn') # .of_type(:issn)
+      issns = serial.identifiers.where(type: 'Identifier::Global::Issn')
       unless issns.empty?
         b[:issn] = issns.first.identifier # assuming the serial has only 1 ISSN
       end
     end
 
-    uris = identifiers.where(type: 'Identifier::Global::Uri') # of_type(:uri)
+    uris = identifiers.where(type: 'Identifier::Global::Uri')
     unless uris.empty?
       b[:url] = uris.first.identifier # TW only allows one URI per object
     end
 
-    isbns = identifiers.where(type: 'Identifier::Global::Isbn') #.of_type(:isbn)
+    isbns = identifiers.where(type: 'Identifier::Global::Isbn')
     unless isbns.empty?
       b[:isbn] = isbns.first.identifier # TW only allows one ISBN per object
     end
@@ -762,12 +753,8 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this Source as an entry
   def bibtex_bibliography
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
+    TaxonWorks::Vendor::BibtexRuby.bibliography([self])
+ end
 
   # @param [String] style
   # @param [String] format
@@ -791,6 +778,14 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zookeys', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('entomological-society-of-america', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('florida-entomologist', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zoological-journal-of-the-linnean-society', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('systematic-biology', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-annotated-bibliography', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-fullnote-bibliography-16th-edition', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-library-list', format) # the current TaxonWorks default ... make a constant
 
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end

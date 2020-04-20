@@ -13,6 +13,10 @@ function makeInitialState () {
       saving: false,
       loading: false,
       increment: false,
+      lastSave: 0,
+      lastChange: 0,
+      saveIdentifier: true,
+      isLocked: false,
       locked: {
         biocuration: false,
         identifier: false,
@@ -30,9 +34,14 @@ function makeInitialState () {
           month_made: false,
           day_made: false,
           dates: false,
-          roles_attributes: false,          
+          roles_attributes: false
+        },
+        biological_association: {
+          relationship: false,
+          related: false
         }
-      }
+      },
+      sortable: false
     },
     taxon_determination: {
       biological_collection_object_id: undefined,
@@ -46,8 +55,14 @@ function makeInitialState () {
       id: undefined,
       namespace_id: undefined,
       type: 'Identifier::Local::CatalogNumber',
-      identifier_object_id: undefined, 
+      identifier_object_id: undefined,
       identifier_object_type: 'CollectionObject',
+      identifier: undefined
+    },
+    collectingEventIdentifier: {
+      id: undefined,
+      namespace_id: undefined,
+      type: 'Identifier::Local::TripCode',
       identifier: undefined
     },
     collection_object: {
@@ -114,7 +129,7 @@ function makeInitialState () {
       global_id: undefined,
       protonym_id: undefined,
       taxon: undefined,
-      biological_object_id: undefined,
+      collection_object_id: undefined,
       type_type: undefined,
       collection_object: undefined,
       origin_citation_attributes: undefined
@@ -126,6 +141,7 @@ function makeInitialState () {
       label_object_id: undefined, 
       label_object_type: "CollectingEvent"
     },
+    geographicArea: undefined,
     tmpData: {
       otu: undefined
     },
@@ -134,6 +150,7 @@ function makeInitialState () {
     materialTypes: [],
     determinations: [],
     preferences: {},
+    project_preferences: undefined,
     container: undefined,
     containerItems: [],
     collection_objects: [],

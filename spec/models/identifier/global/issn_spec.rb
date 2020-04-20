@@ -13,7 +13,7 @@ describe Identifier::Global::Issn, type:  :model, group: :identifier do
       end
 
       specify 'any old word' do
-        phrase        = Faker::Lorem.word
+        phrase        = Faker::Lorem.unique.word
         id.identifier = phrase
         expect(id.valid?).to be_falsey
         expect(id.errors.messages[:identifier][0]).to eq("'#{phrase}' is an improperly formed ISSN.")

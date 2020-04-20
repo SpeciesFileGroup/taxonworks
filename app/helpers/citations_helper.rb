@@ -8,7 +8,7 @@ module CitationsHelper
 
   def citation_source_body(citation)
     pages = citation.pages unless citation.pages.blank?
-    [[source_author_year_tag(citation.source), pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
+    [[source_author_year_tag(citation.source) + citation.source.year_suffix.to_s, pages].compact.join(':'), citation_topics_tag(citation)].compact.join(' ').html_safe
   end
 
   def citation_topics_tag(citation)
@@ -23,7 +23,7 @@ module CitationsHelper
   end
 
   def citations_tag(object)
-    object.citations.collect{|c| source_author_year_tag(c.source)}.to_sentence
+    object.citations.collect{|c| [source_author_year_tag(c.source) + c.source.year_suffix.to_s, c.pages].compact.join(': ')}.to_sentence
   end
 
   def citation_annotation_tag(citation)

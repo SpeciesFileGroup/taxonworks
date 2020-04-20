@@ -1,7 +1,7 @@
 class ProjectMembersController < ApplicationController
 
-  before_action :require_superuser_sign_in, except: [:update_clipboard]
-  before_action :require_sign_in_and_project_selection, only: [:update_clipboard]
+  before_action :require_superuser_sign_in, except: [:update_clipboard, :index, :clipboard]
+  before_action :require_sign_in_and_project_selection, only: [:update_clipboard, :clipboard]
 
   before_action :set_project_member, only: [:edit, :update, :destroy]
   before_action :set_member_project, only: [:many_new, :new, :create_many]
@@ -10,7 +10,7 @@ class ProjectMembersController < ApplicationController
 
   # GET /project_members.json
   def index
-    @project_members = ProjectMember.where(project_id: sessions_current_project_id)
+    @project_members = ProjectMember.joins(:user).where(project_id: sessions_current_project_id).order('users.name ASC')
   end
 
   # GET /project_members/new

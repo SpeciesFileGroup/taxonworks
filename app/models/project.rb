@@ -28,6 +28,7 @@ class Project < ApplicationRecord
   # Used in nuke order (not available in production UI), but 
   # ultimately also for dumping records
   MANIFEST = %w{
+     SledImage
      Label
      Attribution
      DwcOccurrence
@@ -94,6 +95,7 @@ class Project < ApplicationRecord
      ObservationMatrix
      Descriptor
      ProjectMember
+     Download
     }
   
   has_many :project_members, dependent: :restrict_with_error

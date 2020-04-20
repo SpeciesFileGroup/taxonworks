@@ -9,14 +9,14 @@
 <script>
 
 import L from 'leaflet'
-import 'leaflet.pm'
+import '@geoman-io/leaflet-geoman-free'
 
 delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
+  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default
 })
 
 export default {
@@ -46,6 +46,10 @@ export default {
       }
     },
     drawCircle: {
+      type: Boolean,
+      default: true
+    },
+    drawCircleMarker: {
       type: Boolean,
       default: true
     },
@@ -85,6 +89,10 @@ export default {
       type: Boolean,
       default: true
     },
+    tooltips: {
+      type: Boolean,
+      default: true
+    },
     center: {
       type: Array,
       default: () => {
@@ -113,9 +121,10 @@ export default {
       mapId: Math.random().toString(36).substring(7),
       mapObject: undefined,
       drawnItems: undefined,
+      geographicArea: undefined,
       drawControl: undefined,
       tiles: {
-        osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 18
         }),
@@ -133,6 +142,7 @@ export default {
     geojson: {
       handler (newVal) { 
         this.drawnItems.clearLayers()
+        this.geographicArea.clearLayers()
         this.geoJSON(newVal)
       },
       deep: true
@@ -147,7 +157,9 @@ export default {
       zoom: this.zoom
     })
     this.drawnItems = new L.FeatureGroup()
+    this.geographicArea = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
+    this.mapObject.addLayer(this.geographicArea)
 
     this.addDrawControllers()
     this.handleEvents()
@@ -183,11 +195,13 @@ export default {
     },
     clearFound () {
       this.drawnItems.clearLayers()
+      this.geographicArea.clearLayers()
     },
     addDrawControllers () {
+      this.tiles.osm.addTo(this.mapObject)
       if (this.tilesSelection) {
         L.control.layers({
-          OSM: this.tiles.osm.addTo(this.mapObject),
+          OSM: this.tiles.osm,
           Google: this.tiles.google
         }, { 'Draw layers': this.drawnItems }, { position: 'topleft', collapsed: false }).addTo(this.mapObject)
       }
@@ -196,6 +210,7 @@ export default {
         this.mapObject.pm.addControls({
           position: 'topleft',
           drawCircle: this.drawCircle,
+          drawCircleMarker: this.drawCircleMarker,
           drawMarker: this.drawMarker,
           drawPolyline: this.drawPolyline,
           drawPolygon: this.drawPolygon,
@@ -206,6 +221,14 @@ export default {
           removalMode: this.removalMode
         })
       }
+
+      this.mapObject.pm.enableDraw('Marker', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Polygon', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Circle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Line', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Rectangle', { tooltips: this.tooltips })
+      this.mapObject.pm.enableDraw('Cut', { tooltips: this.tooltips })
+      this.mapObject.pm.toggleGlobalDragMode()
     },
     handleEvents () {
       const that = this
@@ -219,10 +242,23 @@ export default {
         that.$emit('shapeCreated', layer)
         that.$emit('geoJsonLayerCreated', geoJsonLayer)
         that.mapObject.removeLayer(layer)
+        that.drawnItems.removeLayer(layer)
+      })
+      this.mapObject.on('pm:remove', (e) => {
+        let geoArray = []
+        Object.keys(this.drawnItems.getLayers()[0]._layers).forEach((layerId) => {
+          if (Number(layerId) !== Number(e.layer._leaflet_id)) {
+            if (this.drawnItems.getLayers()[0]._layers[layerId]) {
+              geoArray.push(this.convertGeoJSONWithPointRadius(this.drawnItems.getLayers()[0]._layers[layerId]))
+            }
+          }
+        })
+        this.$emit('geojson', geoArray)
       })
     },
     removeLayers () {
       this.drawnItems.clearLayers()
+      this.geographicArea.clearLayers()
     },
     editedLayer (e) {
       var layer = e.target
@@ -243,19 +279,22 @@ export default {
     },
     geoJSON (geoJsonFeatures) {
       if (!Array.isArray(geoJsonFeatures) || geoJsonFeatures.length === 0) return
-
       this.addGeoJsonLayer(geoJsonFeatures)
-
-      if (this.fitBounds) {
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
-      }
     },
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
-
+      let index = -1
       L.geoJson(geoJsonLayers, {
         style: function (feature) {
-          return that.randomShapeStyle()
+          index = index + 1
+          return that.randomShapeStyle(index)
+        },
+        filter: function (feature) {
+          if(feature.properties.hasOwnProperty('geographic_area')) {
+            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })))
+            return false
+          }
+          return true
         },
         onEachFeature: this.onMyFeatures,
         pointToLayer: function (feature, latlng) {
@@ -264,6 +303,21 @@ export default {
           return shape
         }
       }).addTo(this.drawnItems)
+
+      if (this.fitBounds) {
+        if (this.getLayersCount(this.drawnItems)) {
+          this.mapObject.fitBounds(this.drawnItems.getBounds())
+        }
+        else if (this.geographicArea.getLayers().length) {
+          this.mapObject.fitBounds(this.geographicArea.getBounds())
+        }
+        else {
+          this.mapObject.fitBounds([0,0])
+        }
+      }
+    },
+    getLayersCount (group) {
+      return group.getLayers()[0]._layers ? Object.keys(group.getLayers()[0]._layers).length : undefined
     },
     getRandomColor() {
       const letters = '0123456789ABCDEF'
@@ -273,6 +327,11 @@ export default {
       }
       return color
     },
+    generateHue (index) {
+      const PHI = (1 + Math.sqrt(5)) / 2
+      const n = index * PHI - Math.floor(index * PHI)
+      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 20}%)`
+    },
     defaultShapeStyle () {
       return {
         weight: 1,
@@ -280,10 +339,10 @@ export default {
         fillOpacity: 0.4
       }
     },
-    randomShapeStyle () {
+    randomShapeStyle (index) {
       return {
         weight: 1,
-        color: this.getRandomColor(),
+        color: this.generateHue(index),
         dashArray: '',
         fillOpacity: 0.4
       }
@@ -293,6 +352,7 @@ export default {
         'pm:edit': this.editedLayer,
         click: this.zoomToFeature
       })
+      layer.pm.disable()
     },
     zoomToFeature (e) {
       const layer = e.target

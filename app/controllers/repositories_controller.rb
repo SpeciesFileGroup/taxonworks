@@ -6,7 +6,7 @@ class RepositoriesController < ApplicationController
   # GET /repositories
   # GET /repositories.json
   def index
-    @repositories   = Repository.limit(20)
+    @repositories = Repository.limit(20)
     @recent_objects = Repository.order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
@@ -78,25 +78,12 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-
-    @repositories = Queries::Repository::Autocomplete.new(params[:term]).all
-
-    data = @repositories.collect do |t|
-      {id:              t.id,
-       label:           ApplicationController.helpers.repository_tag(t),
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html:      ApplicationController.helpers.repository_tag(t)
-      }
-    end
-
-    render json: data
+    @repositories = Queries::Repository::Autocomplete.new(params[:term], autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
   def download
-    send_data Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
   end
 
   # GET /repositories/select_options
@@ -106,13 +93,15 @@ class RepositoriesController < ApplicationController
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
+  def autocomplete_params
+    params.permit(alternate_value_type: []).to_h.symbolize_keys
+  end
+
   def set_repository
     @repository = Repository.find(params[:id])
     @recent_object = @repository
   end
 
-  # Never trust parameters from the scary internet, only allow the white list through.
   def repository_params
     params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
   end

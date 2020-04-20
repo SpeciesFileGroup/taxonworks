@@ -55,10 +55,14 @@
     <div class="horizontal-left-content">
       <radial-annotator
         type="annotations"
+        v-if="radialImage"
         :global-id="depiction.image.global_id"/>
       <radial-annotator
         type="annotations"
+        v-if="radialDepiction"
         :global-id="depiction.global_id"/>
+      <default-citation
+        :global-id="depiction.image.global_id"/>
       <span
         class="circle-button btn-delete"
         @click="deleteDepiction"/>
@@ -69,17 +73,27 @@
 
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from './request/resources'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import DefaultCitation from 'components/defaultCitation'
 
 export default {
   components: {
     Modal,
-    RadialAnnotator
+    RadialAnnotator,
+    DefaultCitation
   },
   props: {
     depiction: {
       type: Object,
       required: true
+    },
+    radialDepiction: {
+      type: Boolean,
+      default: false
+    },
+    radialImage: {
+      type: Boolean,
+      default: true
     }
   },
   data: function () {

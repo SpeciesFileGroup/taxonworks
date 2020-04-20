@@ -38,6 +38,10 @@
 #   been included in TW then a new short name must be minted, and a verbatim_short_name used to indicate the
 #   physically/and or historically recorded value.
 #
+# @!attribute delimiter
+#   @return [String, nil]
+#      Defines the character(s) to be placed between the namespace short name and the identifier
+#
 class Namespace < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
@@ -48,7 +52,8 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
-  has_many :identifiers, autosave: true, dependent: :restrict_with_error
+  # autosave rebuilds the .cache on related records
+  has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
   scope :used_recently, -> { joins(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ) }
@@ -56,7 +61,13 @@ class Namespace < ApplicationRecord
 
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: Namespace.used_on_klass(klass).used_in_project(project_id).used_recently.limit(10).distinct.to_a,
+      recent: (
+        Namespace.used_on_klass(klass)
+        .where(identifiers: {updated_by_id: user_id})
+        .used_in_project(project_id)
+        .used_recently
+        .limit(6).distinct.to_a + 
+      Namespace.where(created_by_id: user_id, created_at: (3.hours.ago..Time.now)).limit(5)).uniq,
       pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 

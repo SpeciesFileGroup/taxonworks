@@ -89,15 +89,12 @@ class IdentifiersController < ApplicationController
   def autocomplete
     render json: {} and return if params[:term].blank?
 
-    @identifiers = Queries::Identifier::Autocomplete.new(
-      params.require(:term),
-      autocomplete_params.to_h   
-    ).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
   end
 
   # GET /identifiers/download
   def download
-    send_data Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
   end
 
   # GET /identifiers/identifier_types

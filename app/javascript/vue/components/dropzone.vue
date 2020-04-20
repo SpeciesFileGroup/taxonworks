@@ -54,6 +54,10 @@
       headers: {
         type: Object
       },
+      timeout: {
+        type: Number,
+        default: 0
+      },
       language: {
         type: Object,
         default: function () {
@@ -122,10 +126,11 @@
         return
       }
       Dropzone.autoDiscover = false
-      var element = document.getElementById(this.id)
+      var element = this.id ? document.getElementById(this.id) : this.$el
       if (!this.useCustomDropzoneOptions) {
         this.dropzone = new Dropzone(element, {
           clickable: this.clickable,
+          timeout: this.timeout,
           thumbnailWidth: this.thumbnailWidth,
           thumbnailHeight: this.thumbnailHeight,
           maxFiles: this.maxNumberOfFiles,
@@ -168,7 +173,8 @@
         vm.$emit('vdropzone-success-multiple', file, response)
       })
       this.dropzone.on('error', function (file, error, xhr) {
-        vm.$emit('vdropzone-error', file, error, xhr)
+      vm.$el.querySelector('.dz-error-message span').innerHTML = Object.values(error).join('<br>')
+      vm.$emit('vdropzone-error', file, error, xhr)
       })
       this.dropzone.on('sending', function (file, xhr, formData) {
         vm.$emit('vdropzone-sending', file, xhr, formData)

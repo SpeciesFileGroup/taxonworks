@@ -26,6 +26,7 @@ Parameters:
 <template>
   <div class="vue-autocomplete">
     <input
+      :id="inputId"
       ref="autofocus"
       class="vue-autocomplete-input normal-input"
       type="text"
@@ -102,6 +103,11 @@ export default {
 
     value: {
       type: [String, Number]
+    },
+
+    inputId: {
+      type: String,
+      default: undefined
     },
 
     autofocus: {

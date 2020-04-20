@@ -8,7 +8,7 @@
 <script>
 
   import L from 'leaflet'
-  import 'leaflet.pm'
+  import '@geoman-io/leaflet-geoman-free'
 
   delete L.Icon.Default.prototype._getIconUrl
 
@@ -86,7 +86,7 @@
         foundItems: undefined,
         drawControl: undefined,
         tiles: {
-          osm: L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 18
           }),

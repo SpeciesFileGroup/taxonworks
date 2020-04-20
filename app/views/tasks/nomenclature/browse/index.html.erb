@@ -22,11 +22,14 @@
         </div>
       </div>
 
-      <span class="right_float flex-separate">
-        <ul class="context-menu">
-          <li><%= otus_redirect(@taxon_name) %></li>
-          <li><%= otus_radial_disambiguate(@taxon_name) %></li>
-        </ul>
+      <span class="right_float flex-separate middle">
+        <span class="margin-medium-right">OTU</span>
+        <div class="square-brackets">
+          <ul class="no_bullets context-menu">
+            <li><%= otus_redirect(@taxon_name) %></li>
+            <li><%= otus_radial_disambiguate(@taxon_name) %></li>
+          </ul>
+        </div>
         <ul class="context-menu">
           <li><%= radial_annotator(@taxon_name) %></li>
           <li><%= confidence_default_icon(@taxon_name) %></li>
@@ -35,18 +38,16 @@
           <li>
             <a class="circle-button btn-edit edit-taxon-name" href="<%= new_taxon_name_task_path(taxon_name_id: @taxon_name.id) %>"></a>
           </li>
-          <li><%= radial_object_tag(@taxon_name) %></li>
+          <li><%= radial_navigation_tag(@taxon_name) %></li>
         </ul>
       </span>    
     </div>
   </div>
 
   <div id="show" class="panels-container">
-    <div class="item item1">
+    <div class="item item1 nav-column">
       <div class="panel separate-right">
-
         <%# render('/taxon_names/classification_navigator', taxon_name: @taxon_name) -%>
-
         <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
       </div>
     </div>
@@ -59,14 +60,14 @@
               <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
             </div>
             <div class="horizontal-center-content filter">
-              <div id="filterBrowse_button" class="circle-button open"></div>
+              <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
             </div>
             <%= render "filter" %>
             <div class="content">
               <div class="attributes"> 
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                    <%= nomenclature_catalog_li_tag(c, @data.reference_taxon_name, :browse_nomenclature_task_path) -%> 
+                    <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 
                   <% end %>
                 </ul>
                 <br/>

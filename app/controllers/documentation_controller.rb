@@ -86,16 +86,23 @@ class DocumentationController < ApplicationController
     end
   end
 
+  # inflection errors
+  # GET /documentation/download
+  # def download
+  #   send_data Export::Download.generate_csv(
+  #     Documentation.where(project_id: sessions_current_project_id)), type: 'text', filename: "documentation_#{DateTime.now}.csv"
+  # end
+
   private
 
   def set_documentation
-    @documentation = Documentation.find(params[:id])
+    @documentation = Documentation.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def documentation_params
     params.require(:documentation).permit(
       :documentation_object_id, :documentation_object_type, :document_id, :annotated_global_entity, :position,
-      document_attributes: [:document_file]
+      document_attributes: [:document_file, :is_public]
     )
   end
 end

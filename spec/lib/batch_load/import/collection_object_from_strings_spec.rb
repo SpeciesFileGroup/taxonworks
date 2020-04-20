@@ -8,7 +8,7 @@ describe BatchLoad::Import::CollectionObjects::BufferedInterpreter, type: :model
   let(:otu) { FactoryBot.create(:valid_otu) }
 
   let(:upload_file) { fixture_file_upload(file_name) }
-  let(:import) { BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(params)
+  let(:import) { BatchLoad::Import::CollectionObjects::BufferedInterpreter.new(**params)
   }
 
   let(:params) { {project_id: project_id,

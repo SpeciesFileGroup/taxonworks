@@ -17,7 +17,7 @@
           </a>
           <radial-annotator
             v-if="typeMaterial.id"
-            :global-id="getCollectionObject.global_id" 
+            :global-id="typeMaterial.collection_object.global_id" 
           />
           <expand v-model="displayBody" />
         </div>
@@ -100,7 +100,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import ActionNames from '../store/actions/actionNames'
 
 import Autocomplete from 'components/autocomplete.vue'
-import RadialAnnotator from 'components/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import Spinner from 'components/spinner.vue'
 import Expand from './expand.vue'
 import CollectionObject from './collectionObject.vue'
@@ -179,7 +179,7 @@ export default {
   },
   methods: {
     getDigitizeRoute() {
-      return `${RouteNames.DigitizeTask}/${this.biologicalId}`
+      return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}`
     },
     createTypeMaterial () {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)

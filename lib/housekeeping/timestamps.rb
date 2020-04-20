@@ -16,6 +16,10 @@ module Housekeeping::Timestamps
     scope :updated_in_date_range, ->(start, u_end) {
       where(where_dated_string(self.name.tableize, 'upd'), start, u_end)
     }
+
+    scope :recently_created, -> (range = 1.weeks.ago..Time.now) { where(created_at: range) }
+    scope :recently_updated, -> (range = 1.weeks.ago..Time.now) { where(updated_at: range) }
+
   end
 
   module ClassMethods

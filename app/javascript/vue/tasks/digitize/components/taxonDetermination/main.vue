@@ -22,6 +22,7 @@
             v-if="view == 'new/Search' && !otuId"
             class="horizontal-left-content">
             <otu-picker
+              input-id="determination-otu-autocomplete"
               @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
             <pin-default
               class="separate-left"
@@ -72,9 +73,9 @@
             class="separate-bottom">
             <ul class="no_bullets">
               <li
-                v-for="item in listsDeterminator[viewDeterminer]"
+                v-for="(item, index) in listsDeterminator[viewDeterminer]"
                 v-if="!roleExist(item.id)"
-                :key="item.id"
+                :key="index"
                 :value="item.id">
                 <label>
                   <input
@@ -94,23 +95,23 @@
         </template>
       </fieldset>
       <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-right">
-          <label>Year</label>
+        <div class="separate-left">
+          <label>Day</label>
           <input
-            type="text"
-            v-model="year">
+            type="number"
+            v-model="day">
         </div>
         <div class="separate-right separate-left">
           <label>Month</label>
           <input
-            type="text"
+            type="number"
             v-model="month">
         </div>
-        <div class="separate-left">
-          <label>Day</label>
+        <div class="separate-right">
+          <label>Year</label>
           <input
-            type="text"
-            v-model="day">
+            type="number"
+            v-model="year">
         </div>
         <div>
           <label>&nbsp</label>
@@ -127,15 +128,29 @@
       </div>
       <button
         type="button"
+        id="determination-add-button"
         :disabled="!otuId"
         class="button normal-input button-submit separate-top"
         @click="addDetermination">Add</button>
-      <display-list
-        :list="list"
-        @delete="removeTaxonDetermination"
-        :radial-object="true"
-        set-key="otu_id"
-        label="object_tag"/>
+      <draggable
+        class="table-entrys-list"
+        element="ul"
+        v-model="list"
+        @end="updatePosition">
+        <li
+          class="list-complete-item flex-separate middle"
+          v-for="(item, index) in list">
+          <span v-html="item.object_tag"/>
+          <div class="horizontal-left-content">
+            <radial-annotator
+              v-if="item.hasOwnProperty('global_id')"
+              :global-id="item.global_id"/>
+            <span
+              class="circle-button btn-delete"
+              @click="removeTaxonDetermination(item)"/>
+          </div>
+        </li>
+      </draggable>
     </div>
   </block-layout>
 </template>
@@ -156,6 +171,8 @@ import orderSmartSelector from '../../helpers/orderSmartSelector.js'
 import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
 import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
+import Draggable from 'vuedraggable'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 
 export default {
@@ -164,9 +181,10 @@ export default {
     RolePicker,
     OtuPicker,
     BlockLayout,
-    DisplayList,
     PinDefault,
-    LockComponent
+    LockComponent,
+    Draggable,
+    RadialAnnotator
   },
   computed: {
     collectionObject() {
@@ -231,8 +249,13 @@ export default {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
       }
     },
-    list() {
+    list: {
+      get () {
       return this.$store.getters[GetterNames.GetTaxonDeterminations]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTaxonDeterminations, value)
+      }
     }
   },
   data() {
@@ -249,6 +272,9 @@ export default {
   watch: {
     collectionObject(newVal) {
       this.$refs.rolepicker.reset()
+      if(!newVal.id) {
+        this.loadSmartSelectors()
+      }
     },
     otuId(newVal) {
       if(newVal) {
@@ -270,24 +296,26 @@ export default {
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
     }
-
-    GetOtuSmartSelector().then(response => {
-      this.options = orderSmartSelector(Object.keys(response))
-      this.options.push('new/Search')
-      this.lists = response
-      this.view = selectFirstSmartOption(response, this.options)
-    })
-    GetTaxonDeterminatorSmartSelector().then(response => {
-      this.optionsDeterminer = orderSmartSelector(Object.keys(response))
-      this.optionsDeterminer.push('new/Search')
-      this.listsDeterminator = response
-      this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
-    })
+    this.loadSmartSelectors()
   },
   methods: {
+    loadSmartSelectors() {
+      GetOtuSmartSelector().then(response => {
+        this.options = orderSmartSelector(Object.keys(response))
+        this.options.push('new/Search')
+        this.lists = response
+        this.view = selectFirstSmartOption(response, this.options)
+      })
+      GetTaxonDeterminatorSmartSelector().then(response => {
+        this.optionsDeterminer = orderSmartSelector(Object.keys(response))
+        this.optionsDeterminer.push('new/Search')
+        this.listsDeterminator = response
+        this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
+      })
+    },
     roleExist(id) {
       return (this.roles.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && role.person_id == id
       }) ? true : false)
     },
     addRole(role) {
@@ -299,11 +327,13 @@ export default {
       this.$store.dispatch(ActionNames.SaveDetermination)
     },
     addDetermination() {
-      let taxonDetermination = this.$store.getters[GetterNames.GetTaxonDetermination]
 
-      if(this.list.find((determination) => { return determination.otu_id == taxonDetermination.otu_id })) { return }
-      taxonDetermination.object_tag = `${this.otuSelected}`
-      this.$store.commit(MutationNames.AddTaxonDetermination, taxonDetermination)
+      if(this.list.find((determination) => { 
+          return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
+        })
+      ) { return }
+      this.taxonDetermination.object_tag = `${this.otuSelected}`
+      this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
     removeTaxonDetermination(determination) {
@@ -314,7 +344,12 @@ export default {
       this.day = today.getDate()
       this.month = today.getMonth() + 1
       this.year = today.getFullYear()
-    }
+    },
+    updatePosition () {
+      for(let i = 0; i < this.list.length; i++) {
+        this.list[i].position = (i + 1)
+      }
+    },
   }
 }
 </script>
@@ -326,7 +361,7 @@ export default {
     }
     .date-fields {
       input {
-        max-width: 60px;
+        max-width: 80px;
       }
     }
       .vue-autocomplete-input {

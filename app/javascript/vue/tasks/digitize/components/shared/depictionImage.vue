@@ -2,7 +2,7 @@
   <div class="depiction-thumb-container">
     <modal
       v-if="viewMode"
-      @close="viewMode = false"
+      @close="checkEdit"
       :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
       <h3 slot="header">View</h3>
       <div slot="body">
@@ -12,16 +12,18 @@
               class="img-maxsize img-fullsize"
               v-if="fullSizeImage"
               @click="fullSizeImage = false"
-              :src="depiction.image.image_file_url"
+              :src="depiction.svg_view_box != null ? 
+                getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.width, depiction.image.height) : 
+                depiction.image.image_display_url"
               :height="depiction.image.height"
               :width="depiction.image.width">
             <img
               v-else
               class="img-maxsize img-normalsize"
               @click="fullSizeImage = true"
-              :src="depiction.image.alternatives.medium.image_file_url"
-              :height="depiction.image.alternatives.medium.height"
-              :width="depiction.image.alternatives.medium.width">
+              :src="depiction.svg_view_box != null ? 
+                getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.alternatives.medium.width, depiction.image.alternatives.medium.height) : 
+                depiction.image.alternatives.medium.image_file_url">
             <radial-annotator
               class="annotator"
               type="annotations"
@@ -55,21 +57,28 @@
     <img
       class="img-thumb"
       @click="viewMode = true"
-      :src="depiction.image.alternatives.thumb.image_file_url"
-      :height="depiction.image.alternatives.thumb.height"
-      :width="depiction.image.alternatives.thumb.width">
+      :src="depiction.svg_view_box != null ? 
+        getImageUrl(depiction.image.id, depiction.svg_view_box, 100, 100) : 
+        depiction.image.alternatives.thumb.image_file_url">
+    <zoom-image
+      v-if="depiction.svg_view_box != null"
+      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, Math.floor(windowWidth()*0.75), windowHeight())"
+      :width="depiction.image.width"
+      :height="depiction.image.height"/>
   </div>
 </template>
 <script>
 
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from '../../request/resources'
-import RadialAnnotator from 'components/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import ZoomImage from './zoomImage'
 
 export default {
   components: {
     Modal,
-    RadialAnnotator
+    RadialAnnotator,
+    ZoomImage
   },
   props: {
     depiction: {
@@ -80,7 +89,21 @@ export default {
   data: function () {
     return {
       fullSizeImage: false,
-      viewMode: false
+      viewMode: false,
+      editing: false
+    }
+  },
+  watch: {
+    viewMode(newVal) {
+      if(newVal) {
+        this.editing = false
+      }
+    },
+    depiction: {
+      handler(newVal) {
+        this.editing = true
+      },
+      deep: true
     }
   },
   methods: {
@@ -93,10 +116,30 @@ export default {
       }
       UpdateDepiction(this.depiction.id, depiction).then(response => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
+        this.editing = false
       })
     },
     deleteDepiction () {
       this.$emit('delete', this.depiction)
+    },
+    checkEdit() {
+      if(this.editing) {
+        if(window.confirm('You have unsaved changes and they will be lost. Are you sure you want to close?')) {
+          this.viewMode = false
+        }
+      } else {
+        this.viewMode = false
+      }
+    },
+    getImageUrl (id, box, imageWidth, imageHeight) {
+      let [ x, y, width, height ] = box.split(' ')
+      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
+    },
+    windowWidth () {
+      return window.innerWidth
+    },
+    windowHeight () {
+      return (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 400
     }
   }
 }

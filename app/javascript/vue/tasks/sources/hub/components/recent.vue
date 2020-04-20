@@ -1,7 +1,7 @@
 <template>
   <div class="vue-table-container">
     <h3 class="title-section">Recent</h3>
-    <table class="vue-table">
+    <table class="vue-table word-keep-all">
       <thead>
         <tr>
           <th>Source</th>
@@ -23,7 +23,7 @@
           class="list-complete-item">
           <td>
             <a
-              :href="`/sources/${item.id}`"
+              :href="`/tasks/sources/new_source?source_id=${item.id}`"
               v-html="item.object_tag"/>
           </td>
           <td> {{ item.year }} </td>
@@ -48,7 +48,7 @@
           </td>
           <td>
             <add-to-project-source
-              :project_source_id="item.project_source_id"
+              :project-source-id="item.project_source_id"
               :id="item.id"/>
           </td>
         </tr>
@@ -61,7 +61,7 @@
 
 import { GetRecentSources } from '../request/resources.js'
 import PinComponent from 'components/pin.vue'
-import RadialAnnotator from 'components/annotator/annotator'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProjectSource from 'components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'
@@ -98,34 +98,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
-    padding: 0px;
-    position: relative;
-  }
-
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
-</style>

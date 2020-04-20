@@ -72,7 +72,7 @@ class LoansController < ApplicationController
 
   def list
     @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id)
-      .order(Arel.sql("CAST(coalesce(identifiers.identifier, '0') AS integer) DESC")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
+      .order(Arel.sql("LENGTH(identifier), identifier")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
   end
 
   def search
@@ -89,7 +89,12 @@ class LoansController < ApplicationController
 
   # GET /loans/download
   def download
-    send_data Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
+  end
+
+  # GET /loans/select_options
+  def select_options
+    @loans = Loan.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   private

@@ -33,7 +33,7 @@ Object.assign(TW.workbench.keyboard, {
 							</thead> \
 							<tbody data-shortcut-section="General shortcuts"> \
 								<tr> \
-									<td><div class="key">alt+ctrl+h</div></td> \
+									<td><div class="key">'+ (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') +'+h</div></td> \
 									<td>Go to hub</td> \
 								</tr> \
 								<tr> \

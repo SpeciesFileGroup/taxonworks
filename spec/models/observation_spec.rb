@@ -11,7 +11,7 @@ RSpec.describe Observation, type: :model, group: :matrix do
     before { observation.valid? }
 
     specify '#description required' do
-      expect(observation.errors.include?(:descriptor)).to be_truthy
+      expect(observation.errors.include?(:descriptor_id)).to be_truthy
     end
 
     specify 'one of #otu or #collection_object is required' do

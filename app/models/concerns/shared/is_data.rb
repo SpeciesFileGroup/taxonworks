@@ -11,6 +11,7 @@ module Shared::IsData
     include Levenshtein
     include Annotation
     include Scopes
+    include Navigation
   end
 
   module ClassMethods
@@ -18,6 +19,12 @@ module Shared::IsData
     # @return [Boolean]
     def is_community?
       self < Shared::SharedAcrossProjects ? true : false
+    end
+
+    # @return [Array] of strings of only the non-cached and non-housekeeping column names
+    def data_attributes
+      column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
+        .include?(c) || c =~ /^cached/ }
     end
 
     # @return [Boolean]
@@ -86,13 +93,16 @@ module Shared::IsData
   end
 
   # @return [Boolean]
-  def is_in_use?
+  # @params exclude [Array]
+  #   of symbols
+  def is_in_use?(exclude = [])
     self.class.reflect_on_all_associations(:has_many).each do |r|
-      return true if self.send(r.name).count > 0
+      next if exclude.include?(r.name)
+      return true if self.send(r.name).count(:all) > 0
     end
 
     self.class.reflect_on_all_associations(:has_one).each do |r|
-      return true if self.send(r.name).count > 0
+      return true if self.send(r.name).count(:all) > 0
     end
 
     false

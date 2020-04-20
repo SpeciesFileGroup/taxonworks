@@ -4,7 +4,14 @@
     data-panel-open="false"
     class="slide-panel slide-document"
     :style="styleWidth">
-    <div class="slide-panel-header">PDF Document viewer</div>
+    <div class="slide-panel-header flex-separate">
+      <span>PDF Document viewer</span> 
+      <a
+        v-if="documentUrl"
+        class="margin-medium-right"
+        :href="documentUrl"
+        download>Download</a>
+    </div>
     <resize-handle
       side="left"
       :size="width"
@@ -106,7 +113,8 @@ export default {
       cursorPosition: undefined,
       textCopy: '',
       noTrigger: false,
-      checkScroll: undefined
+      checkScroll: undefined,
+      documentUrl: undefined
     }
   },
   mounted() {
@@ -151,6 +159,7 @@ export default {
     getPdf (url) {
       var self = this
       
+      self.documentUrl = url
       self.pdfdata = PdfViewer.createLoadingTask(url)
       self.pdfdata.then(pdf => {
         self.numPages = pdf.numPages
@@ -186,6 +195,10 @@ export default {
       document.addEventListener(this.eventLoadPDFName, (event) => {
         that.loadPDF(event)
         that.viewerActive = true
+        document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
+        document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
+        document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
       })
       document.addEventListener('onSlidePanelClose', (event) => {
         if(event.detail.name == 'pdfviewer') {

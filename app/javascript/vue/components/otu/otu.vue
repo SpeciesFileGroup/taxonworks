@@ -2,7 +2,7 @@
   <div class="otu-radial">
     <span 
       class="circle-button button-default"
-      :title="redirect ? 'Otu browse' : 'Otu radial'"
+      :title="redirect ? 'Browse taxa' : 'OTU quick forms'"
       :class="[{ 'button-submit': emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>
@@ -35,7 +35,7 @@
           legend="Creating Otu..."/>
       </div>
     </modal>
-    <radial-annotator
+    <otu-radial
       ref="annotator"
       type="graph"
       :show-bottom="false"
@@ -47,14 +47,14 @@
 
   import Modal from '../modal.vue'
   import Spinner from '../spinner.vue'
-  import RadialAnnotator from '../annotator/annotator.vue'
+  import OtuRadial from 'components/radials/object/radial'
   import { GetOtus, CreateOtu } from './request/resources'
 
   export default {
     components: {
       Modal,
       Spinner,
-      RadialAnnotator
+      OtuRadial
     },
     props: {
       taxonId: {

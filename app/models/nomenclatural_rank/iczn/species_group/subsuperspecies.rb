@@ -12,4 +12,7 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Subsuperspecies < NomenclaturalRank
     [NomenclaturalRank::Iczn::SpeciesGroup::Superspecies.to_s]
   end
 
+  def self.abbreviation
+    'subsupersp.'
+  end
 end

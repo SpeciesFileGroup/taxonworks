@@ -30,10 +30,10 @@
         :type="source.base_class"/>
     </span>
     <ul
-      v-if="source && source.authors.length"
+      v-if="source && source.author_roles.length"
       class="no_bullets">
       <li 
-        v-for="author in source.authors"
+        v-for="author in source.author_roles"
         :key="author.id">
         <a
           :href="`${author.object_url}`"
@@ -45,9 +45,9 @@
 <script>
 
   import Autocomplete from "components/autocomplete";
-  import RadialAnnotator from "components/annotator/annotator.vue";
+  import RadialAnnotator from "components/radials/annotator/annotator.vue";
   import PinComponent from "components/pin.vue"
-  import RadialObject from "components/radial_object/radialObject.vue"
+  import RadialObject from "components/radials/navigation/radial.vue"
   import DefaultSource from 'components/getDefaultPin'
 
   export default {
@@ -67,7 +67,7 @@
   methods: {
     getSource() {
       if (this.sourceID) {
-        this.$http.get('/sources/' + this.sourceID + '.json').then(response => {
+        this.$http.get(`/sources/${this.sourceID}.json`).then(response => {
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);

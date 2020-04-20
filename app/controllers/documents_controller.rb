@@ -83,10 +83,10 @@ class DocumentsController < ApplicationController
   private
 
   def set_document
-    @document = Document.find(params[:id])
+    @document = Document.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def document_params
-    params.require(:document).permit(:document_file, :initialize_start_page)  
+    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)  
   end
 end

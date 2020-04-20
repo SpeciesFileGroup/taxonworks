@@ -33,11 +33,6 @@
       <radial-annotator :global-id="citation.citation_object.global_id"/>
     </td>
     <td>
-      <otu-radial
-        :taxon-id="citation.citation_object_id"
-        :redirect="false"/>
-    </td>
-    <td>
       <span
         class="button circle-button btn-delete"
         @click="removeMe()"/>
@@ -47,7 +42,7 @@
 
 <script>
 
-  import RadialAnnotator from 'components/annotator/annotator'
+  import RadialAnnotator from 'components/radials/annotator/annotator'
   import OtuRadial from 'components/otu/otu'
   import extendedRow from './extendedRow.js'
 

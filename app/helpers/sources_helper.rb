@@ -2,7 +2,7 @@ module SourcesHelper
 
   def source_tag(source)
     return nil if source.nil?
-    source.cached ? source.cached.html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
+    source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
   def source_author_year_tag(source)
@@ -97,7 +97,7 @@ module SourcesHelper
   def source_nomenclature_tag(source, topics)
     t = [content_tag(:span, source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
-    t.push radial_object_tag(source)
+    t.push radial_navigation_tag(source)
     t.flatten.compact.join(' ').html_safe
   end
 

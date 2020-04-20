@@ -11,12 +11,18 @@ describe Identifier::Local, type: :model, group: :identifiers do
   let(:specimen2) {FactoryBot.create(:valid_specimen)}
 
   context 'validation' do
-    before(:each) {
-      local_identifier.valid?
-    }
+    before(:each) { local_identifier.valid? }
+
+    specify 'unsaved namespace prevents save' do
+      expect(Identifier::Local::AccessionCode.new(
+        identifier_object: specimen1,
+        namespace: Namespace.new,
+        identifier: '123').save).to be_falsey
+    end
+
     context 'requires' do
       specify 'namespace' do
-        expect(local_identifier.errors.include?(:namespace)).to be_truthy
+        expect(local_identifier.errors.include?(:namespace_id)).to be_truthy
       end
     end
 

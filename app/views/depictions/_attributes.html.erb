@@ -1,21 +1,62 @@
 <p>
-<strong>Depiction object:</strong>
-<%= object_link( @depiction.depiction_object.metamorphosize) %>
+  <strong>Depiction object:</strong>
+  <%= object_link( @depiction.depiction_object.metamorphosize) %>
 </p>
 
 <p>
   <strong>Image:</strong>
-
-  <div class="easyzoom easyzoom--overlay">
-    <%= link_to( image_tag(@depiction.image.image_file.url, 'class' => 'imageZoom'), @depiction.image.image_file.url ) %>
-  </div>
+  <%= link_to( depiction_tag(@depiction, size: :original), @depiction.image.image_file.url ) %>
 </p>
 
 <p>
-<strong>Is metadata depiction</strong>
-<%= @depiction.is_metadata_depiction -%>
+  <strong>Image id:</strong>
+  <%= @depiction.image.id %>
 </p>
 
+<div class="attribute_set" data-title="Caption etc.">
+  <p>
+    <strong>Caption</strong>
+    <%= @depiction.caption -%>
+  </p>
 
+  <p>
+    <strong>Figure label</strong>
+    <%= @depiction.figure_label-%>
+  </p>
+</div>
 
+<p>
+  <strong>Is metadata depiction</strong>
+  <%= @depiction.is_metadata_depiction -%>
+</p>
+
+<div class="attribute_set" data-title="SVG">
+  <p>
+    <strong>SVG clip</strong>
+    <%= @depiction.svg_clip -%>
+  </p>
+
+  <p>
+    <strong>SVG View box</strong>
+    <%= @depiction.svg_view_box -%>
+  </p>
+</div>
+
+<div class="attribute_set" data-title="Sled">
+  <p>
+    <strong>Sled image id</strong>
+    <%= link_to(@depiction.sled_image_id, grid_digitize_task_path(sled_image_id: @depiction.sled_image_id)) -%>
+  </p>
+
+  <p>
+    <strong>Sled image x position</strong>
+    <%= @depiction.sled_image_x_position -%>
+  </p>
+
+  <p>
+    <strong>Sled image x position</strong>
+    <%= @depiction.sled_image_y_position -%>
+  </p>
+
+</div>
 

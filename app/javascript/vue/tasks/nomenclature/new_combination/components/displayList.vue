@@ -19,6 +19,8 @@
         <placement-component
           @created="$emit('placement', item)"
           :combination="item"/>
+        <confidence-button
+          :global-id="item.global_id"/>
         <radial-annotator
           :global-id="item.global_id"/>
         <span
@@ -35,13 +37,15 @@
 </template>
 <script>
 
-import radialAnnotator from 'components/annotator/annotator.vue'
-import placementComponent from './placement.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import PlacementComponent from './placement.vue'
+import ConfidenceButton from 'components/defaultConfidence'
 
 export default {
   components: {
-    radialAnnotator,
-    placementComponent
+    RadialAnnotator,
+    PlacementComponent,
+    ConfidenceButton
   },
   props: {
     list: {

@@ -6,25 +6,36 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      pdf: {
-        type: Object,
-        required: true
+export default {
+  props: {
+    pdf: {
+      type: Object,
+      required: true
+    }
+  },
+  methods: {
+    loadPDF () {
+      let details
+      if (this.pdf.hasOwnProperty('file_url')) {
+        details = {
+          url: this.pdf.file_url
+        }
+      } else if (this.pdf.hasOwnProperty('document_file')) {
+        details = {
+          url: this.pdf.document_file
+        }
+      } else {
+        details = {
+          url: this.pdf.document.document_file,
+          pageNumber: this.pdf.target_page
+        }
       }
-    },
-    methods: {
-      loadPDF() {
-        let event = new CustomEvent('pdfviewer:loadpdf', {
-          detail: {
-            url: this.pdf.document.document_file,
-            pageNumber: this.pdf.target_page
-          }
-        })
-        document.dispatchEvent(event);
-      }
+      document.dispatchEvent(new CustomEvent('pdfViewer:load', {
+        detail: details
+      }))
     }
   }
+}
 </script>
 
 <style scoped>

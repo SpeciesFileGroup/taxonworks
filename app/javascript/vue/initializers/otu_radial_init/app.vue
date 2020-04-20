@@ -1,18 +1,19 @@
 <template>
-  <radial-annotator
+  <otu-radial
     :id="id"
     type="graph"
+    button-title="OTU quick forms"
     buttonClass="btn-hexagon-w button-default"
     :show-count="showCount"
     :global-id="globalId"/>
 </template>
 <script>
 
-  import RadialAnnotator from 'components/annotator/annotator.vue'
+  import OtuRadial from 'components/radials/object/radial.vue'
 
   export default {
     components: {
-      RadialAnnotator
+      OtuRadial
     },
     props: {
       id: {

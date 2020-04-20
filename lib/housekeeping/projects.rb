@@ -41,14 +41,14 @@ module Housekeeping::Projects
 
   def set_project_id
     if self.new_record?
-      self.project_id ||= Current.project_id || $project_id
+      self.project_id ||= Current.project_id
     end
   end
 
   # This will have to be extended via role exceptions, maybe.  It is a loose
   # check here, ripped right from mx.
   #def prevent_alteration_in_other_projects
-  #  # unless (self.project_id == $project_id)
+  #  # unless (self.project_id == Current.project_id)
   #  #   raise 'Not owned by current project: ' + self.name + '#' + self.id.to_s
   #  # end
   #end

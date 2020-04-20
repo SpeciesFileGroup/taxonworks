@@ -25,6 +25,7 @@ class TopicsController < ApplicationController
     render json: data
   end
 
+  # TODO: deprecate fully
   # POST /controlled_vocabulary_terms
   # POST /controlled_vocabulary_terms.json
   def create
@@ -61,23 +62,6 @@ class TopicsController < ApplicationController
     end
   end
 
-  # TODO: This format very different, should it be made same as other autocompletes?
-  def autocomplete
-    topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = topics.collect do |t|
-      str = t.name + ': ' + t.definition
-      {id:              t.id,
-       label:           str,
-       response_values: {
-         params[:method] => t.id},
-       label_html:      str
-      }
-    end
-
-    render json: data
-  end
-
   def lookup_topic
     @topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
     render(json: @topics.collect { |t|
@@ -94,8 +78,14 @@ class TopicsController < ApplicationController
     render(json: {definition: @topic.definition})
   end
 
+  # GET /topics/select_options?target=Citation&klass=TaxonName
+  # GET /topics/select_options?target=Content
   def select_options
-    @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass), params.permit(:target)[:target])
+    if params.require(:target) == 'Citation'
+      @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass), 'Citation')
+    elsif  params.require(:target) == 'Content'
+      @topics = Topic.select_optimized(sessions_current_user_id, sessions_current_project_id, nil, 'Content')
+    end
   end
 
 end

@@ -49,6 +49,7 @@
               @click="cloneCE">
               Clone
             </button>
+            <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
           </div>
           <component
             :is="actualComponent"
@@ -72,8 +73,8 @@
   import LockComponent from 'components/lock.vue'
   import BlockMap from  './components/map/main.vue'
   import BlockLayout from 'components/blockLayout.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import RadialObject from 'components/radial_object/radialObject.vue'
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import RadialObject from 'components/radials/navigation/radial.vue'
   import { GetterNames } from '../../store/getters/getters.js'
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions.js'
@@ -154,7 +155,7 @@
       GetCollectingEventsSmartSelector().then(response => {
         this.tabs = orderSmartSelector(Object.keys(response))
         this.lists = response
-        this.view = selectFirstSmartOption(response, this.tabs)
+        this.view = selectFirstSmartOption(response, this.tabs) ? selectFirstSmartOption(response, this.tabs) : 'search'
       })
     },
     methods: {

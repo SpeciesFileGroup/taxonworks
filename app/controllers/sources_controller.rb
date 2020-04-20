@@ -1,7 +1,8 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_source, only: [:show, :edit, :update, :destroy]
+  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
+  after_action -> { set_pagination_headers(:sources) }, only: [:index ], if: :json_request?
 
   # GET /sources
   # GET /sources.json
@@ -12,7 +13,11 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 500)
+      }
+      format.bib {
+        # TODO - handle count and download
+        @sources = Queries::Source::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per] || 2000)
       }
     end
   end
@@ -26,13 +31,23 @@ class SourcesController < ApplicationController
   def show
   end
 
-  # GET /sources/new
-  def new
-    @source = Source.new
+  # POST /sources/1/clone.json
+  def clone
+    @source = @source.clone
+    respond_to do |format|
+      format.html { redirect_to edit_source_path(@source), notice: 'Clone successful, on new record.' }
+      format.json { render :show }
+    end
   end
 
   # GET /sources/1/edit
   def edit
+    redirect_to new_source_task_path(source_id: @source.id), notice: 'Editing in new interface.'
+  end
+
+  # GET /sources/new
+  def new
+    redirect_to new_source_task_path, notice: "Redirected to new interface."
   end
 
   # POST /sources
@@ -40,13 +55,13 @@ class SourcesController < ApplicationController
   def create
     @source = new_source 
     respond_to do |format|
-      if @source.save
+      if @source&.save
         format.html { redirect_to url_for(@source.metamorphosize),
                       notice: "#{@source.type} successfully created." }
         format.json { render action: 'show', status: :created, location: @source.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source&.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -56,11 +71,28 @@ class SourcesController < ApplicationController
     @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
+  # GET /sources/citation_object_types.json
+  def citation_object_types
+    render json: Source.joins(:citations)
+      .where(citations: {project_id: sessions_current_project_id})
+      .select('citations.project_id, citations.citation_object_type')
+      .distinct
+      .pluck(:citation_object_type).sort
+  end
+
   def parse
-    if @source = new_source
+    error_message = 'Unknown'
+
+    begin
+      @source = new_source
+    rescue BibTeX::ParseError => e
+      error_message = e.message
+    end
+
+    if @source
       render '/sources/show'
     else
-      render json: {status: :failed}
+      render json: { status: :failed, error: error_message }
     end
   end
 
@@ -69,8 +101,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
+        @source.reload
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
         format.html { render action: 'edit' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
@@ -157,17 +190,24 @@ class SourcesController < ApplicationController
 
   # GET /sources/download
   def download
-    send_data Download.generate_csv(Source.all), type: 'text', filename: "sources_#{DateTime.now}.csv"
+    send_data Export::Download.generate_csv(
+      Source.joins(:project_sources)
+      .where(project_sources: {project_id: sessions_current_project_id})
+      .all),
+    type: 'text', filename: "sources_#{DateTime.now}.csv"
+  end
+
+  # GET /sources/generate.json?<filter params>
+  def generate 
+    sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
+    @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
+    render '/downloads/show' 
   end
 
   private
 
   def new_source
-    if params[:bibtex_input].blank?
-      Source.new(source_params)
-    else
-      Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])
-    end
+    (params[:bibtex_input].blank? ? Source.new(source_params) : Source::Bibtex.new_from_bibtex_text(params[:bibtex_input])) || nil
   end
 
   def autocomplete_params
@@ -175,9 +215,40 @@ class SourcesController < ApplicationController
   end
 
   def filter_params
-    params.permit(:query_term, :project_id, :recent, author_ids: [])
+    params[:project_id] = sessions_current_project_id
+    params.permit(
+      :author,
+      :citations,
+      :documents,
+      :exact_author,
+      :exact_title,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :in_project,
+      :namespace_id,
+      :nomenclature,
+      :notes,
+      :project_id,
+      :query_term,
+      :recent, 
+      :roles,
+      :source_type,
+      :tags,
+      :title,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :with_doi,
+      :year_end,
+      :year_start,
+      author_ids: [],
+      citation_object_type: [],
+      keyword_ids: []
+    )
   end
-
 
   def set_source
     @source = Source.find(params[:id])

@@ -5,13 +5,12 @@
         <h3>Collection Object</h3>
       </div>
       <div
+        v-shortkey="[getMacKey(), 't']"
+        @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
         class="horizontal-left-content">
         <radial-annotator
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
-        <radial-object
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
         <default-tag
@@ -57,7 +56,7 @@
             object-type="CollectionObject"
             @create="createDepictionForAll"
             @delete="removeAllDepictionsByImageId"
-            default-message="Drop images here<br> to add collection object figures"
+            default-message="Drop images or click here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
           <div class="middle">
             <expand-component
@@ -76,9 +75,11 @@
             :show-spinner="false"
             legend="Locked until first save"/>
           <predicates-component
+            v-if="projectPreferences"
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
+            :modelPreferences="projectPreferences.model_predicate_sets.CollectionObject"
             @onUpdate="setAttributes"
           />
         </div>
@@ -102,8 +103,8 @@
   import { MutationNames } from '../../store/mutations/mutations.js'
   import { ActionNames } from '../../store/actions/actions'
   import BlockLayout from 'components/blockLayout.vue'
-  import RadialAnnotator from 'components/annotator/annotator.vue'
-  import RadialObject from 'components/radial_object/radialObject.vue'
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import RadialObject from 'components/radials/navigation/radial.vue'
   import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
   import DefaultTag from 'components/defaultTag.vue'
 
@@ -133,6 +134,9 @@
         set(value) {
           this.$store.commit(MutationNames.SetPreferences, value)
         }
+      },
+      projectPreferences () {
+        return this.$store.getters[GetterNames.GetProjectPreferences]
       },
       collectionObject () {
         return this.$store.getters[GetterNames.GetCollectionObject]
@@ -229,7 +233,7 @@
         })
 
         let coDepictions = this.depictions.filter(depiction => {
-          return depiction.depiction_object.id == this.collectionObject.id
+          return depiction.depiction_object_id == co.id
         })
 
         depictionsRemovedDuplicate.forEach(depiction => {
@@ -257,6 +261,11 @@
       },
       removeAllDepictionsByImageId(depiction) {
         this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+      },
+      openBrowse () {
+        if (this.collectionObject.id) {
+          window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
+        }
       }
     }
   }

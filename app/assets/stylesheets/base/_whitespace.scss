@@ -41,6 +41,86 @@ $pane_margin: .2em;
   margin: 0px !important;
 }
 
+.margin-small {
+  margin: $standard_margin*0.5;
+}
+
+.margin-medium {
+  margin: $standard_margin;
+}
+
+.margin-large {
+  margin: $standard_margin*1.5;
+}
+
+.margin-small-top {
+  margin-top: $standard_margin*0.5;
+}
+
+.margin-medium-top {
+  margin-top: $standard_margin;
+}
+
+.margin-large-top {
+  margin-top: $standard_margin*1.5;
+}
+
+.margin-small-left {
+  margin-left: $standard_margin*0.5;
+}
+
+.margin-medium-left {
+  margin-left: $standard_margin;
+}
+
+.margin-large-left {
+  margin-left: $standard_margin*1.5;
+}
+
+.margin-small-right {
+  margin-right: $standard_margin*0.5;
+}
+
+.margin-medium-right {
+  margin-right: $standard_margin;
+}
+
+.margin-large-right {
+  margin-right: $standard_margin*1.5;
+}
+
+.margin-small-bottom {
+  margin-bottom: $standard_margin*0.5;
+}
+
+.margin-medium-bottom {
+  margin-bottom: $standard_margin;
+}
+
+.margin-large-bottom {
+  margin-bottom: $standard_margin*1.5;
+}
+
+.margin-remove {
+  margin: 0px;
+}
+
+.margin-remove-left {
+  margin-left: 0px;
+}
+
+.margin-remove-right {
+  margin-right: 0px;
+}
+
+.margin-remove-top {
+  margin-top: 0px;
+}
+
+.margin-remove-bottom {
+  margin-bottom: 0px;
+}
+
 .no-padding {
   padding: 0px !important;
 }

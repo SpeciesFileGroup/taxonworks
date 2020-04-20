@@ -49,12 +49,21 @@ class Image < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
+  include Image::Sled
+
   attr_accessor :rotate
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
+  DEFAULT_SIZES = {
+    thumb: { width: 100, height: 100 },
+    medium: { width: 300, height: 300 }
+  }.freeze
+
+  has_one :sled_image, dependent: :destroy
+
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
-  
+
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
   has_many :taxon_names, through: :otus
@@ -63,10 +72,13 @@ class Image < ApplicationRecord
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
-    styles: {medium: ['300x300>', :jpg], thumb: ['100x100>', :png]},
-    default_url: MISSING_IMAGE_PATH,
-    filename_cleaner:  Utilities::CleanseFilename,
-    processors: [:rotator]
+    styles: {
+    thumb: [ "#{DEFAULT_SIZES[:thumb][:width]}x#{DEFAULT_SIZES[:thumb][:height]}>", :png ] ,
+    medium: [ "#{DEFAULT_SIZES[:medium][:width]}x#{DEFAULT_SIZES[:medium][:height]}>", :jpg ]
+  },
+  default_url: MISSING_IMAGE_PATH,
+  filename_cleaner: Utilities::CleanseFilename,
+  processors: [:rotator]
 
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
@@ -74,6 +86,8 @@ class Image < ApplicationRecord
   validates_attachment_size :image_file, greater_than: 1.kilobytes
 
   soft_validate(:sv_duplicate_image?)
+
+  accepts_nested_attributes_for :sled_image, allow_destroy: true
 
   # @return [Boolean]
   def has_duplicate?
@@ -127,7 +141,6 @@ class Image < ApplicationRecord
     # create a utility library called "GeoConvert" and define single method
     # that will convert from degrees min sec to decimal degree
     # - maybe 2 versions? - one returns string, other decimal?
-
   end
 
   # Returns the true, unscaled height/width ratio
@@ -216,13 +229,14 @@ class Image < ApplicationRecord
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
-    cropped = img.crop(
-                       params[:x].to_i,
-                       params[:y].to_i,
-                       params[:width].to_i,
-                       params[:height].to_i,
-                       true
-                      )
+    begin
+    # img.crop(x, y, width, height, true)
+      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
+    rescue RuntimeError
+      cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
+    ensure
+      img.destroy!      
+    end
     cropped
   end
 
@@ -230,7 +244,9 @@ class Image < ApplicationRecord
   # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
-    c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    c.destroy!
+    resized
   end
 
   # @param [ActionController::Parameters] params
@@ -240,37 +256,52 @@ class Image < ApplicationRecord
     ratio = c.columns.to_f / c.rows.to_f
     box_ratio = params[:box_width].to_f / params[:box_height].to_f
 
+    # TODO: special considerations for 1:1?
+
     if box_ratio > 1
       if ratio > 1 # wide into wide
-        c.resize(params[:box_width ].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
+        scaled = c.resize(
+          params[:box_width].to_i,
+          (params[:box_height].to_f / ratio * box_ratio).to_i
+        )
       else # tall into wide
-        c.resize((params[:box_width ].to_f * ratio / box_ratio).to_i, params[:box_height].to_i )
+        scaled = c.resize(
+          (params[:box_width ].to_f * ratio / box_ratio).to_i,
+          params[:box_height].to_i )
       end
     else # <
       if ratio > 1 # wide into tall
-        c.resize(params[:box_width].to_i, (params[:box_height].to_f / ratio * box_ratio).to_i)
-      else # tall into tall
-        c.resize((params[:box_width ].to_f * ratio * box_ratio ).to_i, (params[:box_height].to_f ).to_i)
+        scaled = c.resize(
+          params[:box_width].to_i,
+          (params[:box_height].to_f / ratio * box_ratio).to_i)
+      else # tall into tall # TODO: or 1:1?!
+        scaled = c.resize(
+          (params[:box_width ].to_f * ratio * box_ratio ).to_i,
+          (params[:box_height].to_f ).to_i
+        )
       end
     end
+    c.destroy!
+
+    scaled
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.scaled_to_box_blob(params)
-    scaled_to_box(params).to_blob
+    self.to_blob!(scaled_to_box(params))
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.resized_blob(params)
-    resized(params).to_blob
+    self.to_blob!(resized(params))
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [String]
   def self.cropped_blob(params)
-    cropped(params).to_blob
+    self.to_blob!(cropped(params))
   end
 
   protected
@@ -295,9 +326,23 @@ class Image < ApplicationRecord
   # @return [Object]
   def sv_duplicate_image?
     if has_duplicate?
-      soft_validations.add(:image_file_fingerprint,
-                           'This image is a duplicate of an image already stored.')
+      soft_validations.add(
+        :image_file_fingerprint,
+        'This image is a duplicate of an image already stored.')
     end
+  end
+
+  private
+
+  # Converts image to blob and releases memory of img (image cannot be used afterwards)
+  # @param [Magick::Image] img
+  # @return [String] a JPG representation of the image
+  # !! Always converts to .jpg, this may need abstraction later
+  def self.to_blob!(img)
+    img.format = 'jpg'
+    blob = img.to_blob
+    img.destroy!
+    blob
   end
 
 end

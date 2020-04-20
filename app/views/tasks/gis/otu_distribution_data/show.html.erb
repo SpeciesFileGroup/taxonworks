@@ -4,12 +4,12 @@
     <div class="item item1">
 
       <% if @taxon_name %>
-             <h3>Taxon name: <%= object_link(@taxon_name) %> <%= radial_object_tag(@taxon_name) -%></h3>
+             <h3>Taxon name: <%= object_link(@taxon_name) %> <%= radial_navigation_tag(@taxon_name) -%></h3>
         <p><%= distribution_previous_next(@taxon_name, 'Taxon name') %></p>
       <% end %>
 
       <% if @otu %>
-        <h3>Otu: <%= object_link(@otu) %> <%= radial_object_tag(@otu) -%> </h3>
+        <h3>Otu: <%= object_link(@otu) %> <%= radial_navigation_tag(@otu) -%> </h3>
         <p><%= distribution_previous_next(@otu, 'Otu', @distribution) %></p>
       <% end %>
 

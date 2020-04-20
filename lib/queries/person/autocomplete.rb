@@ -1,6 +1,10 @@
 module Queries
   module Person
+    
     class Autocomplete < Queries::Query
+
+      include Queries::Concerns::AlternateValues
+      include Queries::Concerns::Tags
 
       # @return [Array]
       # @param limit_to_role [String] any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector` ... etc.
@@ -10,8 +14,11 @@ module Queries
       # project_id - the target project in general
 
       # @param [Hash] args
-      def initialize(string, roles: :all)
-        @limit_to_roles = roles
+      def initialize(string, params = {})
+        @limit_to_roles = params[:roles] # roles
+        set_identifier(params)
+        set_tags_params(params)
+        set_alternate_value(params)
         super
       end
 
@@ -52,6 +59,14 @@ module Queries
         ).limit(20)
       end
 
+      def autocomplete_alternate_values_last_name
+        matching_alternate_value_on(:last_name).limit(20) 
+      end
+
+      def autocomplete_alternate_values_first_name
+        matching_alternate_value_on(:first_name).limit(20) 
+      end
+
       # TODO: Use bibtex parser!!
       # @param [String] string
       # @return [String]
@@ -83,7 +98,12 @@ module Queries
         queries = [
           autocomplete_exact_match,
           autocomplete_exact_inverted,
+          autocomplete_identifier_cached_exact,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_exact_id,
           autocomplete_exact_last_name_match,
+          autocomplete_alternate_values_last_name,
+          autocomplete_alternate_values_first_name,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query
           autocomplete_cached

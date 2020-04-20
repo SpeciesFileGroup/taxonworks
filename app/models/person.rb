@@ -135,6 +135,13 @@ class Person < ApplicationRecord
     roles.reload.any?
   end
 
+  # @return Boolean
+  #   whether or not this Person is linked to any data in the project
+  def used_in_project?(project_id)
+    Role.where(person_id: id, project_id: project_id).any? || 
+      Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
+  end
+
   # @return [String]
   def name
     [first_name, prefix, last_name, suffix].compact.join(' ')
@@ -405,6 +412,7 @@ class Person < ApplicationRecord
   # @param [String] name_string
   # @return [Array] of Hashes
   #   use citeproc to parse strings
+  #   see also https://github.com/SpeciesFileGroup/taxonworks/issues/1161
   def self.parser(name_string)
     BibTeX::Entry.new(type: :book, author: name_string).parse_names.to_citeproc['author']
   end
@@ -446,19 +454,27 @@ class Person < ApplicationRecord
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
+
+#    byebug if role_type == 'Determiner'
+
     h = {
-      quick:    [],
+      quick: [],
       pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
     }
 
-    h[:recent] = Person.joins(:roles).where(roles: {project_id: project_id, type: role_type}).
-      used_recently(role_type).
-      limit(10).distinct.to_a
+    role_params = { updated_by_id: user_id }
+
+    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
+      role_params[:project_id] = project_id
+    end
+
+    h[:recent] = (
+      Person.joins(:roles).where(roles: role_params).used_recently(role_type).limit(10).distinct.to_a +
+      Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
 
     h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
-
 
   protected
 

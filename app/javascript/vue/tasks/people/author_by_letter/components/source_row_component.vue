@@ -16,7 +16,7 @@
       <add-to-project
         :id="source.id"
         :in_project="source.source_in_project"
-        :project_source_id="source.project_source_id"/>
+        :project-source-id="source.project_source_id"/>
     </td>
   </tr>
 </template>
@@ -25,7 +25,7 @@
 
   import Pin from 'components/pin'
   import AddToProject from 'components/addToProjectSource'
-  import RadialObject from 'components/radial_object/radialObject'
+  import RadialObject from 'components/radials/navigation/radial'
 
   export default {
     components: {

@@ -1,25 +1,19 @@
 require 'rails_helper'
 
 describe Queries::Otu::Autocomplete, type: :model do
+  let!(:otu) { Otu.create!(name: name) }
+  let(:name) { 'Test' }
+  let(:query) { Queries::Otu::Autocomplete.new('Test') }
+  let(:other_project) { FactoryBot.create(:valid_project, name: 'other') }
 
-  let(:query) { Queries::Otu::Autocomplete.new('') }
+  specify 'named' do
+    expect(query.autocomplete).to include(otu)
+  end
 
-  context 'methods' do
-
-    specify '#authorship 1' do
-      query.query_string = 'Aus bus Smith'
-      expect(query.authorship).to eq('Smith') 
-    end
-
-    specify '#authorship 2' do
-      query.query_string = 'Aus bus 1'
-      expect(query.authorship).to eq(nil) 
-    end
-
-    specify '#authorship 3' do
-      query.query_string = 'Semiotellus species 1'
-      expect(query.authorship).to eq(nil) 
-    end
-  end 
+  specify '#project_id' do
+    o = Otu.create!(project: other_project, name: name)
+    q = Queries::Otu::Autocomplete.new('Test', project_id: Current.project_id)
+    expect(q.autocomplete).to contain_exactly(otu)
+  end
 
 end

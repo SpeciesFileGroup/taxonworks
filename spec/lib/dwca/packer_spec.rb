@@ -32,7 +32,7 @@ describe Dwca::Packer::Data, type: :model do
       end
 
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-      let(:headers) { ['basisOfRecord' ] }  
+      let(:headers) { ['basisOfRecord', 'individualCount' ] }  
 
       context 'various scopes' do
         specify 'with .where clauses' do
@@ -63,11 +63,11 @@ describe Dwca::Packer::Data, type: :model do
       end
 
       specify 'generated headers are restricted to data' do
-        expect(csv.headers).to contain_exactly('id', 'basisOfRecord') 
+        expect(csv.headers).to contain_exactly('id', 'basisOfRecord', 'individualCount') 
       end
 
       specify '#csv_headers can be returned, and exclude id' do
-        expect(data.csv_headers).to contain_exactly('basisOfRecord') 
+        expect(data.csv_headers).to contain_exactly(*headers) 
       end
 
       context 'files' do

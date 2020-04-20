@@ -89,7 +89,7 @@ export default {
       return tempUrl + params
     },
     makeUrl: function (id) {
-      return '/tasks/nomenclature/new_taxon_name/' + id
+      return `/tasks/nomenclature/new_taxon_name?taxon_name_id=${id}`
     },
     sendItem: function (item) {
       this.$emit('getItem', item)
@@ -150,7 +150,7 @@ export default {
   }
 
   .find-taxonname-picker-width {
-    width: 510px;
+    width: 100%;
   }
 
   .find-taxonname-list {

@@ -3,8 +3,8 @@ FactoryBot.define do
     factory :valid_namespace do
       # name 'All my things'
       # short_name 'AMT'
-      name { Faker::Lorem.sentence }
-      short_name { Faker::Lorem.word + Faker::Number.number(5).to_s }
+      name { Faker::Lorem.unique.sentence }
+      short_name { Faker::Lorem.unique.word + Faker::Number.number(digits: 5).to_s }
     end
   end
 end

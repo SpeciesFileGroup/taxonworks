@@ -10,6 +10,16 @@ module DocumentsHelper
     link_to(document_tag(document).html_safe, document)
   end
 
+  def document_download(document)
+    return nil if document.nil?
+    link_to(
+      '',
+      document.document_file.url(),
+      class: ['circle-button', 'btn-download'],
+      download: document.document_file_file_name,
+      title: document.document_file_file_name) 
+  end
+
   def documents_search_form
     render('/documents/quick_search_form')
   end

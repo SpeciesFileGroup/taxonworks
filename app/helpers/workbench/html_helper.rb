@@ -9,7 +9,9 @@ module Workbench::HtmlHelper
     return nil if string.nil?
     return string if term.nil?
     t = Regexp.escape(term)
-    string.gsub(/(#{t})/i, content_tag(:mark, '\1')).html_safe
+
+    # (?!>) Don't substitute if the next character is a closing paren
+    string.gsub(/(#{t})(?!>)/i, content_tag(:mark, '\1')).html_safe
   end
 
 end

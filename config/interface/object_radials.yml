@@ -11,25 +11,10 @@
 #   home: where requested, use this path rather than show
 #
 ---
-Source:
+AssertedDistribution:
   tasks:
-    - index_hub_task
-    - new_verbatim_reference_task
-    - nomenclature_by_source_task
-    - index_individual_bibtex_source_task
-  config:
-    recent: true
-TaxonName:
-  tasks:
-    - browse_nomenclature_task 
-    - new_taxon_name_task 
-    - new_combination_task
-    - edit_type_material_task
-    - browse_otus_task
-    - index_stats_task 
-    - otu_distribution_data_task
-  edit: new_taxon_name_task
-  home: browse_nomenclature_task
+    - asserted_distributions_basic_endemism_task 
+    - new_asserted_distribution_from_map_task
   config:
     recent: true
 Combination:
@@ -41,25 +26,30 @@ Combination:
   new: new_combination_task
   config:
     recent: true
-Otu:
-  tasks:
-    - browse_otus_task
-    - comprehensive_collection_object_task
-    - otus_filter_task
-    - cite_otus_task_task
-    - otu_distribution_data_task
-    - index_editor_task
-  config:
-    recent: true
 CollectionObject:
   tasks:
-    - collection_objects_filter_task
-    - comprehensive_collection_object_task
-    - report_dwc_task
     - browse_collection_objects_task
+    - comprehensive_collection_object_task
+    - browse_collecting_events_task
+    - collection_objects_filter_task
     - build_biocuration_groups_task
+    - report_dwc_task
   config: 
     recent: true
+  edit: comprehensive_collection_object_task
+  new: comprehensive_collection_object_task
+CollectingEvent:
+  tasks:
+    - browse_collecting_events_task
+    - comprehensive_collection_object_task
+    - filter_collecting_events_task
+  config: 
+    recent: true
+GeographicArea:
+  tasks:
+    - asserted_distributions_basic_endemism_task 
+  config:
+    recent: false
 Loan:
   tasks:
     - overdue_loans_task
@@ -73,8 +63,43 @@ ObservationMatrix:
     - observation_matrices_hub_task
   config:
     recent: true    
+Otu:
+  tasks:
+    - browse_otus_task
+    - comprehensive_collection_object_task
+    - otus_filter_task
+    - cite_otus_task_task
+    - index_browse_asserted_distributions_task 
+    - otu_distribution_data_task
+    - index_editor_task
+  config:
+    recent: true
 Person:
   tasks:
     - uniquify_people_task
+  config:
+    recent: true
+Source:
+  tasks:
+    - source_hub_task
+    - new_source_task
+    - filter_sources_task   
+    - nomenclature_by_source_task
+  new: new_source_task
+  edit: new_source_task
+  config:
+    recent: true
+TaxonName:
+  tasks:
+    - browse_nomenclature_task 
+    - new_taxon_name_task 
+    - new_combination_task
+    - edit_type_material_task
+    - browse_otus_task
+    - index_stats_task 
+    - otu_distribution_data_task
+    - asserted_distributions_basic_endemism_task
+  edit: new_taxon_name_task
+  new: new_taxon_name_task
   config:
     recent: true

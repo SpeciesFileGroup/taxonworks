@@ -10,7 +10,7 @@
   #filter {
     margin-top: 0px;
     margin-right: $standard_margin; 
-    font-weight: 300;
+    font-weight: $font_light;
     position:relative;
 
     #search-filter {
@@ -25,14 +25,19 @@
 
     .filter-title {
       font-size: $font_small; 
-      font-weight: 300;
+      font-weight: $font_light;
       color:gray;
     }
 
-    .navigation-controls {
-      flex-direction: column;
-      justify-content: flex-start ;
-      text-align: left;
+    .navigation-controls-type  {
+      .navigation-item {
+        border: 1px solid #e5e5e5;
+        justify-content: center;
+        border-right: 0px;
+      }
+      .navigation-item:first-child {
+        border-left: 0px;
+      }
     }
 
     .navigation-item {

@@ -93,10 +93,16 @@ class DepictionsController < ApplicationController
     end
   end
 
+  # GET /depictions/download
+  def download
+    send_data Export::Download.generate_csv(
+      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.csv"
+  end
+
   private 
 
   def set_depiction
-    @depiction = Depiction.find(params[:id])
+    @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def depiction_params
@@ -106,7 +112,11 @@ class DepictionsController < ApplicationController
       :is_metadata_depiction,
       :image_id,
       :figure_label,
-      image_attributes: [:image_file],
+      image_attributes: [
+        :image_file,
+        tags_attributes: [:id, :keyword_id, :_destroy],
+        identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
+      ],
       sqed_depiction_attributes: [:id, :_destroy, :boundary_color, :boundary_finder, :has_border, :layout, metadata_map: {}]
     )
   end

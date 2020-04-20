@@ -126,7 +126,11 @@ module Workbench::SessionsHelper
   end
 
   def is_project_member?(user, project)
-    project.project_members.include?(user)
+    project.project_members.include?(user) # TODO - change to ID
+  end
+
+  def is_project_member_by_id(user_id, project_id)
+    ProjectMember.where(user_id: user_id, project_id: project_id).any?
   end
 
   def authorize_project_selection(user, project)
@@ -173,7 +177,7 @@ module Workbench::SessionsHelper
     [
       project_settings_link,
       administration_link,
-      link_to('Account', sessions_current_user),
+      link_to('Account', sessions_current_user, data: { 'current-user-id': sessions_current_user.id.to_s }),
       link_to('Sign out', signout_path, method: :delete, id: 'sign_out')
     ]
   end
@@ -200,7 +204,7 @@ module Workbench::SessionsHelper
   end
 
   def project_settings_link
-    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project)) : nil
+    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project), data: {project_id: sessions_current_project_id}) : nil
   end
 
   def administration_link

@@ -12,7 +12,7 @@ class BiologicalRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @biological_relationships = BiologicalRelationship.where(filter_sql).with_project_id(sessions_current_project_id).order(:name)
+        @biological_relationships = BiologicalRelationship.with_project_id(sessions_current_project_id).order(:name)
       }
     end
   end
@@ -98,13 +98,13 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   def set_biological_relationship
-    @biological_relationship = BiologicalRelationship.find(params[:id])
+    @biological_relationship = BiologicalRelationship.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def biological_relationship_params
     params.require(:biological_relationship).permit(
       :name, :inverted_name, :is_transitive, :is_reflexive, 
-      :created_by_id, :updated_by_id, :project_id,
+      biological_relationship_types_attributes: [:id, :_destroy, :type, :biological_property_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
   end

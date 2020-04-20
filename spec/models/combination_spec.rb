@@ -15,10 +15,10 @@ describe Combination, type: :model, group: :nomenclature do
     context 'has_one' do
       context 'taxon_name_relationship' do
         Combination::APPLICABLE_RANKS.each do |rank|
-          method = "#{rank}_taxon_name_relationship" 
+          method = "#{rank}_taxon_name_relationship"
           specify method do
             expect(combination.send("#{method}=", TaxonNameRelationship.new)).to be_truthy
-          end 
+          end
         end
       end
 
@@ -42,7 +42,7 @@ describe Combination, type: :model, group: :nomenclature do
   end
 
   context 'validation' do
-    
+
     before { combination.valid? }
 
     specify 'is invalid without at least two protonyms' do
@@ -119,7 +119,7 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify 'scope with_cached_original_combination' do
       basic_combination.save
-      expect(Combination.with_cached_html('<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(basic_combination)
+      expect(Combination.where(cached_html: '<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(basic_combination)
     end
 
     specify 'scope with_protonym_at_rank' do
@@ -169,7 +169,7 @@ describe Combination, type: :model, group: :nomenclature do
     specify '.match_exists? nil name' do
       expect(Combination.match_exists?(nil, genus: genus.id, species: species.id)).to eq(basic_combination)
     end
-    
+
     specify '.match_exists? empty string name' do
       expect(Combination.match_exists?("", genus: genus.id, species: species.id)).to eq(basic_combination)
     end
@@ -199,7 +199,7 @@ describe Combination, type: :model, group: :nomenclature do
       species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: genus.id, species: species.id, subspecies: nil).to_a).to contain_exactly(species)
     end
-    
+
     specify '.matching_protonyms 5' do
       species.update(original_genus: genus, original_subgenus: genus, original_species: species)
       expect(Combination.matching_protonyms(nil, genus: genus.id, subgenus: nil, species: species.id, subspecies: nil).to_a).to contain_exactly()
@@ -213,8 +213,8 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify '#is_current_placement?' do
       expect(basic_combination.is_current_placement?).to eq(true)
-    end 
-    
+    end
+
     context '#protonyms' do
       specify 'are returned for unsaved Combinations' do
         expect(basic_combination.protonyms).to eq([genus, species])
@@ -231,7 +231,7 @@ describe Combination, type: :model, group: :nomenclature do
         combination.genus = genus
         combination.subgenus = genus
         combination.species = species
-        combination.subspecies = species2 
+        combination.subspecies = species2
         expect(combination.protonyms_by_rank).to eq(
           'genus' => genus,
           'subgenus' => genus,
@@ -274,6 +274,12 @@ describe Combination, type: :model, group: :nomenclature do
       expect(basic_combination.cached).to eq('Erythroneura vitis')
     end
 
+    specify 'cached_author_year on protonym author update' do
+      basic_combination.save
+      species.update!(verbatim_author: 'Zord')
+      expect(basic_combination.reload.cached_author_year).to eq('Zord, 1951')
+    end
+
     context 'cached_html' do
       specify 'with genus and species' do
         basic_combination.save
@@ -284,6 +290,8 @@ describe Combination, type: :model, group: :nomenclature do
         combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         expect(combination.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis comes</i>')
       end
+
+
     end
 
     specify 'cached values update on changed relationship' do
@@ -309,7 +317,7 @@ describe Combination, type: :model, group: :nomenclature do
 
   context '#destroy' do
     before { basic_combination.save }
-    
+
     specify 'works' do
       expect(basic_combination.destroy).to be_truthy
     end
@@ -377,21 +385,21 @@ describe Combination, type: :model, group: :nomenclature do
 
       specify '#combination_taxon_names' do
         expect(basic_combination.save).to be_truthy
-        expect(basic_combination.combination_taxon_names.to_a).to include(genus, species) 
+        expect(basic_combination.combination_taxon_names.to_a).to include(genus, species)
       end
 
       specify '#combination_relationships' do
         expect(basic_combination.save).to be_truthy
-        expect(basic_combination.combination_relationships.count).to eq(2) 
+        expect(basic_combination.combination_relationships.count).to eq(2)
       end
 
       specify 'generated taxon name relationships are the right type' do
         expect(basic_combination.save).to be_truthy
-        expect(basic_combination.related_taxon_name_relationships.pluck('type')).to include('TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Genus') 
+        expect(basic_combination.related_taxon_name_relationships.pluck('type')).to include('TaxonNameRelationship::Combination::Species', 'TaxonNameRelationship::Combination::Genus')
       end
 
       context 'combination_class_relationships' do
-        before { 
+        before {
           combination.update(genus: genus, subgenus: genus, species: species, subspecies: species2)
         }
 
@@ -436,8 +444,6 @@ describe Combination, type: :model, group: :nomenclature do
 
     end
   end
-
-
 
   context 'concerns' do
     it_behaves_like 'citations'

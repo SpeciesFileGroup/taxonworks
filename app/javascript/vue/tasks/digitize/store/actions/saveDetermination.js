@@ -16,17 +16,22 @@ export default function ({ commit, state }, determination) {
     if(ValidateDetermination(taxon_determination)) {
       if(taxon_determination.id) {
         UpdateTaxonDetermination(taxon_determination).then(response => {
-          commit(MutationNames.SetTaxonDetermination, response)
+          //commit(MutationNames.SetTaxonDetermination, response)
           addToList(response)
           resolve(response)
+        }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
+          reject(response)
         })
       }
       else {
         CreateTaxonDetermination(taxon_determination).then(response => {
-          commit(MutationNames.SetTaxonDetermination, response)
-          commit(MutationNames.SetTaxonDetermination, TaxonDetermination())
+          state.collection_object.object_tag = response.collection_object.object_tag
           addToList(response)
           resolve(response)
+        }, (response) => {
+          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
+          reject(response)
         })
       }
     }

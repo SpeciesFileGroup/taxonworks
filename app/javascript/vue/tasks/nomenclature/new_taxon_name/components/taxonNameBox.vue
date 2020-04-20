@@ -15,9 +15,7 @@
     <div class="panel basic-information">
       <div class="content header">
         <h3
-          v-if="taxon.id"
-          v-shortkey="[getMacKey(), 'p']"
-          @shortkey="loadParent()"          
+          v-if="taxon.id"       
           class="flex-separate middle">
           <a
             v-shortkey="[getMacKey(), 't']"
@@ -55,8 +53,8 @@
 <script>
 
 import OtuRadial from 'components/otu/otu.vue'
-import RadialAnnotator from 'components/annotator/annotator.vue'
-import RadialObject from 'components/radial_object/radialObject.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
 import PinObject from 'components/pin.vue'
 
@@ -141,7 +139,6 @@ export default {
     loadParent() {
       if(this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
-          console.log(response)
           window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.parent_id}`, '_self')
         })
       }

@@ -8,7 +8,14 @@ module Queries
       def initialize(params = {})
         @otu_ids = params[:otu_ids]
         @biological_collection_object_ids = params[:biological_collection_object_ids]
+     
+        if !params[:collection_object_id].blank? 
+          @biological_collection_object_ids ||= []
+          @biological_collection_object_ids.push(params[:collection_object_id])
+        end
+
         @determiner_ids = params[:determiner_ids]
+        
         @otu_ids ||= []
         @biological_collection_object_ids ||= []
         @determiner_ids ||= []
@@ -61,6 +68,7 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      # TODO: may require specific select('taxon_determinations.*, ...') to function wth order etc. 
       def base_query
         ::TaxonDetermination.includes(:determiners)
       end

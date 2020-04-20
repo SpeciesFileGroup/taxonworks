@@ -562,7 +562,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'cus', parent: @genus)
         t1 = FactoryBot.create(:valid_type_material, protonym: s1, type_type: 'holotype')
-        t2 = FactoryBot.create(:valid_type_material, protonym: s2, type_type: 'neotype', biological_object_id: t1.biological_object_id)
+        t2 = FactoryBot.create(:valid_type_material, protonym: s2, type_type: 'neotype', collection_object_id: t1.collection_object_id)
         expect(s1.save).to be_truthy
         expect(s2.save).to be_truthy
         s1.soft_validate(:homotypic_synonyms)
@@ -661,6 +661,41 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(f3.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
+      specify 'type genus is a homonym' do
+        f1 = FactoryBot.create(:relationship_family, name: 'Bbbidae', parent: @kingdom)
+        f2 = FactoryBot.create(:relationship_family, name: 'Dddidae', parent: @kingdom)
+        g1 = FactoryBot.create(:relationship_genus, name: 'Bbb', parent: f1)
+        g2 = FactoryBot.create(:relationship_genus, name: 'Bbb', parent: @kingdom)
+        f1.type_genus = g1
+        f1.save!
+        f1.reload
+        f1.soft_validate(:family_is_invalid)
+        expect(f1.soft_validations.messages_on(:base).empty?).to be_truthy
+        g1.iczn_set_as_homonym_of = g2
+        f1.reload
+        f1.soft_validate(:family_is_invalid)
+        expect(f1.soft_validations.messages_on(:base).empty?).to be_falsey
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: f1, type: 'TaxonNameClassification::Iczn::Available::Invalid::HomonymyOfTypeGenus')
+        f1.reload
+        f1.soft_validate(:family_is_invalid)
+        expect(f1.soft_validations.messages_on(:base).include?('Missing relationship: The name is invalid, but a substitute name is not selected')).to be_truthy
+        f1.iczn_set_as_synonym_of = f2
+        f1.reload
+        f1.soft_validate(:family_is_invalid)
+        expect(f1.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
+      specify 'type genus is a homonym 2' do
+        f1 = FactoryBot.create(:relationship_family, name: 'Bbbidae', parent: @kingdom)
+        g1 = FactoryBot.create(:relationship_genus, name: 'Bbb', parent: f1)
+        f1.type_genus = g1
+        f1.save!
+        c1 = FactoryBot.create(:taxon_name_classification, taxon_name: g1, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+        f1.reload
+        f1.soft_validate(:family_is_invalid)
+        expect(f1.soft_validations.messages_on(:base).empty?).to be_falsey
+      end
+
       specify 'homonym without replacement name' do
         g1 = FactoryBot.create(:relationship_genus, name: 'Bbbus', parent: @family, year_of_publication: 1900)
         g2 = FactoryBot.create(:relationship_genus, name: 'Cccus', parent: @family)
@@ -668,11 +703,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         g3.iczn_set_as_homonym_of = g1
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_truthy
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but a substitute name is not selected')).to be_truthy
         g3.iczn_set_as_synonym_of = g2
         expect(g3.save).to be_truthy
         g3.soft_validate(:missing_relationships)
-        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but the substitute name is not selected')).to be_falsey
+        expect(g3.soft_validations.messages_on(:base).include?('Missing relationship: The name is a homonym, but a substitute name is not selected')).to be_falsey
       end
 
       specify 'missing original combination relationships to self' do

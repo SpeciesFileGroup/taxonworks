@@ -18,7 +18,7 @@ describe 'Housekeeping::Project' do
     context 'Project extensions' do
       before(:all) {
         forced = HousekeepingTestClass::WithProject.new # Force Project extensions by instantiating an instance of the extended class
-        $user_id = 1
+        Current.user_id = 1
       }
 
       let(:project) { Project.new(name: 'Foo', without_root_taxon_name: true) }
@@ -30,10 +30,10 @@ describe 'Housekeeping::Project' do
       context 'auto-population and validation' do
         let(:i) {  HousekeepingTestClass::WithProject.new }
 
-        context 'when $project_id is set' do
+        context 'when Current.project_id is set' do
           before(:each) {
             project.save!
-            $project_id = project.id
+            Current.project_id = project.id
           }
 
           specify 'project_id is set with before_validation' do
@@ -41,15 +41,15 @@ describe 'Housekeeping::Project' do
             expect(i.project_id).to eq(project.id)  # see support/set_user_and_project
           end
 
-          specify 'project is set from $project_id ' do
-            $project_id = nil # TODO: make a with_no_project method
+          specify 'project is set from Current.project_id' do
+            Current.project_id = nil # TODO: make a with_no_project method
             i.valid?
             expect(i.project_id.nil?).to be_truthy
             expect(i.errors.include?(:project)).to be_truthy
           end
 
           specify 'project must exist' do
-            $project_id = 342432
+            Current.project_id = 342432
             i.valid?  # even when set, it's not necessarily valid
             expect(i.errors.include?(:project)).to be_truthy  # there is no project with id 1 in the present paradigm
           end

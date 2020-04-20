@@ -8,9 +8,13 @@
                         object: 'loan_item',
                         method: 'loan_id',
                         tag_id: 'loan_id_for_loan_item',
-                        display: loan_tag(@loan_item.loan)
+                        display: label_for_loan(@loan_item.loan)
                } %>
+
+             <%= loan_tag(@loan_item.loan)if @loan_item.persisted? %>
   </div>
+
+
 
   <div class="item item3">
     <%= render "/loan_items/select_loan_item" %>

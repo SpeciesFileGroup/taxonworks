@@ -101,7 +101,7 @@ class ObservationMatrixColumnItemsController < ApplicationController
   end
 
   def set_observation_matrix_column_item
-    @observation_matrix_column_item = ObservationMatrixColumnItem.find(params[:id])
+    @observation_matrix_column_item = ObservationMatrixColumnItem.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def observation_matrix_column_item_params

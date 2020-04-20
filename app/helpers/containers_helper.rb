@@ -2,8 +2,15 @@ module ContainersHelper
 
   def container_tag(container)
     return nil if container.nil?
-    container.name ? container.name : (container.class.name + ' [' + container.to_param + ']').html_safe
+    container.name ? 
+      container.name : 
+      [container.class.name, 
+       "[#{container.to_param}]",
+       content_tag(:i, 'unnamed'), 
+       content_tag(:span, container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-secondary'])
+    ].join('&nbsp;').html_safe
   end
+
 
   def container_link(container)
     return nil if container.nil?
@@ -71,13 +78,17 @@ module ContainersHelper
     return nil if container.nil?
 
     content_tag(:div, class: :draw_container) do
-      content_tag(:div) do
+      content_tag(:h2) do
+        'Container details'
+      end + 
+      
+      content_tag(:h3) do
         container_tag(container)
       end +
 
       content_tag(:div) do
-        content_tag(:ul) do
-          container.container_items.collect { |a| content_tag(:li, container_item_tag(a)) }
+        content_tag(:ol, class: [:object_tag_list]) do
+          container.container_items.collect{ |a| content_tag(:li, container_item_tag(a)) }.join('').html_safe
         end
       end
     end
@@ -86,5 +97,4 @@ module ContainersHelper
   def add_or_move_to_container_link(object)
     link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
   end
-
 end
