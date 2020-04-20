@@ -32,7 +32,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary19
 
   def sv_year_of_description
     s = subject_taxon_name
-    soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
+    soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication && s.year_of_publication > 1960
   end
 
   def sv_source_not_selected

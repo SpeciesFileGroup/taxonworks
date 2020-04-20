@@ -4,7 +4,7 @@
       <tr>
         <th>Otu</th>
         <th>Geographic area</th>
-        <th>Source</th>
+        <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
         <th>Source/Otu clone</th>

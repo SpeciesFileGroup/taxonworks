@@ -38,11 +38,11 @@ module TaxonNames::CatalogHelper
 
     [ 
       history_taxon_name(t, r, c, target),        # the subject, or protonym
-      history_author_year(t, c),                  # author year of the subject, or protonym
-      history_subject_original_citation(i),
+      history_author_year(t, c),                  ## author year of the subject, or protonym
+      history_subject_original_citation(i),       ##
       history_other_name(i, r),                   # The TaxonNameRelaltionship
-      history_in_taxon_name(t, c),                           #  citation for related name
-      history_pages(c),                           #  pages for citation of related name
+      history_in_taxon_name(t, c),                ##  citation for related name
+      history_pages(c),                           ##  pages for citation of related name
       history_statuses(i),                        # TaxonNameClassification summary
       history_citation_notes(c),                  # Notes on the citation
       history_topics(c),                          # Topics on the citation
@@ -74,11 +74,22 @@ module TaxonNames::CatalogHelper
 
   # @return [String]
   #   the name, or citation author year, prioritized by original/new with punctuation
-  def history_author_year(taxon_name, citation) 
+  def history_author_year(taxon_name, citation)
     return content_tag(:span, 'Source is verbatim, requires parsing', class: 'feedback feedback-thin feedback-warning') if citation.try(:source).try(:type) == 'Source::Verbatim'
-    str =  history_author_year_tag(taxon_name) 
-    str.blank? ? nil : 
+    str =  history_author_year_tag(taxon_name)
+    return nil if str.blank?
+    if citation
+      a = history_author_year_tag(taxon_name)
+      b = source_author_year_tag(citation.source)
+    end
+
+    if citation.blank? || a != b
       content_tag(:span, ' ' + str, class: [:history_author_year])
+    else
+      content_tag(:em, ' ') + link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:new_source_task_path, source_id: citation.source.id) )
+    end
+#    str.blank? ? nil :
+#      content_tag(:span, ' ' + str, class: [:history_author_year])
   end
 
   # @return [String, nil]
@@ -145,11 +156,14 @@ module TaxonNames::CatalogHelper
     b = source_author_year_tag(c.source)
 
     body =  [
-      (a != b ?  ': ' + source_author_year_tag(c.source) : nil) #,
+      (a != b ?  source_author_year_tag(c.source) : nil) #,
       #history_pages(c)
     ].compact.join.html_safe
 
-    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
+    unless body.blank?
+      content_tag(:em, ': ') + link_to(content_tag(:span, body, title: c.source.cached, class: :history__subject_original_citation), send(:new_source_task_path, source_id: c.source.id) )
+    end
+#    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
   end
 
   # @return [String, nil]
@@ -160,7 +174,8 @@ module TaxonNames::CatalogHelper
       b = source_author_year_tag(c.source)
 
       if a != b
-        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
+        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: c.source.cached, class: :history__subject_original_citation), send(:new_source_task_path, source_id: c.source.id) )
+#        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
     end
   end
