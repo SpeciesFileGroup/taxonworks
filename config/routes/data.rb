@@ -294,6 +294,9 @@ end
 
 resources :import_datasets do
   concerns [:data_routes]
+  member do
+    get 'import'
+  end
   resources :dataset_records
 end
 

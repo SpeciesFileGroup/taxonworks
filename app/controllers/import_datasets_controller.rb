@@ -1,7 +1,7 @@
 class ImportDatasetsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_import_dataset, only: [:show, :edit, :update, :destroy]
+  before_action :set_import_dataset, only: [:show, :import, :edit, :update, :destroy]
 
   # GET /import_datasets
   # GET /import_datasets.json
@@ -13,6 +13,11 @@ class ImportDatasetsController < ApplicationController
   # GET /import_datasets/1
   # GET /import_datasets/1.json
   def show
+  end
+
+  # GET /import_datasets/1/import.json
+  def import
+    @results = @import_dataset.import(100)
   end
 
   # GET /import_datasets/new
@@ -72,6 +77,7 @@ class ImportDatasetsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_import_dataset
+      puts params[:id]
       @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
