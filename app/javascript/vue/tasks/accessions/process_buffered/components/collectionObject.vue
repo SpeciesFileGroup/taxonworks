@@ -2,14 +2,14 @@
   <fieldset>
     <legend>Buffered</legend>
     <textarea
-      v-if="!settings.highlight"
+      v-show="!settings.highlight"
       rows="5"
       class="full_width"
       v-model="collectionObject.buffered_collecting_event"/>
     <div
       class="edit-box"
-      v-else>
-      <span @mouseup="getSelectionHighlight">{{ collectionObject.buffered_collecting_event }}</span>
+      v-show="settings.highlight">
+      <pre ref="buffered">{{ collectionObject.buffered_collecting_event }}</pre>
     </div>
     <div class="horizontal-left-content middle separate-top">
       <span class="separate-right">Highlight to copy</span>
@@ -23,6 +23,8 @@
 import SwitchSlider from 'components/form/switchSlider'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+
+import { hyclas as Hyclas } from '@sfgrp/hyclas'
 
 export default {
   components: {
@@ -44,20 +46,43 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetCollectionObject, value)
       }
+    },
+    collectingEvent: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectingEvent]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectingEvent, value)
+      }
+    },
+    verbatimFields () {
+      return Object.keys(this.$store.getters[GetterNames.GetCollectingEvent]).filter(key => { return key.startsWith('verbatim') })
+    },
+    fieldSelected () {
+      return this.$store.getters[GetterNames.GetTypeSelected]
     }
   },
   data () {
     return {
-      edit: false
+      edit: false,
+      hyclas: undefined,
+      options: {
+        types: []
+      }
     }
   },
   watch: {
-    collectionObject: {
-      handler (newVal) {
-
-      },
-      deep: true
+    fieldSelected (field) {
+      this.hyclas.setType(field)
     }
+  },
+  mounted () {
+    this.verbatimFields.forEach(field => {
+      this.options.types.push(this.newType(field))
+    })
+    this.hyclas = new Hyclas(this.$refs.buffered, this.options)
+    this.$refs.buffered.addEventListener('createTag', this.setSelection)
+    this.$refs.buffered.addEventListener('removeTag', this.removeSelection)
   },
   methods: {
     getSelectionHighlight () {
@@ -65,7 +90,26 @@ export default {
       if (this.settings.highlight && selection.length) {
         this.$store.commit(MutationNames.SetSelection, selection)
       }
+    },
+    newType (type) {
+      return {
+        type: type,
+        color: `#${((1<<24)*Math.random()|0).toString(16)}`,
+        predictions: []
+      }
+    },
+    setSelection (event) {
+      const tag = event.detail
+      this.$set(this.collectingEvent, tag.type, tag.label)
+    },
+    removeSelection (event) {
+      const tag = event.detail
+      this.$set(this.collectingEvent, tag.type, undefined)
     }
+  },
+  destroyed () {
+    this.$refs.buffered.removeEventListener('createTag', this.setSelection)
+    this.$refs.buffered.removeEventListener('removeTag', this.removeSelection)
   }
 }
 </script>

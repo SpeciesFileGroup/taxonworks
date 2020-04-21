@@ -29,20 +29,10 @@
           </div>
       </fieldset>
     </div>
-    <div class="field">
-      <label>Verbatim lat</label>
-      <br>
-      <input
-        type="text"
-        v-model="collectingEvent.verbatim_latitude">
-    </div>
-    <div class="field">
-      <label>Verbatim long</label>
-      <br>
-      <input
-        type="text"
-        v-model="collectingEvent.verbatim_longitude">
-    </div>
+    <verbatim-field
+      v-for="field in verbatimFields"
+      :key="field"
+      :field="field"/>
     <div>
       <span>Start date</span>
       <div class="horizontal-left-content">
@@ -131,6 +121,7 @@
 import { GetGeographicArea } from '../request/resource'
 import SmartSelector from 'components/smartSelector'
 import Autocomplete from 'components/autocomplete'
+import VerbatimField from './verbatimField'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -139,7 +130,8 @@ import extractDate from '../helpers/extractDate'
 export default {
   components: {
     Autocomplete,
-    SmartSelector
+    SmartSelector,
+    VerbatimField
   },
   computed: {
     settings: {
@@ -166,6 +158,9 @@ export default {
     },
     getExtractDate () {
       return extractDate(this.collectionObject.buffered_collecting_event)
+    },
+    verbatimFields () {
+      return Object.keys(this.collectingEvent).filter(key => { return key.startsWith('verbatim') })
     }
   },
   data () {

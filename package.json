@@ -3,7 +3,7 @@
     "@geoman-io/leaflet-geoman-free": "^2.5.0",
     "@ibm/plex": "^4.0.2",
     "@rails/webpacker": "^5.0.1",
-    "@sfgrp/hyclas": "0.0.1",
+    "@sfgrp/hyclas": "0.0.3",
     "@sfgrp/sled": "^0.5.4",
     "babel-preset-stage-0": "^6.24.1",
     "browser-request": "^0.3.3",

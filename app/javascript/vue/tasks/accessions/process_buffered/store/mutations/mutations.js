@@ -4,6 +4,7 @@ import setCollectionObject from './setCollectionObject'
 import setCollectingEvent from './setCollectingEvent'
 import setSqedDepictions from './setSqedDepictions'
 import setNearbyCO from './setNearbyCO'
+import setTypeSelected from './setTypeSelected'
 
 const MutationNames = {
   SetSettings: 'setSettings',
@@ -11,7 +12,8 @@ const MutationNames = {
   SetCollectingEvent: 'setCollectingEvent',
   SetCollectionObject: 'setCollectionObject',
   SetSqedDepictions: 'setSqedDepictions',
-  SetNearbyCO: 'setNearbyCO'
+  SetNearbyCO: 'setNearbyCO',
+  SetTypeSelected: 'setTypeSelected'
 }
 
 const MutationFunctions = {
@@ -20,7 +22,8 @@ const MutationFunctions = {
   [MutationNames.SetCollectingEvent]: setCollectingEvent,
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetSqedDepictions]: setSqedDepictions,
-  [MutationNames.SetNearbyCO]: setNearbyCO
+  [MutationNames.SetNearbyCO]: setNearbyCO,
+  [MutationNames.SetTypeSelected]: setTypeSelected
 }
 
 export {

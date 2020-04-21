@@ -4,6 +4,7 @@ import getCollectionObject from './getCollectionObject'
 import getCollectingEvent from './getCollectingEvent'
 import getSqedDepictions from './getSqedDepictions'
 import getNearbyCO from './getNearbyCO'
+import getTypeSelected from './getTypeSelected'
 
 const GetterNames = {
   GetSettings: 'getSeetings',
@@ -11,7 +12,8 @@ const GetterNames = {
   GetCollectionObject: 'getCollectionObject',
   GetCollectingEvent: 'getCollectingEvent',
   GetSqedDepictions: 'getSqedDepictions',
-  GetNearbyCO: 'getNearbyCO'
+  GetNearbyCO: 'getNearbyCO',
+  GetTypeSelected: 'getTypeSelected'
 }
 
 const GetterFunctions = {
@@ -20,7 +22,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetCollectingEvent]: getCollectingEvent,
   [GetterNames.GetSqedDepictions]: getSqedDepictions,
-  [GetterNames.GetNearbyCO]: getNearbyCO
+  [GetterNames.GetNearbyCO]: getNearbyCO,
+  [GetterNames.GetTypeSelected]: getTypeSelected
 }
 
 export {

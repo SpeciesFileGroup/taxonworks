@@ -16,10 +16,19 @@ function makeInitialState () {
       lastChange: undefined
     },
     collectingEvent: {
-      verbatim_locality: undefined,
       geographic_area_id: undefined,
-      verbatim_latitude: undefined,
+      verbatim_label: undefined,
+      verbatim_locality: undefined,
+      verbatim_date: undefined,
       verbatim_longitude: undefined,
+      verbatim_latitude: undefined,
+      verbatim_geolocation_uncertainty: undefined,
+      verbatim_trip_identifier: undefined,
+      verbatim_collectors: undefined,
+      verbatim_method: undefined,
+      verbatim_habitat: undefined,
+      verbatim_datum: undefined,
+      verbatim_elevation: undefined,
       start_date_day: undefined,
       start_date_month: undefined,
       start_date_year: undefined,
@@ -33,7 +42,8 @@ function makeInitialState () {
     },
     nearbyCO: undefined,
     sqedDepictions: [],
-    inputSelection: undefined
+    inputSelection: undefined,
+    typeSelected: undefined
   }
 }
 
