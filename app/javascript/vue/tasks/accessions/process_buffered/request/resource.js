@@ -5,7 +5,7 @@ const CreateCollectingEvent = (data) => {
 }
 
 const GetCollectingEvent = (id) => {
-  return ajaxCall('get', `/collecting_events/${id}`)
+  return ajaxCall('get', `/collecting_events/${id}.json`)
 }
 
 const GetCollectingEventsFilter = (params) => {
@@ -13,23 +13,19 @@ const GetCollectingEventsFilter = (params) => {
 }
 
 const GetCollectionObject = (id) => {
-  return ajaxCall('get', `/collection_objects/${id}`)
+  return ajaxCall('get', `/collection_objects/${id}.json`)
 }
 
 const GetDepiction = (id) => {
-  return ajaxCall('get', `/depictions/${id}`)
+  return ajaxCall('get', `/depictions/${id}.json`)
 }
 
 const GetGeographicArea = (id) => {
-  return ajaxCall('get', `/geographic_areas/${id}`)
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
 
 const GetDepictionByCOId = (id) => {
   return ajaxCall('get', `/depictions.json`, { params: { depiction_object_type: 'CollectionObject', depiction_object_id: id } })
-}
-
-const GetGeographicSmartSelector = () => {
-  return ajaxCall('get', `/geographic_areas/select_options?target=CollectingEvent`)
 }
 
 const GetNearbyCOFromDepictionSqedId = (id) => {
@@ -50,7 +46,6 @@ export {
   GetCollectingEventsFilter,
   GetCollectionObject,
   GetGeographicArea,
-  GetGeographicSmartSelector,
   GetNearbyCOFromDepictionSqedId,
   GetDepiction,
   GetDepictionByCOId,

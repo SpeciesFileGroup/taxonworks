@@ -14,30 +14,19 @@
       <fieldset>
         <legend>Geographic area</legend>
         <smart-selector
-          class="separate-bottom"
-          :options="options"
-          v-model="view"/>
-        <autocomplete
-          v-if="view == 'search'"
-          url="/geographic_areas/autocomplete"
-          param="term"
-          label="label_html"
-          placeholder="Search a geographic area"
-          display="label"
-          @getItem="collectingEvent.geographic_area_id = $event.id"
-        />
-        <ul
-          v-else
-          class="no_bullets">
-          <li
-            v-for="item in smartList[view]"
-            :key="item.id">
-            <label>
-              <input type="radio">
-              <span v-html="item.name"></span>
-            </label>
-          </li>
-        </ul>
+          model="geographic_areas"
+          klass="CollectingEvent"
+          pin-section="GeographicAreas"
+          pin-type="GeographicArea"
+          @selected="setGeographicArea"/>
+          <div
+            v-if="geographicArea"
+            class="horizontal-left-content">
+            <span class="margin-small-right">{{ geographicArea.name }}</span>
+            <span
+              @click="removeGeo"
+              class="circle-button btn-undo button-default"/>
+          </div>
       </fieldset>
     </div>
     <div class="field">
@@ -139,9 +128,9 @@
 
 <script>
 
-import { GetGeographicSmartSelector, GetGeographicArea } from '../request/resource'
+import { GetGeographicArea } from '../request/resource'
+import SmartSelector from 'components/smartSelector'
 import Autocomplete from 'components/autocomplete'
-import SmartSelector from 'components/switch'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -181,10 +170,7 @@ export default {
   },
   data () {
     return {
-      smartList: undefined,
-      options: [],
-      view: 'search',
-      selectedGeographicAreaLabel: undefined
+      geographicArea: undefined
     }
   },
   watch: {
@@ -195,34 +181,35 @@ export default {
     },
     collectingEvent: {
       handler (newVal, oldVal) {
-        if (newVal.geographic_area_id && newVal !== oldVal) {
+        if (newVal.id !== oldVal.id && newVal.geographic_area_id) {
           GetGeographicArea(newVal.geographic_area_id).then(response => {
-            this.selectedGeographicAreaLabel = response.body.name
+            this.geographicArea = response.body
           })
         }
       },
       deep: true
     }
   },
-  mounted () {
-    GetGeographicSmartSelector().then(response => {
-      this.options = Object.keys(response.body)
-      this.options.push('search')
-      this.smartList = response.body
-    })
-  },
   methods: {
-    setEndExtractDate() {
-      let date = this.getExtractDate.split('/')
+    setGeographicArea (geoArea) {
+      this.collectingEvent.geographic_area_id = geoArea.id
+      this.geographicArea = geoArea
+    },
+    setEndExtractDate () {
+      const date = this.getExtractDate.split('/')
       this.collectingEvent.end_date_year = date[0]
       this.collectingEvent.end_date_month = date[1]
       this.collectingEvent.end_date_day = date[2]
     },
-    setStartExtractDate() {
-      let date = this.getExtractDate.split('/')
+    setStartExtractDate () {
+      const date = this.getExtractDate.split('/')
       this.collectingEvent.start_date_year = date[0]
       this.collectingEvent.start_date_month = date[1]
       this.collectingEvent.start_date_day = date[2]
+    },
+    removeGeo () {
+      this.geographicArea = undefined
+      this.collectingEvent.geographic_area_id = null
     }
   }
 }

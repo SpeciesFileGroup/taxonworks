@@ -18,7 +18,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { GetCollectingEventsFilter } from '../request/resource'
+import { GetCollectingEvent } from '../request/resource'
 
 export default {
   computed: {
@@ -67,13 +67,9 @@ export default {
       return notifications
     },
     currentCEUsed () {
-      let param = {
-        collecting_event_id: this.collectingEvent.id
-      }
-      GetCollectingEventsFilter(param).then(response => {
+      GetCollectingEvent(this.collectingEvent.id).then(response => {
         this.count = response.length
       })
-      
     }
   }
 }

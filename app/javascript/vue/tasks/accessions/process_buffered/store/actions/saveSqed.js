@@ -8,11 +8,11 @@ export default ({ state, commit }) => {
 
   if (CEId) {
     promises.push(UpdateCollectingEvent(state.collectingEvent).then(response => {
-      commit(MutationNames.SetCollectingEvent, state.collectingEvent)
+      commit(MutationNames.SetCollectingEvent, response.body)
     }))
   } else {
     promises.push(CreateCollectingEvent(state.collectingEvent).then(response => {
-      state.collectionObject.collecting_event_id = response.id
+      state.collectionObject.collecting_event_id = response.body.id
     }))
   }
 

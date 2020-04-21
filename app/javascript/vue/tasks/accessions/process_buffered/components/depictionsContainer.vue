@@ -9,6 +9,7 @@
           @click="selectDepiction(depiction)">
       </div>
     </div>
+    <hr>
     <br>
     <div  v-if="selectedDepiction && selectedDepiction.hasOwnProperty('sqed_depiction')">
       <div

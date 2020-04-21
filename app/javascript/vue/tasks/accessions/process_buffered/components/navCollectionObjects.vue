@@ -3,31 +3,36 @@
     v-if="Object.keys(coObjects).length">
     <legend>Navigate</legend>
     <div class="horizontal-left-content">
+      <template v-for="depic in coObjects.before">
+        <a
+          class="separate-right"
+          v-if="depic.sqed_depiction.hasOwnProperty('image_sections')"
+          :key="depic.id"
+          :href="coUrl(depic)">
+          <img
+            class="depiction-box"
+            :src="getPrimaryImage(depic).small_image">
+        </a>
+      </template>
       <a
         class="separate-right"
-        v-for="depic in coObjects.before"
-        :key="depic.id"
-        :href="coUrl(depic)">
-        <img
-          class="depiction-box"
-          :src="getPrimaryImage(depic).small_image">
-      </a>
-      <a
-        class="separate-right"
-        :href="coUrl(coObjects.current)">
+        :href="coUrl(coObjects.current)"
+        v-if="coObjects.current.sqed_depiction.hasOwnProperty('image_sections')">
         <img
           class="depiction-selected"
           :src="getPrimaryImage(coObjects.current).small_image">
       </a>
-      <a
-        class="separate-right"
-        v-for="depic in coObjects.after"
-        :key="depic.id"
-        :href="coUrl(depic)">
-        <img
-          class="depiction-box"
-          :src="getPrimaryImage(depic).small_image">
-      </a>
+      <template v-for="depic in coObjects.after">
+        <a
+          class="separate-right"
+          v-if="depic.sqed_depiction.hasOwnProperty('image_sections')"
+          :key="depic.id"
+          :href="coUrl(depic)">
+          <img
+            class="depiction-box"
+            :src="getPrimaryImage(depic).small_image">
+        </a>
+      </template>
     </div>
   </fieldset>
 </template>
