@@ -6,15 +6,7 @@
       rows="5"
       class="full_width"
       v-model="collectionObject.buffered_collecting_event"/>
-    <div
-      class="edit-box"
-      v-show="settings.highlight">
-      <pre ref="buffered">{{ collectionObject.buffered_collecting_event }}</pre>
-    </div>
-    <div class="horizontal-left-content middle separate-top">
-      <span class="separate-right">Highlight to copy</span>
-      <switch-slider v-model="settings.highlight"/>
-    </div>
+    <pre ref="buffered">{{ collectionObject.buffered_collecting_event }}</pre>
   </fieldset>
 </template>
 
@@ -113,9 +105,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .edit-box {
-    border: 1px solid gray;
-    padding: 1em;
-  }
-</style>

@@ -184,7 +184,7 @@ export default {
       this.$store.dispatch(ActionNames.SaveSqed)
     },
     setCount (list) {
-      this.$set(this.collectingEventTabs, 1, `Similar (${list.length})`)
+      this.$set(this.collectingEventTabs, 1, `Similar ${list.length ? `(${list.length})` : ''}`)
       if (this.viewCe !== this.collectingEventTabs[0]) {
         this.viewCe = this.collectingEventTabs[1]
       }

@@ -75,10 +75,15 @@ export default {
   },
   methods: {
     getList (params) {
-      GetCollectingEventsFilter(params).then(response => {
-        this.list = response.body
+      if (params.in_verbatim_locality) {
+        GetCollectingEventsFilter(params).then(response => {
+          this.list = response.body
+          this.$emit('search', this.list)
+        })
+      } else {
+        this.list = []
         this.$emit('search', this.list)
-      })
+      }
     }
   }
 }

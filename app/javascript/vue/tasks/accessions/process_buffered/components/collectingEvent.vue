@@ -29,10 +29,12 @@
           </div>
       </fieldset>
     </div>
-    <verbatim-field
-      v-for="field in verbatimFields"
-      :key="field"
-      :field="field"/>
+    <template v-for="field in verbatimFields">
+      <verbatim-field
+        :key="field"
+        v-if="field != 'verbatim_locality'"
+        :field="field"/>
+    </template>
     <div>
       <span>Start date</span>
       <div class="horizontal-left-content">
@@ -169,11 +171,6 @@ export default {
     }
   },
   watch: {
-    getSelection (newVal) {
-      if (newVal.length) {
-        this.collectingEvent.verbatim_locality = newVal
-      }
-    },
     collectingEvent: {
       handler (newVal, oldVal) {
         if (newVal.id !== oldVal.id && newVal.geographic_area_id) {
