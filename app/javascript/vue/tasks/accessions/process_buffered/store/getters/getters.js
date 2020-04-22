@@ -5,6 +5,7 @@ import getCollectingEvent from './getCollectingEvent'
 import getSqedDepictions from './getSqedDepictions'
 import getNearbyCO from './getNearbyCO'
 import getTypeSelected from './getTypeSelected'
+import getHyclasTypes from './getHyclasTypes'
 
 const GetterNames = {
   GetSettings: 'getSeetings',
@@ -13,7 +14,8 @@ const GetterNames = {
   GetCollectingEvent: 'getCollectingEvent',
   GetSqedDepictions: 'getSqedDepictions',
   GetNearbyCO: 'getNearbyCO',
-  GetTypeSelected: 'getTypeSelected'
+  GetTypeSelected: 'getTypeSelected',
+  GetHyclasTypes: 'getHyclasTypes'
 }
 
 const GetterFunctions = {
@@ -23,7 +25,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectingEvent]: getCollectingEvent,
   [GetterNames.GetSqedDepictions]: getSqedDepictions,
   [GetterNames.GetNearbyCO]: getNearbyCO,
-  [GetterNames.GetTypeSelected]: getTypeSelected
+  [GetterNames.GetTypeSelected]: getTypeSelected,
+  [GetterNames.GetHyclasTypes]: getHyclasTypes
 }
 
 export {

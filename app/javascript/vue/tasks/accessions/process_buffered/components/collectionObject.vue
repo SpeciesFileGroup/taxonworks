@@ -47,8 +47,8 @@ export default {
         this.$store.commit(MutationNames.SetCollectingEvent, value)
       }
     },
-    verbatimFields () {
-      return Object.keys(this.$store.getters[GetterNames.GetCollectingEvent]).filter(key => { return key.startsWith('verbatim') })
+    hyclasTypes () {
+      return this.$store.getters[GetterNames.GetHyclasTypes]
     },
     fieldSelected () {
       return this.$store.getters[GetterNames.GetTypeSelected]
@@ -69,9 +69,7 @@ export default {
     }
   },
   mounted () {
-    this.verbatimFields.forEach(field => {
-      this.options.types.push(this.newType(field))
-    })
+    this.options.types = this.hyclasTypes
     this.hyclas = new Hyclas(this.$refs.buffered, this.options)
     this.$refs.buffered.addEventListener('createTag', this.setSelection)
     this.$refs.buffered.addEventListener('removeTag', this.removeSelection)

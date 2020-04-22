@@ -4,6 +4,7 @@
     <input
       type="text"
       :class="{ 'field-selected' : field === fieldSelected }"
+      :style="field === fieldSelected ? { 'border-color': `${hyclassType.color}` } : {}"
       @mousedown="fieldSelected = field"
       v-model="collectingEvent[field]">
   </div>
@@ -37,6 +38,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetTypeSelected, value)
       }
+    },
+    hyclassType () {
+      return this.$store.getters[GetterNames.GetHyclasTypes].find(item => item.type === this.field)
     }
   }
 }
@@ -44,6 +48,6 @@ export default {
 
 <style scoped>
   .field-selected {
-    border: 1px solid red
+    border: 1px solid
   }
 </style>
