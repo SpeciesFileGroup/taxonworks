@@ -3,7 +3,6 @@
     <label class="capitalize">{{ field.replace(/_/g, ' ') }}</label>
     <input
       type="text"
-      :class="{ 'field-selected' : field === fieldSelected }"
       :style="field === fieldSelected ? { 'border-color': `${hyclassType.color}` } : {}"
       @mousedown="fieldSelected = field"
       v-model="collectingEvent[field]">
@@ -45,9 +44,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .field-selected {
-    border: 1px solid
-  }
-</style>

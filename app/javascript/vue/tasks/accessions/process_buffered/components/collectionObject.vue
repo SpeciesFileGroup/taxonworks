@@ -1,27 +1,18 @@
 <template>
   <fieldset>
     <legend>Buffered</legend>
-    <textarea
-      v-show="!settings.highlight"
-      rows="5"
-      class="full_width"
-      v-model="collectionObject.buffered_collecting_event"/>
     <pre ref="buffered">{{ collectionObject.buffered_collecting_event }}</pre>
   </fieldset>
 </template>
 
 <script>
 
-import SwitchSlider from 'components/form/switchSlider'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 import { hyclas as Hyclas } from '@sfgrp/hyclas'
 
 export default {
-  components: {
-    SwitchSlider
-  },
   computed: {
     settings: {
       get () {
@@ -79,13 +70,6 @@ export default {
       const selection = window.getSelection().toString()
       if (this.settings.highlight && selection.length) {
         this.$store.commit(MutationNames.SetSelection, selection)
-      }
-    },
-    newType (type) {
-      return {
-        type: type,
-        color: `#${((1<<24)*Math.random()|0).toString(16)}`,
-        predictions: []
       }
     },
     setSelection (event) {
