@@ -593,7 +593,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let(:project_id) { species.project_id }
 
         specify '.used_recently' do
-          expect(TaxonName.used_recently(project_id, user_id).count).to eq(9)
+          expect(TaxonName.used_recently(project_id, user_id).count).to eq(6)
         end
 
         # everything is recent
