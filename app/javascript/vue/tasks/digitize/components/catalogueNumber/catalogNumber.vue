@@ -17,6 +17,7 @@
               class="separate-right item"
               :options="options"/>
             <lock-component v-model="locked.identifier"/>
+            <a href="/namespaces/new">New</a>
           </div>
           <autocomplete
             input-id="namespace-autocomplete"
