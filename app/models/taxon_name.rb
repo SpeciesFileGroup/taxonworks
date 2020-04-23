@@ -1154,7 +1154,7 @@ class TaxonName < ApplicationRecord
     TaxonName.where(project_id: project_id)
       .joins(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at'.desc)
   end
 
   # @return [Scope]
@@ -1175,7 +1175,7 @@ class TaxonName < ApplicationRecord
       .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at'.desc)
   end
 
   # @return [Array]
@@ -1184,7 +1184,7 @@ class TaxonName < ApplicationRecord
 
     # !! If cached of one name is nill the raises an ArgumentError
     a = [
-      TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
+      TaxonName.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
       used_recently_in_classifications(project_id, user_id).limit(6).to_a,
       used_recently_in_relationships(project_id, user_id).limit(6).to_a
     ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}

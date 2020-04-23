@@ -27,8 +27,8 @@ class Language < ApplicationRecord
   has_many :serials, inverse_of: :language, foreign_key: :primary_language_id
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
   
-  scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ) }
-  scope :used_recently_on_serials, -> { joins(:serials).where(serials: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
+  scope :used_recently_on_serials, -> { joins(:serials).where(serials: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
 
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
 

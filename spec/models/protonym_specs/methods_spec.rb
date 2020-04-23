@@ -63,10 +63,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'predicted_child_rank' do
       before(:all) do
-        @order = FactoryBot.create(:iczn_order, name: 'Hemiptera')
-        @family = FactoryBot.create(:iczn_family, name: 'Cicadellidae', parent: @order)
-        @genus = FactoryBot.create(:iczn_genus, name: 'Cicadella', parent: @family)
-        @species = FactoryBot.create(:iczn_species, name: 'viridis', parent: @genus)
+        @order = FactoryBot.build(:iczn_order, name: 'Hemiptera')
+        @family = FactoryBot.build(:iczn_family, name: 'Cicadellidae', parent: @order)
+        @genus = FactoryBot.build(:iczn_genus, name: 'Cicadella', parent: @family)
+        @species = FactoryBot.build(:iczn_species, name: 'viridis', parent: @genus)
       end
 
       specify 'predict family' do
