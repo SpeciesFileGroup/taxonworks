@@ -27,7 +27,7 @@ export default {
   mounted () {
     let protonyms = Object.values(this.combination.protonyms)
     this.taxon = protonyms.find(item => { return item.id == this.combination.placement.target_id })
-    this.parent = protonyms[protonyms.length === 2 ? 1 : protonyms.length - 1]
+    this.parent = protonyms[protonyms.length === 2 ? 1 : protonyms.length - 2]
   },
   methods: {
     create () {
