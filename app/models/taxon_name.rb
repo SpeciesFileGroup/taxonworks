@@ -1154,7 +1154,7 @@ class TaxonName < ApplicationRecord
     TaxonName.where(project_id: project_id)
       .joins(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at'.desc)
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Scope]
@@ -1175,7 +1175,7 @@ class TaxonName < ApplicationRecord
       .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at'.desc)
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Array]
