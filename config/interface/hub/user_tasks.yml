@@ -326,6 +326,7 @@ browse_otus_task:
   name: 'Browse taxa'
   related:
   categories:
+    - browse
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
 new_descriptor_task:
