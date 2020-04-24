@@ -4,7 +4,7 @@
     type="button"
     v-if="!combination.placement.same && taxon && parent && taxon.parent_id != parent.id"
     class="button button-submit normal-input">
-    Move {{ taxon.name }} to {{ parent.name }}
+    Move {{ taxon.name }} to {{ parentName }}
   </button>
 </template>
 <script>
@@ -18,26 +18,33 @@ export default {
       required: true
     }
   },
+  computed: {
+    parentName () {
+      if (!this.parent) return
+      return Object.keys(this.combination.protonyms)[1] === 'subgenus' ? `${this.protonyms[2].name} (${this.parent.name})` : this.parent.name
+    }
+  },
   data () {
     return {
       taxon: undefined,
-      parent: undefined
+      parent: undefined,
+      protonyms: []
     }
   },
   mounted () {
-    let protonyms = Object.values(this.combination.protonyms)
-    this.taxon = protonyms.find(item => { return item.id == this.combination.placement.target_id })
-    this.parent = protonyms[protonyms.length === 2 ? 1 : 2]
+    this.protonyms = Object.values(this.combination.protonyms)
+    this.taxon = this.protonyms[0]
+    this.parent = this.protonyms[1]
   },
   methods: {
     create () {
       let data = {
         taxon_name: {
-          id: this.combination.placement.target_id,
+          id: this.taxon.id,
           parent_id: this.parent.id
         }
       }
-      CreatePlacement(this.combination.placement.target_id, data).then(response => {
+      CreatePlacement(this.taxon.id, data).then(response => {
         TW.workbench.alert.create(`Updated parent of ${response.name} to ${response.parent.name}`, 'notice')
         this.$emit('created', response)
       })
