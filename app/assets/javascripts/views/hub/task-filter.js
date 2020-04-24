@@ -63,7 +63,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.resetChildsCount();
     this.filterChilds();
     this.injectNavList();
-    this.resetFilters(); 
+    this.refresh(); 
   };
 
   CarrouselTask.prototype.addFilter = function(nameFilter) {
