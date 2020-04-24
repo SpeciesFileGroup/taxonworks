@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="Object.keys(list).length"
-    class="full_width">
+    class="full_width overflow-scroll">
     <table class="full_width">
       <thead>
         <tr>
@@ -47,10 +47,6 @@
         </tr>
       </tbody>
     </table>
-    <span
-      v-if="list.length"
-      class="horizontal-left-content">{{ list.length }} records.
-    </span>
   </div>
 </template>
 
@@ -115,5 +111,8 @@ export default {
   }
   .options-column {
     width: 130px;
+  }
+  .overflow-scroll {
+    overflow: scroll;
   }
 </style>

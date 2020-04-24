@@ -282,6 +282,7 @@ class TaxonNamesController < ApplicationController
       :taxon_name_type,
       type: [],
       taxon_name_id: [],
+      parent_id: [],
       taxon_name_classification: [],
       taxon_name_relationship_type: [],
       taxon_name_relationship: []

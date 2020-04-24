@@ -11,4 +11,8 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Order < NomenclaturalRa
     taxon_name.errors.add(:name, 'name must not end in -virales') if(taxon_name.name =~ /.*virales\Z/)
   end
 
+  def self.valid_name_ending
+    'ales'
+  end
+
 end

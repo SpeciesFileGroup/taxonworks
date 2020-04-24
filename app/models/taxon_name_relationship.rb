@@ -67,6 +67,8 @@ class TaxonNameRelationship < ApplicationRecord
 
   validate :validate_type, :validate_subject_and_object_are_not_identical
 
+  validate :subject_and_object_in_same_project
+
   with_options unless: -> {!subject_taxon_name || !object_taxon_name} do |v|
     v.validate :validate_subject_and_object_share_code,
       :validate_uniqueness_of_typification_object,
@@ -250,7 +252,11 @@ class TaxonNameRelationship < ApplicationRecord
 
   protected
 
-  #region Validation
+  def subject_and_object_in_same_project
+    if subject_taxon_name && object_taxon_name
+      errors.add(:base, 'one name is not in the same project as the other') if subject_taxon_name.project_id != object_taxon_name.project_id
+    end
+  end
 
   def validate_type
     unless TAXON_NAME_RELATIONSHIP_NAMES.include?(type)
@@ -421,10 +427,6 @@ class TaxonNameRelationship < ApplicationRecord
   def is_invalidating?
     TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
   end
-
-  #endregion
-
-  #region Soft Validation
 
   def sv_validate_required_relationships
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
@@ -752,8 +754,6 @@ class TaxonNameRelationship < ApplicationRecord
     end
     false
   end
-
-  #endregion
 
   def self.collect_to_s(*args)
     args.collect{|arg| arg.to_s}

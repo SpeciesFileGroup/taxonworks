@@ -229,14 +229,14 @@ class Image < ApplicationRecord
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
-    cropped = img.crop(
-      params[:x].to_i,
-      params[:y].to_i,
-      params[:width].to_i,
-      params[:height].to_i,
-      true
-    )
-    img.destroy!
+    begin
+    # img.crop(x, y, width, height, true)
+      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
+    rescue RuntimeError
+      cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
+    ensure
+      img.destroy!      
+    end
     cropped
   end
 

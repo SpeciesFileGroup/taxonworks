@@ -28,7 +28,7 @@
     <div class="field separate-right">
       <label v-help.section.BibTeX.yearSuffix>Year suffix</label><br>
       <input
-        type="number"
+        type="text"
         v-model="source.year_suffix">
     </div>
     <div class="field">

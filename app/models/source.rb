@@ -234,7 +234,7 @@ class Source < ApplicationRecord
   #   TODO: return a more informative response?
   def self.batch_preview(file)
     begin
-      bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
+      bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
@@ -257,7 +257,7 @@ class Source < ApplicationRecord
     begin
       # error_msg = []
       Source.transaction do
-        bibliography = BibTeX.parse(file.read.force_encoding('UTF-8'), filter: :latex)
+        bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
           a = Source::Bibtex.new_from_bibtex(record)
           if a.valid?
@@ -288,7 +288,7 @@ class Source < ApplicationRecord
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['citation_object_type'].eq(used_on))
-      .order(t['created_at'])
+      .order(t['created_at'].desc)
       .take(10)
       .distinct
 

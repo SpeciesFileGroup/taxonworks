@@ -170,6 +170,7 @@ $default-padding: 2em;
     top: calc(50vh - 65px);
     background-color: #770000;
     background-image: image-url('b_book.svg');
+    z-index: 3;
   }
 }
 

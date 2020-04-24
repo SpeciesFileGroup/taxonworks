@@ -68,6 +68,7 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      # TODO: may require specific select('taxon_determinations.*, ...') to function wth order etc. 
       def base_query
         ::TaxonDetermination.includes(:determiners)
       end

@@ -12,6 +12,6 @@ export default function ({ commit, state }, globalId) {
         })
       })
       resolve(response)
-    })
+    }).catch(error => {})
   })
 }

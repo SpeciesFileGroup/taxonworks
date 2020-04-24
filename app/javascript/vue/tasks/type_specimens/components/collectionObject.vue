@@ -157,6 +157,14 @@ export default {
           this.updateLabels()
         }
       }
+    },
+    repositoryId: {
+      handler (newVal) {
+        if(!newVal) {
+          this.labelRepository = ''
+        }
+      },
+      deep: true
     }
   },
   mounted: function () {

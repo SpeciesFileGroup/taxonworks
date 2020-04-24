@@ -1,0 +1,61 @@
+<template>
+  <div>
+    <h2>Date</h2>
+    <div class="horizontal-left-content">
+      <div class="field label-above margin-medium-right">
+        <label>Start year</label>
+        <input
+          type="text"
+          :maxlength="4"
+          v-model="source.year_start">
+      </div>
+      <div class="field label-above">
+        <label>End year</label>
+        <input
+          type="text"
+          :maxlength="4"
+          v-model="source.year_end">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+
+export default {
+  props: {
+    value: {
+      type: Object,
+      default: undefined
+    }
+  },
+  computed: {
+    source: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
+  data () {
+    return {
+      authors: []
+    }
+  },
+  watch: {
+    authors: {
+      handler (newVal) {
+        this.source.author_ids = this.authors.map(author => { return author.id })
+      },
+      deep: true
+    }
+  },
+  methods: {
+    addAuthor (author) {
+      this.authors.push(author)
+    }
+  }
+}
+</script>

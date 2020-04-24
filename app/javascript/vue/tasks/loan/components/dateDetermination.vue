@@ -6,13 +6,25 @@
       <label>Determiner</label>
       <role-picker
         v-model="roles"
-        role-type="TaxonDeterminer"/>
+        role-type="Determiner"/>
     </div>
     <div class="field">
       <label>OTU</label>
+      <span
+        class="middle"
+        v-if="otuSelected"
+        >
+        <span 
+          v-html="otuSelected"
+          class="margin-small-right"/>
+        <span
+          @click="otuSelected = undefined; determination.otu_id = undefined"
+          class="button button-circle btn-undo button-default"/>
+      </span>
       <otu-picker
+        v-else
         :clear-after="true"
-        @getItem="determination.otu_id = $event.id"/>
+        @getItem="determination.otu_id = $event.id; otuSelected = $event.label_html"/>
     </div>
     <div class="field">
       <label>Date made</label>
@@ -71,17 +83,18 @@ export default {
       return this.determination.otu_id &&
 						this.list.length
     },
-    roles: {
-      get () {
-        return []
+    roles: { 
+      get() {
+        return this.determination.roles_attributes
       },
       set (value) {
-        this.determination.roles_attributes
+        this.determination.roles_attributes = value
       }
     }
   },
   data: function () {
     return {
+      otuSelected: undefined,
       determination: {
         biological_collection_object_id: undefined,
         otu_id: undefined,

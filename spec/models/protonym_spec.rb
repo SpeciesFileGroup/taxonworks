@@ -55,13 +55,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(kingdom.errors.include?(:rank_class)).to be_truthy
       end
 
-      specify 'a new taxon rank in the same group' do
-        t = FactoryBot.create(:iczn_kingdom)
-        t.rank_class = Ranks.lookup(:iczn, 'genus')
-        t.valid?
-        expect(t.errors.include?(:rank_class)).to be_truthy
-      end
-
       specify 'a parent from different project' do
         t = FactoryBot.create(:iczn_kingdom)
         t.valid?

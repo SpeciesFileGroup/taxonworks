@@ -93,6 +93,15 @@ module TaxonNamesHelper
     taxon_name.cached_author_year
   end
 
+  def taxon_name_type_short_tag(taxon_name)
+    return nil if taxon_name.nil?
+    if taxon_name.is_valid?
+      '&#10003;'.html_safe # check
+    else
+      taxon_name.type == 'Combination' ? '[c]' : '&#10060;'.html_safe # c or X
+    end
+  end
+
   def taxon_name_short_status(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym

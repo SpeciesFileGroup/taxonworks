@@ -248,6 +248,12 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       a = collecting_event.clone
       expect(a.collectors.count).to eq(1)
    end 
+
+   specify 'clones georeferences' do
+     FactoryBot.create(:valid_georeference_verbatim_data, collecting_event: collecting_event)
+     a = collecting_event.clone
+     expect(a.georeferences.count).to eq(1)
+   end
   end
 
   context 'roles' do

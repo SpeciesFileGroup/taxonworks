@@ -4,6 +4,7 @@ class CollectionObjectsController < ApplicationController
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -36,19 +37,43 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    @objects = filtered_collection_objects.includes(:dwc_occurrence).all.pluck( ::CollectionObject.dwc_attribute_vector  )
+    objects = filtered_collection_objects.includes(:dwc_occurrence).all
+    assign_pagination(objects) 
+      
+    @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
   end
 
-  # GET /collection_objects/dwc/123 
+  # GET /collection_objects/123/dwc
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
-      o.get_dwc_occurrence
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
     end
     render json: o.dwc_occurrence_attribute_values
+  end
+
+  # GET /collection_objects/123/dwc_verbose
+  def dwc_verbose
+    o = nil
+    ActiveRecord::Base.connection_pool.with_connection do
+      o = CollectionObject.find(params[:id])
+
+      if params[:rebuild] == 'true'
+        # get does not rebuild
+        o.set_dwc_occurrence 
+      else
+        o.get_dwc_occurrence 
+      end
+    end
+    render json: o.dwc_occurrence_attributes
   end
 
   # Intent is DWC fields + quick summary fields for reports
@@ -331,34 +356,35 @@ class CollectionObjectsController < ApplicationController
     a = params.permit(
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :geo_json,
-      :wkt,
-      :radius,
-      :start_date,
-      :end_date,
-      :partial_overlap_dates,
       :ancestor_id, 
+      :collection_object_type,
       :current_determinations,
-      :validity,
-      :user_id,
-      :user_target,
-      :user_date_start,
-      :user_date_end,
+      :depicted,
+      :end_date,
+      :geo_json,
       :identifier,
-      :identifier_start,
       :identifier_end,
       :identifier_exact,
-      :namespace_id,
-      :sled_image_id,
-      :depicted,
-      :never_loaned,
+      :identifier_start,
+      :in_labels,
+      :in_verbatim_locality,
       :loaned,
+      :md5_verbatim_label,
+      :namespace_id,
+      :never_loaned,
       :on_loan,
-      :type_specimen_taxon_name_id,
+      :partial_overlap_dates,
+      :radius,
+      :sled_image_id,
       :spatial_geographic_areas,
+      :start_date,
+      :type_specimen_taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :wkt,
       otu_ids: [],
       keyword_ids: [],
       collecting_event_ids: [],

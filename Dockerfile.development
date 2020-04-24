@@ -27,6 +27,7 @@ RUN apt-get update && \
                        nodejs && \
                        apt clean && \
                        rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+
 #
 # Install ruby
 # Source: https://github.com/drecom/docker-ubuntu-ruby/blob/2.4.4/Dockerfile

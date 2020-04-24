@@ -1,3 +1,9 @@
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 p, ol, ul, td {
   font-size: 13px;
   line-height: 18px;

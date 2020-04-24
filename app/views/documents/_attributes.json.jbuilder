@@ -5,5 +5,6 @@ json.extract! document, :id,
   :document_file_updated_at,
   :page_map,
   :page_total,
+  :is_public,
   :document_file_fingerprint,
   :document_file, :created_by_id, :updated_by_id, :created_at, :updated_at

@@ -27,8 +27,9 @@ class TaxonNameClassification::Latinized::PartOfSpeech::Adjective < TaxonNameCla
         !t.end_with?('e') &&
         !t.end_with?('or') &&
         !t.end_with?('er')
-      soft_validations.add(:type, 'Adjective name should end with one of the ' \
-                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
+      if taxon_name.name != taxon_name.masculine_name || taxon_name.name != taxon_name.feminine_name || taxon_name.name != taxon_name.neuter_name
+        soft_validations.add(:type, 'Declinable adjective name should end with one of the following endings: -us, -a, -um, -is, -e, -er, -or')
+      end
     end
   end
 end

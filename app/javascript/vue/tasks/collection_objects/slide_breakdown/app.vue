@@ -44,6 +44,32 @@
               v-model="vlines"
             />
           </template>
+          <template
+            v-for="(hline, index) in hlines"
+            v-if="index > 0 && index < hlines.length-1 && !disabledPanel">
+            <remove-line
+              :style="{
+                top: `${removeButtonPosition(hline, style.viewer.marginTop)}px`,
+                right: 0,
+                transform: 'translateY(-50%)'
+              }"
+              v-model="hlines"
+              :position="index"
+            />
+          </template>
+          <template
+            v-for="(vline, index) in vlines"
+            v-if="index > 0 && index < vlines.length-1 && !disabledPanel">
+            <remove-line
+              :style="{ 
+                left: `${removeButtonPosition(vline, style.viewer.marginLeft)}px`,
+                transform: 'translateX(-50%)',
+                top: `${removeButtonPosition(hlines[hlines.length-1], style.viewer.marginBottom)}px`
+              }"
+              v-model="vlines"
+              :position="index"
+            />
+          </template>
           <div :style="style.viewer">
             <sled 
               ref="sled"
@@ -102,6 +128,7 @@ import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
 import AddLine from './components/AddLine'
+import RemoveLine from './components/grid/RemoveLine'
 import SwitchComponent from 'components/switch'
 import AssignComponent from './components/Assign/Main'
 import UploadImage from './components/UploadImage'
@@ -117,6 +144,7 @@ export default {
   components: {
     Sled,
     AddLine,
+    RemoveLine,
     SwitchComponent,
     AssignComponent,
     ReviewComponent,
@@ -185,7 +213,9 @@ export default {
         viewer: {
           position: 'relative',
           marginLeft: '30px',
-          marginTop: '50px'
+          marginRight: '30px',
+          marginTop: '50px',
+          marginBottom: '60px'
         }
       }
     }
@@ -225,7 +255,9 @@ export default {
           }
           if(sledResponse.body.metadata.length) {
             this.setLines(this.setIdentifiers(sledResponse.body.metadata, sledResponse.body.summary))
-            this.$refs.sled.cells = sledResponse.body.metadata
+            this.$nextTick(() => {
+              this.$refs.sled.cells = sledResponse.body.metadata
+            })
           }
 
           this.isLoading = false
@@ -238,19 +270,26 @@ export default {
   methods: {
     loadPreferences () {
       GetUserPreferences().then(response => {
+        let that = this
         this.preferences = response.body
+        if (this.sledImage.summary.length) return
         let sizes = this.preferences.layout[this.configString]
         if(sizes) {
           this.vlines = sizes.columns.map(column => column * this.image.width),
           this.hlines = sizes.rows.map(row => row * this.image.height)
+          if(sizes.metadata)
+            this.$nextTick(()=> {
+              that.$refs.sled.cells = that.$refs.sled.cells.map((cell, index) => { cell.metadata = sizes.metadata[index] == 'null' ? null : sizes.metadata[index]; return cell })
+            })
         }
       })
     },
     savePreferences () {
       let columns = this.vlines.map(line => { return ScaleValue(line, 0, this.image.width, 0, 1) })
       let rows = this.hlines.map(line => { return ScaleValue(line, 0, this.image.height, 0, 1) })
+      let metadata = this.$refs.sled.cells.map(cell => { return `${cell.metadata}` })
 
-      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows } }).then(response => {
+      UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows, metadata: metadata } }).then(response => {
         this.preferences = response.body
       })
     },
@@ -260,6 +299,7 @@ export default {
       })
     },
     processCells (cells) {
+      if (this.sledImage.summary.length) return
       this.sledImage.metadata = cells
     },
     createSled (load = false, id = undefined) {
@@ -280,12 +320,15 @@ export default {
       })
     },
     setGrid (grid) {
-      if(this.sledImage.summary.length) return
+      if (this.sledImage.summary.length) return
+      this.$refs.sled.cells.forEach(item => {
+        item.metadata = null
+      })
       this.vlines = grid.vlines
       this.hlines = grid.hlines
     },
     loadSled (sledId) {
-      new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         GetSledImage(sledId).then(response => {
           if(response.body.metadata.length) {
             this.sledImage = response.body
@@ -295,8 +338,11 @@ export default {
             this.sledImage = response.body
           }
           if(response.body.metadata.length) {
+            let that = this
             this.setLines(this.setIdentifiers(response.body.metadata, response.body.summary))
-            this.$refs.sled.cells = response.body.metadata
+            this.$nextTick(() => {
+              that.$refs.sled.cells = response.body.metadata
+            })
           }
 
           this.isLoading = false
@@ -350,10 +396,13 @@ export default {
     getPosition (line, next) {
       return (next ? line + ((next - line ) / 2) : line)
     },
-    getButtonPosition(lines, index, margin) {
+    getButtonPosition (lines, index, margin) {
       return this.getPosition(lines[index], lines[index+1]) / this.scale + parseInt(margin)
     },
-    setLines(cells) {
+    removeButtonPosition (line, margin) {
+      return line / this.scale + parseInt(margin)
+    },
+    setLines (cells) {
       let xlines = []
       let ylines = []
       cells.forEach(cell => {
@@ -365,7 +414,7 @@ export default {
       this.vlines = [...new Set(xlines)]
       this.hlines = [...new Set(ylines)]
     },
-    convertToMatrix(metadata) {
+    convertToMatrix (metadata) {
       let i = []
 
       metadata.forEach(cell => {
@@ -391,6 +440,7 @@ export default {
       return inc
     },
     setIdentifiers (metadata, summary = undefined) {
+      if(!this.sledImage.step_identifier_on) return metadata.map(cell => { cell.textfield = undefined; return cell })
       if(summary && summary.length) {
         return metadata.map(cell => {
           cell.textfield = summary[cell.row][cell.column].identifier

@@ -56,7 +56,7 @@
             object-type="CollectionObject"
             @create="createDepictionForAll"
             @delete="removeAllDepictionsByImageId"
-            default-message="Drop images here<br> to add collection object figures"
+            default-message="Drop images or click here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
           <div class="middle">
             <expand-component

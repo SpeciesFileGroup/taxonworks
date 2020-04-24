@@ -8,7 +8,7 @@ module TagsHelper
 
   def tag_annotation_tag(tag)
     return nil if tag.nil?
-    content_tag(:span, controlled_vocabulary_term_tag(tag.keyword), class: [:annotation__tag])
+    content_tag(:span, controlled_vocabulary_term_tag(tag.keyword))
   end
 
   # @return [String (html), nil]

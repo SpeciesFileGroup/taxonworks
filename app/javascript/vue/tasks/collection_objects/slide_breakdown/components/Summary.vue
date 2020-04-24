@@ -22,7 +22,7 @@
         {{ summary.length ? 'Update' : 'Create' }} and new
       </button>
       <nuke-component
-        :disabled="!sledImage.id"
+        :disabled="summary.length === 0"
         class="inline"
         @confirm="updateSled"/>
     </div>
@@ -33,7 +33,7 @@
       <li v-if="collectionObject.taxon_determinations_attributes.length">
         <span>Taxon determination will be added</span>
       </li>
-      <li v-if="identifier.namespace_id && identifier.identifier">
+      <li v-if="identifier.namespace_id && identifier.identifier && sledImage.step_identifier_on">
         <span>Catalogue number will be added.</span>
       </li>
       <li v-if="collectionObject.tags_attributes.length">
@@ -41,6 +41,15 @@
       </li>
       <li v-if="collectionObject.notes_attributes.length">
         <span>{{ collectionObject.notes_attributes.length }} notes will be added.</span>
+      </li>
+      <li v-if="collectionObject.preparation_type_id">
+        <span>Preparation type will be added.</span>
+      </li>
+      <li v-if="collectionObject.repository_id">
+        <span>Repository type will be added.</span>
+      </li>
+      <li v-if="depiction.is_metadata_depiction">
+        <span>Depictions will be marked as metadata</span>
       </li>
     </ul>
   </div>
@@ -72,6 +81,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
+    },
+    depiction () {
+      return this.$store.getters[GetterNames.GetDepiction]
     },
     identifier: {
       get () {

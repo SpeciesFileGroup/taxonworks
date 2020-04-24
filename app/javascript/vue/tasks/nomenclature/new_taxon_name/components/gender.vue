@@ -178,11 +178,17 @@ export default {
       if(!(item.type == this.types.participle || item.type == this.types.adjective)) {
         this.cleanNames()
       }
+      let taxon = this.taxon
+      
+      delete taxon.feminine_name
+      delete taxon.masculine_name
+      delete taxon.neuter_name
+
       if (alreadyStored) {
         that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
           that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
             that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function () {
+              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
                 that.saving = false
               })
             })
@@ -190,9 +196,9 @@ export default {
         })
       } else {
         that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-          that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
+          that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
             setTimeout(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, that.taxon.id).then(function () {
+              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
                 that.saving = false
               })
             }, 1000)

@@ -29,9 +29,9 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   })
 
-  $(".data_card").on("keypress", function(e) {
+  $(".card-container").on("keypress", function(e) {
     if(e.which == 13) {
-      window.location.href = $(this).children("a").attr("href")
+      window.location.href = $(this).children().children("a").attr("href")
     }
   })
 
@@ -90,6 +90,32 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   });
 
+  $('#filter .navigation-controls-type [data-filter-category]').on('click', function () {
+    var elementFilter = $(this).attr('data-filter-category');
+    var activated = $(this).hasClass('activated')
+
+    $('#filter .navigation-controls-type .navigation-item').each(function () {
+      $(this).removeClass('activated');
+    });
+
+    if (!activated) {
+      $(this).addClass('activated')
+    }
+
+    if ($(this).hasClass('activated')) {
+      that.resetTypeFilter();
+    }
+
+    that.resetTypeFilter();
+    if ($(this).hasClass('activated')) {
+      [that.arrayData, that.arrayTasks].forEach(function (element) {
+        element.forEach(function (element) {
+          element.changeFilter("data-category-" + elementFilter);
+        });
+      });
+    }
+  });
+
   $('#filter .switch input').on('click', function (element) {
     that.resetAllStatusCards()
   });
@@ -103,7 +129,7 @@ FilterHub.prototype.resetAllStatusCards = function() {
       that.resetStatusFilter();
       element.refresh();
     });
-  });  
+  });
 }
 
 FilterHub.prototype.resetStatusFilter = function () {
@@ -113,6 +139,16 @@ FilterHub.prototype.resetStatusFilter = function () {
       element.setFilterStatus("data-category-unknown", false);
       element.setFilterStatus("data-category-stable", false);
       element.setFilterStatus("data-category-complete", false);
+    });
+  });
+}
+
+FilterHub.prototype.resetTypeFilter = function () {
+  [this.arrayData, this.arrayTasks].forEach(function (element) {
+    element.forEach(function (element) {
+      element.setFilterStatus("data-category-filters", false);
+      element.setFilterStatus("data-category-browse", false);
+      element.setFilterStatus("data-category-new", false);
     });
   });
 }

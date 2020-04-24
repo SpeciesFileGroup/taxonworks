@@ -16,10 +16,11 @@
         </li>
       </ul>
     </div>
-    <nav-bar> 
+    <nav-bar>
       <div class="flex-separate full_width">
         <div class="middle">
           <span
+            class="word_break"
             v-if="source.id"
             v-html="source.cached"/>
           <span v-else>New record</span>
@@ -30,11 +31,16 @@
             <radial-annotator :global-id="source.global_id"/>
             <radial-object :global-id="source.global_id"/>
             <add-source
-              :project_source_id="source.project_source_id"
+              :project-source-id="source.project_source_id"
               :id="source.id"/>
           </template>
         </div>
         <div class="horizontal-right-content">
+          <span
+            v-if="unsave"
+            class="medium-icon margin-small-right"
+            title="You have unsaved changes."
+            data-icon="warning"/>
           <button
             v-shortkey="[getMacKey(), 's']"
             @shortkey="saveSource"
@@ -82,7 +88,7 @@
         </div>
       </div>
     </nav-bar>
-    <source-type/>
+    <source-type class="margin-medium-bottom"/>
     <recent-component
       v-if="showRecent"
       @close="showRecent = false"/>
@@ -156,6 +162,10 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    unsave() {
+      let settings = this.$store.getters[GetterNames.GetSettings]
+      return settings.lastSave < settings.lastEdit
     }
   },
   data () {
@@ -163,6 +173,14 @@ export default {
       showModal: false,
       showBibtex: false,
       showRecent: false
+    }
+  },
+  watch: {
+    source: { 
+      handler () {
+        this.settings.lastEdit = Date.now()
+      },
+      deep: true
     }
   },
   mounted () {

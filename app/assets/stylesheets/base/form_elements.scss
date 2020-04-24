@@ -121,6 +121,10 @@ select {
   text-align: left;
 }
 
+.date-input {
+  width: 140px;
+}
+
 form div.required {
   display: inline;
   div.or {
@@ -151,14 +155,16 @@ form div.required {
 }
 
 .field {
-  &.label_above {
-    br {
-      display: inline;
-    }
+  &.label_above, &.label-above {
     label {
-      float: left;
       display: block;
     }
+  }
+}
+
+.label-above {
+  label {
+    display: block;
   }
 }
 

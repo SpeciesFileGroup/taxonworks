@@ -179,7 +179,7 @@ export default {
   },
   methods: {
     getDigitizeRoute() {
-      return `${RouteNames.DigitizeTask}/${this.biologicalId}`
+      return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}`
     },
     createTypeMaterial () {
       this.$store.dispatch(ActionNames.CreateTypeMaterial)

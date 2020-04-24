@@ -1,0 +1,30 @@
+<%= content_tag(:h1, "Tasks - Project stats (#{@project.name})", id: :top) -%>
+
+<p><em> Large tables may time out, this is experimental until linked to our asynchrounous Download.</em></p>
+
+<table>
+  <% @project.has_many_relationships.each do |r| -%>
+    <% begin %>
+      <% a = @project.send(r)&.count %> 
+      <% if a && a > 0 %>
+        <tr> 
+          <% b = "#{r.classify.pluralize}Controller".safe_constantize -%>
+          <% c = b&.new&.respond_to?(:download) ? true : false -%>
+          <%= content_tag :td, r.to_s.humanize -%>
+          <%= content_tag :td, a -%>
+          <%= content_tag :td, (c ? link_to('Download', send("download_#{r.pluralize}_path")) : 'no download') -%> 
+        </tr>
+      <% end %>
+    <% rescue ActiveRecord::HasManyThroughOrderError %>
+    <% end %>
+  <% end %>
+
+  <tr> 
+    <% b = SourcesController.new %>
+    <% c = b.respond_to?(:download) ? true : false -%>
+    <%= content_tag(:td, 'Sources') -%>
+    <%= content_tag(:td, Source.joins(:project_sources).where(project_sources: {project_id: sessions_current_project_id}).count.to_s) -%>
+    <%= content_tag(:td, (c ? link_to('Download', download_sources_path) : 'no download')) -%> 
+  </tr>
+
+</table>

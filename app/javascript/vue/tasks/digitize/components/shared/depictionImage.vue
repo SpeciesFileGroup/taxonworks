@@ -12,16 +12,18 @@
               class="img-maxsize img-fullsize"
               v-if="fullSizeImage"
               @click="fullSizeImage = false"
-              :src="depiction.image.image_file_url"
+              :src="depiction.svg_view_box != null ? 
+                getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.width, depiction.image.height) : 
+                depiction.image.image_display_url"
               :height="depiction.image.height"
               :width="depiction.image.width">
             <img
               v-else
               class="img-maxsize img-normalsize"
               @click="fullSizeImage = true"
-              :src="depiction.image.alternatives.medium.image_file_url"
-              :height="depiction.image.alternatives.medium.height"
-              :width="depiction.image.alternatives.medium.width">
+              :src="depiction.svg_view_box != null ? 
+                getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.alternatives.medium.width, depiction.image.alternatives.medium.height) : 
+                depiction.image.alternatives.medium.image_file_url">
             <radial-annotator
               class="annotator"
               type="annotations"
@@ -55,9 +57,13 @@
     <img
       class="img-thumb"
       @click="viewMode = true"
-      :src="depiction.image.alternatives.thumb.image_file_url"
-      :height="depiction.image.alternatives.thumb.height"
-      :width="depiction.image.alternatives.thumb.width">
+      :src="depiction.svg_view_box != null ? 
+        getImageUrl(depiction.image.id, depiction.svg_view_box, 100, 100) : 
+        depiction.image.alternatives.thumb.image_file_url">
+    <zoom-image
+      :image-url="depiction.svg_view_box != null ? getImageUrl(depiction.image.id, depiction.svg_view_box, Math.floor(windowWidth()*0.75), windowHeight()) : getImageDepictionUrl()"
+      :width="depiction.image.width"
+      :height="depiction.image.height"/>
   </div>
 </template>
 <script>
@@ -65,11 +71,13 @@
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from '../../request/resources'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import ZoomImage from './zoomImage'
 
 export default {
   components: {
     Modal,
-    RadialAnnotator
+    RadialAnnotator,
+    ZoomImage
   },
   props: {
     depiction: {
@@ -121,6 +129,25 @@ export default {
       } else {
         this.viewMode = false
       }
+    },
+    getImageUrl (id, box, imageWidth, imageHeight) {
+      let [ x, y, width, height ] = box.split(' ')
+      return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
+    },
+    getImageDepictionUrl () {
+      let x = 0
+      let y = 0
+      let width = this.depiction.image.width
+      let height = this.depiction.image.height
+      let imageWidth = Math.floor(this.windowWidth()*0.75)
+      let imageHeight = this.windowHeight()
+      return `/images/${this.depiction.image.id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
+    },
+    windowWidth () {
+      return window.innerWidth
+    },
+    windowHeight () {
+      return (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 400
     }
   }
 }

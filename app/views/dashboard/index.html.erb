@@ -1,46 +1,50 @@
 <div id="dashboard">
-    <div class="flexbox panels-container">
-      <div class="item item1 column-tiny separate-right">
-        <div class="panel">
-          <div class="title nav-line">
+  <div class="flexbox panels-container">
+    <div class="item item1 column-tiny separate-right">
+      <div class="panel">
+        <div class="title nav-line">
           <span data-icon="folders" class="inline">
-              Projects
+            Projects
           </span>
-          </div>
-          <div class="content space-distance">
-            <ul class="no_bullets"> 
-              <%= projects_list(@projects) -%> 
-            </ul>
-          </div>
+        </div>
+        <div class="content space-distance">
+          <ul class="no_bullets">
+            <%= projects_list(@projects) -%>
+          </ul>
         </div>
       </div>
-      <div class="item item1 column-big separate-right separate-left">
-        <div class="panel">
-          <div class="title nav-line">
-            <span data-icon="openFolder" class="inline">
-              Data              
-            </span>
-          </div>
-          <div class="content ">
-              <ul class=" no_bullets content">
-                <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user),  data: { turbolinks: false } ) -%> 
-              </ul>
-          </div> 
+    </div>
+    <div class="item item1 column-big separate-right separate-left">
+      <div class="panel">
+        <div class="title nav-line">
+          <span data-icon="openFolder" class="inline">
+            Data
+          </span>
+        </div>
+        <div class="content ">
+          <ul class=" no_bullets content">
+            <%= content_tag :li, link_to('Recently created', recently_created_data_user_path(sessions_current_user),  data: { turbolinks: false } ) -%> 
+          </ul>
         </div>
       </div>
-      <div class="item item3 column-tiny separate-left">
-        <div class="panel">
-          <div class="title action-line">
-            <span data-icon="options" class="inline">
-              Preferences
-            </span>
-          </div>
-          <div class="content space-distance">
-            <ul class="no_bullets">
+    </div>
+    <div class="item item3 column-tiny separate-left">
+      <div class="panel">
+        <div class="title action-line">
+          <span data-icon="options" class="inline">
+            Preferences
+          </span>
+        </div>
+        <div class="content space-distance">
+          <ul class="no_bullets">
+            <% if sessions_current_project_id -%>
               <li><%= link_to('Order hub tabs', order_tabs_hub_path ) -%></li>
-            </ul>
-          </div>
+            <% else %>
+              <li><em>Preferences available when project is set.</em></li>
+            <% end %>
+          </ul>
         </div>
       </div>
     </div>
   </div>
+</div>

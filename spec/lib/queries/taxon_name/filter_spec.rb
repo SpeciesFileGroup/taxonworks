@@ -15,6 +15,11 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     verbatim_author: 'Fitch & Say',
     year_of_publication: 1800) }
 
+  specify '#parent_id[] 1' do
+    query.parent_id = [genus.id, root.id]
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, original_genus.id)
+  end
+
   specify '#taxon_name_type 1' do
     query.taxon_name_type = 'Combination'
     expect(query.all.map(&:id)).to contain_exactly()

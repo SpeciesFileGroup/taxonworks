@@ -12,6 +12,17 @@
         <form class="content" data-help="Choose only those options that contain the provided text in the title or description.">
           <input type="text" placeholder="Filter cards by text description" class="item mousetrap" id="search-filter" autofocus="true">
         </form>
+        <span class="content filter-title">CATEGORIES</span>
+        <div class="navigation-controls navigation-controls-type separate-bottom">
+          <div data-filter-category="filters" data-favorite="true" class="navigation-item">Filters</div>
+          <div data-filter-category="browse" data-favorite="true" class="navigation-item">Browse</div>
+          <div data-filter-category="new" data-favorite="true" class="navigation-item">New</div>
+        </div>
+        <div class="navigation-controls separate-bottom flex-wrap-row">
+          <% UserTasks::CATEGORIES.each do |c| -%>
+            <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
+          <% end %>
+        </div>
         <span class="content filter-title">STATUS</span>
 
         <div class="filter-status" data-help="Show only those features whose interfaces and functionality are at a certain level of completion. Red: expect major change; Yellow: functionality is more or less stable, form may change; Green: form and functionality are stable.">
@@ -26,12 +37,6 @@
             <div class="status stable" data-filter-category="stable"></div>
             <div class="status complete" data-filter-category="complete"></div>
           </div>
-        </div>
-        <span class="content filter-title">CATEGORIES</span>
-        <div class="navigation-controls separate-bottom">
-          <% UserTasks::CATEGORIES.each do |c| -%>
-            <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
-          <% end %>
         </div>
       </div>
     </div>

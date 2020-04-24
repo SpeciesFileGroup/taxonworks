@@ -43,6 +43,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Confidences
   include Shared::Labels
   include Shared::HasRoles
+  include Shared::Depictions
   include Shared::IsData
   ignore_whitespace_on(:print_label)
 

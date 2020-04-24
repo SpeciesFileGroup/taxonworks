@@ -2,14 +2,14 @@
   <button
     @click="create"
     type="button"
-    v-if="!combination.placement.same && taxon && parent"
+    v-if="!combination.placement.same && taxon && parent && taxon.parent_id != parent.id"
     class="button button-submit normal-input">
     Move {{ taxon.name }} to {{ parent.name }}
   </button>
 </template>
 <script>
 
-import { CreatePlacement, GetTaxonName } from '../request/resources'
+import { CreatePlacement } from '../request/resources'
 
 export default {
   props: {
@@ -26,15 +26,15 @@ export default {
   },
   mounted () {
     let protonyms = Object.values(this.combination.protonyms)
-      this.taxon = protonyms.find(item => { return item.id == this.combination.placement.target_id })
-      this.parent = protonyms.find(item => { return item.id == this.combination.placement.new_parent_id })
+    this.taxon = protonyms.find(item => { return item.id == this.combination.placement.target_id })
+    this.parent = protonyms[protonyms.length === 2 ? 1 : 2]
   },
   methods: {
     create () {
       let data = {
         taxon_name: {
           id: this.combination.placement.target_id,
-          parent_id: this.combination.placement.new_parent_id
+          parent_id: this.parent.id
         }
       }
       CreatePlacement(this.combination.placement.target_id, data).then(response => {

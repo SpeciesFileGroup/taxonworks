@@ -1,6 +1,11 @@
 module Queries
   module Person
+
     class Filter
+
+      # include Queries::Concerns::Identifiers
+      # include Queries::Concerns::Tags
+      # include Queries::Concerns::AlternateValues
 
       # - use similar/identical methods in IsData
       attr_accessor :limit_to_roles
@@ -16,7 +21,6 @@ module Queries
         @first_name = params[:first_name]
         @last_name = params[:last_name]
         @last_name_starts_with = params[:last_name_starts_with]
-
         @levenshtein_cuttoff = params[:levenshtein_cuttoff] || 4
       end
 

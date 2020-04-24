@@ -8,27 +8,58 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
     before(:all) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
-      @species    = @subspecies.ancestor_at_rank('species')
-      @subgenus   = @subspecies.ancestor_at_rank('subgenus')
-      @genus      = @subspecies.ancestor_at_rank('genus')
-      @tribe      = @subspecies.ancestor_at_rank('tribe')
-      @family     = @subspecies.ancestor_at_rank('family')
-      @root       = @subspecies.root
+      @species = @subspecies.ancestor_at_rank('species')
+      @subgenus = @subspecies.ancestor_at_rank('subgenus')
+      @genus = @subspecies.ancestor_at_rank('genus')
+      @tribe = @subspecies.ancestor_at_rank('tribe')
+      @family = @subspecies.ancestor_at_rank('family')
+      @root = @subspecies.root
     end
 
     after(:all) do
       TaxonNameRelationship.delete_all
       TaxonName.delete_all
 
-      # TODO: find out why this exists and resolve - presently leaving sources in the models
       Citation.delete_all
       Source.destroy_all
       TaxonNameHierarchy.delete_all
     end
 
-    # TODO: this all needs to go
-    context 'double checking FactoryBot' do
+    context '#year_of_publication' do
+      specify 'format 1' do
+        taxon_name.year_of_publication = 123
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
 
+      specify 'format 2' do
+        taxon_name.year_of_publication = '123' 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
+
+      specify 'format 3' do
+        taxon_name.year_of_publication = nil 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to be_empty
+      end
+
+      specify 'format 4' do
+        taxon_name.year_of_publication = 1920 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to be_empty
+      end
+
+      specify 'format 4' do
+        taxon_name.year_of_publication = 2999 
+        taxon_name.valid?
+        expect(taxon_name.errors[:year_of_publication]).to_not be_empty
+      end
+    end
+
+
+    # TODO: this all needs to go
+    context 'lint checking FactoryBot' do
       specify 'is building all related names for respective models' do
         expect(@subspecies.ancestors.length).to be >= 10
         (@subspecies.ancestors + [@subspecies]).each do |i|
@@ -49,7 +80,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         expect(variety.root.id).to eq(@species.root.id)
         expect(variety.cached_author_year).to eq('McAtee (1900)')
-        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
+        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
         basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
@@ -562,7 +593,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let(:project_id) { species.project_id }
 
         specify '.used_recently' do
-          expect(TaxonName.used_recently(project_id, user_id).count).to eq(9)
+          expect(TaxonName.used_recently(project_id, user_id).count).to eq(6)
         end
 
         # everything is recent

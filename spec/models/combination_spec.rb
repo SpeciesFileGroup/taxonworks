@@ -119,7 +119,7 @@ describe Combination, type: :model, group: :nomenclature do
 
     specify 'scope with_cached_original_combination' do
       basic_combination.save
-      expect(Combination.with_cached_html('<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(basic_combination)
+      expect(Combination.where(cached_html: '<i>' + genus.name + ' ' + species.name + '</i>').first).to eq(basic_combination)
     end
 
     specify 'scope with_protonym_at_rank' do

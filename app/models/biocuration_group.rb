@@ -1,3 +1,4 @@
+# A Tag that groups (classifies) BiocurationClasses
 class BiocurationGroup < Keyword 
 
   # This could ultimately be SQL'ed out 

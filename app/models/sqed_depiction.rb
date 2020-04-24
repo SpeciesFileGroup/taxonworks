@@ -45,7 +45,8 @@ class SqedDepiction < ApplicationRecord
 
   has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object 
 
-  validates_presence_of  :depiction_id, :metadata_map, :boundary_color
+  validates_presence_of :depiction
+  validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, in: [true, false]
@@ -96,9 +97,30 @@ class SqedDepiction < ApplicationRecord
 
   # @return [SqedDepiction]
   #   the next record in which the collection object has no buffered data
-  def next_without_data
-    object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-    object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object
+  def next_without_data(progress = false)
+    if progress
+      SqedDepiction.clear_stale_progress(self) 
+      object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
+      object.nil? ? SqedDepiction.where(in_progress: false, project_id: project_id).order(:id).first : object
+    else
+      object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
+      object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object
+    end
+  end
+
+  def is_in_progress?
+    in_progress && in_progress < 5.minutes.ago
+  end
+
+  def self.clear_stale_progress(sqed_depiction = nil)
+    SqedDepiction.where('(in_progress < ?)', 5.minutes.ago)
+      .update_all(in_progress: nil)
+    if sqed_depiction
+      SqedDepiction
+        .where(updated_by_id: sqed_depiction.updated_by_id)
+        .update_all(in_progress: nil)
+    end
+    true
   end
 
   def self.last_without_data(project_id)
@@ -121,9 +143,17 @@ class SqedDepiction < ApplicationRecord
     [:collecting_event_labels, :annotated_specimen] & extraction_metadata[:metadata_map].values
   end
 
-  def nearby_sqed_depictions(before = 5, after = 5)
-    a = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(after)
-    b = SqedDepiction.where(project_id: project_id).where('id < ?', id).order('id DESC').limit(before)
+  def nearby_sqed_depictions(before = 5, after = 5, progress = false)
+    q = SqedDepiction.where(project_id: project_id)
+
+    if progress == true
+      SqedDepiction.clear_stale_progress(self)
+      q = q.where(in_progress: nil)
+    end
+
+    a = q.where('id > ?', id).order(:id).limit(after)
+    b = q.where('id < ?', id).order('id DESC').limit(before)
+
     return { before: b, after: a}
   end
 

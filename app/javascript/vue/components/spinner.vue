@@ -8,7 +8,7 @@
 
 <template>
   <transition name="fade">
-    <div class="middle box-spinner mx-spinner" :style="cssPropierties">
+    <div class="middle box-spinner mx-spinner" :style="cssProperties">
       <div class="tw-spinner">
         <svg version="1.1" id="tw-spinner-logo" v-if="showSpinner" :style="logoSize" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
              viewBox="0 0 194.6 200" style="enable-background:new 0 0 194.6 200;" xml:space="preserve">
@@ -104,7 +104,7 @@ export default {
   },
   data: function () {
     return {
-      cssPropierties: {
+      cssProperties: {
         width: undefined,
         height: undefined,
         position: 'absolute',
@@ -141,7 +141,7 @@ export default {
     },
     init: function () {
       let domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode
-      let copyCSS = Object.assign({}, this.cssPropierties)
+      let copyCSS = Object.assign({}, this.cssProperties)
       if (this.fullScreen) {
         copyCSS.position = 'fixed'
         copyCSS.width = '100vw'
@@ -157,7 +157,7 @@ export default {
       if (!this.showSpinner) {
         copyCSS.zIndex = (domElement.style.zIndex == '' ? 2 : (domElement.style.zIndex + 1))
       }
-      this.cssPropierties = copyCSS
+      this.cssProperties = copyCSS
     },
     loadElement: function (el) {
       let domElement

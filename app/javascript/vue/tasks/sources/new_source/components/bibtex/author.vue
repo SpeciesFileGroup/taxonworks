@@ -60,14 +60,14 @@ export default {
       }
     }
   },
-  data() {
+  data () {
     return {
       options: [],
       view: 'new/Search',
       lists: undefined
     }
   },
-  mounted() {
+  mounted () {
     AjaxCall('get', `/people/select_options?role_type=SourceAuthor`).then(response => {
       let result = response.body
       this.options = OrderSmart(Object.keys(result))
@@ -77,13 +77,13 @@ export default {
     })
   },
   methods: {
-    roleExist(id) {
+    roleExist (id) {
       return (this.source.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && (role.person_id === id || (role.hasOwnProperty('person') && role.person.id === id))
       }) ? true : false)
     },
-    addRole(person) {
-      if(!this.roleExist(person.id)) {
+    addRole (person) {
+      if (!this.roleExist(person.id)) {
         this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceAuthor'))
       }
     },

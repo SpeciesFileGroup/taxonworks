@@ -24,29 +24,23 @@ class ControlledVocabularyTermsController < ApplicationController
 
   # GET /controlled_vocabulary_terms/new
   def new
-    @controlled_vocabulary_term = ControlledVocabularyTerm.new
-    @return_path = params.permit(:return_path)[:return_path]
+    redirect_to manage_controlled_vocabulary_terms_task_path and return
   end
 
   # GET /controlled_vocabulary_terms/1/edit
   def edit
+    redirect_to manage_controlled_vocabulary_terms_task_path(controlled_vocabulary_term_id: @controlled_vocabulary_term.id) and return
   end
 
-  # POST /controlled_vocabulary_terms
   # POST /controlled_vocabulary_terms.json
   def create
     @controlled_vocabulary_term = ControlledVocabularyTerm.new(controlled_vocabulary_term_params)
     respond_to do |format|
       if @controlled_vocabulary_term.save
-        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: "#{@controlled_vocabulary_term.type} '#{@controlled_vocabulary_term.name}' was successfully created." }
         format.json {
           render action: 'show', status: :created, location: @controlled_vocabulary_term.metamorphosize
         }
       else
-        format.html {
-          flash[:notice] = 'Controlled vocabulary term NOT successfully created.'
-          render action: 'new'
-        }
         format.json {
           render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
         }
@@ -54,21 +48,17 @@ class ControlledVocabularyTermsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /controlled_vocabulary_terms/1
   # PATCH/PUT /controlled_vocabulary_terms/1.json
   def update
     respond_to do |format|
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
-        format.html { redirect_to url_for(@controlled_vocabulary_term.metamorphosize), notice: 'Controlled vocabulary term was successfully updated.' }
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @controlled_vocabulary_term.metamorphosize }
       else
-        format.html { render action: 'edit' }
         format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
       end
     end
   end
 
-  # DELETE /controlled_vocabulary_terms/1
   # DELETE /controlled_vocabulary_terms/1.json
   def destroy
     redirect_url = (request.env['HTTP_REFERER'].include?(controlled_vocabulary_term_path(@controlled_vocabulary_term.metamorphosize)) ? controlled_vocabulary_terms_url : :back)

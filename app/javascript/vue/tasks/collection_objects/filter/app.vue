@@ -42,19 +42,21 @@
     <div class="horizontal-left-content align-start">
       <filter-component
         class="separate-right"
+        ref="filterComponent"
         v-show="activeFilter"
         @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
         @result="loadList"
+        @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width">
         <div 
           v-if="recordsFound"
-          class="horizontal-left-content separate-left separate-bottom">
+          class="horizontal-left-content flex-separate separate-left separate-bottom">
           <div class="horizontal-left-content">
             <csv-button
-              :options="{ fields: csvFields }"
-              :list="list.data"/>
+              :url="urlRequest"
+              :options="{ fields: csvFields }"/>
             <span class="separate-left separate-right">|</span>
             <button
               v-if="ids.length"
@@ -70,6 +72,31 @@
               class="button normal-input button-default">
               Select all
             </button>
+          </div>
+        </div>
+        <div
+          class="flex-separate margin-medium-bottom"
+          v-if="pagination">
+          <pagination-component
+            v-if="pagination"
+            @nextPage="loadPage"
+            :pagination="pagination"/>
+          <div class="horizontal-left-content">
+            <span
+              v-if="list.data.length"
+              class="horizontal-left-content">{{ list.data.length }} records.
+            </span>
+            <div class="margin-small-left">
+              <select v-model="per">
+                <option
+                  v-for="records in maxRecords"
+                  :key="records"
+                  :value="records">
+                  {{ records }}
+                </option>
+              </select>
+              records per page.
+            </div>
           </div>
         </div>
         <list-component
@@ -89,11 +116,14 @@
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from 'components/csvButton'
+import CsvButton from './components/csvDownload'
 import TagAll from './components/tagAll'
+import PaginationComponent from 'components/pagination'
+import GetPagination from 'helpers/getPagination'
 
 export default {
   components: {
+    PaginationComponent,
     FilterComponent,
     ListComponent,
     CsvButton,
@@ -125,7 +155,16 @@ export default {
       activeJSONRequest: false,
       append: false,
       alreadySearch: false,
-      ids: []
+      ids: [],
+      pagination: undefined,
+      maxRecords: [50, 100, 250, 500, 1000],
+      per: 500
+    }
+  },
+  watch: {
+    per(newVal) {
+      this.$refs.filterComponent.params.settings.per = newVal
+      this.loadPage(1)
     }
   },
   methods: {
@@ -133,6 +172,7 @@ export default {
       this.alreadySearch = false
       this.list = {}
       this.urlRequest = ''
+      this.pagination = undefined
     },
     loadList(newList) {
       if(this.append && this.list) {
@@ -155,7 +195,11 @@ export default {
       if(!this.append) {
         this.list = {}
       }
-    }
+    },
+    loadPage(event) {
+      this.$refs.filterComponent.loadPage(event.page)
+    },
+    getPagination: GetPagination
   }
 }
 </script>

@@ -99,9 +99,16 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+    scope :data, controller: 'tasks/projects/data' do
+      get '/', action: :index, as: 'project_data_task'
+    end
   end
 
   scope :sources do
+      scope :filter, controller: 'tasks/sources/filter' do
+        get '/', action: :index, as: 'filter_sources_task'
+      end
+
     scope :new_source, controller: 'tasks/sources/new_source' do
       get '/', action: :index, as: 'new_source_task'
       get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
@@ -113,11 +120,6 @@ scope :tasks do
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
       get '/', action: :index, as: 'new_bibtex_source_task'
-    end
-
-    scope :find, controller: 'tasks/sources/find' do
-      get '/', action: :index, as: 'find_sources_task'
-      get 'find', as: 'find_sources_query_task'
     end
   end
 
@@ -154,6 +156,10 @@ scope :tasks do
   end
 
   scope :collection_objects do
+      scope :match, controller: 'tasks/collection_objects/match' do
+        get '/', action: :index, as: 'match_collection_objects_task'
+      end
+
       scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
         get :index, as: 'grid_digitize_task'
       end
@@ -177,6 +183,11 @@ scope :tasks do
     end
 
     scope :report do
+        scope :work, controller: 'tasks/accessions/report/work' do
+          get '/', action: :index, as: 'work_report_task'
+          get :data, as: 'work_data_task'
+        end
+
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
         get 'row/:id', action: :row
@@ -235,6 +246,10 @@ scope :tasks do
   end
 
   scope :controlled_vocabularies do
+      scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
+        get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
+      end
+
     scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
       get 'index', as: 'index_topics_hub_task'
     end
@@ -285,6 +300,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :match, controller: 'tasks/nomenclature/match' do
+        get :index, as: 'match_nomenclature_task'
+      end
+
     scope :stats, controller: 'tasks/nomenclature/stats' do
       get '', action: :index, as: 'index_stats_task'
     end
@@ -308,7 +327,7 @@ scope :tasks do
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
-      get '(:source_id)', action: :index, as: 'nomenclature_by_source_task'
+      get '/', action: :index, as: 'nomenclature_by_source_task'
     end
   end
 
