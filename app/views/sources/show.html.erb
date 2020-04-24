@@ -17,7 +17,7 @@
 
   <% if @source.documentation.where('documents.project_id = ?', sessions_current_project_id) -%>
     <h3> Documents </h3>
-   <%= documentation_links(@source) -%>
+    <%= documentation_links(@source) -%>
   <% end %>
 
   <% if source_in_other_project?(@source) -%>
