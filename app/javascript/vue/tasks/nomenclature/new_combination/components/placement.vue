@@ -28,11 +28,12 @@ export default {
     return {
       taxon: undefined,
       parent: undefined,
-      protonyms: []
+      protonyms: [],
+      ranks: ['subspecies', 'species', 'subgenus', 'genus']
     }
   },
   mounted () {
-    this.protonyms = Object.values(this.combination.protonyms)
+    this.protonyms = this.mapOrder(Object.values(this.combination.protonyms), this.ranks, 'rank')
     this.taxon = this.protonyms[0]
     this.parent = this.protonyms[1]
   },
@@ -48,7 +49,22 @@ export default {
         TW.workbench.alert.create(`Updated parent of ${response.name} to ${response.parent.name}`, 'notice')
         this.$emit('created', response)
       })
+    },
+    mapOrder (array, order, key) {
+      array.sort( function (a, b) {
+        var A = a[key], B = b[key];
+
+        if (order.indexOf(A) > order.indexOf(B)) {
+          return 1;
+        } else {
+          return -1;
+        }
+        
+      });
+      
+      return array;
     }
+
   }
 }
 </script>
