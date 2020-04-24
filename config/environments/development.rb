@@ -45,6 +45,7 @@ TaxonWorks::Application.configure do
 
   BetterErrors.editor='x-mine://open?file=%{file}&line=%{line}' if defined? BetterErrors
 
+  config.eager_load_paths += [Rails.root.join('lib')] 
   require 'taxonworks'
   require 'taxonworks_autoload'
 end

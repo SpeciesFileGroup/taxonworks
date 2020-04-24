@@ -85,6 +85,7 @@ Source:
     - new_source_task
     - filter_sources_task   
     - nomenclature_by_source_task
+    - gnfinder_task
   new: new_source_task
   edit: new_source_task
   config:
