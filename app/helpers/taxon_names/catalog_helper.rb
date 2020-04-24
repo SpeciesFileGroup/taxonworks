@@ -41,7 +41,7 @@ module TaxonNames::CatalogHelper
       history_author_year(t, c),                  ## author year of the subject, or protonym
       history_subject_original_citation(i),       ##
       history_other_name(i, r),                   # The TaxonNameRelaltionship
-      history_in_taxon_name(t, c),                ##  citation for related name
+      history_in_taxon_name(t, c, i),                ##  citation for related name
       history_pages(c),                           ##  pages for citation of related name
       history_statuses(i),                        # TaxonNameClassification summary
       history_citation_notes(c),                  # Notes on the citation
@@ -168,12 +168,12 @@ module TaxonNames::CatalogHelper
 
   # @return [String, nil]
   #    return the citation author/year if differeing from the taxon name author year 
-  def history_in_taxon_name(t, c)
+  def history_in_taxon_name(t, c, i)
     if c
       a = history_author_year_tag(t) 
       b = source_author_year_tag(c.source)
 
-      if a != b
+      if a != b || i.from_relationship?
         content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: c.source.cached, class: :history__subject_original_citation), send(:new_source_task_path, source_id: c.source.id) )
 #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
