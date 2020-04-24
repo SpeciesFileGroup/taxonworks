@@ -96,9 +96,8 @@ gem 'biodiversity', '~> 4.0', '>= 4.0.3'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
-gem 'gnfinder', '~> 0.9.0.1' # May need 0.9.1'
-gem 'grpc', '~> 1.28'
-gem 'protobuf', '~> 3.10.3'
+#gem 'gnfinder', '~> 0.9.0.1' # May need 0.9.1'
+gem 'gnfinder', git: 'https://github.com/LocoDelAssembly/gnfinder.git', branch: 'built-in-binaries'
 
 # Minor Utils/helpers
 gem 'awesome_print', '~> 1.8'
