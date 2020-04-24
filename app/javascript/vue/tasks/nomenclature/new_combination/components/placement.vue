@@ -2,7 +2,7 @@
   <button
     @click="create"
     type="button"
-    v-if="!combination.placement.same && taxon && parent && taxon.id != parent.id"
+    v-if="!combination.placement.same && taxon && parent && taxon.parent_id != parent.id"
     class="button button-submit normal-input">
     Move {{ taxon.name }} to {{ parent.name }}
   </button>
