@@ -21,7 +21,14 @@ export default {
   computed: {
     parentName () {
       if (!this.parent) return
-      return Object.keys(this.combination.protonyms)[1] === 'subgenus' ? `${this.protonyms[2].name} (${this.parent.name})` : this.parent.name
+      this.protonyms.some((item, index) => {
+        if (this.protonyms[index].rank === 'subgenus') {
+          this.protonyms[index].taxon.name = `(${this.protonyms[index].taxon.name})`
+          return true
+        }
+        return false
+      })
+      return this.protonyms.slice(1).reverse().map(protonym => { return protonym.taxon.name }).join(' ')
     }
   },
   data () {
@@ -33,9 +40,9 @@ export default {
     }
   },
   mounted () {
-    this.protonyms = this.mapOrder(Object.values(this.combination.protonyms), this.ranks, 'rank')
-    this.taxon = this.protonyms[0]
-    this.parent = this.protonyms[1]
+    this.orderRanks()
+    this.taxon = this.protonyms[0].taxon
+    this.parent = this.protonyms[1].taxon
   },
   methods: {
     create () {
@@ -50,21 +57,24 @@ export default {
         this.$emit('created', response)
       })
     },
+    orderRanks () {
+      this.ranks.forEach(rank => {
+        if (this.combination.protonyms[rank]) {
+          this.protonyms.push({ rank: rank, taxon: this.combination.protonyms[rank] })
+        }
+      })
+    },
     mapOrder (array, order, key) {
       array.sort( function (a, b) {
-        var A = a[key], B = b[key];
-
+        var A = a[key], B = b[key]
         if (order.indexOf(A) > order.indexOf(B)) {
-          return 1;
+          return 1
         } else {
-          return -1;
+          return -1
         }
-        
-      });
-      
-      return array;
+      })
+      return array
     }
-
   }
 }
 </script>
