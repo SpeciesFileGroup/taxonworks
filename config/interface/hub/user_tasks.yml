@@ -569,7 +569,7 @@ filter_sources_task:
   name: 'Filter sources'
   related:
   categories:
-    - sources
+    - source
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
