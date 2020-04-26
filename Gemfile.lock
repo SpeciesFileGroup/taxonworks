@@ -1,11 +1,12 @@
 GIT
   remote: https://github.com/LocoDelAssembly/gnfinder.git
-  revision: 09ba9c853e6432cda6c63e74324bfb8f8c0e017e
+  revision: 50f7158a460a08e078a633ad8560f2878c33e10f
   branch: built-in-binaries
   specs:
-    gnfinder (0.9.0.1)
+    gnfinder (0.10.1)
       ffi (~> 1.11)
-      grpc (~> 1.15)
+      grpc (~> 1.28)
+      grpc-tools (~> 1.28)
 
 GIT
   remote: https://github.com/james2m/seedbank
@@ -194,6 +195,7 @@ GEM
     grpc (1.28.0)
       google-protobuf (~> 3.11)
       googleapis-common-protos-types (~> 1.0)
+    grpc-tools (1.28.0)
     guard (2.16.2)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
