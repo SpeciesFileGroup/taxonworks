@@ -76,15 +76,20 @@ class UsersController < ApplicationController
       redirect_to :forgot_password
     
       if params[:email].blank?
-        flash[:notice] = 'No e-mail was given'
+        flash[:alert] = 'No e-mail was given'
       else
-        flash[:notice] = 'The supplied e-mail does not belong to a registered user'
+        flash[:alert] = 'The supplied e-mail does not belong to a registered user'
       end
     else
       token = user.generate_password_reset_token
       Current.user_id = user.id
       user.save
-      UserMailer.password_reset_email(user, token).deliver_now
+      begin
+        UserMailer.password_reset_email(user, token).deliver_now
+      rescue
+        redirect_to :forgot_password
+        flash[:alert] = 'Failed to send e-mail. Please try again in a few minutes.'
+      end
     end
   end
   
