@@ -1,0 +1,60 @@
+<h1> Task - Global Names Finder playground </h1>
+
+<div class="feedback feedback-primary"><%= object_link(@source) -%> </div>
+<div class="feedback feedback-secondary"><%= object_link(@document) -%></div>
+
+<% unless @result.ocr_failure %>
+
+  <% %i{missing_names found_names}.each do |t| -%>
+
+    <h2> <%= t.to_s.humanize -%></h2>
+    <table class="full_width">
+      <tr>
+        <th colspan="2"> Name </th>
+        <th colspan="3"> TaxonWorks </th>
+        <th colspan="5"> Verification </th>
+      </tr>
+
+      <tr>
+        <th> Name </th>
+        <th> Verbatim </th>
+
+        <th> Matches </th>
+        <th> New </th>
+        <th> Parent(?) </th>
+
+        <th> Hits </th>
+        <th> Verified? (best match) </th>
+        <th> Origin (best match) </th>
+        <th> Data source quality</th>
+        <th> Context(s) </th>
+      </tr>
+
+      <% @result.send(t).each do |k, v| -%>
+        <tr>
+          <%= content_tag(:td, k) -%>
+          <%= content_tag(:td, v.first.verbatim) -%>
+
+          <% if t == :missing_names %>
+            <td> - </td>
+            <%= content_tag(:td, link_to('New', new_taxon_name_task_path(name: v.first.protonym_name, parentId: v.first.taxonworks_parent&.id))) -%>
+          <% else %>
+            <%= content_tag(:td, v.first.matches.collect{|a| object_link(a) }.join(', ').html_safe) -%>
+            <td> - </td>
+          <% end %>
+          <%= content_tag(:td, object_link(v.first.taxonworks_parent) ) -%>
+
+          <%= content_tag(:td, v.count) -%>
+          <%= content_tag(:td, v.first.is_verified? ? content_tag(:span, v.first.verification_type, class: [:feedback, 'feedback-info', 'feedback-thin']) : content_tag(:span, 'No', class: [:feedback, 'feedback-warning', 'feedback-thin'])) -%>
+          <%= content_tag(:td, v.first.data_source_title) -%>
+
+          <%= content_tag(:td, v.first.verification_type) -%>
+          <%= content_tag(:td, v.first.words_before.join(' ')) -%>
+        </tr>
+      <% end %>
+    </table>
+  <% end %>
+
+<% else %>
+  <p class="feedback feedback-danger"> Playground failed, OCR of text likely missing. </p>
+<% end %>
