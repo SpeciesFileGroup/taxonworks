@@ -37,7 +37,7 @@
 
           <% if t == :missing_names %>
             <td> - </td>
-            <%= content_tag(:td, link_to('New', new_taxon_name_task_path(name: v.first.protonym_name, parentId: v.first.taxonworks_parent&.id))) -%>
+            <%= content_tag(:td, link_to('New', new_taxon_name_task_path(name: v.first.protonym_name, parent_id: v.first.taxonworks_parent&.id))) -%>
           <% else %>
             <%= content_tag(:td, v.first.matches.collect{|a| object_link(a) }.join(', ').html_safe) -%>
             <td> - </td>
