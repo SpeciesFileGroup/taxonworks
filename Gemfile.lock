@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/LocoDelAssembly/gnfinder.git
-  revision: 688a2d7f07e81599798a5bdc91845357ec697693
+  revision: 5eda14524ba923f301a5497f2ba059ea515813f4
   branch: built-in-binaries
   specs:
     gnfinder (0.10.1)
