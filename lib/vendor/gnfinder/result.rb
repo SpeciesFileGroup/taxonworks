@@ -8,6 +8,7 @@ module Vendor
 
       attr_accessor :ocr_failure
 
+      # TODO: json as input might change for GRPC
       def initialize(json, project_id = nil)
         if json.kind_of?(Hash) && !(json.dig(:metadata, :total_tokens) == 1)
           build_names(json, project_id) 
@@ -16,6 +17,8 @@ module Vendor
         end
       end
 
+      # @param json [Json]
+      #   full json object at this point
       def build_names(json, project_id)
         @names = json[:names]&.map{|n| Vendor::Gnfinder::Name.new(n, project_id)}
           &.sort{|a,b| a.name <=> b.name} || []

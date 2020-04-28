@@ -39,7 +39,8 @@
             <td> - </td>
             <%= content_tag(:td, link_to('New', new_taxon_name_task_path(name: v.first.protonym_name, parent_id: v.first.taxonworks_parent&.id))) -%>
           <% else %>
-            <%= content_tag(:td, v.first.matches.collect{|a| object_link(a) }.join(', ').html_safe) -%>
+            <%= content_tag(:td, v.first.matches.collect{|a| 
+              ( object_link(a) + (@source ? ( ': ' + quick_citation_tag(@source.id, a)).html_safe : nil))  }.flatten.join(', ').html_safe).html_safe -%>
             <td> - </td>
           <% end %>
           <%= content_tag(:td, object_link(v.first.taxonworks_parent) ) -%>
@@ -49,7 +50,7 @@
           <%= content_tag(:td, v.first.data_source_title) -%>
 
           <%= content_tag(:td, v.first.verification_type) -%>
-          <%= content_tag(:td, v.first.words_before.join(' ')) -%>
+          <%= content_tag(:td, content_tag(:pre, (v.first.words_before.join('&nbsp;') + v.first.words_after.join(' ')).html_safe )) -%>
         </tr>
       <% end %>
     </table>

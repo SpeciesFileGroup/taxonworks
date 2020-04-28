@@ -131,6 +131,10 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   let(:mn) { Vendor::Gnfinder::Name.new(monomial_json) }
   let(:bn) { Vendor::Gnfinder::Name.new(binomial_json) }
 
+  specify '#project_id' do
+    expect(mn.project_id).to eq(nil)
+  end
+
   specify '#name' do
     expect(mn.name).to eq('Diapriinae')
   end
@@ -147,7 +151,6 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     expect(mn.match_end).to eq(24) # was 31
   end
 
-  # PENDING
   specify '#words_before' do
     expect(mn.words_before).to contain_exactly("Genera", "Of", "The")
   end
@@ -156,17 +159,20 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     expect(mn.words_after).to contain_exactly("Diapriidae", "Hymenoptera", "In")
   end
 
-  # No more path in wikispecies
-  # specify '#classification_path' do
-  #  expect(mn.classification_path).to include("Basal", "Bilateria", "Boltonocostidae", "Carbotriplurida", "Cephalornis")
-  # end
+  specify '#classification_path' do
+    expect(mn.classification_path).to contain_exactly()
+  end
+
+  specify '#classification_rank' do
+    expect(mn.classification_rank).to contain_exactly()
+  end
 
   specify '#data_source_title' do
     expect(mn.data_source_title).to eq('Wikispecies')
   end
 
-  specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly()
+  specify '#verification_type' do
+    expect(mn.verification_type).to eq('ExactMatch')
   end
 
   specify '#protonym_name 1' do
@@ -187,6 +193,14 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
 
   specify '#is_in_taxonworks?' do
     expect(bn.is_in_taxonworks?).to eq(false)
+  end
+
+  specify '#taxonworks_parent_name' do
+    expect(bn.taxonworks_parent_name).to eq('Turripria')
+  end
+
+  specify '#taxonworks_parent' do
+    expect(bn.taxonworks_parent).to eq(nil)
   end
 
 end

@@ -11,6 +11,7 @@ module Vendor
 
       attr_accessor :project_id
 
+      # @param found_name [Json] 
       def initialize(found_name, project_id = nil)
         @name = found_name[:name]
         @verbatim = found_name[:verbatim]
