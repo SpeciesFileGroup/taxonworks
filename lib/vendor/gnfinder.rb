@@ -22,7 +22,7 @@ module Vendor
     # @param tokens [Integer, nil]
     # @param verification  [Boolean]
     # @return [Hash]
-    def self.to_json(text, verification = true, tokens = nil)
+    def self.to_json(text, verification = true, tokens = 3)
       return {} if text.nil? || text.empty?
       # c = "gnfinder find"
       # c = c + ' -c' if verification

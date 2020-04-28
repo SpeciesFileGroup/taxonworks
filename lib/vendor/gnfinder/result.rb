@@ -9,7 +9,7 @@ module Vendor
       attr_accessor :ocr_failure
 
       def initialize(json, project_id = nil)
-        if json.kind_of?(Hash) && !(json.dig(:metadata, :total_words) == 1)
+        if json.kind_of?(Hash) && !(json.dig(:metadata, :total_tokens) == 1)
           build_names(json, project_id) 
         else
           @ocr_failure = true 
