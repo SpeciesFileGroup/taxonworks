@@ -2,14 +2,15 @@
   <button
     class="button normal-input button-default"
     :disabled="citation"
+    @click="createCitation"
     type="button">
-    Create citation
+    {{ label }}
   </button>
 </template>
 
 <script>
 
-import ajaxCall from 'components/ajaxCall'
+import ajaxCall from 'helpers/ajaxCall'
 
 export default {
   props: {
@@ -24,7 +25,8 @@ export default {
   },
   data () {
     return {
-      citation: undefined
+      citation: undefined,
+      label: 'Cite'
     }
   },
   methods: {
@@ -32,10 +34,11 @@ export default {
       ajaxCall('post', '/citations.json', {
         citation: {
           source_id: this.sourceId,
-          global_id: this.globalId
+          annotated_global_entity: this.globalId
         }
       }).then(response => {
         this.citation = response.body
+        this.label = 'Created'
         TW.workbench.alert.create('Citation was successfully created.', 'notice')
       })
     }
