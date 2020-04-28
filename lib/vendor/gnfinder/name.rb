@@ -21,15 +21,15 @@ module Vendor
 
         @project_id = project_id
 
-        @classification_path = found_name.dig(:verification, :BestResult, :classificationPath)&.split('|') || []
-        @classification_rank = found_name.dig(:verification, :BestResult, :classificationRank)&.split('|') || []
+        @classification_path = found_name.dig(:verification, :best_result, :classification_path)&.split('|') || []
+        @classification_rank = found_name.dig(:verification, :best_result, :classification_rank)&.split('|') || []
 
-        @verification_type = found_name.dig(:verification, :BestResult, :matchType)
+        @verification_type = found_name.dig(:verification, :best_result, :match_type)
 
         @match_type = found_name.dig(:type)
 
-        @data_source_title = found_name.dig(:verification, :BestResult, :dataSourceTitle)
-        @data_source_quality = found_name.dig(:verification, :BestResult, :dataSourceQuality)
+        @data_source_title = found_name.dig(:verification, :best_result, :data_source_title)
+        @data_source_quality = found_name.dig(:verification, :best_result, :data_source_quality)
       end
 
       def protonym_name
@@ -42,7 +42,7 @@ module Vendor
       end
 
       def is_verified?
-        @verification_type && @verification_type != 'NoMatch'
+        @verification_type && @verification_type != :NONE
       end
 
       def is_in_taxonworks?
