@@ -553,7 +553,7 @@ namespace :tw do
             species_name_id = get_tw_taxon_name_id[row['SpeciesNameID']].to_i
 
             reason = row['Reason'] # test if = '4' to add note after; if reason = 9, make note in SF it is inherited from replaced name
-            authority_ref_id = get_tw_source_id[row['AuthorityRefID']] # is string
+            authority_ref_id = get_tw_source_id[row['AuthorityRefID']].to_i # is string
             first_family_group_name_id = get_tw_taxon_name_id[row['FirstFamGrpNameID']].to_i # make import attribute
 
             # project_id = TaxonName.where(id: genus_name_id ).pluck(:project_id).first vs. TaxonName.find(genus_name_id).project_id
@@ -588,7 +588,7 @@ namespace :tw do
               puts 'TaxonNameRelationship created'
 
               if row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
-                tnr_cit = tnr.citations.new(source_id: get_tw_source_id[authority_ref_id],
+                tnr_cit = tnr.citations.new(source_id: authority_ref_id,
                                             project_id: project_id)
                 begin
                   tnr_cit.save!
