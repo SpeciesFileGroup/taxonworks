@@ -24,17 +24,19 @@ module Vendor
     # @return [Hash]
     def self.to_json(text, verification = true, tokens = nil)
       return {} if text.nil? || text.empty?
-      c = "gnfinder find"
-      c = c + ' -c' if verification
-      c = c + ' -t #{tokens}' if tokens && tokens > 0
+      # c = "gnfinder find"
+      # c = c + ' -c' if verification
+      # c = c + ' -t #{tokens}' if tokens && tokens > 0
 
-      t = Open3.popen2(c) {|i,o,t|
-        i.puts text 
-        i.close
-        o.read
-      }
+      # t = Open3.popen2(c) {|i,o,t|
+      #   i.puts text 
+      #   i.close
+      #   o.read
+      # }
 
-      JSON.parse(t, symbolize_names: true)
+      # JSON.parse(t, symbolize_names: true)
+
+      ::Gnfinder::Finder.find_names(text, verification: verification, tokens_around: tokens).to_h
     end
 
   end
