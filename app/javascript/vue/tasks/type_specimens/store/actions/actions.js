@@ -7,6 +7,7 @@ import removeTypeSpecimen from './removeTypeSpecimen'
 import updateTypeSpecimen from './updateTypeSpecimen'
 import setNewTypeMaterial from './setNewTypeMaterial'
 import updateCollectionObject from './updateCollectionObject'
+import saveIdentifier from './saveIdentifier'
 
 const ActionFunctions = {
   [ActionNames.LoadTypeMaterial]: loadTypeMaterial,
@@ -16,7 +17,8 @@ const ActionFunctions = {
   [ActionNames.RemoveTypeSpecimen]: removeTypeSpecimen,
   [ActionNames.UpdateTypeSpecimen]: updateTypeSpecimen,
   [ActionNames.SetNewTypeMaterial]: setNewTypeMaterial,
-  [ActionNames.UpdateCollectionObject]: updateCollectionObject
+  [ActionNames.UpdateCollectionObject]: updateCollectionObject,
+  [ActionNames.SaveIdentifier]: saveIdentifier
 }
 
 export { ActionNames, ActionFunctions }
