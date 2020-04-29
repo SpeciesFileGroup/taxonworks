@@ -46,6 +46,7 @@
             <div class="flex-wrap-row">
               <pdf-button
                 v-for="pdf in item.documents"
+                :key="pdf.id"
                 :pdf="pdf"/>
             </div>
           </td>
