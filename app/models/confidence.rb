@@ -28,7 +28,7 @@ class Confidence < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:confidence_object)
 
-  acts_as_list scope: [:confidence_object_id, :confidence_object_type]
+  acts_as_list scope: [:confidence_object_id, :confidence_object_type, :project_id]
 
   belongs_to :confidence_level, inverse_of: :confidences, validate: true
   belongs_to :controlled_vocabulary_term, foreign_key: :confidence_level_id, inverse_of: :confidences

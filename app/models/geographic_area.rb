@@ -50,10 +50,8 @@ class GeographicArea < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::IsApplicationData
-#  include Shared::DataAttributes
-#  include Shared::Tags
-#  include Shared::Identifiers
-#  include Shared::Notes
+
+  include GeographicArea::DwcSerialization
 
   # @return class
   #   this method calls Module#module_parent
@@ -146,7 +144,6 @@ class GeographicArea < ApplicationRecord
         .where(['gb.name = ?', names[2]])
     end
   }
-
 
   before_destroy :check_for_children
 
@@ -312,7 +309,13 @@ class GeographicArea < ApplicationRecord
   #   3) GADM
   #   4) everything else (at present, TDWG)
   def default_geographic_item
-    GeographicItem.default_by_geographic_area_ids([id]).first
+    default_geographic_area_geographic_item&.geographic_item
+    # GeographicItem.default_by_geographic_area_ids([id]).first
+  end
+
+  # @return [GeographicAreasGeographicItem, nil]
+  def default_geographic_area_geographic_item
+    geographic_areas_geographic_items.merge(::GeographicAreasGeographicItem.default_geographic_item_data).first
   end
 
   # rubocop:disable Style/StringHashKeys

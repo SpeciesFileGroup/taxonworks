@@ -66,17 +66,6 @@ class GeographicItem < ApplicationRecord
       .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
       .freeze
 
-
-    # "CASE geographic_items.type
-    #        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
-    #        WHEN 'GeographicItem::Point' THEN point::geometry
-    #        WHEN 'GeographicItem::LineString' THEN line_string::geometry
-    #        WHEN 'GeographicItem::Polygon' THEN polygon::geometry
-    #        WHEN 'GeographicItem::MultiLineString' THEN multi_line_string::geometry
-    #        WHEN 'GeographicItem::MultiPoint' THEN multi_point::geometry
-    #        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
-    #     END".freeze
-
     GEOGRAPHY_SQL = "CASE geographic_items.type
      WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
      WHEN 'GeographicItem::Point' THEN point
@@ -145,7 +134,7 @@ class GeographicItem < ApplicationRecord
       q1 = ["SELECT ST_Intersects((SELECT single_geometry FROM (#{GeographicItem.single_geometry_sql(*ids)}) as " \
             'left_intersect), ST_GeogFromText(?)) as r;', ANTI_MERIDIAN]
       _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Intersects((SELECT single_geometry FROM (?) as ' \
-            'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
+                                                          'left_intersect), ST_GeogFromText(?)) as r;', GeographicItem.single_geometry_sql(*ids), ANTI_MERIDIAN])
       GeographicItem.find_by_sql(q1).first.r
     end
 
@@ -970,12 +959,12 @@ class GeographicItem < ApplicationRecord
 
   # @return [Array]
   #   the lat, long, as STRINGs for the centroid of this geographic item
-  #  TODO:  Probably way to many decimals
   def center_coords
-    r = GeographicItem.find_by_sql("Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
-                    "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
-                    "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
-                    "longitude from geographic_items where id = #{id};")[0]
+    r = GeographicItem.find_by_sql(
+      "Select split_part(ST_AsLatLonText(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}), " \
+      "'D.DDDDDD'), ' ', 1) latitude, split_part(ST_AsLatLonText(ST_Centroid" \
+      "(#{GeographicItem::GEOMETRY_SQL.to_sql}), 'D.DDDDDD'), ' ', 2) " \
+      "longitude from geographic_items where id = #{id};")[0]
 
     [r.latitude, r.longitude]
   end
@@ -1007,10 +996,11 @@ class GeographicItem < ApplicationRecord
   def st_distance_spheroid(geographic_item_id)
     q1 = "ST_DistanceSpheroid((#{GeographicItem.select_geometry_sql(id)})," \
       "(#{GeographicItem.select_geometry_sql(geographic_item_id)}),'#{Gis::SPHEROID}') as distance"
-    _q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_DistanceSpheroid((?),(?),?) as distance',
-                                                        GeographicItem.select_geometry_sql(id),
-                                                        GeographicItem.select_geometry_sql(geographic_item_id),
-                                                        Gis::SPHEROID])
+    _q2 = ActiveRecord::Base.send(:sanitize_sql_array,
+                                  ['ST_DistanceSpheroid((?),(?),?) as distance',
+                                   GeographicItem.select_geometry_sql(id),
+                                   GeographicItem.select_geometry_sql(geographic_item_id),
+                                   Gis::SPHEROID])
     GeographicItem.where(id: id).pluck(Arel.sql(q1)).first
   end
 

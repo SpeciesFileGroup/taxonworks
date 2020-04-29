@@ -77,10 +77,13 @@ class CollectionObject < ApplicationRecord
   include Shared::Observations
   include Shared::IsData
   include SoftValidation
+  
+  include CollectionObject::BiologicalExtensions
+
   include Shared::IsDwcOccurrence
   include CollectionObject::DwcExtensions
 
-  include CollectionObject::BiologicalExtensions
+
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
   is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
@@ -606,13 +609,13 @@ class CollectionObject < ApplicationRecord
 
   # return [Boolean]
   #    True if instance is a subclass of BiologicalCollectionObject
-  def biological?
+  def is_biological?
     self.class <= BiologicalCollectionObject ? true : false
   end
 
   def annotations
     h = annotations_hash
-    (h['biocuration classifications'] = biocuration_classes) if biological? && biocuration_classifications.load.any?
+    (h['biocuration classifications'] = biocuration_classes) if is_biological? && biocuration_classifications.load.any?
     h
   end
 
@@ -638,6 +641,8 @@ class CollectionObject < ApplicationRecord
   def sv_missing_repository
     # WHY? -  see biological_collection_object
   end
+
+  
 
   protected
 
@@ -677,6 +682,7 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
+  
 end
 
 require_dependency 'specimen'

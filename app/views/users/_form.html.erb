@@ -23,13 +23,25 @@
     <%= f.password_field :password_confirmation %>
   </div>
 
+  <div class="field">
+    <%= f.label :person %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {
+      controller:  'people',
+      object: 'user',
+      method:  'person_id',
+      tag_id:  'person_id_for_otu',
+      display:  @user.person&.cached,
+      size: 60} %>
+  </div>
+
   <% if is_administrator? -%>
     <div class="field">
       <%= f.label :is_administrator %>
       <br>
       <%= f.check_box :is_administrator %>
     </div>
-
   
     <div class="field">
       <%= f.label :is_flagged_for_password_reset %>

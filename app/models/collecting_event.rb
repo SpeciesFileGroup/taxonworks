@@ -29,7 +29,7 @@
 #
 # @!attribute verbatim_geolocation_uncertainty
 #   @return [String]
-#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
+#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value
 #
 # @!attribute verbatim_trip_identifier
 #   @return [String]
@@ -179,18 +179,23 @@
 class CollectingEvent < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::DataAttributes
-  include Shared::HasRoles
+  include Shared::DataAttributes 
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
-  include Shared::Depictions
-  include Shared::Labels
-  include Shared::IsData
+  include Shared::Depictions 
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
   include SoftValidation
+  include Shared::HasRoles
+  include Shared::Labels
+  include Shared::IsData
+
+  include CollectingEvent::GeoLocate
+  include CollectingEvent::Georeference
+
+  include CollectingEvent::DwcSerialization
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
@@ -209,22 +214,17 @@ class CollectingEvent < ApplicationRecord
 
   # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
+  # See also CollectingEvent::GeoLocate
+
   belongs_to :geographic_area, inverse_of: :collecting_events
 
   has_one :accession_provider_role, class_name: 'AccessionProvider', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
-  has_one :verbatim_data_georeference, class_name: 'Georeference::VerbatimData'
-  has_one :preferred_georeference, -> { order(:position) }, class_name: 'Georeference', foreign_key: :collecting_event_id
 
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects
-  has_many :georeferences, dependent: :destroy
-  has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
-  has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
-  has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
   has_many :otus, through: :collection_objects
 
@@ -240,24 +240,15 @@ class CollectingEvent < ApplicationRecord
   after_save :set_cached, unless: -> { no_cached }
   after_save :update_dwc_occurrences , unless: -> { no_dwc_occurrence }
 
-  def update_dwc_occurrences
-    # reload is required!
-    if collection_objects.count < 40
-      collection_objects.reload.each do |o|
-        o.set_dwc_occurrence
-      end
-    end
-  end
-
   accepts_nested_attributes_for :verbatim_data_georeference
   accepts_nested_attributes_for :geo_locate_georeferences
   accepts_nested_attributes_for :gpx_georeferences
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
-           :check_date_range,
-           :check_elevation_range,
-           :check_ma_range
+    :check_date_range,
+    :check_elevation_range,
+    :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
   validates_presence_of :verbatim_longitude, if: -> { !verbatim_latitude.blank? }
@@ -289,10 +280,10 @@ class CollectingEvent < ApplicationRecord
   validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-            unless: -> { end_date_year.nil? || end_date_month.nil? }
+    unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
 
@@ -509,29 +500,6 @@ class CollectingEvent < ApplicationRecord
     [start_date_string, end_date_string].compact
   end
 
-  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
-  # .select {|ce| ce.georeferences.empty?}
-  # @param [Boolean] reference_self
-  # @param [Boolean] no_cached
-  # @return [Georeference::VerbatimData, false]
-  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
-  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
-    return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
-    begin
-      CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
-        a = Georeference::VerbatimData.new(vg_attributes)
-        if a.valid?
-          a.save
-        end
-        return a
-      end
-    rescue
-      raise
-    end
-    false
-  end
 
   # @return [GeographicItem, nil]
   #    a GeographicItem instance representing a translation of the verbatim values, not saved
@@ -545,15 +513,6 @@ class CollectingEvent < ApplicationRecord
     else
       nil
     end
-  end
-
-  # @return [Integer]
-  # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
-  # @TODO: See Utilities::Geo.distance_in_meters(String)
-  def get_error_radius
-    return nil if verbatim_geolocation_uncertainty.blank?
-    return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
-    nil
   end
 
   # @return [Scope]
@@ -696,7 +655,7 @@ class CollectingEvent < ApplicationRecord
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
-      # quick
+      # qu
       r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
       # slow
       r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
@@ -716,10 +675,6 @@ class CollectingEvent < ApplicationRecord
     r
   end
 
-  def has_cached_geographic_names?
-    cached_geographic_name_classification != {}
-  end
-
   def cached_geographic_name_classification
     h = {}
     h[:country] = cached_level0_geographic_name if cached_level0_geographic_name
@@ -728,17 +683,10 @@ class CollectingEvent < ApplicationRecord
     h
   end
 
-  def cache_geographic_names(values = {}, tried = false)
-    # prevent a second call to get if we've already tried through
-    values = get_geographic_name_classification if values.empty? && !tried
-    return {} if values.empty?
-    update_columns(
-      cached_level0_geographic_name: values[:country],
-      cached_level1_geographic_name: values[:state],
-      cached_level2_geographic_name: values[:county]
-    )
-    values
+  def has_cached_geographic_names?
+    cached_geographic_name_classification != {}
   end
+
 
   # @return [Symbol, nil]
   #   determines (prioritizes) the method to be used to decided the geographic name classification
@@ -809,7 +757,7 @@ class CollectingEvent < ApplicationRecord
     name_hash.keys.sort.each do |k| # alphabetically first (keys are unordered)
       if name_hash[k].size > most_count
         most_count = name_hash[k].size
-        most_key   = k
+        most_key = k
       end
     end
     most_key
@@ -837,218 +785,39 @@ class CollectingEvent < ApplicationRecord
 
   alias county_name county_or_equivalent_name
 
-  # @return [Symbol, nil]
-  #   prioritizes and identifies the source of the latitude/longitude values that
-  #   will be calculated for DWCA and primary display
-  def lat_long_source
-    if preferred_georeference
-      :georeference
-    elsif verbatim_latitude && verbatim_longitude
-      :verbatim
-    elsif geographic_area && geographic_area.has_shape?
-      :geographic_area
-    else
-      nil
-    end
-  end
-
-=begin
-
-# @todo @mjy: please fill in any other paths you can think of for the acquisition of information for the seven below listed items
-  ce.georeference.geographic_item.centroid
-  ce.georeference.error_geographic_item.centroid
-  ce.verbatim_georeference
-  ce.preferred_georeference
-  ce.georeference.first
-  ce.verbatim_lat/ee.verbatim_lng
-  ce.verbatim_locality
-  ce.geographic_area.geographic_item.centroid
-
-  There are a number of items we can try to get data for to complete the geolocate parameter string:
-
-  'country' can come from:
-    GeographicArea through ce.country_name
-
-  'state' can come from:
-    GeographicArea through ce.state_or_province_name
-
-  'county' can come from:
-    GeographicArea through ce.county_or_equivalent_name
-
-  'locality' can come from:
-    ce.verbatim_locality
-
-  'Latitude', 'Longitude' can come from:
-    GeographicItem through ce.georeferences.geographic_item.centroid
-    GeographicItem through ce.georeferences.error_geographic_item.centroid
-    GeographicArea through ce.geographic_area.geographic_area_map_focus
-
-  'Placename' can come from:
-    ? Copy of 'locality'
-=end
-
-  # rubocop:disable Style/StringHashKeys
-  # @return [Hash]
-  #   parameters from collecting event that are of use to geolocate
-  def geolocate_attributes
-    parameters = {
-      'country'   => country_name,
-      'state'     => state_or_province_name,
-      'county'    => county_or_equivalent_name,
-      'locality'  => verbatim_locality,
-      'Placename' => verbatim_locality,
-    }
-
-    focus = case lat_long_source
-            when :georeference
-              preferred_georeference.geographic_item
-            when :geographic_area
-              geographic_area.geographic_area_map_focus
-            else
-              nil
-            end
-
-    parameters.merge!(
-      'Longitude' => focus.point.x,
-      'Latitude'  => focus.point.y
-    ) unless focus.nil?
-    parameters
-  end
-
-  def latitude
-    verbatim_map_center.try(:y)
-  end
-
-  def longitude
-    verbatim_map_center.try(:x)
-  end
-
-  # @return [Hash]
-  #    a complete set of params necessary to form a request string
-  def geolocate_ui_params
-    Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_hash
-  end
-
-  # @return [String]
-  def geolocate_ui_params_string
-    Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
-  end
-
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
   def to_geo_json_feature
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
-                                   'properties' => {
-                                     'collecting_event' => {
-                                       'id'  => self.id,
-                                       'tag' => "Collecting event #{self.id}."
-                                     }
-                                   }
-                                 })
+      'properties' => {
+        'collecting_event' => {
+          'id'  => self.id,
+          'tag' => "Collecting event #{self.id}."
+        }
+      }
+    })
   end
 
-  # TODO: parametrize to include gazeteer
+  # TODO: parametrize to include gazetteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
     base = {
-      'type'       => 'Feature',
+      'type' => 'Feature',
       'properties' => {}
     }
 
     if geographic_items.any?
-      geo_item_id      = geographic_items.select(:id).first.id
+      geo_item_id = geographic_items.select(:id).first.id
       query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
       base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
     end
     base
   end
 
-  # rubocop:enable Style/StringHashKeys
-
-  # @return [CollectingEvent]
-  #   return the next collecting event without a georeference in this collecting events project sort order
-  #   1.  verbatim_locality
-  #   2.  geography_id
-  #   3.  start_date_year
-  #   4.  updated_on
-  #   5.  id
-  def next_without_georeference
-    CollectingEvent.not_including(self).
-      includes(:georeferences).
-      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
-      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
-      first
-  end
-
-  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
-  # @return [RGeo::Geographic::ProjectedPointImpl, nil]
-  #   for the *verbatim* latitude/longitude only
-  def verbatim_map_center(delta_z = 0.0)
-    retval = nil
-    unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
-      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
-      delta_z = elev unless elev == 0.0
-      retval  = Gis::FACTORY.point(long, lat, delta_z)
-    end
-    retval
-  end
-
-  # @return [Symbol, nil]
-  #   the name of the method that will return an Rgeo object that represent
-  #   the "preferred" centroid for this collecting event
-  def map_center_method
-    return :preferred_georeference if preferred_georeference # => { georeferenceProtocol => ?  }
-    return :verbatim_map_center if verbatim_map_center # => { }
-    return :geographic_area if geographic_area.try(:has_shape?)
-    nil
-  end
-
-  # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
-  def map_center
-    case map_center_method
-    when :preferred_georeference
-      preferred_georeference.geographic_item.centroid
-    when :verbatim_map_center
-      verbatim_map_center
-    when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid
-    else
-      nil
-    end
-  end
-
   def names
     geographic_area.nil? ? [] : geographic_area.self_and_ancestors.where("name != 'Earth'").collect { |ga| ga.name }
-  end
-
-  def georeference_latitude
-    retval = 0.0
-    if georeferences.count > 0
-      retval = Georeference.where(collecting_event_id: self.id).order(:position).limit(1)[0].latitude.to_f
-    end
-    retval.round(6)
-  end
-
-  def georeference_longitude
-    retval = 0.0
-    if georeferences.count > 0
-      retval = Georeference.where(collecting_event_id: self.id).order(:position).limit(1)[0].longitude.to_f
-    end
-    retval.round(6)
-  end
-
-  # @return [String]
-  #   coordinates for centering a Google map
-  def verbatim_center_coordinates
-    if self.verbatim_latitude.blank? || self.verbatim_longitude.blank?
-      'POINT (0.0 0.0 0.0)'
-    else
-      self.verbatim_map_center.to_s
-    end
   end
 
   def level0_name
@@ -1105,6 +874,27 @@ class CollectingEvent < ApplicationRecord
   end
 
   protected
+
+  def cache_geographic_names(values = {}, tried = false)
+    # prevent a second call to get if we've already tried through
+    values = get_geographic_name_classification if values.empty? && !tried
+    return {} if values.empty?
+    update_columns(
+      cached_level0_geographic_name: values[:country],
+      cached_level1_geographic_name: values[:state],
+      cached_level2_geographic_name: values[:county]
+    )
+    values
+  end
+
+  def update_dwc_occurrences
+    # reload is required!
+    if collection_objects.count < 40
+      collection_objects.reload.each do |o|
+        o.set_dwc_occurrence
+      end
+    end
+  end
 
   def set_cached
     v = [verbatim_label, print_label, document_label].compact.first

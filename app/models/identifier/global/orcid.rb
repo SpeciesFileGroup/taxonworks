@@ -22,22 +22,13 @@ class Identifier::Global::Orcid < Identifier::Global
   end
 
   def generate_check_digit(base_digits)
-
-    # int total = 0;
     total = 0
 
-    # for (int i = 0; i < baseDigits.length(); i++) {
     base_digits.each_char { |digit|
-      #   int digit = Character.getNumericValue(baseDigits.charAt(i));
-      # total = (total + digit) * 2;
-      # }
       total = (total + digit.to_i) * 2
     }
-    # int remainder = total % 11;
-    # int result = (12 - remainder) % 11;
     remainder = (total % 11)
     result = (12 - remainder) % 11
-    # return result == 10 ? "X" : String.valueOf(result);
     return result == 10 ? 'X' : result.to_s
   end
 

@@ -4,7 +4,6 @@ module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
   included do
-    
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
 
     # @return Boolean, nil
@@ -48,6 +47,7 @@ module Shared::IsDwcOccurrence
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
       a[k] = send(v)
     end
+
     a[:project_id] = project_id
     a[:created_by_id] = created_by_id
     a[:updated_by_id] = updated_by_id

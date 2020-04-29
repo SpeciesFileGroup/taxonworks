@@ -32,16 +32,10 @@ describe ControlledVocabularyTerm, type: :model do
     end
   end
 
-  specify 'definition is 4 letters long minium' do
+  specify 'definition is 20 letters long minium' do
     controlled_vocabulary_term.definition = 'abc'
     controlled_vocabulary_term.valid?
     expect(controlled_vocabulary_term.errors.include?(:definition)).to be_truthy
-  end
-
-  specify 'if uri is provided uri_relation must also be provided' do
-    controlled_vocabulary_term.uri = 'http://abc.com/123'
-    expect(controlled_vocabulary_term.valid?).to be_falsey
-    expect(controlled_vocabulary_term.errors.include?(:uri_relation)).to be_truthy
   end
 
   specify 'if uri_relation is provided uri must also be provided' do

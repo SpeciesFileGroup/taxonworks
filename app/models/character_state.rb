@@ -23,7 +23,7 @@ class CharacterState < ApplicationRecord
   include Shared::AlternateValues
   include SoftValidation
 
-  acts_as_list scope: [:descriptor_id]
+  acts_as_list scope: [:descriptor_id, :project_id]
 
   ALTERNATE_VALUES_FOR = [:name, :label].freeze
 

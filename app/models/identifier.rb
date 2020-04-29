@@ -41,7 +41,7 @@
 #   The type of the identified object, used in a polymorphic relationship.
 #
 class Identifier < ApplicationRecord
-  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ]
+  acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ], add_new_at: :top
 
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator

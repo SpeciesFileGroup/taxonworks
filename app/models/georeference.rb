@@ -1,11 +1,12 @@
-# A georeference is an assertion that some shape, as derived from some method, describes the location of
-# some collecting event.
+# A Georeference is an assertion that some shape, as derived from some method, describes the location of
+# some CollectingEvent.
 #
 # A georeference contains three components:
 #  1) A reference to a CollectingEvent (who, where, when, how)
 #  2) A reference to a GeographicItem (a shape)
 #  3) A method by which the shape was associated with the collecting event (via `type` subclassing).
-# If a georeference was published its Source can be provided.  This is not equivalent to providing a method for deriving the georeference.
+#
+# If a georeference was published its Source can be provided. This is _not_ equivalent to providing a method for deriving the georeference.
 #
 # Contains information about a location on the face of the Earth, consisting of:
 #
@@ -67,31 +68,33 @@ class Georeference < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData
+  include Shared::Confidences
   include Shared::Citations
   include Shared::HasRoles
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
-  acts_as_list scope: [:collecting_event_id]
+  acts_as_list scope: [:collecting_event_id, :project_id]
 
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
-  belongs_to :collecting_event, inverse_of: :georeferences
+  belongs_to :error_geographic_item, class_name: '::GeographicItem', foreign_key: :error_geographic_item_id
+  belongs_to :collecting_event, inverse_of: :georeferences, class_name: '::CollectingEvent'
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event
 
   has_many :georeferencer_roles, -> { order('roles.position ASC') },
-           class_name: 'Georeferencer',
-           as: :role_object, validate: true
+    class_name: 'Georeferencer',
+    as: :role_object, validate: true
+
   has_many :georeferencers, -> { order('roles.position ASC') },
-           through: :georeferencer_roles,
-           source: :person, validate: true
+    through: :georeferencer_roles,
+    source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true
-  # validates :collecting_event, presence: true
+
+  validates :collecting_event, presence: true
   validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
-  # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
   # validate :proper_data_is_provided
   validate :add_error_radius
@@ -199,6 +202,10 @@ class Georeference < ApplicationRecord
 
   # class methods
 
+  def self.point_type
+    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
+  end 
+
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
   def self.filter_by(params)
@@ -305,7 +312,7 @@ class Georeference < ApplicationRecord
 
   # @return [Hash] of names of geographic areas
   def set_cached
-    collecting_event.cache_geographic_names
+    collecting_event.send(:cache_geographic_names)
   end
 
   # validation methods
@@ -542,3 +549,6 @@ class Georeference < ApplicationRecord
     DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end
 end
+
+Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
+

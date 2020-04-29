@@ -95,6 +95,8 @@ class Person < ApplicationRecord
     in: ['Person::Vetted', 'Person::Unvetted'],
     message: '%{value} is not a validly_published type'}
 
+  has_one :user, dependent: :restrict_with_error, inverse_of: :person
+
   has_many :roles, dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
 
   has_many :author_roles, class_name: 'SourceAuthor', dependent: :restrict_with_error, inverse_of: :person #, before_remove: :set_cached_for_related
@@ -166,6 +168,12 @@ class Person < ApplicationRecord
   #   The person's full last name including prefix & suffix (von last Jr)
   def full_last_name
     [prefix, last_name, suffix].compact.join(' ')
+  end
+
+  # Return [String, nil]
+  #   convenience, maybe a delegate: candidate
+  def orcid
+    identifiers.where(type: 'Identifier::Global::Orcid').first&.cached
   end
 
   # @param [Integer] person_id
@@ -454,9 +462,6 @@ class Person < ApplicationRecord
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
-
-#    byebug if role_type == 'Determiner'
-
     h = {
       quick: [],
       pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
@@ -520,12 +525,6 @@ class Person < ApplicationRecord
     update_column(:cached, bibtex_name)
     set_role_object_cached
   end
-
-  # def set_cached_for_related(role)
-  #   byebug
-  #   role.check_for_last
-  #   set_role_object_cached
-  # end
 
   # @return [Ignored]
   def set_role_object_cached

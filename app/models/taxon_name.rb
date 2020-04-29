@@ -29,8 +29,9 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   the verbatim author string as provided ? is not post-filled in when Source is referenced !?
 #
 # @!attribute rank_class
-#   @return [String]
-#   The TW rank of this name
+#   @param rank_class [String]
+#   @return [Class]
+#     The NOMEN based rank as a class.
 #
 # @!attribute type
 #   @return [String]
@@ -95,7 +96,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute cached_original_combination_html
 #   @return [String]
-#    as cached_original_combination but with HTML 
+#    as cached_original_combination but with HTML
 #
 # @!attribute cached_secondary_homonym
 #   @return [String]
@@ -177,7 +178,7 @@ class TaxonName < ApplicationRecord
   # I think the intent is *before* save, i.e. the name will change
   # to a new cached value, so let's record the old one
   #  after_save :create_new_combination_if_absent
- 
+
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -195,7 +196,7 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
-  
+
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
@@ -381,15 +382,15 @@ class TaxonName < ApplicationRecord
 
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
-      ( SELECT *, rank() 
-           OVER ( 
-               PARTITION BY rank_class, parent_id 
+      ( SELECT *, rank()
+           OVER (
+               PARTITION BY rank_class, parent_id
                ORDER BY generations asc, name
             ) AS rn
-         FROM taxon_names 
+         FROM taxon_names
          INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
          WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
-         ) as taxon_names 
+         ) as taxon_names
     SQL
   end
 
@@ -622,7 +623,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   whether this name needs italics applied
   def is_italicized?
-    is_genus_or_species_rank? || kind_of?(Combination) || kind_of?(Hybrid) 
+    is_genus_or_species_rank? || kind_of?(Combination) || kind_of?(Hybrid)
   end
 
   def is_protonym?
@@ -746,7 +747,7 @@ class TaxonName < ApplicationRecord
   # def create_new_combination_if_absent
   # return true unless type == 'Protonym'
   # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
-  #  
+  #
   #  if TaxonName.where(cached: cached, project_id: project_id).any?
   #    begin
   #      TaxonName.transaction do
@@ -794,7 +795,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached, n)
 
     # We can't use the in-memory cache approach for combination names, force reload each time
-    n = nil if is_combination? 
+    n = nil if is_combination?
 
     update_column(:cached_html, get_full_name_html(n))
 
@@ -802,7 +803,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this? 
+    set_cached_classified_as # why this?
     set_cached_author_year
   end
 
@@ -924,19 +925,19 @@ class TaxonName < ApplicationRecord
         data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
       end
     end
-    
+
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
       data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
     end
-    
+
     if data['variety'].nil? && !data['subvariety'].nil?
       data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
     end
-    
+
     if data['form'].nil? && !data['subform'].nil?
       data['form'] = [nil, '[FORM NOT SPECIFIED]']
     end
-    
+
     data
   end
 
@@ -947,7 +948,7 @@ class TaxonName < ApplicationRecord
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if rank_class.to_s =~ /Ictv/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
-    
+
     d = full_name_hash
     elements = []
     elements.push(d['genus']) unless (not_binomial? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
@@ -963,10 +964,10 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
-  end 
-     
+  end
+
   def get_full_name_html(name = nil)
-    name = get_full_name if name.nil? 
+    name = get_full_name if name.nil?
     n = name
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?

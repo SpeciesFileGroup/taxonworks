@@ -311,6 +311,33 @@ class Georeference::GeoLocate < Georeference
       (retval == 'Unavailable') ? nil : retval['coordinates'][0]
     end
 
+    # @return [Hash]
+    #   The interface to DwC for verbatim values only on the CE.
+    #   See respective georeferences for other implementations.
+    #
+    def dwc_georeference_attributes
+      h = { 
+        coordinateUncertaintyInMeters: nil, # See related #1770
+
+        footprintWKT: geographic_item.geo_object.to_s,
+
+        georeferenceSources: "GEOLocate ",
+        georeferenceRemarks: "Typically references one or more values copy-pasted from collecting event into GEOLocate forms.",
+        georeferenceProtocol: 'Generate via a query through the GEOLocate web interface',
+        georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
+        georeferencedBy: created_by.name,
+        georeferencedDate: created_at
+      }
+
+      if geographic_item.type == 'GeographicItem::Point' 
+        h[:decimalLatitude] = geographic_item.to_a.first
+        h[:decimalLongitude] = geographic_item.to_a.last
+      end
+
+      h
+    end
+
+
     protected
 
     # @param [String] host domain name

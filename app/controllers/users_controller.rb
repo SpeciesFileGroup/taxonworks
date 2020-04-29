@@ -140,6 +140,7 @@ class UsersController < ApplicationController
     basic = [
       :name,
       :email,
+      :person_id,
       :password,
       :password_confirmation,
       :set_new_api_access_token] 

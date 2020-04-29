@@ -4,7 +4,7 @@ class ProtocolRelationship < ApplicationRecord
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:protocol_relationship_object)
 
-  acts_as_list scope: [:protocol_id]
+  acts_as_list scope: [:protocol_id, :project_id]
 
   belongs_to :protocol, inverse_of: :protocol_relationships
 

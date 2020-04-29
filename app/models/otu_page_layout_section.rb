@@ -26,7 +26,7 @@
 #   the project ID
 #
 class OtuPageLayoutSection < ApplicationRecord
-  acts_as_list scope: :otu_page_layout
+  acts_as_list scope: [:otu_page_layout, :project_id]
 
   include Housekeeping
   include Shared::IsData
