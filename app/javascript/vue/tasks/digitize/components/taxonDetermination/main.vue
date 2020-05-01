@@ -13,6 +13,7 @@
           <smart-selector
             class="margin-medium-bottom"
             model="otus"
+            input-id="determination-otu-autocomplete"
             pin-section="Otus"
             pin-type="Otu"
             target="TaxonDetermination"
