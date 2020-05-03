@@ -122,12 +122,6 @@ namespace :tw do
 
           puts 'SFRefIDToTaxonNameAuthors'
           ap ref_taxon_name_authors
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/5_after_source_roles/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_family_group_related_info user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -445,12 +439,6 @@ namespace :tw do
 
           # puts 'TWSourceIDToContainingSourceID'
           # ap get_containing_source_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/4_after_create_sources/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         # desc 'time rake tw:project_import:sf_import:start:contained_cite_aux_data user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -521,12 +509,6 @@ namespace :tw do
 
           puts 'SFPubIDToPubTypeString'
           ap get_sf_pub_type_string
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/3_after_pub_type/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_sf_book_hash user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -634,12 +616,6 @@ namespace :tw do
 
           puts 'RefIDToVerbatimRef'
           ap get_sf_verbatim_ref
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/2_after_verbatim_refs/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:map_ref_links user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -706,12 +682,6 @@ namespace :tw do
 
           puts 'SFPubIDToTWSerialID'
           ap get_tw_serial_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/1_after_serials/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:start:create_people user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -1044,12 +1014,6 @@ namespace :tw do
               puts "destroyed, count = #{destroyed_counter += 1} \n"
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/99_after_filter_users/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
       end # :last

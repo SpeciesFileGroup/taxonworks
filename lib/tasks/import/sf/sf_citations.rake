@@ -175,12 +175,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             end
           end
 
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/25_after_otu_citations/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
-
         end
 
 
@@ -1119,12 +1113,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
           puts 'new_name_status hash:'
           ap new_name_status
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/20_after_taxon_name_citations/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         ################################################################################################# Nomenclator 2nd pass - Invalid to Combination
@@ -1144,12 +1132,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             print "\nApply fixes for the project #{value} \n"
             invalid_relationship_remove_sf(value.to_i)
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/21_after_create_combinations/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         ################################################################################################# Nomenclator 3rd pass - Soft validation fixes

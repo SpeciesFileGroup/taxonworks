@@ -301,12 +301,6 @@ namespace :tw do
               end
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/11_after_status_flag_rels/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_some_related_taxa user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -405,12 +399,6 @@ namespace :tw do
               logger.error "TaxonNameRelationship tblRelatedTaxa ERROR tw.project_id #{project_id}, SF.OlderNameID #{row['OlderNameID']} = tw.object_name_id #{object_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/10_after_some_related_taxa/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_genera user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -494,12 +482,6 @@ namespace :tw do
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{tw_family_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/9_after_type_genera/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_type_species user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -646,12 +628,6 @@ namespace :tw do
               logger.error "TaxonNameRelationship ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr.errors.full_messages.join(';')
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/8_after_type_species/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         ### ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1100,12 +1076,6 @@ namespace :tw do
           ap get_tw_otu_id
           puts 'TWTaxonNameIDToOtuID'
           ap get_taxon_name_otu_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/7_after_run_all_taxa/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_otus_for_ill_formed_names_hash user_id=1 data_directory=~/src/onedb2tw/working/'
@@ -1137,12 +1107,6 @@ namespace :tw do
 
           puts 'SFIllFormedNameIDToSFAboveID'
           ap get_otu_sf_above_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/6_after_otus_hash/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:taxa:create_sf_synonym_id_to_new_parent_id_hash user_id=1 data_directory=~/src/onedb2tw/working/'

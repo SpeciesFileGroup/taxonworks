@@ -52,12 +52,6 @@ namespace :tw do
                   project_id: get_tw_project_id[row['FileID']])
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/12_after_orig_genus_ids/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
         desc 'time rake tw:project_import:sf_import:pre_cites:create_cvts_for_citations user_id=1 data_directory=~/src/onedb2tw/working/'

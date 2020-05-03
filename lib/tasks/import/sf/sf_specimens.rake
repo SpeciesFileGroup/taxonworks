@@ -694,12 +694,6 @@ namespace :tw do
           import.set('SFSpecimenIDToSFTaxonNameID', get_sf_taxon_name_id)
           puts 'SFSpecimenIDToSFTaxonNameID'
           ap get_sf_taxon_name_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/17_after_collection_objects/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
 
@@ -768,12 +762,6 @@ namespace :tw do
 
           puts 'SFCollectEventMetadata'
           ap get_sf_collect_event_metadata
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/16_after_col_events_metadata/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
 
@@ -870,12 +858,6 @@ namespace :tw do
 
           puts 'SFIdentificationMetadata'
           ap get_sf_identification_metadata
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/15_after_identification_metadata/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
 
@@ -1285,12 +1267,6 @@ namespace :tw do
 
           puts 'SFUniqueIDToTWCollectingEventID'
           ap get_tw_collecting_event_id
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/14_after_coll_events/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
 
@@ -1370,12 +1346,6 @@ namespace :tw do
 
           puts 'SFGeoLevel4'
           ap get_sf_geo_level4
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/13_after_geo_level_4/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
 

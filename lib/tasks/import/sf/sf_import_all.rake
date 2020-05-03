@@ -1,14 +1,13 @@
 namespace :tw do
   namespace :project_import do
     namespace :sf_import do
-
       # @todo: Matt: combinations for citations
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=~/src/onedb2tw/working/'
-      task run_all_import_tasks: [
+      LoggedTask.define run_all_import_tasks: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
 
           # # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
-
+        tasks = [
           'start:list_skipped_file_ids',
           'start:create_users',
           'start:create_people',
@@ -25,7 +24,7 @@ namespace :tw do
           # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           # 1, 2, 3: 18m34.415s on 15 July 2019
           #
-          'start:create_sources',
+          # 'start:create_sources',
           # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           # 1, 2, 3, 4: 59m41.271s on 7 Oct 2019
           #
@@ -120,10 +119,30 @@ namespace :tw do
           # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
           # #
           # # Total run time ~ 65 hours
+        ]
 
-      ] do
-        puts 'Ran all tasks!'
+        tasks.each.with_index(1) do |task, index|
+          checkpoints = Import.find_or_create_by(name: 'SpeciesFileData:checkpoints')
 
+          if checkpoint = checkpoints.get(task)
+            raise logger.error "FATAL: Task #{task} has an incomplete run. Please restore DB to a clean state." unless checkpoint["end_time"]
+            logger.info "Task #{task} previously ran on #{checkpoint["start_time"]}, and finished on #{checkpoint["end_time"]}. Skipping..."
+          else
+            checkpoint = { "start_time" => DateTime.now.utc.to_s }
+            checkpoints.set(task, checkpoint)
+
+            Rake::Task["tw:project_import:sf_import:#{task}"].invoke
+
+            checkpoint["end_time"] = DateTime.now.utc.to_s
+            checkpoints.set(task, checkpoint)
+
+            path = "#{@args[:backup_directory]}/#{index}_after_#{task.gsub(':', '_')}/"
+           `rake tw:db:dump backup_directory=#{path} create_backup_directory=true`
+            logger.info "** dumped #{path} **"
+          end
+        end
+
+        logger.info 'Ran all tasks!'
       end
     end
   end

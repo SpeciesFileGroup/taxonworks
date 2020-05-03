@@ -204,12 +204,6 @@ namespace :tw do
               # next
             end
           end
-
-          #######################################################################################
-          p = "#{@args[:backup_directory]}/18_after_scrutinies/"
-          `rake tw:db:dump backup_directory=#{p} create_backup_directory=true`
-          puts "** dumped #{p} **"
-          #######################################################################################
         end
 
       end # namespaces below
