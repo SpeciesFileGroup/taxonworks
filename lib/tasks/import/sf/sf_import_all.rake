@@ -24,7 +24,7 @@ namespace :tw do
           # '3_after_pub_type': 0m27.396s on 30 Oct 2018
           # 1, 2, 3: 18m34.415s on 15 July 2019
           #
-          # 'start:create_sources',
+          'start:create_sources',
           # # '4_after_create_sources': 41m36.692s on 31 Oct 2018
           # 1, 2, 3, 4: 59m41.271s on 7 Oct 2019
           #
