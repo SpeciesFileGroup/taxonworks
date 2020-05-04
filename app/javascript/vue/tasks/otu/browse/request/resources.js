@@ -28,6 +28,10 @@ const GetConfidences = function (id) {
   return ajaxCall('get', `/otus/${id}/confidences.json`)
 }
 
+const GetGeoreferences = function (id) {
+  return ajaxCall('get', `/georeferences.json?collecting_event_id=${id}`)
+}
+
 const GetIdentifiers = function (id) {
   return ajaxCall('get', `/otus/${id}/identifiers.json`)
 }
@@ -105,5 +109,6 @@ export {
   GetBiocurations,
   GetRepository,
   GetTypeMaterials,
-  GetCommonNames
+  GetCommonNames,
+  GetGeoreferences
 }
