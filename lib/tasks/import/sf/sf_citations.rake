@@ -460,8 +460,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
-#          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
-            ['species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
+          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
+#            ['species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
@@ -536,28 +536,28 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               a += [nomenclator_ids[nomenclator_id.to_i]['infrasubspecies'][0]] if nomenclator_ids[nomenclator_id.to_i]['infrasubspecies']
               nomenclator_string = a.compact.join('_')
 
-              if false #nomenclator_id != '0' && get_nomenclator_metadata[nomenclator_id]
-
-                nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
-
-                unless nomenclator_ids[nomenclator_id.to_i]['qualifier'].blank?
-
-                  project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
-                  Current.project_id = project_id
-                  Note.create!(
-                      note_object_type: protonym,
-                      note_object_id: taxon_name_id,
-                      text: "Citation to '#{get_sf_verbatim_ref[row['RefID']]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
-                      project_id: project_id,
-                      created_at: row['CreatedOn'], # housekeeping data from citation not created
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  )
-                  cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
-                  next
-                end
-              end
+              # if nomenclator_id != '0' && get_nomenclator_metadata[nomenclator_id]
+              #
+              #   nomenclator_ident_qualifier = get_nomenclator_metadata[nomenclator_id]['ident_qualifier']
+              #
+              #   unless nomenclator_ids[nomenclator_id.to_i]['qualifier'].blank?
+              #
+              #     project_id = protonym.project_id.to_s #  TaxonName.find(taxon_name_id).project_id.to_s # forced to string for hash value
+              #     Current.project_id = project_id
+              #     Note.create!(
+              #         note_object_type: protonym,
+              #         note_object_id: taxon_name_id,
+              #         text: "Citation to '#{get_sf_verbatim_ref[row['RefID']]}' not created because accompanying nomenclator ('#{nomenclator_string}') contains irrelevant data ('#{nomenclator_ident_qualifier}')",
+              #         project_id: project_id,
+              #         created_at: row['CreatedOn'], # housekeeping data from citation not created
+              #         updated_at: row['LastUpdate'],
+              #         created_by_id: get_tw_user_id[row['CreatedBy']],
+              #         updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              #     )
+              #     cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+              #     next
+              #   end
+              # end
 
               if rank_pass == '' && nomenclator_id != '0'
                 next
@@ -574,19 +574,21 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
 
 
-              nomenclator_ident_qualifier = nomenclator_ids[nomenclator_id.to_i].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['qualifier']
+ #             nomenclator_ident_qualifier = nomenclator_ids[nomenclator_id.to_i].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['qualifier']
 
              # if row['NomenclatorID'] !='0' && protonym.name == 'Chloracris'
              #   byebug
  #             if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == 'Pseudophyllus' && nomenclator_ids[nomenclator_id.to_i]['species'].blank?
   #              byebug
- #             if rank_pass != 'species'
+#              if rank_pass = '' && protonym.id == 1114
+#
+ #             if rank_pass != 'subspecies'
  #               next
- #             elsif protonym.id == 30736
+ #             elsif protonym.id == 42042 || protonym.id == 15727
  #               byebug
-         #     elsif protonym.name == 'Anaulacomerina'
-          #      byebug
- #             elsif row['NomenclatorID'] !='0' && protonym.name == 'undulatum' && protonym.parent.name == 'Typophyllum'
+        #      elsif protonym.name == 'morona' && protonym.parent.name == 'Atopana'
+        #        byebug
+ #             elsif row['NomenclatorID'] !='0' && protonym.name == 'aduncus' && protonym.parent.name == 'johnseni'
  #               byebug
  #             else
  #               next
@@ -838,7 +840,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string]
                   p = TaxonName.find(taxon_name_id1)
                   tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
-                  if tr.nil?
+                  if tr.nil? && protonym.id != p.id
                     protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
                     if row['NewNameStatusID'] == '3'
                       protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
@@ -848,7 +850,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   end
                 end
               else
-                p = Protonym.new(project_id: project_id, also_create_otu: true)
+                p = Protonym.new(project_id: project_id) #, also_create_otu: true)
                 if rank_pass == 'genus'
                   next unless nomenclator_ids[nomenclator_id.to_i]['genus']
                   p.name = nomenclator_ids[nomenclator_id.to_i]['genus'][0]
@@ -939,6 +941,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
                 begin
                   citation.save
+                  byebug if citation.id.nil?
                   unless qualifier_string.blank?
                     n = citation.notes.create(text: 'Cited as ' + qualifier_string, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                   end
