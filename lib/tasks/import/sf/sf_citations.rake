@@ -460,7 +460,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
-          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
+#          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
+            ['species', 'subspecies', 'infrasubspecies'].each do |rank_pass|
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
@@ -572,21 +573,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               protonym = TaxonName.find(taxon_name_id)
 
-              protonym = TaxonName.find(taxon_name_id)
-
 
               nomenclator_ident_qualifier = nomenclator_ids[nomenclator_id.to_i].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['qualifier']
 
-              if nomenclator_ident_qualifier.blank? || rank_pass != 'species'
-                next
-              else
-                byebug
-              end
              # if row['NomenclatorID'] !='0' && protonym.name == 'Chloracris'
              #   byebug
  #             if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == 'Pseudophyllus' && nomenclator_ids[nomenclator_id.to_i]['species'].blank?
   #              byebug
-#              if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i]['genus'].nil? && nomenclator_ids[nomenclator_id.to_i]['species'] && nomenclator_ids[nomenclator_id.to_i]['species'][0] == 'vicinus'
+ #             if rank_pass != 'species'
+ #               next
+ #             elsif protonym.id == 30736
  #               byebug
          #     elsif protonym.name == 'Anaulacomerina'
           #      byebug
@@ -720,7 +716,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               qualifier_string = nil
               nomenclator_ident_qualifier = nomenclator_ids[nomenclator_id.to_i].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['qualifier']
               if nomenclator_ids[nomenclator_id.to_i] && !nomenclator_ident_qualifier.blank?
-                byebug
                 genus = nomenclator_ids[nomenclator_id.to_i]['genus'].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['genus'][0]
                 genus = nomenclator_ident_qualifier + ' ' + genus.to_s if nomenclator_ids[nomenclator_id.to_i]['rank_qualified'] == '20'
                 subgenus = nomenclator_ids[nomenclator_id.to_i]['subgenus'].blank? ? nil : nomenclator_ids[nomenclator_id.to_i]['subgenus'][0]
