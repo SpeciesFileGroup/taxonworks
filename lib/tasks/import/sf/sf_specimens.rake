@@ -136,7 +136,7 @@ namespace :tw do
             ranged_lot_category_id = nil
             count_override = false # boolean, primary type zero_count specimens, count = 1 unless syntype (use ranged_lot_category)
 
-            if get_specimen_category_counts[specimen_id].nil? # these are no-count specimens which fall into two categories:
+            if get_specimen_category_counts[specimen_id].nil? && sf_depo_id == "0" # these are no-count specimens which fall into two categories:
 
               if get_sf_identification_metadata[specimen_id][0]['type_kind_id'].nil?
                 logger.error "Identification error [ ident_error_counter = #{ident_error_counter += 1} ] \n"
@@ -418,29 +418,32 @@ namespace :tw do
 
               # This outer loop loops through total, category pairs, we create
               # a new collection object for each pair
-              get_specimen_category_counts[specimen_id].each do |specimen_category_id, count|
+              (get_specimen_category_counts[specimen_id] || { nil => 1 }).each do |specimen_category_id, count|
 
                 count = 1 if count_override # is true (applies only to zero-count specimens with primary types except syntypes [=ranged_lot])
 
-                collection_object = CollectionObject::BiologicalCollectionObject.new(
-                    metadata.merge(
-                        total: count,
-                        ranged_lot_category_id: ranged_lot_category_id,
-                        collecting_event_id: collecting_event_id,
-                        repository_id: repository_id,
+                co_params = metadata.merge(
+                  total: count,
+                  ranged_lot_category_id: ranged_lot_category_id,
+                  collecting_event_id: collecting_event_id,
+                  repository_id: repository_id,
 
-                        biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}],
+                  taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
+                  # taxon_determination notes here?
 
-                        taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
-                        # taxon_determination notes here?
+                  # housekeeping for collection_object
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
 
-                        # housekeeping for collection_object
-                        project_id: project_id,
-                        created_at: row['CreatedOn'],
-                        updated_at: row['LastUpdate'],
-                        created_by_id: get_tw_user_id[row['CreatedBy']],
-                        updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                    ))
+                co_params.merge({
+                  biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}]
+                }) if specimen_category_id
+
+                collection_object = CollectionObject::BiologicalCollectionObject.new(co_params)
 
                 collection_object.save!
                 logger.info "Collection object is saved, id = #{collection_object.id}, number #{saved_counter += 1}"
