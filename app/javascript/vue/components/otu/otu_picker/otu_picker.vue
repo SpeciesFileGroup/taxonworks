@@ -1,6 +1,6 @@
 <template>
   <div class="vue-otu-picker">
-    <div class="horizontal-left-content">
+    <div class="align-start flex-wrap-column">
       <autocomplete
         :input-id="inputId"
         url="/otus/autocomplete"
@@ -14,13 +14,11 @@
         :clear-after="clearAfter"
         placeholder="Select an OTU"
         param="term"/>
-      <button
+      <match-taxon-name
         v-if="!found"
-        class="button normal-input button-default"
-        type="button"
-        @click="create = true">
-        New
-      </button>
+        @createNew="create = true"
+        :otu-name="otu.name"
+        @selected="createWith"/>
     </div>
     <div
       v-if="create"
@@ -58,10 +56,6 @@
             @getItem="setTaxon"
             placeholder="Select a taxon name"
             param="term"/>
-          <match-taxon-name
-            class="margin-small-top"
-            :otu-name="otu.name"
-            @selected="setTaxon"/>
         </template>
       </div>
       <button
@@ -133,7 +127,7 @@ export default {
       if (this.taxon) {
         this.otu.taxon_name_id = this.taxon.id
       }
-      this.$http.post('/otus', { otu : this.otu }).then(response => {
+      this.$http.post('/otus', { otu: this.otu }).then(response => {
         this.emitOtu(response.body)
         this.create = false
         this.found = true
@@ -148,6 +142,11 @@ export default {
     },
     setTaxon (taxon) {
       this.taxon = taxon
+    },
+    createWith (data) {
+      this.taxon = data.taxon
+      this.otu.name = data.otuName
+      this.createOtu()
     }
   }
 }

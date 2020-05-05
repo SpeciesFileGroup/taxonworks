@@ -16,6 +16,8 @@
             input-id="determination-otu-autocomplete"
             pin-section="Otus"
             pin-type="Otu"
+            :autocomplete="false"
+            :otu-picker="true"
             target="TaxonDetermination"
             @selected="setOtu"
           />

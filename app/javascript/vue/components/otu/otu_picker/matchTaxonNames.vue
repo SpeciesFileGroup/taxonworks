@@ -3,19 +3,39 @@
     <spinner-component
       :show-legend="false"
       v-if="isSearching"/>
-    <ul class="no_bullets">
-      <li
-        v-for="item in matches"
-        class="horizontal-left-content">
-        <span v-html="item.cached_html"/>
-        <button
-          class="button normal-input button-default margin-medium-left"
-          type="button"
-          @click="setTaxonName(item)">
-          Select
-        </button>
-      </li>
-    </ul>
+    <template 
+      v-for="item in matches">
+      <ul
+        :key="item.id"
+        class="no_bullets">
+        <li
+          class="margin-small-top">
+          <button
+            class="button normal-input button-submit full_width"
+            type="button"
+            @click="send({ otuName: undefined, taxon: item })">
+            Create and use OTU for taxon name <span v-html="item.cached_html"/>
+          </button>
+        </li>
+        <li
+          class="margin-small-top">
+          <button
+            class="button normal-input button-submit full_width"
+            type="button"
+            @click="send({ otuName: item.cached, taxon: item })">
+            Create and use OTU with name "<span v-html="item.cached_html"/>"
+          </button>
+        </li>
+        <li class="margin-small-top">
+          <button
+            @click="createNew"
+            type="button"
+            class="button normal-input button-default full_width">
+            Customize a new OTU with name "{{ otuName }}"
+          </button>
+        </li>
+      </ul>
+    </template>
   </div>
 </template>
 
@@ -61,8 +81,11 @@ export default {
         this.isSearching = false
       })
     },
-    setTaxonName (taxon) {
+    send (taxon) {
       this.$emit('selected', taxon)
+    },
+    createNew () {
+      this.$emit('createNew', true)
     }
   }
 }
