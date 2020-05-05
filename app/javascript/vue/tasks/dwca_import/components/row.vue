@@ -1,8 +1,10 @@
 <template>
   <tr>
     <cell-component
+      :cell="row.status"/>
+    <cell-component
       v-for="(header, index) in headers"
-      :cell="row[header].value"/>
+      :cell="row.data_fields[header].value"/>
   </tr>
 </template>
 

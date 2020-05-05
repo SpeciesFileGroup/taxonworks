@@ -23,7 +23,7 @@ class DatasetRecord < ApplicationRecord
   validates :data_fields, presence: true
 
   def initialize_data_fields(field_data)
-    data_fields = {}
+    data_fields = self.data_fields || {}
 
     field_data.each do |field_name, value|
       data_fields[field_name] = {
@@ -34,5 +34,11 @@ class DatasetRecord < ApplicationRecord
     end
 
     self.data_fields = data_fields
-  end  
+  end
+
+  def set_data_field(field_name, value)
+    data_fields[field_name].merge!({
+      "value" => value
+    }) unless data_fields[field_name]["frozen"]
+  end
 end

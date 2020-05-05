@@ -44,9 +44,12 @@ class DatasetRecordsController < ApplicationController
   # PATCH/PUT /dataset_records/1.json
   def update
     respond_to do |format|
-      if @dataset_record.update(dataset_record_params)
+
+      JSON.parse(params[:data_fields]).each { |f, v| @dataset_record.set_data_field(f, v) }
+
+      if @dataset_record.save
         format.html { redirect_to @dataset_record, notice: 'Dataset record was successfully updated.' }
-        format.json { render :show, status: :ok, location: @dataset_record }
+        format.json { render :show, status: :ok }
       else
         format.html { render :edit }
         format.json { render json: @dataset_record.errors, status: :unprocessable_entity }

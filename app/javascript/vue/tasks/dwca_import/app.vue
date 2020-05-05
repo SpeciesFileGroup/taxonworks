@@ -5,7 +5,7 @@
       :full-screen="true"
       legend="Loading records..."
       v-if="isLoading"/>
-    <h1>DwC-A file upload</h1>
+    <h1>DwC-A Workbench</h1>
     <div
       v-if="table"
       class="position-relative">

@@ -3,6 +3,10 @@
     <thead>
       <tr>
         <th
+          class="position-sticky">
+          Status
+        </th>
+        <th
           class="position-sticky"
           v-for="(item, index) in table.headers"
           :key="index">
@@ -16,7 +20,7 @@
         class="contextMenuCells"
         :class="{ 'even': (index % 2 == 0) }"
         :id="row.id"
-        :row="row.data_fields"
+        :row="row"
         :headers="table.headers"/>
     </tbody>
   </table>

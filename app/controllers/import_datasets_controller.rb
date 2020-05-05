@@ -77,7 +77,6 @@ class ImportDatasetsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_import_dataset
-      puts params[:id]
       @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
