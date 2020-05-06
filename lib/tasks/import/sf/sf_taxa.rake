@@ -855,15 +855,19 @@ namespace :tw do
             status_flags = row['StatusFlags']
 
             if get_otu_sf_above_id[sf_taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
-              otu = Otu.new(
-                  name: row['Name'],
-                  taxon_name_id: parent_id,
-                  project_id: project_id,
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
-              )
+              if row['NameStatus'] == '7' && !get_tw_otu_id[row['TaxonNameID']].blank?
+                otu = Otu.find(get_tw_otu_id[row['TaxonNameID']].to_i)
+              else
+                otu = Otu.new(
+                    name: row['Name'],
+                    taxon_name_id: parent_id,
+                    project_id: project_id,
+                    created_at: row['CreatedOn'],
+                    updated_at: row['LastUpdate'],
+                    created_by_id: get_tw_user_id[row['CreatedBy']],
+                    updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
+              end
 
               if otu.save
                 logger.info "Note!! Created OTU for temporary or ill-formed taxon SF.TaxonNameID = #{sf_taxon_name_id}, otu.id = #{otu.id}"
