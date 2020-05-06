@@ -19,7 +19,10 @@
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
           <td>
-            <div class="horizontal-left-content">
+            <div class="horizontal-right-content">
+              <pdf-component
+                v-if="pdf"
+                :pdf="item.document"/>
               <radial-annotator
                 v-if="annotator"
                 :global-id="item.global_id"/>
@@ -42,10 +45,12 @@
 <script>
 
   import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import PdfComponent from 'components/pdfButton'
 
   export default {
     components: {
-      RadialAnnotator
+      RadialAnnotator,
+      PdfComponent
     },
     props: {
       list: {
@@ -81,6 +86,10 @@
         default: true
       },
       edit: {
+        type: Boolean,
+        default: false
+      },
+      pdf: {
         type: Boolean,
         default: false
       }
