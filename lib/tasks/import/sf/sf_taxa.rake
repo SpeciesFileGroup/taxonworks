@@ -855,8 +855,8 @@ namespace :tw do
             status_flags = row['StatusFlags']
 
             if get_otu_sf_above_id[sf_taxon_name_id] # temporary, create OTU, not TaxonName; create citation, too
-              if row['NameStatus'] == '7' && !get_tw_otu_id[row['TaxonNameID']].blank?
-                otu = Otu.find(get_tw_otu_id[row['TaxonNameID']].to_i)
+              if row['NameStatus'] == '7' && !get_taxon_name_otu_id[row['TaxonNameID']].blank?
+                otu = Otu.find(get_taxon_name_otu_id[row['TaxonNameID']].to_i)
               else
                 otu = Otu.new(
                     name: row['Name'],
