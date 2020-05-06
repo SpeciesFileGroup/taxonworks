@@ -12,7 +12,7 @@
       class="content">
       <span class="middle">
         <span class="mark-box button-default separate-right"/>
-          <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Specimen</a>
+          <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
       </span>
       <ul class="no_bullets">
         <li>
