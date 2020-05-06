@@ -1,3 +1,9 @@
+######################## There are 3 tasks here:
+# Run in this order:
+# Nomenclator 1
+# Nomenclator 2
+# Nomenclator 3
+
 # rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/onedb2tw/snapshots/15_after_scrutinies/ file=localhost_2018-09-26_212447UTC.dump
 
 namespace :tw do
@@ -261,7 +267,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
            Current.user_id = @proceps.id
            Current.project_id = nil
-
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
