@@ -41,6 +41,7 @@
           @getItem="getObject($event.id)"/>
         <otu-picker
           v-if="otuPicker"
+          :input-id="inputId"
           @getItem="getObject($event.id)"/>
       </div>
     </template>
