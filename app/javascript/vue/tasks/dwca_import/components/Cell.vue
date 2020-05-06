@@ -20,12 +20,17 @@ export default {
     cell: {
       type: [String],
       default: undefined
+    },
+    attribute: {
+      type: String,
+      default: undefined
     }
   },
   data () {
     return {
       editing: false,
-      text: undefined
+      text: undefined,
+      tmp: undefined
     }
   },
   watch: {
@@ -37,11 +42,12 @@ export default {
     },
     editing (newVal) {
       if (newVal) {
+        this.tmp = this.text
         this.$nextTick(() => {
           this.$refs.inputtext.focus()
         })
-      } else {
-        this.$emit('update', this.text)
+      } else if (this.tmp !== this.text) {
+        this.$emit('update', { [this.attribute]: this.text })
       }
     }
   },

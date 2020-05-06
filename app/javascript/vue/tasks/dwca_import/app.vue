@@ -10,6 +10,7 @@
       v-if="table"
       class="position-relative">
       <table-component
+        :import-id="importId"
         :table="table"/>
     </div>
     <new-import

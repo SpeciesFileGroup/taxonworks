@@ -8,8 +8,8 @@ const GetDatasetRecords = (id, params) => {
   return AjaxCall('get', `/import_datasets/${id}/dataset_records.json`, { params: params })
 }
 
-const UpdateRow = (rowId) => {
-  return AjaxCall('patch', `/tasks/dwca_import/{id}/workbench/core_table/${rowId}`)
+const UpdateRow = (importId, rowId, data) => {
+  return AjaxCall('patch', `/import_datasets/${importId}/dataset_records/${rowId}.json`, data)
 }
 
 const ImportRows = (rowsId) => {

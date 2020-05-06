@@ -21,6 +21,7 @@
         :class="{ 'even': (index % 2 == 0) }"
         :id="row.id"
         :row="row"
+        :import-id="importId"
         :headers="table.headers"/>
     </tbody>
   </table>
@@ -37,6 +38,10 @@ export default {
   props: {
     table: {
       type: Object,
+      required: true
+    },
+    importId: {
+      type: [String, Number],
       required: true
     }
   }
