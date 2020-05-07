@@ -5,7 +5,7 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/><span class="separate-left" v-if="type" v-html="`[${type}]`"/> <span class="separate-left">{{ ceLabel }}</span>
+        class="expand-box button-default separate-right"/><span v-if="type" v-html="`[${type.object_tag}]`"/> <span class="separate-left">{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"
@@ -22,7 +22,7 @@
           <span>Repository: <b>{{ repositoryLabel }}</b></span>
         </li>
         <li>
-          <span>Data source: <b><span v-html="citationsLabel"/></b></span>
+          <span>Citation: <b><span v-html="citationsLabel"/></b></span>
         </li>
       </ul>
       <h3 class="middle">
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { GetDepictions, GetBiocurations, GetCollectionObject, GetRepository, GetCitations, GetTypeMaterials } from '../../request/resources'
+import { GetDepictions, GetBiocurations, GetCollectionObject, GetRepository, GetCitations } from '../../request/resources'
 import ImageViewer from '../gallery/ImageViewer'
 
 export default {
@@ -47,8 +47,8 @@ export default {
     ImageViewer
   },
   props: {
-    specimen: { 
-      type:Object,
+    specimen: {
+      type: Object,
       required: true
     },
     otu: {
@@ -56,7 +56,7 @@ export default {
       required: true
     },
     type: {
-      type: String,
+      type: Object,
       default: undefined
     }
   },
@@ -65,6 +65,9 @@ export default {
       return this.repository ? this.repository.name : 'not specified'
     },
     citationsLabel () {
+      if (this.type) {
+        return this.type.origin_citation ? this.type.origin_citation.source.object_tag : 'not specified'
+      }
       return this.citations.length ? this.citations.map(item => { return item.source.cached }).join('; ') : 'not specified'
     },
     ceLabel () {
@@ -78,7 +81,6 @@ export default {
   },
   data () {
     return {
-      types: [],
       depictions: [],
       biocurations: [],
       collectionObject: undefined,
@@ -89,8 +91,8 @@ export default {
     }
   },
   watch: {
-    expand(newVal) {
-      if(!this.alreadyLoaded) {
+    expand (newVal) {
+      if (!this.alreadyLoaded) {
         this.alreadyLoaded = true
         this.loadData()
       }

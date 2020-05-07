@@ -4,20 +4,9 @@
     title="Descendants"
     @menu="showModal = true">
     <a name="descendants"/>
-    <ul class="no_bullets">
-      <template v-for="(child, index) in childOfCurrentName">
-        <li
-          v-if="child.id !== otu.taxon_name_id && (index <= max || showAll)"
-          :key="child.id">
-          <span v-html="child.object_tag"/>
-        </li>
-      </template>
-    </ul>
-    <template v-if="childOfCurrentName.length > max">
-      <a
-        class="cursor-pointer"
-        @click="showAll = !showAll">{{ showAll ? 'Show less' : 'Show more' }}</a>
-    </template>
+    <tree-view
+      :current-taxon-id="otu.taxon_name_id"
+      :list="childOfCurrentName"/>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
@@ -39,11 +28,13 @@
 import AjaxCall from 'helpers/ajaxCall'
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from 'components/modal'
+import TreeView from './TreeView'
 
 export default {
   components: {
     SectionPanel,
-    ModalComponent
+    ModalComponent,
+    TreeView
   },
   props: {
     otu: {
@@ -87,11 +78,9 @@ export default {
     }
   },
   methods: {
-
+    showChildrensOf (taxon) {
+      return this.childs.filter(item => { return taxon.id === item.parent_id })
+    }
   }
 }
 </script>
-
-<style>
-
-</style>

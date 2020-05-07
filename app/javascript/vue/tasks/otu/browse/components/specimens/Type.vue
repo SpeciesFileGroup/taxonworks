@@ -11,7 +11,7 @@
           :key="type.id">
           <specimen-information
             :otu="otu"
-            :type="type.object_tag"
+            :type="type"
             :specimen="getSpecimen(type.collection_object_id)"/>
         </li>
       </ul>
@@ -57,15 +57,15 @@ export default {
     }
   },
   methods: {
-    createObject(list, position) {
-      let tmp = {} 
+    createObject (list, position) {
+      let tmp = {}
       list.column_headers.forEach((item, index) => {
         tmp[item] = list.data[position][index]
       })
       return tmp
     },
-    getSpecimen(id) {
-      return this.collectionObjects.find(item => { return item.collection_objects_id === id})
+    getSpecimen (id) {
+      return this.collectionObjects.find(item => { return item.collection_objects_id === id })
     }
   }
 }

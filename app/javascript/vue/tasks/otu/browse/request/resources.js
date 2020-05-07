@@ -44,6 +44,14 @@ const GetContent = function (id) {
   return ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
 }
 
+const GetOtus = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+}
+
 const GetAssertedDistributions = function (id) {
   return ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
 }
@@ -110,5 +118,6 @@ export {
   GetRepository,
   GetTypeMaterials,
   GetCommonNames,
+  GetOtus,
   GetGeoreferences
 }
