@@ -17,10 +17,10 @@ gem 'redis', '~> 4.1.0'
 gem 'rdf', '~> 3.0'
 
 # System
-gem 'thor', '~> 0.20.3'
+gem 'thor', '~> 1.0.0'
 gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
-gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
+gem 'tzinfo-data', '~> 1.2020.1' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
 gem 'rmagick', '~> 4.0'
 
@@ -56,7 +56,7 @@ gem 'shortener', '~> 0.8.0'
 
 # javascript
 gem 'sprockets-rails', '~> 3.2.0'
-gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
+gem 'sprockets', '~> 4.0.0'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'webpacker', '>= 4.0.x'
 gem 'uglifier', '~> 4.2'
@@ -79,7 +79,7 @@ gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
 gem 'chartkick', '~> 3.3'
-gem 'groupdate', '~> 4.2'
+gem 'groupdate', '~> 5.0'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
 gem 'best_in_place', '~> 3.1.1'
@@ -134,7 +134,7 @@ group :development do
   gem 'rubocop', '~> 0.76'
   gem 'rubocop-rails', '~> 2.4'
   gem 'rubocop-rspec', '~>1.38'
-  gem 'rubocop-faker', '~> 0.2.0'
+  gem 'rubocop-faker', '~> 1.0.0'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
   gem 'seedbank', git: 'https://github.com/james2m/seedbank'
 end
