@@ -24,6 +24,10 @@ export default {
     attribute: {
       type: String,
       default: undefined
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -53,6 +57,7 @@ export default {
   },
   methods: {
     setEdit (value) {
+      if(this.disabled) return
       this.editing = value
     }
   }

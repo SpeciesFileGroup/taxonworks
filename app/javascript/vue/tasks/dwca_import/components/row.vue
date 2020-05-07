@@ -1,6 +1,7 @@
 <template>
   <tr>
     <cell-component
+      :disabled="true"
       :cell="row.status"/>
     <cell-component
       v-for="(header, index) in headers"
@@ -36,7 +37,7 @@ export default {
   },
   methods: {
     updateRecord (data) {
-      UpdateRow(this.importId, this.row.id, { data_fields: data })
+      UpdateRow(this.importId, this.row.id, { data_fields: JSON.stringify(data) })
     }
   }
 }
