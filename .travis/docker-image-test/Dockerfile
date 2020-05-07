@@ -1,4 +1,4 @@
-FROM ruby:2.7.0-rc1-buster
+FROM ruby:2.7.1
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \
