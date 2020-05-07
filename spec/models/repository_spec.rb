@@ -6,7 +6,7 @@ describe Repository, type: :model do
   context 'validation' do
     before(:each) {repository.valid?}
     specify 'non collector/updater required attributes' do
-      expect(repository.errors.keys.sort).to eq([:acronym, :name,  :status, :url].sort)
+      expect(repository.errors.keys.sort).to eq([:acronym, :name ].sort)
     end
   end
 

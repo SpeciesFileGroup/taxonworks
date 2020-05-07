@@ -17,7 +17,6 @@
       { name: k.name.titleize, data: k.all.group_by_week(:created_at).count}  
     } %>
 
-
     <h2> Project based </h2>
     <ol>
       <% ApplicationEnumeration.project_data_classes.each do |k| %>

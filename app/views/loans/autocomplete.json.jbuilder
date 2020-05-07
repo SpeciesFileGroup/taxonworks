@@ -1,9 +1,8 @@
 json.array! @loans do |l| 
-  t = loan_tag(l)
   json.gid l.to_global_id.to_s
   json.id l.id
-  json.label t 
-  json.label_html t 
+  json.label label_for_loan(l)
+  json.label_html loan_tag(l) 
 
   json.response_values do 
     if params[:method]

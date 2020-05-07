@@ -1,6 +1,9 @@
 # TODO: Extract to gem
 #  - remove reference to `blank?` (no Rails methods)
 #  - use && not `and` ?
+#
+#  In Ruby
+#    Time.now.strftime("%Y-%m-%d") gets the commonly used yyyy-mm-dd
 module Utilities::Dates
 
   EARLIEST_DATE = '1700/01/10'.freeze # Reconcile with in-app

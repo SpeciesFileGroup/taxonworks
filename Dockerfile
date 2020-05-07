@@ -1,6 +1,4 @@
-FROM phusion/passenger-ruby26:1.0.9 AS base
-MAINTAINER Matt Yoder
-ENV LAST_FULL_REBUILD 2018-08-10
+FROM locodelassembly/passenger-ruby27:latest AS base
 ARG BUNDLER_WORKERS=1
 
 # From Phusion
@@ -29,9 +27,7 @@ RUN apt-get update && \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* && \
-      wget https://gitlab.com/gogna/gnparser/uploads/643872fc2c63d9218e5612c5f545c511/gnparser-v0.13.0-linux.tar.gz && \
-      tar xf gnparser-v0.13.0-linux.tar.gz -C /usr/local/bin
+      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
 

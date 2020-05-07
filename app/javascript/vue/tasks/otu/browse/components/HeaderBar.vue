@@ -40,6 +40,7 @@
           <radial-object
             :global-id="otu.global_id"
             type="annotations"/>
+          <quick-forms :global-id="otu.global_id"/>
         </div>
       </div>
       <ul class="context-menu no_bullets">
@@ -55,6 +56,7 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial.vue'
+import QuickForms from 'components/radials/object/radial.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
 import Autocomplete from 'components/autocomplete'
 
@@ -62,6 +64,7 @@ export default {
   components: {
     RadialAnnotator,
     RadialObject,
+    QuickForms,
     Autocomplete
   },
   props: {

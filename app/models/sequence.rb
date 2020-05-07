@@ -85,7 +85,7 @@ class Sequence < ApplicationRecord
     # i is a select manager
     i = t.project(t['sequence_id'], t['updated_at']).from(t)
       .where(t['updated_at'].gt( 1.weeks.ago ))
-      .order(t['updated_at'])
+      .order(t['updated_at'].desc)
 
     # i is a select manager
     i = case used_on 

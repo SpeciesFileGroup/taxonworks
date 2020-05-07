@@ -9,7 +9,9 @@
             ‹ Back
           </a>
         </span>
-        <span v-else>
+        <span
+          v-else
+          class="disabled">
           ‹ Back
         </span>
       </template>
@@ -20,7 +22,9 @@
             @click="sendPage(pagination.nextPage)">Next ›
           </a>
         </span>
-        <span v-else>
+        <span
+          v-else
+          class="disabled">
           Next ›
         </span>
       </template>

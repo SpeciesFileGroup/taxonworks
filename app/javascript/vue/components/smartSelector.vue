@@ -11,7 +11,7 @@
         @getId="getObject"
         :type="pinType"/>
     </div>
-    <template>
+    <template v-if="!addTabs.includes(view)">
       <ul
         v-if="view && view != 'search'"
         class="no_bullets">
@@ -39,10 +39,14 @@
           :clear-after="clear"
           display="label"
           @getItem="getObject($event.id)"/>
+        <otu-picker
+          v-if="otuPicker"
+          :input-id="inputId"
+          @getItem="getObject($event.id)"/>
       </div>
-      <slot>
-      </slot>
     </template>
+    <slot :view="view">
+    </slot>
   </div>
 </template>
 
@@ -54,17 +58,23 @@ import Autocomplete from 'components/autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
     SwitchComponents,
     Autocomplete,
-    DefaultPin
+    DefaultPin,
+    OtuPicker
   },
   props: {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    otuPicker: {
+      type: Boolean,
+      default: false
     },
     autocompleteParams: {
       type: Object,
@@ -117,6 +127,10 @@ export default {
     pinType: {
       type: String,
       default: undefined
+    },
+    addTabs: {
+      type: Array,
+      default: () => { return [] }
     }
   },
   data () {
@@ -124,6 +138,11 @@ export default {
       lists: {},
       view: undefined,
       options: []
+    }
+  },
+  watch: {
+    view(newVal) {
+      this.$emit('onTabSelected', newVal)
     }
   },
   mounted () {
@@ -137,6 +156,7 @@ export default {
           this.view = 'search'
         }
       }
+      this.options = this.options.concat(this.addTabs)
     })
   },
   methods: {

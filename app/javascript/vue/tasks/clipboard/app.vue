@@ -5,7 +5,7 @@
         v-for="(clip, index) in clipboard"
         class="slide-panel-category-item">
         <div>
-          <p>Shortcut: <b>Ctrl + {{ index }}</b></p>
+          <p>Shortcut: <b>{{ keyCode[actionKey] }} {{ isLinux ? '+ Shift' : '' }} + {{ index }}</b></p>
           <div class="middle">
             <textarea
               v-model="clipboard[index]"
@@ -31,6 +31,9 @@
       },
       actionKey() {
         return (navigator.platform.indexOf('Mac') > -1 ? 17 : 18)
+      },
+      isLinux () {
+        return window.navigator.userAgent.indexOf("Linux") > -1
       }
     },
     data() {
@@ -43,8 +46,8 @@
           5: '',
         },
         keyCode: {
-          17: 'Alt',
-          18: 'Ctrl'
+          17: 'Ctrl',
+          18: 'Alt'
         },
         keys: []
       }
@@ -55,7 +58,8 @@
       document.addEventListener("keydown", this.KeyPress)
       document.addEventListener("keyup", this.removeKey)
       GetClipboard().then(response => {
-        Object.assign(this.clipboard, response.clipboard)
+        console.log(response)
+        Object.assign(this.clipboard, response.body.clipboard)
       })
     },
     methods: {
@@ -89,7 +93,7 @@
       },
       saveClipboard() {
         UpdateClipboard(this.clipboard).then(response => {
-          this.clipboard = response.clipboard
+          this.clipboard = response.body.clipboard
         })        
       },
       setClipboard(index) {

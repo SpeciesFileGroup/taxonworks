@@ -25,9 +25,12 @@ module Queries::Concerns::Identifiers
     # Match on cached
     attr_accessor :identifier
 
-    # USED?!
     # Match like or exact on cached 
     attr_accessor :identifier_exact
+
+    # param identifier_type [Array]
+    #   of identifier types
+    attr_accessor :identifier_type
 
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
@@ -45,6 +48,7 @@ module Queries::Concerns::Identifiers
     @identifier = params[:identifier]
 
     @identifier_exact = (params[:identifier_exact]&.downcase == 'true' ? true : false) if !params[:identifier_exact].nil?
+    @identifier_type = params[:identifier_type] || [] 
   end
 
   # @return [Arel::Table]
@@ -79,6 +83,13 @@ module Queries::Concerns::Identifiers
       identifier_table[:cached].matches('%' + identifier + '%')
 
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
+    q.where(w) 
+  end
+
+  def identifier_type_facet
+    return nil if identifier_type.empty?
+    q = query_base.joins(:identifiers)
+    w = identifier_table[:type].eq_any(identifier_type)
     q.where(w) 
   end
 

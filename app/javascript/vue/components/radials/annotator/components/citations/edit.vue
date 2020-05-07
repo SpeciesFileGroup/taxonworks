@@ -11,7 +11,7 @@
         <input
           v-model="editCitation.is_original"
           type="checkbox">
-        Is original
+        Is original (does not apply to topics)
       </label>
     </div>
     <button

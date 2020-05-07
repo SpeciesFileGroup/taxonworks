@@ -36,7 +36,9 @@ Object.assign(TW.workbench.hub.filter_hub, {
     }
 
     $('#filter [data-filter-category]').on('click', function () {
-      changeBackgroundColorLink('[data-filter-category="' + $(this).attr("data-filter-category") + '"]');
+      if(!$(this).parent().hasClass('navigation-controls-type')) {
+        changeBackgroundColorLink('[data-filter-category="' + $(this).attr("data-filter-category") + '"]');
+      }
     });
 
     $('#filter .filter-category [data-filter-category]').on('click', function () {

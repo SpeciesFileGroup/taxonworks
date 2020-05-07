@@ -116,7 +116,7 @@
         }
       },
       existingArea() {
-        return this.list.find(item => { return item.geographic_area_id == this.asserted_distribution.geographic_area_id })
+        return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && item.is_absent === this.asserted_distribution.is_absent })
       }
     },
     data() {
@@ -217,10 +217,10 @@
         }
       },
       setSource(source) {
+        this.asserted_distribution.is_absent = source.is_absent
         this.asserted_distribution.citations_attributes[0].id = source.id
         this.asserted_distribution.citations_attributes[0].source_id = source.source_id
         this.asserted_distribution.citations_attributes[0].pages = source.pages
-        this.asserted_distribution.citations_attributes[0].is_absent = source.is_absent
         this.asserted_distribution.citations_attributes[0].is_original = source.is_original
       }
     },

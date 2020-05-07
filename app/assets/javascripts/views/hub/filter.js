@@ -22,7 +22,7 @@ Object.assign(TW.views.hub.filter, {
 		var cardWidth = 427.5;
 		var cardHeight = 180;
 
-		var tmpHeight = userWindowHeight - 100
+		var tmpHeight = userWindowHeight - document.querySelector('.task-section').offsetTop
 		tmpHeight = tmpHeight / cardHeight
 
 		if(userWindowWidth < minWindowWidth) {

@@ -2,6 +2,7 @@
   <otu-radial
     :id="id"
     type="graph"
+    button-title="OTU quick forms"
     buttonClass="btn-hexagon-w button-default"
     :show-count="showCount"
     :global-id="globalId"/>

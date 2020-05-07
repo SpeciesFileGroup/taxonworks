@@ -1,5 +1,8 @@
 <template>
   <section-panel title="Asserted distributions">
+    <a
+      :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${otu.id}`"
+      slot="title">Expand</a>
     <a name="asserted-distributions"/>
     <ul class="no_bullets">
       <li v-for="assertedDistribution in assertedDistributions">

@@ -60,7 +60,7 @@ export default {
     },
     defaultMessage: {
       type: String,
-      default: 'Drop images here to add figures'
+      default: 'Drop images or click here to add figures'
     }
   },
   data: function () {

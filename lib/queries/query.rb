@@ -16,7 +16,7 @@ module Queries
   class Query
     include Arel::Nodes
 
-    include Queries::Concerns::Identifiers 
+    include Queries::Concerns::Identifiers
 
     # @return [String, nil]
     #   the initial, unparsed value
@@ -62,7 +62,10 @@ module Queries
 
     # @return [Array]
     def terms
-      @terms ||= build_terms
+      if @terms.nil? || (@terms == [] && !@query_string.blank?)
+        @terms = build_terms 
+      end
+      @terms
     end
 
     def no_terms?
@@ -166,6 +169,19 @@ module Queries
 
     # generic multi-use bits
     #   table is defined in each query, it is the class of instances being returned
+
+    # params attribute [Symbol]
+    #   a facet for use when params include, `author`, and `exact_author` combinations
+    #   See queries/source/filter.rb for example use
+    def attribute_exact_facet(attribute = nil)
+      a = attribute.to_sym
+      return nil if send(a).blank?
+      if send("exact_#{a}".to_sym)
+        table[a].eq(send(a).strip)
+      else
+        table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
+      end
+    end
 
     # @return [Scope]
     def parent_child_join

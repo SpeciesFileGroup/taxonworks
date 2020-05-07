@@ -17,6 +17,7 @@ export default function ({ commit, state, dispatch }, status) {
       Object.defineProperty(response, 'object_tag', { value: status.name })
       commit(MutationNames.AddTaxonStatus, response)
       dispatch('loadSoftValidation', 'taxon_name')
+      dispatch('loadSoftValidation', 'taxonRelationshipList')
       dispatch('loadSoftValidation', 'taxonStatusList')
       resolve(response)
     })

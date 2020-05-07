@@ -24,7 +24,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.6.5
+        - 2.7.1
       bundler_args: --without development production
       services:
         - postgresql
@@ -43,9 +43,11 @@ jobs:
         - sudo apt-get install -y postgresql-11-postgis-3
         - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
         - sudo service postgresql restart 11
-        - nvm install 10.15.3
+        - nvm install 10
+        - nvm use 10
       env:
           - TEST_WORKER=0
+
       install:
         - npm install
         - gem install bundler
@@ -80,7 +82,7 @@ jobs:
         - docker
       install:
         - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
-        - export REVISION=$(git rev-parse --short HEAD)
+        - export REVISION=$(git rev-parse HEAD | cut -c1-9)
         - cd .travis
         - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
         - docker build https://github.com/postgis/docker-postgis.git#master:/11-3.0 -t mdillon/postgis:11-3.0

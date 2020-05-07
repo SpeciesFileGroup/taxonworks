@@ -35,6 +35,7 @@ class Citation < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
+  include SoftValidation
 
   attr_accessor :no_cached
 
@@ -64,6 +65,7 @@ class Citation < ApplicationRecord
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
+  soft_validate(:sv_page_range, set: :page_range, has_fix: false)
 
   # TODO: deprecate
   # @return [Scope of matching sources]
@@ -158,5 +160,27 @@ class Citation < ApplicationRecord
       false
     end
   end
+
+  def sv_page_range
+      if pages.blank?
+        soft_validations.add(:pages, 'Citation pages are not provided')
+      elsif !source.pages.blank?
+        matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        if matchdata1
+          citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
+          citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
+          matchdata = source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+          if citMinP && citMaxP && matchdata
+            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+            minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(source.bibtex_type)
+            unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
+              soft_validations.add(:pages, 'Citation is out of the source page range')
+            end
+          end
+        end
+      end
+  end
+
 
 end

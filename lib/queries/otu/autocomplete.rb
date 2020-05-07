@@ -42,6 +42,8 @@ module Queries
         a ||= q 
         updated_queries[i] = a
       end
+
+      updated_queries
     end
 
     # @return [Array]

@@ -10,6 +10,10 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Subphylum < Nomenclatur
     taxon_name.errors.add(:name, 'name must end in -phytina, -phycotina, or -mycotina') if not(taxon_name.name =~ /.*phytina|phycotina|mycotina\Z/)
   end
 
+  def self.valid_name_ending
+    'ina'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icn::HigherClassificationGroup::Phylum.to_s]
   end

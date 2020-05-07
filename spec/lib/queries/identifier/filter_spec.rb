@@ -14,6 +14,16 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   let(:query) { Queries::Identifier::Filter.new({}) }
 
+  specify 'generic query' do
+    # type=&namespace_id=3&identifier=862422
+
+    query.type = 'Identifier::Local::CatalogNumber'
+    query.identifier_object_id = i2.identifier_object.id
+    query.identifier = i2.identifier
+
+    expect(query.all.map(&:id)).to contain_exactly(i2.id)
+  end
+
   specify '#query_string' do
     query.query_string = 'Foo 345'
     expect(query.all.map(&:id)).to contain_exactly(i2.id)

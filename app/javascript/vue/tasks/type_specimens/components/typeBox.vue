@@ -28,28 +28,48 @@
         type="button"
         @click="newType"
         class="button normal-input button-default">New type</button>
-      <display-list
-        :highlight="{ value: typeMaterial.id, key: 'id' }"
-        :list="typesMaterial"
-        :annotator="true"
-        :edit="true"
-        @edit="setTypeMaterial"
-        @delete="removeTypeSpecimen"
-        label="type_type"/>
+
+      <table class="margin-medium-top">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in typesMaterial"
+            :key="item.id"
+            :class="{ highlight: typeMaterial.id === item.id }">
+            <td>
+              {{ item.type_type }} ({{ item.collection_object.total }})
+            </td>
+            <td class="horizontal-right-content">
+              <radial-annotator :global-id="item.global_id"/>
+              <span 
+                @click="setTypeMaterial(item)"
+                class="button circle-button btn-edit"/>
+              <span
+                @click="removeTypeSpecimen(item)"
+                class="button circle-button btn-delete"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 <script>
 
 import displayList from 'components/displayList.vue'
-import radialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 
 export default {
   components: {
-    radialAnnotator,
+    RadialAnnotator,
     RadialObject,
     displayList
   },

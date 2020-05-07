@@ -108,6 +108,7 @@
   import Autocomplete from './autocomplete.vue'
   import Draggable from 'vuedraggable'
   import DefaultPin from './getDefaultPin'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -314,17 +315,17 @@
         return (last_name + separator + (first_name != null ? first_name : ''))
       },
       createPerson: function () {
-        let person = {
-          type: this.roleType,
-          person_attributes: this.person_attributes,
-          position: (this.roles_attributes.length + 1)
-        }
-        this.roles_attributes.push(person)
-        this.$emit('input', this.roles_attributes)
-        this.$refs.autocomplete.cleanInput()
-        this.expandPerson = false
-        this.person_attributes = this.makeNewPerson()
-        this.$emit('create', person)
+        AjaxCall('post', `/people.json`, { person: this.person_attributes }).then(response => {
+          let person = response.body
+          person.label = person.object_tag
+          person.object_id = person.id
+          this.roles_attributes.push(this.addPerson(person))
+          this.$emit('input', this.roles_attributes)
+          this.$refs.autocomplete.cleanInput()
+          this.expandPerson = false
+          this.person_attributes = this.makeNewPerson()
+          this.$emit('create', person)
+        })
       },
       addPerson: function (item) {
         return {

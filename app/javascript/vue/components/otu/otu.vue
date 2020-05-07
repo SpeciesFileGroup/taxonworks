@@ -2,7 +2,7 @@
   <div class="otu-radial">
     <span 
       class="circle-button button-default"
-      :title="redirect ? 'Otu browse' : 'Quick forms'"
+      :title="redirect ? 'Browse taxa' : 'OTU quick forms'"
       :class="[{ 'button-submit': emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>

@@ -12,6 +12,32 @@ module ControlledVocabularyTermsHelper
       data: { 'global-id' => (controlled_vocabulary_term.persisted? ? controlled_vocabulary_term.metamorphosize.to_global_id.to_s : nil) } ) # need to preview CVTs that are not saved
   end
 
+  def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term)
+    [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
+      content_tag(:span, controlled_vocabulary_term.type, class: [:feedback, 'feedback-secondary', 'feedback-thin']),
+        content_tag(:span, pluralize( controlled_vocabulary_term_use(controlled_vocabulary_term), 'use'), class: [:feedback, 'feedback-info', 'feedback-thin'])
+    ].compact.join(' ')
+  end
+
+  def controlled_vocabulary_term_use(controlled_vocabulary_term)
+    return nil if controlled_vocabulary_term.nil? 
+    a = { project_id: sessions_current_project_id }
+    case controlled_vocabulary_term.type
+    when 'Topic'
+      CitationTopic.where(topic: controlled_vocabulary_term).where(a).count + Content.where(topic: controlled_vocabulary_term).where(a).count
+    when 'Tag'
+      Tag.where(keyword: controlled_vocabulary_term).where(a).count
+    when 'BiologicalProperty'
+      BiocurationClassification.where(biocuration_class: controlled_vocabulary_term).where(a).count
+    when 'Predicate'
+      InternalAttribute.where(controlled_vocabulary_term: controlled_vocabulary_term).where(a).count
+    when 'ConfidenceLevel'
+      Confidence.where(confidence_level: controlled_vocabulary_term).where(a).count
+    else
+      'n/a'
+    end
+  end
+
   def controlled_vocabulary_term_link(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
     link_to(controlled_vocabulary_term_tag(controlled_vocabulary_term.metamorphosize).html_safe, controlled_vocabulary_term.metamorphosize)
@@ -27,11 +53,6 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_terms_search_form
     render('/controlled_vocabulary_terms/quick_search_form')
-  end
-
-  def controlled_vocabulary_term_autocomplete_item(controlled_vocabulary_term)
-    controlled_vocabulary_term_tag(controlled_vocabulary_term) + 
-      content_tag(:span, ' (' + controlled_vocabulary_term.type + ')', class: [:subtle]) 
   end
 
 end

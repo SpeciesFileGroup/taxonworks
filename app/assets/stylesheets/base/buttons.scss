@@ -144,6 +144,11 @@
   background-image: image-url("w_trash.svg");
 }
 
+.btn-download {
+  background-color: $color-secondary-2-4;
+  background-image: image-url("w_download.svg");
+}
+
 .btn-edit {
   background-color: $color-action-button;
   background-image: image-url("w_pencil.svg");
@@ -231,6 +236,16 @@
 
 .btn-undo {
   background-image: image-url("undo.svg");
+}
+
+.btn-clipboard {
+  background-size: 12px;
+  background-image: image-url('paper-clips.svg');
+}
+
+.btn-add-to-project {
+  background-size: 14px, 16px;
+  background-image: image-url('addtoproject.svg');
 }
 
 .circle-button-big {

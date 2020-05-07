@@ -49,14 +49,21 @@ class SledImagesController < ApplicationController
       ],
       object_layout: {} # todo
     ).merge(
-      collection_object_params: collection_object_params
+      collection_object_params: collection_object_params,
+      depiction_params: depiction_params
     )
+  end
+
+  def depiction_params
+    params[:depiction]&.permit(:is_metadata_depiction) || {}
   end
 
   def collection_object_params
     params[:collection_object]&.permit(
       :total,
       :collecting_event_id,
+      :repository_id,
+      :preparation_type_id,
       identifiers_attributes: [:namespace_id, :identifier, :type],
       notes_attributes: [:text],
       tags_attributes: [:id, :_destroy, :keyword_id],

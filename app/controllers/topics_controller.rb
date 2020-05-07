@@ -25,6 +25,7 @@ class TopicsController < ApplicationController
     render json: data
   end
 
+  # TODO: deprecate fully
   # POST /controlled_vocabulary_terms
   # POST /controlled_vocabulary_terms.json
   def create
@@ -59,23 +60,6 @@ class TopicsController < ApplicationController
         format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
       end
     end
-  end
-
-  # TODO: This format very different, should it be made same as other autocompletes?
-  def autocomplete
-    topics = Topic.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-
-    data = topics.collect do |t|
-      str = t.name + ': ' + t.definition
-      {id:              t.id,
-       label:           str,
-       response_values: {
-         params[:method] => t.id},
-       label_html:      str
-      }
-    end
-
-    render json: data
   end
 
   def lookup_topic

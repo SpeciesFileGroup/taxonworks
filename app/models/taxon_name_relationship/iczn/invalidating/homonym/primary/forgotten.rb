@@ -34,7 +34,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
 
   def sv_forgotten_homonym
     s = subject_taxon_name
-    if s.year_of_publication > 1899
+    if s.year_of_publication && s.year_of_publication > 1899
       soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1900. It should not be treated as forgotten name.")
     end
   end

@@ -47,14 +47,15 @@
               <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
             </li>
           </ul>
-          <hr>
-          <ul class="no_bullets">
+          <ul class="table-entrys-list">
             <li
+              class="flex-separate list-complete-item"
               v-for="typeSpecimen in typeMaterialList"
               :key="typeSpecimen.id">
               <a
                 :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
                 v-html="typeSpecimen.object_tag"/>
+              <a :href="`/tasks/accessions/comprehensive?collection_object_id=${typeSpecimen.collection_object_id}`">Open comprehensive</a>
             </li>
           </ul>
         </template>
