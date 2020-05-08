@@ -532,10 +532,18 @@ namespace :tw do
 
 
                     if tw_taxon_name_id
+                      taxon_name_combination = TaxonName.where(cached_valid_taxon_name_id: tw_taxon_name_id.to_i, cached_original_combination: nil, cached: target_nomenclator).first
+                      taxon_name_original_combination = TaxonName.where(cached_valid_taxon_name_id: tw_taxon_name_id.to_i, cached_original_combination: target_nomenclator).first
                       taxon_name_obj = TaxonName.find(tw_taxon_name_id)
-                      if taxon_name_obj.cached == target_nomenclator
-                        otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                      if !taxon_name_combination.nil?
+                        otu = Otu.find_or_create_by!(taxon_name_id: taxon_name_combination.id, project_id: project_id)
+                        otu_id = otu.id
+                      elsif !taxon_name_original_combinations.nil?
+                        otu = Otu.find_or_create_by!(taxon_name_id: taxon_name_original_combination.id, project_id: project_id)
+                        otu_id = otu.id
                       elsif taxon_name_obj.cached_original_combination == target_nomenclator
+                        otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+                      elsif taxon_name_obj.cached == target_nomenclator
                         otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
                       else
                         otu = Otu.find_or_create_by!(name: target_nomenclator, taxon_name_id: tw_taxon_name_id, project_id: project_id)
