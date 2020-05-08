@@ -16,7 +16,7 @@
           <input
             v-model="onlyChildrens"
             type="checkbox">
-          Show only childs
+          Show children only
         </label>
       </div>
     </modal-component>
