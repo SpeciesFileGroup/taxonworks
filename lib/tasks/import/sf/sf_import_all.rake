@@ -119,7 +119,7 @@ namespace :tw do
           # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
           # #
           # # Total run time ~ 65 hours
-          'itations:soft_validation_fixes'
+          'citations:soft_validation_fixes'
         ]
 
         tasks.each.with_index(1) do |task, index|
