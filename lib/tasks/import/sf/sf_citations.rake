@@ -857,9 +857,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 #                      protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
                     end
                   end
+                  protonym = p
+                  taxon_name_id = p.id
                 end
-                protonym = p
-                taxon_name_id = p.id
               else
                 p = Protonym.new(project_id: project_id) #, also_create_otu: true)
                 if rank_pass == 'genus'
