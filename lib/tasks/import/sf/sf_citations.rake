@@ -641,7 +641,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0] + '_' + nomenclator_ids[nomenclator_id.to_i]['species'][0]] = protonym.id
                 else
                   pr = Protonym.new(name: nomenclator_ids[nomenclator_id.to_i]['species'][0], rank_class: Ranks.lookup(:iczn, 'Species'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
-                  if orig_desc_source_id != source_id && source_id == protonym.source.id && protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
+                  if orig_desc_source_id != source_id && source_id == protonym.source.try(:id) && protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
                     protonym.name = pr.name
                     protonym.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
                     protonym.save
@@ -847,18 +847,20 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   # just create another citation
                 else
                   taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string]
-                  p = TaxonName.find(taxon_name_id1)
-                  tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
-                  if tr.nil? && protonym.id != p.id
-                    protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
-                    if row['NewNameStatusID'] == '3'
-                      protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
-#                    else
-#                      protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
+                  unless taxon_name_id1.nil?
+                    p = TaxonName.find(taxon_name_id1)
+                    tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
+                    if tr.nil? && protonym.id != p.id
+                      protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
+                      if row['NewNameStatusID'] == '3'
+                        protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+  #                    else
+  #                      protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
+                      end
                     end
+#                    protonym = p
+#                    taxon_name_id = p.id
                   end
-                  protonym = p
-                  taxon_name_id = p.id
                 end
               else
                 p = Protonym.new(project_id: project_id) #, also_create_otu: true)
