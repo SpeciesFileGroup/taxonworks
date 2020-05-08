@@ -1,11 +1,27 @@
 <template>
-  <button
-    class="button normal-input button-default"
-    :disabled="citation"
-    @click="createCitation"
-    type="button">
-    {{ label }}
-  </button>
+  <div class="horizontal-left-content">
+    <template v-if="pressed">
+      <input
+        type="text"
+        v-model="pages"
+        placeholder="Pages">
+      <button
+        class="button normal-input button-submit"
+        :disabled="citation"
+        @click="createCitation"
+        type="button">
+        Create
+      </button>
+    </template>
+    <button
+      v-else
+      class="button normal-input button-default"
+      :disabled="citation"
+      @click="pressed = true"
+      type="button">
+      {{ label }}
+    </button>
+  </div>
 </template>
 
 <script>
@@ -26,7 +42,9 @@ export default {
   data () {
     return {
       citation: undefined,
-      label: 'Cite'
+      pages: undefined,
+      label: 'Cite',
+      pressed: false
     }
   },
   methods: {
@@ -34,11 +52,13 @@ export default {
       ajaxCall('post', '/citations.json', {
         citation: {
           source_id: this.sourceId,
+          pages: this.pages,
           annotated_global_entity: this.globalId
         }
       }).then(response => {
         this.citation = response.body
-        this.label = 'Created'
+        this.pressed = false
+        this.label = 'Cited'
         TW.workbench.alert.create('Citation was successfully created.', 'notice')
       })
     }
