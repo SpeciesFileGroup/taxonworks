@@ -8,4 +8,7 @@ class NomenclaturalRank::Iczn::GenusGroup::Supergenus < NomenclaturalRank::Iczn:
     false
   end
 
+  def self.abbreviation
+    'supergen.'
+  end
 end

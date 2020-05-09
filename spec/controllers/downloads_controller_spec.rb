@@ -23,7 +23,7 @@ require 'rails_helper'
 # removed from Rails core in Rails 5, but can be added back in via the
 # `rails-controller-testing` gem.
 
-RSpec.describe DownloadsController, type: :controller do
+RSpec.describe DownloadsController, type: :controller, group: [:downloads] do
   before(:each) {
     sign_in
   }
@@ -75,12 +75,12 @@ RSpec.describe DownloadsController, type: :controller do
       let(:download) { Download.create! valid_attributes }
 
       it "sends the requested file" do
-        get :download_file, params: {id: download.to_param}, session: valid_session
+        get :file, params: {id: download.to_param}, session: valid_session
         expect(response.body).to eq(IO.binread(download.file_path))
       end
 
       it "increments the download counter" do
-        3.times { get :download_file, params: {id: download.to_param}, session: valid_session }
+        3.times { get :file, params: {id: download.to_param}, session: valid_session }
         expect(download.reload.times_downloaded).to eq(3)
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe DownloadsController, type: :controller do
       let(:download_no_file) { Download.create! valid_attributes_no_file }
 
       it "redirects to #show" do
-        get :download_file, params: {id: download_no_file.to_param}, session: valid_session
+        get :file, params: {id: download_no_file.to_param}, session: valid_session
         expect(response).to redirect_to(download_url)
       end
     end

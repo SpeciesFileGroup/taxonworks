@@ -42,7 +42,7 @@
             <td class="horizontal-right-content">
               <span
                 class="button circle-button btn-delete"
-                @click="deleteTopic"/>
+                @click="deleteTopic(item)"/>
             </td>
           </tr>
         </tbody>

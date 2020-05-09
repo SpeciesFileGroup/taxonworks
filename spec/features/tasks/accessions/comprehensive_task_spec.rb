@@ -32,9 +32,11 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         specify 'adds catalog numbers' do
           fill_in('namespace-autocomplete', with: 'INHS')
 
-          find('li', text: 'INHS Ill Nat Hist Survey').hover.click 
+          # TODO: Improve this. Possibly adding more HTML to easily identify fields.
+          catalog_number = find('div.separate-right', text: 'Catalog number')
+          catalog_number.find('li', text: 'INHS').hover.click
+          catalog_number.fill_in("identifier-field", with: '1234')
 
-          fill_in("identifier-field", with: '1234')
           click_button 'Save'
 
           expect(page).to_not have_text('New record')

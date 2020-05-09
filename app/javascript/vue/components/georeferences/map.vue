@@ -121,6 +121,7 @@ export default {
       mapId: Math.random().toString(36).substring(7),
       mapObject: undefined,
       drawnItems: undefined,
+      geographicArea: undefined,
       drawControl: undefined,
       tiles: {
         osm: L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -141,6 +142,7 @@ export default {
     geojson: {
       handler (newVal) { 
         this.drawnItems.clearLayers()
+        this.geographicArea.clearLayers()
         this.geoJSON(newVal)
       },
       deep: true
@@ -155,7 +157,9 @@ export default {
       zoom: this.zoom
     })
     this.drawnItems = new L.FeatureGroup()
+    this.geographicArea = new L.FeatureGroup()
     this.mapObject.addLayer(this.drawnItems)
+    this.mapObject.addLayer(this.geographicArea)
 
     this.addDrawControllers()
     this.handleEvents()
@@ -191,6 +195,7 @@ export default {
     },
     clearFound () {
       this.drawnItems.clearLayers()
+      this.geographicArea.clearLayers()
     },
     addDrawControllers () {
       this.tiles.osm.addTo(this.mapObject)
@@ -253,6 +258,7 @@ export default {
     },
     removeLayers () {
       this.drawnItems.clearLayers()
+      this.geographicArea.clearLayers()
     },
     editedLayer (e) {
       var layer = e.target
@@ -285,8 +291,8 @@ export default {
         },
         filter: function (feature) {
           if(feature.properties.hasOwnProperty('geographic_area')) {
-            L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })).addTo(that.drawnItems)
-            return false 
+            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })))
+            return false
           }
           return true
         },
@@ -297,10 +303,21 @@ export default {
           return shape
         }
       }).addTo(this.drawnItems)
-      
+
       if (this.fitBounds) {
-        this.mapObject.fitBounds(this.drawnItems.getBounds())
+        if (this.getLayersCount(this.drawnItems)) {
+          this.mapObject.fitBounds(this.drawnItems.getBounds())
+        }
+        else if (this.geographicArea.getLayers().length) {
+          this.mapObject.fitBounds(this.geographicArea.getBounds())
+        }
+        else {
+          this.mapObject.fitBounds([0,0])
+        }
       }
+    },
+    getLayersCount (group) {
+      return group.getLayers()[0]._layers ? Object.keys(group.getLayers()[0]._layers).length : undefined
     },
     getRandomColor() {
       const letters = '0123456789ABCDEF'

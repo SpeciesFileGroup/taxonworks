@@ -77,12 +77,12 @@ export default {
     })
   },
   methods: {
-    roleExist(id) {
+    roleExist (id) {
       return (this.source.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person') && role.person.id == id
+        return !role.hasOwnProperty('_destroy') && (role.person_id === id || (role.hasOwnProperty('person') && role.person.id === id))
       }) ? true : false)
     },
-    addRole(person) {
+    addRole (person) {
       if(!this.roleExist(person.id)) {
         this.$refs.rolePicker.setPerson(this.createPerson(person, 'SourceEditor'))
       }

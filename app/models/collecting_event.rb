@@ -400,40 +400,7 @@ class CollectingEvent < ApplicationRecord
 
       collecting_events
     end
-
-    # @return [Boolean] always true
-    #   A development method only. Attempts to create a verbatim georeference for every
-    #   collecting event record that doesn't have one.
-    #   TODO: this needs to be in a rake task or somewhere else
-    def update_verbatim_georeferences
-      if Rails.env == 'production'
-        puts "You can't run this in #{Rails.env} mode."
-        exit
-      end
-
-      passed = 0
-      failed = 0
-      attempted = 0
-
-      CollectingEvent.includes(:georeferences).where(georeferences: {id: nil}).each do |c|
-        next if c.verbatim_latitude.blank? || c.verbatim_longitude.blank?
-        attempted += 1
-        g = c.generate_verbatim_data_georeference(true)
-        if g.errors.empty?
-          passed += 1
-          puts "created for #{c.id}"
-        else
-          failed += 1
-          puts "failed for #{c.id}, #{g.errors.full_messages.join('; ')}"
-        end
-      end
-
-      puts "passed: #{passed}"
-      puts "failed: #{failed}"
-      puts "attempted: #{attempted}"
-      true
-    end
-  end
+  end # end Class methods
 
   # @param [String] lat
   # @param [String] long
@@ -1113,6 +1080,14 @@ class CollectingEvent < ApplicationRecord
       a.collector_roles.build(person: r.person, position: r.position)
     end
 
+    if georeferences.load.any?
+      not_georeference_attributes = %w{created_at updated_at project_id updated_by_id created_by_id collecting_event_id id position}
+      georeferences.each do |g|
+        c = g.dup.attributes.select{|c| !not_georeference_attributes.include?(c) }
+        a.georeferences.build(c)
+      end
+    end
+
     begin
       a.save!
     rescue ActiveRecord::RecordInvalid
@@ -1124,7 +1099,7 @@ class CollectingEvent < ApplicationRecord
   # @return [String, nil]
   #   a string used in DWC reportedBy and ultimately label generation
   #   TODO: include initials when we find out a clean way of producing them
-  # yes it's a helper
+  # yes, it's a Helper
   def collector_names
     [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
   end

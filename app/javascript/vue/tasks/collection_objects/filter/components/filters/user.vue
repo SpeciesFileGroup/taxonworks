@@ -1,6 +1,13 @@
 <template>
   <div>
-    <h2>User</h2>
+    <h2 class="flex-separate">
+      User
+      <span
+        class="margin-small-left"
+        v-if="!user.user_id || !user.user_target || (!user.user_date_start && !user.user_date_end)"
+        data-icon="warning"
+        title="Select a user and date range first to pick a date"/>
+    </h2>
     <div class="field">
       <select v-model="user.user_id">
         <option
@@ -28,6 +35,7 @@
         <br>
         <input 
           type="date"
+          class="date-input"
           :disabled="!user.user_id || !user.user_target"
           v-model="user.user_date_start">
       </div>
@@ -36,8 +44,16 @@
         <br>
         <input
           type="date"
+          class="date-input"
           :disabled="!user.user_id || !user.user_target"
           v-model="user.user_date_end">
+        <button
+          type="button"
+          :disabled="!user.user_id || !user.user_target"
+          class="button normal-input button-default"
+          @click="setActualDate">
+          Now
+        </button>
       </div>
     </div>
   </div>
@@ -100,6 +116,11 @@ export default {
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
+  },
+  methods: {
+    setActualDate () {
+      this.user.user_date_end = new Date().toISOString().split('T')[0]
+    }
   }
 }
 </script>

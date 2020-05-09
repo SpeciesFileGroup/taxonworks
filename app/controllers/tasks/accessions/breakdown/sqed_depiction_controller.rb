@@ -3,6 +3,12 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   before_action :set_sqed_depiction, except: [:todo_map]
 
+  # /tasks/accessions/breakdown/sqed_depiction/todo_map
+  def todo_map
+    SqedDepiction.clear_stale_progress
+    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
+  end
+
   # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id
   def index
     @result = SqedToTaxonworks::Result.new(
@@ -14,29 +20,27 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   end
 
   def update
+    next_sqed_depiction = @sqed_depiction
+
     if @sqed_depiction.depiction.depiction_object.update(collection_object_params)
       flash[:notice] = 'Successfully updated'
+
+      next_sqed_depiction =
+        case params[:commit]
+        when 'Save and next w/out data [n]'
+          @sqed_depiction.next_without_data(true) # true handles stale settings
+        when 'Save and next'
+          @sqed_depiction.nearby_sqed_depictions(0, 1, true)[:after].first # true handles stale settings
+        else
+          @sqed_depiction
+        end
     else
       flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join('; ').html_safe
     end
 
-    next_sqed_depiction = 
-      case params[:commit] 
-      when 'Save and next w/out data [n]' 
-        @sqed_depiction.next_without_data 
-      when 'Save and next'
-        @sqed_depiction.nearby_sqed_depictions(0, 1)[:after].first
-      else 
-        @sqed_depiction 
-      end
-
     namespace_id = (params[:lock_namespace] ? params[:collection_object][:identifiers_attributes]['0'][:namespace_id] : nil)
 
     redirect_to sqed_depiction_breakdown_task_path(next_sqed_depiction, namespace_id)
-  end
-
-  def todo_map
-    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
   end
 
   protected
@@ -53,7 +57,9 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
 
   def set_sqed_depiction
     @sqed_depiction = SqedDepiction.where(project_id: sessions_current_project_id).find(params[:id])
-    @sqed_depiction.preprocess
+    @sqed_depiction.update_column(:in_progress, Time.now)
+    # TODO: Run jobs in background with admin task.
+    # @sqed_depiction.preprocess
   end
 
 end
