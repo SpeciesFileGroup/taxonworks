@@ -287,7 +287,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
         if self.part_of_speech_class != t.part_of_speech_class
-          soft_validations.add(:base, "The part of speech status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names, success_message: 'Part of speech was updated')
+          soft_validations.add(:base, "The part of speech status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_part_of_speach, success_message: 'Part of speech was updated')
         end
       end
     end
