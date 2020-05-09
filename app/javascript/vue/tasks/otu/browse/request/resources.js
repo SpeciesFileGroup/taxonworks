@@ -41,11 +41,11 @@ const GetContent = function (id) {
 }
 
 const GetAssertedDistributions = function (id) {
-  return ajaxCall('get', `/asserted_distributions?otu_id=${id}`)
+  return ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
 }
 
 const GetBiologicalAssociations = function (globalId) {
-  return ajaxCall('get', `/biological_associations?any_global_id=${globalId}`)
+  return ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
 }
 
 const GetNavigationOtu = (id) => {
@@ -69,11 +69,11 @@ const GetCollectionObjects = function(params) {
 }
 
 const GetCollectionObject = function(id) {
-  return ajaxCall('get', `/collection_objects/${id}`)
+  return ajaxCall('get', `/collection_objects/${id}.json`)
 }
 
 const GetRepository = function(id) {
-  return ajaxCall('get', `/repositories/${id}`)
+  return ajaxCall('get', `/repositories/${id}.json`)
 }
 
 const GetBreadCrumbNavigation = (id) => {

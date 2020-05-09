@@ -14,6 +14,10 @@ class NomenclaturalRank::Icnp::FamilyGroup::Subfamily < NomenclaturalRank::Icnp:
     [NomenclaturalRank::Icnp::FamilyGroup::Family.to_s]
   end
 
+  def self.valid_name_ending
+    'oideae'
+  end
+
   def self.abbreviation
     'subfam.'
   end

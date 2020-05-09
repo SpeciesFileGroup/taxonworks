@@ -29,24 +29,40 @@
         class="close-panel small-icon"
         data-icon="close"
         @click="create = false"/>
-      <div class="field">
+      <div class="field label-above">
         <label>Name</label>
-        <br>
         <input
           type="text"
+          class="full_width"
           v-model="otu.name">
       </div>
-      <div class="field">
+      <div class="field label-above">
         <label>Taxon name</label>
-        <br>
-        <autocomplete
-          url="/taxon_names/autocomplete"
-          :autofocus="true"
-          label="label"
-          min="2"
-          @getItem="otu.taxon_name_id = $event.id"
-          placeholder="Select a taxon name"
-          param="term"/>
+        <div
+          v-if="taxon"
+          class="flex-separate middle">
+          <span
+            class="margin-small-right"
+            v-html="taxonLabel"/>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="taxon = undefined"/>
+        </div>
+        <template v-else>
+          <autocomplete
+            url="/taxon_names/autocomplete"
+            :autofocus="true"
+            label="label"
+            min="2"
+            :clear-after="true"
+            @getItem="setTaxon"
+            placeholder="Select a taxon name"
+            param="term"/>
+          <match-taxon-name
+            class="margin-small-top"
+            :otu-name="otu.name"
+            @selected="setTaxon"/>
+        </template>
       </div>
       <button
         class="button normal-input button-submit"
@@ -60,10 +76,12 @@
 <script>
 
 import Autocomplete from '../../autocomplete.vue'
+import MatchTaxonName from './matchTaxonNames'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    MatchTaxonName
   },
   props: {
     inputId: {
@@ -76,15 +94,19 @@ export default {
     }
   },
   computed: {
-    validateFields() {
+    validateFields () {
       return this.otu.name
+    },
+    taxonLabel () {
+      return this.taxon && this.taxon.hasOwnProperty('label_html') ? this.taxon.label_html : this.taxon['object_tag']
     }
   },
-  data() {
+  data () {
     return {
       found: true,
       create: false,
       type: undefined,
+      taxon: undefined,
       otu: {
         name: undefined,
         taxon_name_id: undefined
@@ -92,7 +114,7 @@ export default {
     }
   },
   watch: {
-    type(newVal, oldVal) {
+    type (newVal, oldVal) {
       if(newVal != oldVal) {
         this.resetPicker()
         this.otu.name = newVal
@@ -102,12 +124,15 @@ export default {
     }
   },
   methods: {
-    resetPicker() {
-      this.otu.name = undefined,
-      this.otu.taxon_name_id = undefined,
+    resetPicker () {
+      this.otu.name = undefined
+      this.otu.taxon_name_id = undefined
       this.create = false
     },
-    createOtu() {
+    createOtu () {
+      if (this.taxon) {
+        this.otu.taxon_name_id = this.taxon.id
+      }
       this.$http.post('/otus', { otu : this.otu }).then(response => {
         this.emitOtu(response.body)
         this.create = false
@@ -120,6 +145,9 @@ export default {
     callbackInput(event) {
       this.type = event
       this.$emit('getInput', event)
+    },
+    setTaxon (taxon) {
+      this.taxon = taxon
     }
   }
 }

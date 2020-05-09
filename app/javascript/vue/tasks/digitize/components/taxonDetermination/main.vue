@@ -9,45 +9,19 @@
       <fieldset
         class="separate-bottom">
         <legend>OTU</legend>
-        <div class="horizontal-left-content separate-bottom middle">
+        <div class="horizontal-left-content separate-bottom align-start">
           <smart-selector
-            v-model="view"
-            class="separate-right item"
-            name="otu-determination"
-            :options="options"/>
-          <lock-component v-model="locked.taxon_determination.otu_id"/>
+            class="margin-medium-bottom"
+            model="otus"
+            pin-section="Otus"
+            pin-type="Otu"
+            target="TaxonDetermination"
+            @selected="setOtu"
+          />
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.taxon_determination.otu_id"/>
         </div>
-        <template>
-          <div 
-            v-if="view == 'new/Search' && !otuId"
-            class="horizontal-left-content">
-            <otu-picker
-              input-id="determination-otu-autocomplete"
-              @getItem="otuId = $event.id; otuSelected = $event.label_html"/> 
-            <pin-default
-              class="separate-left"
-              section="Otus"
-              @getId="otuId = $event"
-              type="Otu"/>
-          </div>
-          <ul
-            v-else
-            class="no_bullets">
-            <li
-              v-for="item in lists[view]"
-              :key="item.id"
-              :value="item.id">
-              <label
-                @click="otuSelected = item.label_html">
-                <input
-                  v-model="otuId"
-                  :value="item.id"
-                  type="radio">
-                <span v-html="item.object_tag"/>
-              </label>
-            </li>
-          </ul>
-        </template>
         <div
           v-if="otuSelected"
           class="horizontal-left-content">
@@ -59,40 +33,22 @@
       </fieldset>
       <fieldset>
         <legend>Determiner</legend>
-        <div class="horizontal-left-content separate-bottom middle">
+        <div class="horizontal-left-content separate-bottom align-start">
           <smart-selector
-            v-model="viewDeterminer"
-            class="separate-right item"
-            name="determiner"
-            :options="optionsDeterminer"/>
-          <lock-component v-model="locked.taxon_determination.roles_attributes"/>
+            model="people"
+            target="Determiner"
+            :autocomplete="false"
+            @selected="addRole">
+            <role-picker
+              :autofocus="false"
+              ref="rolepicker"
+              role-type="Determiner"
+              v-model="roles"/>
+          </smart-selector>
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.taxon_determination.roles_attributes"/>
         </div>
-        <template>
-          <div
-            v-if="viewDeterminer != 'new/Search'"
-            class="separate-bottom">
-            <ul class="no_bullets">
-              <li
-                v-for="(item, index) in listsDeterminator[viewDeterminer]"
-                v-if="!roleExist(item.id)"
-                :key="index"
-                :value="item.id">
-                <label>
-                  <input
-                    :value="item.id"
-                    @click="addRole(item)"
-                    type="radio">
-                  <span v-html="item.object_tag"/>
-                </label>
-              </li>
-            </ul>
-          </div>
-          <role-picker
-            :autofocus="false" 
-            ref="rolepicker"
-            role-type="Determiner"
-            v-model="roles"/>
-        </template>
       </fieldset>
       <div class="horizontal-left-content date-fields separate-bottom separate-top">
         <div class="separate-left">
@@ -157,19 +113,16 @@
 
 <script>
 
-import SmartSelector from 'components/switch.vue'
-import PinDefault from 'components/getDefaultPin.vue'
-import RolePicker from 'components/role_picker.vue'
-import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions'
+import { GetOtu } from '../../request/resources.js'
+
+import SmartSelector from 'components/smartSelector.vue'
+import RolePicker from 'components/role_picker.vue'
+import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import BlockLayout from 'components/blockLayout.vue'
-import { ActionNames } from '../../store/actions/actions';
-import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
-import orderSmartSelector from '../../helpers/orderSmartSelector.js'
-import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
-import { GetOtu, GetOtuSmartSelector, GetTaxonDeterminatorSmartSelector } from '../../request/resources.js'
 import LockComponent from 'components/lock'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
@@ -181,7 +134,6 @@ export default {
     RolePicker,
     OtuPicker,
     BlockLayout,
-    PinDefault,
     LockComponent,
     Draggable,
     RadialAnnotator
@@ -272,9 +224,6 @@ export default {
   watch: {
     collectionObject(newVal) {
       this.$refs.rolepicker.reset()
-      if(!newVal.id) {
-        this.loadSmartSelectors()
-      }
     },
     otuId(newVal) {
       if(newVal) {
@@ -296,51 +245,35 @@ export default {
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
     }
-    this.loadSmartSelectors()
   },
   methods: {
-    loadSmartSelectors() {
-      GetOtuSmartSelector().then(response => {
-        this.options = orderSmartSelector(Object.keys(response))
-        this.options.push('new/Search')
-        this.lists = response
-        this.view = selectFirstSmartOption(response, this.options)
-      })
-      GetTaxonDeterminatorSmartSelector().then(response => {
-        this.optionsDeterminer = orderSmartSelector(Object.keys(response))
-        this.optionsDeterminer.push('new/Search')
-        this.listsDeterminator = response
-        this.viewDeterminer = selectFirstSmartOption(response, this.optionsDeterminer)
-      })
-    },
-    roleExist(id) {
+    roleExist (id) {
       return (this.roles.find((role) => {
         return !role.hasOwnProperty('_destroy') && role.person_id == id
       }) ? true : false)
     },
-    addRole(role) {
+    addRole (role) {
       if(!this.roleExist(role.id)) {
         this.roles.push(CreatePerson(role, 'Determiner'))
       }
     },
-    saveDetermination() {
+    saveDetermination () {
       this.$store.dispatch(ActionNames.SaveDetermination)
     },
-    addDetermination() {
-
-      if(this.list.find((determination) => { 
-          return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
-        })
+    addDetermination () {
+      if (this.list.find((determination) => {
+        return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
+      })
       ) { return }
       this.taxonDetermination.object_tag = `${this.otuSelected}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
-    removeTaxonDetermination(determination) {
+    removeTaxonDetermination (determination) {
       this.$store.dispatch(ActionNames.RemoveTaxonDetermination, determination)
     },
-    setActualDate() {
-      let today = new Date()
+    setActualDate () {
+      const today = new Date()
       this.day = today.getDate()
       this.month = today.getMonth() + 1
       this.year = today.getFullYear()
@@ -350,6 +283,10 @@ export default {
         this.list[i].position = (i + 1)
       }
     },
+    setOtu (otu) {
+      this.otuId = otu.id
+      this.otuSelected = otu.object_tag
+    }
   }
 }
 </script>

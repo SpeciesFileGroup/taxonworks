@@ -286,11 +286,11 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
           )
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         end
 
     z = i.as('recent_t')

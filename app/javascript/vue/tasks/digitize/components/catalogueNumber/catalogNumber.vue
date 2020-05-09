@@ -17,6 +17,7 @@
               class="separate-right item"
               :options="options"/>
             <lock-component v-model="locked.identifier"/>
+            <a href="/namespaces/new">New</a>
           </div>
           <autocomplete
             input-id="namespace-autocomplete"
@@ -81,9 +82,13 @@
         <span 
           v-if="!namespace && identifier && identifier.length"
           style="color: red">Namespace is needed.</span>
-        <span 
-          v-if="existingIdentifier"
-          style="color: red">Identifier already exists, and it won't be saved.</span>
+        <template v-if="existingIdentifier">
+          <span
+            style="color: red">Identifier already exists, and it won't be saved:</span>
+          <a
+            :href="existingIdentifier.identifier_object.object_url"
+            v-html="existingIdentifier.identifier_object.object_tag"/>
+        </template>
       </div>
     </div>
   </div>
@@ -176,7 +181,7 @@
     },
     data() {
       return {
-        existingIdentifier: false,
+        existingIdentifier: undefined,
         delay: 1000,
         saveRequest: undefined,
         options: [],
@@ -230,14 +235,16 @@
       checkIdentifier() {
         let that = this
 
-        if(this.saveRequest) {
+        if (this.saveRequest) {
           clearTimeout(this.saveRequest)
         }
-        this.saveRequest = setTimeout(() => { 
-          CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
-            that.existingIdentifier = (response.length > 0)
-          })
-        }, this.delay)
+        if (this.identifier) {
+          this.saveRequest = setTimeout(() => {
+            CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
+              that.existingIdentifier = (response.length > 0 ? response[0] : undefined)
+            })
+          }, this.delay)
+        }
       }
     }
   }

@@ -554,11 +554,11 @@ class CollectionObject < ApplicationRecord
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
           )
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         end
 
     # z is a table alias

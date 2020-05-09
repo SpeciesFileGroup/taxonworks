@@ -325,6 +325,51 @@ class Protonym < TaxonName
     end
   end
 
+  ## taxon_name.predicted_children_rank('Cicadellidae') >> NomenclaturalRank::Iczn::FamilyGroup::Family
+  def predicted_child_rank(children_string)
+    return nil if children_string.blank?
+    parent_rank = rank_class.to_s
+    parent_rank_name = rank_name
+    ncode = nomenclatural_code
+
+    if children_string == children_string.downcase
+      if !is_species_rank?
+        r = Ranks.lookup(ncode, 'species')
+      elsif parent_rank_name == 'species'
+        r = Ranks.lookup(ncode, 'subspecies')
+      elsif parent_rank_name == 'subspecies'
+        r = Ranks.lookup(ncode, 'variety')
+      elsif parent_rank_name == 'variety'
+        r = Ranks.lookup(ncode, 'form')
+      elsif parent_rank_name == 'form'
+        r = Ranks.lookup(ncode, 'subform')
+      else
+        return nil
+      end
+    elsif children_string == children_string.capitalize
+      if rank_name == 'genus'
+        r = Ranks.lookup(ncode, 'subgenus')
+      else
+        Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
+          r2 = r1.constantize
+          if !r2.valid_name_ending.blank? && children_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+            r = r1
+            break
+          end
+        end
+        r = Ranks.lookup(ncode, 'genus') if r.nil?
+      end
+    else
+      return nil
+
+#      RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
+#      Ranks.lookup(:iczn, 'species')
+# .valid_name_ending
+#FAMILY_AND_ABOVE_RANK_NAMES
+    end
+    r.constantize
+  end
+
   def number_of_taxa_by_year
     a = {}
     descendants.find_each do |z|

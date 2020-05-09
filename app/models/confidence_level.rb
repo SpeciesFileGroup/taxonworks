@@ -13,7 +13,7 @@ class ConfidenceLevel < ControlledVocabularyTerm
     # i is a select manager
     i = c.project(c['confidence_level_id'], c['created_at']).from(c)
       .where(c['created_at'].gt( 1.weeks.ago ))
-      .order(c['created_at'])
+      .order(c['created_at'].desc)
      
     # z is a table alias 
     z = i.as('recent_c')
