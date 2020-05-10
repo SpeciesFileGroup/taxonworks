@@ -595,7 +595,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[nomenclator_id.to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                 if pr.id.nil?
-                  cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                   citation_on_otu = true
                 else
                   pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: pr, project_id: pr.id)
@@ -613,7 +612,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['subgenus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['subgenus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[nomenclator_id.to_i]['subgenus'][0], rank_class: Ranks.lookup(:iczn, 'Subgenus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                 if pr.id.nil?
-                  cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                   citation_on_otu = true
                 else
                   pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: pr, project_id: project_id)
@@ -650,7 +648,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   else
                     pr.save
                     if pr.id.nil?
-                      cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true###############################
                       citation_on_otu = true
                     else
                       pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies', subject_taxon_name: pr, project_id: project_id)
@@ -686,7 +683,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 else
                   pr.save
                   if pr.id.nil?
-                    cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                     citation_on_otu = true
                   else
                     pr.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies', subject_taxon_name: pr, project_id: project_id)
@@ -747,6 +743,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               citation = Citation.where(source_id: source_id, citation_object_type: 'TaxonName', citation_object_id: taxon_name_id, is_original: true).first
 
+              cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
               if source_id.nil?
                 next
               elsif !citation.nil? && citation.pages.blank? && orig_desc_source_id != source_id
@@ -835,7 +832,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 protonym.save
                 #string = [project_id, protonym.original_genus.try(:name), protonym.original_subgenus.try(:name), protonym.original_species.try(:name), protonym.original_subspecies.try(:name), protonym.original_variety.try(:name), protonym.original_form.try(:name)].compact.join('_')
                 tw_taxa_ids[project_id + '_' + nomenclator_string] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string].nil?
-                cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                 next
               elsif nomenclator_id == '0'
                 # no nomenclator data.
@@ -849,17 +845,26 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string]
                   unless taxon_name_id1.nil?
                     p = TaxonName.find(taxon_name_id1)
-                    tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
-                    if tr.nil? && protonym.id != p.id
-                      protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
-                      if row['NewNameStatusID'] == '3'
+                    if p && p.id != protonym.id
+                      tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
+                      if tr.nil? && row['NewNameStatusID'] == '3'
+                        protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
                         protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
-  #                    else
-  #                      protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
+                        citation = Citation.create(
+                            source_id: source_id,
+                            pages: row['CitePages'],
+                            citation_object: tr,
+                            project_id: project_id,
+                            created_at: row['CreatedOn'],
+                            updated_at: row['LastUpdate'],
+                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                            updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                        )
+                      else
+                        protonym = p
+                        taxon_name_id = p.id
                       end
                     end
-#                    protonym = p
-#                    taxon_name_id = p.id
                   end
                 end
               else
@@ -917,7 +922,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 p.parent_id = protonym.parent_id
                 p.rank_class = protonym.rank_class
                 p.save
-                next if p.id.nil?
+                if p.id.nil?
+                  cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                  next
+                end
                 p.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
                 p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum', project_id: project_id) if row['NewNameStatusID'] == '6'
                 p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium', project_id: project_id) if row['NewNameStatusID'] == '7'
