@@ -849,7 +849,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                       tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
                       if tr.nil? && row['NewNameStatusID'] == '3'
                         protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid')
-                        protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+                        tr = protonym.taxon_name_relationships.create(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                         citation = Citation.create(
                             source_id: source_id,
                             pages: row['CitePages'],
