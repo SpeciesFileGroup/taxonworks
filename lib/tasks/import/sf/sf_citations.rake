@@ -859,7 +859,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                             updated_at: row['LastUpdate'],
                             created_by_id: get_tw_user_id[row['CreatedBy']],
                             updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                        )
+                        ) if tr.id
                       else
                         protonym = p
                         taxon_name_id = p.id
