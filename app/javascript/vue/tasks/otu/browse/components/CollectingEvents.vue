@@ -104,7 +104,7 @@ export default {
       return `<h4><b>Collection objects</b></h4>
         ${this.getCollectionObjectByGeoId(geo).map(item => `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`).join('<br>')}
         <h4><b>Collecting event</b></h4>
-        <a href="/collecting_events/${ce.id}">${ce.object_tag}</a>`
+        <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${ce.object_tag}</a>`
     },
     getCEByGeo (georeference) {
       return this.collectingEvents.find(ce => { return ce.id === georeference.collecting_event_id })
