@@ -24,6 +24,7 @@
 import SectionPanel from '../shared/sectionPanel'
 import { GetTypeMaterials, GetCollectionObjects } from '../../request/resources.js'
 import SpecimenInformation from './Information'
+import { GetterNames } from '../../store/getters/getters'
 
 export default {
   components: {

@@ -28,6 +28,10 @@ const GetConfidences = function (id) {
   return ajaxCall('get', `/otus/${id}/confidences.json`)
 }
 
+const GetOtusCollectionObjects = function (otuId) {
+  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: otuId, current_determinations: true } })
+}
+
 const GetGeoreferences = function (id) {
   return ajaxCall('get', `/georeferences.json?collecting_event_id=${id}`)
 }
@@ -119,5 +123,6 @@ export {
   GetTypeMaterials,
   GetCommonNames,
   GetOtus,
-  GetGeoreferences
+  GetGeoreferences,
+  GetOtusCollectionObjects
 }

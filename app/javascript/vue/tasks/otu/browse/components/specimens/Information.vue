@@ -5,7 +5,7 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/><span v-if="type" v-html="`[${type.object_tag}]`"/> <span class="separate-left">{{ ceLabel }}</span>
+        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"
@@ -24,6 +24,9 @@
         <li>
           <span>Citation: <b><span v-html="citationsLabel"/></b></span>
         </li>
+        <li>
+          <span>Collecting event: <b><span v-html="collectingEventLabel"/></b></span>
+        </li>
       </ul>
       <h3 class="middle">
         <span class="mark-box button-default separate-right"/> Images
@@ -39,6 +42,8 @@
 </template>
 
 <script>
+
+import { GetterNames } from '../../store/getters/getters'
 import { GetDepictions, GetBiocurations, GetCollectionObject, GetRepository, GetCitations } from '../../request/resources'
 import ImageViewer from '../gallery/ImageViewer'
 
@@ -61,6 +66,24 @@ export default {
     }
   },
   computed: {
+    collectingEvents () {
+      return this.$store.getters[GetterNames.GetCollectingEvents]
+    },
+    collectionObjects () {
+      return this.$store.getters[GetterNames.GetCollectionObjects]
+    },
+    collectingEventLabel () {
+      const ce = this.collectingEvents.find(item => {
+        return this.co.collecting_event_id === item.id
+      })
+
+      return ce !== undefined ? ce.object_tag : 'not specified'
+    },
+    co () {
+      return this.collectionObjects.find(item => {
+        return this.specimen.collection_objects_id === item.id
+      })
+    },
     repositoryLabel () {
       return this.repository ? this.repository.name : 'not specified'
     },

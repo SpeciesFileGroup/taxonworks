@@ -77,6 +77,7 @@ import Descendants from './components/descendants'
 import Autocomplete from 'components/autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
+import { ActionNames } from './store/actions/actions'
 
 import { GetOtu, GetOtus, GetNavigationOtu } from './request/resources.js'
 
@@ -108,6 +109,14 @@ export default {
       section: ['NomenclatureHistory', 'Descendants', 'ImageGallery', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
     }
   },
+  watch: {
+    otu: {
+      handler (newVal) {
+        this.$store.dispatch(ActionNames.LoadInformation, newVal.id)
+      },
+      deep: true
+    }
+  },
   mounted () {
     let urlParams = new URLSearchParams(window.location.search)
 
@@ -116,6 +125,8 @@ export default {
     if (/^\d+$/.test(otuId)) {
       GetOtu(otuId).then(response => {
         this.otu = response.body
+        this.$store.dispatch(ActionNames.LoadCollectionObjects, this.otu.id)
+        this.$store.dispatch(ActionNames.LoadCollectingEvents, this.otu.id)
         this.isLoading = false
       })
       GetNavigationOtu(otuId).then(response => {
@@ -125,6 +136,8 @@ export default {
       GetOtus(taxonId).then(response => {
         if (response.body.length === 1) {
           this.otu = response.body[0]
+          this.$store.dispatch(ActionNames.LoadCollectionObjects, this.otu.id)
+          this.$store.dispatch(ActionNames.LoadCollectingEvents, this.otu.id)
         } else {
           this.otus = response.body
         }
