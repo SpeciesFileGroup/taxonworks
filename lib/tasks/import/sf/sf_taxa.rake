@@ -570,13 +570,13 @@ namespace :tw do
               puts 'TaxonNameRelationship created'
 
               if tnr.id && row['AuthorityRefID'].to_i > 0 # 20 out of 1924 sources not found
-                unless authority_ref_id.nil?
+                unless authority_ref_id.nil? && authority_ref_id.to_s != '0'
                   tnr_cit = tnr.citations.new(source_id: authority_ref_id,
                                               project_id: project_id)
-                  begin
-                    tnr_cit.save!
+                  tnr_cit.save
+                  if !tnr_cit.id.nil?
                     puts 'Citation created'
-                  rescue ActiveRecord::RecordInvalid # tnr_cit not valid
+                  else
                     logger.error "TaxonNameRelationship citation ERROR TW.taxon_name_id #{genus_name_id} (#{error_counter += 1}): " + tnr_cit.errors.full_messages.join(';')
                   end
                 else
