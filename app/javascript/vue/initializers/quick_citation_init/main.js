@@ -5,6 +5,7 @@ function init (element) {
   const id = `quick-citation-${(Math.random().toString(36).substr(2, 5))}`
   const sourceId = element.getAttribute('data-source-id')
   const globalId = element.getAttribute('data-global-id')
+  const klass = element.classList.value
 
   if (sourceId && globalId) {
     element.setAttribute('id', id)
@@ -16,7 +17,8 @@ function init (element) {
           props: {
             id: id,
             sourceId: sourceId,
-            globalId: globalId
+            globalId: globalId,
+            klass: klass
           }
         })
       }

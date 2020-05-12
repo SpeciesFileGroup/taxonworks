@@ -69,8 +69,8 @@ module CitationsHelper
     render
   end
 
-  def quick_citation_tag(source_id, object)
-    content_tag(:span, 'Cite', data: {source_id: source_id, global_id: object.to_global_id.to_s, quick_citation: true})
+  def quick_citation_tag(source_id, object, klass = nil)
+    content_tag(:span, 'Cite', data: {source_id: source_id, global_id: object.to_global_id.to_s, quick_citation: true}, class: klass)
   end
 
 end
