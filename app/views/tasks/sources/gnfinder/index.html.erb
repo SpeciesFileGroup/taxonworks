@@ -69,7 +69,7 @@
             <%= content_tag(:td, v.count) -%>
             <%= content_tag(:td, v.first.is_verified? ? content_tag(:span, v.first.best_match_type, class: [:feedback, 'feedback-info', 'feedback-thin']) : content_tag(:span, 'No', class: [:feedback, 'feedback-warning', 'feedback-thin'])) -%>
             <%= content_tag(:td, v.first.best_result&.data_source_title) -%>
-            <%= content_tag(:td, content_tag(:span, v.first.log_odds.round(4), data: {'base-10-heatmap': true}) ) -%>
+            <%= content_tag(:td, content_tag(:span, v.first.log_odds.round(4), data: {'heatmap': 'base-10'}) ) -%>
             <%= content_tag(:td, content_tag(:pre, (v.first.words_before.join('&nbsp;') + v.first.words_after.join(' ')).html_safe )) -%>
           </tr>
         <% end %>
