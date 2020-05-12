@@ -581,3 +581,11 @@ project_data_task:
   categories:
   status: prototype
   description: 'Quick stats and download options for the overall project.'
+gnfinder_task:
+  hub: true
+  name: 'Gnfinder playground'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Show all names in a document.'
