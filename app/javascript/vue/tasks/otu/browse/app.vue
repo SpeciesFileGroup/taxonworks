@@ -43,10 +43,10 @@
       <draggable
         class="container"
         handle=".handle"
-        v-model="section">
+        v-model="preferences.sections">
         <component
           class="separate-bottom full_width"
-          v-for="component in section"
+          v-for="component in preferences.sections"
           :key="component"
           :otu="otu"
           :is="component"/>
@@ -79,7 +79,9 @@ import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import { ActionNames } from './store/actions/actions'
 
-import { GetOtu, GetOtus, GetNavigationOtu } from './request/resources.js'
+import { GetOtu, GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
@@ -100,19 +102,40 @@ export default {
     Draggable,
     Descendants
   },
+  computed: {
+    preferences: {
+      get () {
+        return this.$store.getters[GetterNames.GetPreferences]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetPreferences, value)
+      }
+    }
+  },
   data () {
     return {
       isLoading: false,
       otu: undefined,
       otus: [],
       navigate: undefined,
-      section: ['NomenclatureHistory', 'Descendants', 'ImageGallery', 'CommonNames', 'TypeSpecimens', 'CollectionObjects', 'ContentComponent', 'AssertedDistribution', 'BiologicalAssociations', 'AnnotationsComponent', 'CollectingEvents']
+      tmp: undefined
     }
   },
   watch: {
     otu: {
       handler (newVal) {
         this.$store.dispatch(ActionNames.LoadInformation, newVal.id)
+      },
+      deep: true
+    },
+    preferences: {
+      handler (newVal, oldVal) {
+        if (newVal && JSON.stringify(newVal) !== JSON.stringify(this.tmp)) {
+          this.tmp = newVal
+          UpdateUserPreferences(this.$store.getters[GetterNames.GetUserId], { 'browseOtu': newVal }).then(response => {
+            this.preferences = response.body.preferences.layout['browseOtu']
+          })
+        }
       },
       deep: true
     }
@@ -150,6 +173,12 @@ export default {
   methods: {
     loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
+    },
+    updatePreferences () {
+      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+        this.preferences.layout = response.preferences
+        this.componentsOrder = response.preferences.layout[this.keyStorage]
+      })
     }
   }
 }

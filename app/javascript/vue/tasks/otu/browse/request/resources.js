@@ -1,5 +1,9 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const GetUserPreferences = () => {
+  return ajaxCall('get', '/preferences.json')
+}
+
 const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
@@ -100,8 +104,13 @@ const GetTypeMaterials = (id) => {
   return ajaxCall('get', `/type_materials.json?protonym_id=${id}`)
 }
 
+const UpdateUserPreferences = (id, data) => {
+  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+}
+
 export {
   GetOtu,
+  GetUserPreferences,
   GetDepictions,
   GetContent,
   GetAssertedDistributions,
@@ -124,5 +133,6 @@ export {
   GetCommonNames,
   GetOtus,
   GetGeoreferences,
-  GetOtusCollectionObjects
+  GetOtusCollectionObjects,
+  UpdateUserPreferences
 }
