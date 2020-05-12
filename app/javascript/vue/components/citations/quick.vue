@@ -15,12 +15,12 @@
     </template>
     <button
       v-else
-      class="button normal-input button-default"
-      :disabled="citation"
+    class="button normal-input button-default"
+    :disabled="citation"
       @click="pressed = true"
-      type="button">
+    type="button">
       {{ label }}
-    </button>
+  </button>
   </div>
 </template>
 

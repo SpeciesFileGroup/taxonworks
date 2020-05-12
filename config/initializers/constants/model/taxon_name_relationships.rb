@@ -95,6 +95,11 @@ begin
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
 
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
+
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING +
                                                 ['TaxonNameRelationship::Icn::Unaccepting::Misapplication',
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Misapplication',

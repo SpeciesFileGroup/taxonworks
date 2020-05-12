@@ -122,7 +122,7 @@ export default {
   methods: {
     loadWithParentID() {
       var url = new URL(window.location.href);
-      var parentId = url.searchParams.get("parentId");
+      var parentId = url.searchParams.get("parent_id");
       if(parentId != null && Number.isInteger(Number(parentId)))
         this.parentSelected(parentId)
     },

@@ -109,6 +109,10 @@ export default {
         return []
       }
     },
+    zoomOnClick: {
+      type: Boolean,
+      default: true
+    },
     fitBounds: {
       type: Boolean,
       default: true
@@ -352,9 +356,13 @@ export default {
         'pm:edit': this.editedLayer,
         click: this.zoomToFeature
       })
+      if (feature.properties.hasOwnProperty('popup')) {
+        layer.bindPopup(feature.properties.popup)
+      }
       layer.pm.disable()
     },
     zoomToFeature (e) {
+      if (!this.zoomOnClick) return
       const layer = e.target
       if (this.fitBounds) {
         if (layer instanceof L.Marker || layer instanceof L.Circle) {

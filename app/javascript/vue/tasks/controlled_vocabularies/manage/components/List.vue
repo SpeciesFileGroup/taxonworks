@@ -9,11 +9,14 @@
           <th @click="sortTable('count')">Uses</th>
           <th>Show</th>
           <th>Edit</th>
+          <th>Pin</th>
           <th>Destroy</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in list">
+        <tr
+          v-for="(item, index) in list"
+          :key="item.id">
           <td
             class="line-nowrap"
             v-html="item.object_tag"></td>
@@ -26,6 +29,14 @@
             <span
               class="button button-circle btn-edit"
               @click="editItem(index)"/>
+          </td>
+          <td>
+            <pin-component
+              class="button button-circle"
+              v-if="item.id"
+              :object-id="item.id"
+              :type="`${item.type}`"
+            />
           </td>
           <td>
             <span
@@ -43,10 +54,12 @@
 
 import { GetControlledVocabularyTerms, DestroyControlledVocabularyTerm } from '../request/resources'
 import SpinnerComponent from 'components/spinner.vue'
+import PinComponent from 'components/pin.vue'
 
 export default {
   components: {
-    SpinnerComponent
+    SpinnerComponent,
+    PinComponent
   },
   props: {
     type: {

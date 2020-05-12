@@ -17,7 +17,10 @@ module Lib::CatalogHelper
     return nil if citation.nil?
     str = citation.source.year_suffix.to_s
     str += ": #{citation.pages}." if citation.pages
-    content_tag(:span, str, class: 'history__pages') unless str.blank?
+#    content_tag(:span, str, class: 'history__pages') unless str.blank?
+    unless str.blank?
+      link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:new_source_task_path, source_id: citation.source.id) )
+    end
   end
 
   # @return [String, nil]

@@ -165,16 +165,25 @@ export default {
       this.rankLists = {}
       this.parseRanks = {}
     },
-    setRankList (literalString) {
+    setRankList (literalString, combination = undefined) {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
         GetParse(literalString).then(response => {
-          this.$emit('onSearchEnd', true)
+          if (combination) {
+            let ranks = Object.keys(combination.protonyms)
+            ranks.forEach(rank => {
+              let protonym = combination.protonyms[rank]
+              if (!response.data.protonyms[rank].find(item => { item.id === protonym.id })) {
+                response.data.protonyms[rank].push(protonym)
+              }
+            })
+          }
           this.rankLists = response.data.protonyms
           this.parseRanks = response.data.parse
           this.searching = false
           this.otherMatches = response.other_matches
+          this.$emit('onSearchEnd', true)
           this.$nextTick(() => {
             if (response.data.unambiguous) {
               this.$refs.saveButton.setFocus()
@@ -189,7 +198,7 @@ export default {
     },
     editCombination (literalString, combination) {
       this.newCombination = combination
-      this.setRankList(literalString)
+      this.setRankList(literalString, combination)
     },
     expandAll () {
       this.$refs.listGroup.forEach(component => {

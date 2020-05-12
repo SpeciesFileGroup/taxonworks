@@ -10,6 +10,10 @@ class NomenclaturalRank::Icnp::HigherClassificationGroup::ClassRank < Nomenclatu
     taxon_name.errors.add(:name, 'name must end in -ia') if not(taxon_name.name =~ /.*ia\Z/)
   end
 
+  def self.valid_name_ending
+    'ia'
+  end
+
   def rank_name
     'class'
   end

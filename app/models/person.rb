@@ -439,7 +439,7 @@ class Person < ApplicationRecord
     i = t.project(t['person_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['type'].eq(role_type))
-      .order(t['created_at'])
+      .order(t['created_at'].desc)
       .take(10)
       .distinct
 

@@ -65,7 +65,7 @@
               Select all
             </button>
             <span class="separate-left separate-right">|</span>
-            <csv-button :list="list"/>
+            <csv-button :list="csvList"/>
             <span class="separate-left separate-right">|</span>
             <bibtex-button
               :params="params"/>
@@ -137,6 +137,9 @@ export default {
     },
     sourceIDs () {
       return this.list.map(item => { return item.id })
+    },
+    csvList () {
+      return this.ids.length ? this.list.filter(item => { return this.ids.includes(item.id) }) : this.list
     }
   },
   data () {

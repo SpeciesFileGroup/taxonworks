@@ -1,6 +1,4 @@
-FROM phusion/passenger-ruby26:1.0.9 AS base
-MAINTAINER Matt Yoder
-ENV LAST_FULL_REBUILD 2018-08-10
+FROM locodelassembly/passenger-ruby27:latest AS base
 ARG BUNDLER_WORKERS=1
 
 # From Phusion

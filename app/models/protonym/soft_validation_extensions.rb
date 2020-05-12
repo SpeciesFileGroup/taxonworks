@@ -287,7 +287,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
         if self.part_of_speech_class != t.part_of_speech_class
-          soft_validations.add(:base, "The part of speech status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names, success_message: 'Part of speech was updated')
+          soft_validations.add(:base, "The part of speech status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_part_of_speach, success_message: 'Part of speech was updated')
         end
       end
     end
@@ -304,7 +304,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_genus
-      return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_genus_or_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_genus.try(:name) != t.original_genus.try(:name)
           soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_genus, success_message: 'Original genus was updated')
@@ -334,7 +334,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subgenus
-      return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_genus_or_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subgenus.try(:name) != t.original_subgenus.try(:name)
           soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subgenus, success_message: 'Original subgenus was updated')
@@ -364,7 +364,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_species
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_species.try(:name) != t.original_species.try(:name)
           soft_validations.add(:base, "The original species does not match with the original species of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_species, success_message: 'Original species was updated')
@@ -394,7 +394,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subspecies
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subspecies.try(:name) != t.original_subspecies.try(:name)
           soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subspecies, success_message: 'Original subspecies was updated')
@@ -424,7 +424,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_variety
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_variety.try(:name) != t.original_variety.try(:name)
           soft_validations.add(:base, "The original variety does not match with the original variety of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_variety, success_message: 'Original variety was updated')
@@ -454,7 +454,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_form
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_form.try(:name) != t.original_form.try(:name)
           soft_validations.add(:base, "The original form does not match with the original form of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_form, success_message: 'Original form was updated')
@@ -993,7 +993,7 @@ module Protonym::SoftValidationExtensions
         relationships = relationships.sort_by{|r| r.type_class.order_index }
         ids = relationships.collect{|r| r.subject_taxon_name_id}
         if !ids.include?(self.id)
-          if (list_of_coordinated_names.each{|r| r.id} & ids).empty?
+          if (list_of_coordinated_names.collect{|r| r.id} & ids).empty?
             soft_validations.add(:base, "Missing relationship: The original rank of #{self.cached_html} is not specified in the original combination.")
           end
         elsif ids.last != self.id

@@ -331,7 +331,7 @@ scope :tasks do
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
-      get '(:source_id)', action: :index, as: 'nomenclature_by_source_task'
+      get '/', action: :index, as: 'nomenclature_by_source_task'
     end
   end
 

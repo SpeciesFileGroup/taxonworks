@@ -426,7 +426,7 @@ class GeographicArea < ApplicationRecord
     # i is a select manager
     i = t.project(t['geographic_area_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
-      .order(t['created_at'])
+      .order(t['created_at'].desc)
       .take(10)
       .distinct
 
