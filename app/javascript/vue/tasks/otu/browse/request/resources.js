@@ -33,7 +33,7 @@ const GetConfidences = function (id) {
 }
 
 const GetOtusCollectionObjects = function (otuId) {
-  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: otuId, current_determinations: true } })
+  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: [otuId], current_determinations: true } })
 }
 
 const GetGeoreferences = function (id) {
