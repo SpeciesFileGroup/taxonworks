@@ -14,7 +14,7 @@ var CarrouselData = function (sec, rows, columns) {
 		this.isEmpty,
 		this.maxRow = rows;
 		this.sectionTag = sec;
-		this.resetchildrenCount();
+		this.resetChildrenCount();
 		if(this.maxRow >= this.children) {
 			this.navigation(false);
 		}
@@ -36,7 +36,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.resetFilters = function() {
 		this.filters = {};
-		this.filterchildren();
+		this.filterChildren();
 	};
 
 	CarrouselData.prototype.checkChildFilter = function(childTag) {
@@ -59,10 +59,10 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 	CarrouselData.prototype.refresh = function() {
-		this.filterchildren();
+		this.filterChildren();
 	}
 
-	CarrouselData.prototype.resetchildrenCount = function() {
+	CarrouselData.prototype.resetChildrenCount = function() {
 	  	this.children = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	};
 
@@ -81,7 +81,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
-		this.filterchildren();
+		this.filterChildren();
 	};
 
 	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
@@ -121,7 +121,7 @@ var CarrouselData = function (sec, rows, columns) {
 		this.showEmptyLabel();
 	}
 
-	CarrouselData.prototype.filterchildren = function() {
+	CarrouselData.prototype.filterChildren = function() {
 		var
 		find = 0;
 		if(this.maxRow > this.children) {

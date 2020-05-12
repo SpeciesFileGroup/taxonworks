@@ -157,7 +157,7 @@ FilterHub.prototype.changeAllSectionsFilter = function (arrayData) {
   arrayData.forEach(function (element) {
     $("#search-filter").val("");
     element.resetFilters();
-    element.filterchildren();
+    element.filterChildren();
     $('.reset-all-filters').fadeOut(0);
   });
 }

@@ -18,7 +18,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.filterWords = "";
     this.cardWidth = 440;
     this.cardHeight = 180;
-    this.resetchildrenCount();
+    this.resetChildrenCount();
     this.changeSize(columns,rows);
     this.handleEvents(this.that);
   };
@@ -60,8 +60,8 @@ var CarrouselTask = function (sec, rows, columns) {
     $(this.sectionTag).children(".task-section").css("width",((this.maxColumns * this.cardWidth) + "px"));
     $(this.sectionTag).children(".task-section").css("height",((this.maxRow * this.cardHeight) + "px"));
     
-    this.resetchildrenCount();
-    this.filterchildren();
+    this.resetChildrenCount();
+    this.filterChildren();
     this.injectNavList();
     this.refresh(); 
   };
@@ -76,7 +76,7 @@ var CarrouselTask = function (sec, rows, columns) {
 
   CarrouselTask.prototype.refresh = function() {
     this.resetView();
-    this.filterchildren();
+    this.filterChildren();
     this.showchildren(); 
   };  
 
@@ -172,7 +172,7 @@ var CarrouselTask = function (sec, rows, columns) {
     this.noTaskFound();
   }  
 
-  CarrouselTask.prototype.resetchildrenCount = function() {
+  CarrouselTask.prototype.resetChildrenCount = function() {
     this.childrenCount = $(this.sectionTag + ' .task_card').length;
   };
 
@@ -183,7 +183,7 @@ var CarrouselTask = function (sec, rows, columns) {
   CarrouselTask.prototype.changeFilter = function(filterTag)  {
     this.filters[filterTag] = !this.filters[filterTag];
     this.resetView();
-    this.filterchildren();
+    this.filterChildren();
     this.showchildren();
   };
 
@@ -232,7 +232,7 @@ var CarrouselTask = function (sec, rows, columns) {
     }
   };
 
-  CarrouselTask.prototype.filterchildren = function() {
+  CarrouselTask.prototype.filterChildren = function() {
     var
     find = 0,
     activeCount = 0;
