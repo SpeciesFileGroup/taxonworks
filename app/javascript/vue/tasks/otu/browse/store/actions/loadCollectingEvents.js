@@ -9,11 +9,13 @@ export default ({ state, commit }, otuId) => {
 
     commit(MutationNames.SetCollectingEvents, CEs)
     CEs.forEach(ce => {
-      promises.push(GetGeoreferences(ce.id).then(response => { georeferences.push(response.body) }))
+      promises.push(GetGeoreferences(ce.id).then(response => {
+        georeferences.push(response.body)
+      }))
     })
 
     Promise.all(promises).then(() => {
-      commit(MutationNames.SetGeoreferences, ...georeferences)
+      commit(MutationNames.SetGeoreferences, [].concat.apply([], georeferences))
     })
   })
 }
