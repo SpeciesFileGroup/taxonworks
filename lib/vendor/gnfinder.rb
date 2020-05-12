@@ -16,29 +16,24 @@ module Vendor
   #   * Show page numbers
   module Gnfinder 
 
-    # TODO: verification preferred/not
+    SERVER = 'finder-rpc.globalnames.org'
+    PORT = '80'
 
-    # C - with verification
-    # @param tokens [Integer, nil]
-    # @param verification  [Boolean]
-    # @return [Hash]
-    def self.to_json(text, verification = true, tokens = 3)
-      return {} if text.nil? || text.empty?
-      # c = "gnfinder find"
-      # c = c + ' -c' if verification
-      # c = c + ' -t #{tokens}' if tokens && tokens > 0
-
-      # t = Open3.popen2(c) {|i,o,t|
-      #   i.puts text 
-      #   i.close
-      #   o.read
-      # }
-
-      # JSON.parse(t, symbolize_names: true)
-
-      ::Gnfinder::Finder.find_names(text, verification: verification, tokens_around: tokens).to_h
+    def self.finder
+      ::Gnfinder::Client.new(SERVER, PORT)
     end
 
+    def self.result(text, verification: true, tokens: 3, language: nil, detect_language: true, sources: [ ], project_id: [])
+      ::Vendor::Gnfinder::Result.new(
+        finder.find_names(
+          text,
+          verification: verification,
+          tokens_around: tokens,
+          sources: sources,
+          language: language,
+          detect_language: true
+        ), project_id)
+    end
   end
 
 end

@@ -1,27 +1,43 @@
 module Vendor
-  module Gnfinder 
-
+  module Gnfinder
     class Result
-      attr_accessor :names, :unique_names
 
       attr_accessor :project_id
+      attr_accessor :client
 
-      attr_accessor :ocr_failure
+      attr_accessor :names, :unique_names, :new_names
 
-      # TODO: json as input might change for GRPC
-      def initialize(json, project_id = nil)
-        if json.kind_of?(Hash) && !(json.dig(:metadata, :total_tokens) == 1)
-          build_names(json, project_id) 
+      def initialize(_client, _project_id = [])
+        @project_id = _project_id
+        @client = _client
+        @names = build_names
+      end
+
+      def score
+        t = unique_names.keys.count.to_f
+        sum_odds = unique_names.values.inject(0){|sum, names| sum += names.first.log_odds}
+        sum_odds / t
+      end
+
+      def probable_source_of_text
+        case score
+        when 3..23
+          if client.language == 'eng'
+            'original text'
+          else
+            'uncertain (language)'
+          end
         else
-          @ocr_failure = true 
+          if client.language == 'eng'
+            'secondary OCR'
+          else
+            'uncertain (language)'
+          end
         end
       end
 
-      # @param json [Json]
-      #   full json object at this point
-      def build_names(json, project_id)
-        @names = json[:names]&.map{|n| Vendor::Gnfinder::Name.new(n, project_id)}
-          &.sort{|a,b| a.name <=> b.name} || []
+      def ocr_failure
+        client.names.length == 0
       end
 
       # @return [Hash]
@@ -29,10 +45,10 @@ module Vendor
         if !@unique_names
           r = {}
           names.each do |n|
-            if r[n.name] 
-              r[n.name].push n
+            if r[n.found.name]
+              r[n.found.name].push n
             else
-              r[n.name] = [n]
+              r[n.found.name] = [n]
             end
           end
           @unique_names = r
@@ -40,16 +56,47 @@ module Vendor
         @unique_names
       end
 
+      # @return [Hash]
+      def new_names
+        unique_names.select{|k,v| v.first.is_new_name?  }
+      end
+
       def found_names
-        unique_names.select{|k, v| v.first.is_in_taxonworks? } 
+        unique_names.select{|k, v| v.first.is_in_taxonworks? }
       end
 
       def missing_names
-        unique_names.select{|k, v| !v.first.is_in_taxonworks? } 
+        unique_names.select{|k, v| !v.first.is_in_taxonworks? }
+      end
+
+      def missing_new_names
+        missing_names.select{|k, v| v.first.is_new_name? && !v.first.is_low_probability? }
+      end
+
+      def missing_other_names
+        missing_names.select{|k, v| !v.first.is_new_name? && !v.first.is_low_probability? }
+      end
+
+      def missing_low_probability_names
+        missing_names.select{|k, v| v.first.is_low_probability? }
       end
 
       def found_all?
         missing_names.empty?
+      end
+
+      def verified_names
+        unique_names.select{|k, v| v.first.is_verified? }
+      end
+
+      private
+
+      def build_names
+        n = client.names.map{|n|
+          Vendor::Gnfinder::Name.new(n, project_id)
+        }.sort{|a,b| a.found.name <=> b.found.name}
+        n ||= []
+        @names = n
       end
 
     end

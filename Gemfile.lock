@@ -1,14 +1,4 @@
 GIT
-  remote: https://github.com/LocoDelAssembly/gnfinder.git
-  revision: 5eda14524ba923f301a5497f2ba059ea515813f4
-  branch: built-in-binaries
-  specs:
-    gnfinder (0.10.1)
-      ffi (~> 1.11)
-      grpc (~> 1.28)
-      grpc-tools (~> 1.28)
-
-GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
@@ -184,6 +174,9 @@ GEM
       archive-zip (~> 0.7)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
+    gnfinder (0.11.0)
+      grpc (~> 1.28)
+      grpc-tools (~> 1.28)
     google-protobuf (3.11.4)
     googleapis-common-protos-types (1.0.5)
       google-protobuf (~> 3.11)
@@ -584,7 +577,7 @@ DEPENDENCIES
   faker (~> 2.10)
   ffi-geos (~> 2.1.0)
   geckodriver-helper (~> 0.24.0)
-  gnfinder!
+  gnfinder (~> 0.11.0)
   gpx (~> 1.0.0)
   groupdate (~> 4.2)
   guard-rspec (~> 4.7.3)

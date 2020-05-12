@@ -5,9 +5,9 @@ class Tasks::Sources::GnfinderController < ApplicationController
 
   # GET /tasks/sources/gnfinder
   def index
-    @result = Vendor::Gnfinder::Result.new(
-      Vendor::Gnfinder.to_json( @document.pdftotext ),
-      sessions_current_project_id)
+    @result = Vendor::Gnfinder.result(
+      @document.pdftotext,
+      project_id: [sessions_current_project_id])
   end
 
   private

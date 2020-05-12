@@ -1,49 +1,75 @@
 module Vendor
   module Gnfinder
+
+    # A loose wrapper for https://github.com/GlobalNamesArchitecture/gnfinder/blob/master/lib/protob_pb.rb
     class Name
-      attr_accessor :name, :verbatim, :match_start, :match_end, :words_before, :words_after
 
-      # Uninomial Binomial PossibleBinomial Trinomial BayesUninomial BayesBinomial BayesTrinomial
-      attr_accessor :match_type
-
-      # Verification related
-      attr_accessor :classification_path, :classification_rank, :data_source_title, :verification_type
+      # A hack at present, balance versus language and ongoing.  For now,
+      # anything negative probability seems unlikely.
+      LOW_PROBABILITY = 3.0
 
       attr_accessor :project_id
 
-      # @param found_name [Json] 
-      def initialize(found_name, project_id = nil)
-        @name = found_name[:name]
-        @verbatim = found_name[:verbatim]
-        @match_start = found_name[:start]
-        @match_end = found_name[:end]
-        @words_before = found_name[:words_before] || []
-        @words_after = found_name[:words_after] || []
+      # Alias for Name
+      attr_accessor :found
 
+      # params found_name [Gnfinder name]
+      def initialize(found_name, project_id = [])
         @project_id = project_id
+        @found = found_name
+      end
 
-        @classification_path = found_name.dig(:verification, :BestResult, :classificationPath)&.split('|') || []
-        @classification_rank = found_name.dig(:verification, :BestResult, :classificationRank)&.split('|') || []
+      # Name helpers
+      def words_before
+        found.words_before || []
+      end
 
-        @verification_type = found_name.dig(:verification, :BestResult, :matchType)
+      def words_after
+        found.words_after || []
+      end
 
-        @match_type = found_name.dig(:type)
+      def classification_path
+        found&.verification&.best_result&.classification_path&.split('|') || []
+      end
 
-        @data_source_title = found_name.dig(:verification, :BestResult, :dataSourceTitle)
-        @data_source_quality = found_name.dig(:verification, :BestResult, :dataSourceQuality)
+      def classification_rank
+        found&.verification&.best_result&.classification_rank&.split('|') || []
+      end
+
+      # Verification helpers
+      def best_result
+        found.verification.best_result if is_verified?
+      end
+
+      def is_verified?
+        found.verification && found.verification.best_result.match_type != :NONE
+      end
+
+      def is_low_probability?
+        log_odds < LOW_PROBABILITY
+      end
+
+      def best_match_type
+        best_result&.match_type
+      end
+
+      # Generic helpers
+
+      def log_odds
+        Math.log10(found.odds)
+      end
+
+      def is_new_name?
+        [:SP_NOV, :COMB_NOV, :SUBSP_NOV].include?(found.annot_nomen_type)
       end
 
       def protonym_name
-        name.split(' ').last
+        found.name.split(' ').last
       end
 
       # @return Array of TaxonName
       def matches
-        TaxonName.where(project_id: project_id, cached: name)
-      end
-
-      def is_verified?
-        @verification_type && (@verification_type != :NONE)
+        TaxonName.where(project_id: project_id, cached: found.name)
       end
 
       def is_in_taxonworks?
@@ -51,11 +77,12 @@ module Vendor
       end
 
       def taxonworks_parent_name
-        case match_type
-        when 'Binomial', 'Trinomial', 'BayesBinomial' 'BayesTrinomial'
-          name.split(' ')[-2]
-        else
+        case found.cardinality
+        when 0
           nil
+        else
+          # TODO: likely not right with sp. nov.
+          found.name.split(' ')[-2]
         end
       end
 
