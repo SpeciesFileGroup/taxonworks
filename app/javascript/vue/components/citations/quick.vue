@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content">
+  <div class="inline">
     <template v-if="pressed">
       <input
         type="text"
