@@ -20,7 +20,7 @@ RUN apt-get update && \
       postgresql-client-10 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-      pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
+      pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
