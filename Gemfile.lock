@@ -93,7 +93,7 @@ GEM
     bindex (0.8.1)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    biodiversity (4.0.3)
+    biodiversity (4.1.0)
       ffi (~> 1.11)
     brakeman (4.8.1)
     builder (3.2.4)
