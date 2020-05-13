@@ -1,10 +1,14 @@
 <h1> Task - Global Names Finder playground </h1>
-<div> <span class="feedback feedback-primary"><%= object_link(@source) -%> </span>
+<div>
+<% if @source %>
+  <span class="feedback feedback-primary"><%= object_link(@source) -%> </span>
   &nbsp; Existing citations: <%= @source.citations.where(project_id: sessions_current_project_id).count -%>
+<% end %>
 </div>
 <br>
 
-<div> <span class="feedback feedback-secondary"><%= object_link(@document) -%></span>
+<div>
+  <span class="feedback feedback-secondary"><%= object_link(@document) -%></span>
   Language <b><%= @result.client.language -%></b> detected. With log10 average odds per best match of <%= a = @result.score.round(4) -%> that the OCR of this document is probably <%= @result.probable_source_of_text -%>.
 </div>
 
