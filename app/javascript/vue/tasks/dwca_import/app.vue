@@ -46,16 +46,7 @@ export default {
     if (ID) {
       this.loadDataset(ID)
     }
-
-    window.onscroll = () => {
-      const bottomOfTable = document.documentElement.scrollTop + window.innerHeight === document.documentElement.offsetHeight
-
-      if (bottomOfTable && this.importId) {
-        if (this.pagination.nextPage) {
-          this.loadDatasetRecords(this.importId, this.pagination.nextPage)
-        }
-      }
-    }
+    window.addEventListener('scroll', this.checkScroll)
   },
   methods: {
     loadDatasetRecords (id, page = undefined) {
@@ -79,6 +70,15 @@ export default {
         this.table = table
         this.isLoading = false
       })
+    },
+    checkScroll () {
+      const bottomOfTable = (document.documentElement.scrollTop + window.innerHeight) === document.documentElement.offsetHeight
+
+      if (bottomOfTable && this.importId) {
+        if (this.pagination.nextPage) {
+          this.loadDatasetRecords(this.importId, this.pagination.nextPage)
+        }
+      }
     }
   }
 }
