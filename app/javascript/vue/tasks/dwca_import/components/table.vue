@@ -10,7 +10,12 @@
           class="position-sticky"
           v-for="(item, index) in table.headers"
           :key="index">
-          {{ item }}
+          <div class="flex-separate middle">
+            <span>{{ item }}</span>
+            <column-filter
+              class="margin-medium-left"
+              :field="item"/>
+          </div>
         </th>
       </tr>
     </thead>
@@ -30,10 +35,12 @@
 <script>
 
 import RowComponent from './row'
+import ColumnFilter from './ColumnFilter'
 
 export default {
   components: {
-    RowComponent
+    RowComponent,
+    ColumnFilter
   },
   props: {
     table: {
