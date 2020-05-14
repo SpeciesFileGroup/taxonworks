@@ -297,7 +297,11 @@ resources :import_datasets do
   member do
     get 'import'
   end
-  resources :dataset_records
+  resources :dataset_records do
+    collection do
+      get 'autocomplete_data_fields'
+    end
+  end
 end
 
 resources :keywords, only: [] do

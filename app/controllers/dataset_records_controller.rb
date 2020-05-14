@@ -57,6 +57,18 @@ class DatasetRecordsController < ApplicationController
     end
   end
 
+  def autocomplete_data_fields
+    render json: {} and return if params[:field].blank? || params[:value].blank?
+
+    values = ImportDataset.find(params[:import_dataset_id])
+      .dataset_records.where("data_fields -> ? ->> 'value' LIKE '#{params[:value]}%'", params[:field])
+      .select("data_fields -> '#{params[:field]}' ->> 'value' AS value").distinct # TODO: Sanitize field
+      .page(params[:page]).per(params[:per] || 10)
+      .map { |x| x.value }
+
+    render json: values, status: :ok
+  end
+
   # DELETE /dataset_records/1
   # DELETE /dataset_records/1.json
   def destroy
