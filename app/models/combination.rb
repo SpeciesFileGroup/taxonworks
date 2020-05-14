@@ -287,10 +287,13 @@ class Combination < TaxonName
   def full_name_hash
     gender = nil
     data = {}
-    protonyms_by_rank.each do |rank, name|
-      gender = name.gender_name if rank == 'genus'
-      method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      data[rank] = send(method, name, gender) if self.respond_to?(method)
+    protonyms_by_rank.each do |rank, i|
+      gender = i.gender_name if rank == 'genus'
+      if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+        data[rank] = [nil, i.name_with_misspelling(gender)]
+      else
+        data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+      end
     end
     if data['genus'].nil?
       data['genus'] = [nil, "[GENUS NOT SPECIFIED]"]

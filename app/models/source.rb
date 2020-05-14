@@ -288,7 +288,7 @@ class Source < ApplicationRecord
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['citation_object_type'].eq(used_on))
-      .order(t['created_at'])
+      .order(t['created_at'].desc)
       .take(10)
       .distinct
 

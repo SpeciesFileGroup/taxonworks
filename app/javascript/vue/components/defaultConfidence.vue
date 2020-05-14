@@ -8,7 +8,7 @@
         size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>`">
+        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-submit"
@@ -23,7 +23,7 @@
         size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>`">
+        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-delete"

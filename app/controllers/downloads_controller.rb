@@ -1,7 +1,7 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file]
   before_action :set_download_api, only: [:api_file, :api_show]
 
   # GET /downloads
@@ -38,8 +38,8 @@ class DownloadsController < ApplicationController
     @downloads = Download.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
   end
 
-  # GET /downloads/1/download_file
-  def download_file
+  # GET /downloads/1/file
+  def file
     if @download.ready?
       @download.increment!(:times_downloaded)
       send_file @download.file_path

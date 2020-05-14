@@ -320,12 +320,15 @@ export default {
       })
     },
     setGrid (grid) {
-      if(this.sledImage.summary.length) return
+      if (this.sledImage.summary.length) return
+      this.$refs.sled.cells.forEach(item => {
+        item.metadata = null
+      })
       this.vlines = grid.vlines
       this.hlines = grid.hlines
     },
     loadSled (sledId) {
-      new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         GetSledImage(sledId).then(response => {
           if(response.body.metadata.length) {
             this.sledImage = response.body

@@ -127,6 +127,8 @@ class CollectionObject < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
 
+  validate :collecting_event_belongs_to_project
+
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
   soft_validate(:sv_missing_accession_fields, set: :missing_accession_fields)
@@ -552,11 +554,11 @@ class CollectionObject < ApplicationRecord
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
           )
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .order(t['updated_at'])
+            .order(t['updated_at'].desc)
         end
 
     # z is a table alias
@@ -638,6 +640,12 @@ class CollectionObject < ApplicationRecord
   end
 
   protected
+
+  def collecting_event_belongs_to_project
+    if collecting_event&.persisted? && (Current.project_id || project_id)
+      errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
+    end
+  end 
 
   def check_that_both_of_category_and_total_are_not_present
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?

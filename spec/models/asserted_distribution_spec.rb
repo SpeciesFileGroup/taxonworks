@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'support/shared_contexts/shared_geo'
 
 describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
@@ -21,7 +20,6 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   end
 
   context 'validation' do
-
     context 'required base attributes' do
       before { asserted_distribution.valid? }
 
@@ -37,7 +35,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     context 'a citation is required' do
       before {
         asserted_distribution.geographic_area = geographic_area
-        asserted_distribution.otu             = otu
+        asserted_distribution.otu = otu
       }
 
       specify 'absence of #source, #origin_citation, #citations invalidates' do
@@ -103,12 +101,27 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
     specify 'duplicate record' do
       ad1 = FactoryBot.create(:valid_asserted_distribution)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution,
-                                     otu_id:             ad1.otu_id,
-                                     geographic_area_id: ad1.geographic_area_id)
+      ad2 = FactoryBot.build_stubbed(
+        :valid_asserted_distribution,
+        otu_id: ad1.otu_id,
+        geographic_area_id: ad1.geographic_area_id)
       expect(ad1.valid?).to be_truthy
       expect(ad2.valid?).to be_falsey
       expect(ad2.errors.include?(:geographic_area_id)).to be_truthy
+    end
+
+    context 'is_absent' do
+      before do
+        asserted_distribution.update!(
+          otu: otu,
+          geographic_area: geographic_area,
+          citations_attributes: [{source_id: source.id}]
+        )
+      end
+
+      specify 'is allowed with identical' do
+        expect( AssertedDistribution.create!(otu: otu, geographic_area: geographic_area, is_absent: true, citations_attributes: [{source_id: source.id}])).to be_truthy
+      end
     end
 
   end
@@ -117,7 +130,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     # Can't miss source, it's required by definition
     specify 'is_absent - False' do
       ga  = FactoryBot.create(:level2_geographic_area)
-      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: 1)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: true)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
@@ -126,24 +139,24 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     specify 'is_absent - True' do
       ga  = FactoryBot.create(:level2_geographic_area)
       _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: 1)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: true)
       ad2.soft_validate(:conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
   end
 
-  context 'stub_new' do
+  context '#stub_new' do
     include_context 'stuff for complex geo tests'
 
     before { [ce_a, gr_a].each }
     let(:otu) { FactoryBot.create(:valid_otu) }
 
-    specify 'creates some number of ADs' do
+    specify 'stubs some number of new AssertedDistibutionsADs' do
       point = ce_a.georeferences.first.geographic_item.geo_object
       areas = GeographicArea.find_by_lat_long(point.y, point.x)
       stubs = AssertedDistribution.stub_new(
-        {otu:              otu.id,
-         source:           source.id,
+        {otu: otu.id,
+         source: source.id,
          geographic_areas: areas}).map(&:geographic_area)
       expect(stubs.map(&:name)).to include('A', 'E')
     end

@@ -173,7 +173,7 @@ class Loan < ApplicationRecord
     # i is a select manager
     i = t.project(t['loan_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 3.weeks.ago ))
-      .order(t['created_at'])
+      .order(t['created_at']).desc
       .take(10)
       .distinct
 
@@ -190,7 +190,7 @@ class Loan < ApplicationRecord
       recent: (
         Loan.where(project_id: project_id, created_by_id: user_id, created_at: 1.day.ago..Time.now)
         .limit(5)
-        .order(:created_at).to_a +
+        .order(created_at: :desc).to_a +
       Loan.joins(:loan_items)
         .where(project_id: project_id) # !! do not scope to person, multiple people might work on same loan?
         .used_recently.limit(5)

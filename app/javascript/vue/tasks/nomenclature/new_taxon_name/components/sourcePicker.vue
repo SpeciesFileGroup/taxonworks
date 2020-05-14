@@ -194,17 +194,12 @@ export default {
     verbatimFieldsWithData () {
       return (this.taxon.verbatim_author || this.taxon.year_of_publication)
     },
-    isAlreadyClone() {
-      if(this.citation.source.author_roles.length == 0) return true
+    isAlreadyClone () {
+      if (this.citation.source.author_roles.length === 0) return true
 
-      let authorsId = this.citation.source.author_roles.map(author => {
-          return Number(author.person.id)
-      })
+      const authorsId = this.citation.source.author_roles.map(author => { return Number(author.person.id) })
+      const personsIds = this.roles.map(role => { return role.person.id })
 
-      let personsIds = this.roles.map(role => {
-        return role.person.id
-      })
-      
       return authorsId.every(id => {
         return personsIds.includes(id)
       })
@@ -233,7 +228,7 @@ export default {
       if (this.autosave) {
         clearTimeout(this.autosave)
         this.autosave = null
-      }      
+      }
     }
   },
   mounted: function () {
@@ -268,12 +263,12 @@ export default {
       }, 3000)
     },
     cloneFromSource() {
-      let personsIds = this.roles.map(role => {
+      const personsIds = this.roles.map(role => {
         return role.person.id
       })
 
-      let authorsPerson = this.citation.source.author_roles.map(author => {
-        if(!personsIds.includes(Number(author.person.id))) {
+      const authorsPerson = this.citation.source.author_roles.map(author => {
+        if (!personsIds.includes(Number(author.person.id))) {
           return {
             person_id: author.person.id,
             type: "TaxonNameAuthor"
@@ -287,7 +282,9 @@ export default {
       this.$store.commit(MutationNames.SetRoles, list)
     },
     removeSource: function (id) {
-      this.$store.dispatch(ActionNames.RemoveSource, id)
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$store.dispatch(ActionNames.RemoveSource, id)
+      }
     },
     updateTaxonName: function () {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)

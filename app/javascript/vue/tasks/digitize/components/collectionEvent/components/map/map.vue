@@ -43,13 +43,13 @@ L.Icon.Default.mergeOptions({
 
 export default {
   computed: {
-    collectionEvent() {
+    collectionEvent () {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     },
-    latitude() {
+    latitude () {
       return convertDMS(this.$store.getters[GetterNames.GetCollectionEvent].verbatim_latitude)
     },
-    longitude() {
+    longitude () {
       return convertDMS(this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude)
     }
   },
@@ -66,13 +66,13 @@ export default {
     } 
   },
   watch: {
-    latitude(newVal) {
-      if(newVal && this.longitude) {
+    latitude (newVal) {
+      if (newVal && this.longitude) {
         this.setCoordinates(L.latLng(newVal, this.longitude))
       }
     },
-    longitude(newVal) {
-      if(newVal && this.latitude) {
+    longitude (newVal) {
+      if (newVal && this.latitude) {
         this.setCoordinates(L.latLng(this.latitude, newVal))
       }
     }
@@ -86,24 +86,37 @@ export default {
       attribution: this.attribution,
       maxZoom: this.zoom
     }).addTo(this.mapObject)
+    this.initEvents()
   },
   methods: {
     setCoordinates (coordinates) {
-        this.center = coordinates
-        if(this.marker)
-          this.mapObject.removeLayer(this.marker)
-        this.marker = L.marker(coordinates).addTo(this.mapObject)
-        this.mapObject.invalidateSize()
-        this.mapObject.panTo(this.center)    
+      this.center = coordinates
+      if (this.marker)
+        this.mapObject.removeLayer(this.marker)
+      this.marker = L.marker(coordinates).addTo(this.mapObject)
+      this.mapObject.invalidateSize()
+      this.mapObject.panTo(this.center)
     },
-    convertDMS(value) {
+    convertDMS (value) {
       try {
         return parseDMS(value)
       }
-      catch(error) {
+      catch (error) {
         return undefined
       }
-    }
+    },
+    resizeMap (mutationsList, observer) {
+      if (this.$el.clientWidth !== this.mapSize) {
+        this.$nextTick(() => {
+          this.mapObject.invalidateSize()
+        })
+      }
+    },
+    initEvents () {
+      this.mapSize = this.$el.clientWidth
+      this.observeMap = new MutationObserver(this.resizeMap)
+      this.observeMap.observe(this.$el, { attributes: true, childList: true, subtree: true })
+    },
   }
 }
 </script>

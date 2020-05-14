@@ -11,6 +11,10 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Suborder < Nomenclatura
     taxon_name.errors.add(:name, 'name must not end in -virineae') if(taxon_name.name =~ /.*virineae\Z/)
   end
 
+  def self.valid_name_ending
+    'ineae'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icn::HigherClassificationGroup::Order.to_s]
   end

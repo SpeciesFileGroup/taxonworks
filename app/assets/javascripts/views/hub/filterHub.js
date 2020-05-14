@@ -35,9 +35,9 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   })
 
-  $('#search-filter').keyup(function () {
-    var
-      chain = $(this).val();
+  $('#search-filter').keyup(function (key) {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') return
+    var chain = $(this).val();
 
     [that.arrayData, that.arrayTasks].forEach(function (element) {
       element.forEach(function (element) {
@@ -90,6 +90,32 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   });
 
+  $('#filter .navigation-controls-type [data-filter-category]').on('click', function () {
+    var elementFilter = $(this).attr('data-filter-category');
+    var activated = $(this).hasClass('activated')
+
+    $('#filter .navigation-controls-type .navigation-item').each(function () {
+      $(this).removeClass('activated');
+    });
+
+    if (!activated) {
+      $(this).addClass('activated')
+    }
+
+    if ($(this).hasClass('activated')) {
+      that.resetTypeFilter();
+    }
+
+    that.resetTypeFilter();
+    if ($(this).hasClass('activated')) {
+      [that.arrayData, that.arrayTasks].forEach(function (element) {
+        element.forEach(function (element) {
+          element.changeFilter("data-category-" + elementFilter);
+        });
+      });
+    }
+  });
+
   $('#filter .switch input').on('click', function (element) {
     that.resetAllStatusCards()
   });
@@ -103,7 +129,7 @@ FilterHub.prototype.resetAllStatusCards = function() {
       that.resetStatusFilter();
       element.refresh();
     });
-  });  
+  });
 }
 
 FilterHub.prototype.resetStatusFilter = function () {
@@ -117,11 +143,21 @@ FilterHub.prototype.resetStatusFilter = function () {
   });
 }
 
+FilterHub.prototype.resetTypeFilter = function () {
+  [this.arrayData, this.arrayTasks].forEach(function (element) {
+    element.forEach(function (element) {
+      element.setFilterStatus("data-category-filters", false);
+      element.setFilterStatus("data-category-browse", false);
+      element.setFilterStatus("data-category-new", false);
+    });
+  });
+}
+
 FilterHub.prototype.changeAllSectionsFilter = function (arrayData) {
   arrayData.forEach(function (element) {
     $("#search-filter").val("");
     element.resetFilters();
-    element.filterChilds();
+    element.filterChildren();
     $('.reset-all-filters').fadeOut(0);
   });
 }

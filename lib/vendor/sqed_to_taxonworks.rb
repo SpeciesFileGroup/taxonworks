@@ -30,7 +30,9 @@ module SqedToTaxonworks
     attr_accessor :sqed_depiction
 
     attr_accessor :sqed
-   
+  
+    # [... , nil]
+    #   nil if it fails to process 
     attr_accessor :sqed_result
 
     attr_accessor :original_image
@@ -72,7 +74,13 @@ module SqedToTaxonworks
 
     # Minimize use of this if possible, depend on the cached values when possible.
     def sqed_result
-      @sqed_result ||= sqed.result
+      begin
+        @sqed_result ||= sqed.result
+      rescue NoMethodError # TODO - better handling in Sqed
+        @sqed_result = nil 
+      rescue RuntimeError, 'ImageMagick library function failed to return a result.'
+        @sqed_result = nil
+      end
     end
 
     def original_image
@@ -92,11 +100,15 @@ module SqedToTaxonworks
     end
 
     def cache_boundaries
-      sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
+      begin
+        sqed_depiction.update_column(:result_boundary_coordinates, sqed.boundaries.coordinates)
+      rescue NoMethodError  # TODO - better handling in Sqed
+        sqed_depiction.update_column(:result_boundary_coordinates, nil)
+      end
     end
 
     def cache_ocr
-      sqed_depiction.update_column(:result_ocr, sqed_result.text)
+      sqed_depiction.update_column(:result_ocr, sqed_result&.text)
     end
 
     def cache_all
@@ -112,7 +124,7 @@ module SqedToTaxonworks
       else
         sqed_result 
         cache_all 
-        sqed_result.text_for(layout_section_type.to_sym)
+        sqed_result&.text_for(layout_section_type.to_sym)
       end
     end
 
@@ -194,7 +206,7 @@ module SqedToTaxonworks
 
     def large_dimensions_for(layout_section_type)
       c = coords_for(layout_section_type) 
-      return nil if c[2] == 0 and  c[3] == 0
+      return nil if c == [] || (c[2] == 0 and  c[3] == 0)
       "0, 0, 400, #{ (c[3].to_f / (c[2].to_f / 400)).to_i }"
     end
 

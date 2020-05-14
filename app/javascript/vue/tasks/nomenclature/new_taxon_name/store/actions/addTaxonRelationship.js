@@ -15,6 +15,7 @@ export default function ({ commit, state, dispatch }, data) {
       commit(MutationNames.AddTaxonRelationship, response)
       dispatch('loadSoftValidation', 'taxon_name')
       dispatch('loadSoftValidation', 'taxonRelationshipList')
+      dispatch('loadSoftValidation', 'taxonStatusList')
       resolve(response)
     }, response => {
       commit(MutationNames.SetHardValidation, response)

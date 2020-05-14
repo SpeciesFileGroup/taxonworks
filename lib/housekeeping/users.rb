@@ -64,7 +64,6 @@ module Housekeeping::Users
     self.updated_by_id = value.to_param
     self
   end
-  # rubocop:enable Lint/ReturnInVoidContext
 
   protected
 

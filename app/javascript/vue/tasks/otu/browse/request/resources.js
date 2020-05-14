@@ -1,5 +1,9 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const GetUserPreferences = () => {
+  return ajaxCall('get', '/preferences.json')
+}
+
 const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
@@ -28,6 +32,14 @@ const GetConfidences = function (id) {
   return ajaxCall('get', `/otus/${id}/confidences.json`)
 }
 
+const GetOtusCollectionObjects = function (otuId) {
+  return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: [otuId], current_determinations: true } })
+}
+
+const GetGeoreferences = function (id) {
+  return ajaxCall('get', `/georeferences.json?collecting_event_id=${id}`)
+}
+
 const GetIdentifiers = function (id) {
   return ajaxCall('get', `/otus/${id}/identifiers.json`)
 }
@@ -40,12 +52,20 @@ const GetContent = function (id) {
   return ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
 }
 
+const GetOtus = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+}
+
 const GetAssertedDistributions = function (id) {
-  return ajaxCall('get', `/asserted_distributions?otu_id=${id}`)
+  return ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
 }
 
 const GetBiologicalAssociations = function (globalId) {
-  return ajaxCall('get', `/biological_associations?any_global_id=${globalId}`)
+  return ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
 }
 
 const GetNavigationOtu = (id) => {
@@ -69,11 +89,11 @@ const GetCollectionObjects = function(params) {
 }
 
 const GetCollectionObject = function(id) {
-  return ajaxCall('get', `/collection_objects/${id}`)
+  return ajaxCall('get', `/collection_objects/${id}.json`)
 }
 
 const GetRepository = function(id) {
-  return ajaxCall('get', `/repositories/${id}`)
+  return ajaxCall('get', `/repositories/${id}.json`)
 }
 
 const GetBreadCrumbNavigation = (id) => {
@@ -84,8 +104,13 @@ const GetTypeMaterials = (id) => {
   return ajaxCall('get', `/type_materials.json?protonym_id=${id}`)
 }
 
+const UpdateUserPreferences = (id, data) => {
+  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+}
+
 export {
   GetOtu,
+  GetUserPreferences,
   GetDepictions,
   GetContent,
   GetAssertedDistributions,
@@ -105,5 +130,9 @@ export {
   GetBiocurations,
   GetRepository,
   GetTypeMaterials,
-  GetCommonNames
+  GetCommonNames,
+  GetOtus,
+  GetGeoreferences,
+  GetOtusCollectionObjects,
+  UpdateUserPreferences
 }

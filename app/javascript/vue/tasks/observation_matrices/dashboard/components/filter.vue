@@ -13,6 +13,7 @@
       <button 
         class="button normal-input button-default full_width"
         type="button"
+        :disabled="!taxonName"
         @click="$emit('onSearch')">
         Search
       </button>
@@ -55,6 +56,8 @@ export default {
       handler (newVal) {
         this.ranks = []
         this.$emit('onTaxon', newVal)
+
+        if(!newVal) return
         if (newVal.rank) {
           this.ranks.push(newVal.rank)
         }

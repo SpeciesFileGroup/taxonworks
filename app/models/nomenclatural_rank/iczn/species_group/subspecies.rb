@@ -8,12 +8,11 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Subspecies < NomenclaturalRank::Icz
     [NomenclaturalRank::Iczn::SpeciesGroup::Species.to_s]
   end
 
-  def self.abbreviation
-    'ssp.'
-  end
-
   def self.typical_use
     true
   end
 
+  def self.abbreviation
+    'ssp.'
+  end
 end

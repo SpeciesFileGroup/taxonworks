@@ -65,7 +65,7 @@ class Serial < ApplicationRecord
 
   validates_presence_of :name
 
-  scope :used_recently, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_recently, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
 
 
   soft_validate(:sv_duplicate?)

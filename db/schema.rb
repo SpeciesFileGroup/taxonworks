@@ -1709,6 +1709,7 @@ ActiveRecord::Schema.define(version: 2020_04_03_142131) do
     t.datetime "updated_at", null: false
     t.json "result_boundary_coordinates"
     t.json "result_ocr"
+    t.datetime "in_progress"
     t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id"
     t.index ["project_id"], name: "index_sqed_depictions_on_project_id"
   end

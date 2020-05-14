@@ -16,11 +16,6 @@ class GeographicAreasController < ApplicationController
     # GeographicArea.idontknow()
   end
 
-  # GET /geographic_areas/new
-  def new
-    @geographic_area = GeographicArea.new
-  end
-
   def display_coordinates
     @asserted_distribution = AssertedDistribution.new
     @json_coors = params.to_json

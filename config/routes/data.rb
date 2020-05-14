@@ -229,7 +229,7 @@ resources :downloads, except: [:edit, :new, :create] do
     get 'list'
   end
   member do
-    get 'download_file'
+    get 'file'
   end
 end
 
@@ -237,14 +237,24 @@ resources :extracts do
   concerns [:data_routes]
 end
 
-resources :geographic_areas do
-  concerns [:data_routes]
+resources :geographic_areas, only: [:index, :show] do
+
   collection do
+    get 'download'
+    get 'list'
+    get 'autocomplete'
+    get 'search'
+
     post 'display_coordinates' # TODO should not be POST
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
   end
+  
+  member do
+    get 'related'
+  end
+
 end
 
 resources :gene_attributes do
@@ -583,6 +593,8 @@ resources :sources do
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
+    get :citation_object_types, defaults: {format: :json}
+    get :generate, defaults: {format: :json}
   end
 
   member do

@@ -1,6 +1,10 @@
 module Queries
   module Person
+    
     class Autocomplete < Queries::Query
+
+      include Queries::Concerns::AlternateValues
+      include Queries::Concerns::Tags
 
       # @return [Array]
       # @param limit_to_role [String] any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector` ... etc.
@@ -10,8 +14,11 @@ module Queries
       # project_id - the target project in general
 
       # @param [Hash] args
-      def initialize(string, roles: :all)
-        @limit_to_roles = roles
+      def initialize(string, params = {})
+        @limit_to_roles = params[:roles] # roles
+        set_identifier(params)
+        set_tags_params(params)
+        set_alternate_value(params)
         super
       end
 
@@ -32,24 +39,6 @@ module Queries
         roles_table[:project_id].eq(project_id)
       end
 
-      def autocomplete_alternate_spelling_last_name
-        a = ::AlternateValue.arel_table
-        w = a[:value].matches('%' + query_string + '%')
-          .and(a[:type].eq('AlternateValue::AlternateSpelling'))
-          .and(a[:alternate_value_object_attribute]).eq('last_name')
-      
-        query_base.joins(:alternate_values).where(w.to_sql)
-      end
-
-      def autocomplete_alternate_spelling_first_name
-        a = ::AlternateValue.arel_table
-        w = a[:value].matches('%' + query_string + '%')
-          .and(a[:type].eq('AlternateValue::AlternateSpelling'))
-          .and(a[:alternate_value_object_attribute]).eq('first_name')
-
-        query_base.joins(:alternate_values).where(w.to_sql)
-      end
-
       # @return [Scope]
       def autocomplete_exact_match
         base_query.where(
@@ -68,6 +57,14 @@ module Queries
         base_query.where(
           table[:cached].eq(invert_name).to_sql
         ).limit(20)
+      end
+
+      def autocomplete_alternate_values_last_name
+        matching_alternate_value_on(:last_name).limit(20) 
+      end
+
+      def autocomplete_alternate_values_first_name
+        matching_alternate_value_on(:first_name).limit(20) 
       end
 
       # TODO: Use bibtex parser!!
@@ -103,9 +100,10 @@ module Queries
           autocomplete_exact_inverted,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
+          autocomplete_exact_id,
           autocomplete_exact_last_name_match,
-          autocomplete_alternate_spelling_last_name,
-          autocomplete_alternate_spelling_first_name,
+          autocomplete_alternate_values_last_name,
+          autocomplete_alternate_values_first_name,
           autocomplete_ordered_wildcard_pieces_in_cached,
           autocomplete_cached_wildcard_anywhere, # in Queries::Query
           autocomplete_cached

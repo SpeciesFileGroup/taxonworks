@@ -72,7 +72,9 @@
         </li>
       </ul>
     </div>
-    <add-field @fields="cEvent.fields = $event"/>
+    <add-field 
+      ref="fields"
+      @fields="cEvent.fields = $event"/>
   </div>
 </template>
 
@@ -102,6 +104,16 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    }
+  },
+  watch: {
+    cEvent: {
+      handler (newVal) {
+        if (!newVal.fields) {
+          this.$refs.fields.cleanList()
+        }
+      },
+      deep: true
     }
   },
   data () {

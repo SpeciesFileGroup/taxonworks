@@ -165,7 +165,7 @@ module CollectionObjectsHelper
       (o.collecting_event&.map_center.nil? ? 0 : 1),
       (o.collecting_event_id ? 1 : 0),
       (o.buffered_determinations.blank? ? 0 : 1),
-      (o.buffered_other_labels.blank? ? 0 : 1),
+      (o.buffered_collecting_event.blank? ? 0 : 1),
     ]
 
     a = Waxy::Meta.new

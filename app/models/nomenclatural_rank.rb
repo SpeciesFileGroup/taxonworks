@@ -118,7 +118,7 @@ class NomenclaturalRank
     []
   end
 
-  def valid_name_ending
+  def self.valid_name_ending
     ''
   end
 

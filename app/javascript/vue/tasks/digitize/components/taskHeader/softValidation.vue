@@ -89,7 +89,7 @@ export default {
         red: 'Georeferences',
         purple: 'Collecting events',
         blue: 'Buffered determinations',
-        green: 'buffered collecting event'
+        green: 'Buffered collecting event'
       }
     }
   },

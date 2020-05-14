@@ -1,4 +1,4 @@
-# Helpers for queries that reference created/modified fields
+# Helpers for queries that reference created/updated fields
 # 
 # !! You must have `#base_query` defined in the module to use this
 # !! You must call set_user_dates in initialize() # TODO -> how to super/patch this
@@ -34,8 +34,8 @@ module Queries::Concerns::Users
   end
 
   # @return [Scope]
-  def created_modified_facet
-    return nil if (user_date_start.nil? && user_date_end.nil?) || user_target.nil? || !['modified', 'created'].include?(user_target) # TODO - move to bad param raise
+  def created_updated_facet
+    return nil if (user_date_start.nil? && user_date_end.nil?) || user_target.nil? || !['updated', 'created'].include?(user_target) # TODO - move to bad param raise
     s, e = Utilities::Dates.normalize_and_order_dates(
       user_date_start,
       user_date_end)
@@ -44,7 +44,7 @@ module Queries::Concerns::Users
     e += ' 23:59:59' # and end of date days
 
     case user_target
-    when 'modified'
+    when 'updated'
       q = base_query.updated_in_date_range(s, e)
       q = q.where(updated_by_id: user_id) if user_id
       q

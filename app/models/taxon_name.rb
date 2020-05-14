@@ -828,7 +828,7 @@ class TaxonName < ApplicationRecord
   end
 
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING - ['TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'])
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
     misspelling.empty? ? nil : true
   end
 
@@ -905,11 +905,13 @@ class TaxonName < ApplicationRecord
     safe_self_and_ancestors.each do |i| # !! You can not use self.self_and_ancestors because (this) record is not saved off.
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
-      method = "#{rank.gsub(/\s/, '_')}_name_elements"
-      #misspelling = i.cached_misspelling ? ' [sic]' : nil
 
-      if self.respond_to?(method)
-        data[rank] = send(method, i, gender)
+      if i.is_genus_or_species_rank?
+        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+          data[rank] = [nil, i.name_with_misspelling(gender)]
+        else
+          data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+        end
       else
         data[rank] = i.name
       end
@@ -949,8 +951,15 @@ class TaxonName < ApplicationRecord
     d = full_name_hash
     elements = []
     elements.push(d['genus']) unless (not_binomial? && d['genus'][1] == '[GENUS NOT SPECIFIED]')
-    elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
-    elements.push ['(', d['superspecies'], ')']
+    #elements.push ['(', d['subgenus'], d['section'], d['subsection'], d['series'], d['subseries'], ')']
+    elements.push ['(', d['subgenus'], ')']
+    elements.push ['(', d['infragenus'], ')'] if rank_name == 'infragenus'
+    elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
+    elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
+    elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
+    elements.push ['(', d['supersuperspecies'], ')'] if rank_name == 'supersuperspecies'
+    elements.push ['(', d['superspecies'], ')'] if rank_name == 'superspecies'
+    elements.push ['(', d['subsuperspecies'], ')'] if rank_name == 'subsuperspecies'
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
@@ -969,62 +978,6 @@ class TaxonName < ApplicationRecord
     n = Utilities::Italicize.taxon_name(n) if is_italicized?
     n = '† ' + n if is_fossil?
     n
-  end
-
-  def genus_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def subgenus_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def section_name_elements(*args)
-    ['sect.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subsection_name_elements(*args)
-    ['subsect.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def series_name_elements(*args)
-    ['ser.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subseries_name_elements(*args)
-    ['subser.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def superspecies_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def species_group_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def species_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def subspecies_name_elements(*args)
-    [nil, args[0].name_with_misspelling(args[1])]
-  end
-
-  def variety_name_elements(*args)
-    ['var.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subvariety_name_elements(*args)
-    ['subvar.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def form_name_elements(*args)
-    ['f.', args[0].name_with_misspelling(args[1])]
-  end
-
-  def subform_name_elements(*args)
-    ['subf.', args[0].name_with_misspelling(args[1])]
   end
 
   # @return [String]
@@ -1103,7 +1056,7 @@ class TaxonName < ApplicationRecord
     p = nil
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
 
     if self.type == 'Combination'
       c = protonyms_by_rank
@@ -1201,7 +1154,7 @@ class TaxonName < ApplicationRecord
     TaxonName.where(project_id: project_id)
       .joins(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Scope]
@@ -1222,7 +1175,7 @@ class TaxonName < ApplicationRecord
       .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Array]
@@ -1231,7 +1184,7 @@ class TaxonName < ApplicationRecord
 
     # !! If cached of one name is nill the raises an ArgumentError
     a = [
-      TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
+      TaxonName.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
       used_recently_in_classifications(project_id, user_id).limit(6).to_a,
       used_recently_in_relationships(project_id, user_id).limit(6).to_a
     ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}
@@ -1334,15 +1287,11 @@ class TaxonName < ApplicationRecord
 
       unless correct_name_format
         invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(&:type_class)
-        misspellings = TaxonNameRelationship.collect_to_s(
-          TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
-          TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-          TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling,
-          TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
+        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
+        misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
 
         ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
-        misspellings = misspellings & taxon_name_relationships.pluck(&:type_class)
+        misspellings = misspellings & taxon_name_relationships.pluck(:type)
         if invalid_statuses.empty? && misspellings.empty? && ictv_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
@@ -1358,19 +1307,25 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_original_publication
-    if !self.cached_misspelling && !self.name_is_misapplied?
+    if true #!self.cached_misspelling && !self.name_is_misapplied?
+
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.pages.blank?
         soft_validations.add(:base, 'Original citation pages are not indicated')
-      elsif !self.source.pages.blank? && self.origin_citation.pages =~ /\A[0-9]+\z/
-        matchdata = self.source.pages.match(/(\d+)[-–](\d+)|(\d+)/)
-        if matchdata
-          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
-          minP = 1 if minP == maxP && maxP.to_s == self.source.pages && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
-          unless (maxP && minP && minP <= self.origin_citation.pages.to_i && maxP >= self.origin_citation.pages.to_i)
-            soft_validations.add(:base, "Original citation is out of the source page range")
+      elsif !self.source.pages.blank?
+        matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        if matchdata1
+          citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
+          citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
+          matchdata = self.source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+          if citMinP && citMaxP && matchdata
+            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+            minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
+            unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
+              soft_validations.add(:base, 'Original citation is out of the source page range')
+            end
           end
         end
       end
