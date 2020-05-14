@@ -72,7 +72,7 @@ export default {
       })
     },
     checkScroll () {
-      const bottomOfTable = (document.documentElement.scrollTop + window.innerHeight) === document.documentElement.offsetHeight
+      const bottomOfTable = (document.documentElement.scrollTop + window.innerHeight) >= document.documentElement.offsetHeight
 
       if (bottomOfTable && this.importId) {
         if (this.pagination.nextPage) {
