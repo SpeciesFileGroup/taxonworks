@@ -46,6 +46,7 @@ export default {
     if (ID) {
       this.loadDataset(ID)
     }
+    document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
     window.addEventListener('scroll', this.checkScroll)
   },
   methods: {
