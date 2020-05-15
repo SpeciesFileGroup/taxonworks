@@ -14,6 +14,8 @@
             <span>{{ item }}</span>
             <column-filter
               class="margin-medium-left"
+              :import-id="importId"
+              v-model="filters[item]"
               :field="item"/>
           </div>
         </th>
@@ -50,6 +52,11 @@ export default {
     importId: {
       type: [String, Number],
       required: true
+    }
+  },
+  data () {
+    return {
+      filters: {}
     }
   }
 }

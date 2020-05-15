@@ -5,25 +5,36 @@
     <span
       class="button"
       :class="{
-        'button-data': value.length,
-        'button-default': !value.length
+        'button-data': applied,
+        'button-default': !applied
       }"
       @click="show = !show">▼</span>
     <div
       v-if="show"
       class="panel content filter-container margin-medium-top">
-      <div class="horizontal-left-content">
+      <div
+        v-if="!value"
+        class="horizontal-left-content">
         <autocomplete
-          url="not-defined-yet"
-          @getInput="filter = $event"
+          :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
+          :add-params="{
+            field: field,
+            per: per
+          }"
+          :send-label="value"
+          :autofocus="true"
+          param="value"
+          @getItem="applyFilter"
           placeholder="Type to search..."
           type="text"/>
-        <button
-          type="button"
-          class="button normal-input button-default margin-small-left"
-          @click="applyFilter">
-          Apply
-        </button>
+      </div>
+      <div
+        v-else
+        class="flex-separate middle">
+        <span>{{ value }}</span>
+        <span
+          @click="unselect"
+          class="button circle-button btn-delete button-default"/>
       </div>
     </div>
   </div>
@@ -44,18 +55,39 @@ export default {
     },
     value: {
       type: String,
-      default: ''
+      default: undefined
+    },
+    importId: {
+      type: [String, Number],
+      require: true
+    }
+  },
+  computed: {
+    filter: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    },
+    applied () {
+      return this.value
     }
   },
   data () {
     return {
-      filter: '',
+      per: 25,
       show: false
     }
   },
   methods: {
-    applyFilter () {
-      this.$emit('applied', this.filter)
+    applyFilter (value) {
+      this.filter = value
+      this.show = false
+    },
+    unselect () {
+      this.filter = undefined
     }
   }
 }
