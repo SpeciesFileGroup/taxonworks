@@ -35,7 +35,15 @@
             </a>
           </li>
           <li>
-            <radial-annotator 
+            <pin-component
+              v-if="matrix.id"
+              :object-id="matrix.id"
+              :type="matrix.base_class"
+              section="ObservationMatrices"
+            />
+          </li>
+          <li>
+            <radial-annotator
               v-if="matrix.id"
               type="annotations"
               :global-id="matrix.global_id"/>
@@ -73,6 +81,7 @@ import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import PinComponent from 'components/pin.vue'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -88,7 +97,8 @@ export default {
     TablesComponent,
     columnsFixed,
     columnDynamic,
-    RadialAnnotator
+    RadialAnnotator,
+    PinComponent
   },
   computed: {
     matrix() {
