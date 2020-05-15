@@ -1,5 +1,5 @@
 <template>
-  <section-panel title="Collecting events">
+  <section-panel title="Distribution">
     <a name="collecting-events"/>
     <ul>
       <li
@@ -23,13 +23,14 @@
         @click="showAll = false">Show less
       </a>
     </template>
-    <template v-if="geojson.features.length">
-      <h4>Georeferences</h4>
-      <map-component
-        width="100%"
-        :zoom-on-click="false"
-        :geojson="geojson.features"/>
-    </template>
+    <switch-component
+      :options="tabs"
+      v-model="view"/>
+    <map-component
+      width="100%"
+      :zoom="2"
+      :zoom-on-click="false"
+      :geojson="shapes"/>
   </section-panel>
 </template>
 
@@ -37,13 +38,15 @@
 
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from 'components/georeferences/map.vue'
+import SwitchComponent from 'components/switch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     SectionPanel,
-    MapComponent
+    MapComponent,
+    SwitchComponent
   },
   props: {
     otu: {
@@ -64,12 +67,33 @@ export default {
     },
     collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
+    },
+    assertedDistributions () {
+      const ADs = this.$store.getters[GetterNames.GetAssertedDistributions]
+      return ADs.map(item => { 
+        let shape = item.geographic_area.shape
+        shape.properties.is_absent = item.is_absent
+
+        return shape
+      })
+    },
+    shapes () {
+      switch (this.view) {
+        case 'both':
+          return [].concat(this.assertedDistributions, this.geojson.features)
+        case 'georeferences':
+          return this.geojson.features
+        default:
+          return this.assertedDistributions
+      }
     }
   },
   data () {
     return {
       max: 10,
       showAll: false,
+      tabs: ['georeferences', 'asserted distributions', 'both'],
+      view: 'both',
       geojson: {
         features: []
       }

@@ -9,6 +9,7 @@
     "file-loader": "^6.0.0",
     "json2csv": "^5.0.0",
     "leaflet": "^1.6.0",
+    "leaflet.pattern": "^0.1.0",
     "npm-check-updates": "^4.1.2",
     "parse-dms": "0.0.3",
     "pdfjs-dist": "^2.3.200",

@@ -17,22 +17,20 @@
           </li>
 
           <li>
-            <a 
-              target="blank" 
-              href="/otus/new">New Otu
-            </a>
-          </li>
-          <li>
-            <a 
-              target="blank" 
-              href="/tasks/descriptors/new_descriptor">New Descriptor
-            </a>
+            <a href="/otus/new">New Otu</a>
           </li>
           <li>
             <a
-              target="blank"
-              href="/tasks/accessions/comprehensive/index">New Collection Object
+              v-if="matrix.id"
+              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New Descriptor
             </a>
+            <a
+              v-else
+              :href="`/tasks/descriptors/new_descriptor`">New Descriptor
+            </a>
+          </li>
+          <li>
+            <a href="/tasks/accessions/comprehensive/index">New Collection Object</a>
           </li>
           <li>
             <pin-component

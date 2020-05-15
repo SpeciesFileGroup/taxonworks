@@ -107,6 +107,7 @@ function makeInitialState () {
       }
     },
     currentOtu: undefined,
+    assertedDistributions: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],

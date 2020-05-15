@@ -4,6 +4,8 @@ import getDescendants from './getDescendants'
 import getGeoreferences from './getGeoreferences'
 import getPreferences from './getPreferences'
 import getUserId from './getUserId'
+import getAssertedDistributions from './getAssertedDistributions'
+import getCurrentOtu from './getCurrentOtu'
 
 const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
@@ -11,7 +13,9 @@ const GetterNames = {
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
   GetPreferences: 'getPreferences',
-  GetUserId: 'getUserId'
+  GetUserId: 'getUserId',
+  GetAssertedDistributions: 'getAssertedDistributions',
+  GetCurrentOtu: 'getCurrentOtu'
 }
 
 const GetterFunctions = {
@@ -20,7 +24,9 @@ const GetterFunctions = {
   [GetterNames.GetDescendants]: getDescendants,
   [GetterNames.GetGeoreferences]: getGeoreferences,
   [GetterNames.GetPreferences]: getPreferences,
-  [GetterNames.GetUserId]: getUserId
+  [GetterNames.GetUserId]: getUserId,
+  [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
+  [GetterNames.GetCurrentOtu]: getCurrentOtu
 }
 
 export {

@@ -2,7 +2,8 @@ const ActionNames = {
   LoadInformation: 'loadInformation',
   LoadCollectionObjects: 'loadCollectionObjects',
   LoadCollectingEvents: 'loadCollectingEvents',
-  LoadPreferences: 'loadPreferences'
+  LoadPreferences: 'loadPreferences',
+  LoadAssertedDistributions: 'loadAssertedDistributions'
 }
 
 export default ActionNames

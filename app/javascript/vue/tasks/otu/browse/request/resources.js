@@ -8,6 +8,11 @@ const GetOtu = function (id) {
   return ajaxCall('get', `/otus/${id}.json`)
 }
 
+const GetOtuAssertedDistribution = (data) => {
+  return ajaxCall('get', `/asserted_distributions.json`, { params: data })
+}
+
+
 const GetBiocurations = (id) => {
   return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
 }
@@ -134,5 +139,6 @@ export {
   GetOtus,
   GetGeoreferences,
   GetOtusCollectionObjects,
-  UpdateUserPreferences
+  UpdateUserPreferences,
+  GetOtuAssertedDistribution
 }

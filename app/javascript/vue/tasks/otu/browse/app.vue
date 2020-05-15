@@ -124,7 +124,7 @@ export default {
   watch: {
     otu: {
       handler (newVal) {
-        this.$store.dispatch(ActionNames.LoadInformation, newVal.id)
+        this.$store.dispatch(ActionNames.LoadInformation, newVal)
       },
       deep: true
     },

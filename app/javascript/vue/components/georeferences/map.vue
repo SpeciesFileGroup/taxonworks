@@ -10,6 +10,13 @@
 
 import L from 'leaflet'
 import '@geoman-io/leaflet-geoman-free'
+import 'leaflet.pattern/src/Pattern'
+import 'leaflet.pattern/src/Pattern.SVG'
+import 'leaflet.pattern/src/StripePattern'
+import 'leaflet.pattern/src/PatternShape'
+import 'leaflet.pattern/src/PatternShape.SVG'
+import 'leaflet.pattern/src/PatternPath'
+import 'leaflet.pattern/src/PatternCircle'
 
 delete L.Icon.Default.prototype._getIconUrl
 
@@ -156,7 +163,7 @@ export default {
     }
   },
   mounted () {
-    this.mapObject = L.map(this.mapId, {
+    this.mapObject = L.map(this.$el, {
       center: this.center,
       zoom: this.zoom
     })
@@ -288,14 +295,15 @@ export default {
     addGeoJsonLayer (geoJsonLayers) {
       const that = this
       let index = -1
+
       L.geoJson(geoJsonLayers, {
         style: function (feature) {
           index = index + 1
           return that.randomShapeStyle(index)
         },
         filter: function (feature) {
-          if(feature.properties.hasOwnProperty('geographic_area')) {
-            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, that.randomShapeStyle(index), { pmIgnore: true })))
+          if (feature.properties.hasOwnProperty('geographic_area')) {
+            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties.hasOwnProperty('is_absent') && feature.properties.is_absent ? that.stripeShapeStyle(index) : that.randomShapeStyle(index), { pmIgnore: true })))
             return false
           }
           return true
@@ -310,7 +318,7 @@ export default {
 
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds(this.drawnItems.getBounds())
+          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds(), this.geographicArea.getBounds()))
         }
         else if (this.geographicArea.getLayers().length) {
           this.mapObject.fitBounds(this.geographicArea.getBounds())
@@ -334,21 +342,45 @@ export default {
     generateHue (index) {
       const PHI = (1 + Math.sqrt(5)) / 2
       const n = index * PHI - Math.floor(index * PHI)
-      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 20}%)`
+      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 10}%)`
     },
     defaultShapeStyle () {
       return {
         weight: 1,
         dashArray: '',
-        fillOpacity: 0.4
+        fillOpacity: 0.6
       }
     },
     randomShapeStyle (index) {
       return {
         weight: 1,
         color: this.generateHue(index),
+        dashArray: '3',
+        dashOffset: '3',
+        fillOpacity: 0.6
+      }
+    },
+    stripeShapeStyle (index) {
+      const color = this.generateHue(index)
+      let stripes = new L.StripePattern({
+        patternContentUnits: 'objectBoundingBox',
+        patternUnits: 'objectBoundingBox',
+        weight: 0.05,
+        spaceWeight: 0.05,
+        height: 0.1,
+        angle: 45,
+        color: this.generateHue(index + 1),
+        opacity: 0.9,
+        spaceColor: color,
+        spaceOpacity: 0.2
+      })
+      stripes.addTo(this.mapObject)
+      return {
+        color: color,
+        weight: 2,
         dashArray: '',
-        fillOpacity: 0.4
+        fillOpacity: 1,
+        fillPattern: stripes
       }
     },
     onMyFeatures (feature, layer) {
