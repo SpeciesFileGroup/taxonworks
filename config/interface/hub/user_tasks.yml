@@ -70,6 +70,7 @@ comprehensive_collection_object_task:
     - collection_objects
   categories:
     - collection_object
+    - new
   status: prototype
   description: 'An all-in-one interface for digitizing collection objects.'
 new_taxon_name_task:
@@ -326,6 +327,7 @@ browse_otus_task:
   name: 'Browse taxa'
   related:
   categories:
+    - browse
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
 new_descriptor_task:
@@ -568,7 +570,7 @@ filter_sources_task:
   name: 'Filter sources'
   related:
   categories:
-    - sources
+    - source
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
@@ -579,3 +581,11 @@ project_data_task:
   categories:
   status: prototype
   description: 'Quick stats and download options for the overall project.'
+gnfinder_task:
+  hub: true
+  name: 'Gnfinder playground'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Show all names in a document.'

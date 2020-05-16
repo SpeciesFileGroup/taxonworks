@@ -48,25 +48,25 @@
         <template 
           v-else
           v-for="(item, key) in nomenclature.sources.list">
-        <li
-          :key="key"
-          v-show="filterSource(item)">
-          <label>
-            <input
-              v-model="references"
-              :value="key"
-              type="checkbox">
-            <span v-html="item.cached"/>
-          </label>
-          <template v-if="showReferencesTopic">
-            <span
-              v-for="(topic, index) in getSourceTopics(item).map(key => { return nomenclature.topics.list[key] })"
-              class="pill topic references_topics"
-              :key="index"
-              :style="{ 'background-color': topic.css_color }"
-              v-html="topic.name"/>
-          </template>
-        </li>
+          <li
+            :key="key"
+            v-show="filterSource(item)">
+            <label>
+              <input
+                v-model="references"
+                :value="key"
+                type="checkbox">
+              <span v-html="item.cached"/>
+            </label>
+            <template v-if="showReferencesTopic">
+              <span
+                v-for="(topic, index) in getSourceTopics(item).map(key => { return nomenclature.topics.list[key] })"
+                class="pill topic references_topics"
+                :key="index"
+                :style="{ 'background-color': topic.css_color }"
+                v-html="topic.name"/>
+            </template>
+          </li>
         </template>
       </ul>
     </div>
@@ -82,7 +82,7 @@
           <ul class="no_bullets">
             <li
               class="separate-right"
-              v-for="(item, key) in filterSections.and.time"
+              v-for="(item, key) in preferences.filterSections.and.time"
               :key="key">
               <label>
                 <input
@@ -94,7 +94,7 @@
           </ul>
           <h4 class="capitalize separate-bottom">Year</h4>
           <year-picker 
-            v-model.number="filterSections.and.year[0].value"
+            v-model.number="preferences.filterSections.and.year[0].value"
             :years="nomenclature.sources.year_metadata"/>
         </div>
         <div class="full_width">
@@ -102,7 +102,7 @@
           <ul class="no_bullets">
             <li
               class="separate-right"
-              v-for="(item, key) in filterSections.and.current"
+              v-for="(item, key) in preferences.filterSections.and.current"
               :key="key">
               <label>
                 <input
@@ -112,7 +112,7 @@
               </label>
             </li>
           </ul>
-          <template v-for="section in filterSections.or">
+          <template v-for="section in preferences.filterSections.or">
             <ul class="no_bullets">
               <li
                 v-for="(item, key) in section"
@@ -133,7 +133,7 @@
           <ul class="no_bullets">
             <li
               class="separate-right"
-              v-for="(item, key) in filterSections.show"
+              v-for="(item, key) in preferences.filterSections.show"
               :key="key">
               <label>
                 <input
@@ -146,7 +146,7 @@
           <h4 class="capitalize separate-bottom">Topic</h4>
           <ul class="no_bullets">
             <li
-              v-for="(item, key) in filterSections.topic"
+              v-for="(item, key) in preferences.filterSections.topic"
               :key="key">
               <label>
                 <input
@@ -169,7 +169,7 @@
           <div class="separate-bottom"></div>
           <ul
             class="no_bullets topic-section">
-            <li 
+            <li
               v-for="(topic, key) in nomenclature.topics.list"
               :key="key">
               <label>
@@ -194,6 +194,8 @@ import { GetNomenclatureHistory } from '../request/resources.js'
 import SwitchComponent from 'components/switch'
 import ModalComponent from 'components/modal'
 import YearPicker from './nomenclature/yearsPick'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
@@ -215,97 +217,23 @@ export default {
       return this.references.length ? this.nomenclature.items.filter(item => {
         return this.selectedReferences.find(ref => { return ref.objects.includes(item.data_attributes['history-object-id']) })
       }) : this.nomenclature.items
+    },
+    preferences: {
+      get () {
+        return this.$store.getters[GetterNames.GetPreferences]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetPreferences, value)
+      }
     }
   },
-  data() {
+  data () {
     return {
       isLoading: true,
       showReferencesTopic: false,
       references: [],
       topicsSelected: [],
       showModal: false,
-      filterSections: {
-        and: {
-          current: [
-            {
-              label: 'Current name',
-              key: 'history-is-current-target',
-              value: false,
-              equal: true
-            }
-          ],
-          time: [
-            {
-              label: 'First',
-              key: 'history-is-first',
-              value: false,
-              equal: true
-            },
-            {
-              label: 'Last',
-              key: 'history-is-last',
-              value: false,
-              equal: true
-            }
-          ],
-          year: [{
-            label: 'Year',
-            key: 'history-year',
-            value: undefined,
-            attribute: true,
-            equal: true
-          }]
-        },
-        or: {
-          valid: [
-            {
-              label: 'Valid',
-              key: 'history-is-valid',
-              value: false,
-              equal: true
-            },
-            {
-              label: 'Invalid',
-              key: 'history-is-valid',
-              value: false,
-              equal: false
-            }
-          ],
-          cite: [
-            {
-              label: 'Cited',
-              key: 'history-is-cited',
-              value: false,
-              equal: true
-            },
-            {
-              label: 'Uncited',
-              key: 'history-is-cited',
-              value: false,
-              equal: false
-            }
-          ]
-        },
-        show: [
-          {
-            label: 'Notes',
-            key: '.history__citation_notes',
-            value: false
-          },
-          {
-            label: 'Soft validation',
-            key: '.soft_validation_anchor',
-            value: false
-          }
-        ],
-        topic: [
-          {
-            label: 'On citations',
-            key: '.history__citation_topics',
-            value: true
-          }
-        ],
-      },
       nomenclature: '',
       tabSelected: {
         label: 'All',
@@ -346,7 +274,7 @@ export default {
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
             this.$nextTick(() => {
-              this.filterDOM([].concat(this.filterSections.show, this.filterSections.topic))
+              this.filterDOM([].concat(this.preferences.filterSections.show, this.preferences.filterSections.topic))
             })
             this.isLoading = false
           })
@@ -357,7 +285,7 @@ export default {
     filterSections: {
       handler (newVal) {
         this.$nextTick(() => {
-          this.filterDOM([].concat(this.filterSections.show, this.filterSections.topic))
+          this.filterDOM([].concat(this.preferences.filterSections.show, this.preferences.filterSections.topic))
         })
       },
       deep: true
@@ -372,24 +300,24 @@ export default {
       })
     },
     checkFilter (item) {
-      const keysAND = Object.keys(this.filterSections.and)
-      const keysOR = Object.keys(this.filterSections.or)
+      const keysAND = Object.keys(this.preferences.filterSections.and)
+      const keysOR = Object.keys(this.preferences.filterSections.or)
       return (((!this.tabSelected.hasOwnProperty('equal') || 
         this.tabSelected.equal ?
         item.data_attributes[this.tabSelected.key] === this.tabSelected.value : 
         item.data_attributes[this.tabSelected.key] != this.tabSelected.value) || 
         (this.tabSelected.label === 'All')) && 
         keysAND.every(key => {
-          if((this.filterSections.and[key].every(filter => { return filter.value === false }))) return true
-          return this.filterSections.and[key].every(filter => {
+          if((this.preferences.filterSections.and[key].every(filter => { return filter.value === false }))) return true
+          return this.preferences.filterSections.and[key].every(filter => {
             if (filter.value === undefined) return true
             return (filter.equal ? 
-            item.data_attributes[filter.key] === filter.value : 
+            item.data_attributes[filter.key] === filter.value :
             item.data_attributes[filter.key] !== filter.value)
           })
         }) &&
         keysOR.every(key => {
-          return this.filterSections.or[key].some(filter => {
+          return this.preferences.filterSections.or[key].some(filter => {
             return (filter.equal ? 
             item.data_attributes[filter.key] === filter.value : 
             item.data_attributes[filter.key] !== filter.value)
@@ -400,13 +328,13 @@ export default {
           return this.topicsSelected.includes(topic)
         }) : true))
     },
-    filterSource(source) {
+    filterSource (source) {
       let globalIds = source.objects
       return (this.itemsList.filter(item => { return this.checkFilter(item) }).find(item => {
-        return globalIds.includes(item.data_attributes['history-object-id']) 
+        return globalIds.includes(item.data_attributes['history-object-id'])
       }) != undefined)
     },
-    getSourceTopics(source) {
+    getSourceTopics (source) {
       let globalIds = source.objects
       let topics = []
       topics = this.itemsList.filter(item => { return this.checkFilter(item) }).filter(item => { return globalIds.includes(item.data_attributes['history-object-id']) }).map(item => {

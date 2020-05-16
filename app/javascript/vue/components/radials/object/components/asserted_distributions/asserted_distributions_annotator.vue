@@ -53,7 +53,7 @@
     <div>
       <a 
         class="asserted-map-link"
-        :href="`/tasks/gis/otu_distribution_data/${metadata.object_id}`"
+        :href="`/tasks/gis/otu_distribution_data?otu_id=${metadata.object_id}`"
         target="blank">Map</a>
     </div>
     <h3>In this geographic area</h3>

@@ -35,7 +35,7 @@
 
 import SectionPanel from './shared/sectionPanel'
 import SpecimenInformation from './specimens/Information'
-import { GetCollectionObjects, GetTypeMaterials } from '../request/resources'
+import { GetCollectionObjects } from '../request/resources'
 
 export default {
   components: {

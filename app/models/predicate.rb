@@ -13,7 +13,7 @@ class Predicate < ControlledVocabularyTerm
     # i is a select manager
     i = i.project(i['controlled_vocabulary_term_id'], i['created_at']).from(i)
       .where(i['created_at'].gt( 1.weeks.ago ))
-      .order(i['created_at'])
+      .order(i['created_at'].desc)
       .take(10)
       .distinct
 

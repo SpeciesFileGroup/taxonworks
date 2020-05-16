@@ -10,4 +10,8 @@ class NomenclaturalRank::Icnp::HigherClassificationGroup::Order < NomenclaturalR
     taxon_name.errors.add(:name, 'name must end in -ales') unless(taxon_name.name =~ /.*ales\Z/)
   end
 
+  def self.valid_name_ending
+    'ales'
+  end
+
 end

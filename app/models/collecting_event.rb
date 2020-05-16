@@ -302,7 +302,7 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   class << self

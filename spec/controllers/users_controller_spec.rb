@@ -194,10 +194,10 @@ describe UsersController, type: :controller do
         end
       end
       
-      it 'notifies no e-mail was provided in flash[:notice]' do
+      it 'notifies no e-mail was provided in flash[:alert]' do
         examples.each do |param|
           post :send_password_reset, params: param, session: valid_session
-          expect(flash[:notice]).to match(/^No e-mail was given/)
+          expect(flash[:alert]).to match(/^No e-mail was given/)
         end
       end
 
@@ -211,10 +211,10 @@ describe UsersController, type: :controller do
       end
       
       it 'notifies the e-mail does not exist' do
-        expect(flash[:notice]).to match(/^The supplied e-mail does not belong to a registered user/)
+        expect(flash[:alert]).to match(/^The supplied e-mail does not belong to a registered user/)
       end
     end
-    
+
     context 'when valid e-mail' do
       let(:user) { FactoryBot.create(:valid_user) }
       
@@ -238,6 +238,26 @@ describe UsersController, type: :controller do
         end
       end
     end
+
+    context 'when there is an error when sending an e-mail' do
+      let(:user) { FactoryBot.create(:valid_user) }
+
+      describe 'response to browser' do
+        before do
+          allow(UserMailer).to receive(:password_reset_email).and_raise(Net::SMTPServerBusy)
+          post :send_password_reset, params: {email: user.email}, session: valid_session
+        end
+
+        it 'redirects to forgot_password' do
+          expect(response).to redirect_to(:forgot_password)
+        end
+
+        it 'notifies the user that the e-mail could not be sent.' do
+          expect(flash[:alert]).to match(/^Failed to send e-mail/)
+        end
+      end
+    end
+
   end
   
   describe 'GET password_reset' do

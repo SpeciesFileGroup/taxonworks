@@ -10,6 +10,10 @@ class NomenclaturalRank::Ictv::Family < NomenclaturalRank::Ictv
     taxon_name.errors.add(:name, 'name must end in -viridae or -viroidae or -satellitidae') if not(taxon_name.name =~ /.*(viridae|viroidae|satellitidae)\Z/)
   end
 
+  def self.valid_name_ending
+    'idae'
+  end
+
   def self.abbreviation
     'fam.'
   end

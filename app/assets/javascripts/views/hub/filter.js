@@ -9,7 +9,9 @@ Object.assign(TW.views.hub.filter, {
 		if(!$("#filter").attr('loaded') == true) { 
 			$("#filter").attr('loaded', 'true');
 			this.filterHubTask = new FilterHub();
-			this.resizeTaskCarrousel();
+			if(document.querySelector('#task_carrousel')) {
+				this.resizeTaskCarrousel();
+			}
 			this.loadCategoriesIcons();
 			this.handleEvents();
 		}
@@ -22,7 +24,7 @@ Object.assign(TW.views.hub.filter, {
 		var cardWidth = 427.5;
 		var cardHeight = 180;
 
-		var tmpHeight = userWindowHeight - 100
+		var tmpHeight = userWindowHeight - document.querySelector('.task-section').offsetTop
 		tmpHeight = tmpHeight / cardHeight
 
 		if(userWindowWidth < minWindowWidth) {

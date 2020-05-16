@@ -4,7 +4,7 @@
       <tr>
         <th>Otu</th>
         <th>Geographic area</th>
-        <th>Source</th>
+        <th>Citation</th>
         <th>Trash</th>
         <th>Radial annotator</th>
         <th>Source/Otu clone</th>
@@ -94,7 +94,7 @@ export default {
   },
   methods: {
     nomenclatureBySourceRoute(id) {
-      return `${RouteNames.NomenclatureBySource}/${id}`
+      return `${RouteNames.NomenclatureBySource}?source_id=${id}`
     },
     removeItem(item) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {

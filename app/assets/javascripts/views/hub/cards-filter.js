@@ -4,7 +4,7 @@ var CarrouselData = function (sec, rows, columns) {
 	// rows = This is for the number of rows that will be displayed, if this number is less than the number of items, it will activate the navigation controls
 	// columns = This is for the number of rows to be displayed
 	
-		this.childs = 0,
+		this.children = 0,
 		this.start = 1,
 		this.maxRow = 0,
 		this.maxColumn = 1,
@@ -14,8 +14,8 @@ var CarrouselData = function (sec, rows, columns) {
 		this.isEmpty,
 		this.maxRow = rows;
 		this.sectionTag = sec;
-		this.resetChildsCount();
-		if(this.maxRow >= this.childs) {
+		this.resetChildrenCount();
+		if(this.maxRow >= this.children) {
 			this.navigation(false);
 		}
 		this.handleEvents();
@@ -36,7 +36,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.resetFilters = function() {
 		this.filters = {};
-		this.filterChilds();
+		this.filterChildren();
 	};
 
 	CarrouselData.prototype.checkChildFilter = function(childTag) {
@@ -59,11 +59,11 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 	CarrouselData.prototype.refresh = function() {
-		this.filterChilds();
+		this.filterChildren();
 	}
 
-	CarrouselData.prototype.resetChildsCount = function() {
-	  	this.childs = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
+	CarrouselData.prototype.resetChildrenCount = function() {
+	  	this.children = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container ').length;
 	};
 
 	CarrouselData.prototype.empty = function() {
@@ -81,7 +81,7 @@ var CarrouselData = function (sec, rows, columns) {
 
 	CarrouselData.prototype.changeFilter = function(filterTag)	{
 		this.filters[filterTag] = !this.filters[filterTag];
-		this.filterChilds();
+		this.filterChildren();
 	};
 
 	CarrouselData.prototype.setFilterStatus = function(filterTag, value)	{
@@ -89,7 +89,7 @@ var CarrouselData = function (sec, rows, columns) {
 	};
 
 	CarrouselData.prototype.filterKeys = function(handleKey) {
-		for(var i = 0; i <= this.childs; i++) {			
+		for(var i = 0; i <= this.children; i++) {			
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(this.checkChildFilter(child.children().children(".filter_data"))) {
 				if($(child).text().toLowerCase().indexOf(handleKey.toLowerCase()) > 0 || handleKey == "") {
@@ -111,21 +111,21 @@ var CarrouselData = function (sec, rows, columns) {
 		var
 			count = 0;
 
-		for(var i = 0; i < this.childs; i++) {			
+		for(var i = 0; i < this.children; i++) {			
 			child = $('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ (i) +')');
 			if(!$(child).is(":visible")) {			
 				count++;
 			}
 		}
-		this.isEmpty = (count == this.childs ? true : false);
+		this.isEmpty = (count == this.children ? true : false);
 		this.showEmptyLabel();
 	}
 
-	CarrouselData.prototype.filterChilds = function() {
+	CarrouselData.prototype.filterChildren = function() {
 		var
 		find = 0;
-		if(this.maxRow > this.childs) {
-			this.maxRow = this.childs;
+		if(this.maxRow > this.children) {
+			this.maxRow = this.children;
 		}
 
 		for (var i = 1; i <= this.maxRow; i++) {
@@ -175,12 +175,12 @@ var CarrouselData = function (sec, rows, columns) {
 				posNro = this.nro,
 				tag = this.sectionTag;
 
-			if((this.nro+this.maxRow) <= this.childs) {
+			if((this.nro+this.maxRow) <= this.children) {
 				$('.data_section[data-section="' + this.sectionTag + '"] > .cards-section > .card-container:nth-child('+ posNro +')' ).addClass('hide');
 				$('.data_section[data-section="' + tag + '"] > .cards-section > .card-container:nth-child('+ (posNro+rows) +')' ).removeClass('hide');
 			}
 
-			if(this.nro < this.childs) {
+			if(this.nro < this.children) {
 				this.nro++;
 			}           
 		};

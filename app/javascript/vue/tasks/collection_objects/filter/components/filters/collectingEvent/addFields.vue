@@ -139,8 +139,8 @@ export default {
   },
   methods: {
     resetFields() {
-      this.selectedField = undefined,
-      this.fieldValue = undefined,
+      this.selectedField = undefined
+      this.fieldValue = undefined
       this.exact = undefined
     },
     addField() {
@@ -157,6 +157,9 @@ export default {
     },
     checkForMatch(type) {
       return (type === 'string' || type === 'text')
+    },
+    cleanList () {
+      this.selectedFields = []
     }
   }
 }

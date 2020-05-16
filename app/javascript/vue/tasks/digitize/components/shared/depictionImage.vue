@@ -61,8 +61,7 @@
         getImageUrl(depiction.image.id, depiction.svg_view_box, 100, 100) : 
         depiction.image.alternatives.thumb.image_file_url">
     <zoom-image
-      v-if="depiction.svg_view_box != null"
-      :image-url="getImageUrl(depiction.image.id, depiction.svg_view_box, Math.floor(windowWidth()*0.75), windowHeight())"
+      :image-url="depiction.svg_view_box != null ? getImageUrl(depiction.image.id, depiction.svg_view_box, Math.floor(windowWidth()*0.75), windowHeight()) : getImageDepictionUrl()"
       :width="depiction.image.width"
       :height="depiction.image.height"/>
   </div>
@@ -134,6 +133,15 @@ export default {
     getImageUrl (id, box, imageWidth, imageHeight) {
       let [ x, y, width, height ] = box.split(' ')
       return `/images/${id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
+    },
+    getImageDepictionUrl () {
+      let x = 0
+      let y = 0
+      let width = this.depiction.image.width
+      let height = this.depiction.image.height
+      let imageWidth = Math.floor(this.windowWidth()*0.75)
+      let imageHeight = this.windowHeight()
+      return `/images/${this.depiction.image.id}/scale_to_box/${Math.floor(x)}/${Math.floor(y)}/${Math.floor(width)}/${Math.floor(height)}/${imageWidth}/${imageHeight}`
     },
     windowWidth () {
       return window.innerWidth

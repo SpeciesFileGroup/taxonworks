@@ -10,6 +10,10 @@ class NomenclaturalRank::Ictv::Order < NomenclaturalRank::Ictv
     taxon_name.errors.add(:name, 'name must end in -viralis') if not(taxon_name.name =~ /.*(viralis)\Z/)
   end
 
+  def self.valid_name_ending
+    'viralis'
+  end
+
   def self.abbreviation
     'ord.'
   end

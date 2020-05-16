@@ -39,6 +39,10 @@
           :clear-after="clear"
           display="label"
           @getItem="getObject($event.id)"/>
+        <otu-picker
+          v-if="otuPicker"
+          :input-id="inputId"
+          @getItem="getObject($event.id)"/>
       </div>
     </template>
     <slot :view="view">
@@ -54,17 +58,23 @@ import Autocomplete from 'components/autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
     SwitchComponents,
     Autocomplete,
-    DefaultPin
+    DefaultPin,
+    OtuPicker
   },
   props: {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    otuPicker: {
+      type: Boolean,
+      default: false
     },
     autocompleteParams: {
       type: Object,

@@ -15,13 +15,13 @@ export default function ({ dispatch, commit, state }, status) {
       }
     }
     return new Promise(function (resolve, reject) {
-      console.log(newClassification)
       createTaxonStatus(newClassification).then(response => {
         Object.defineProperty(response, 'type', { value: status.type })
         Object.defineProperty(response, 'object_tag', { value: status.name })
         commit(MutationNames.AddTaxonStatus, response)
         dispatch('loadSoftValidation', 'taxon_name')
         dispatch('loadSoftValidation', 'taxonStatusList')
+        dispatch('loadSoftValidation', 'taxonRelationshipList')
         return resolve(response)
       }, response => {
         return reject(response)

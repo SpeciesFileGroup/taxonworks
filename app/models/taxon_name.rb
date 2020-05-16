@@ -828,7 +828,7 @@ class TaxonName < ApplicationRecord
   end
 
   def get_cached_misspelling
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING - ['TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'])
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY)
     misspelling.empty? ? nil : true
   end
 
@@ -1056,7 +1056,7 @@ class TaxonName < ApplicationRecord
     p = nil
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
 
     if self.type == 'Combination'
       c = protonyms_by_rank
@@ -1154,7 +1154,7 @@ class TaxonName < ApplicationRecord
     TaxonName.where(project_id: project_id)
       .joins(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Scope]
@@ -1175,7 +1175,7 @@ class TaxonName < ApplicationRecord
       .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at')
+      .order('taxon_names.updated_at DESC')
   end
 
   # @return [Array]
@@ -1184,7 +1184,7 @@ class TaxonName < ApplicationRecord
 
     # !! If cached of one name is nill the raises an ArgumentError
     a = [
-      TaxonName.touched_by(user_id).where(project_id: project_id).order(:updated_at).limit(6).to_a,
+      TaxonName.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
       used_recently_in_classifications(project_id, user_id).limit(6).to_a,
       used_recently_in_relationships(project_id, user_id).limit(6).to_a
     ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}
@@ -1287,15 +1287,11 @@ class TaxonName < ApplicationRecord
 
       unless correct_name_format
         invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(&:type_class)
-        misspellings = TaxonNameRelationship.collect_to_s(
-          TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling,
-          TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
-          TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling,
-          TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling)
+        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
+        misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
 
         ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
-        misspellings = misspellings & taxon_name_relationships.pluck(&:type_class)
+        misspellings = misspellings & taxon_name_relationships.pluck(:type)
         if invalid_statuses.empty? && misspellings.empty? && ictv_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end

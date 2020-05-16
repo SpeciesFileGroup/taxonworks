@@ -17,25 +17,31 @@
           </li>
 
           <li>
-            <a 
-              target="blank" 
-              href="/otus/new">New Otu
-            </a>
-          </li>
-          <li>
-            <a 
-              target="blank" 
-              href="/tasks/descriptors/new_descriptor">New Descriptor
-            </a>
+            <a href="/otus/new">New Otu</a>
           </li>
           <li>
             <a
-              target="blank"
-              href="/tasks/accessions/comprehensive/index">New Collection Object
+              v-if="matrix.id"
+              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New Descriptor
+            </a>
+            <a
+              v-else
+              :href="`/tasks/descriptors/new_descriptor`">New Descriptor
             </a>
           </li>
           <li>
-            <radial-annotator 
+            <a href="/tasks/accessions/comprehensive/index">New Collection Object</a>
+          </li>
+          <li>
+            <pin-component
+              v-if="matrix.id"
+              :object-id="matrix.id"
+              :type="matrix.base_class"
+              section="ObservationMatrices"
+            />
+          </li>
+          <li>
+            <radial-annotator
               v-if="matrix.id"
               type="annotations"
               :global-id="matrix.global_id"/>
@@ -73,6 +79,7 @@ import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import PinComponent from 'components/pin.vue'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -88,7 +95,8 @@ export default {
     TablesComponent,
     columnsFixed,
     columnDynamic,
-    RadialAnnotator
+    RadialAnnotator,
+    PinComponent
   },
   computed: {
     matrix() {

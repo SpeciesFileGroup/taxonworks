@@ -35,9 +35,9 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   })
 
-  $('#search-filter').keyup(function () {
-    var
-      chain = $(this).val();
+  $('#search-filter').keyup(function (key) {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') return
+    var chain = $(this).val();
 
     [that.arrayData, that.arrayTasks].forEach(function (element) {
       element.forEach(function (element) {
@@ -157,7 +157,7 @@ FilterHub.prototype.changeAllSectionsFilter = function (arrayData) {
   arrayData.forEach(function (element) {
     $("#search-filter").val("");
     element.resetFilters();
-    element.filterChilds();
+    element.filterChildren();
     $('.reset-all-filters').fadeOut(0);
   });
 }
