@@ -70,6 +70,7 @@ module Vendor
       # @return Array of TaxonName
       def matches
         TaxonName.where(project_id: project_id, cached: found.name)
+          .or( TaxonName.where(project_id: project_id, cached_original_combination: found.name))
       end
 
       def is_in_taxonworks?
