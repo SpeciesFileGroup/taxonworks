@@ -27,6 +27,10 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const CreateObservationMatrixColumn = (data) => {
+  return ajaxCall('post', '/observation_matrix_column_items.json', { observation_matrix_column_item: data })
+}
+
 const CreateDescriptor = function (data) {
   return ajaxCall('post', `/descriptors.json`, { descriptor: data })
 }
@@ -55,6 +59,10 @@ const GetSequence = (id) => {
   return ajaxCall('get', `/sequences/${id}.json`)
 }
 
+const GetMatrix = (id) => {
+  return ajaxCall('get', `/observation_matrices/${id}.json`)
+}
+
 export {
   CreateDescriptor,
   DeleteDescriptor,
@@ -63,4 +71,6 @@ export {
   GetUnits,
   GetSequenceSmartSelector,
   GetSequence,
+  CreateObservationMatrixColumn,
+  GetMatrix
 }
