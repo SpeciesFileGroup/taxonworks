@@ -11,7 +11,8 @@
       class="position-relative">
       <table-component
         :import-id="importId"
-        :table="table"/>
+        :table="table"
+        @onParams="tableParams = $event"/>
     </div>
     <new-import
       @onCreate="loadDataset($event.id)"
@@ -38,7 +39,16 @@ export default {
       importId: undefined,
       table: undefined,
       pagination: undefined,
-      isLoading: false
+      isLoading: false,
+      tableParams: undefined
+    }
+  },
+  watch: {
+    tableParams: {
+      handler (newVal) {
+        this.loadDatasetRecords(this.importId, undefined, newVal)
+      },
+      deep: true
     }
   },
   mounted () {
@@ -50,11 +60,11 @@ export default {
     window.addEventListener('scroll', this.checkScroll)
   },
   methods: {
-    loadDatasetRecords (id, page = undefined) {
+    loadDatasetRecords (id, page = undefined, params = {}) {
       this.isLoading = true
-      GetDatasetRecords(id, { page: page }).then(response => {
+      GetDatasetRecords(id, Object.assign({}, { page: page }, { filter: params })).then(response => {
         this.pagination = GetPagination(response)
-        this.table.rows = this.table.rows.concat(response.body)
+        this.table.rows = page ? this.table.rows.concat(response.body) : response.body
         this.isLoading = false
       })
     },
@@ -77,7 +87,7 @@ export default {
 
       if (bottomOfTable && this.importId) {
         if (this.pagination.nextPage) {
-          this.loadDatasetRecords(this.importId, this.pagination.nextPage)
+          this.loadDatasetRecords(this.importId, this.pagination.nextPage, this.tableParams)
         }
       }
     }

@@ -58,6 +58,14 @@ export default {
     return {
       filters: {}
     }
+  },
+  watch: {
+    filters: {
+      handler (newVal) {
+        this.$emit('onParams', newVal)
+      },
+      deep: true
+    }
   }
 }
 </script>
