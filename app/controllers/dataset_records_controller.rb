@@ -8,6 +8,10 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records.json
   def index
     @dataset_records = ImportDataset.find(params[:import_dataset_id]).dataset_records.page(params[:page]).per(params[:per] || 100)
+
+    params[:filter]&.each do |k, v|
+      @dataset_records = @dataset_records.where("data_fields -> ? ->> 'value' = ?", k, v)
+    end
   end
 
   # GET /dataset_records/1
@@ -61,7 +65,7 @@ class DatasetRecordsController < ApplicationController
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
     values = ImportDataset.find(params[:import_dataset_id])
-      .dataset_records.where("data_fields -> ? ->> 'value' LIKE '#{params[:value]}%'", params[:field])
+      .dataset_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field])
       .select("data_fields -> '#{params[:field]}' ->> 'value' AS value").distinct # TODO: Sanitize field
       .page(params[:page]).per(params[:per] || 10)
       .map { |x| x.value }
