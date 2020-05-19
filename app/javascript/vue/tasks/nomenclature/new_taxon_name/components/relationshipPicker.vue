@@ -96,7 +96,7 @@
               type="radio"
               class="normal-input"
               @click="showAdvance = true">
-            <label for="relationship-picker-advanced">Advanced</label>
+            <label for="relationship-picker-advanced">Search</label>
             <input
               name="relationship-picker-options"
               id="relationship-picker-showall"
