@@ -34,6 +34,7 @@ export default function ({commit, state}, args) {
 function transformDescriptorForViewmodel (descriptorData) {
   const descriptor = makeBaseDescriptor(descriptorData)
   attemptToAddCharacterStates(descriptorData, descriptor)
+  attemptToAddDefaultUnit(descriptorData, descriptor)
   return descriptor
 }
 
@@ -72,6 +73,10 @@ function getDescription (descriptorData) {
 
 function attemptToAddCharacterStates (descriptorData, descriptor) {
   if (descriptor.componentName === ComponentNames.Qualitative) { descriptor.characterStates = descriptorData.character_states.map(transformCharacterStateForViewmodel) }
+}
+
+function attemptToAddDefaultUnit (descriptorData, descriptor) {
+  if (descriptor.componentName === ComponentNames.Continuous) { descriptor.default_unit = descriptorData.default_unit }
 }
 
 function transformCharacterStateForViewmodel (characterStateData) {
