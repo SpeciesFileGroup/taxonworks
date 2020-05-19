@@ -1,9 +1,9 @@
 <template>
   <div class="otu-radial">
-    <span 
-      class="circle-button button-default"
+    <span
+      class="circle-button"
       :title="redirect ? 'Browse taxa' : 'OTU quick forms'"
-      :class="[{ 'button-submit': emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
+      :class="[{ 'button-submit': emptyList, 'button-default': !emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp">Otu
     </span>
     <modal
