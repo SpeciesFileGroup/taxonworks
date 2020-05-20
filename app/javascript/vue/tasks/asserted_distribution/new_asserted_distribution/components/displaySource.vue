@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     nomenclatureRoute() {
-      return `${RouteNames.NomenclatureBySource}/${this.source.id}`
+      return `${RouteNames.NomenclatureBySource}?source_id=${this.source.id}`
     }
   }
 }
