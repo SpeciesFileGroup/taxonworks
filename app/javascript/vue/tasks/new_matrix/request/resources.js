@@ -27,6 +27,10 @@ const handleError = function (json) {
   TW.workbench.alert.create(errorMessage, 'error')
 }
 
+const GetObservationMatrices = () => {
+  return ajaxCall('get', '/observation_matrices.json')
+}
+
 const CreateMatrix = function (data) {
   return ajaxCall('post', `/observation_matrices.json`, { observation_matrix: data })
 }
@@ -111,7 +115,6 @@ const SortColumns = function(ids) {
   return ajaxCall('patch', `/observation_matrix_columns/sort`, { ids: ids })
 }
 
-
 export {
   CreateMatrix,
   CreateRowBatchLoad,
@@ -124,6 +127,7 @@ export {
   GetMatrixObservationColumns,
   GetMatrixObservationColumnsDynamic,
   GetMatrixColumnMetadata,
+  GetObservationMatrices,
   GetMatrixRowMetadata,
   BatchRemoveKeyword,
   GetSmartSelector,

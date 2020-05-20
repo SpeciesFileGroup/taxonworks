@@ -1,14 +1,19 @@
 <template>
   <div class="panel basic-information">
-    <div class="header">
+    <div class="header flex-separate">
       <h3>Matrix</h3>
+      <copy-descriptors
+        v-if="matrix.id"
+        :matrix-id="matrix.id"/>
     </div>
     <div class="body">
-      <div class="field">
-        <label>Name</label><br>
-        <input
-          v-model="matrixName"
-          type="text">
+      <div class="flex-separate">
+        <div class="field">
+          <label>Name</label><br>
+          <input
+            v-model="matrixName"
+            type="text">
+        </div>
       </div>
       <button
         v-if="!matrix.id"
@@ -40,13 +45,15 @@
 import { CreateMatrix } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
+import { ActionNames } from '../../store/actions/actions'
 
 import SwitchComponent from './switch.vue'
-import { ActionNames } from '../../store/actions/actions';
+import CopyDescriptors from '../columns/copyDescriptors'
 
 export default {
   components: {
-    SwitchComponent
+    SwitchComponent,
+    CopyDescriptors
   },
   computed: {
     matrixName: {
