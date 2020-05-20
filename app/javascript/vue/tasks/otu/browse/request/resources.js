@@ -41,8 +41,8 @@ const GetOtusCollectionObjects = function (otuId) {
   return ajaxCall('get', '/collection_objects.json', { params: { otu_ids: [otuId], current_determinations: true } })
 }
 
-const GetGeoreferences = function (id) {
-  return ajaxCall('get', `/georeferences.json?collecting_event_id=${id}`)
+const GetGeoreferences = function (ids) {
+  return ajaxCall('get', '/georeferences.json', { params: { collecting_event_ids: ids } })
 }
 
 const GetIdentifiers = function (id) {
