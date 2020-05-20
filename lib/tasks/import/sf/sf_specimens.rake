@@ -538,7 +538,7 @@ namespace :tw do
                       if !taxon_name_combination.nil?
                         otu = Otu.find_or_create_by!(taxon_name_id: taxon_name_combination.id, project_id: project_id)
                         otu_id = otu.id
-                      elsif !taxon_name_original_combinations.nil?
+                      elsif !taxon_name_original_combination.nil?
                         otu = Otu.find_or_create_by!(taxon_name_id: taxon_name_original_combination.id, project_id: project_id)
                         otu_id = otu.id
                       elsif taxon_name_obj.cached_original_combination == target_nomenclator
