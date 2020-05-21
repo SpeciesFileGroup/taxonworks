@@ -44,7 +44,7 @@
             @click="cleanCollectionEvent"/>
           <button
             type="button"
-            class="button normal-input button-submit"
+            class="button normal-input button-submit margin-small-right"
             @click="cloneCE">
             Clone
           </button>

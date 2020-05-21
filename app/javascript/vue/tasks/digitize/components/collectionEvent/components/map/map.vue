@@ -15,7 +15,12 @@
       v-if="(!latitude || !longitude) && (collectionEvent.verbatim_latitude || collectionEvent.verbatim_longitude)"
       class="panel aligner middle"
       style="height: 300px; align-items: center; width:100%; text-align: center;">
-      <h3>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.' (perhaps with warning triangle).</h3>
+      <h3>
+        <span class="soft_validation">
+          <span data-icon="warning"/>
+          <span>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.</span>
+        </span>
+      </h3>
     </div>
 
     <div
