@@ -1,68 +1,66 @@
 <template>
-  <div>
-    <block-layout :warning="!collectingEvent.id">
-      <div slot="header">
-        <h3>Collecting Event</h3>
-      </div>
+  <block-layout :warning="!collectingEvent.id">
+    <div slot="header">
+      <h3>Collecting Event</h3>
+    </div>
+    <div
+      slot="options" 
+      class="horizontal-left-content separate-right">
+      <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
       <div
-        slot="options" 
-        class="horizontal-left-content separate-right">
-        <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
-        <div
-          v-if="collectingEvent.id"
-          class="horizontal-left-content separate-left separate-right">
-          <radial-annotator :global-id="collectingEvent.global_id"/>
-          <radial-object :global-id="collectingEvent.global_id"/>
-          <pin-component 
-            :object-id="collectingEvent.id" 
+        v-if="collectingEvent.id"
+        class="horizontal-left-content separate-left separate-right">
+        <radial-annotator :global-id="collectingEvent.global_id"/>
+        <radial-object :global-id="collectingEvent.global_id"/>
+        <pin-component 
+          :object-id="collectingEvent.id" 
+          type="CollectingEvent"/>
+      </div>
+    </div>
+    <div slot="body">
+      <fieldset class="separate-bottom">
+        <legend>Selector</legend>
+        <div class="horizontal-left-content separate-bottom">
+          <smart-selector
+            name="collection-event"
+            class="separate-right item"
+            v-model="view"
+            :add-option="staticOptions"
+            :options="tabs"/>
+          <lock-component 
+            v-model="locked.collecting_event"/>
+          <pin-default
+            class="separate-left"
+            section="CollectingEvents"
+            @getId="getCollectingEvent"
             type="CollectingEvent"/>
         </div>
-      </div>
-      <div slot="body">
-        <fieldset class="separate-bottom">
-          <legend>Selector</legend>
-          <div class="horizontal-left-content separate-bottom">
-            <smart-selector
-              name="collection-event"
-              class="separate-right item"
-              v-model="view"
-              :add-option="staticOptions"
-              :options="tabs"/>
-            <lock-component 
-              v-model="locked.collecting_event"/>
-            <pin-default
-              class="separate-left"
-              section="CollectingEvents"
-              @getId="getCollectingEvent"
-              type="CollectingEvent"/>
-          </div>
-          <div
-            v-if="collectingEvent.id"
-            class="horizontal-left-content">
-            <p v-html="collectingEvent.object_tag"/>
-            <span
-              class="circle-button button-default btn-undo"
-              @click="cleanCollectionEvent"/>
-            <button
-              type="button"
-              class="button normal-input button-submit"
-              @click="cloneCE">
-              Clone
-            </button>
-            <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
-          </div>
-          <component
-            :is="actualComponent"
-            :list="lists[view]"/>
-        </fieldset>
-        <div class="horizontal-left-content align-start">
-          <block-verbatin class="separate-right item"/>
-          <block-geography class="separate-left item separate-right"/>
-          <block-map class="separate-left item"/>
+        <div
+          v-if="collectingEvent.id"
+          class="horizontal-left-content">
+          <p v-html="collectingEvent.object_tag"/>
+          <span
+            class="circle-button button-default btn-undo"
+            @click="cleanCollectionEvent"/>
+          <button
+            type="button"
+            class="button normal-input button-submit"
+            @click="cloneCE">
+            Clone
+          </button>
+          <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
         </div>
+        <component
+          :is="actualComponent"
+          :list="lists[view]"/>
+      </fieldset>
+      <div class="horizontal-left-content align-start">
+        <block-verbatin class="separate-right item"/>
+        <block-geography class="separate-left item separate-right"/>
+        <block-map class="separate-left item"/>
       </div>
-    </block-layout>
-  </div>
+    </div>
+  </block-layout>
 </template>
 
 <script>
@@ -71,7 +69,7 @@
   import BlockGeography from './components/GeographyLayout.vue'
   import SmartSelector from 'components/switch.vue'
   import LockComponent from 'components/lock.vue'
-  import BlockMap from  './components/map/main.vue'
+  import BlockMap from './components/map/main.vue'
   import BlockLayout from 'components/blockLayout.vue'
   import RadialAnnotator from 'components/radials/annotator/annotator.vue'
   import RadialObject from 'components/radials/navigation/radial.vue'

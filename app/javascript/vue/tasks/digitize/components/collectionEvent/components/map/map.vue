@@ -14,14 +14,14 @@
     <div
       v-if="(!latitude || !longitude) && (collectionEvent.verbatim_latitude || collectionEvent.verbatim_longitude)"
       class="panel aligner middle"
-      style="height: 300px; align-items: center; width:310px; text-align: center;">
+      style="height: 300px; align-items: center; width:100%; text-align: center;">
       <h3>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.' (perhaps with warning triangle).</h3>
     </div>
 
     <div
       v-show="!collectionEvent.verbatim_latitude && !collectionEvent.verbatim_longitude"
       class="panel aligner"
-      style="height: 300px; align-items: center; width:310px; text-align: center;">
+      style="height: 300px; align-items: center; width:100%; text-align: center;">
       <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
     </div>
   </div>
@@ -69,11 +69,17 @@ export default {
     latitude (newVal) {
       if (newVal && this.longitude) {
         this.setCoordinates(L.latLng(newVal, this.longitude))
+        this.$nextTick(() => {
+          this.mapObject.invalidateSize()
+        })
       }
     },
     longitude (newVal) {
       if (newVal && this.latitude) {
         this.setCoordinates(L.latLng(this.latitude, newVal))
+        this.$nextTick(() => {
+          this.mapObject.invalidateSize()
+        })
       }
     }
   },

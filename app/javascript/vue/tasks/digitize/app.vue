@@ -128,5 +128,16 @@
     .modal-container {
       width: 90vw;
     }
+    .main-panel {
+      display: flex;
+    }
+    .left-section {
+      max-width: 25%;
+      min-width: 420px;
+    }
+    .ce-section {
+      display: flex;
+      flex-grow: 2;
+    }
   }
 </style>

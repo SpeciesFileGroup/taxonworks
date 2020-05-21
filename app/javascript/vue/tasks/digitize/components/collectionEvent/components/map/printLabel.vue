@@ -1,33 +1,35 @@
 <template>
   <div>
+    <label>Print label</label>
     <div class="flex-separate separate-bottom middle">
-      <button
-        disabled="true"
-        class="button normal-input button-default">
-        Generate
-      </button>
-      <span>Que to print
+      <div>
+        <button
+          disabled="true"
+          class="button normal-input button-default margin-small-right">
+          Generate
+        </button>
+        <button 
+          @click="copyLabel"
+          class="button normal-input button-default"
+          type="button"
+          :disabled="!verbatimLabel">
+          Copy verbatim label
+        </button>
+      </div>
+      <label>Que to print
         <input
           class="que-input"
           :disabled="!(printLabel && printLabel.length)"
           size="5"
           v-model="que"
           type="number">
-      </span>
+      </label>
       <a 
         v-if="label.id && que > 0"
         target="blank"
         href="/tasks/labels/print_labels/index">Preview
       </a>
     </div>
-    <label>Print label</label>
-    <button 
-      @click="copyLabel"
-      class="button normal-input button-default"
-      type="button"
-      :disabled="!verbatimLabel">
-      Copy verbatim label
-    </button>
     <textarea
       v-model="printLabel"
       cols="45"
