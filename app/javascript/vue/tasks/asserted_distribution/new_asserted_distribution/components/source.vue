@@ -61,7 +61,7 @@
 
 import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/switch'
-import { GetSourceSmartSelector } from '../request/resources.js'
+import { GetSourceSmartSelector, GetSource } from '../request/resources.js'
 import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 
@@ -117,8 +117,10 @@ export default {
         this.view = (newView ? newView : 'search')
       })
     },
-    setSelected(item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
+    setSelected (item) {
+      GetSource(item.source_id).then(response => {
+        this.selected = response.body.object_tag
+      })
     }
   }
 }

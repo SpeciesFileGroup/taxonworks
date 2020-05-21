@@ -4,6 +4,10 @@ const CreateAssertedDistribution = function(data) {
   return ajaxCall('post', '/asserted_distributions.json', { asserted_distribution: data })
 }
 
+const GetSource = function (id) {
+  return ajaxCall('get', `/sources/${id}.json`)
+}
+
 const GetSourceSmartSelector = function() {
   return ajaxCall('get', '/sources/select_options.json')
 }
@@ -29,6 +33,7 @@ const LoadRecentRecords = function() {
 }
 
 export {
+  GetSource,
   CreateAssertedDistribution,
   GetSourceSmartSelector,
   GetOtuSmartSelector,

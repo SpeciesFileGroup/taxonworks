@@ -239,6 +239,7 @@ export default {
     setSourceOtu(item) {
       this.newWithLock()
       this.asserted_distribution.id = undefined
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.otu_id = item.otu.id
       this.$refs.sourceComponent.setSelected(item.citation)
@@ -246,6 +247,7 @@ export default {
     },
     setSourceGeo(item) {
       this.newWithLock()
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.$refs.sourceComponent.setSelected(item.citation.source)
