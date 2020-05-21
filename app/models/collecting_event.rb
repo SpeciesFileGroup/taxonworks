@@ -295,6 +295,7 @@ class CollectingEvent < ApplicationRecord
             unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
+  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
 
   # @param [String]
   def verbatim_label=(value)
@@ -988,10 +989,10 @@ class CollectingEvent < ApplicationRecord
   def verbatim_map_center(delta_z = 0.0)
     retval = nil
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
-      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
-      delta_z = elev unless elev == 0.0
+      lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
+      delta_z = elev unless elev == 0.0 # Meh, BAD! must be nil
       retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
     retval
@@ -1143,6 +1144,16 @@ class CollectingEvent < ApplicationRecord
 
   def check_elevation_range
     errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
+  end
+
+  def sv_georeference_matches_verbatim
+    if a = georeferences.where(type: 'Georeference::VerbatimData').first
+      unless (a.latitude == verbatim_latitude) && (b.longitude == verbatim_longitude)
+        soft_validations.add(
+          :base,
+          "Verbatim latitude #{verbatim_latitude} and/or longitude #{verbatim_longitude} and point geoference latitude #{a.latitude} and/or longitude #{a.longitude} do not match") 
+          end
+    end
   end
 
   def sv_minimally_check_for_a_label
