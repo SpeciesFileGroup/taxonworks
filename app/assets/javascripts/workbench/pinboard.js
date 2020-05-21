@@ -96,13 +96,15 @@ Object.assign(TW.workbench.pinboard, {
           <div class="pinboard-menu-bar"></div> \
           <div class="pinboard-menu-bar"></div> \
           <div class="pinboard-menu-bar"></div> \
-          <div class="itemOptions pinboard-dropdown-content"> \
-            <a href="' + object.object_url + '" class="remove circle-button button-delete" data-remote="true" rel="nofollow" data-method="delete">Remove</a>'
-    if (object.pinned_object_type == 'Document') {
-      injectItem = injectItem + '<a class="pdfviewerItem" data-pdfviewer="@pinboard_item.pinned_object.document_file(:original, false)">PDF Viewer</a>'
-    }
-    injectItem = injectItem + '<a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/' + object.id + '?pinboard_item%5Bis_inserted%5D=true">Make default</a>'
-    '</div> \
+          <div class="itemOptions pinboard-dropdown-content">'
+          if (object.hasOwnProperty('pinned_object_documents')) {
+            object.pinned_object_documents.forEach(function (document) {
+              injectItem = injectItem + '<span class="pdfviewerItem"><a class="circle-button" data-pdfviewer="' + document.document_file + '" data-sourceid="' + object.pinned_object.id + '">PDF Viewer</a></span>'
+            })
+          }
+      injectItem = injectItem + '<a href="' + object.object_url + '" class="remove circle-button button-delete" data-remote="true" rel="nofollow" data-method="delete">Remove</a> \
+      <a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/' + object.id + '?pinboard_item%5Bis_inserted%5D=true">Make default</a> \
+      </div> \
         </div> \
       </li>'
 
