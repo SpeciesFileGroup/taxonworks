@@ -73,7 +73,8 @@ export default {
       let pinItem = {
         pinboard_item: {
           pinned_object_id: this.id,
-          pinned_object_type: this.type
+          pinned_object_type: this.type,
+          is_inserted: true
         }
       }
       this.$http.post('/pinboard_items', pinItem).then(response => {
