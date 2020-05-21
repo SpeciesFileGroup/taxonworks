@@ -78,6 +78,7 @@ Object.assign(TW.workbench.pinboard, {
   },
 
   addToPinboard: function (object) {
+    console.log(object)
     if ($('.slide-pinboard .empty-message').length) {
       $('.empty-message').remove()
     }
