@@ -79,7 +79,7 @@ export default {
       }
       this.$http.post('/pinboard_items', pinItem).then(response => {
         this.pin = response.body
-        TW.workbench.pinboard.addToPinboard(response.body)
+        TW.workbench.pinboard.addToPinboard(response.body, true)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
