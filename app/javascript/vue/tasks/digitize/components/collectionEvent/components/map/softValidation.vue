@@ -6,9 +6,6 @@
       <h3>Soft validation</h3>
     </div>
     <div class="body">
-      <hr>
-      <h3>Collecting event</h3>
-      <hr>
       <ul class="no_bullets">
         <li v-for="item in validation">
           <span data-icon="warning" v-html="item.message"/>
