@@ -4,7 +4,7 @@
       v-if="showModal"
       :container-style="{ width: '500px' }"
       @close="showModal = false">
-      <h3 slot="header">Copy descriptors from matrix</h3>
+      <h3 slot="header">Copy rows from matrix</h3>
       <div slot="body">
         <spinner-component
           v-if="isLoading"
@@ -12,7 +12,7 @@
         <select
           class="full_width margin-medium-bottom"
           v-model="matrixSelected">
-          <option :value="undefined"> Select a observation matrix </option>
+          <option :value="undefined">Select a observation matrix</option>
           <option
             v-for="item in observationMatrices"
             :key="item.id"
@@ -23,19 +23,19 @@
         <ul
           class="no_bullets">
           <li
-            v-for="item in descriptors"
-            :key="item.descriptor.id">
+            v-for="item in rows"
+            :key="item.row_object.id">
             <label>
               <input
                 type="checkbox"
                 :value="item"
-                v-model="descriptorsSelected"
+                v-model="rowsSelected"
                 :disabled="alreadyExist(item)">
               <span
                 class="disabled"
-                v-if="alreadyExist(item)"> {{ item.descriptor.name }} ({{ item.descriptor.type }}) <span>(Already added)</span></span>
+                v-if="alreadyExist(item)"> <span v-html="item.row_object.object_tag" /> ({{ item.row_object.base_class }}) <span>(Already added)</span></span>
               <span v-else>
-                {{ item.descriptor.name }} ({{ item.descriptor.type }})
+                <span v-html="item.row_object.object_tag" /> ({{ item.row_object.base_class }})
               </span>
             </label>
           </li>
@@ -43,10 +43,10 @@
       </div>
       <button
         slot="footer"
-        @click="addDescriptors"
-        :disabled="!descriptorsSelected.length"
+        @click="addRows"
+        :disabled="!rowsSelected.length"
         class="button normal-input button-submit">
-        Add descriptors
+        Add rows
       </button>
     </modal-component>
   </div>
@@ -55,12 +55,11 @@
 <script>
 
 import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
 import SpinnerComponent from 'components/spinner'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-import { GetMatrixObservation, GetMatrixObservationColumns, CreateColumnItem, GetObservationMatrices } from '../../request/resources'
+import { GetMatrixObservationRows, GetObservationMatrices, CreateRowItem } from '../../request/resources'
 
 export default {
   components: {
@@ -74,16 +73,20 @@ export default {
     }
   },
   computed: {
-    columns () {
-      return this.$store.getters[GetterNames.GetMatrixColumns]
+    existingRows () {
+      return this.$store.getters[GetterNames.GetMatrixRows]
     }
   },
   data () {
     return {
+      types: {
+        Otu: 'ObservationMatrixRowItem::SingleOtu',
+        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
+      },
       isLoading: false,
       matrixSelected: undefined,
-      descriptorsSelected: [],
-      descriptors: [],
+      rowsSelected: [],
+      rows: [],
       showModal: true,
       observationMatrices: []
     }
@@ -104,44 +107,44 @@ export default {
     },
     matrixSelected (newVal) {
       if (newVal) {
-        this.loadDescriptors(newVal.id)
+        this.loadRows(newVal.id)
       } else {
-        this.descriptors = []
+        this.rows = []
       }
     }
   },
   methods: {
-    loadDescriptors (matrixId) {
-      GetMatrixObservationColumns(matrixId).then(response => {
-        this.descriptors = response
+    loadRows (matrixId) {
+      GetMatrixObservationRows(matrixId).then(response => {
+        this.rows = response
       })
     },
-    addDescriptors () {
+    addRows () {
       const promises = []
-      const index = this.columns.length
-      const data = this.descriptorsSelected.map(item => {
+      const index = this.existingRows.length
+      const data = this.rowsSelected.map(item => {
         return {
           observation_matrix_id: this.matrixId,
-          descriptor_id: item.descriptor_id,
+          [(item.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id')]: item.row_object.id,
           position: item.position + index,
-          type: 'ObservationMatrixColumnItem::SingleDescriptor'
+          type: this.types[item.row_object.base_class]
         }
       })
 
       data.sort((a, b) => { return a - b })
       console.log(data.sort((a, b) => { return a.position - b.position }))
 
-      data.forEach(descriptor => { promises.push(CreateColumnItem({ observation_matrix_column_item: descriptor })) })
+      data.forEach(row => { promises.push(CreateRowItem({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
-        this.descriptorsSelected = []
-        TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+        this.rowsSelected = []
+        TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
       })
     },
     alreadyExist (item) {
-      return this.columns.find(column => {
-        return item.descriptor_id === column.descriptor_id
+      return this.existingRows.find(row => {
+        return item.row_object.id === row.row_object.id
       })
     }
   }

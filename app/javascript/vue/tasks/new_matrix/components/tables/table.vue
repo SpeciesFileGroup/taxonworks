@@ -12,45 +12,49 @@
         @end="onSortable">
         <tr
           v-for="(item, index) in newList"
-          class="list-complete-item">
+          :class="{ even: index % 2 }"
+          class="list-complete-item contextMenuCells">
           <td
+            class="full_width"
             v-for="label in attributes"
             v-html="getValue(item, label)"/>
-          <td class="vue-table-options">
-            <template v-if="!item.is_dynamic">
-              <template v-if="edit">
+          <td>
+            <div class="horizontal-left-content">
+              <template v-if="!item.is_dynamic">
+                <template v-if="edit">
+                  <a
+                    v-if="row"
+                    type="button"
+                    target="_blank"
+                    class="circle-button btn-edit"
+                    :href="getUrlType(item.row_object.base_class, item.row_object.id)"/>
+                  <a
+                    v-else
+                    type="button"
+                    target="_blank"
+                    class="circle-button btn-edit"
+                    :href="`/tasks/descriptors/new_descriptor/${item.descriptor_id}`"/>
+                </template>               
                 <a
-                  v-if="row"
+                  v-if="code"
                   type="button"
                   target="_blank"
-                  class="circle-button btn-edit"
-                  :href="getUrlType(item.row_object.base_class, item.row_object.id)"/>
-                <a
+                  class="circle-button btn-row-coder"
+                  :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
+                <radial-annotator :global-id="getValue(item, globalIdPath)"/>
+                <radial-object :global-id="getValue(item, globalIdPath)"/>
+              </template>
+              <template>
+                <span
+                  v-if="filterRemove(item)"
+                  class="circle-button btn-delete"
+                  @click="deleteItem(item)">Remove
+                </span>
+                <span
                   v-else
-                  type="button"
-                  target="_blank"
-                  class="circle-button btn-edit"
-                  :href="`/tasks/descriptors/new_descriptor/${item.descriptor_id}`"/>
-              </template>               
-              <a
-                v-if="code"
-                type="button"
-                target="_blank"
-                class="circle-button btn-row-coder"
-                :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"/>
-              <radial-annotator :global-id="getValue(item, globalIdPath)"/>
-              <radial-object :global-id="getValue(item, globalIdPath)"/>
-            </template>
-            <template>
-              <span
-                v-if="filterRemove(item)"
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
-              <span
-                v-else
-                class="empty-option"/>
-            </template>
+                  class="empty-option"/>
+              </template>
+            </div>
           </td>
         </tr>
       </draggable>
@@ -165,33 +169,5 @@
     overflow-y: scroll;
     padding: 0px;
     position: relative;
-  }
-
-  .vue-table {
-    width: 100%;
-    margin-top: 0px;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      .empty-option {
-        width: 24px;
-        margin: 5px;
-      }
-    }
-    tr {
-      cursor: default;
-    }
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
   }
 </style>

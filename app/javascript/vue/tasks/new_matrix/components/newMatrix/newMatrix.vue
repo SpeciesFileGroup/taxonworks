@@ -2,9 +2,6 @@
   <div class="panel basic-information">
     <div class="header flex-separate">
       <h3>Matrix</h3>
-      <copy-descriptors
-        v-if="matrix.id"
-        :matrix-id="matrix.id"/>
     </div>
     <div class="body">
       <div class="flex-separate">
@@ -48,12 +45,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 
 import SwitchComponent from './switch.vue'
-import CopyDescriptors from '../columns/copyDescriptors'
 
 export default {
   components: {
-    SwitchComponent,
-    CopyDescriptors
+    SwitchComponent
   },
   computed: {
     matrixName: {
