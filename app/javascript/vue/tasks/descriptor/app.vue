@@ -11,7 +11,7 @@
       <ul class="context-menu">
         <li>
           <div class="horizontal-left-content">
-            <span>Add to matrix:</span>
+            <span>Matrix:</span>
             <div
               class="horizontal-left-content"
               v-if="matrix">
