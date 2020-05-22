@@ -96,7 +96,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
-      #   &nomenclature_code=Iczn|Icnp|Icn|Ictv
+      #   &nomenclature_code=Iczn|Icnp|Icn|Icvcn
       attr_accessor :nomenclature_code
 
       # TODO: inverse is duplicated in autocomplete

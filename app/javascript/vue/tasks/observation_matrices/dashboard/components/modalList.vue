@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default"
       @click="openModal">
-      Select matrix
+      Matrix row coder
     </button>
     <modal-component
       v-if="show"

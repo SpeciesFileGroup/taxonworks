@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Ictv::Accepting::UncertainPlacement < TaxonNameRelationship::Ictv
+class TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement < TaxonNameRelationship::Icvcn
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000124'.freeze
 
@@ -24,11 +24,11 @@ class TaxonNameRelationship::Ictv::Accepting::UncertainPlacement < TaxonNameRela
 
   def self.assignment_method
     #species.iczn_uncertain_placement = family
-    :ictv_uncertain_placement
+    :icvcn_uncertain_placement
   end
 
   def self.inverse_assignment_method
     # family.iczn_set_as_uncertain_placement_of = species
-    :ictv_set_as_uncertain_placement_of
+    :icvcn_set_as_uncertain_placement_of
   end
 end

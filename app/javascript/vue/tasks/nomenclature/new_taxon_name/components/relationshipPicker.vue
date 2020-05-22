@@ -224,7 +224,7 @@ export default {
       isInsertaeSedis: false,
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
-        ictv: { type: 'TaxonNameRelationship::Ictv::Accepting::UncertainPlacement' }
+        icvcn: { type: 'TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement' }
       }
     }
   },

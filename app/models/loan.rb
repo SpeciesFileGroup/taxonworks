@@ -166,13 +166,15 @@ class Loan < ApplicationRecord
 
   # @return [Scope]
   #   the max 10 most recently used loans 
-  def self.used_recently
+  def self.used_recently(project_id)
     t = LoanItem.arel_table
     k = Loan.arel_table 
 
     # i is a select manager
     i = t.project(t['loan_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 3.weeks.ago ))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at']).desc
       .take(10)
       .distinct
@@ -193,7 +195,7 @@ class Loan < ApplicationRecord
         .order(created_at: :desc).to_a +
       Loan.joins(:loan_items)
         .where(project_id: project_id) # !! do not scope to person, multiple people might work on same loan?
-        .used_recently.limit(5)
+        .used_recently(project_id).limit(5)
         .distinct
       ).uniq, 
 

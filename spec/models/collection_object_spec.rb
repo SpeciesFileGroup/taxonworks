@@ -619,12 +619,12 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         biological_collection_object: collection_object) }
 
       specify ".used_recently('TaxonDetermination')" do
-        expect(CollectionObject.used_recently('TaxonDetermination').to_a)
+        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'TaxonDetermination').to_a)
           .to include(collection_object.becomes!(Specimen))
       end
 
       specify ".used_recently('BiologicalAssociation')" do
-        expect(CollectionObject.used_recently('BiologicalAssociation').to_a)
+        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation').to_a)
           .to include(collection_object.becomes!(Specimen))
       end
 

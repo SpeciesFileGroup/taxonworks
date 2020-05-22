@@ -1,4 +1,4 @@
-class TaxonNameClassification::Ictv < TaxonNameClassification
+class TaxonNameClassification::Icvcn < TaxonNameClassification
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000111'.freeze
 

@@ -1,10 +1,10 @@
-class TaxonNameRelationship::Ictv::Unaccepting < TaxonNameRelationship::Ictv
+class TaxonNameRelationship::Icvcn::Unaccepting < TaxonNameRelationship::Icvcn
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000122'.freeze
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_descendants_to_s(TaxonNameRelationship::Ictv::Accepting)
+        self.collect_descendants_to_s(TaxonNameRelationship::Icvcn::Accepting)
   end
 
   def object_status
@@ -25,12 +25,12 @@ class TaxonNameRelationship::Ictv::Unaccepting < TaxonNameRelationship::Ictv
 
   def self.assignment_method
     # bus.set_as_icn_unacceptable_of(aus)
-    :ictv_set_as_unacceptable_of
+    :icvcn_set_as_unacceptable_of
   end
 
   def self.inverse_assignment_method
     # aus.icn_unacceptable = bus
-    :ictv_unacceptable
+    :icvcn_unacceptable
   end
 
   def self.nomenclatural_priority

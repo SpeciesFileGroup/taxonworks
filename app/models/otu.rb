@@ -261,7 +261,7 @@ class Otu < ApplicationRecord
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
-  def self.used_recently(used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '')
     t = case used_on 
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
@@ -286,10 +286,14 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
           )
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
 
@@ -320,7 +324,7 @@ class Otu < ApplicationRecord
       h[:recent] = (
         Otu.joins(n)
         .where(project_id: project_id, n => {updated_by_id: user_id})
-        .used_recently(target)
+        .used_recently(user_id, project_id, target)
         .limit(10).to_a + 
       Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')

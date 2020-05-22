@@ -86,7 +86,7 @@ module TaxonNames::CatalogHelper
     if citation.blank? || a != b
       content_tag(:span, ' ' + str, class: [:history_author_year])
     else
-      content_tag(:em, ' ') + link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:new_source_task_path, source_id: citation.source.id) )
+      content_tag(:em, ' ') + link_to(content_tag(:span, str, title: citation.source.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: citation.source.id) )
     end
 #    str.blank? ? nil :
 #      content_tag(:span, ' ' + str, class: [:history_author_year])
@@ -161,7 +161,7 @@ module TaxonNames::CatalogHelper
     ].compact.join.html_safe
 
     unless body.blank?
-      content_tag(:em, ': ') + link_to(content_tag(:span, body, title: c.source.cached, class: :history__subject_original_citation), send(:new_source_task_path, source_id: c.source.id) )
+      content_tag(:em, ': ') + link_to(content_tag(:span, body, title: c.source.cached, class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
     end
 #    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
   end
@@ -174,7 +174,7 @@ module TaxonNames::CatalogHelper
       b = source_author_year_tag(c.source)
 
       if a != b || i.from_relationship?
-        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: c.source.cached, class: :history__subject_original_citation), send(:new_source_task_path, source_id: c.source.id) )
+        content_tag(:em, ' in ') + link_to(content_tag(:span, b, title: c.source.cached, class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
 #        return content_tag(:span,  content_tag(:em, ' in ') + b, class: [:history__in])
       end
     end

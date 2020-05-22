@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Ictv < TaxonNameRelationship
+class TaxonNameRelationship::Icvcn < TaxonNameRelationship
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000230'.freeze
 
@@ -20,8 +20,8 @@ class TaxonNameRelationship::Ictv < TaxonNameRelationship
 
   def self.disjoint_object_classes
     ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Ictv::Invalid,
-                                                 TaxonNameClassification::Ictv::Valid::Unaccepted)
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Icvcn::Invalid,
+                                                 TaxonNameClassification::Icvcn::Valid::Unaccepted)
   end
 
 end

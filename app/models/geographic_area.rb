@@ -412,7 +412,7 @@ class GeographicArea < ApplicationRecord
   # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on`
-  def self.used_recently(used_on = 'CollectingEvent')
+  def self.used_recently(user_id, project_id, used_on = 'CollectingEvent')
 
     t = case used_on
           when 'CollectingEvent'
@@ -426,6 +426,8 @@ class GeographicArea < ApplicationRecord
     # i is a select manager
     i = t.project(t['geographic_area_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
       .take(10)
       .distinct
@@ -449,12 +451,12 @@ class GeographicArea < ApplicationRecord
     case target
     when 'CollectingEvent'
       h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
-        used_recently('CollectingEvent').
+        used_recently(user_id, project_id, 'CollectingEvent').
         limit(10).distinct.to_a
     when 'AssertedDistribution'
       h[:recent] = GeographicArea.joins(:asserted_distributions).
         where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
-        used_recently('AssertedDistribution').
+        used_recently(user_id, project_id, 'AssertedDistribution').
         limit(10).distinct.to_a
     end
 

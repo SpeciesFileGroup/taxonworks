@@ -1,7 +1,7 @@
-class NomenclaturalRank::Ictv::Species < NomenclaturalRank::Ictv
+class NomenclaturalRank::Icvcn::Species < NomenclaturalRank::Icvcn
 
   def self.parent_rank
-    NomenclaturalRank::Ictv::Genus
+    NomenclaturalRank::Icvcn::Genus
   end
 
   def self.validate_name_format(taxon_name)

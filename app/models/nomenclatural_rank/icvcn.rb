@@ -1,7 +1,7 @@
-class NomenclaturalRank::Ictv < NomenclaturalRank
+class NomenclaturalRank::Icvcn < NomenclaturalRank
 
   def self.group_base(rank_string)
-    rank_string.match( /(NomenclaturalRank::Ictv::).+/)
+    rank_string.match( /(NomenclaturalRank::Icvcn::).+/)
     $1
   end
 

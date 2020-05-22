@@ -51,7 +51,7 @@ class TaxonNameClassification < ApplicationRecord
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
     return :icnp if type.match(/::Icnp/)
-    return :ictv if type.match(/::Ictv/)
+    return :icvcn if type.match(/::Icvcn/)
     return :icn if type.match(/::Icn/)
     return nil
   end

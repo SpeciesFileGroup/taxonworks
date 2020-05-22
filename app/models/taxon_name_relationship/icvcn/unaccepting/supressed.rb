@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Ictv::Unaccepting::Supressed < TaxonNameRelationship::Ictv::Unaccepting
+class TaxonNameRelationship::Icvcn::Unaccepting::Supressed < TaxonNameRelationship::Icvcn::Unaccepting
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000123'.freeze
 
@@ -36,13 +36,13 @@ class TaxonNameRelationship::Ictv::Unaccepting::Supressed < TaxonNameRelationshi
 
   def self.assignment_method
     # bus.set_as_iczn_suppression_of(aus)
-    :ictv_set_as_suppressed_of
+    :icvcn_set_as_suppressed_of
   end
 
   # as.
   def self.inverse_assignment_method
     # aus.iczn_suppression = bus
-    :ictv_suppressed
+    :icvcn_suppressed
   end
 
   def sv_validate_priority
