@@ -43,6 +43,13 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    collectingEvent (newVal, oldVal) {
+      if (newVal.id && newVal.id != oldVal.id) {
+        GetSoftValidation(this.collectingEvent.global_id).then(response => {
+          this.validation = response.validations.soft_validations
+        })
+      }
     }
   }
 }
