@@ -23,15 +23,22 @@
                 class="button circle-button btn-undo button-default"
                 @click="unsetMatrix"/>
             </div>
-            <autocomplete
-              v-else
-              class="margin-small-left"
-              url="/observation_matrices/autocomplete"
-              param="term"
-              label="label"
-              placeholder="Search a observation matrix..."
-              @getItem="loadMatrix($event.id)"
-            />
+            <div
+              class="horizontal-left-content"
+              v-else>
+              <autocomplete
+                class="margin-small-left"
+                url="/observation_matrices/autocomplete"
+                param="term"
+                label="label"
+                placeholder="Search a observation matrix..."
+                @getItem="loadMatrix($event.id)"
+              />
+              <default-pin
+                section="ObservationMatrices"
+                type="ObservationMatrix"
+                @getId="loadMatrix"/>
+            </div>
           </div>
         </li>
         <li>
@@ -109,6 +116,7 @@ import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, CreateObservationMatrixColumn, GetMatrix } from './request/resources'
 import setParam from 'helpers/setParam'
+import DefaultPin from 'components/getDefaultPin'
 
 export default {
   components: {
@@ -119,7 +127,8 @@ export default {
     PreviewComponent,
     GeneComponent,
     Spinner,
-    Autocomplete
+    Autocomplete,
+    DefaultPin
   },
   computed: {
     loadComponent () {
