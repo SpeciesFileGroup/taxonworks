@@ -2,14 +2,19 @@
   <div
     v-if="validation.length"
     class="panel content soft-validation-box separate-top validation-warning">
-    <template v-if="validation.length">
+    <div class="margin-medium-left">
+      <h3>Soft validation</h3>
+    </div>
+    <div class="body">
+      <hr>
       <h3>Collecting event</h3>
+      <hr>
       <ul class="no_bullets">
         <li v-for="item in validation">
           <span data-icon="warning" v-html="item.message"/>
         </li>
       </ul>
-    </template>
+    </div>
   </div>
 </template>
 
