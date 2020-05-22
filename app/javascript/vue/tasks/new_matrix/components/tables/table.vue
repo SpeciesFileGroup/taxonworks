@@ -25,16 +25,14 @@
                   <a
                     v-if="row"
                     type="button"
-                    target="_blank"
                     class="circle-button btn-edit"
                     :href="getUrlType(item.row_object.base_class, item.row_object.id)"/>
                   <a
                     v-else
                     type="button"
-                    target="_blank"
                     class="circle-button btn-edit"
-                    :href="`/tasks/descriptors/new_descriptor/${item.descriptor_id}`"/>
-                </template>               
+                    :href="`/tasks/descriptors/new_descriptor?descriptor_id=${item.descriptor_id}&observation_matrix_id=${matrix.id}`"/>
+                </template>
                 <a
                   v-if="code"
                   type="button"
@@ -64,14 +62,13 @@
 
 <script>
 
-  import Autocomplete from 'components/autocomplete.vue'
   import RadialAnnotator from 'components/radials/annotator/annotator.vue'
   import RadialObject from 'components/radials/navigation/radial.vue'
   import Draggable from 'vuedraggable'
+  import { GetterNames } from '../../store/getters/getters'
 
   export default {
     components: {
-      Autocomplete,
       RadialAnnotator,
       Draggable,
       RadialObject
@@ -112,6 +109,11 @@
       globalIdPath: {
         type: Array,
         required: true
+      }
+    },
+    computed: {
+      matrix () {
+        return this.$store.getters[GetterNames.GetMatrix]
       }
     },
     data() {

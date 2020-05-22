@@ -139,6 +139,9 @@ export default {
     },
     existComponent () {
       return this.$options.components[this.loadComponent + 'Component']
+    },
+    matrixId () {
+      return this.matrix ? this.matrix.id : undefined
     }
   },
   data () {
@@ -159,17 +162,21 @@ export default {
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
+    const descriptorId = urlParams.get('descriptor_id')
 
-    if (matrixId) {
+    if (/^\d+$/.test(matrixId)) {
       this.loadMatrix(matrixId)
     }
 
-    const descriptorId = location.pathname.split('/')[4]
     if (/^\d+$/.test(descriptorId)) {
       this.loading = true
       LoadDescriptor(descriptorId).then(response => {
         this.descriptor = response
         this.loading = false
+        this.setParameters()
+      }, () => {
+        this.loading = false
+        this.setParameters()
       })
     }
   },
@@ -180,6 +187,7 @@ export default {
         name: undefined,
         description: undefined
       }
+      this.setParameters()
     },
     saveDescriptor (descriptor) {
       this.saving = true
@@ -188,6 +196,9 @@ export default {
           this.descriptor = response
           this.saving = false
           TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
+          if (this.matrix) {
+            window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
+          }
         }, rejected => {
           this.saving = false
         })
@@ -195,7 +206,7 @@ export default {
         CreateDescriptor(descriptor).then(response => {
           this.descriptor = response
           this.saving = false
-          history.pushState(null, null, `/tasks/descriptors/new_descriptor/${response.id}`)
+          this.setParameters()
           TW.workbench.alert.create('Descriptor was successfully created.', 'notice')
           if (this.matrix) {
             this.addToMatrix(this.descriptor)
@@ -208,7 +219,7 @@ export default {
     removeDescriptor (descriptor) {
       DeleteDescriptor(descriptor.id).then(response => {
         this.resetDescriptor()
-        history.pushState(null, null, '/tasks/descriptors/new_descriptor/')
+        this.setParameters()
         TW.workbench.alert.create('Descriptor was successfully deleted.', 'notice')
       })
     },
@@ -220,17 +231,21 @@ export default {
       }
       CreateObservationMatrixColumn(data).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
+        window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
       })
     },
     loadMatrix (id) {
       GetMatrix(id).then(response => {
         this.matrix = response
-        setParam('/tasks/descriptors/new_descriptor', 'observation_matrix_id', this.matrix.id)
+        this.setParameters()
       })
     },
     unsetMatrix () {
       this.matrix = undefined
-      setParam('/tasks/descriptors/new_descriptor', 'observation_matrix_id', this.matrix)
+      this.setParameters()
+    },
+    setParameters () {
+      setParam('/tasks/descriptors/new_descriptor', { descriptor_id: this.descriptor.id, observation_matrix_id: this.matrixId })
     }
   }
 }

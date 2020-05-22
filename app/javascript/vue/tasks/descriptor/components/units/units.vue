@@ -45,11 +45,13 @@ export default {
   },
   watch: {
     descriptor: {
-      handler(value, oldVal) {
-        if(value['default_unit'] != oldVal['default_unit'])
-          this.selected = value['default_unit']
+      handler (newVal, oldVal) {
+        if (newVal.hasOwnProperty('default_unit')) {
+          this.selected = newVal.default_unit
+        }
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
   },
   mounted() {
