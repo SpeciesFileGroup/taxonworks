@@ -20,8 +20,8 @@ const GetObservationMatrix = (id) => {
   return ajaxCall('get', `/observation_matrices/${id}.json`)
 }
 
-const GetObservationRow = (matrixId, otuId) => {
-  return ajaxCall('get', `/observation_matrix_rows.json?observation_matrix_id=${matrixId}&otu_id=${otuId}`)
+const GetObservationRow = (params) => {
+  return ajaxCall('get', '/observation_matrix_rows.json', { params: params })
 }
 
 const CreateObservationMatrixRow = (data) => {
