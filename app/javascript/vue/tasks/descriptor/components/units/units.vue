@@ -1,19 +1,15 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Default units</h3>
-    </div>
-    <div class="body">
-      <select 
-        v-model="descriptor.default_unit"
-        class="normal-input">
-        <option
-          v-for="(label, key) in list"
-          :key="key"
-          :value="key">{{ key }}: {{ label }}
-        </option>
-      </select>
-    </div>
+  <div class="field label-above">
+    <label>Default units</label>
+    <select
+      v-model="descriptor.default_unit"
+      class="normal-input">
+      <option
+        v-for="(label, key) in list"
+        :key="key"
+        :value="key">{{ key }}: {{ label }}
+      </option>
+    </select>
   </div>
 </template>
 <script>

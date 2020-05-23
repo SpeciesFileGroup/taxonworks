@@ -1,85 +1,100 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Character states</h3>
-    </div>
-    <div class="body">
-      <div class="horizontal-left-content align-start">
-        <div class="field">
-          <label>Label</label><br>
+  <div>
+    <div class="horizontal-left-content align-start">
+      <div class="field">
+        <label>Label</label><br>
+        <input
+          class="character-input"
+          maxlength="2"
+          type="text"
+          v-model="characterState.label"
+        >
+      </div>
+      <div class="field separate-left">
+        <div class="separate-bottom">
+          <label>Name</label><br>
           <input
-            class="character-input"
-            maxlength="2"
             type="text"
-            v-model="characterState.label">
+            v-model="characterState.name"
+          >
         </div>
-        <div class="field separate-left">
+        <template v-if="show">
           <div class="separate-bottom">
-            <label>Name</label><br>
-            <input 
+            <label>Description name</label><br>
+            <input
               type="text"
-              v-model="characterState.name">
+              v-model="characterState.description_name"
+            >
           </div>
-          <template v-if="show">
-            <div class="separate-bottom">
-              <label>Description name</label><br>
-              <input 
-                type="text"
-                v-model="characterState.description_name">
-            </div>
-            <div>
-              <label>Key name</label><br>
-              <input 
-                type="text"
-                v-model="characterState.key_name">
-            </div>
-          </template>
-        </div>
-        <div class="field separate-left">
-          <br>
-          <template v-if="characterState.id">
-            <button
-              :disabled="!validateFields"
-              class="normal-input button button-submit"
-              @click="updateCharacter"
-              type="button">Update</button>
-            <button
-              class="button normal-input button-default"
-              @click="resetInputs">New</button>
-          </template>
+          <div>
+            <label>Key name</label><br>
+            <input
+              type="text"
+              v-model="characterState.key_name"
+            >
+          </div>
+        </template>
+      </div>
+      <div class="field separate-left">
+        <br>
+        <template v-if="characterState.id">
           <button
-            v-else
-            @click="createCharacter"
             :disabled="!validateFields"
             class="normal-input button button-submit"
-            type="button">Add</button>
-          <a
-            class="separate-left cursor-pointer"
-            @click="show = !show"> {{ show ? 'Hide' : 'Show more' }}</a>
-        </div>
+            @click="updateCharacter"
+            type="button"
+          >
+            Update
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="resetInputs"
+          >
+            New
+          </button>
+        </template>
+        <button
+          v-else
+          @click="createCharacter"
+          :disabled="!validateFields"
+          class="normal-input button button-submit"
+          type="button"
+        >
+          Add
+        </button>
+        <a
+          class="separate-left cursor-pointer"
+          @click="show = !show"
+        > {{ show ? 'Hide' : 'Show more' }}</a>
       </div>
-      <ul class="table-entrys-list">
-        <draggable
-          v-model="list"
-          @end="onSortable">
-          <li
-            class="flex-separate middle"
-            v-for="(character, index) in list"
-            :key="character.id">
-            <span> {{ character.object_tag }} </span>
-            <div class="horizontal-left-content middle">
-              <span
-                class="circle-button btn-edit"
-                @click="editCharacter(index)"/>
-              <radial-annotator :global-id="character.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="removeCharacter(index)"/>
-            </div>
-          </li>
-        </draggable>
-      </ul>
     </div>
+    <ul
+      v-if="list.length"
+      class="table-entrys-list">
+      <draggable
+        v-model="list"
+        @end="onSortable"
+      >
+        <li
+          class="flex-separate middle"
+          v-for="(character, index) in list"
+          :key="character.id"
+        >
+          <span> {{ character.object_tag }} </span>
+          <div class="horizontal-left-content middle">
+            <span
+              class="circle-button btn-edit"
+              @click="editCharacter(index)"
+            />
+            <radial-annotator :global-id="character.global_id" />
+            <span
+              class="circle-button btn-delete"
+              @click="removeCharacter(index)"
+            />
+          </div>
+        </li>
+      </draggable>
+    </ul>
   </div>
 </template>
 <script>
@@ -121,8 +136,7 @@ export default {
   watch: {
     descriptor: {
       handler (newVal, oldVal) {
-        if (JSON.stringify(newVal.character_states) !== JSON.stringify(oldVal.character_states))
-          this.list = this.sortPosition(newVal.character_states)
+        if (JSON.stringify(newVal.character_states) !== JSON.stringify(oldVal.character_states)) { this.list = this.sortPosition(newVal.character_states) }
       },
       deep: true
     }
@@ -151,8 +165,8 @@ export default {
       this.characterState = this.newCharacter()
     },
     removeCharacter (index) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        this.list[index]['_destroy'] = true
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.list[index]._destroy = true
         this.onSortable()
       }
     },

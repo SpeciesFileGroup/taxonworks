@@ -1,15 +1,10 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Gene attributes</h3>
-    </div>
-    <div class="body">
-      <div class="separate-bottom">
-        <instance-component
-          title="Reverse primer"
-          v-model="descriptor"
-          @save="$emit('save', $event)"/>
-      </div>
+  <div>
+    <div class="separate-bottom">
+      <instance-component
+        title="Reverse primer"
+        v-model="descriptor"
+        @save="$emit('save', $event)"/>
     </div>
   </div>
 </template>

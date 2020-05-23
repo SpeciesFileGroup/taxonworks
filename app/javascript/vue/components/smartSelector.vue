@@ -45,8 +45,8 @@
           @getItem="getObject($event.id)"/>
       </div>
     </template>
-    <slot :view="view">
-    </slot>
+    <slot />
+    <slot :name="view" />
   </div>
 </template>
 

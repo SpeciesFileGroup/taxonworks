@@ -62,21 +62,33 @@
             v-model="descriptor.type"
           />
           <template v-if="descriptor.type">
-            <definition-component
-              class="separate-bottom"
-              v-model="descriptor"
-              @save="saveDescriptor(descriptor)"
-            />
-            <template v-if="existComponent">
-              <div>
-                <component
-                  v-if="descriptor.type && showDescriptor"
-                  :is="loadComponent + 'Component'"
-                  @save="saveDescriptor"
+            <div class="panel basic-information">
+              <div class="header">
+                <h3>{{ sectionName }}</h3>
+              </div>
+              <div class="body">
+                <definition-component
+                  class="separate-bottom"
                   v-model="descriptor"
+                  @save="saveDescriptor(descriptor)"
+                />
+                <template v-if="existComponent">
+                  <div>
+                    <component
+                      v-if="descriptor.type && showDescriptor"
+                      :is="loadComponent + 'Component'"
+                      @save="saveDescriptor"
+                      v-model="descriptor"
+                    />
+                  </div>
+                </template>
+                <create-component
+                  v-if="!hideSaveButton"
+                  :descriptor="descriptor"
+                  @save="saveDescriptor(descriptor)"
                 />
               </div>
-            </template>
+            </div>
           </template>
         </div>
         <div
@@ -106,6 +118,9 @@ import GeneComponent from './components/gene/gene.vue'
 import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, CreateObservationMatrixColumn, GetMatrix } from './request/resources'
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
+import CreateComponent from './components/save/save.vue'
+
+import TYPES from './const/types'
 
 export default {
   components: {
@@ -117,7 +132,8 @@ export default {
     GeneComponent,
     Spinner,
     Autocomplete,
-    DefaultPin
+    DefaultPin,
+    CreateComponent
   },
   computed: {
     loadComponent () {
@@ -131,6 +147,12 @@ export default {
     },
     matrixId () {
       return this.matrix ? this.matrix.id : undefined
+    },
+    sectionName () {
+      return TYPES()[this.descriptor.type]
+    },
+    hideSaveButton () {
+      return this.hideSaveButtonFor.includes(this.descriptor.type)
     }
   },
   data () {
@@ -138,7 +160,8 @@ export default {
       matrix: undefined,
       descriptor: this.newDescriptor(),
       loading: false,
-      saving: false
+      saving: false,
+      hideSaveButtonFor: ['Descriptor::Gene']
     }
   },
   mounted () {

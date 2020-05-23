@@ -1,72 +1,63 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Definition</h3>
+  <div class="horizontal-left-content align-start">
+    <div>
+      <div class="field">
+        <label>Name</label>
+        <input
+          type="text"
+          v-model="descriptor.name"
+        >
+      </div>
+      <div class="field">
+        <label>Description</label>
+        <textarea
+          v-model="descriptor.description"
+          rows="5"
+        />
+      </div>
+      <a
+        class="cursor-pointer"
+        @click="show = !show"
+      > {{ show ? 'Hide' : 'Show more' }}</a>
     </div>
-    <div class="body">
-      <div class="horizontal-left-content align-start">
+    <div
+      v-if="show"
+      class="separate-left"
+    >
+      <div class="field separate-bottom">
+        <label>Short name</label>
         <div>
-          <div class="field">
-            <label>Name</label>
-            <input
-              type="text"
-              v-model="descriptor.name">
-          </div>
-          <div class="field">
-            <label>Description</label>
-            <textarea
-              v-model="descriptor.description"
-              rows="5"/>
-          </div>
-        </div>
-        <div
-          v-if="show"
-          class="separate-left">
-          <div class="field separate-bottom">
-            <label>Short name</label>
-            <div>
-              <input 
-                type="text"
-                v-model="descriptor.short_name">
-              <span
-                v-if="!validateShortName"
-                class="warning">Should not be longer than 6 characters
-              </span>
-            </div>
-          </div>
-          <div class="field separate-bottom">
-            <label>Description name</label>
-            <input 
-              type="text"
-              v-model="descriptor.description_name">
-          </div>
-          <div class="field">
-            <label>Key name</label>
-            <input 
-              type="text"
-              v-model="descriptor.key_name">
-          </div>
+          <input
+            type="text"
+            v-model="descriptor.short_name"
+          >
+          <span
+            v-if="!validateShortName"
+            class="warning"
+          >Should not be longer than 6 characters
+          </span>
         </div>
       </div>
-      <div class="horizontal-left-content middle">
-        <create-component
-          :descriptor="descriptor"
-          @save="$emit('save', descriptor)"/>
-        <a
-          class="separate-left cursor-pointer"
-          @click="show = !show"> {{ show ? 'Hide' : 'Show more' }}</a>
+      <div class="field separate-bottom">
+        <label>Description name</label>
+        <input
+          type="text"
+          v-model="descriptor.description_name"
+        >
+      </div>
+      <div class="field">
+        <label>Key name</label>
+        <input
+          type="text"
+          v-model="descriptor.key_name"
+        >
       </div>
     </div>
   </div>
 </template>
 <script>
 
-import CreateComponent from '../save/save.vue'
-
 export default {
-  components: {
-    CreateComponent
-  },
   props: {
     value: {
       type: Object,
