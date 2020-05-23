@@ -3,9 +3,10 @@
     <spinner-component
       :show-legend="false"
       v-if="isSearching"/>
-    <template 
-      v-for="item in matches">
+    <template
+      v-if="foundMatches">
       <ul
+        v-for="item in matches"
         :key="item.id"
         class="no_bullets">
         <li
@@ -36,6 +37,18 @@
         </li>
       </ul>
     </template>
+    <ul
+      class="no_bullets"
+      v-else>
+      <li class="margin-small-top">
+        <button
+          @click="createNew"
+          type="button"
+          class="button normal-input button-default full_width">
+          Customize a new OTU with name "{{ otuName }}"
+        </button>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -59,13 +72,15 @@ export default {
       matches: [],
       delay: 1000,
       timeOut: undefined,
-      isSearching: false
+      isSearching: false,
+      searchDone: false
     }
   },
   watch: {
     otuName: {
       handler (newVal) {
         this.isSearching = true
+        this.foundMatches = false
         clearTimeout(this.timeOut)
         this.timeOut = setTimeout(() => {
           this.searchByTaxonName()
@@ -76,9 +91,15 @@ export default {
   },
   methods: {
     searchByTaxonName () {
-      ajaxCall('get', `/taxon_names.json?name=${this.otuName}&exact=true`).then(response => {
+      ajaxCall('get', '/taxon_names.json', {
+        params: {
+          name: this.otuName,
+          exact: true
+        }
+      }).then(response => {
         this.matches = response.body
         this.isSearching = false
+        this.foundMatches = response.body.length > 0
       })
     },
     send (taxon) {
