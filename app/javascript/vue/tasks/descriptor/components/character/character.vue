@@ -100,7 +100,7 @@ export default {
   },
   computed: {
     validateFields () {
-      return this.characterState.label && this.characterState.name
+      return this.characterState.label && this.characterState.name && this.descriptor.name
     },
     descriptor: {
       get () {
