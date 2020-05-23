@@ -64,27 +64,16 @@
           <template v-if="descriptor.type">
             <definition-component
               class="separate-bottom"
-              :descriptor="descriptor"
+              v-model="descriptor"
               @save="saveDescriptor(descriptor)"
-              @onNameChange="descriptor.name = $event"
-              @onShortNameChange="descriptor.short_name = $event"
-              @onKeyNameChange="descriptor.key_name = $event"
-              @onDescriptionNameChange="descriptor.description_name = $event"
-              @onDescriptionChange="descriptor.description = $event"
             />
             <template v-if="existComponent">
               <div>
-                <spinner
-                  legend="Create a definition"
-                  :show-spinner="false"
-                  :legend-style="{ fontSize: '14px', color: '#444', textAlign: 'center', paddingTop: '20px'}"
-                  v-if="!descriptor['id']"
-                />
                 <component
                   v-if="descriptor.type && showDescriptor"
                   :is="loadComponent + 'Component'"
                   @save="saveDescriptor"
-                  :descriptor="descriptor"
+                  v-model="descriptor"
                 />
               </div>
             </template>
@@ -147,14 +136,7 @@ export default {
   data () {
     return {
       matrix: undefined,
-      descriptor: {
-        type: undefined,
-        name: undefined,
-        description: undefined,
-        description_name: undefined,
-        key_name: undefined,
-        short_name: undefined
-      },
+      descriptor: this.newDescriptor(),
       loading: false,
       saving: false
     }
@@ -182,16 +164,23 @@ export default {
   },
   methods: {
     resetDescriptor () {
-      this.descriptor = {
+      this.descriptor = this.newDescriptor()
+      this.setParameters()
+    },
+    newDescriptor () {
+      return {
+        id: undefined,
         type: undefined,
         name: undefined,
-        description: undefined
+        description: undefined,
+        description_name: undefined,
+        key_name: undefined,
+        short_name: undefined
       }
-      this.setParameters()
     },
     saveDescriptor (descriptor) {
       this.saving = true
-      if (this.descriptor.hasOwnProperty('id')) {
+      if (this.descriptor.id) {
         UpdateDescriptor(descriptor).then(response => {
           this.descriptor = response
           this.saving = false

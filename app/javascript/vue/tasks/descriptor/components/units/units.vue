@@ -5,19 +5,14 @@
     </div>
     <div class="body">
       <select 
-        v-model="selected"
+        v-model="descriptor.default_unit"
         class="normal-input">
         <option
           v-for="(label, key) in list"
+          :key="key"
           :value="key">{{ key }}: {{ label }}
         </option>
       </select>
-      <button
-        :disabled="!validateFields"
-        @click="sendDescriptor"
-        class="normal-input button button-submit"
-        type="button">{{ descriptor['id'] ? 'Update' : 'Create' }}
-      </button>
     </div>
   </div>
 </template>
@@ -27,44 +22,33 @@ import { GetUnits } from '../../request/resources'
 
 export default {
   props: {
-    descriptor: {
+    value: {
       type: Object,
       required: true
     }
   },
   computed: {
-    validateFields() {
-      return this.descriptor.name && this.selected
+    validateFields () {
+      return this.descriptor.name && this.descriptor.default_unit
+    },
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
     }
   },
-  data() {
+  data () {
     return {
-      selected: undefined,
       list: undefined
     }
   },
-  watch: {
-    descriptor: {
-      handler (newVal, oldVal) {
-        if (newVal.hasOwnProperty('default_unit')) {
-          this.selected = newVal.default_unit
-        }
-      },
-      deep: true,
-      immediate: true
-    }
-  },
-  mounted() {
+  mounted () {
     GetUnits().then(response => {
       this.list = response
     })
-  },
-  methods: {
-    sendDescriptor() {
-      let newDescriptor = this.descriptor
-      newDescriptor['default_unit'] = this.selected
-      this.$emit('save', newDescriptor)
-    }
   }
 }
 </script>

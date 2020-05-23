@@ -7,7 +7,7 @@
       <div class="separate-bottom">
         <instance-component
           title="Reverse primer"
-          :descriptor="descriptor"
+          v-model="descriptor"
           @save="$emit('save', $event)"/>
       </div>
     </div>
@@ -22,9 +22,19 @@ export default {
     InstanceComponent
   },
   props: {
-    descriptor: {
+    value: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
     }
   },
   data () {

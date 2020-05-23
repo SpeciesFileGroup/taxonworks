@@ -10,12 +10,12 @@
             <label>Name</label>
             <input
               type="text"
-              v-model="processName">
+              v-model="descriptor.name">
           </div>
           <div class="field">
             <label>Description</label>
             <textarea
-              v-model="processDescription"
+              v-model="descriptor.description"
               rows="5"/>
           </div>
         </div>
@@ -27,7 +27,7 @@
             <div>
               <input 
                 type="text"
-                v-model="processShortName">
+                v-model="descriptor.short_name">
               <span
                 v-if="!validateShortName"
                 class="warning">Should not be longer than 6 characters
@@ -38,18 +38,18 @@
             <label>Description name</label>
             <input 
               type="text"
-              v-model="processDescriptionName">
+              v-model="descriptor.description_name">
           </div>
           <div class="field">
             <label>Key name</label>
             <input 
               type="text"
-              v-model="processKeyName">
+              v-model="descriptor.key_name">
           </div>
         </div>
       </div>
       <div class="horizontal-left-content middle">
-        <create-component 
+        <create-component
           :descriptor="descriptor"
           @save="$emit('save', descriptor)"/>
         <a
@@ -68,57 +68,25 @@ export default {
     CreateComponent
   },
   props: {
-    descriptor: {
+    value: {
       type: Object,
       required: true
-    },
+    }
   },
   computed: {
-    validateShortName() {
+    validateShortName () {
       return this.descriptor.short_name ? this.descriptor.short_name.length <= 6 : true
     },
-    processName: {
-      get() {
-        return this.descriptor.name
+    descriptor: {
+      get () {
+        return this.value
       },
-      set(value) {
-        this.$emit('onNameChange', value)
-      }
-    },
-    processShortName: {
-      get() {
-        return this.descriptor.short_name
-      },
-      set(value) {
-        this.$emit('onShortNameChange', value)
-      }
-    },
-    processDescription: {
-      get() {
-        return this.descriptor.description
-      },
-      set(value) {
-        this.$emit('onDescriptionChange', value)
-      }
-    },
-    processDescriptionName: {
-      get() {
-        return this.descriptor.description_name
-      },
-      set(value) {
-        this.$emit('onDescriptionNameChange', value)
-      }
-    },
-    processKeyName: {
-      get() {
-        return this.descriptor.key_name
-      },
-      set(value) {
-        this.$emit('onKeyNameChange', value)
+      set () {
+        this.$emit('input', this.value)
       }
     }
   },
-  data() {
+  data () {
     return {
       show: false
     }

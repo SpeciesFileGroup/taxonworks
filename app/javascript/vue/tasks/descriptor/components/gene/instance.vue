@@ -100,12 +100,20 @@ export default {
       type: String,
       required: true
     },
-    descriptor: {
+    value: {
       type: Object,
       required: true
     }
   },
   computed: {
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
+    },
     composeExpression() {
       let formatExpression = []
       this.expression.forEach(item => {
