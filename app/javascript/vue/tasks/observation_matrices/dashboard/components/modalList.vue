@@ -159,6 +159,7 @@ export default {
     setMatrix (id) {
       GetObservationMatrix(id).then(response => {
         this.selectedMatrix = response.body
+        this.loadMatrix(this.selectedMatrix)
       })
     },
     openMatrixRowCoder () {
