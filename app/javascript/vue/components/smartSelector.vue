@@ -141,32 +141,35 @@ export default {
     }
   },
   watch: {
-    view(newVal) {
+    view (newVal) {
       this.$emit('onTabSelected', newVal)
     }
   },
   mounted () {
-    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
-      this.options = OrderSmart(Object.keys(response.body))
-      this.lists = response.body
-      this.view = SelectFirst(this.lists, this.options)
-      if(this.search) {
-        this.options.push('search')
-        if(!this.view) {
-          this.view = 'search'
-        }
-      }
-      this.options = this.options.concat(this.addTabs)
-    })
+    this.refresh()
   },
   methods: {
-    getObject(id) {
+    getObject (id) {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
         this.$emit('selected', response.body)
       })
     },
-    sendObject(item) {
+    sendObject (item) {
       this.$emit('selected', item)
+    },
+    refresh () {
+      AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
+        this.options = OrderSmart(Object.keys(response.body))
+        this.lists = response.body
+        this.view = SelectFirst(this.lists, this.options)
+        if (this.search) {
+          this.options.push('search')
+          if (!this.view) {
+            this.view = 'search'
+          }
+        }
+        this.options = this.options.concat(this.addTabs)
+      })
     }
   }
 }
