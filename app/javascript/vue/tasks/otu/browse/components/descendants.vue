@@ -25,10 +25,10 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from 'components/modal'
 import TreeView from './TreeView'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -44,7 +44,7 @@ export default {
   },
   computed: {
     childOfCurrentName () {
-      return (this.onlyChildrens ? this.childs.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.childs).sort(function (a, b) {
+      return (this.onlyChildrens ? this.children.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.children).sort(function (a, b) {
         if (a.cached > b.cached) {
           return 1
         }
@@ -53,33 +53,23 @@ export default {
         }
         return 0
       })
+    },
+    children () {
+      return this.$store.getters[GetterNames.GetDescendants].taxon_names
     }
   },
   data () {
     return {
       onlyChildrens: true,
-      childs: [],
       max: 10,
       showAll: false,
       isLoading: false,
       showModal: false
     }
   },
-  watch: {
-    otu: {
-      handler (newVal) {
-        this.isLoading = true
-        AjaxCall('get', `/taxon_names.json?taxon_name_id[]=${newVal.taxon_name_id}&descendants=true`).then(response => {
-          this.childs = response.body
-          this.isLoading = false
-        })
-      },
-      immediate: true
-    }
-  },
   methods: {
     showChildrensOf (taxon) {
-      return this.childs.filter(item => { return taxon.id === item.parent_id })
+      return this.children.filter(item => { return taxon.id === item.parent_id })
     }
   }
 }

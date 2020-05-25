@@ -57,6 +57,10 @@ const GetContent = function (id) {
   return ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
 }
 
+const GetTaxonNames = function (params) {
+  return ajaxCall('get', '/taxon_names.json', { params: params })
+}
+
 const GetOtus = function (id) {
   return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
     headers: {
@@ -140,5 +144,6 @@ export {
   GetGeoreferences,
   GetOtusCollectionObjects,
   UpdateUserPreferences,
-  GetOtuAssertedDistribution
+  GetOtuAssertedDistribution,
+  GetTaxonNames
 }
