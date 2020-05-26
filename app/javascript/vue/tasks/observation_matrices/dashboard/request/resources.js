@@ -8,7 +8,7 @@ const LoadRanks = () => {
   return ajaxCall('get', '/taxon_names/ranks')
 }
 
-const GetRanksTable = (ancestor, params) => {
+const GetRanksTable = (params) => {
   return ajaxCall('get', `/taxon_names/rank_table`, { params: params })
 }
 
