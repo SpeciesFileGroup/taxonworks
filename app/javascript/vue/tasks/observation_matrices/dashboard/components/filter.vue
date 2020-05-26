@@ -80,7 +80,7 @@ export default {
         } else {
           return
         }
-        if (newVal.rank) {
+        if (newVal.rank && !this.params.ranks.includes(newVal.rank)) {
           this.params.ranks.push(newVal.rank)
         }
       },
