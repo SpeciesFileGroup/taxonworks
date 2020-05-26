@@ -6,18 +6,31 @@
     <a name="descendants"/>
     <tree-view
       :current-taxon-id="otu.taxon_name_id"
+      :only-valid="onlyValid"
       :list="childOfCurrentName"/>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
       <h3 slot="header">Filter</h3>
       <div slot="body">
-        <label>
-          <input
-            v-model="onlyChildrens"
-            type="checkbox">
-          Show children only
-        </label>
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                v-model="onlyChildrens"
+                type="checkbox">
+              Show children only
+            </label>
+          </li>
+          <li>
+            <label>
+              <input
+                v-model="onlyValid"
+                type="checkbox">
+              Show only valid names
+            </label>
+          </li>
+        </ul>
       </div>
     </modal-component>
   </section-panel>
@@ -61,6 +74,7 @@ export default {
   data () {
     return {
       onlyChildrens: true,
+      onlyValid: true,
       max: 10,
       showAll: false,
       isLoading: false,
