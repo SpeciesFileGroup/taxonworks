@@ -158,7 +158,7 @@ export default {
       })
     },
     convertGeoJSONParam (urlParams) {
-      const geojson = JSON.parse(decodeURIComponent(urlParams.geo_json))
+      const geojson = urlParams.geo_json
       return {
         type: 'Feature',
         geometry: {

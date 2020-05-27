@@ -47,10 +47,7 @@ export default {
     }
   },
   mounted () {
-    const urlParams = URLParamsToJSON(location.href)
-    if (urlParams.source_type) {
-      this.type = decodeURIComponent(urlParams.source_type)
-    }
+    this.type = URLParamsToJSON(location.href).source_type
   }
 }
 </script>

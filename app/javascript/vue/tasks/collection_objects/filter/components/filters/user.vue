@@ -42,18 +42,20 @@
       <div class="field">
         <label>End date:</label>
         <br>
-        <input
-          type="date"
-          class="date-input"
-          :disabled="!user.user_id || !user.user_target"
-          v-model="user.user_date_end">
-        <button
-          type="button"
-          :disabled="!user.user_id || !user.user_target"
-          class="button normal-input button-default"
-          @click="setActualDate">
-          Now
-        </button>
+        <div class="horizontal-left-content">
+          <input
+            type="date"
+            class="date-input"
+            :disabled="!user.user_id || !user.user_target"
+            v-model="user.user_date_end">
+          <button
+            type="button"
+            :disabled="!user.user_id || !user.user_target"
+            class="button normal-input button-default margin-small-left"
+            @click="setActualDate">
+            Now
+          </button>
+        </div>
       </div>
     </div>
   </div>

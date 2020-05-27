@@ -123,7 +123,7 @@ export default {
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      urlParams.geo_json = urlParams.geo_json ? JSON.stringify(JSON.parse(decodeURIComponent(urlParams.geo_json))) : []
+      urlParams.geo_json = urlParams.geo_json ? JSON.stringify(urlParams.geo_json) : []
       this.searchForCollectionObjects(urlParams)
     }
   },

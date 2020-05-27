@@ -104,7 +104,6 @@ export default {
     const urlParams = URLParamsToJSON(location.href)
 
     if (Object.keys(urlParams).length) {
-      console.log(urlParams)
       this.getSources(urlParams)
     }
   },
