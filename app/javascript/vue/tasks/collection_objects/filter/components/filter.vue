@@ -14,7 +14,7 @@
       :full-screen="true"
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching" 
+      v-if="searching"
     />
 
     <spinner-component
@@ -92,19 +92,19 @@ export default {
     },
     emptyParams () {
       if (!this.params) return
-      return !this.params.biocurations.biocuration_class_ids.length && 
+      return !this.params.biocurations.biocuration_class_ids.length &&
         !this.params.geographic.geographic_area_ids.length &&
-        !this.params.geographic.geo_json &&
+        !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_ids.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
-        !this.params.collectingEvents.fields &&
+        !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
-        !Object.values(this.params.user).find(item => { return item != undefined }) &&
-        !Object.values(this.params.loans).find(item => { return item != undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item != undefined })
+        !Object.values(this.params.user).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.identifier).find(item => { return item !== undefined })
     }
   },
   data () {
@@ -123,8 +123,7 @@ export default {
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      if(urlParams.geo_json)
-        urlParams.geo_json = JSON.stringify(JSON.parse(decodeURIComponent(urlParams.geo_json)))
+      urlParams.geo_json = urlParams.geo_json ? JSON.stringify(JSON.parse(decodeURIComponent(urlParams.geo_json))) : []
       this.searchForCollectionObjects(urlParams)
     }
   },
@@ -207,7 +206,7 @@ export default {
           end_date: undefined,
           partial_overlap_dates: undefined,
           collecting_event_wildcards: [],
-          fields: undefined
+          fields: []
         },
         user: {
           user_id: undefined,
@@ -216,7 +215,7 @@ export default {
           user_date_end: undefined
         },
         geographic: {
-          geo_json: undefined,
+          geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
