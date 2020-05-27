@@ -173,6 +173,7 @@ export default {
       this.list = []
       this.urlRequest = ''
       this.pagination = undefined
+      history.pushState(null, null, '/tasks/sources/filter')
     },
     loadList (newList) {
       if (this.append && this.list) {

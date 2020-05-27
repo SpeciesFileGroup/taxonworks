@@ -86,6 +86,7 @@ import CitationTypesComponent from './filters/citationTypes'
 import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
 
@@ -120,11 +121,11 @@ export default {
     }
   },
   mounted () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const params = Object.fromEntries(urlParams)
+    const urlParams = URLParamsToJSON(location.href)
 
-    if (Object.keys(params).length) {
-      this.getSources(params)
+    if (Object.keys(urlParams).length) {
+      console.log(urlParams)
+      this.getSources(urlParams)
     }
   },
   methods: {
@@ -147,6 +148,8 @@ export default {
         this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
+        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        history.pushState(null, null, `/tasks/sources/filter?${urlParams.toString()}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
