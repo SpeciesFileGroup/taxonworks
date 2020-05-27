@@ -1,38 +1,13 @@
 <template>
   <div>
     <h2>Tags</h2>
-    <switch-component
-      v-model="view"
-      :options="options"
-    />
-    <div class="separate-top">
-      <ul
-        v-if="view !== 'search'"
-        class="no_bullets">
-        <li 
-          v-for="keyword in smartLists[view]"
-          :key="keyword.id"
-          v-if="!keywords.map(item => { return item.id }).includes(keyword.id)">
-          <label>
-            <input 
-              type="radio"
-              @click="addKeyword(keyword)">
-            <span v-html="keyword.object_tag"/>
-          </label>
-        </li>
-      </ul>
-      <autocomplete
-        v-else
-        url="/controlled_vocabulary_terms/autocomplete"
-        param="term"
-        label="label_html"
-        :clear-after="true"
-        :add-params="{'type[]' : 'Keyword'}"
-        placeholder="Search a keyword"
-        min="2"
-        @getItem="addKeyword"
-      />
-    </div>
+    <smart-selector
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{'type[]' : 'Keyword'}"
+      get-url="/controlled_vocabulary_terms/"
+      model="keywords"
+      klass="Tag"
+      @selected="addKeyword"/>
     <div class="field separate-top">
       <ul class="no_bullets table-entrys-list">
         <li
@@ -45,20 +20,19 @@
             @click="removeKeyword(index)"/>
         </li>
       </ul>
-    </div>    
+    </div>
   </div>
 </template>
 
 <script>
 
-import { GetKeywordSmartSelector } from '../../request/resources'
-import SwitchComponent from 'components/switch'
-import Autocomplete from 'components/autocomplete'
+import SmartSelector from 'components/smartSelector'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetKeyword } from '../../request/resources'
 
 export default {
   components: {
-    SwitchComponent,
-    Autocomplete
+    SmartSelector
   },
   props: {
     value: {
@@ -78,10 +52,7 @@ export default {
   },
   data () {
     return {
-      keywords: [],
-      view: undefined,
-      options: [],
-      smartLists: {}
+      keywords: []
     }
   },
   watch: {
@@ -95,21 +66,21 @@ export default {
     }
   },
   mounted () {
-    GetKeywordSmartSelector().then(response => {
-      this.smartLists = response.body
-      this.options = Object.keys(response.body)
-      this.options.push('search')
-    })
+    const params = URLParamsToJSON(location.href)
+    if (params.keyword_ids) {
+      params.keyword_ids.forEach(id => {
+        GetKeyword(id).then(response => {
+          this.addKeyword(response.body)
+        })
+      })
+    }
   },
   methods: {
     addKeyword (keyword) {
-      if(keyword.hasOwnProperty('label_html')) {
-        keyword.object_tag = keyword.label_html
-      }
       this.keywords.push(keyword)
       this.keywordIds.push(keyword.id)
     },
-    removeKeyword(index) {
+    removeKeyword (index) {
       this.keywords.splice(index, 1)
       this.keywordIds.splice(index, 1)
     }

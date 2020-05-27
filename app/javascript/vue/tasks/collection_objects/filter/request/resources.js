@@ -28,10 +28,6 @@ const GetOtu = (id) => {
   return ajaxCall('get', `/otus/${id}.json`)
 }
 
-const GetKeywordSmartSelector = () => {
-  return ajaxCall('get', '/keywords/select_options?klass=CollectionObject')
-}
-
 const GetCEAttributes = () => {
   return ajaxCall('get', `/collecting_events/attributes`)
 }
@@ -46,6 +42,10 @@ const GetBiologicalRelationships = () => {
 
 const GetBiocurations = () => {
   return ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
+}
+
+const GetKeyword = (id) => {
+  return ajaxCall('get', `/controlled_vocabulary_terms/${id}.json`)
 }
 
 const GetCODWCA = (id) => {
@@ -63,7 +63,6 @@ const CreateTags = (keywordId, ids) => {
 export {
   GetCollectionObjects,
   GetUsers,
-  GetKeywordSmartSelector,
   GetCEAttributes,
   GetTypes,
   GetBiologicalRelationships,
@@ -74,5 +73,6 @@ export {
   GetTaxonName,
   GetOtu,
   GetNamespace,
-  GetCollectingEvents
+  GetCollectingEvents,
+  GetKeyword
 }
