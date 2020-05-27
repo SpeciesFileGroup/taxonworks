@@ -4,20 +4,32 @@ const GetCollectionObjects = (params) => {
   return ajaxCall('get', '/collection_objects/dwc_index', { params: params })
 }
 
+const GetCollectingEvents = (id) => {
+  return ajaxCall('get', `/collecting_events/${id}.json`)
+}
+
 const GetUsers = () => {
   return ajaxCall('get', '/project_members.json')
 }
 
-const GetCollectingEventSmartSelector = () => {
-  return ajaxCall('get', '/collecting_events/select_options')
+const GetGeographicArea = (id) => {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
+}
+
+const GetTaxonName = (id) => {
+  return ajaxCall('get', `/taxon_names/${id}.json`)
+}
+
+const GetNamespace = (id) => {
+  return ajaxCall('get', `/namespaces/${id}.json`)
+}
+
+const GetOtu = (id) => {
+  return ajaxCall('get', `/otus/${id}.json`)
 }
 
 const GetKeywordSmartSelector = () => {
   return ajaxCall('get', '/keywords/select_options?klass=CollectionObject')
-}
-
-const GetNamespacesSmartSelector = () => {
-  return ajaxCall('get', '/namespaces/select_options?klass=CollectionObject')
 }
 
 const GetCEAttributes = () => {
@@ -51,13 +63,16 @@ const CreateTags = (keywordId, ids) => {
 export {
   GetCollectionObjects,
   GetUsers,
-  GetCollectingEventSmartSelector,
   GetKeywordSmartSelector,
-  GetNamespacesSmartSelector,
   GetCEAttributes,
   GetTypes,
   GetBiologicalRelationships,
   GetBiocurations,
   GetCODWCA,
-  CreateTags
+  CreateTags,
+  GetGeographicArea,
+  GetTaxonName,
+  GetOtu,
+  GetNamespace,
+  GetCollectingEvents
 }

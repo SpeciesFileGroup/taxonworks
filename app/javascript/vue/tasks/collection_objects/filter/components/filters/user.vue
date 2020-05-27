@@ -62,6 +62,7 @@
 <script>
 
 import { GetUsers } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -116,6 +117,14 @@ export default {
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
+
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      this.user.user_id = urlParams.user_id
+      this.user.user_date_start = urlParams.user_date_start
+      this.user.user_date_end = urlParams.user_date_end
+      this.user.user_target = urlParams.user_target
+    }
   },
   methods: {
     setActualDate () {
