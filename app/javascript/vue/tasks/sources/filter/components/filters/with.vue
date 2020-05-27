@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>{{ title }}</h2>
+    <h2 class="capitalize">{{ title.replace(/_/g, ' ') }}</h2>
     <ul class="no_bullets context-menu">
       <li
         v-for="option in options">
@@ -18,6 +18,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     name: {
@@ -35,6 +38,10 @@ export default {
     values: {
       type: Array,
       default: () => { return [] }
+    },
+    param: {
+      type: String,
+      default: undefined
     }
   },
   computed: {
@@ -64,6 +71,13 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    if (this.param) {
+      const params = URLParamsToJSON(location.href)
+      this.optionValue = params[this.param]
+    }
+
   },
   created () {
     if (this.values.length) {

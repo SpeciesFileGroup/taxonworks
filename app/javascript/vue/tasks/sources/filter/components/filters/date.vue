@@ -22,6 +22,8 @@
 
 <script>
 
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -51,6 +53,11 @@ export default {
       },
       deep: true
     }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.source.year_start = urlParams.year_start
+    this.source.year_end = urlParams.year_end
   },
   methods: {
     addAuthor (author) {

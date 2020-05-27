@@ -31,6 +31,7 @@
         title="In project"
         name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
+        param="in_project"
         v-model="params.source.in_project"
       />
       <title-component v-model="params.source"/>
@@ -42,32 +43,11 @@
       <citation-types-component v-model="params.source.citation_object_type"/>
       <users-component v-model="params.user"/>
       <with-component
-        title="Citations"
-        v-model="params.byRecordsWith.citations"
-      />
-      <with-component
-        title="DOI"
-        v-model="params.byRecordsWith.with_doi"
-      />
-      <with-component
-        title="Roles"
-        v-model="params.byRecordsWith.roles"
-      />
-      <with-component
-        title="Tags"
-        v-model="params.byRecordsWith.tags"
-      />
-      <with-component
-        title="Notes"
-        v-model="params.byRecordsWith.notes"
-      />
-      <with-component
-        title="Documents"
-        v-model="params.byRecordsWith.documents"
-      />
-      <with-component
-        title="Nomenclatural"
-        v-model="params.byRecordsWith.nomenclature"
+        v-for="(item, key) in params.byRecordsWith"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.byRecordsWith[key]"
       />
     </div>
   </div>
