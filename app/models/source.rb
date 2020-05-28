@@ -354,9 +354,9 @@ class Source < ApplicationRecord
 
         case type
         when 'Source::Verbatim'
-          s.verbatim = m + verbatim
+          s.verbatim = m + verbatim.to_s
         when 'Source::Bibtex'
-          s.title = m + title
+          s.title = m + title.to_s
         end
 
         s.save!
