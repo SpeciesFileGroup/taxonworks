@@ -3,7 +3,7 @@
     <modal-component
       v-if="showModal"
       :container-style="{ width: '500px' }"
-      @close="showModal = false">
+      @close="closeModal">
       <h3 slot="header">Copy rows from matrix</h3>
       <div slot="body">
         <spinner-component
@@ -140,12 +140,17 @@ export default {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
         this.rowsSelected = []
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
+        this.closeModal()
       })
     },
     alreadyExist (item) {
       return this.existingRows.find(row => {
         return item.row_object.id === row.row_object.id
       })
+    },
+    closeModal () {
+      this.showModal = false
+      this.$emit('close')
     }
   }
 }

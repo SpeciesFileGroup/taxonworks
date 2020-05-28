@@ -14,7 +14,8 @@
         :is="componentSelected"
         :batch-type="view"
         :matrix-id="matrix.id"
-        :list="lists[view]"/>
+        :list="lists[view]"
+        @close="view = undefined"/>
     </div>
   </div>
 </template>
