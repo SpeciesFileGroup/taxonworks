@@ -18,6 +18,7 @@
               class="full_width"
               ref="smartSelector"
               model="namespaces"
+              input-id="namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
               pin-section="Namespaces"
