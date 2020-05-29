@@ -65,10 +65,10 @@
       <div class="horizontal-left-content separate-bottom panel-section separate-left separate-right align-start">
         <otu-component
           class="separate-right"
+          ref="otuComponent"
           :class="{
             highlight: highlight.otu
           }"
-          ref="otuComponent"
           v-model="asserted_distribution.otu_id"/>
         <lock-component
           class="margin-medium-top"
@@ -214,6 +214,7 @@ export default {
             this.asserted_distribution.id = response.body.id
             this.setCitation(response.body.citations[0])
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+            this.refreshSmarts()
             resolve(response.body)
           })
         }
@@ -224,6 +225,7 @@ export default {
             this.setCitation(response.body.citations[0])
             this.list.unshift(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
+            this.refreshSmarts()
             resolve(response.body)
           })
         }
@@ -236,9 +238,15 @@ export default {
         }), 1)
       })
     },
+    refreshSmarts () {
+      this.$refs.sourceComponent.refresh()
+      this.$refs.geoComponent.refresh()
+      this.$refs.otuComponent.refresh()
+    },
     setSourceOtu(item) {
       this.newWithLock()
       this.asserted_distribution.id = undefined
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.otu_id = item.otu.id
       this.$refs.sourceComponent.setSelected(item.citation)
@@ -246,9 +254,10 @@ export default {
     },
     setSourceGeo(item) {
       this.newWithLock()
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.geographic_area_id = item.geo.id
-      this.$refs.sourceComponent.setSelected(item.citation.source)
+      this.$refs.sourceComponent.setSelected(item.citation)
       this.$refs.geoComponent.setSelected(item.geo)
     },
     setGeoOtu(item) {
@@ -256,8 +265,8 @@ export default {
       this.asserted_distribution.id = item.id
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.asserted_distribution.otu_id = item.otu.id
-      this.$refs.geoComponent.setSelected(item.geo)  
-      this.$refs.otuComponent.setSelected(item.otu)    
+      this.$refs.geoComponent.setSelected(item.geo)
+      this.$refs.otuComponent.setSelected(item.otu)
     },
     setCitation(item) {
       this.asserted_distribution.citations_attributes = []
@@ -266,7 +275,7 @@ export default {
         source_id: item.source_id,
         is_original: item.is_original,
         pages: item.pages
-      })      
+      })
     }
   }
 }

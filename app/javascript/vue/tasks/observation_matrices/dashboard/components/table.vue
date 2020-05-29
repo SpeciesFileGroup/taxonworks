@@ -20,10 +20,6 @@
           </select>
         </div>
       </div>
-      <span
-        class="middle cursor-pointer"
-        data-icon="reset"
-        @click="resetList">Reset order</span>
     </div>
     <table
       class="full_width"
@@ -76,10 +72,6 @@ export default {
     tableList: {
       type: Object,
       default: () => { return {} }
-    },
-    ranksSelected: {
-      type: Array,
-      default: () => { return [] }
     }
   },
   computed: {
@@ -131,12 +123,6 @@ export default {
     }
   },
   methods: {
-    isFiltered (header) {
-      return this.show.includes(header) || this.selectedFieldSet.set.includes(header) || this.ranksSelected.includes(header)
-    },
-    resetList() {
-      this.tableRanks = this.orderRanksTable(this.tableList)
-    },
     getRankNames (list, nameList = []) {
       for (var key in list) {
         if (typeof list[key] === 'object') {
@@ -148,26 +134,6 @@ export default {
         }
       }
       return nameList
-    },
-    orderRanksTable (list) {
-      let newDataList = []
-      let ranksOrder = this.rankNames.filter(rank => {
-        return list.column_headers.includes(rank)
-      })
-
-      ranksOrder = ranksOrder.concat(list.column_headers.filter(item => {
-        return !ranksOrder.includes(item)
-      }))
-
-      ranksOrder.forEach((rank, index) => {
-        const indexHeader = list.column_headers.findIndex(item => { return item === rank })
-        if (indexHeader >= 0) {
-          list.data.forEach((row, rIndex) => {
-            newDataList[rIndex] ? newDataList[rIndex].push(row[indexHeader]) : newDataList[rIndex] = [row[indexHeader]]
-          })
-        }
-      })
-      return { column_headers: ranksOrder, data: newDataList }
     },
     getValueFromTable (header, rowIndex) {
       const otuIndex = this.tableRanks.column_headers.findIndex(item => {

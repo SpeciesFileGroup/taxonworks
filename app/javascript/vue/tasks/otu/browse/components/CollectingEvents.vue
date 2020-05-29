@@ -65,6 +65,9 @@ export default {
     georeferences () {
       return this.$store.getters[GetterNames.GetGeoreferences]
     },
+    descedantsGeoreferences () {
+      return this.$store.getters[GetterNames.GetDescendants].georeferences
+    },
     collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
@@ -102,21 +105,34 @@ export default {
   watch: {
     georeferences: {
       handler (newVal) {
-        if (newVal)
+        if (newVal) {
           this.populateShapes()
+        }
       }
+    },
+    descedantsGeoreferences: {
+      handler (newVal) {
+        if (newVal) {
+          this.populateShapes()
+        }
+      },
+      deep: true
     }
   },
   methods: {
     populateShapes () {
+      const georeferences = [].concat(this.descedantsGeoreferences, this.georeferences)
       this.geojson.features = []
-      this.georeferences.forEach(geo => {
+
+      georeferences.forEach(geo => {
+        const popup = this.composePopup(geo)
         if (geo.error_radius != null) {
           geo.geo_json.properties.radius = geo.error_radius
         }
-        geo.geo_json.properties.popup = `${this.composePopup(geo)}`
+        if (popup) {
+          geo.geo_json.properties.popup = popup
+        }
         this.geojson.features.push(geo.geo_json)
-
       })
     },
     getCollectionObjectByGeoId (georeference) {
@@ -125,10 +141,13 @@ export default {
     },
     composePopup (geo) {
       const ce = this.getCEByGeo(geo)
-      return `<h4><b>Collection objects</b></h4>
-        ${this.getCollectionObjectByGeoId(geo).map(item => `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`).join('<br>')}
-        <h4><b>Collecting event</b></h4>
-        <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${ce.object_tag}</a>`
+      if (ce) {
+        return `<h4><b>Collection objects</b></h4>
+          ${this.getCollectionObjectByGeoId(geo).map(item => `<a href="/tasks/collection_objects/browse?collection_object_id=${item.id}">${item.object_tag}</a>`).join('<br>')}
+          <h4><b>Collecting event</b></h4>
+          <a href="/tasks/collecting_events/browse?collecting_event_id=${ce.id}">${ce.object_tag}</a>`
+      }
+      return undefined
     },
     getCEByGeo (georeference) {
       return this.collectingEvents.find(ce => { return ce.id === georeference.collecting_event_id })

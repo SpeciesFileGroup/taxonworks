@@ -96,7 +96,7 @@
               type="radio"
               class="normal-input"
               @click="showAdvance = true">
-            <label for="relationship-picker-advanced">Advanced</label>
+            <label for="relationship-picker-advanced">Search</label>
             <input
               name="relationship-picker-options"
               id="relationship-picker-showall"
@@ -224,7 +224,7 @@ export default {
       isInsertaeSedis: false,
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
-        ictv: { type: 'TaxonNameRelationship::Ictv::Accepting::UncertainPlacement' }
+        icvcn: { type: 'TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement' }
       }
     }
   },

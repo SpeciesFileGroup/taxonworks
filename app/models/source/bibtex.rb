@@ -846,6 +846,13 @@ class Source::Bibtex < Source
       attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
+      if bibtex_type == 'book' && !pages.blank?
+        if pages.to_i.to_s == pages
+          c = c + " #{pages} pp."
+        else
+          c = c + " #{pages}"
+        end
+      end
       if stated_year && year && stated_year != year
         c = c + " [#{stated_year}]"
       end

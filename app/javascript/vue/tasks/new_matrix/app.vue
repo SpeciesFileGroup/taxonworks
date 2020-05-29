@@ -143,12 +143,11 @@ export default {
     flex-direction: column-reverse;
     margin: 0 auto;
     margin-top: 1em;
-    max-width: 1240px;
 
     .cleft, .cright {
-      min-width: 450px;
-      max-width: 450px;
-      width: 400px;
+      min-width: 500px;
+      max-width: 500px;
+      width: 450px;
     }
     #cright-panel {
       width: 350px;

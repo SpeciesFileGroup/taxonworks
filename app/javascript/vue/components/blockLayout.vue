@@ -1,32 +1,30 @@
 <template>
-  <div>
+  <div class="panel basic-information">
     <spinner-component
       :show-spinner="false"
       :show-legend="false"
       v-if="spinner"/>
-    <div class="panel basic-information">
-      <a
-        v-if="anchor"
-        :name="anchor"
-        class="anchor"/>
-      <div 
-        class="header flex-separate middle"
-        :class="{ 'validation-warning': warning }">
-        <slot name="header">
-          <h3>Default title</h3>
-        </slot>
-        <div class="horizontal-left-content">
-          <slot name="options"/>
-          <expand-component 
-            v-if="expand"
-            v-model="expanded"/>
-        </div>
+    <a
+      v-if="anchor"
+      :name="anchor"
+      class="anchor"/>
+    <div 
+      class="header flex-separate middle"
+      :class="{ 'validation-warning': warning }">
+      <slot name="header">
+        <h3>Default title</h3>
+      </slot>
+      <div class="horizontal-left-content">
+        <slot name="options"/>
+        <expand-component 
+          v-if="expand"
+          v-model="expanded"/>
       </div>
-      <div
-        class="body"
-        v-show="expanded">
-        <slot name="body"/>
-      </div>
+    </div>
+    <div
+      class="body"
+      v-show="expanded">
+      <slot name="body"/>
     </div>
   </div>
 </template>

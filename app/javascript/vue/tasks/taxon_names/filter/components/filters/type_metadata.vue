@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -50,6 +53,9 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    this.optionValue = URLParamsToJSON(location.href).type_metadata
   }
 }
 </script>

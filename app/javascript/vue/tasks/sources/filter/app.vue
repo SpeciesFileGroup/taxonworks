@@ -75,7 +75,7 @@
           class="flex-separate margin-medium-bottom"
           :class="{ 'separate-left': activeFilter }">
           <pagination-component
-            v-if="pagination"
+            v-if="pagination && list.length"
             @nextPage="loadPage"
             :pagination="pagination"/>
           <div
@@ -173,6 +173,7 @@ export default {
       this.list = []
       this.urlRequest = ''
       this.pagination = undefined
+      history.pushState(null, null, '/tasks/sources/filter')
     },
     loadList (newList) {
       if (this.append && this.list) {

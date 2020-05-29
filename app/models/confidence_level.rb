@@ -6,13 +6,15 @@ class ConfidenceLevel < ControlledVocabularyTerm
 
   # @return [Scope]
   #    the max 10 most recently used confidence levels
-  def self.used_recently
+  def self.used_recently(user_id, project_id)
     t = ConfidenceLevel.arel_table 
     c = Confidence.arel_table
 
     # i is a select manager
     i = c.project(c['confidence_level_id'], c['created_at']).from(c)
       .where(c['created_at'].gt( 1.weeks.ago ))
+      .where(c['created_by_id'].eq(user_id))
+      .where(c['project_id'].eq(project_id))
       .order(c['created_at'].desc)
      
     # z is a table alias 
@@ -34,7 +36,7 @@ class ConfidenceLevel < ControlledVocabularyTerm
   # @param klass [like CollectionObject] required
   def self.select_optimized(user_id, project_id, klass)
     h = {
-      recent: ConfidenceLevel.used_on_klass(klass).used_recently.where(project_id: project_id, confidences: {updated_by_id: user_id}).distinct.limit(10).to_a,
+      recent: ConfidenceLevel.used_on_klass(klass).used_recently(user_id, project_id).distinct.limit(10).to_a,
       pinboard:  ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a
     }
 

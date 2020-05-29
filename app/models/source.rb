@@ -280,7 +280,7 @@ class Source < ApplicationRecord
   # @param used_on [String] a model name 
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
-  def self.used_recently(used_on = 'TaxonName')
+  def self.used_recently(user_id, project_id, used_on = 'TaxonName')
     t = Citation.arel_table
     p = Source.arel_table
 
@@ -288,6 +288,8 @@ class Source < ApplicationRecord
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['citation_object_type'].eq(used_on))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
       .take(10)
       .distinct
@@ -311,7 +313,7 @@ class Source < ApplicationRecord
     h[:recent] = (
       Source.joins(:citations)
       .where( citations: { project_id: project_id, updated_by_id: user_id } )
-      .used_recently(target)
+      .used_recently(user_id, project_id, target)
       .limit(5).distinct.to_a +
     Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
       .order('created_at DESC')
@@ -352,9 +354,9 @@ class Source < ApplicationRecord
 
         case type
         when 'Source::Verbatim'
-          s.verbatim = m + verbatim
+          s.verbatim = m + verbatim.to_s
         when 'Source::Bibtex'
-          s.title = m + title
+          s.title = m + title.to_s
         end
 
         s.save!

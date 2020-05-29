@@ -12,7 +12,7 @@ module Export::Coldp::Files::Name
       'ICN'
     when :icnp
       'ICNP'
-    when :ictv
+    when :icvcn
       'ICVCN' # doublecheck
     end
   end

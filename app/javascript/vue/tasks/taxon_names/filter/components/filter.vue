@@ -19,8 +19,8 @@
         class="button button-default normal-input full_width"
         type="button"
         v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchForTaxonNames()"
-        @click="searchForTaxonNames">
+        @shortkey="searchForTaxonNames(parseParams)"
+        @click="searchForTaxonNames(parseParams)">
         Search
       </button>
       <taxon-name-component v-model="params.taxon"/>
@@ -70,6 +70,7 @@ import TaxonNameTypeComponent from './filters/taxon_name_type'
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -95,38 +96,49 @@ export default {
   computed: {
     getMacKey() {
       return GetMacKey()
+    },
+    parseParams () {
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
+      params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
+      return params
     }
   },
-  data() {
+  data () {
     return {
       params: this.initParams(),
       result: [],
       searching: false
     }
   },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    if (Object.keys(params).length) {
+      this.searchForTaxonNames(params)
+    }
+  },
   methods: {
-    resetFilter() {
+    resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    searchForTaxonNames() {
+    searchForTaxonNames (params) {
       this.searching = true
-      let params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
-      params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
 
       GetTaxonNames(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.url)
         this.searching = false
-        if(this.result.length == 500) {
+        if (this.result.length === 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-      }, () => { 
+        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        history.pushState(null, null, `/tasks/taxon_names/filter/index?${urlParams.toString()}`)
+      }, () => {
         this.searching = false
       })
     },
-    initParams() {
+    initParams () {
       return {
         taxon: {
           name: undefined,
@@ -153,15 +165,15 @@ export default {
         }
       }
     },
-    setDays(days) {
+    setDays (days) {
       var date = new Date();
       date.setDate(date.getDate() - days);
       return date.toISOString().slice(0,10);
     },
-    filterEmptyParams(object) {
-      let keys = Object.keys(object)
+    filterEmptyParams (object) {
+      const keys = Object.keys(object)
       keys.forEach(key => {
-        if(object[key] === '') {
+        if (object[key] === '') {
           delete object[key]
         }
       })

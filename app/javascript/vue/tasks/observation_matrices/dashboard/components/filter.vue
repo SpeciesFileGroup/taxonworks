@@ -2,6 +2,11 @@
   <div class="panel filter">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
+      <span
+        data-icon="reset"
+        class="cursor-pointer"
+        @click="resetFilter">Reset
+      </span>
     </div>
     <spinner-component
       :full-screen="true"
@@ -14,15 +19,16 @@
         class="button normal-input button-default full_width"
         type="button"
         :disabled="!taxonName"
-        @click="$emit('onSearch')">
+        @click="sendParams">
         Search
       </button>
       <taxon-name v-model="taxonName"/>
-      <otu-filter v-model="validity"/>
-      <combinations-filter/>
+      <otu-filter v-model="params.validity"/>
+      <combinations-filter
+        v-model="params.combination"/>
       <ranks-filter
         :taxon-name="taxonName"
-        v-model="ranks"/>
+        v-model="params.ranks"/>
     </div>
   </div>
 </template>
@@ -34,6 +40,9 @@ import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
 import CombinationsFilter from './filters/combinations'
+import { GetTaxonName } from '../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -43,37 +52,71 @@ export default {
     OtuFilter,
     taxonName
   },
+  props: {
+    fieldSet: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    rankList () {
+      return this.$store.getters[GetterNames.GetRanks]
+    }
+  },
   data () {
     return {
       taxonName: undefined,
-      ranks: [],
       searching: false,
-      validity: false
+      params: this.initParams()
     }
   },
   watch: {
     taxonName: {
       handler (newVal) {
         this.ranks = []
-        this.$emit('onTaxon', newVal)
-
-        if(!newVal) return
-        if (newVal.rank) {
-          this.ranks.push(newVal.rank)
+        if (newVal) {
+          this.params.ancestor_id = newVal ? newVal.id : undefined
+          this.$emit('onTaxon', newVal)
+        } else {
+          return
+        }
+        if (newVal.rank && !this.params.ranks.includes(newVal.rank)) {
+          this.params.ranks.push(newVal.rank)
         }
       },
       deep: true
+    }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      GetTaxonName(urlParams.ancestor_id).then(response => {
+        this.taxonName = response.body
+        this.params = Object.assign({}, this.params, urlParams)
+        this.sendParams()
+      })
+    }
+  },
+  methods: {
+    sendParams () {
+      this.$emit('onSearch', this.params)
     },
-    ranks: {
-      handler (newVal) {
-        if (newVal.length) {
-          this.$emit('rankSelected', newVal)
-        }
-      },
-      deep: true
+    setTaxon (taxon) {
+      this.taxonName = taxon
+      this.params.ancestor_id = taxon.id
     },
-    validity (newVal) {
-      this.$emit('onValidity', newVal)
+    initParams () {
+      return {
+        ancestor_id: undefined,
+        ranks: [],
+        validity: false,
+        combination: undefined
+      }
+    },
+    resetFilter () {
+      this.taxonName = undefined
+      this.params = this.initParams()
+      this.$emit('reset')
     }
   }
 }

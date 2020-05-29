@@ -37,11 +37,11 @@ describe Keyword, type: :model, group: :tags do
     end
 
     specify '#used_recently' do
-      expect(Keyword.used_recently).to contain_exactly(k)
+      expect(Keyword.used_recently(k.created_by_id, k.project_id)).to contain_exactly(k)
     end
 
     specify '#used_on_klass.used_recently' do
-      expect(Keyword.used_on_klass('Otu').used_recently).to contain_exactly(k)
+      expect(Keyword.used_on_klass('Otu').used_recently(k.created_by_id, k.project_id)).to contain_exactly(k)
     end
   end
 

@@ -1,21 +1,20 @@
 <template>
-  <div class="flexbox horizontal-left-content align-start">
+  <div class="flexbox horizontal-left-content align-start margin-medium-left">
     <div>
       <rows-table
-        class="separate-left separate-right"
+        class="margin-small-bottom"
         :list="rowsListDynamic"
         :matrix-id="matrixId"
-        :header="['Dynamic rows', 'Options']"
+        :header="['Dynamic rows', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
         @delete="removeRow"
         :edit="true"
         @order="updateRowsOrder"/>
       <rows-table
-        class="separate-left separate-right"
         :list="rowsList"
         :matrix-id="matrixId"
-        :header="['Rows (all)', 'Options']"
+        :header="['Rows (all)', '']"
         :filter-remove="(item) => { return item.hasOwnProperty('cached_observation_matrix_row_item_id') && item.cached_observation_matrix_row_item_id }"
         :attributes="['observation_matrix_row_object_label']"
         :global-id-path="['observation_matrix_row_object_global_id']"
@@ -24,12 +23,13 @@
         :code="true"
         @order="updateRowsOrder"/>
     </div>
-    <div>
+    <div class="margin-medium-left">
       <columns-table
+        class="margin-small-bottom"
         :list="columnsListDynamic"
         :matrix-id="matrixId"
         :row="false"
-        :header="['Dynamic column', 'Options']"
+        :header="['Dynamic column', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
         @delete="removeColumn"
@@ -39,7 +39,7 @@
         :matrix-id="matrixId"
         :row="false"
         :edit="true"
-        :header="['Columns (all)', 'Options']"
+        :header="['Columns (all)', '']"
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
         @delete="removeColumn"

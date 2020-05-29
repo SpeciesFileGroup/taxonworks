@@ -25,12 +25,15 @@
             type="checkbox">
           Never loaned
         </label>
-      </li>      
+      </li>
     </ul>
   </div>
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -47,6 +50,12 @@ export default {
         this.$emit('input', value)
       }
     }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.loans.on_loan = urlParams.on_loan
+    this.loans.loaned = urlParams.loaned
+    this.loans.never_loaned = urlParams.never_loaned
   }
 }
 </script>

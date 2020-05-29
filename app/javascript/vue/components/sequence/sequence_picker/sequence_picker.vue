@@ -118,13 +118,15 @@ export default {
     },
     createSequence() {
       CreateSequence(this.sequence).then(response => {
-        this.emitSequence(response.body)
+        this.$emit('getItem', response.body)
         this.create = false
         this.found = true
       })
     },
     emitSequence(sequence) {
-      this.$emit('getItem', sequence)
+      this.$http.get(`/sequences/${sequence.id}.json`).then(response => {
+        this.$emit('getItem', response.body)
+      })
     },
     callbackInput(event) {
       this.type = event

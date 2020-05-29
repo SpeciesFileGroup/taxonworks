@@ -73,12 +73,13 @@ export default {
       let pinItem = {
         pinboard_item: {
           pinned_object_id: this.id,
-          pinned_object_type: this.type
+          pinned_object_type: this.type,
+          is_inserted: true
         }
       }
       this.$http.post('/pinboard_items', pinItem).then(response => {
         this.pin = response.body
-        TW.workbench.pinboard.addToPinboard(response.body)
+        TW.workbench.pinboard.addToPinboard(response.body, true)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },

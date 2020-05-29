@@ -6,13 +6,15 @@ class Keyword < ControlledVocabularyTerm
 
   # @return [Scope]
   #    the max 10 most recently used keywords
-  def self.used_recently
+  def self.used_recently(user_id, project_id)
     t = Tag.arel_table
     k = Keyword.arel_table 
 
     # i is a select manager
     i = t.project(t['keyword_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 1.weeks.ago ))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
       .take(10)
       .distinct
@@ -43,7 +45,7 @@ class Keyword < ControlledVocabularyTerm
         Keyword.joins(:tags)
         .where(project_id: project_id, tags: {updated_by_id: user_id})
         .used_on_klass(klass)
-        .used_recently.limit(5)
+        .used_recently(user_id, project_id).limit(5)
         .distinct.to_a ).uniq, 
 
       pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).to_a
