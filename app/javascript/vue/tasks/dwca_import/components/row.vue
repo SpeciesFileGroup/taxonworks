@@ -4,10 +4,10 @@
       :disabled="true"
       :cell="row.status"/>
     <cell-component
-      v-for="(header, index) in headers"
-      :cell="row.data_fields[header].value"
+      v-for="(data_field, index) in row.data_fields"
+      :cell="data_field.value"
+      :cell-index="index"
       :import-id="importId"
-      :attribute="header"
       @update="updateRecord"/>
   </tr>
 </template>
@@ -22,10 +22,6 @@ export default {
     CellComponent
   },
   props: {
-    headers: {
-      type: Array,
-      required: true
-    },
     row: {
       type: Object,
       required: true

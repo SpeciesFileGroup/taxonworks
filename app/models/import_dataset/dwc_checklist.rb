@@ -1,5 +1,8 @@
 class ImportDataset::DwcChecklist < ImportDataset
 
+  has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DwcTaxon'
+  has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DwcExtension'
+
   # TODO: Revisit this (check existing STI in TW and whether this is safe or not).
   #       Taken from https://stackoverflow.com/questions/4507149/best-practices-to-handle-routes-for-sti-subclasses-in-rails
   def self.model_name
@@ -10,13 +13,12 @@ class ImportDataset::DwcChecklist < ImportDataset
     super(params)
 
     if params[:source]
-      records = CSV.read(params[:source].tempfile, headers: true, col_sep: "\t")
-      headers = records.first.to_h.keys
+      records, headers = get_records(params[:source])
 
-      parse_results = Biodiversity::Parser.parse_ary(records["scientificName"])
+      parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] })
       records_lut = { }
 
-      records = records.each_with_index.map do |record, index|
+      core_records = records[:core].each_with_index.map do |record, index|
         records_lut[record["taxonID"]] = {
           index: index,
           type: nil,
@@ -27,12 +29,11 @@ class ImportDataset::DwcChecklist < ImportDataset
           is_synonym: nil,
           parent: record["parentNameUsageID"],
           parse_results: parse_results[index],
-          src_data: record.to_hash
+          src_data: record
         }
       end
 
-
-      records.each do |record|
+      core_records.each do |record|
         acceptedNameUsage = records_lut[record[:src_data]["acceptedNameUsageID"]]
 
         if acceptedNameUsage
@@ -58,7 +59,6 @@ class ImportDataset::DwcChecklist < ImportDataset
           record[:type] = :protonym
         end
 
-
         case record[:type]
         when :protonym
           record[:originalCombination] = record[:index]
@@ -69,13 +69,13 @@ class ImportDataset::DwcChecklist < ImportDataset
         unless record[:parent].nil?
           parent = records_lut[record[:parent]][:index]
           record[:dependencies] << parent
-          records[parent][:dependants] << record[:index]
+          core_records[parent][:dependants] << record[:index]
         end
       end
 
-      records.each do |record|
+      core_records.each do |record|
         dwc_taxon = DatasetRecord::DwcTaxon.new
-        dwc_taxon.initialize_data_fields(record[:src_data])
+        dwc_taxon.initialize_data_fields(record[:src_data].map { |k, v| v })
         dwc_taxon.status = !record[:invalid] && !record[:is_synonym] && record[:parent].nil? ? "Ready" : "NotReady"
         record.delete(:src_data)
         dwc_taxon.metadata = record
@@ -83,8 +83,20 @@ class ImportDataset::DwcChecklist < ImportDataset
         dataset_records << dwc_taxon
       end
 
+      records[:extensions].each do |extension_type, records|
+        records.each do |record|
+          dwc_extension = DatasetRecord::DwcExtension.new
+          dwc_extension.initialize_data_fields(record.map { |k, v| v })
+          dwc_extension.status = "Unsupported"
+          dwc_extension.metadata = { "type" => extension_type }
+
+          dataset_records << dwc_extension
+        end
+      end
+
       self.metadata = {
-        core_headers: headers,
+        core_headers: headers[:core],
+        extensions_headers: headers[:extensions],
         nomenclature_code: "ICN"
       }
     end
@@ -95,4 +107,52 @@ class ImportDataset::DwcChecklist < ImportDataset
   def import(max)
     dataset_records.where(status: "Ready").limit(max).map { |r| r.import }
   end
+
+  private
+
+  def get_records(source)
+    source_path = source.tempfile.path
+    records = { core: [], extensions: {} }
+    headers = { core: [], extensions: {} }
+
+    if ["application/zip", "application/octet-stream"].include? source.content_type
+      dwc = DarwinCore.new(source_path)
+      
+      records[:core], headers[:core] = get_dwc_records(dwc.core)
+
+      dwc.extensions.each do |extension|
+        type = extension.properties[:rowType]
+        records[:extensions][type], headers[:extensions][type] = get_dwc_records(extension)
+      end
+    elsif ["text/plain"].include? source.content_type
+      records[:core] = CSV.read(source_path, headers: true, col_sep: "\t").map { |r| r.to_h }
+      headers[:core] = records.first.to_h.keys
+    else
+      raise "Unsupported input format"
+    end
+
+    return records, headers
+  end
+
+  def get_dwc_records(table)
+    records = []
+    headers = []
+
+    headers[table.id[:index]] = "id"
+    # TODO: Think what to do about complex namespaces like "/std/Iptc4xmpExt/2008-02-29/" (currently returning the full URI as header)
+    table.fields.each do |field| 
+      term = field[:term].match(/\/([^\/]+)\/terms\/([^\/]+)\/?$/)
+      #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
+      headers[field[:index]] = term ? term[2] : field[:term]
+    end
+    
+    records = table.read.first.map do |row|
+      record = {}
+      row.each_with_index { |v, i| record[headers[i]] = v }
+      record
+    end
+
+    return records, headers
+  end
+
 end

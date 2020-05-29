@@ -44,6 +44,6 @@ class ImportDataset < ApplicationRecord
   validates :description, uniqueness: { scope: :project }, presence: true
 
   validates_attachment :source, presence: true,
-    content_type: { content_type: "text/plain" },
+    content_type: { content_type: ["text/plain", "application/zip", "application/octet-stream"] },
     size: { greater_than: 1.bytes }
 end

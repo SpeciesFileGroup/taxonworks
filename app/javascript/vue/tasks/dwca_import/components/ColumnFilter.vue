@@ -50,7 +50,7 @@ export default {
   },
   props: {
     field: {
-      type: String,
+      type: Number,
       required: true
     },
     value: {

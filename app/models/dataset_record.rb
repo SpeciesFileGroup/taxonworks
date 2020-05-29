@@ -1,8 +1,8 @@
 # A DatasetRecord is the unit of data (typically a table row) from an ImportDataset
 #
 # @!attribute data_fields
-#   @return [Hash]
-#      data of each record field. Structure: { some_field: {data: "[text]", original_data: "[text]", frozen?: boolean}, another_field: ... }
+#   @return [Array]
+#      data of each record field. Structure: [ { data: "[text]", original_data: "[text]", frozen?: boolean }, ... ]
 #
 # @!attribute metadata
 #   @return [Hash]
@@ -23,22 +23,20 @@ class DatasetRecord < ApplicationRecord
   validates :data_fields, presence: true
 
   def initialize_data_fields(field_data)
-    data_fields = self.data_fields || {}
-
-    field_data.each do |field_name, value|
-      data_fields[field_name] = {
+    
+    self.data_fields = field_data.map do |value|
+      {
         "value" => value,
         "original_value" => value,
         "frozen" => false
       }
     end
 
-    self.data_fields = data_fields
   end
 
-  def set_data_field(field_name, value)
-    data_fields[field_name].merge!({
+  def set_data_field(index, value)
+    data_fields[index].merge!({
       "value" => value
-    }) unless data_fields[field_name]["frozen"]
+    }) unless data_fields[index]["frozen"]
   end
 end

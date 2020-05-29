@@ -21,9 +21,9 @@ export default {
       type: [String],
       default: undefined
     },
-    attribute: {
-      type: String,
-      default: undefined
+    cellIndex: {
+      type: Number,
+      required: true
     },
     disabled: {
       type: Boolean,
@@ -51,7 +51,7 @@ export default {
           this.$refs.inputtext.focus()
         })
       } else if (this.tmp !== this.text) {
-        this.$emit('update', { [this.attribute]: this.text })
+        this.$emit('update', { [this.cellIndex]: this.text })
       }
     }
   },

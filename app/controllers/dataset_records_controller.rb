@@ -7,11 +7,13 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = ImportDataset.find(params[:import_dataset_id]).dataset_records.page(params[:page]).per(params[:per] || 100)
+    @dataset_records = ImportDataset.find(params[:import_dataset_id]).core_records.page(params[:page]).per(params[:per] || 100)
 
     params[:filter]&.each do |k, v|
-      @dataset_records = @dataset_records.where("data_fields -> ? ->> 'value' = ?", k, v)
+      @dataset_records = @dataset_records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
     end
+
+    @dataset_records = @dataset_records.order(id: :asc)
   end
 
   # GET /dataset_records/1
@@ -49,7 +51,7 @@ class DatasetRecordsController < ApplicationController
   def update
     respond_to do |format|
 
-      JSON.parse(params[:data_fields]).each { |f, v| @dataset_record.set_data_field(f, v) }
+      JSON.parse(params[:data_fields]).each { |index, value| @dataset_record.set_data_field(index.to_i, value) }
 
       if @dataset_record.save
         format.html { redirect_to @dataset_record, notice: 'Dataset record was successfully updated.' }
@@ -65,8 +67,8 @@ class DatasetRecordsController < ApplicationController
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
     values = ImportDataset.find(params[:import_dataset_id])
-      .dataset_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field])
-      .select("data_fields -> '#{params[:field]}' ->> 'value' AS value").distinct # TODO: Sanitize field
+      .core_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field].to_i)
+      .select("data_fields -> #{params[:field].to_i} ->> 'value' AS value").distinct
       .page(params[:page]).per(params[:per] || 10)
       .map { |x| x.value }
 

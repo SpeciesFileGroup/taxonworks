@@ -15,8 +15,8 @@
             <column-filter
               class="margin-medium-left"
               :import-id="importId"
-              v-model="filters[item]"
-              :field="item"/>
+              v-model="filters[index]"
+              :field="index"/>
           </div>
         </th>
       </tr>
@@ -28,8 +28,7 @@
         :class="{ 'even': (index % 2 == 0) }"
         :id="row.id"
         :row="row"
-        :import-id="importId"
-        :headers="table.headers"/>
+        :import-id="importId"/>
     </tbody>
   </table>
 </template>
