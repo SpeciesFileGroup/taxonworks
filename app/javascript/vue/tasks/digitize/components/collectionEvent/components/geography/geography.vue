@@ -5,6 +5,7 @@
       ref="smartSelector"
       model="geographic_areas"
       target="CollectingEvent"
+      label="name"
       klass="CollectingEvent"
       @selected="selectGeographicArea"
     />
@@ -82,7 +83,7 @@ import ModalComponent from 'components/modal'
 import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
-  mixins: refreshSmartSelector,
+  mixins: [refreshSmartSelector],
   components: {
     SmartSelector,
     ModalComponent
