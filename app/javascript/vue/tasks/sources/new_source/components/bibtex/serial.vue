@@ -17,7 +17,7 @@
             @selected="setSelected"/>
           <div class="horizontal-right-content padding-medium-right">
             <lock-component
-              class="circle-button"
+              class="circle-button-margin"
               v-model="settings.lock.serial_id"/>
           </div>
         </div>
@@ -35,9 +35,6 @@
           </div>
         </div>
       </fieldset>
-      <div class="vertical-content">
-        
-      </div>
     </div>
   </div>
 </template>

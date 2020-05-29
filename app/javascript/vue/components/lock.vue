@@ -38,7 +38,7 @@ $primary: #006ebf;
 $lightGrey: #99A3BA;
 
 .switch-lock {
-  height: 24px;
+  height: 26px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -46,8 +46,8 @@ $lightGrey: #99A3BA;
     display: none;
     & + span {
       padding-left: 50px;
-      min-height: 24px;
-      line-height: 24px;
+      min-height: 26px;
+      line-height: 26px;
       display: block;
       color: $lightGrey;
       position: relative;
@@ -64,16 +64,16 @@ $lightGrey: #99A3BA;
       &:before {
         top: 0;
         left: 0;
-        width: 42px;
-        height: 24px;
+        width: 48px;
+        height: 28px;
         background: #E4ECFA;
         transition: all .3s ease;
       }
       &:after {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
         background: #fff;
-        top: 3px;
+        top: 2px;
         left: 3px;
         box-shadow: 0 1px 3px rgba(#121621, .1);
         transition: all .45s ease;
@@ -83,7 +83,7 @@ $lightGrey: #99A3BA;
         height: 7px;
         background: $lightGrey;
         position: absolute;
-        left: 8px;
+        left: 11px;
         bottom: 7px;
         border-radius: 2px;
         display: block;
@@ -163,7 +163,7 @@ $lightGrey: #99A3BA;
           background: $primary;
           &:after {
             border-color: $primary;
-            transform: rotate(0deg) translate(0, 0);
+            transform: rotate(0deg) translate(-1px, 0);
           }
         }
         strong {

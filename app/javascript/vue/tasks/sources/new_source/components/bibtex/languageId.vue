@@ -13,7 +13,7 @@
             @selected="setSelected"/>
           <div class="horizontal-right-content padding-medium-right">
             <lock-component
-              class="circle-button"
+              class="circle-button-margin"
               v-model="settings.lock.language_id"/>
           </div>
         </div>

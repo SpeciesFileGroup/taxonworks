@@ -27,7 +27,7 @@
   background-color: $color-secondary-2-4 !important;
 }
 
-.button-default-pin {
+.btn-pin {
   background-image: image-url("b_pin.svg");
 }
 
@@ -114,6 +114,7 @@
   background-size: 10px !important;
 }
 .circle-button {
+  @extend .circle-button-margin;
   border-radius: 50%;
   display: block;
   width: 24px;
@@ -124,7 +125,6 @@
   background-position: center;
   background-repeat: no-repeat;
   box-shadow: 0px 1px 2px 0px $navigation_border;
-  margin: 5px;
   cursor: pointer;
 }
 
@@ -258,6 +258,9 @@
   height: 30px;
 }
 
+.circle-button-margin {
+  margin: 5px;
+}
 .box-button {
   cursor: pointer;
   width: 24px;
