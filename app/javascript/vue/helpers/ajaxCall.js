@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource'
-
+import { capitalize } from './strings'
 Vue.use(VueResource)
 
 const ajaxCall = function (type, url, data = null) {
@@ -25,7 +25,7 @@ const ajaxCall = function (type, url, data = null) {
 const handleError = function (json) {
   if (typeof json !== 'object') return
   TW.workbench.alert.create(Object.keys(json).map(key => {
-    return `<span data-icon="warning">${key}</span>: <ul><li>${json[key].join('</li><li>')}</li></ul>`
+    return `<span data-icon="warning">${key}:</span> <ul><li>${json[key].map(line => capitalize(line)).join('</li><li>')}</li></ul>`
   }).join(''), 'error')
 }
 
