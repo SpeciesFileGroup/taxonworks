@@ -1134,7 +1134,11 @@ class CollectingEvent < ApplicationRecord
   end
 
   def check_date_range
-    errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    begin
+      errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    rescue
+      errors.add(:base, 'Start and/or end date invalid.')
+    end
     errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
   end
 
