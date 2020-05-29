@@ -137,3 +137,87 @@ $pane_margin: .2em;
   margin-top: $standard_margin;
 }
 
+
+
+// Padding
+
+
+.padding-small {
+  padding: $standard_padding*0.5;
+}
+
+.padding-medium {
+  padding: $standard_padding;
+}
+
+.padding-large {
+  padding: $standard_padding*1.5;
+}
+
+.padding-small-top {
+  padding-top: $standard_padding*0.5;
+}
+
+.padding-medium-top {
+  padding-top: $standard_padding;
+}
+
+.padding-large-top {
+  padding-top: $standard_padding*1.5;
+}
+
+.padding-small-left {
+  padding-left: $standard_padding*0.5;
+}
+
+.padding-medium-left {
+  padding-left: $standard_padding;
+}
+
+.padding-large-left {
+  padding-left: $standard_padding*1.5;
+}
+
+.padding-small-right {
+  padding-right: $standard_padding*0.5;
+}
+
+.padding-medium-right {
+  padding-right: $standard_padding;
+}
+
+.padding-large-right {
+  padding-right: $standard_padding*1.5;
+}
+
+.padding-small-bottom {
+  padding-bottom: $standard_padding*0.5;
+}
+
+.padding-medium-bottom {
+  padding-bottom: $standard_padding;
+}
+
+.padding-large-bottom {
+  padding-bottom: $standard_padding*1.5;
+}
+
+.padding-remove {
+  padding: 0px;
+}
+
+.padding-remove-left {
+  padding-left: 0px;
+}
+
+.padding-remove-right {
+  padding-right: 0px;
+}
+
+.padding-remove-top {
+  padding-top: 0px;
+}
+
+.padding-remove-bottom {
+  padding-bottom: 0px;
+}

@@ -131,6 +131,10 @@ export default {
     addTabs: {
       type: Array,
       default: () => { return [] }
+    },
+    params: {
+      type: Object,
+      default: () => { return {} }
     }
   },
   data () {
@@ -158,7 +162,7 @@ export default {
       this.$emit('selected', item)
     },
     refresh () {
-      AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
+      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
         this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
         this.view = SelectFirst(this.lists, this.options)

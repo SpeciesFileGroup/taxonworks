@@ -177,8 +177,10 @@ export default {
   },
   watch: {
     source: { 
-      handler () {
-        this.settings.lastEdit = Date.now()
+      handler (newVal, oldVal) {
+        if (newVal.id === oldVal.id) {
+          this.settings.lastEdit = Date.now()
+        }
       },
       deep: true
     }

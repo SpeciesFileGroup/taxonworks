@@ -3,12 +3,24 @@
     <div class="horizontal-left-content full_width">
       <fieldset class="full_width">
         <legend>Serial</legend>
-        <smart-selector
-          input-id="serials-autocomplete"
-          model="serials"
-          klass="source"
-          label="name"
-          @selected="setSelected"/>
+        <div class="horizontal-left-content align-start">
+          <smart-selector
+            class="full_width"
+            ref="smartSelector"
+            input-id="serials-autocomplete"
+            model="serials"
+            target="Source"
+            klass="Source"
+            label="name"
+            pin-section="Serials"
+            pin-type="Serial"
+            @selected="setSelected"/>
+          <div class="horizontal-right-content padding-medium-right">
+            <lock-component
+              class="circle-button"
+              v-model="settings.lock.serial_id"/>
+          </div>
+        </div>
         <div
           class="middle separate-top"
           v-if="selected">
@@ -24,13 +36,7 @@
         </div>
       </fieldset>
       <div class="vertical-content">
-        <lock-component
-          class="circle-button"
-          v-model="settings.lock.serial_id"/>
-        <default-pin
-          section="Serials"
-          type="serial"
-          @getId="getDefault"/>
+        
       </div>
     </div>
   </div>
@@ -43,7 +49,6 @@ import { MutationNames } from '../../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
-import DefaultPin from 'components/getDefaultPin'
 import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'
@@ -52,7 +57,6 @@ export default {
   components: {
     SmartSelector,
     LockComponent,
-    DefaultPin,
     RadialObject
   },
   computed: {
@@ -71,6 +75,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
   data () {
@@ -90,6 +97,13 @@ export default {
         }
       },
       immediate: true
+    },
+    lastSave: {
+      handler (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$refs.smartSelector.refresh()
+        }
+      }
     }
   },
   methods: {
