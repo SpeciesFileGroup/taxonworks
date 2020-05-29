@@ -143,7 +143,7 @@ export default {
     },
     cloneCE () {
       CloneCollectionEvent(this.collectingEvent.id).then(response => {
-        this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
+        this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response.body))
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
     }

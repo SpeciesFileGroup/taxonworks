@@ -64,7 +64,7 @@
     },
     mounted() {
       GetPreparationTypes().then(response => {
-        this.coTypes = response
+        this.coTypes = response.body
       })
     }
   }

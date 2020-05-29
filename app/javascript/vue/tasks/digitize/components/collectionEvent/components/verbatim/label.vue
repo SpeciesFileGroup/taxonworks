@@ -75,9 +75,9 @@ export default {
     searchCE () {
       if (this.label) {
         GetCEMd5Label(this.label).then(response => {
-          if (response.length) {
-            this.CEFounded = response
-            if (!response.find(item => { return item.id === this.collectingEvent.id })) {
+          if (response.body.length) {
+            this.CEFounded = response.body
+            if (!response.body.find(item => { return item.id === this.collectingEvent.id })) {
               this.showModal = true
             }
           }

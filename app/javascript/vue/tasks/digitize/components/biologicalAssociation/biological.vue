@@ -52,7 +52,7 @@ export default {
   methods: {
     loadTabList () {
       GetBiologicalRelationships().then(response => {
-        this.allItems = response
+        this.allItems = response.body
       })
     },
     setBiologicalAssociation (item) {

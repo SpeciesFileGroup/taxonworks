@@ -231,8 +231,8 @@ export default {
     otuId(newVal) {
       if(newVal) {
         GetOtu(newVal).then(response => {
-          this.otuSelected = response.object_tag
-          this.otu = response
+          this.otuSelected = response.body.object_tag
+          this.otu = response.body
         })
       }
       else {

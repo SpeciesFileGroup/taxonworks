@@ -181,7 +181,7 @@ export default {
     const taxonId = urlParams.get('taxon_name_id')
 
     GetTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
 
     if (/^\d+$/.test(taxonId)) {

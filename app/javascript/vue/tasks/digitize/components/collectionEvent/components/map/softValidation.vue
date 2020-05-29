@@ -39,7 +39,7 @@ export default {
       handler (newVal) {
         if (newVal && this.collectingEvent.id) {
           GetSoftValidation(this.collectingEvent.global_id).then(response => {
-            this.validation = response.validations.soft_validations
+            this.validation = response.body.validations.soft_validations
           })
         }
       },
@@ -49,7 +49,7 @@ export default {
     collectingEvent (newVal, oldVal) {
       if (newVal.id && newVal.id != oldVal.id) {
         GetSoftValidation(this.collectingEvent.global_id).then(response => {
-          this.validation = response.validations.soft_validations
+          this.validation = response.body.validations.soft_validations
         })
       }
     }

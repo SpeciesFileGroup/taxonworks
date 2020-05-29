@@ -1,38 +1,4 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
-
-Vue.use(VueResource)
-
-const ajaxCall = function (type, url, data = null) {
-  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-  return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(response)
-      }
-      return resolve(response.body)
-    }, response => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(response)
-      }
-      handleError(response)
-      return reject(response)
-    })
-  })
-}
-
-const handleError = function (json) {
-  if ((typeof json !== 'object') || (json.status === 404)) return
-  let errors = Object.keys(json.body)
-  let errorMessage = ''
-
-  if(errors.length === 1 && 'success') return
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>') + '<br>'
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
-}
+import ajaxCall from 'helpers/ajaxCall'
 
 const GetProjectPreferences = function () {
   return ajaxCall('get', `/project_preferences.json`)
@@ -70,48 +36,8 @@ const UpdateUserPreferences = function (id, data) {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
 
-const GetRepositorySmartSelector = function () {
-  return ajaxCall('get', `/repositories/select_options`)
-}
-
-const GetSourceSmartSelector = function () {
-  return ajaxCall('get', `/sources/select_options`)
-}
-
-const GetNamespacesSmartSelector = function () {
-  return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
-}
-
-const GetTaxonNameSmartSelector = function () {
-  return ajaxCall('get', `/taxon_names/select_options`, { params: { 'nomenclature_group[]': 'SpeciesGroup' } })
-}
-
-const GetCollectingEventsSmartSelector = function () {
-  return ajaxCall('get', `/collecting_events/select_options`)
-}
-
-const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options`)
-}
-
 const FilterCollectingEvent = function (params) {
   return ajaxCall('get', `/collecting_events.json`, { params: params })
-}
-
-const GetCollectorsSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Collector`)
-}
-
-const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
-}
-
-const GetGeographicSmartSelector = function () {
-  return ajaxCall('get', `/geographic_areas/select_options?target=CollectingEvent`)
-}
-
-const GetOtuSmartSelector = function () {
-  return ajaxCall('get', `/otus/select_options?target=TaxonDetermination`)
 }
 
 const GetTaxonDeterminationCO = function (id) {
@@ -144,10 +70,6 @@ const GetTaxon = function (id) {
 
 const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
-}
-
-const GetBiologicalRelationshipsSmartSelector = function () {
-  return ajaxCall('get', '/biological_relationships/select_options')
 }
 
 const CreateLabel = function (data) {
@@ -218,10 +140,6 @@ const GetBiocurationsCreated = function (biologicalId) {
   return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${biologicalId}`)
 }
 
-const GetBiocuration = function (biologicalId, biocurationClassId) {
-  return ajaxCall('get', `/biocuration_classifications.json?biocuration_class_id=${biocurationClassId}&biological_collection_object_id=${biologicalId}`)
-}
-
 const GetPreparationTypes = function () {
   return ajaxCall('get', `/preparation_types.json`)
 }
@@ -244,14 +162,6 @@ const GetCollectionEventDepictions = function (id) {
 
 const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
-}
-
-const GetOtuBiologicalAssociationsSmartSelector = function () {
-  return ajaxCall('get', '/otus/select_options?target=BiologicalAssociation')
-}
-
-const GetCOBiologicalAssociationSmartSelector = function () {
-  return ajaxCall('get', `/collection_objects/select_options?target=BiologicalAssociation`)
 }
 
 const GetIdentifier = function (id) {
@@ -330,19 +240,7 @@ export {
   GetIdentifiersFromCO,
   GetRecentCollectionObjects,
   GetBiologicalRelationshipsCreated,
-  GetTaxonNameSmartSelector,
-  GetCollectorsSmartSelector,
-  GetRepositorySmartSelector,
-  GetGeographicSmartSelector,
-  GetSourceSmartSelector,
-  GetTaxonDeterminatorSmartSelector,
-  GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,
-  GetOtuBiologicalAssociationsSmartSelector,
-  GetCOBiologicalAssociationSmartSelector,
-  GetOtuSmartSelector,
-  GetCollectingEventsSmartSelector,
-  GetTypeDesignatorSmartSelector,
   GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
@@ -366,7 +264,6 @@ export {
   CreateCollectionEvent,
   GetBiocurationsTypes,
   GetBiocurationsCreated,
-  GetBiocuration,
   GetBiocurationsGroupTypes,
   GetBiocurationsTags,
   GetPreparationTypes,
@@ -388,6 +285,5 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetNamespacesSmartSelector,
   GetGeographicArea
 }
