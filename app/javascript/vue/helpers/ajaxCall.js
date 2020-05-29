@@ -26,7 +26,7 @@ const handleError = function (json) {
   if (typeof json !== 'object') return
   TW.workbench.alert.create(Object.keys(json).map(key => {
     return `<span data-icon="warning">${key}</span>: <ul><li>${json[key].join('</li><li>')}</li></ul>`
-  }).join(), 'error')
+  }).join(''), 'error')
 }
 
 export default ajaxCall
