@@ -593,6 +593,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               Current.project_id = project_id.to_i
               citation_on_otu = false
               new_protonym = false
+              skip_citation = false
 
               if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0]].nil?
                 pr = Protonym.create(name: nomenclator_ids[nomenclator_id.to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
@@ -864,21 +865,20 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                               # just create another citation
               elsif tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s]
                 # just create another citation
-                if rank_pass == 'genus' && nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.name
+                if false # rank_pass == 'genus' && nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.name
                   # just create another citation
                 else
                   taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s]
 
                   if !taxon_name_id1.nil?
                     p = TaxonName.find(taxon_name_id1)
-                    skip_citation = false
                     if p && p.id != protonym.id
                       tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
                       if tr.nil? && (row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note']) || row['Note'].include?('Synonym') )
-                        p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && (p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling)
-                        protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
+                        p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && (p.name == p.valid_taxon_name.name || (!p.cached_secondary_homonym_alternative_spelling.nil? && p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling))
+                        tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
                         tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
-                        skip_citation = true if tr.id && protonym.cached_valid_taxon_name_id != p.cached_valid_taxon_name_id
+                        skip_citation = true if tr.id
                       elsif protonym.cached_valid_taxon_name_id == p.cached_valid_taxon_name_id
                         protonym = p
                         taxon_name_id = p.id
@@ -893,16 +893,17 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                           created_by_id: get_tw_user_id[row['CreatedBy']],
                           updated_by_id: get_tw_user_id[row['ModifiedBy']]
                       ) if tr.try(:id)
+                      skip_citation = true if tr.try(:id)
                     end
-                    next if skip_citation && tr.try(:id)
+#                    next if skip_citation && tr.try(:id)
                   elsif (row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note']) || row['Note'].include?('Synonym') )
                     taxon_name_id1 = tw_taxa_ids[project_id + '_' + nomenclator_string]
                     if !taxon_name_id1.nil?
                       p = TaxonName.find(taxon_name_id1)
                       tr = TaxonNameRelationship.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first
                       if tr.nil?
-                        p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && (p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling)
-                        protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
+                        p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && (p.name == p.valid_taxon_name.name || (!p.cached_secondary_homonym_alternative_spelling.nil? && p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling))
+                        tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
                         tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                       end
                       citation = Citation.create(
@@ -915,7 +916,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                           created_by_id: get_tw_user_id[row['CreatedBy']],
                           updated_by_id: get_tw_user_id[row['ModifiedBy']]
                       ) if tr.try(:id)
-                      next if tr.try(:id)
+                      skip_citation = true if tr.try(:id)
                     end
                   end
                 end
@@ -978,10 +979,21 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
                   next
                 end
+                tr = p.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
                 if row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note'] || row['Note'].include?('Synonym') )
-                  tr = p.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
-                else
-                  tr = p.taxon_name_relationships.create(object_taxon_name: protonym, type: 'TaxonNameRelationship::Iczn::Invalidating', project_id: project_id)
+                  protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid', project_id: project_id) if protonym.id == protonym.cached_valid_taxon_name_id
+                  tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+                      citation = Citation.create(
+                          source_id: source_id,
+                          pages: row['CitePages'],
+                          citation_object: tr,
+                          project_id: project_id,
+                          created_at: row['CreatedOn'],
+                          updated_at: row['LastUpdate'],
+                          created_by_id: get_tw_user_id[row['CreatedBy']],
+                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                      )
+                  skip_citation = true if tr.try(:id)
                 end
 
                 byebug if tr.id.nil?
@@ -994,7 +1006,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
               end
 
-              unless is_original
+              if !is_original && !skip_citation
                 if citation_on_otu
                   new_otu = Otu.find_or_create_by(
                                taxon_name_id: protonym.id,
@@ -1030,23 +1042,23 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   if !qualifier_string.blank? && !citation.id.nil?
                     n = citation.notes.create(text: 'Cited as ' + qualifier_string, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                   end
-                  if row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note'] || row['Note'].include?('Synonym') )
-                    syn_tnr = TaxonNameRelationship.where(subject_taxon_name_id: taxon_name_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
-                    if syn_tnr.count == 1
-                      citation = Citation.create(
-                          source_id: source_id,
-                          pages: row['CitePages'],
-                          citation_object: syn_tnr.first,
-                          project_id: project_id,
-                          created_at: row['CreatedOn'],
-                          updated_at: row['LastUpdate'],
-                          created_by_id: get_tw_user_id[row['CreatedBy']],
-                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                      )
-                    end
-                  elsif !citation.id.nil?
+#                  if row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note'] || row['Note'].include?('Synonym') )
+#                    syn_tnr = TaxonNameRelationship.where(object_taxon_name_id: taxon_name_id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+#                    if syn_tnr.count == 1
+#                      citation = Citation.create(
+#                          source_id: source_id,
+#                          pages: row['CitePages'],
+#                          citation_object: syn_tnr.first,
+#                          project_id: project_id,
+#                          created_at: row['CreatedOn'],
+#                          updated_at: row['LastUpdate'],
+#                          created_by_id: get_tw_user_id[row['CreatedBy']],
+#                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
+#                      )
+#                    end
+#                  elsif !citation.id.nil?
                     citation.notes.create(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
-                  end
+#                  end
                   unless citation.id.nil?
                     if nomenclator_id == '0' && protonym.is_genus_or_species_rank?
                       citation.tags.create(keyword_id: no_nomenclator_keywords[project_id])
