@@ -1056,9 +1056,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 #                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
 #                      )
 #                    end
-#                  elsif !citation.id.nil?
+                  if !citation.id.nil?
                     citation.notes.create(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
-#                  end
+                  end
                   unless citation.id.nil?
                     if nomenclator_id == '0' && protonym.is_genus_or_species_rank?
                       citation.tags.create(keyword_id: no_nomenclator_keywords[project_id])
