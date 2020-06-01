@@ -59,6 +59,7 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { getUnique } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -135,6 +136,10 @@ export default {
     params: {
       type: Object,
       default: () => { return {} }
+    },
+    customList: {
+      type: Object,
+      default: () => { return {} }
     }
   },
   data () {
@@ -147,6 +152,12 @@ export default {
   watch: {
     view (newVal) {
       this.$emit('onTabSelected', newVal)
+    },
+    customList: {
+      handler () {
+        this.addCustomElements()
+      },
+      deep: true
     }
   },
   mounted () {
@@ -174,6 +185,17 @@ export default {
         }
         this.options = this.options.concat(this.addTabs)
       })
+    },
+    addCustomElements () {
+      const keys = Object.keys(this.customList)
+      if (keys.length) {
+        keys.forEach(key => {
+          if (this.lists[key]) {
+            this.lists[keys] = getUnique(this.lists[keys].concat(this.customList[key]), 'id')
+          }
+        })
+      }
+      this.view = SelectFirst(this.lists, this.options)
     }
   }
 }

@@ -1,5 +1,17 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const CreateOtu = function(id) {
+  return ajaxCall('post', `/otus`, { otu: { taxon_name_id: id } })
+}
+
+const GetOtus = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+}
+
 const GetProjectPreferences = function () {
   return ajaxCall('get', `/project_preferences.json`)
 }
@@ -229,6 +241,8 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetOtus,
+  CreateOtu,
   GetProjectPreferences,
   GetCEMd5Label,
   GetSoftValidation,

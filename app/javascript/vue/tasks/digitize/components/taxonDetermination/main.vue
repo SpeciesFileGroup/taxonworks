@@ -19,6 +19,7 @@
             pin-type="Otu"
             :autocomplete="false"
             :otu-picker="true"
+            :custom-list="smartList"
             target="TaxonDetermination"
             @selected="setOtu"
           />
@@ -125,7 +126,7 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import { GetOtu } from '../../request/resources.js'
+import { GetOtu, GetOtus, CreateOtu } from '../../request/resources.js'
 
 import SmartSelector from 'components/smartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
@@ -219,10 +220,13 @@ export default {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
-  data() {
+  data () {
     return {
       view: undefined,
-      otuSelected: undefined
+      otuSelected: undefined,
+      smartList: {
+        quick: []
+      }
     }
   },
   watch: {
@@ -246,12 +250,24 @@ export default {
       this.$refs.determinerSmartSelector.refresh()
     }
   },
-  mounted() {
-    let urlParams = new URLSearchParams(window.location.search)
-    let otuId = urlParams.get('otu_id')
+  mounted () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id')
+    const taxonId = urlParams.get('taxon_name_id')
 
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
+    }
+    if (/^\d+$/.test(taxonId)) {
+      GetOtus(taxonId).then(response => {
+        if (response.body.length) {
+          this.smartList.quick = response.body
+        } else {
+          CreateOtu(taxonId).then(otu => {
+            this.smartList.quick.push(otu.body)
+          })
+        }
+      })
     }
   },
   methods: {
