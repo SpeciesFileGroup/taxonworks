@@ -581,11 +581,11 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
 
 
-              if row['TaxonNameID'].to_s == '1140765' #|| row['TaxonNameID'].to_s == '1109754' || row['TaxonNameID'].to_s == '1137729' || row['TaxonNameID'].to_s == '1137725'
+ #             if row['TaxonNameID'].to_s == '1140765' #|| row['TaxonNameID'].to_s == '1109754' || row['TaxonNameID'].to_s == '1137729' || row['TaxonNameID'].to_s == '1137725'
  #                byebug
-              else
-                next
-              end
+ #             else
+ #               next
+ #             end
 
          #    '1137725' Barbitistes alpinus  row "stat. nov., neotype designation"" creates a new protonym without citation (second record) ; original species subspecies relationship is not created
          #     '1137729' "Barbitistes serricaudus" taxon name with different ending, but no citation
