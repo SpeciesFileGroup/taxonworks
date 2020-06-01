@@ -47,6 +47,7 @@
             @onTabSelected="view = $event"
             @selected="addRole">
             <role-picker
+              class="role-picker"
               :autofocus="false"
               :create-form="view == 'search'"
               ref="rolepicker"
@@ -308,9 +309,10 @@ export default {
         max-width: 80px;
       }
     }
+    .role-picker {
       .vue-autocomplete-input {
         max-width: 150px;
       }
-    
+    }
   }
 </style>
