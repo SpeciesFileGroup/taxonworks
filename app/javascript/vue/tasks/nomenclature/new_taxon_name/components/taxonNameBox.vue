@@ -15,7 +15,7 @@
     <div class="panel basic-information">
       <div class="content header">
         <h3
-          v-if="taxon.id"       
+          v-if="taxon.id"
           class="flex-separate middle">
           <a
             v-shortkey="[getMacKey(), 't']"
@@ -34,7 +34,7 @@
             <default-confidence :global-id="taxon.global_id"/>
             <radial-annotator :global-id="taxon.global_id" />
             <otu-radial
-              :taxon-id="taxon.id"
+              :object-id="taxon.id"
               :taxon-name="taxon.object_tag"/>
             <radial-object :global-id="taxon.global_id" />
             <span
