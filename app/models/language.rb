@@ -27,7 +27,7 @@ class Language < ApplicationRecord
   has_many :serials, inverse_of: :language, foreign_key: :primary_language_id
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
   
-  scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(:sources).where(sources: { created_at: 1.weeks.ago..Time.now } ).order('"sources"."created_at" DESC') }
+  scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order('"sources"."created_at" DESC') }
   scope :used_recently_on_serials, -> { joins(:serials).includes(:serials).where(serials: { created_at: 1.weeks.ago..Time.now } ).order('"serials"."created_at" DESC') }
 
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
@@ -53,9 +53,9 @@ class Language < ApplicationRecord
   # @param klass ['source' || 'serial']
   def self.select_optimized(user_id, project_id, klass = 'source')
     recent = if klass == 'source'
-               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10).order(:english_name).to_a
+               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10).to_a.sort{|a,b| a.english_name <=> b.english_name}
              elsif klass == 'serial'
-               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).order(:english_name).to_a
+               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).to_a.sort{|a,b| a.english_name <=> b.english_name}
              end
     h = {
       recent: recent,
