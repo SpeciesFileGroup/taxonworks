@@ -21,6 +21,7 @@
           </option>
         </select>
         <ul
+          style="overflow-y: scroll; max-height: 60vh;"
           class="no_bullets">
           <li
             v-for="item in rows"
@@ -41,13 +42,30 @@
           </li>
         </ul>
       </div>
-      <button
+      <div
         slot="footer"
-        @click="addRows"
-        :disabled="!rowsSelected.length"
-        class="button normal-input button-submit">
-        Add rows
-      </button>
+        class="flex-separate">
+        <div>
+          <button
+            @click="addRows"
+            :disabled="!rowsSelected.length"
+            class="button normal-input button-submit">
+            Add rows
+          </button>
+        </div>
+        <div v-if="matrixSelected">
+          <button
+            class="button normal-input button-default"
+            @click="selectAll">
+            Select all
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="unselectAll">
+            Unselect all
+          </button>
+        </div>
+      </div>
     </modal-component>
   </div>
 </template>
@@ -151,6 +169,12 @@ export default {
     closeModal () {
       this.showModal = false
       this.$emit('close')
+    },
+    selectAll () {
+      this.rowsSelected = this.rows.filter(item => { return !this.alreadyExist(item) })
+    },
+    unselectAll () {
+      this.rowsSelected = []
     }
   }
 }
