@@ -1179,11 +1179,10 @@ class TaxonName < ApplicationRecord
       .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
     TaxonName.with_taxon_name_relationships
-      .includes(:taxon_name_relationships)
-      .where(taxon_names_relationships: {project_id: project_id, created_by_id: user_id})
+      .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_name_relationships.updated_at DESC')
+      .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
   end
 
   # @return [Array]
