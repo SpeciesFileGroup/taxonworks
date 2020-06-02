@@ -291,8 +291,8 @@ class Source < ApplicationRecord
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
-      .take(10)
       .distinct
+      .take(10)
 
     # z is a table alias
     z = i.as('recent_t')
@@ -314,10 +314,10 @@ class Source < ApplicationRecord
       Source.joins(:citations)
       .where( citations: { project_id: project_id, updated_by_id: user_id } )
       .used_recently(user_id, project_id, target)
-      .limit(5).distinct.to_a +
+      .distinct.limit(5).order(:cached).to_a +
     Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
       .order('created_at DESC')
-      .limit(5).to_a
+      .limit(5).order(:cached).to_a
     ).uniq
 
     h[:recent] ||= []
@@ -354,9 +354,9 @@ class Source < ApplicationRecord
 
         case type
         when 'Source::Verbatim'
-          s.verbatim = m + verbatim
+          s.verbatim = m + verbatim.to_s
         when 'Source::Bibtex'
-          s.title = m + title
+          s.title = m + title.to_s
         end
 
         s.save!

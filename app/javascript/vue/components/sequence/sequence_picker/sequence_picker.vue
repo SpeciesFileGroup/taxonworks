@@ -134,20 +134,3 @@ export default {
     }
   }
 }
-</script>
-<style lang="scss">
-.vue-otu-picker {
-  position: relative;
-  .new-otu-panel {
-    position: absolute;
-    z-index: 50;
-  }
-  .close-panel {
-    opacity: 0.5;
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    cursor: pointer;
-  }
-}
-</style>

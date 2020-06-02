@@ -11,13 +11,15 @@
         <legend>OTU</legend>
         <div class="horizontal-left-content separate-bottom align-start">
           <smart-selector
-            class="margin-medium-bottom"
+            class="margin-medium-bottom full_width"
             model="otus"
+            ref="smartSelector"
             input-id="determination-otu-autocomplete"
             pin-section="Otus"
             pin-type="Otu"
             :autocomplete="false"
             :otu-picker="true"
+            :custom-list="smartList"
             target="TaxonDetermination"
             @selected="setOtu"
           />
@@ -38,12 +40,17 @@
         <legend>Determiner</legend>
         <div class="horizontal-left-content separate-bottom align-start">
           <smart-selector
+            class="full_width"
+            ref="determinerSmartSelector"
             model="people"
             target="Determiner"
             :autocomplete="false"
+            @onTabSelected="view = $event"
             @selected="addRole">
             <role-picker
+              class="role-picker"
               :autofocus="false"
+              :create-form="view == 'search'"
               ref="rolepicker"
               role-type="Determiner"
               v-model="roles"/>
@@ -119,23 +126,20 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import { GetOtu } from '../../request/resources.js'
+import { GetOtu, GetOtus, CreateOtu } from '../../request/resources.js'
 
 import SmartSelector from 'components/smartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import BlockLayout from 'components/blockLayout.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import LockComponent from 'components/lock'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 
-
 export default {
   components: {
     SmartSelector,
     RolePicker,
-    OtuPicker,
     BlockLayout,
     LockComponent,
     Draggable,
@@ -211,17 +215,18 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
-  data() {
+  data () {
     return {
-      view: 'new/Search',
-      viewDeterminer: 'new/Search',
-      options: [],
-      optionsDeterminer: ['Quick', 'Recent', 'Pinboard', 'new/Search'],
-      lists: [],
-      listsDeterminator: [],
-      otuSelected: undefined
+      view: undefined,
+      otuSelected: undefined,
+      smartList: {
+        quick: []
+      }
     }
   },
   watch: {
@@ -231,22 +236,38 @@ export default {
     otuId(newVal) {
       if(newVal) {
         GetOtu(newVal).then(response => {
-          this.otuSelected = response.object_tag
-          this.otu = response
+          this.otuSelected = response.body.object_tag
+          this.otu = response.body
         })
       }
       else {
         this.otu = undefined
         this.otuSelected = undefined
       }
+    },
+    lastSave (newVal) {
+      this.$refs.smartSelector.refresh()
+      this.$refs.determinerSmartSelector.refresh()
     }
   },
-  mounted() {
-    let urlParams = new URLSearchParams(window.location.search)
-    let otuId = urlParams.get('otu_id')
+  mounted () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id')
+    const taxonId = urlParams.get('taxon_name_id')
 
     if (/^\d+$/.test(otuId)) {
       this.otuId = otuId
+    }
+    if (/^\d+$/.test(taxonId)) {
+      GetOtus(taxonId).then(response => {
+        if (response.body.length) {
+          this.smartList.quick = response.body
+        } else {
+          CreateOtu(taxonId).then(otu => {
+            this.smartList.quick.push(otu.body)
+          })
+        }
+      })
     }
   },
   methods: {
@@ -265,7 +286,7 @@ export default {
     },
     addDetermination () {
       if (this.list.find((determination) => {
-        return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year) 
+        return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year)
       })
       ) { return }
       this.taxonDetermination.object_tag = `${this.otuSelected}`
@@ -304,9 +325,10 @@ export default {
         max-width: 80px;
       }
     }
+    .role-picker {
       .vue-autocomplete-input {
         max-width: 150px;
       }
-    
+    }
   }
 </style>

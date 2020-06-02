@@ -2,34 +2,25 @@
   <fieldset>
     <legend v-help.section.BibTeX.authors>Authors</legend>
     <smart-selector
-      v-model="view"
-      class="separate-bottom"
-      :options="options"/>
-    <div
-      v-if="view && view != 'new/Search'"
-      class="separate-bottom">
-      <ul v-if="lists[view].length" class="no_bullets">
-        <li
-          v-for="item in lists[view]"
-          :key="item.id"
-          v-if="!roleExist(item.id)">
-          <label>
-            <input
-              type="radio"
-              :checked="roleExist(item.id)"
-              @click="addRole(item)"
-              :value="item.id">
-            <span v-html="item.object_tag"/>
-          </label>
-        </li>
-      </ul>
-    </div>
-    <role-picker
-      ref="rolePicker"
-      v-model="source.roles_attributes"
-      :autofocus="false"
-      :filter-by-role="true"
-      role-type="SourceAuthor"/>
+      ref="smartSelector"
+      model="people"
+      @onTabSelected="view = $event"
+      target="Source"
+      klass="Source"
+      :params="{ role_type: 'SourceAuthor' }"
+      :autocomplete-params="{
+        roles: ['SourceAuthor']
+      }"
+      :autocomplete="false"
+      @selected="addRole">
+      <role-picker
+        :create-form="view == 'search'"
+        ref="rolePicker"
+        v-model="source.roles_attributes"
+        :autofocus="false"
+        :filter-by-role="true"
+        role-type="SourceAuthor"/>
+    </smart-selector>
   </fieldset>
 </template>
 
@@ -38,12 +29,8 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
+import SmartSelector from 'components/smartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import SmartSelector from 'components/switch'
-import AjaxCall from 'helpers/ajaxCall'
-
-import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 
 export default {
   components: {
@@ -58,23 +45,25 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSource, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
   data () {
     return {
       options: [],
-      view: 'new/Search',
-      lists: undefined
+      view: undefined
     }
   },
-  mounted () {
-    AjaxCall('get', `/people/select_options?role_type=SourceAuthor`).then(response => {
-      let result = response.body
-      this.options = OrderSmart(Object.keys(result))
-      this.lists = result
-      this.options.push('new/Search')
-      this.view = SelectFirst(this.lists, this.options) ? SelectFirst(this.lists, this.options) : 'new/Search'
-    })
+  watch: {
+    lastSave: {
+      handler (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$refs.smartSelector.refresh()
+        }
+      }
+    }
   },
   methods: {
     roleExist (id) {

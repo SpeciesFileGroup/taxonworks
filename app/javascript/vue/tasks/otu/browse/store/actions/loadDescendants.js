@@ -55,7 +55,8 @@ function getAllGeoreferences(CEIds) {
 export default ({ commit }, otu) => {
   const params = {
     taxon_name_id: [otu.taxon_name_id],
-    descendants: true
+    descendants: true,
+    descendants_max_depth: 2
   }
   const descendants = {
     taxon_names: [],

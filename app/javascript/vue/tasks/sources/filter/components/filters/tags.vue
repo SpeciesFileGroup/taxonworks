@@ -16,8 +16,9 @@
     <display-list
       :list="keywords"
       label="object_tag"
+      :delete-warning="false"
       @deleteIndex="removeKeyword"
-      />
+    />
   </div>
 </template>
 
@@ -25,6 +26,8 @@
 
 import SmartSelector from 'components/smartSelector'
 import DisplayList from 'components/displayList'
+import { GetKeyword } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -63,6 +66,16 @@ export default {
         this.params = this.keywords.map(keyword => { return keyword.id })
       },
       deep: true
+    }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (urlParams.keyword_ids) {
+      urlParams.keyword_ids.forEach(id => {
+        GetKeyword(id).then(response => {
+          this.addKeyword(response.body)
+        })
+      })
     }
   },
   methods: {

@@ -64,7 +64,7 @@ export default {
   props: {
     otuName: {
       type: String,
-      required: true
+      default: undefined
     }
   },
   data () {

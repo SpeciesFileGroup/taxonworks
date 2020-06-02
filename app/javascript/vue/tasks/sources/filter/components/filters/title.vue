@@ -27,6 +27,8 @@
 
 <script>
 
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -43,6 +45,12 @@ export default {
         this.$emit('input', value)
       }
     }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.source.title = urlParams.title
+    this.source.exact_title = urlParams.exact_title
+    this.source.query_term = urlParams.query_term
   }
 }
 </script>

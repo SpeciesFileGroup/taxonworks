@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -58,6 +61,10 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.optionValue = params.nomenclature_code
   }
 }
 </script>

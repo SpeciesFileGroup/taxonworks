@@ -56,8 +56,7 @@
         :href="`/tasks/gis/otu_distribution_data?otu_id=${metadata.object_id}`"
         target="blank">Map</a>
     </div>
-    <h3>In this geographic area</h3>
-    <table-list 
+    <table-list
       class="separate-top"
       :header="['Geographic area', 'Absent', '']"
       :attributes="[['geographic_area', 'name'], 'is_absent']"
@@ -98,22 +97,7 @@
         return this.list.findIndex(item => item.id === this.asserted_distribution.id);
       },
       filterList() {
-        let newList = []
-        let that = this;
-
-        if(this.asserted_distribution.citations_attributes[0].source_id) {
-          this.list.forEach(item => {
-            if(item.citations.find(citation => { 
-                return citation.source_id == that.asserted_distribution.citations_attributes[0].source_id 
-              })) {
-              newList.push(item)
-            }
-          })
-          return newList
-        }
-        else {
-          return this.list
-        }
+        return this.list
       },
       existingArea() {
         return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && item.is_absent === this.asserted_distribution.is_absent })

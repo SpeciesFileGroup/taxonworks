@@ -13,7 +13,10 @@
         class="middle reload-app">Reset</span>
     </div>
     <div>
-      <div class="flexbox horizontal-center-content align-start">
+      <div
+        v-shortkey="[getMacKey(), 't']"
+        @shortkey="switchTaxonNameTask()"
+        class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
           <name-section
             class="separate-bottom"
@@ -45,6 +48,7 @@ import spinner from 'components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
+import GetMacKey from 'helpers/getMacKey.js'
 
 import setParamsId from './helpers/setParamsId'
 
@@ -73,6 +77,7 @@ export default {
   },
   mounted: function () {
     this.loadTaxonTypes()
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Go to new taxon name task', 'New type material')
   },
   watch: {
     taxon (newVal) {
@@ -110,7 +115,17 @@ export default {
       if (findType) {
         this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
       }
-    }
+    },
+    switchTaxonNameTask () {
+      let urlParams = new URLSearchParams(window.location.search)
+      let taxonId = urlParams.get('taxon_name_id')
+      if (taxonId) {
+        window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`, '_self')
+      } else {
+        window.open('/tasks/nomenclature/new_taxon_name', '_self')
+      }
+    },
+    getMacKey: GetMacKey
   }
 }
 

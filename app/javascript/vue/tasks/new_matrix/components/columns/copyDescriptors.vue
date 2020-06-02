@@ -3,7 +3,7 @@
     <modal-component
       v-if="showModal"
       :container-style="{ width: '500px' }"
-      @close="showModal = false">
+      @close="closeModal">
       <h3 slot="header">Copy descriptors from matrix</h3>
       <div slot="body">
         <spinner-component
@@ -137,12 +137,17 @@ export default {
         this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
         this.descriptorsSelected = []
         TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
+        this.closeModal()
       })
     },
     alreadyExist (item) {
       return this.columns.find(column => {
         return item.descriptor_id === column.descriptor_id
       })
+    },
+    closeModal () {
+      this.showModal = false
+      this.$emit('close')
     }
   }
 }

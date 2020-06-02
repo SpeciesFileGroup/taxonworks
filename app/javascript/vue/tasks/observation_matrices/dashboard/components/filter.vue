@@ -1,5 +1,5 @@
 <template>
-  <div class="panel filter">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <span
@@ -122,9 +122,6 @@ export default {
 }
 </script>
 <style scoped>
-  .filter {
-    min-width: 300px;
-  }
   /deep/ .vue-autocomplete-input {
     width: 100%;
   }

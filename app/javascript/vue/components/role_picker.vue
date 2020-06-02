@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="horizontal-left-content align-start">
+    <div
+      v-if="createForm"
+      class="horizontal-left-content align-start">
       <div class="horizontal-left-content">
         <autocomplete
           :autofocus="autofocus"
@@ -132,6 +134,10 @@
       filterByRole: {
         type: Boolean,
         default: false
+      },
+      createForm: {
+        type: Boolean,
+        default: true
       }
     },
     data: function () {

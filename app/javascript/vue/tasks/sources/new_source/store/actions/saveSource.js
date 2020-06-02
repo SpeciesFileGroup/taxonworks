@@ -18,7 +18,7 @@ export default ({ state, commit }) => {
         commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
       })
       state.settings.saving = false
-      state.settings.lastSave = Date.now() + 100
+      commit(MutationNames.SetLastSave, Date.now() + 100)
       TW.workbench.alert.create('Source was successfully updated.', 'notice')
     }, () => {
       state.settings.saving = false
@@ -36,7 +36,7 @@ export default ({ state, commit }) => {
         commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
       })
       state.settings.saving = false
-      state.settings.lastSave = Date.now() + 100
+      commit(MutationNames.SetLastSave, Date.now() + 100)
       TW.workbench.alert.create('Source was successfully created.', 'notice')
     }, () => {
       state.settings.saving = false

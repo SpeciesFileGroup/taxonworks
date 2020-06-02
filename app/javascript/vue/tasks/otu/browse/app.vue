@@ -1,5 +1,8 @@
 <template>
   <div id="browse-otu">
+    <select-otu
+      :otus="otus"
+      @selected="loadOtu"/>
     <spinner-component
       :full-screen="true"
       legend="Loading..."
@@ -77,6 +80,7 @@ import Descendants from './components/descendants'
 import Autocomplete from 'components/autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
+import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
 
 import { GetOtu, GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
@@ -100,7 +104,8 @@ export default {
     CommonNames,
     Autocomplete,
     Draggable,
-    Descendants
+    Descendants,
+    SelectOtu
   },
   computed: {
     preferences: {

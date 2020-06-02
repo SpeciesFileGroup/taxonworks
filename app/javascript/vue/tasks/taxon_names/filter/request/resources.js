@@ -12,8 +12,13 @@ const GetTaxonNames = (params) => {
   return ajaxCall('get', '/taxon_names.json', { params: params })
 }
 
+const GetTaxonName = (id) => {
+  return ajaxCall('get', `/taxon_names/${id}.json`)
+}
+
 export {
   GetStatusMetadata,
   GetRelationshipsMetadata,
-  GetTaxonNames
+  GetTaxonNames,
+  GetTaxonName
 }
