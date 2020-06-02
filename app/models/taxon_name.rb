@@ -1159,8 +1159,9 @@ class TaxonName < ApplicationRecord
   def self.used_recently_in_classifications(user_id, project_id)
     TaxonName.where(project_id: project_id, created_by_id: user_id)
       .joins(:taxon_name_classifications)
+      .includes(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at DESC')
+      .order('taxon_name_classifications.updated_at DESC')
   end
 
   # @return [Scope]
@@ -1178,10 +1179,11 @@ class TaxonName < ApplicationRecord
       .or( t2[:created_at].between( 1.weeks.ago..Time.now ) ).to_sql
 
     TaxonName.with_taxon_name_relationships
-      .where(taxon_names: {project_id: project_id, created_by_id: user_id})
+      .includes(:taxon_name_relationships)
+      .where(taxon_names_relationships: {project_id: project_id, created_by_id: user_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at DESC')
+      .order('taxon_name_relationships.updated_at DESC')
   end
 
   # @return [Array]

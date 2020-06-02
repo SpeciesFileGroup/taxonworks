@@ -73,7 +73,7 @@ class Topic < ControlledVocabularyTerm
         Topic.where(project_id: project_id, citations: {updated_by_id: user_id})
         .used_on_klass(klass)
         .used_recently(user_id, project_id, 'Citation')
-        .limit(5).distinct.to_a +
+        .distinct.limit(5).order(:name).to_a +
       Topic.where(
         project_id: project_id,
         created_by_id: user_id,
@@ -82,7 +82,7 @@ class Topic < ControlledVocabularyTerm
         ).uniq
     when 'Content'
       h[:recent] = Topic.joins(:contents)
-        .where(project_id: project_id, contents: {updated_by_id: user_id}).used_recently(user_id, project_id, 'Content').limit(10).distinct.to_a
+        .where(project_id: project_id, contents: {updated_by_id: user_id}).used_recently(user_id, project_id, 'Content').distinct.limit(10).to_a
     end
 
     h[:quick] = (Topic.pinned_by(user_id)

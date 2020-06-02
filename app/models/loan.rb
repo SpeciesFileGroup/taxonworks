@@ -176,8 +176,8 @@ class Loan < ApplicationRecord
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at']).desc
-      .take(10)
       .distinct
+      .take(10)
 
     # z is a table alias 
     z = i.as('recent_t')
@@ -195,9 +195,10 @@ class Loan < ApplicationRecord
         .order(created_at: :desc).to_a +
       Loan.joins(:loan_items)
         .where(project_id: project_id) # !! do not scope to person, multiple people might work on same loan?
-        .used_recently(project_id).limit(5)
+        .used_recently(project_id)
         .distinct
-      ).uniq, 
+        .limit(5)
+      ).uniq,
 
       pinboard: Loan.pinned_by(user_id).where(project_id: project_id).to_a
     }

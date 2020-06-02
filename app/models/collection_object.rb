@@ -593,7 +593,7 @@ class CollectionObject < ApplicationRecord
       h[:recent] = CollectionObject.joins(n)
         .where(collection_objects: {project_id: project_id}, n => {updated_by_id: user_id})
         .used_recently(user_id, project_id, target)
-        .limit(10).distinct.to_a
+        .distinct.limit(10).to_a
     else
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
     end

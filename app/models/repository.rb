@@ -45,12 +45,13 @@ class Repository < ApplicationRecord
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
   validates_presence_of :name, :acronym
 
-  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."created_at" DESC') }
+#  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: (Repository.used_in_project(project_id).where(collection_objects: {created_by_id: user_id}).used_recently.limit(10).distinct.to_a +
+      recent: (Repository.used_in_project(project_id).where(collection_objects: {created_by_id: user_id}).used_recently.distinct.limit(10).order(:name).to_a +
                Repository.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
     pinboard: Repository.pinned_by(user_id).pinned_in_project(project_id).to_a
     }

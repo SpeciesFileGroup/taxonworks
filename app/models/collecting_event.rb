@@ -303,7 +303,7 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   class << self
@@ -317,8 +317,10 @@ class CollectingEvent < ApplicationRecord
         recent: (CollectingEvent.used_in_project(project_id)
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
+          .distinct
           .limit(5)
-          .distinct.to_a +
+          .order(:cached)
+          .to_a +
         CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }

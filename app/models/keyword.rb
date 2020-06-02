@@ -16,8 +16,8 @@ class Keyword < ControlledVocabularyTerm
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
-      .take(10)
       .distinct
+      .take(10)
 
     # z is a table alias 
     z = i.as('recent_t')
@@ -45,8 +45,9 @@ class Keyword < ControlledVocabularyTerm
         Keyword.joins(:tags)
         .where(project_id: project_id, tags: {updated_by_id: user_id})
         .used_on_klass(klass)
-        .used_recently(user_id, project_id).limit(5)
-        .distinct.to_a ).uniq, 
+        .used_recently(user_id, project_id)
+        .distinct.limit(5)
+        .order(:name).to_a ).uniq,
 
       pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).to_a
     }
