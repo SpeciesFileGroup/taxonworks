@@ -985,7 +985,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   p1 = p
                   p1 = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && (p.name == p.valid_taxon_name.name || (!p.cached_secondary_homonym_alternative_spelling.nil? && p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling))
 
-                  tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+                  tr = protonym.taxon_name_relationships.find_or_create_by!(object_taxon_name: p1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                       citation = Citation.create(
                           source_id: source_id,
                           pages: row['CitePages'],
