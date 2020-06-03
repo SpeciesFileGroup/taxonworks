@@ -6,6 +6,7 @@ import getPreferences from './getPreferences'
 import getUserId from './getUserId'
 import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
+import getLoadState from './getLoadState'
 
 const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
@@ -15,7 +16,8 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
-  GetCurrentOtu: 'getCurrentOtu'
+  GetCurrentOtu: 'getCurrentOtu',
+  getLoadState: 'getLoadState'
 }
 
 const GetterFunctions = {
@@ -26,7 +28,8 @@ const GetterFunctions = {
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
-  [GetterNames.GetCurrentOtu]: getCurrentOtu
+  [GetterNames.GetCurrentOtu]: getCurrentOtu,
+  [GetterNames.GetLoadState]: getLoadState
 }
 
 export {

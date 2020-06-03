@@ -5,7 +5,7 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span> <span>({{ specimen.individualCount }} {{ biocurations.map(item => { return item.object_tag.toLowerCase() }).join(', ') }})</span></span>
+        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span> (<span v-html="countAndBiocurations" />)</span>
     </div>
     <div
       v-if="expand"
@@ -16,7 +16,7 @@
       </span>
       <ul class="no_bullets">
         <li>
-          <span>Counts: <b>{{ specimen.individualCount }} {{ biocurations.map(item => { return item.object_tag }).join(', ') }}</b></span>
+          <span>Counts: <b v-html="countAndBiocurations" /></span>
         </li>
         <li>
           <span>Repository: <b>{{ repositoryLabel }}</b></span>
@@ -66,6 +66,10 @@ export default {
     }
   },
   computed: {
+    countAndBiocurations () {
+      return this.biocurations.length ? `${this.specimen.individualCount} ${this.biocurations.map(item => { return item.object_tag.toLowerCase() }).join(', ')}` : this.specimen.individualCount
+
+    },
     collectingEvents () {
       return this.$store.getters[GetterNames.GetCollectingEvents]
     },

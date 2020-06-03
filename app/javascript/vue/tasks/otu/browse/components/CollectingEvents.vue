@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Distribution">
+  <section-panel
+    title="Distribution"
+    :spinner="isLoading">
     <a name="collecting-events"/>
     <ul>
       <li
@@ -54,6 +56,9 @@ export default {
     }
   },
   computed: {
+    isLoading () {
+      return this.$store.getters[GetterNames.GetLoadState].distribution
+    },
     collectingEvents: {
       get () {
         return this.$store.getters[GetterNames.GetCollectingEvents]

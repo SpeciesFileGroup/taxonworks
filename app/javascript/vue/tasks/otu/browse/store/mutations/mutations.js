@@ -5,6 +5,7 @@ import setPreferences from './setPreferences'
 import setAssertedDistributions from './setAssertedDistributions'
 import setCurrentOtu from './setCurrentOtu'
 import setDescendants from './setDescendants'
+import setLoadState from './setLoadState'
 
 const MutationNames = {
   SetCollectingEvents: 'setCollectingEvents',
@@ -13,7 +14,8 @@ const MutationNames = {
   SetPreferences: 'setPreferences',
   SetAssertedDistributions: 'setAssertedDistributions',
   SetCurrentOtu: 'setCurrentOtu',
-  SetDescendants: 'setDescendants'
+  SetDescendants: 'setDescendants',
+  SetLoadState: 'setLoadState'
 }
 
 const MutationFunctions = {
@@ -23,7 +25,8 @@ const MutationFunctions = {
   [MutationNames.SetPreferences]: setPreferences,
   [MutationNames.SetAssertedDistributions]: setAssertedDistributions,
   [MutationNames.SetCurrentOtu]: setCurrentOtu,
-  [MutationNames.SetDescendants]: setDescendants
+  [MutationNames.SetDescendants]: setDescendants,
+  [MutationNames.SetLoadState]: setLoadState
 }
 
 export {
