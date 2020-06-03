@@ -20,7 +20,12 @@
           <td v-html="item.biological_association_object_id === metadata.object_id ? item.biological_relationship.inverted_name : item.biological_relationship.name"/>
           <td v-html="getSubjectOrObject(item)"/>
           <td>{{ item.biological_association_object_id === metadata.object_id }}</td>
-          <td v-html="getCitationString(item)"/>
+          <td>
+            <citation-count
+              :object="item"
+              target="biological_associations"
+            />
+          </td>
           <td class="vue-table-options">
             <span
               class="circle-button btn-edit"
@@ -39,10 +44,12 @@
 <script>
 
   import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import CitationCount from '../shared/citationsCount.vue'
 
   export default {
     components: {
-      RadialAnnotator
+      RadialAnnotator,
+      CitationCount
     },
     props: {
       list: {

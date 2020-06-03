@@ -135,6 +135,9 @@ export default {
       else {
         return undefined
       }
+    },
+    alreadyExist () {
+      return this.list.find(item => item.biological_relationship_id === this.biologicalRelationship.id && item.biological_association_object_id === this.biologicalRelation.id)
     }
   },
   data () {
@@ -167,12 +170,19 @@ export default {
         subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
         citations_attributes: [this.citation]
       }
-
-      this.create('/biological_associations.json', { biological_association: data }).then(response => {
-        this.reset()
-        TW.workbench.alert.create('Biological association was successfully created.', 'notice')
-        this.list.push(response.body)
-      })
+      if (this.alreadyExist) {
+        this.update(`/biological_associations/${this.alreadyExist.id}.json`, { biological_association: data }).then(response => {
+          this.reset()
+          TW.workbench.alert.create('Biological association was successfully updated.', 'notice')
+          this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+        })
+      } else {
+        this.create('/biological_associations.json', { biological_association: data }).then(response => {
+          this.reset()
+          TW.workbench.alert.create('Biological association was successfully created.', 'notice')
+          this.list.push(response.body)
+        })
+      }
     },
     updateAssociation () {
       let data = {
