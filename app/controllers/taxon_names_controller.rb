@@ -272,6 +272,7 @@ class TaxonNamesController < ApplicationController
       :exact,
       :validity,
       :descendants,
+      :descendants_max_depth,
       :updated_since,
       :type_metadata,
       :citations,

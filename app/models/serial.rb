@@ -65,8 +65,7 @@ class Serial < ApplicationRecord
 
   validates_presence_of :name
 
-  scope :used_recently, -> { joins(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
-
+  scope :used_recently, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order('"sources"."created_at" DESC') }
 
   soft_validate(:sv_duplicate?)
 
@@ -160,7 +159,7 @@ class Serial < ApplicationRecord
       Serial.recently_created
         .where(created_by_id: user_id)
         .distinct
-        .limit(5).to_a).uniq,
+        .limit(5).to_a).uniq.sort{|a,b| a.name <=> b.name},
       pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 

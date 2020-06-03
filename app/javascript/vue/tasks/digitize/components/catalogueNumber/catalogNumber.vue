@@ -186,7 +186,7 @@ export default {
       if (this.identifier) {
         this.saveRequest = setTimeout(() => {
           CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
-            that.existingIdentifier = (response.length > 0 ? response[0] : undefined)
+            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
           })
         }, this.delay)
       }

@@ -11,7 +11,9 @@
           v-for="item in typeMaterials"
           :key="item.id"
           class="horizontal-left-content">
-          <span v-html="item.object_tag" />
+          <a
+            :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${item.protonym_id}`"
+            v-html="item.object_tag" />
           <radial-annotator
             :global-id="item.global_id"
             type="annotations"/>
@@ -38,7 +40,9 @@
             <div
               v-if="taxon"
               class="horizontal-left-content">
-              <span v-html="taxon.object_tag" />
+              <a
+                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
+                v-html="taxon.object_tag" />
               <span
                 class="button circle-button btn-undo button-default"
                 @click="taxon = undefined"/>
@@ -181,7 +185,7 @@ export default {
     const taxonId = urlParams.get('taxon_name_id')
 
     GetTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
 
     if (/^\d+$/.test(taxonId)) {

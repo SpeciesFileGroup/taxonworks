@@ -83,11 +83,11 @@
       this.addShortcutsDescription()
 
       GetUserPreferences().then(response => {
-        this.$store.commit(MutationNames.SetPreferences, response)
+        this.$store.commit(MutationNames.SetPreferences, response.body)
       })
 
       GetProjectPreferences().then(response => {
-        this.$store.commit(MutationNames.SetProjectPreferences, response)
+        this.$store.commit(MutationNames.SetProjectPreferences, response.body)
       })
 
       if (/^\d+$/.test(coId)) {

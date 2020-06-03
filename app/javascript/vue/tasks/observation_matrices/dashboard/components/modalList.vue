@@ -29,39 +29,27 @@
           </div>
           <div class="flex-separate">
             <div>
-              <h3>Already in observation matrices</h3>
               <ul class="no_bullets">
                 <template v-for="item in alreadyInMatrices">
                   <li
                     :key="item.id"
                     v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
-                    <label>
-                      <input
-                        @click="loadMatrix(item)"
-                        :value="item"
-                        name="select-matrix-1"
-                        type="radio">
-                      <span v-html="item.object_tag"/>
-                    </label>
+                    <button
+                      class="button normal-input button-default margin-small-bottom"
+                      @click="loadMatrix(item)"
+                      v-html="item.object_tag"/>
                   </li>
                 </template>
               </ul>
-            </div>
-            <div>
-              <h3>Add to observation matrices</h3>
               <ul class="no_bullets">
                 <template v-for="item in matrices">
                   <li
                     :key="item.id"
                     v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
-                    <label>
-                      <input
-                        @click="loadMatrix(item)"
-                        :value="item"
-                        name="select-matrix-2"
-                        type="radio">
-                      <span v-html="item.object_tag"/>
-                    </label>
+                    <button
+                      class="button normal-input button-submit margin-small-bottom"
+                      @click="loadMatrix(item)"
+                      v-html="item.object_tag"/>
                   </li>
                 </template>
               </ul>
@@ -127,7 +115,17 @@ export default {
       this.loading = true
       this.show = true
       GetObservationMatrices().then(response => {
-        this.matrices = response.body
+        this.matrices = response.body.sort((a, b) => { 
+          const compareA = a.object_tag
+          const compareB = b.object_tag
+          if (compareA < compareB) {
+            return -1
+          } else if (compareA > compareB) {
+            return 1
+          } else {
+            return 0
+          }
+        })
         this.loading = false
       })
       GetObservationRow({ otu_id: this.otuId }).then(response => {

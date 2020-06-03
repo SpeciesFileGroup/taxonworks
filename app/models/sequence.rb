@@ -137,7 +137,7 @@ class Sequence < ApplicationRecord
       a = target.tableize.to_sym
       h[:recent] = (
         b.limit(3).to_a + 
-        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(user_id, project_id, target).limit(10).to_a
+        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(user_id, project_id, target).limit(10).order(:name).to_a
       ).uniq
     else
       h[:recent] = b.limit(10).to_a

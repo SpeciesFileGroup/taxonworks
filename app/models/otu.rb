@@ -325,13 +325,13 @@ class Otu < ApplicationRecord
         Otu.joins(n)
         .where(project_id: project_id, n => {updated_by_id: user_id})
         .used_recently(user_id, project_id, target)
-        .limit(10).to_a + 
+        .limit(10).to_a +
       Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
-        .limit(3).to_a
-      ).uniq
+        .limit(3).order(:name).to_a
+      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 

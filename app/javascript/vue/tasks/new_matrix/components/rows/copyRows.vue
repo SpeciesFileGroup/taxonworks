@@ -2,13 +2,13 @@
   <div>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '500px' }"
+      :container-style="{ width: '500px', 'overflow-y': 'scroll', 'max-height': '60vh' }"
       @close="closeModal">
       <h3 slot="header">Copy rows from matrix</h3>
       <div slot="body">
         <spinner-component
           v-if="isLoading"
-          legend="Loading observation matrices..."/>
+          legend="Loading..."/>
         <select
           class="full_width margin-medium-bottom"
           v-model="matrixSelected">
@@ -20,6 +20,30 @@
             {{ item.name }}
           </option>
         </select>
+        <div
+          v-if="matrixSelected"
+          class="flex-separate margin-small-bottom">
+          <div>
+            <button
+              @click="addRows"
+              :disabled="!rowsSelected.length"
+              class="button normal-input button-submit">
+              Add rows
+            </button>
+          </div>
+          <div v-if="matrixSelected">
+            <button
+              class="button normal-input button-default"
+              @click="selectAll">
+              Select all
+            </button>
+            <button
+              class="button normal-input button-default"
+              @click="unselectAll">
+              Unselect all
+            </button>
+          </div>
+        </div>
         <ul
           class="no_bullets">
           <li
@@ -41,13 +65,30 @@
           </li>
         </ul>
       </div>
-      <button
+      <div
         slot="footer"
-        @click="addRows"
-        :disabled="!rowsSelected.length"
-        class="button normal-input button-submit">
-        Add rows
-      </button>
+        class="flex-separate">
+        <div>
+          <button
+            @click="addRows"
+            :disabled="!rowsSelected.length"
+            class="button normal-input button-submit">
+            Add rows
+          </button>
+        </div>
+        <div v-if="matrixSelected">
+          <button
+            class="button normal-input button-default"
+            @click="selectAll">
+            Select all
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="unselectAll">
+            Unselect all
+          </button>
+        </div>
+      </div>
     </modal-component>
   </div>
 </template>
@@ -115,8 +156,10 @@ export default {
   },
   methods: {
     loadRows (matrixId) {
+      this.isLoading = true
       GetMatrixObservationRows(matrixId).then(response => {
         this.rows = response
+        this.isLoading = false
       })
     },
     addRows () {
@@ -151,6 +194,12 @@ export default {
     closeModal () {
       this.showModal = false
       this.$emit('close')
+    },
+    selectAll () {
+      this.rowsSelected = this.rows.filter(item => { return !this.alreadyExist(item) })
+    },
+    unselectAll () {
+      this.rowsSelected = []
     }
   }
 }

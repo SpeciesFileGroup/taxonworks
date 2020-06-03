@@ -1,5 +1,5 @@
 <template>
-  <div class="panel">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <span

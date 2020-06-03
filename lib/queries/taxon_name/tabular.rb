@@ -69,7 +69,7 @@ module Queries
         @validity = (params[:validity]&.downcase == 'true' ? true : false)
 
         @ancestor = ::Protonym.where(project_id: project_id).find(ancestor_id)
-        @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached'] 
+        @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached', 'otu']
         @fieldsets = params[:fieldsets] || []
         @rank_id_fields = []
         @rank_joins = []
@@ -149,6 +149,7 @@ module Queries
           table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id'),
           *name_fields.values,
           table[:cached].as('cached'),
+          otu_table[:name].as('otu_name'),
           *data_fields,
         ).from(table).where(w).distinct
 

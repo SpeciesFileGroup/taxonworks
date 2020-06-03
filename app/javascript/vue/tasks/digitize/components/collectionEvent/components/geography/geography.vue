@@ -130,8 +130,8 @@ export default {
         this.geoId = newVal.geographic_area_id
         if (newVal.geographic_area_id) {
           GetGeographicArea(newVal.geographic_area_id).then(response => {
-            this.selectGeographicArea(response)
-            this.geographicAreaShape = response
+            this.selectGeographicArea(response.body)
+            this.geographicAreaShape = response.body
           })
         } else {
           this.selected = undefined
@@ -158,7 +158,7 @@ export default {
     },
     getByCoords (lat, long) {
       GetGeographicAreaByCoords(lat, long).then(response => {
-        this.areasByCoors = response
+        this.areasByCoors = response.body
       })
     }
   }

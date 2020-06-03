@@ -73,7 +73,7 @@ export default {
     repository(newVal, oldVal) {
       if (newVal) {
         GetRepository(newVal).then(response => {
-          this.setRepository(response)
+          this.setRepository(response.body)
         })
       }
     },

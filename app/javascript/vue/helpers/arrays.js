@@ -8,6 +8,11 @@ function chunkArray (myArray, chunkSize) {
   return results
 }
 
+function getUnique (arr, property) {
+  return [...new Map(arr.map(item => [item[property], item])).values()]
+}
+
 export {
-  chunkArray
+  chunkArray,
+  getUnique
 }

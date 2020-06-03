@@ -92,7 +92,7 @@ export default {
     cloneLabel() {
       this.searching = true
       FilterCollectingEvent({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
-        this.list = response
+        this.list = response.body
         this.searching = false
       })
     },
@@ -102,7 +102,7 @@ export default {
     },
     closeModal() {
       this.showModal = false
-      this.selectedCE = false      
+      this.selectedCE = false
     }
   }
 }

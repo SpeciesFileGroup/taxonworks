@@ -1,6 +1,7 @@
 <template>
   <modal-component
     @close="$emit('close', true)"
+    :containerStyle="{ 'overflow-y': 'scroll', 'max-height': '80vh' }"
     class="full_width">
     <h3 slot="header">Create a source from a verbatim citation or DOI</h3>
     <div slot="body">
