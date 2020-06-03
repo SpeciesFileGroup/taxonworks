@@ -16,11 +16,12 @@
     </td>
     <td>
       <span>
+
         <a
-          v-html="citation.citation_object.origin_citation.object_tag"
+          v-html="citation.citation_object.original_combination"
           :href="showObject()"/> 
-        {{ legend }}
-        <span 
+
+        <span
           v-if="isInvalid"
           data-icon="warning"
           title="Invalid"/>
