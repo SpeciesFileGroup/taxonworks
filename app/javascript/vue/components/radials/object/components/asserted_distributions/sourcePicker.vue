@@ -50,6 +50,7 @@
       <input
         class="normal-input inline pages margin-medium-right"
         v-model="citation.pages"
+        @input="setPage"
         placeholder="pages"
         type="text"
       >
@@ -109,7 +110,7 @@ export default {
   },
   watch: {
     citation: {
-      handler (newVal) {
+      handler (newVal, oldVal) {
         this.sendCitation()
       },
       deep: true
@@ -118,15 +119,16 @@ export default {
       this.autocompleteLabel = newVal
     },
     lock (newVal) {
-      sessionStorage.setItem('radialObject::assertedDistrubion::source::lock', newVal)
+      sessionStorage.setItem('radialObject::source::lock', newVal)
       this.$emit('lock', newVal)
     }
   },
   mounted () {
-    this.lock = convertType(sessionStorage.getItem('radialObject::assertedDistrubion::source::lock'))
+    this.lock = convertType(sessionStorage.getItem('radialObject::source::lock'))
     if (this.lock) {
-      this.citation.source_id = convertType(sessionStorage.getItem('radialObject::assertedDistrubion::source::id'))
-      this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::assertedDistrubion::source::label'))
+      this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
+      this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
+      this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
     }
   },
   methods: {
@@ -159,10 +161,13 @@ export default {
       this.citation = citation
     },
     setSource (source) {
-      sessionStorage.setItem('radialObject::assertedDistrubion::source::id', source.id)
-      sessionStorage.setItem('radialObject::assertedDistrubion::source::label', source.label)
+      sessionStorage.setItem('radialObject::source::id', source.id)
+      sessionStorage.setItem('radialObject::source::label', source.label)
       this.citation.source_id = source.id
       this.autocompleteLabel = source.label
+    },
+    setPage (value) {
+      sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
     }
   }
 }

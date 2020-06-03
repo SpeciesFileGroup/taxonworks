@@ -87,6 +87,7 @@
     <new-citation
       class="separate-top"
       ref="citation"
+      @lock="lockSource = $event"
       @create="citation = $event"
       :global-id="globalId"/>
 
@@ -144,6 +145,7 @@ export default {
       biologicalRelation: undefined,
       citation: undefined,
       flip: false,
+      lockSource: false,
       urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
     }
   },
@@ -154,7 +156,9 @@ export default {
       this.citation = undefined
       this.flip = false
       this.edit = undefined
-      this.$refs.citation.cleanCitation()
+      if (!this.lockSource) {
+        this.$refs.citation.cleanCitation()
+      }
     },
     createAssociation () {
       const data = {
