@@ -33,6 +33,7 @@
           <td class="vue-table-options">
             <citation-count
               :object="item"
+              :values="item.citations"
               target="asserted_distributions"
             />
             <radial-annotator :global-id="item.global_id" />
