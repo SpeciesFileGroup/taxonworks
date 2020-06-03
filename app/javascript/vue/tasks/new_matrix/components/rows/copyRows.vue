@@ -8,7 +8,7 @@
       <div slot="body">
         <spinner-component
           v-if="isLoading"
-          legend="Loading observation matrices..."/>
+          legend="Loading..."/>
         <select
           class="full_width margin-medium-bottom"
           v-model="matrixSelected">
