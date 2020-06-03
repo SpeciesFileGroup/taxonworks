@@ -17,7 +17,7 @@
     <td>
       <span>
         <a
-          v-html="citation.citation_object.object_tag"
+          v-html="citation.citation_object.origin_citation.object_tag"
           :href="showObject()"/> 
         {{ legend }}
         <span 
