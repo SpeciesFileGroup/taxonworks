@@ -156,10 +156,10 @@ export default {
     reset() {
       this.biologicalRelation = undefined
       this.biologicalRelationship = undefined
-      this.citation = undefined
       this.flip = false
       this.edit = undefined
       if (!this.lockSource) {
+        this.citation = undefined
         this.$refs.citation.cleanCitation()
       }
     },
