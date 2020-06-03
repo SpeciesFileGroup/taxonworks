@@ -173,7 +173,7 @@ export default {
       if (this.alreadyExist) {
         this.update(`/biological_associations/${this.alreadyExist.id}.json`, { biological_association: data }).then(response => {
           this.reset()
-          TW.workbench.alert.create('Biological association was successfully updated.', 'notice')
+          TW.workbench.alert.create('Citation was successfully added to biological association.', 'notice')
           this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
         })
       } else {

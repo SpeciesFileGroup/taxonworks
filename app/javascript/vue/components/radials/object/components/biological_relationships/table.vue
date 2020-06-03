@@ -22,6 +22,7 @@
           <td class="vue-table-options">
             <citation-count
               :object="item"
+              :values="item.citations"
               target="biological_associations"
             />
             <span
