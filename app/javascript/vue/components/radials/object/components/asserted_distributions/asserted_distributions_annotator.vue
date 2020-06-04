@@ -100,7 +100,7 @@
         return this.list
       },
       existingArea() {
-        return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && item.is_absent === this.asserted_distribution.is_absent })
+        return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === undefined ? false : this.asserted_distribution.is_absent) })
       }
     },
     data() {
@@ -133,14 +133,16 @@
       createAsserted() {
         if(!this.existingArea) {
           this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
+            TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             this.addToList(response.body)
           })
         }
         else {
           this.asserted_distribution['id'] = this.existingArea.id
           this.update(`/asserted_distributions/${this.existingArea.id}.json`, { asserted_distribution: this.asserted_distribution }).then(response => {
+            TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
             this.addToList(response.body)
-          })          
+          })
         }
       },
       removeCitation(item) {

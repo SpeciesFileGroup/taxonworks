@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import VueResource from 'vue-resource'
+import { capitalize } from 'helpers/strings.js'
 
 Vue.use(VueResource)
 
@@ -18,18 +19,9 @@ const ajaxCall = function (type, url, data) {
 
 const handleError = function (json) {
   if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
-
-  errors.forEach(function (item) {
-    if (Array.isArray(json[item])) {
-      errorMessage += json[item].join('<br>')
-    } else {
-      errorMessage += json[item]
-    }
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
+  TW.workbench.alert.create(Object.keys(json).map(key => {
+    return `<span data-icon="warning">${key}:</span> <ul><li>${json[key].map(line => capitalize(line)).join('</li><li>')}</li></ul>`
+  }).join(''), 'error')
 }
 
 const eventEmitRadialAnnotator = function (typeEvent, object) {

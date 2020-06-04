@@ -69,6 +69,9 @@ export default {
     },
     children () {
       return this.$store.getters[GetterNames.GetDescendants].taxon_names
+    },
+    isLoading () {
+      return this.$store.getters[GetterNames.GetLoadState].descendants
     }
   },
   data () {
@@ -77,7 +80,6 @@ export default {
       onlyValid: true,
       max: 10,
       showAll: false,
-      isLoading: false,
       showModal: false
     }
   },

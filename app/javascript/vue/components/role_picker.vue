@@ -351,6 +351,7 @@
         }
       },
       setPerson: function (person) {
+        person.position = (this.roles_attributes.length + 1)
         this.roles_attributes.push(person)
         this.$emit('input', this.roles_attributes)
       }

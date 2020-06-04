@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     loadSource (source) {
-      window.open(`/sources/${source.id}`)
+      window.open(`/sources/${source.id}`, '_self')
     }
   }
 }
