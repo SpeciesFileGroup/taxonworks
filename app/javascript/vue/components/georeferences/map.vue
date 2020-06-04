@@ -354,10 +354,10 @@ export default {
     randomShapeStyle (index) {
       return {
         weight: 1,
-        color: this.generateHue(index + 1),
+        color: this.generateHue(index + 6),
         dashArray: '3',
         dashOffset: '3',
-        fillOpacity: 0.7
+        fillOpacity: 0.5
       }
     },
     stripeShapeStyle (index) {
@@ -369,7 +369,7 @@ export default {
         spaceWeight: 0.05,
         height: 0.1,
         angle: 45,
-        color: this.generateHue(index + 1),
+        color: this.generateHue(index + 6),
         opacity: 0.9,
         spaceColor: color,
         spaceOpacity: 0.2

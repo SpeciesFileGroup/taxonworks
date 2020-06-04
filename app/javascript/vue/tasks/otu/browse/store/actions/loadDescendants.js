@@ -52,7 +52,7 @@ function getAllGeoreferences(CEIds) {
   })
 }
 
-export default ({ commit }, otu) => {
+export default ({ commit, state }, otu) => {
   const params = {
     taxon_name_id: [otu.taxon_name_id],
     descendants: true,
@@ -66,11 +66,13 @@ export default ({ commit }, otu) => {
 
   GetTaxonNames(params).then(response => {
     descendants.taxon_names = response.body.filter(tn => tn.id !== otu.taxon_name_id)
+    state.loadState.descendants = false
 
     getAllCollectingEvents(descendants.taxon_names).then(collectingEvents => {
       descendants.collecting_events = collectingEvents
       getAllGeoreferences(collectingEvents.map(ce => ce.id)).then(georeferences => {
         descendants.georeferences = georeferences
+        state.loadState.distribution = false
         commit(MutationNames.SetDescendants, descendants)
       })
     })

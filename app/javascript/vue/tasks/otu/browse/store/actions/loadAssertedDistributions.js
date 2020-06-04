@@ -3,7 +3,8 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, otuId) => {
   GetOtuAssertedDistribution({ otu_id: otuId, geo_json: true }).then(response => {
-    commit(MutationNames.SetAssertedDistributions, response.body.sort((a, b) => { 
+    state.loadState.assertedDistribution = false
+    commit(MutationNames.SetAssertedDistributions, response.body.sort((a, b) => {
       const compareA = a.geographic_area.name
       const compareB = b.geographic_area.name
       if (compareA < compareB) {
