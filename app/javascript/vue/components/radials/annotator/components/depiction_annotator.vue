@@ -143,9 +143,9 @@
                 />
                 <span
                   class="button circle-button btn-edit button-submit"
-                  @edit="depiction = item" />
+                  @click="depiction = item" />
                 <span
-                  @click="removeItem(item)"
+                  @click="confirmDelete(item)"
                   class="button circle-button btn-delete"
                 />
               </div>
@@ -242,6 +242,11 @@ export default {
         }
         this.depiction = undefined
       })
+    },
+    confirmDelete (item) {
+      if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
+        this.removeItem(item)
+      }
     }
   }
 }
