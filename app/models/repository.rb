@@ -56,7 +56,8 @@ class Repository < ApplicationRecord
     pinboard: Repository.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (Repository.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (Repository.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a +
+        Repository.used_in_project(project_id).where(collection_objects: {created_by_id: user_id}).used_recently.distinct.limit(3).order(:name).to_a).uniq
     h
   end
 

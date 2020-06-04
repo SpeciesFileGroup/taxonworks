@@ -40,7 +40,8 @@ class ConfidenceLevel < ControlledVocabularyTerm
       pinboard:  ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:quick] = (ConfidenceLevel.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a + h[:recent][0..3]).uniq
+    h[:quick] = (ConfidenceLevel.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        ConfidenceLevel.used_on_klass(klass).used_recently(user_id, project_id).distinct.limit(4).order(:name).to_a).uniq
     h
   end
 

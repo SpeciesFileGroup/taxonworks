@@ -66,7 +66,7 @@ class Namespace < ApplicationRecord
         .where(identifiers: {updated_by_id: user_id})
         .used_in_project(project_id)
         .used_recently
-        .distinct.limit(6).order(:name).to_a +
+        .distinct.limit(6).to_a +
       Namespace.where(created_by_id: user_id, created_at: (3.hours.ago..Time.now)).limit(5)).uniq,
       pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
