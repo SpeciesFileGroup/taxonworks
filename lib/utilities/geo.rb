@@ -19,6 +19,9 @@ To add a new (discovered) symbol:
     # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
     # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
     #
+    # Significant figures/digits: any of the digits of a number beginning with the digit farthest to the left
+    # that is not zero and ending with the last digit farthest to the right that is either not zero
+    # or that is a zero but is considered to be exact
 
     SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022".freeze
 
@@ -45,15 +48,15 @@ To add a new (discovered) symbol:
     ONE_NORTH      = 110_574.38855796 # meters/degree
 
     #
-    class ConvertToDecimalDegrees
-      attr_reader(:dd, :dms)
-
-      # @param [String] coordinate
-      def initialize(coordinate)
-        @dms = coordinate
-        @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
-      end
-    end
+    # class ConvertToDecimalDegrees
+    #   attr_reader(:dd, :dms)
+    #
+    #   # @param [String] coordinate
+    #   def initialize(coordinate)
+    #     @dms = coordinate
+    #     @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
+    #   end
+    # end
 
     # 12345       (presume meters)
     # 123.45
@@ -119,37 +122,38 @@ To add a new (discovered) symbol:
     }.freeze
 =end
     #  ' = \u0027, converted so that the regex can be used for SQL
+    # TODO: Add Unicode right single (u2019) and double (u201D) quote as minutes seconds
     REGEXP_COORD   = {
-      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-      dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
-             hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
+        # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+        dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+               hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
 
-      dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
-             hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
+        dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+               hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
 
-      dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
-             hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
+        dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+               hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
 
-      dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
-             hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
+        dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
+               hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
-             hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
+        dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+               hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
-      dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
-             hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
+        dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
+               hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
-             hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+        dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
+               hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
-      dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
-             hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
+        dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
+               hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
 
-      dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
-             hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
+        dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
+               hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
-      dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-             hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+        dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
+               hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
     }.freeze
     # @param [String] label
     # @param [String] filters
@@ -391,14 +395,14 @@ To add a new (discovered) symbol:
       delta_y = error_radius / ONE_NORTH
 
       Gis::FACTORY.polygon(
-        Gis::FACTORY.line_string(
-          [
-            Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
-            Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
-            Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
-            Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
-          ]
-        )
+          Gis::FACTORY.line_string(
+              [
+                  Gis::FACTORY.point(p0.x - delta_x, p0.y + delta_y), # northwest
+                  Gis::FACTORY.point(p0.x + delta_x, p0.y + delta_y), # northeast
+                  Gis::FACTORY.point(p0.x + delta_x, p0.y - delta_y), # southeast
+                  Gis::FACTORY.point(p0.x - delta_x, p0.y - delta_y) # southwest
+              ]
+          )
       )
     end
 
@@ -411,14 +415,17 @@ To add a new (discovered) symbol:
       delta_y = error_radius / ONE_NORTH
 
       retval = Gis::FACTORY.polygon(Gis::FACTORY.line_string(
-        [Gis::FACTORY.point(p0.x, p0.y + delta_y), # north
-         Gis::FACTORY.point(p0.x + delta_x, p0.y), # east
-         Gis::FACTORY.point(p0.x, p0.y - delta_y), # south
-         Gis::FACTORY.point(p0.x - delta_x, p0.y) # west
-        ]))
+          [Gis::FACTORY.point(p0.x, p0.y + delta_y), # north
+           Gis::FACTORY.point(p0.x + delta_x, p0.y), # east
+           Gis::FACTORY.point(p0.x, p0.y - delta_y), # south
+           Gis::FACTORY.point(p0.x - delta_x, p0.y) # west
+          ]))
       box    = RGeo::Cartesian::BoundingBox.new(Gis::FACTORY)
       box.add(retval)
       box.to_geometry
+    end
+    def significant_digits(number_string)
+
     end
   end
 end

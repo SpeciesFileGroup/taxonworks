@@ -173,7 +173,7 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases for lat/long hunt_wrapper' do
       use_cases = {
-        'Here is some extra text: N 23.23  W 44.44  More stuff at the end'                                                                                =>
+        'Here is some extra text: N 23.23  W 44.44  More stuff at the end' =>
           {'DD1A' => {method: 'text, DD1A'},
            'DD1B' => {piece:  'N 23.23  W 44.44',
                       lat:    'N 23.23',
