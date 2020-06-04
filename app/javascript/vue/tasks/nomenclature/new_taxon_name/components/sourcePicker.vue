@@ -252,14 +252,14 @@ export default {
         pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
-      
+
       if (this.autosave) {
         clearTimeout(this.autosave)
         this.autosave = null
       }
 
       this.autosave = setTimeout(function () {
-        that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon)
+        that.$store.dispatch(ActionNames.UpdateSource, citation)
       }, 3000)
     },
     cloneFromSource() {
