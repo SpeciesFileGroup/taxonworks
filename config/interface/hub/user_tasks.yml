@@ -589,3 +589,11 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
+index_new_collecting_event_task:
+  hub: true
+  name: 'New collecting event'
+  related:
+  categories:
+    - collecting_event
+  status: prototype
+  description: 'Create a new collecting event.'
