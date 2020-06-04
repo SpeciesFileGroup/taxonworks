@@ -159,7 +159,6 @@
 <script>
 
 import CRUD from '../request/crud.js'
-import TableList from 'components/table_list'
 import dropzone from 'components/dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
@@ -170,7 +169,6 @@ export default {
   mixins: [CRUD, annotatorExtend],
   components: {
     dropzone,
-    TableList,
     Autocomplete,
     OtuPicker,
     RadialAnnotator
