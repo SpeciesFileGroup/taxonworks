@@ -322,9 +322,9 @@ class Otu < ApplicationRecord
     if target
       n = target.tableize.to_sym
       h[:recent] = (
-        Otu.joins(n)
-        .where(project_id: project_id, n => {updated_by_id: user_id})
-        .used_recently(user_id, project_id, target)
+#        Otu.joins(n)
+#        .where(project_id: project_id, n => {updated_by_id: user_id})
+        used_recently(user_id, project_id, target)
         .limit(10).to_a +
       Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
