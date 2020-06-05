@@ -298,8 +298,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             if t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Genus' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::GenusGroup::Subgenus'
               tw_taxa_ids[t.project_id.to_s + '_' + t.name] = t.id
             elsif t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' || t.rank_class.to_s == 'NomenclaturalRank::Iczn::SpeciesGroup::Subspecies'
-#              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('genus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('genus').nil?
-#              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('subgenus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('subgenus').nil?
+##################### next two lines were disabled
+
+              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('genus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('genus').nil?
+              tw_taxa_ids[t.project_id.to_s + '_' + t.ancestor_at_rank('subgenus').name + '_' + t.name] = t.id unless t.ancestor_at_rank('subgenus').nil?
             end
           end
           print "\nMaking list of taxa from the DB, 2nd pass\n"
