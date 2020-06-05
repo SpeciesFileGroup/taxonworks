@@ -97,6 +97,7 @@
 
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
+import getPagination from 'helpers/getPagination'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
@@ -122,14 +123,15 @@ export default {
     return {
       types: {
         Otu: 'ObservationMatrixRowItem::SingleOtu',
-        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
+        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject'
       },
       isLoading: false,
       matrixSelected: undefined,
       rowsSelected: [],
       rows: [],
       showModal: true,
-      observationMatrices: []
+      observationMatrices: [],
+      pagination: undefined
     }
   },
   watch: {
@@ -138,8 +140,8 @@ export default {
         if (newVal) {
           this.isLoading = true
           GetObservationMatrices().then(response => {
-            response.splice(response.findIndex(item => { return this.matrixId === item.id }), 1)
-            this.observationMatrices = response
+            response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
+            this.observationMatrices = response.body
             this.isLoading = false
           })
         }
@@ -148,17 +150,26 @@ export default {
     },
     matrixSelected (newVal) {
       if (newVal) {
-        this.loadRows(newVal.id)
+        this.loadRows()
       } else {
         this.rows = []
       }
     }
   },
+  mounted () {
+    const ID = new URLSearchParams(window.location.search).get('import_dataset_id')
+    if (ID) {
+      this.loadDataset(ID)
+    }
+    document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
+    this.$el.querySelector('.modal-container').addEventListener('scroll', this.checkScroll)
+  },
   methods: {
-    loadRows (matrixId) {
+    loadRows (page = undefined) {
       this.isLoading = true
-      GetMatrixObservationRows(matrixId).then(response => {
-        this.rows = response
+      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page }).then(response => {
+        this.rows = this.rows.concat(response.body)
+        this.pagination = getPagination(response)
         this.isLoading = false
       })
     },
@@ -180,7 +191,7 @@ export default {
       data.forEach(row => { promises.push(CreateRowItem({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows)
         this.rowsSelected = []
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
         this.closeModal()
@@ -200,6 +211,19 @@ export default {
     },
     unselectAll () {
       this.rowsSelected = []
+    },
+    checkScroll (event) {
+
+      const scrollPosition = event.target.clientHeight + event.target.scrollTop
+      const listHeght = event.target.scrollHeight
+
+      const bottomOfTable = (scrollPosition >= listHeght)
+      if (bottomOfTable && !this.isLoading) {
+        console.log(this.pagination)
+        if (this.pagination.nextPage) {
+          this.loadRows(this.pagination.nextPage)
+        }
+      }
     }
   }
 }

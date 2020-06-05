@@ -77,7 +77,7 @@
                     <component
                       v-if="descriptor.type && showDescriptor"
                       :is="loadComponent + 'Component'"
-                      @save="saveDescriptor"
+                      @save="saveDescriptor($event, false)"
                       v-model="descriptor"
                     />
                   </div>
@@ -201,14 +201,14 @@ export default {
         short_name: undefined
       }
     },
-    saveDescriptor (descriptor) {
+    saveDescriptor (descriptor, redirect = true) {
       this.saving = true
       if (this.descriptor.id) {
         UpdateDescriptor(descriptor).then(response => {
           this.descriptor = response
           this.saving = false
           TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
-          if (this.matrix) {
+          if (this.matrix && redirect) {
             window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
           }
         }, rejected => {
@@ -221,7 +221,7 @@ export default {
           this.setParameters()
           TW.workbench.alert.create('Descriptor was successfully created.', 'notice')
           if (this.matrix) {
-            this.addToMatrix(this.descriptor)
+            this.addToMatrix(this.descriptor, redirect)
           }
         }, rejected => {
           this.saving = false
@@ -235,7 +235,7 @@ export default {
         TW.workbench.alert.create('Descriptor was successfully deleted.', 'notice')
       })
     },
-    addToMatrix (descriptor) {
+    addToMatrix (descriptor, redirect) {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
@@ -243,7 +243,9 @@ export default {
       }
       CreateObservationMatrixColumn(data).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
-        window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
+        if (redirect) {
+          window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
+        }
       })
     },
     loadMatrix (id) {

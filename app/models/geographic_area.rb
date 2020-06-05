@@ -462,8 +462,18 @@ class GeographicArea < ApplicationRecord
 
     h[:recent] ||= []
 
-    # TODO: stupid, loop the array from above
-    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+    case target
+    when 'CollectingEvent'
+      h[:quick] = (h[:quick] + GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
+          used_recently(user_id, project_id, 'CollectingEvent').
+          distinct.limit(4).order(:name).to_a).uniq
+    when 'AssertedDistribution'
+      h[:quick] = (h[:quick] + GeographicArea.joins(:asserted_distributions).
+          where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
+          used_recently(user_id, project_id, 'AssertedDistribution').
+          distinct.limit(4).order(:name).to_a).uniq
+    end
     h
   end
 

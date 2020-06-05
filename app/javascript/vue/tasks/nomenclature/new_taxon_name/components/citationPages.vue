@@ -30,7 +30,7 @@ export default {
         id: item.id,
         origin_citation_attributes: {
           id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-          source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source_id : null),
+          source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.id : null),
           pages: value
         }
       }
