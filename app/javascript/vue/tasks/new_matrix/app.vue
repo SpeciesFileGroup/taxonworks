@@ -5,7 +5,7 @@
       legend="Loading..."
       :full-screen="true"/>
     <div class="flex-separate middle">
-      <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
+      <h1>{{ (matrix.id ? 'Edit' : 'New') }} observation matrix</h1>
       <div class="horizontal-left-content">
         <ul class="context-menu">
           <li>
