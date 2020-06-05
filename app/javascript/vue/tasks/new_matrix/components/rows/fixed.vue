@@ -58,8 +58,8 @@
     },
     mounted() {
       GetMatrixRowMetadata().then(response => {
-        this.smartOptions = Object.keys(response)
-        this.lists = response
+        this.smartOptions = Object.keys(response.body)
+        this.lists = response.body
       })
     },
     methods: {

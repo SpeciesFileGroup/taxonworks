@@ -137,8 +137,8 @@ export default {
         if (newVal) {
           this.isLoading = true
           GetObservationMatrices().then(response => {
-            response.splice(response.findIndex(item => { return this.matrixId === item.id }), 1)
-            this.observationMatrices = response
+            response.body.splice(response.body.findIndex(item => { return this.matrixId === item.id }), 1)
+            this.observationMatrices = response.body
             this.isLoading = false
           })
         }
@@ -156,8 +156,8 @@ export default {
   methods: {
     loadDescriptors (matrixId) {
       this.isLoading = true
-      GetMatrixObservationColumns(matrixId).then(response => {
-        this.descriptors = response
+      GetMatrixObservationColumns(matrixId, { per: 500 }).then(response => {
+        this.descriptors = response.body
         this.isLoading = false
       })
     },

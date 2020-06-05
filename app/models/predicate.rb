@@ -31,7 +31,7 @@ class Predicate < ControlledVocabularyTerm
     h = {recent: (Predicate.joins(:internal_attributes).used_on_klass(klass)
       .used_recently(user_id, project_id)
       .where(project_id: project_id, data_attributes: {created_by_id: user_id})
-      .distinct.limit(10).order(:name).to_a +
+      .distinct.limit(10).to_a +
     Predicate.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).order(:name).to_a).uniq,
     pinboard:  Predicate.pinned_by(user_id).where(project_id: project_id).to_a
     }

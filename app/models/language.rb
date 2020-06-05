@@ -53,16 +53,16 @@ class Language < ApplicationRecord
   # @param klass ['source' || 'serial']
   def self.select_optimized(user_id, project_id, klass = 'source')
     recent = if klass == 'source'
-               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10).to_a.sort{|a,b| a.english_name <=> b.english_name}
+               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(10)
              elsif klass == 'serial'
-               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).to_a.sort{|a,b| a.english_name <=> b.english_name}
+               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(10).to_a
              end
     h = {
       recent: recent,
       pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent].sort_by{|a| -a.created_at}[0..3]).uniq
     h
   end
 

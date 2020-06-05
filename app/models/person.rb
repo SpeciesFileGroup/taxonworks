@@ -469,10 +469,11 @@ class Person < ApplicationRecord
     end
 
     h[:recent] =
-    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).order(:cached).to_a +
-     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).order(:cached).to_a).uniq
+    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
+     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
 
-    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+        h[:recent][0..3]).uniq
     h
   end
 

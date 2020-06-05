@@ -86,7 +86,7 @@ class Topic < ControlledVocabularyTerm
     end
 
     h[:quick] = (Topic.pinned_by(user_id)
-      .pinboard_inserted.where(project_id: project_id).to_a + h[:recent][0..3]).uniq
+      .pinboard_inserted.where(project_id: project_id).to_a + h[:recent]).uniq
     h
   end
 

@@ -71,7 +71,8 @@ class BiologicalRelationship < ApplicationRecord
       pinboard:  BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        BiologicalRelationship.joins(:biological_associations).used_recently(user_id, project_id).distinct.limit(4).order(:name).to_a).uniq
     h
   end
 end
