@@ -874,7 +874,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                       if tr.nil? && (row['NewNameStatusID'] == '3' || ['Synonym', 'synonym', 'Syn.', 'syn.', 'syn', 'Syn', 'syn.nov.', 'syn. nov.'].include?(row['Note']) || row['Note'].include?('Synonym') )
                         p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && protonym.id != p.cached_valid_taxon_name_id && (p.name == p.valid_taxon_name.name || (!p.cached_secondary_homonym_alternative_spelling.nil? && p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling))
                         tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
-                        tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+                        tr = TaxonNameRelationship.find_or_create_by(object_taxon_name_id: p.id, subject_taxon_name_id: protonym.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                         skip_citation = true if tr.id
                       elsif protonym.cached_valid_taxon_name_id == p.cached_valid_taxon_name_id
                         protonym = p
@@ -901,7 +901,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   if tr.nil?
                     p = p.valid_taxon_name if p.id != p.cached_valid_taxon_name_id && protonym.id != p.cached_valid_taxon_name_id && (p.name == p.valid_taxon_name.name || (!p.cached_secondary_homonym_alternative_spelling.nil? && p.cached_secondary_homonym_alternative_spelling == p.valid_taxon_name.cached_secondary_homonym_alternative_spelling))
                     tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
-                    tr = protonym.taxon_name_relationships.find_or_create_by(object_taxon_name: p, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
+                    tr = TaxonNameRelationship.find_or_create_by(object_taxon_name_id: p.id, subject_taxon_name_id: protonym.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                   end
                   citation = Citation.create(
                       source_id: source_id,
