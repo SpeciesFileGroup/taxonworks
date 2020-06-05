@@ -27,20 +27,20 @@
           </li>
 
           <li>
-            <a href="/otus/new">New Otu</a>
+            <a href="/otus/new">New OTU</a>
           </li>
           <li>
             <a
               v-if="matrix.id"
-              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New Descriptor
+              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New descriptor
             </a>
             <a
               v-else
-              :href="`/tasks/descriptors/new_descriptor`">New Descriptor
+              :href="`/tasks/descriptors/new_descriptor`">New descriptor
             </a>
           </li>
           <li>
-            <a href="/tasks/accessions/comprehensive/index">New Collection Object</a>
+            <a href="/tasks/accessions/comprehensive/index">New collection object</a>
           </li>
           <li>
             <pin-component
