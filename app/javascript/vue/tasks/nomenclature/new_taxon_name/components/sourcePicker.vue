@@ -73,7 +73,7 @@
             </label>
           </div>
         </div>
-        <div v-if="show == 'source' && taxon.id">
+        <div v-show="show == 'source' && taxon.id">
           <div class="horizontal-left-content">
             <autocomplete
               url="/sources/autocomplete"
@@ -118,7 +118,7 @@
             </div>
           </div>
         </div>
-        <div v-if="show == 'verbatim'">
+        <div v-show="show == 'verbatim'">
           <div class="field separate-top">
             <label>Verbatim author</label><br>
             <verbatim-author/>
@@ -128,7 +128,7 @@
             <verbatim-year/>
           </div>
         </div>
-        <div v-if="show == 'person'">
+        <div v-show="show == 'person'">
           <div class="flex-separate">
             <role-picker
               v-model="roles"
