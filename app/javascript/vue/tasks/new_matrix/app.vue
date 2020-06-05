@@ -1,5 +1,9 @@
 <template>
   <div id="vue_new_matrix_task">
+    <spinner-component
+      v-if="settings.loadingRows || settings.loadingColumns"
+      legend="Loading..."
+      :full-screen="true"/>
     <div class="flex-separate middle">
       <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
       <div class="horizontal-left-content">
@@ -80,6 +84,7 @@ import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import PinComponent from 'components/pin.vue'
+import SpinnerComponent from 'components/spinner'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -96,23 +101,27 @@ export default {
     columnsFixed,
     columnDynamic,
     RadialAnnotator,
-    PinComponent
+    PinComponent,
+    SpinnerComponent
   },
   computed: {
-    matrix() {
+    matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
     },
-    isRow() {
+    isRow () {
       return (this.$store.getters[GetterNames.GetMatrixView] == 'row' ? true : false) 
     },
-    isFixed() {
+    isFixed () {
       return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
     },
-    columnList() {
+    columnList () {
       return this.$store.getters[GetterNames.GetMatrixColumns]
     },
-    matrixId() {
+    matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
+    },
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
     }
   },
   data() {

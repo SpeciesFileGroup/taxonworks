@@ -2,7 +2,7 @@
   <div class="flexbox horizontal-left-content align-start margin-medium-left">
     <div>
       <rows-table
-        class="margin-small-bottom"
+        class="margin-medium-bottom"
         :list="rowsListDynamic"
         :matrix-id="matrixId"
         :header="['Dynamic rows', '']"
@@ -11,6 +11,10 @@
         @delete="removeRow"
         :edit="true"
         @order="updateRowsOrder"/>
+      <pagination-component
+        v-if="fixedRowPagination"
+        @nextPage="loadRowPage"
+        :pagination="fixedRowPagination"/>
       <rows-table
         :list="rowsList"
         :matrix-id="matrixId"
@@ -22,10 +26,14 @@
         :edit="true"
         :code="true"
         @order="updateRowsOrder"/>
+      <pagination-component
+        v-if="fixedRowPagination"
+        @nextPage="loadRowPage"
+        :pagination="fixedRowPagination"/>
     </div>
     <div class="margin-medium-left">
       <columns-table
-        class="margin-small-bottom"
+        class="margin-medium-bottom"
         :list="columnsListDynamic"
         :matrix-id="matrixId"
         :row="false"
@@ -34,6 +42,10 @@
         :global-id-path="['global_id']"
         @delete="removeColumn"
         @order="updateColumnsOrder"/>
+      <pagination-component
+        v-if="fixedColumnPagination"
+        @nextPage="loadColumnPage"
+        :pagination="fixedColumnPagination"/>
       <columns-table
         :list="columnsList"
         :matrix-id="matrixId"
@@ -44,24 +56,30 @@
         :global-id-path="['descriptor', 'global_id']"
         @delete="removeColumn"
         @order="updateColumnsOrder"/>
+      <pagination-component
+        v-if="fixedColumnPagination"
+        @nextPage="loadColumnPage"
+        :pagination="fixedColumnPagination"/>
     </div>
   </div>
 </template>
 <script>
 
 import { 
-  default as RowsTable, 
-  default as ColumnsTable 
+  default as RowsTable,
+  default as ColumnsTable
 } from './table.vue'
 
 import { SortRows, SortColumns } from '../../request/resources'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import PaginationComponent from 'components/pagination'
 
 export default {
   components: {
     RowsTable,
-    ColumnsTable
+    ColumnsTable,
+    PaginationComponent
   },
   computed: {
     matrixId() {
@@ -79,24 +97,36 @@ export default {
     rowsListDynamic() {
       return this.$store.getters[GetterNames.GetMatrixRowsDynamic]
     },
+    fixedRowPagination () {
+      return this.$store.getters[GetterNames.GetRowFixedPagination]
+    },
+    fixedColumnPagination () {
+      return this.$store.getters[GetterNames.GetColumnFixedPagination]
+    }
   },
   methods: {
-    removeColumn(column) {
+    removeColumn (column) {
       this.$store.dispatch(ActionNames.RemoveColumn, column.id)
     },
-    removeRow(row) {
+    removeRow (row) {
       this.$store.dispatch(ActionNames.RemoveRow, row.id)
     },
-    updateRowsOrder(ids) {
+    updateRowsOrder (ids) {
       SortRows(ids).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       })
     },
-    updateColumnsOrder(ids) {
+    updateColumnsOrder (ids) {
       SortColumns(ids).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
+        this.$store.dispatch(ActionNames.GetMatrixObservationColumns, { per: 500 })
       })
     },
+    loadRowPage (event) {
+      this.$store.dispatch(ActionNames.GetMatrixObservationRows, { page: event.page })
+    },
+    loadColumnPage (event) {
+      this.$store.dispatch(ActionNames.GetMatrixObservationColumns, { page: event.page })
+    }
   }
 }
 </script>
