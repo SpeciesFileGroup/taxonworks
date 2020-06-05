@@ -22,6 +22,7 @@
         :filter-remove="(item) => { return item.hasOwnProperty('cached_observation_matrix_row_item_id') && item.cached_observation_matrix_row_item_id }"
         :attributes="['observation_matrix_row_object_label']"
         :global-id-path="['observation_matrix_row_object_global_id']"
+        warning-message="You are trying to delete the OTU/collection object from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the scores on this OTU. Are you sure you want to proceed?"
         @delete="removeRow"
         :edit="true"
         :code="true"

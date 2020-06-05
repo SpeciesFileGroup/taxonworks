@@ -119,6 +119,10 @@ export default {
     globalIdPath: {
       type: Array,
       required: true
+    },
+    warningMessage: {
+      type: String,
+      default: undefined
     }
   },
   computed: {
@@ -146,7 +150,7 @@ export default {
   },
   methods: {
     deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+      if (window.confirm(this.warningMessage ? this.warningMessage : "You're trying to delete this record. Are you sure want to proceed?")) {
         this.$emit('delete', item)
       }
     },
