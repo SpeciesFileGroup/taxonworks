@@ -8,10 +8,16 @@
       <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
       <div class="horizontal-left-content">
         <ul class="context-menu">
-          <li> 
-            <a 
+          <li>
+            <a
               href="/tasks/observation_matrices/observation_matrix_hub/index">
               Hub
+            </a>
+          </li>
+          <li>
+            <a
+              href="/tasks/observation_matrices/dashboard/index">
+              Dashboard
             </a>
           </li>
           <li>

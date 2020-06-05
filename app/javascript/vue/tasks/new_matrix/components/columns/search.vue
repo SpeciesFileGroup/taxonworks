@@ -1,6 +1,5 @@
 <template>
   <div>
-    <p>Select</p>
     <div class="flex-wrap">
       <div class="field">
         <autocomplete
