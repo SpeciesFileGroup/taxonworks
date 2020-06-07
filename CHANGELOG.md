@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 ### Added
-- Added CHANGELOG.md
+- CHANGELOG.md
+- `count` and several other basic default units to Descriptors #1501
+- Basic Observation::Continuous operators
+- Linked new Descriptor form to Task - New descriptor
+
 ### Changed
 - stub 
 ### Removed 
