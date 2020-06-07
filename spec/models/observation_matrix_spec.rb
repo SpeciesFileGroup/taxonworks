@@ -42,7 +42,7 @@ RSpec.describe ObservationMatrix, type: :model, group: :matrix do
     end
 
     specify 'cascade creates columns from items 1' do
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor)
       expect(observation_matrix.observation_matrix_columns.count).to eq(1)
     end
 

@@ -62,7 +62,7 @@ class Language < ApplicationRecord
       pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent].sort_by{|a| -a.created_at}[0..3]).uniq
+    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent].sort_by{|a| a.created_at}[0..3]).uniq
     h
   end
 
