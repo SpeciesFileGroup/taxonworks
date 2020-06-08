@@ -2,11 +2,12 @@
   <label class="unit-selector separate-left">
     Unit:
     <select @change="unitSelected">
+      <option :value="null">-- none --</option>
       <option
         v-for="(conversion, unit) in units"
+        :key="unit"
         :value="unit"
         :selected="value === unit">
-
         {{ unit }}: {{ conversion }}
       </option>
     </select>
