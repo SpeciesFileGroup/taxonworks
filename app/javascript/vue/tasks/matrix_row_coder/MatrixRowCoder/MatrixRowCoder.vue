@@ -71,11 +71,11 @@ const computed = mapState({
 
 export default {
   created: function () {
-    this.setApiValues()
     this.loadMatrixRow({
       rowId: this.$props.rowId,
       otuId: this.$props.otuId
     })
+    this.$store.dispatch(ActionNames.RequestUnits)
   },
   data() {
     return {
@@ -95,7 +95,7 @@ export default {
       this.$store.state.request.setApi({
         apiBase: this.$props.apiBase,
         apiParams: this.$props.apiParams
-      })      
+      })
     },
     zoomDescriptor (descriptorId) {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
