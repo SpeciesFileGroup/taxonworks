@@ -585,9 +585,23 @@ describe 'Geo', group: :geo do
            '( )'  => {piece:  '28.01566o"S58.01970oW,',
                       lat:    '28.01566o"S58.01970oW,',
                       method: '( )'}},
-        'Dmitriev enhancement 12°27’24”N' =>
-            {'DMS8' => {method: 'text, DMS8'}}
-      }
+        'Dmitriev enhancement 12°27’24”N 12°27’24”W' =>
+            {'DD1A' => {method: 'text, DD1A'},
+             'DD1B' => {method: 'text, DD1B'},
+             'DD2'  => {method: 'text, DD2'},
+             'DM1'  => {method: 'text, DM1'},
+             'DMS2' => {method: 'text, DMS2'},
+             'DM3'  => {method: 'text, DM3'},
+             'DMS4' => {method: 'text, DMS4'},
+             'DD5'  => {method: 'text, DD5'},
+             'DD6'  => {method: 'text, DD6'},
+             'DD7'  => {method: 'text, DD7'},
+             '(;)'  => {method: '(;)'},
+             '(,)'  => {piece:  ' 1.8 km W campgd., 28.01566o"S58.01970oW',
+                        lat:    ' 1.8 km W campgd.',
+                        long:   ' 28.01566o"S58.01970oW',
+                        method: '(,)'},
+             "( )"=>{:lat=>"12°27’24”N", :long=>"12°27’24”W", :method=>"( )", :piece=>"12°27’24”N 12°27’24”W"}, "...=>{:lat=>"12°27’24”N", :long=>"12°27’24”W", :method=>"text, DMS4", :piece=>"12°27’24”N 12°27’24”W"}}
       @entry    = 0
 
       use_cases.each { |label, result|
@@ -603,6 +617,7 @@ describe 'Geo', group: :geo do
     context 'multiple use cases of degrees_minutes_seconds_to_decimal_degrees' do
 
       use_cases = {#' 3rd ridge prairie'            => '3.0',
+                   '12°27’24”N' => '12.45',
                    '22deg10\'34"S,' => '-22.176111', # convert deg to º
                    '166deg30\'17"E' => '166.504722',
                    '22dg10\'34"S,'  => '-22.176111', # convert deg to º
