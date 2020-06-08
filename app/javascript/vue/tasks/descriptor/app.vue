@@ -75,7 +75,7 @@
                 <template v-if="existComponent">
                   <div>
                     <component
-                      v-if="descriptor.type && showDescriptor"
+                      v-if="descriptor.type"
                       :is="loadComponent + 'Component'"
                       @save="saveDescriptor($event, false)"
                       v-model="descriptor"
@@ -112,7 +112,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'
 import QualitativeComponent from './components/character/character.vue'
-import ContinuousComponent from './components/units/units.vue'
+import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, CreateObservationMatrixColumn, GetMatrix } from './request/resources'
@@ -127,20 +127,18 @@ export default {
     QualitativeComponent,
     TypeComponent,
     DefinitionComponent,
-    ContinuousComponent,
+    ContinuousComponent: UnitComponent,
+    SampleComponent: UnitComponent,
     PreviewComponent,
     GeneComponent,
     Spinner,
     Autocomplete,
     DefaultPin,
-    CreateComponent
+    CreateComponent,
   },
   computed: {
     loadComponent () {
       return this.descriptor.type ? this.descriptor.type.split('::')[1] : undefined
-    },
-    showDescriptor () {
-      return !['Sample', 'PresenceAbsence'].includes(this.loadComponent)
     },
     existComponent () {
       return this.$options.components[this.loadComponent + 'Component']
