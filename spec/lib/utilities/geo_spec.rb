@@ -584,7 +584,9 @@ describe 'Geo', group: :geo do
                       method: '(,)'},
            '( )'  => {piece:  '28.01566o"S58.01970oW,',
                       lat:    '28.01566o"S58.01970oW,',
-                      method: '( )'}}
+                      method: '( )'}},
+        'Dmitriev enhancement 12°27’24”N' =>
+            {'DMS8' => {method: 'text, DMS8'}}
       }
       @entry    = 0
 

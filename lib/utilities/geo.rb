@@ -153,7 +153,11 @@ To add a new (discovered) symbol:
                hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
         dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-               hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+               hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'},
+
+        dms8: {reg: /(?<lat>\d+\s*[\*°ºo\u2019 ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u2019\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u2019\u02B9\u02BC\u02CA]?\s*\d+["\u2019]?\s*[EW])/i,
+               hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+
     }.freeze
     # @param [String] label
     # @param [String] filters
