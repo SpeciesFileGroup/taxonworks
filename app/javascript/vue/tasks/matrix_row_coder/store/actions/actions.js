@@ -9,6 +9,7 @@ import requestObservationNotes from './requestObservationNotes'
 import requestObservationDepictions from './requestObservationDepictions'
 import requestObservationConfidences from './requestObservationConfidences'
 import requestObservationCitations from './requestObservationCitations'
+import requestUnits from './requestUnits'
 import removeObservation from './removeObservation'
 import updateObservation from './updateObservation'
 import createObservation from './createObservation'
@@ -31,7 +32,8 @@ const ActionFunctions = {
   [ActionNames.UpdateObservation]: updateObservation,
   [ActionNames.CreateObservation]: createObservation,
   [ActionNames.CreateClone]: createClone,
-  [ActionNames.SaveObservationsFor]: saveObservationsFor
+  [ActionNames.SaveObservationsFor]: saveObservationsFor,
+  [ActionNames.RequestUnits]: requestUnits
 }
 
 export { ActionNames, ActionFunctions }

@@ -62,7 +62,13 @@ class Language < ApplicationRecord
       pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent].sort_by{|a| -a.created_at}[0..3]).uniq
+    quick = if klass == 'source'
+               Language.used_recently_on_sources.where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id).distinct.limit(4)
+             elsif klass == 'serial'
+               Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).distinct.limit(4).to_a
+             end
+
+    h[:quick] = (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + quick).uniq
     h
   end
 

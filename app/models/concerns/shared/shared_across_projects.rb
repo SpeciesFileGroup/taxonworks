@@ -1,4 +1,4 @@
-# All models that are referenced across projects include this code
+# All models that users can create recrods for that are referenced across projects include this code.  For example Sources.
 #
 module Shared::SharedAcrossProjects
   extend ActiveSupport::Concern

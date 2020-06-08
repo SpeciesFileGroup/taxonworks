@@ -42,6 +42,7 @@
         <otu-picker
           v-if="otuPicker"
           :input-id="inputId"
+          :clear-after="true"
           @getItem="getObject($event.id)"/>
       </div>
     </template>
@@ -146,7 +147,8 @@ export default {
     return {
       lists: {},
       view: undefined,
-      options: []
+      options: [],
+      lastSelected: undefined
     }
   },
   watch: {
@@ -166,13 +168,15 @@ export default {
   methods: {
     getObject (id) {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
-        this.$emit('selected', response.body)
+        this.sendObject(response.body)
       })
     },
     sendObject (item) {
+      this.lastSelected = item
       this.$emit('selected', item)
     },
-    refresh () {
+    refresh (forceUpdate = false) {
+      if (this.alreadyOnLists() && !forceUpdate) return
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
         this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
@@ -196,6 +200,9 @@ export default {
         })
       }
       this.view = SelectFirst(this.lists, this.options)
+    },
+    alreadyOnLists () {
+      return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
     }
   }
 }

@@ -8,14 +8,10 @@
       ref="smartSelector"
       pin-section="Otus"
       pin-type="Otu"
-      :add-tabs="['search']"
-      :search="false"
-      @selected="sendItem">
-      <otu-picker
-        slot="search"
-        :clear-after="true"
-        @getItem="sendItem"/>
-    </smart-selector>
+      :search="true"
+      :autocomplete="false"
+      :otu-picker="true"
+      @selected="sendItem"/>
     <template v-if="selected">
       <p class="horizontal-left-content">
         <span data-icon="ok"/>

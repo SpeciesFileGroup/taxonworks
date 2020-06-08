@@ -76,7 +76,7 @@ function attemptToAddCharacterStates (descriptorData, descriptor) {
 }
 
 function attemptToAddDefaultUnit (descriptorData, descriptor) {
-  if (descriptor.componentName === ComponentNames.Continuous) { descriptor.default_unit = descriptorData.default_unit }
+  if (descriptor.componentName === ComponentNames.Continuous || descriptor.componentName === ComponentNames.Sample) { descriptor.default_unit = descriptorData.default_unit }
 }
 
 function transformCharacterStateForViewmodel (characterStateData) {

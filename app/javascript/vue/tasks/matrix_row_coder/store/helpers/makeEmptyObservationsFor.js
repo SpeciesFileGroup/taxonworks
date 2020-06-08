@@ -25,6 +25,9 @@ export default function (descriptor) {
   } else if (descriptor.componentName === ComponentNames.Continuous) {
     const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
     observations.push(makeObservation(emptyContinuousObservationData))
+  } else if (descriptor.componentName === ComponentNames.Sample) {
+    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
+    observations.push(makeObservation(emptyContinuousObservationData))
   } else {
     observations.push(makeObservation(emptyObservationData))
   }
