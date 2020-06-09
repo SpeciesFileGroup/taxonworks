@@ -394,16 +394,16 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [TaxonName, nil] an ancestor at the specified rank
-  # @params rank [symbol|string|
+  # @param rank [symbol|string|
   #   like :species or 'genus'
-  def ancestor_at_rank(rank)
-    ancestors.with_rank_class(
-      Ranks.lookup(
-        is_combination? ? parent.nomenclatural_code : nomenclatural_code,
-        rank)
-    ).first
+  # @param include_self [Boolean]
+  #   if true then self will also be returned
+  def ancestor_at_rank(rank, include_self = false)
+    r = Ranks.lookup( is_combination? ? parent.nomenclatural_code : nomenclatural_code, rank)
+    return self if include_self && (rank_class.to_s == r)
+    ancestors.with_rank_class( r ).first
   end
-
+ 
   # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'

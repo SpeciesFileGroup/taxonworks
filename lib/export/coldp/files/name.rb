@@ -105,10 +105,10 @@ module Export::Coldp::Files::Name
           t.cached,                                  # scientificName
           authorship_field(t, original),             # authorship
           t.rank,                                    # rank
-          t.ancestor_at_rank('genus')&.cached,       # genus
-          t.ancestor_at_rank('subgenus')&.cached,    # infragenericEpithet
-          t.ancestor_at_rank('species')&.cached,     # specificEpithet
-          t.ancestor_at_rank('subspecies')&.cached,  # infraspecificEpithet
+          t.ancestor_at_rank('genus', true)&.name,         # genus
+          t.ancestor_at_rank('subgenus', true)&.name,      # infragenericEpithet
+          t.ancestor_at_rank('species', true)&.name,       # specificEpithet
+          t.ancestor_at_rank('subspecies', true)&.name,    # infraspecificEpithet
           source&.id,                                # publishedInID
           source&.pages,                             # publishedInPage
           t.year_of_publication,                     # publishedInYear
