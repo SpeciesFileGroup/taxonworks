@@ -110,7 +110,8 @@ export default {
         ancestor_id: undefined,
         ranks: [],
         validity: false,
-        combination: undefined
+        combination: undefined,
+        fieldsets: ['observations']
       }
     },
     resetFilter () {
