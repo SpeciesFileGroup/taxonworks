@@ -217,6 +217,8 @@ class TaxonName < ApplicationRecord
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+
+  # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
 
@@ -528,7 +530,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [Array of String]
-  #   the unique string labels derived from TaxonNameClassifications
+  #   the unique string labels (human readable) derived from TaxonNameClassifications
   def statuses_from_classifications
     list = taxon_name_classifications_for_statuses
     list.empty? ? [] : list.collect{|c| c.classification_label }.sort

@@ -39,14 +39,15 @@ module Export::Coldp::Files::Name
 
   # @return [String, nil]
   # https://api.catalogue.life/vocab/nomStatus
-  # Todo, move this to the concern
+  # TODO, move this to the concern
   #   https://github.com/SpeciesFileGroup/taxonworks/issues/1040
   def self.nom_status_field(taxon_name)
     case taxon_name.type
     when 'Combination'
       'chresonym'
     else
-      nil
+      c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
+      c ? c.class::NOMEN_URI : nil
     end
   end
 

@@ -1,5 +1,5 @@
-require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'  
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
 # A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
 #
@@ -33,10 +33,10 @@ class TaxonNameClassification < ApplicationRecord
   validate :nomenclature_code_matches
 
   scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
-  scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}" ) }
-  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
-  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
-  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :with_type_string, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}" ) }
+  scope :with_type_base, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_array, -> (base_array) {where('taxon_name_classifications.type IN (?)', base_array ) }
+  scope :with_type_contains, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "%#{base_string}%" ) }
 
   soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
   soft_validate(:sv_proper_year, set: :proper_classification, has_fix: false)
@@ -56,7 +56,7 @@ class TaxonNameClassification < ApplicationRecord
     return nil
   end
 
-  # TODO: helper method 
+  # TODO: helper method
   def self.label
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
