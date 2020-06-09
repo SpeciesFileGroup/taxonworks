@@ -565,7 +565,8 @@ describe 'Geo', group: :geo do
            '( )'  => {piece:  "54'N, 43'E;",
                       lat:    "54'N,",
                       long:   "43'E;",
-                      method: '( )'}},
+                      method: '( )'}
+          },
         'ARGENTINA: Corrientes, P.N. Mburucuyá, 1.8 km W campgd., 80m, 28.01566o"S58.01970oW, 8 Jan 2008 C.H.Dietrich, vacuum, AR9-10'                    =>
           {'DD1A' => {method: 'text, DD1A'},
            'DD1B' => {method: 'text, DD1B'},
@@ -592,16 +593,44 @@ describe 'Geo', group: :geo do
              'DM1'  => {method: 'text, DM1'},
              'DMS2' => {method: 'text, DMS2'},
              'DM3'  => {method: 'text, DM3'},
-             'DMS4' => {method: 'text, DMS4'},
+             'DMS4' => {method: 'text, DMS4',
+                        piece:  '12°27’24”N 12°27’24”W',
+                        lat:    '12°27’24”N',
+                        long:   '12°27’24”W'},
              'DD5'  => {method: 'text, DD5'},
              'DD6'  => {method: 'text, DD6'},
              'DD7'  => {method: 'text, DD7'},
              '(;)'  => {method: '(;)'},
-             '(,)'  => {piece:  ' 1.8 km W campgd., 28.01566o"S58.01970oW',
-                        lat:    ' 1.8 km W campgd.',
-                        long:   ' 28.01566o"S58.01970oW',
-                        method: '(,)'},
-             "( )"=>{:lat=>"12°27’24”N", :long=>"12°27’24”W", :method=>"( )", :piece=>"12°27’24”N 12°27’24”W"}, "...=>{:lat=>"12°27’24”N", :long=>"12°27’24”W", :method=>"text, DMS4", :piece=>"12°27’24”N 12°27’24”W"}}
+             '(,)'  => {method: '(,)'},
+             '( )'  => {method: '( )',
+                        piece:  '12°27’24”N 12°27’24”W',
+                        lat:    '12°27’24”N',
+                        long:   '12°27’24”W'}
+            },
+      # ,
+      #   'Dmitriev enhancement floating point 42°27’24.5”N 12°27’88.7”W' =>
+      #       {'DD1A' => {method: 'text, DD1A'},
+      #        'DD1B' => {method: 'text, DD1B'},
+      #        'DD2'  => {method: 'text, DD2'},
+      #        'DM1'  => {method: 'text, DM1'},
+      #        'DMS2' => {method: 'text, DMS2'},
+      #        'DM3'  => {method: 'text, DM3'},
+      #        'DMS4' => {method: 'text, DMS4',
+      #                   piece:  '42°27’24.5”N 12°27’88.7”W',
+      #                   lat:    '42°27’24.5”N',
+      #                   long:   '12°27’88.7”W'},
+      #        'DD5'  => {method: 'text, DD5'},
+      #        'DD6'  => {method: 'text, DD6'},
+      #        'DD7'  => {method: 'text, DD7'},
+      #        '(;)'  => {method: '(;)'},
+      #        '(,)'  => {method: '(,)'},
+      #        '( )'  => {method: '( )',
+      #                   piece:  '42°27’24.5”N 12°27’88.7”W',
+      #                   lat:    '42°27’24.5”N',
+      #                   long:   '12°27’88.7”W'}
+      #       }
+
+      }
       @entry    = 0
 
       use_cases.each { |label, result|
@@ -659,6 +688,8 @@ describe 'Geo', group: :geo do
                    'N40.446195'     => '40.446195',
                    'W79.982195'     => '-79.982195',
                    # some special characters for Dmitry
+                   '12°27’24”W'     => '-12.45',
+                   '42°27’24.5”N'   => '42.45', #7083',
                    "  40\u02da26¥46¥S"             => '-40.446111',
                    '42∞5\'18.1"S'                  => '-42.088361',
                    'w88∞11\'43.3"'                 => '-88.195361',

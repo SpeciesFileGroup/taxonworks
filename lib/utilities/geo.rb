@@ -302,6 +302,13 @@ To add a new (discovered) symbol:
           ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
             ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)* # optional special seconds symbol, optional space
         /x =~ dms # '/(regexp)/x' modifier permits inline comments for regexp
+        # /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
+        #     [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
+        #   (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
+        #     ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba\u2019]*\s* # optional special minutes symbol, optional space
+        #   ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
+        #     ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"\u201D]+)* # optional special seconds symbol, optional space
+        # /x =~ dms # '/(regexp)/x' modifier permits inline comments for regexp
         match_string = $&
         break # bail on the first character match
       }
