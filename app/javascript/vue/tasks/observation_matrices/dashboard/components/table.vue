@@ -4,22 +4,32 @@
       v-if="sorting"
       :full-screen="true"
       legend="Loading..."/>
-    <div class="flex-separate">
-      <div class="horizontal-left-content">
-        <div class="header-box middle separate-right">
-          <span v-if="taxon">Scoped: {{ taxon.name }}</span>
-        </div>
-        <div class="header-box middle separate-left">
-          <select class="normal-input">
-            <option
-              v-for="field in fieldset"
-              :key="field.value"
-              :value="field.value">
-              {{ field.label }}
-            </option>
-          </select>
-        </div>
-      </div>
+    <div class="flex-separate margin-small-bottom">
+      <ul class="no_bullets context-menu">
+        <li class="horizontal-left-content">
+          <div class="header-box middle separate-right">
+            <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+          </div>
+          <div class="header-box middle separate-left">
+            <select class="normal-input">
+              <option
+                v-for="field in fieldset"
+                :key="field.value"
+                :value="field.value">
+                {{ field.label }}
+              </option>
+            </select>
+          </div>
+        </li>
+        <li>
+          <label>
+            <input
+              v-model="withOtus"
+              type="checkbox">
+            Show taxon names with OTUs only
+          </label>
+        </li>
+      </ul>
     </div>
     <table
       class="full_width"
@@ -36,21 +46,23 @@
         </tr>
       </thead>
       <tbody>
-        <tr 
-          v-for="(row, index) in tableRanks.data"
-          class="contextMenuCells btn btn-neutral"
-          :class="{ even: (index % 2)}">
-          <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="renderFromPosition <= hindex">
-              {{ row[hindex] }}
+        <template v-for="(row, index) in tableRanks.data">
+          <tr
+            v-if="withOtus ? row[1] : true"
+            class="contextMenuCells btn btn-neutral"
+            :class="{ even: (index % 2)}">
+            <template v-for="(header, hindex) in tableRanks.column_headers">
+              <td v-if="renderFromPosition <= hindex">
+                {{ row[hindex] }}
+              </td>
+            </template>
+            <td>
+              <modal-list
+                :otu-id="getValueFromTable('otu_id', index)"
+                :taxon-name-id="getValueFromTable('taxon_name_id', index)"/>
             </td>
-          </template>
-          <td>
-            <modal-list
-              :otu-id="getValueFromTable('otu_id', index)"
-              :taxon-id="getValueFromTable('taxon_name_id', index)"/>
-          </td>
-        </tr>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -100,7 +112,8 @@ export default {
         set: ['observation_count', 'observation_depictions', 'descriptors_scored']
       },
       ascending: false,
-      sorting: false
+      sorting: false,
+      withOtus: false
     }
   },
   watch: {

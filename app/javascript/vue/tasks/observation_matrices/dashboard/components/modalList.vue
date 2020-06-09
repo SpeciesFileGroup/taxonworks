@@ -2,7 +2,8 @@
   <div>
     <button 
       type="button"
-      class="button normal-input button-default"
+      class="button normal-input button-submit"
+      :class="{ 'button-default': otuSelected }"
       @click="openModal">
       Matrix row coder
     </button>
@@ -16,6 +17,7 @@
           v-if="loading"
           legend="Loading"/>
         <div>
+          <h3 v-if="!otuSelected">OTU will be created for this taxon name</h3>
           <div
             class="separate-bottom horizontal-left-content">
             <input
@@ -67,7 +69,7 @@ import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
 
-import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix } from '../request/resources'
+import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix, CreateOTU } from '../request/resources'
 
 export default {
   components: {
@@ -79,6 +81,10 @@ export default {
     otuId: {
       type: [String, Number],
       default: undefined
+    },
+    taxonNameId: {
+      type: Number,
+      required: true
     }
   },
   computed: {
@@ -99,7 +105,16 @@ export default {
       rows: [],
       create: false,
       filterType: '',
-      loading: false
+      loading: false,
+      otuSelected: undefined
+    }
+  },
+  watch: {
+    otuId: {
+      handler(newVal) {
+        this.otuSelected = newVal
+      },
+      immediate: true
     }
   },
   methods: {
@@ -128,9 +143,11 @@ export default {
         })
         this.loading = false
       })
-      GetObservationRow({ otu_id: this.otuId }).then(response => {
-        this.rows = response.body
-      })
+      if (this.otuSelected) {
+        GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+          this.rows = response.body
+        })
+      }
     },
     reset () {
       this.selectedMatrix = undefined
@@ -141,14 +158,23 @@ export default {
     createRow () {
       return new Promise((resolve, reject) => {
         if (window.confirm('Are you sure you want to add this otu to this matrix?')) {
-          let data = {
-            observation_matrix_id: this.selectedMatrix.id,
-            otu_id: this.otuId,
-            type: 'ObservationMatrixRowItem::SingleOtu'
+          const promises = []
+
+          if (!this.otuSelected) {
+            promises.push(CreateOTU(this.taxonNameId).then(response => {
+              this.otuSelected = response.body.id
+            }))
           }
-          CreateObservationMatrixRow(data).then(response => {
-            this.rows.push(response.body)
-            resolve(response)
+          Promise.all(promises).then(() => {
+            const data = {
+              observation_matrix_id: this.selectedMatrix.id,
+              otu_id: this.otuSelected,
+              type: 'ObservationMatrixRowItem::SingleOtu'
+            }
+            CreateObservationMatrixRow(data).then(response => {
+              this.rows.push(response.body)
+              resolve(response)
+            })
           })
         }
       })

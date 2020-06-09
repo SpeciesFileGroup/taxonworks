@@ -28,6 +28,8 @@ const CreateObservationMatrixRow = (data) => {
   return ajaxCall('post', '/observation_matrix_row_items.json', { observation_matrix_row_item: data })
 }
 
+const CreateOTU = (taxonId) => ajaxCall('post', '/otus.json', { otu: { taxon_name_id: taxonId } })
+
 export {
   CreateObservationMatrixRow,
   GetObservationMatrix,
@@ -35,5 +37,6 @@ export {
   LoadRanks,
   GetRanksTable,
   GetObservationMatrices,
-  GetObservationRow
+  GetObservationRow,
+  CreateOTU
 }
