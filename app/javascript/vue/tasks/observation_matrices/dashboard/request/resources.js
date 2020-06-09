@@ -9,11 +9,11 @@ const LoadRanks = () => {
 }
 
 const GetRanksTable = (params) => {
-  return ajaxCall('get', '/taxon_names/rank_table', { params: params })
+  return ajaxCall('get', `/taxon_names/rank_table`, { params: params })
 }
 
 const GetObservationMatrices = () => {
-  return ajaxCall('get', '/observation_matrices.json')
+  return ajaxCall('get', `/observation_matrices.json`)
 }
 
 const GetObservationMatrix = (id) => {
@@ -25,7 +25,7 @@ const GetObservationRow = (params) => {
 }
 
 const CreateObservationMatrixRow = (data) => {
-  return ajaxCall('post', '/observation_matrix_row_items.json', { observation_matrix_row_item: data })
+  return ajaxCall('post', `/observation_matrix_row_items.json`, { observation_matrix_row_item: data })
 }
 
 const CreateOTU = (taxonId) => ajaxCall('post', '/otus.json', { otu: { taxon_name_id: taxonId } })
