@@ -87,10 +87,6 @@ namespace :tw do
           # '16_after_col_events_metadata': 10m17.584s on 15 Nov 2018; 15-16 took 21m27.003s; 11m19.933s on 10 Sep 2019
           # 15, 16: 21m24.452s on 18 July 2019
           #
-          'specimens:collection_objects',
-          # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018;
-          # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
-          #
           'supplementary:taxon_info',
           # 0m58.912s on 21 Nov 2018
           'supplementary:scrutiny_related',
@@ -114,6 +110,10 @@ namespace :tw do
           # 20, 21, 25: 2398m41.120s on 10 Aug 2019
           # 21, 25: 131m12.529s on 16 Sep 2019
           #
+          #
+          'specimens:collection_objects',
+          # '17_after_collection_objects': 197m20.585s on 19 Mar 2019; 211m4.168s on 1 Feb 2019; 202m27.938s on 20 Nov 2018; 227m33.097s on 15 Nov 2018;
+          # 187m21.639s on 1 June 2019; 183m35.099s on 18 July 2019; 185m41.408s on 10 Sep 2019
           #
           'last:filter_users',
           # # '99_after_filter_users': 5m26.662s on 25 Feb 2019; 6m12.567s on 30 July 2019; 5m44.281s on 11 Aug 2019; 6m23.155s on 15 Sep 2019
