@@ -228,7 +228,9 @@ namespace :tw do
                     otu_id: otu_id,
                     geographic_area_id: geographic_area_id,
                     project_id: project_id,
-                    citations_attributes: [{source_id: source_id, project_id: project_id}])
+                    citations_attributes: [{source_id: source_id, project_id: project_id}],
+                    no_dwc_occurrence: true # Will be performed by an independent process
+                )
                 # ap ad.citations
 
 
@@ -445,6 +447,7 @@ namespace :tw do
 
                 collection_object = CollectionObject::BiologicalCollectionObject.new(co_params)
 
+                collection_object.no_dwc_occurrence = true # Will be performed by an independent process
                 collection_object.save!
                 logger.info "Collection object is saved, id = #{collection_object.id}, number #{saved_counter += 1}"
                 current_objects.push(collection_object)
