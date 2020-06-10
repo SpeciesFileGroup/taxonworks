@@ -48,7 +48,7 @@
       <tbody>
         <template v-for="(row, index) in tableRanks.data">
           <tr
-            v-if="withOtus ? row[1] : true"
+            v-if="withOtus ? row[1] : true && filterRow(index)"
             class="contextMenuCells btn btn-neutral"
             :class="{ even: (index % 2)}">
             <template v-for="(header, hindex) in tableRanks.column_headers">
@@ -84,6 +84,10 @@ export default {
     tableList: {
       type: Object,
       default: () => { return {} }
+    },
+    filter: {
+      type: Object,
+      required: true
     }
   },
   computed: {
@@ -175,6 +179,12 @@ export default {
           this.sorting = false
         })
       }, 50)
+    },
+    filterRow (index) {
+      return Object.keys(this.filter).every(key => {
+        const value = this.getValueFromTable(key, index)
+        return (this.filter[key] === undefined) || (this.filter[key] ? value : !value)
+      })
     }
   }
 }

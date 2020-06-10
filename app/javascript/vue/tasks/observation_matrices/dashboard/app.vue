@@ -30,6 +30,7 @@
         v-show="activeFilter"
         :field-set="['observations']"
         @onSearch="loadRankTable"
+        @onTableFilter="tableFilter = $event"
         @reset="resetTask"/>
       <div class="full_width">
         <div
@@ -37,6 +38,7 @@
           class="horizontal-left-content align-start full_width">
           <rank-table
             class="margin-medium-left"
+            :filter="tableFilter"
             :table-list="rankTable"/>
         </div>
         <h3
@@ -80,7 +82,8 @@ export default {
       activeFilter: true,
       jsonUrl: '',
       activeJson: false,
-      limit: 5000
+      limit: 5000,
+      tableFilter: undefined
     }
   },
   watch: {

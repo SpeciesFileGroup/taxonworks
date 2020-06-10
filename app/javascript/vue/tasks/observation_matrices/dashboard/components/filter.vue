@@ -29,6 +29,10 @@
       <ranks-filter
         :taxon-name="taxonName"
         v-model="params.ranks"/>
+      <filter-table
+        v-for="(item, key) in tableFilter"
+        :key="key"
+        :title="key" v-model="tableFilter[key]"/>
     </div>
   </div>
 </template>
@@ -39,6 +43,7 @@ import SpinnerComponent from 'components/spinner'
 import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
+import FilterTable from './filters/with.vue'
 import CombinationsFilter from './filters/combinations'
 import { GetTaxonName } from '../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -50,7 +55,8 @@ export default {
     CombinationsFilter,
     RanksFilter,
     OtuFilter,
-    taxonName
+    taxonName,
+    FilterTable
   },
   props: {
     fieldSet: {
@@ -67,7 +73,12 @@ export default {
     return {
       taxonName: undefined,
       searching: false,
-      params: this.initParams()
+      params: this.initParams(),
+      tableFilter: {
+        observation_count: undefined,
+        observation_depictions: undefined,
+        descriptors_scored: undefined
+      }
     }
   },
   watch: {
@@ -85,6 +96,13 @@ export default {
         }
       },
       deep: true
+    },
+    tableFilter: {
+      handler (newVal) {
+        this.$emit('onTableFilter', newVal)
+      },
+      deep: true,
+      immediate: true
     }
   },
   mounted () {
