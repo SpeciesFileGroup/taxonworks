@@ -143,12 +143,6 @@ To add a new (discovered) symbol:
         dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
                hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-        # dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
-        #        hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
-
-        # dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*\d+["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*\d+["\u201D]?\s*[EW])/i,
-        #        hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
-
         dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
                hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
