@@ -9,6 +9,7 @@ class DatasetRecord::DwcTaxon < DatasetRecord
   def import
     begin
       DatasetRecord.transaction do
+        field_mapping = import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i}) }
         
         unless metadata["is_synonym"]
           nomenclature_code = import_dataset.metadata["nomenclature_code"].downcase.to_sym
@@ -22,13 +23,13 @@ class DatasetRecord::DwcTaxon < DatasetRecord
 
           name = name_details["value"]
           authorship = name_details.dig("authorship", "value")
-          rank = data_fields["taxonRank"]["value"]
+          rank = data_fields[field_mapping["taxonRank"]]["value"]
           is_hybrid = metadata["is_hybrid"]
 
           if metadata["parent"].nil?
             parent = project.root_taxon_name
           else
-            parent = TaxonName.find(get_parent.metadata["imported_objects"]["taxon_name"]["id"])
+            parent = TaxonName.find(get_parent(field_mapping).metadata["imported_objects"]["taxon_name"]["id"])
           end
 
           protonym_attributes = {
@@ -42,9 +43,9 @@ class DatasetRecord::DwcTaxon < DatasetRecord
           taxon_name = Protonym.new(protonym_attributes)
           taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
           taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-            scientificName: data_fields["scientificName"]["value"],
-            scientificNameAuthorship: data_fields["scientificNameAuthorship"]["value"],
-            taxonRank: data_fields["taxonRank"]["value"],
+            scientificName: data_fields[field_mapping["scientificName"]]["value"],
+            scientificNameAuthorship: data_fields[field_mapping["scientificNameAuthorship"]]["value"],
+            taxonRank: data_fields[field_mapping["taxonRank"]]["value"],
             metadata: metadata
           })
 
@@ -67,17 +68,19 @@ class DatasetRecord::DwcTaxon < DatasetRecord
         save!
 
         if status == "Imported"
-          children_filter = { parentNameUsageID: { value: data_fields["taxonID"]["value"] } }.to_json
-          synonyms_filter = { acceptedNameUsageID: { value: data_fields["taxonID"]["value"] } }.to_json
+          taxon_id = data_fields[field_mapping["taxonID"]]["value"]
 
           DatasetRecord::DwcTaxon
             .where(import_dataset: self.import_dataset, status: "NotReady")
-            .where("data_fields @> ? OR data_fields @> ?", children_filter, synonyms_filter)
-            .each { |r| r.update!(status: "Ready") }
+            .where("data_fields -> :parent_field ->> 'value' = :parent_id OR data_fields -> :accepted_field ->> 'value' = :accepted_id",
+              {
+                parent_field: field_mapping["parentNameUsageID"], parent_id: taxon_id,
+                accepted_field: field_mapping["acceptedNameUsageID"], accepted_id: taxon_id
+              }
+            ).each { |r| r.update!(status: "Ready") }
         end
       end
     rescue StandardError => e
-      raise
       self.status = "Failed"
       self.metadata[:error_data] = {
         exception: {
@@ -93,8 +96,7 @@ class DatasetRecord::DwcTaxon < DatasetRecord
 
   private
 
-  def get_parent
-    filter = { taxonID: { value: data_fields["parentNameUsageID"]["value"] } }.to_json
-    import_dataset.dataset_records.where("data_fields @> ?", filter).first
+  def get_parent(field_mapping)
+    import_dataset.dataset_records.where("data_fields -> #{field_mapping["taxonID"]} ->> 'value' = ?", data_fields[field_mapping["parentNameUsageID"]]["value"]).first
   end
 end
