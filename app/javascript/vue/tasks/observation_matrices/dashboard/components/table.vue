@@ -73,7 +73,6 @@
 import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from 'components/spinner'
-import { setTimeout } from 'timers';
 
 export default {
   components: {
@@ -87,7 +86,7 @@ export default {
     },
     filter: {
       type: Object,
-      required: true
+      default: undefined
     }
   },
   computed: {
