@@ -18,12 +18,13 @@ To add a new (discovered) symbol:
     # \u00a5  "¥"  \u00b4  "´"
     # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
     # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
+    # \u2019  "’"  \u201D  "”"    added June 2020
     #
     # Significant figures/digits: any of the digits of a number beginning with the digit farthest to the left
     # that is not zero and ending with the last digit farthest to the right that is either not zero
     # or that is a zero but is considered to be exact
 
-    SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022".freeze
+    SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022\u2019\u201D".freeze
 
     LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<long>-?\d+\.?\d*)/)
 
@@ -292,13 +293,6 @@ To add a new (discovered) symbol:
       # >40°26′46″< >40°26′46″<
       dms.each_char {|c|
         next unless SPECIAL_LATLONG_SYMBOLS.include?(c)
-        # /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
-        #     [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
-        #   (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
-        #     ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s* # optional special minutes symbol, optional space
-        #   ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
-        #     ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)* # optional special seconds symbol, optional space
-        # /x =~ dms # '/(regexp)/x' modifier permits inline comments for regexp
         /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
             [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
           (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
