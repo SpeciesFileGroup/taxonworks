@@ -468,8 +468,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
-          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
- #           ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+ #         ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+            ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
@@ -585,11 +585,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
 
 
-#              if row['TaxonNameID'].to_s == '1111197' || row['TaxonNameID'].to_s == '1140778' || row['TaxonNameID'].to_s == '1132873' || nomenclator_string == "Jivarus_hubbelli"
-#                 byebug
-#              else
-#                next
-#              end
+              if row['TaxonNameID'].to_s == '1111197' || nomenclator_string == "Jivarus_hubbelli"
+                 byebug
+              elsif nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == 'Jivarus' && nomenclator_ids[nomenclator_id.to_i]['species'] && nomenclator_ids[nomenclator_id.to_i]['species'][0] == 'hubbelli'
+                byebug
+              else
+                next
+              end
 
               # 1111197 - duplicate record for protonym without TNR
 #               1140778 - first synonym citation is missing
