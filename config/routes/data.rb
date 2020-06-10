@@ -305,7 +305,7 @@ end
 resources :import_datasets do
   concerns [:data_routes]
   member do
-    get 'import'
+    post 'import'
   end
   resources :dataset_records do
     collection do
