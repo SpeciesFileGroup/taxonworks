@@ -276,8 +276,7 @@ describe 'Geo', group: :geo do
            'DMS4' => {method: 'text, DMS4',
                       piece:  "42°5'18.1\"S 88°11'43.3\"W",
                       lat:    "42°5'18.1\"S",
-                      long:   "88°11'43.3\"W",
-                      method: 'text, DMS4'},
+                      long:   "88°11'43.3\"W"},
            'DD5'  => {method: 'text, DD5'},
            'DD6'  => {method: 'text, DD6'},
            'DD7'  => {method: 'text, DD7'},
@@ -938,7 +937,7 @@ describe 'Geo', group: :geo do
     end
 
     context 'multiple use cases' do
-      use_cases = {' 12345'                => 12_345.0,
+      use_cases = {' 12345'                => 12_345, # .0
                    '1.1 mi'                => 1770.2784,
                    '2 mile'                => 3218.688,
                    '3 miles'               => 4828.032,
@@ -951,13 +950,14 @@ describe 'Geo', group: :geo do
                    ' 1 foot'               => 0.3048,
                    ' 123 f'                => 37.4904,
                    '   123 f.'             => 37.4904,
+                   ' 123 m'                => 123,  # .0
                    ' 123 m'                => 123.0,
-                   '  123 meters'          => 123.0,
-                   '     123 m.'           => 123.0,
-                   '    123 km'            => 123_000.0,
-                   ' 123 km.'              => 123_000.0,
-                   '       123 kilometers' => 123_000.0,
-                   '123 kilometer'         => 123_000.0,
+                   '  123 meters'          => 123,  # .0
+                   '     123 m.'           => 123,  # .0
+                   '    123 km'            => 123_000,  # .0
+                   ' 123 km.'              => 123_000,  # .0
+                   '       123 kilometers' => 123_000,  # .0
+                   '123 kilometer'         => 123_000,  # .0
                    ''                      => 0.0,
                    'sillyness'             => 0.0}
 
@@ -966,7 +966,8 @@ describe 'Geo', group: :geo do
       use_cases.each { |distance, result|
         @entry += 1
         specify "case #{@entry}: '#{distance}' should yield #{result}" do
-          expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
+          # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
+          expect(Utilities::Geo.distance_in_meters(distance).round(6)).to eq(result)
         end
       }
     end
