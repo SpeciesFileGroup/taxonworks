@@ -430,7 +430,7 @@ class GeographicArea < ApplicationRecord
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
       .distinct
-      .take(15)
+#      .take(15)
 
     # z is a table alias
     z = i.as('recent_t')
@@ -450,12 +450,12 @@ class GeographicArea < ApplicationRecord
 
     case target
     when 'CollectingEvent'
-      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
+      h[:recent] = #GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
         used_recently(user_id, project_id, 'CollectingEvent').
         distinct.limit(10).order(:name).to_a
     when 'AssertedDistribution'
-      h[:recent] = GeographicArea.joins(:asserted_distributions).
-        where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
+      h[:recent] = #GeographicArea.joins(:asserted_distributions).
+        #where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
         used_recently(user_id, project_id, 'AssertedDistribution').
         distinct.limit(15).order(:name).to_a
     end
@@ -465,12 +465,12 @@ class GeographicArea < ApplicationRecord
     h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
     case target
     when 'CollectingEvent'
-      h[:quick] = (h[:quick] + GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
+      h[:quick] = (h[:quick] + #GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
           used_recently(user_id, project_id, 'CollectingEvent').
           distinct.limit(4).order(:name).to_a).uniq
     when 'AssertedDistribution'
-      h[:quick] = (h[:quick] + GeographicArea.joins(:asserted_distributions).
-          where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
+      h[:quick] = (h[:quick] + #GeographicArea.joins(:asserted_distributions).
+          #where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
           used_recently(user_id, project_id, 'AssertedDistribution').
           distinct.limit(4).order(:name).to_a).uniq
     end
