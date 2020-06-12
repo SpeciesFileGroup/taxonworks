@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
+
+\-
+
+## [0.12.6] - 2020-06-12
 ### Added
 - CHANGELOG.md
 - Matrix observation filters
@@ -64,6 +68,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.5...development
+[0.12.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.4...v0.12.5
 [0.12.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.3...v0.12.4
 
