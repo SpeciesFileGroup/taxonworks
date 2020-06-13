@@ -115,7 +115,7 @@ module Protonym::SoftValidationExtensions
         else
           l = []
           z.each do |key, value|
-            l << (value == 1 ? ' as ' + key.constantize.label + ' ' + value.to_s + ' time' : ' as ' + key.constantize.label + ' ' + value.to_s + ' times')
+            l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
           end
           soft_validations.add(:base, 'Part of speech is not specified. The name was previously used' + l.join('; '))
         end
@@ -1032,7 +1032,18 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
-        soft_validations.add(:etymology, 'Etymology is missing')
+        z = TaxonName.
+            where(name: name, project_id: project_id).where.not(etymology: nil).
+            group(:etymology).
+            count(:etymology)
+
+        if z.empty?
+          soft_validations.add(:etymology, 'Etymology is missing')
+        else
+          z1 = z.sort_by {|k, v| -v}
+          t = z1[0][1] == 1 ? 'time' : 'times'
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+        end
       end
     end
 
