@@ -102,7 +102,23 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_part_of_speach
       if is_species_rank? && self.part_of_speech_class.nil? && !has_misspelling_relationship? && is_available?
-        soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+
+        z = TaxonNameClassification.
+            joins(:taxon_name).
+            where(taxon_names: { name: name, project_id: project_id }).
+            where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::PartOfSpeech%'").
+            group(:type).
+            count(:type)
+
+        if z.empty?
+          soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+        else
+          l = []
+          z.each do |key, value|
+            l << (value == 1 ? ' as ' + key.constantize.label + ' ' + value.to_s + ' time' : ' as ' + key.constantize.label + ' ' + value.to_s + ' times')
+          end
+          soft_validations.add(:base, 'Part of speech is not specified. The name was previously used' + l.join('; '))
+        end
       end
     end
 
