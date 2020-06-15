@@ -12,8 +12,8 @@ const UpdateRow = (importId, rowId, data) => {
   return AjaxCall('patch', `/import_datasets/${importId}/dataset_records/${rowId}.json`, data)
 }
 
-const ImportRows = (rowsId) => {
-  return AjaxCall('patch', `/tasks/dwca_import/${rowsId}/workbench/core_table/import`, { row_ids: rowsId })
+const ImportRows = (datasetId, params) => {
+  return AjaxCall('post', `/import_datasets/${datasetId}/import.json`, params)
 }
 
 export {

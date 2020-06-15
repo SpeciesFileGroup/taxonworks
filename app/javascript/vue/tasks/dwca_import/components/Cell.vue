@@ -1,5 +1,5 @@
 <template>
-  <td 
+  <td
     v-if="!editing"
     v-html="text"
     @click="setEdit(true)"/>

@@ -2,15 +2,17 @@
   <div
     @keyup.esc="show = false"
     class="column-filter">
-    <span
+    <button
       class="button"
+      :disabled="disabled"
       :class="{
         'button-data': applied,
         'button-default': !applied
       }"
-      @click="show = !show">▼</span>
+      @click="show = !show">▼
+    </button>
     <div
-      v-if="show"
+      v-if="show && !disabled"
       class="panel content filter-container margin-medium-top">
       <div
         v-if="!value"
@@ -60,6 +62,10 @@ export default {
     importId: {
       type: [String, Number],
       require: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

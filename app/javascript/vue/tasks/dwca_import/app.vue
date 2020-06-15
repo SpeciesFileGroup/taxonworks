@@ -1,4 +1,3 @@
-<!-- https://www.itsolutionstuff.com/post/file-upload-using-vue-js-axios-phpexample.html -->
 <template>
   <div id="vue-task-dwca-import-new">
     <spinner-component
@@ -9,10 +8,28 @@
     <div
       v-if="table"
       class="position-relative">
+      <transition name="bounce">
+      <div
+        v-if="isProcessing"
+        class="show-import-process panel">
+        <spinner-component
+          legend="Importing rows... please wait."
+        />
+      </div>
+      </transition>
+      <navbar-component
+        :pagination="pagination"
+        :rows-count="table.rows.length"
+        @select="selectAll"
+        @unselect="unselectAll"
+        @import="processImport"/>
       <table-component
         :import-id="importId"
         :table="table"
+        :disabled="isProcessing"
+        v-model="selectedIds"
         @onParams="tableParams = $event"/>
+      <div style="height: 60px"/>
     </div>
     <new-import
       @onCreate="loadDataset($event.id)"
@@ -24,7 +41,8 @@
 
 import NewImport from './components/NewImport'
 import TableComponent from './components/table'
-import { GetDataset, GetDatasetRecords } from './request/resources'
+import NavbarComponent from './components/NavBar'
+import { GetDataset, GetDatasetRecords, ImportRows } from './request/resources'
 import GetPagination from 'helpers/getPagination'
 import SpinnerComponent from 'components/spinner'
 
@@ -32,7 +50,8 @@ export default {
   components: {
     NewImport,
     TableComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NavbarComponent
   },
   data () {
     return {
@@ -40,7 +59,9 @@ export default {
       table: undefined,
       pagination: undefined,
       isLoading: false,
-      tableParams: undefined
+      tableParams: undefined,
+      isProcessing: false,
+      selectedIds: []
     }
   },
   watch: {
@@ -90,7 +111,36 @@ export default {
           this.loadDatasetRecords(this.importId, this.pagination.nextPage, this.tableParams)
         }
       }
+    },
+    selectAll () {
+      this.selectedIds = this.table.rows.filter(row => row.status === 'Ready').map(row => row.id)
+    },
+    unselectAll () {
+      this.selectedIds = []
+    },
+    processImport () {
+      this.isProcessing = true
+      ImportRows(this.importId).then(response => {
+        if (response.body.results.length) {
+          this.processImport()
+        } else {
+          this.loadDatasetRecords(this.importId)
+          this.isProcessing = false
+        }
+      }, () => {
+        this.isProcessing = false
+      })
     }
   }
 }
 </script>
+<style scoped>
+  .show-import-process {
+    width: 400px;
+    position: fixed;
+    bottom: 0px;
+    height: 100px;
+    z-index: 201;
+    left: calc(50% - 200px);
+  }
+</style>
