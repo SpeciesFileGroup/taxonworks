@@ -44,13 +44,15 @@ class BiologicalRelationship < ApplicationRecord
 
   # @return [Scope]
   #    the max 10 most recently used biological relationships 
-  def self.used_recently
-    t = BiologicalAssociation.arel_table
+  def self.used_recently(user_id, project_id)
+      t = BiologicalAssociation.arel_table
     k = BiologicalRelationship.arel_table 
 
     # i is a select manager
     i = t.project(t['biological_relationship_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 1.weeks.ago ))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
 
     # z is a table alias 
@@ -65,11 +67,12 @@ class BiologicalRelationship < ApplicationRecord
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: BiologicalRelationship.joins(:biological_associations).where(biological_associations: {project_id: project_id, updated_by_id: user_id }).used_recently.limit(10).distinct.to_a,
+      recent: BiologicalRelationship.joins(:biological_associations).used_recently(user_id, project_id).distinct.limit(10).order(:name).to_a,
       pinboard:  BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        BiologicalRelationship.joins(:biological_associations).used_recently(user_id, project_id).distinct.limit(4).order(:name).to_a).uniq
     h
   end
 end

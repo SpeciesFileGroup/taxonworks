@@ -15,7 +15,7 @@ import isDescriptorUnsaved from './isDescriptorUnsaved'
 import isDescriptorSaving from './isDescriptorSaving'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
 import getMatrixRow from './getMatrixRow'
-
+import getUnits from './getUnits'
 
 export const GetterNames = {
   GetObservationsFor: 'getObservationsFor',
@@ -31,10 +31,11 @@ export const GetterNames = {
   GetSampleStandardError: 'getSampleStandardError',
   GetSampleStandardMean: 'getSampleStandardMean',
   GetMatrixRow: 'getMatrixRow',
-  GetCharacterStateChecked: `getCharacterStateChecked`,
+  GetCharacterStateChecked: 'getCharacterStateChecked',
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   IsDescriptorSaving: 'isDescriptorSaving',
-  DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown'
+  DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown',
+  GetUnits: 'getUnits'
 }
 
 export const GetterFunctions = {
@@ -54,5 +55,6 @@ export const GetterFunctions = {
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
   [GetterNames.IsDescriptorSaving]: isDescriptorSaving,
-  [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown
+  [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown,
+  [GetterNames.GetUnits]: getUnits
 }

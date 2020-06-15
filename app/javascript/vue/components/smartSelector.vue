@@ -39,10 +39,15 @@
           :clear-after="clear"
           display="label"
           @getItem="getObject($event.id)"/>
+        <otu-picker
+          v-if="otuPicker"
+          :input-id="inputId"
+          :clear-after="true"
+          @getItem="getObject($event.id)"/>
       </div>
     </template>
-    <slot :view="view">
-    </slot>
+    <slot />
+    <slot :name="view" />
   </div>
 </template>
 
@@ -54,17 +59,24 @@ import Autocomplete from 'components/autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import { getUnique } from 'helpers/arrays.js'
 
 export default {
   components: {
     SwitchComponents,
     Autocomplete,
-    DefaultPin
+    DefaultPin,
+    OtuPicker
   },
   props: {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    otuPicker: {
+      type: Boolean,
+      default: false
     },
     autocompleteParams: {
       type: Object,
@@ -121,42 +133,76 @@ export default {
     addTabs: {
       type: Array,
       default: () => { return [] }
+    },
+    params: {
+      type: Object,
+      default: () => { return {} }
+    },
+    customList: {
+      type: Object,
+      default: () => { return {} }
     }
   },
   data () {
     return {
       lists: {},
       view: undefined,
-      options: []
+      options: [],
+      lastSelected: undefined
     }
   },
   watch: {
-    view(newVal) {
+    view (newVal) {
       this.$emit('onTabSelected', newVal)
+    },
+    customList: {
+      handler () {
+        this.addCustomElements()
+      },
+      deep: true
     }
   },
   mounted () {
-    AjaxCall('get', `/${this.model}/select_options`, { params: { klass: this.klass, target: this.target } }).then(response => {
-      this.options = OrderSmart(Object.keys(response.body))
-      this.lists = response.body
-      this.view = SelectFirst(this.lists, this.options)
-      if(this.search) {
-        this.options.push('search')
-        if(!this.view) {
-          this.view = 'search'
-        }
-      }
-      this.options = this.options.concat(this.addTabs)
-    })
+    this.refresh()
   },
   methods: {
-    getObject(id) {
+    getObject (id) {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
-        this.$emit('selected', response.body)
+        this.sendObject(response.body)
       })
     },
-    sendObject(item) {
+    sendObject (item) {
+      this.lastSelected = item
       this.$emit('selected', item)
+    },
+    refresh (forceUpdate = false) {
+      if (this.alreadyOnLists() && !forceUpdate) return
+      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
+        this.options = OrderSmart(Object.keys(response.body))
+        this.lists = response.body
+        this.view = SelectFirst(this.lists, this.options)
+        if (this.search) {
+          this.options.push('search')
+          if (!this.view) {
+            this.view = 'search'
+          }
+        }
+        this.options = this.options.concat(this.addTabs)
+      })
+    },
+    addCustomElements () {
+      const keys = Object.keys(this.customList)
+      if (keys.length) {
+        keys.forEach(key => {
+          if (this.lists[key]) {
+            this.lists[keys] = getUnique(this.lists[keys].concat(this.customList[key]), 'id')
+          }
+        })
+      }
+      this.view = SelectFirst(this.lists, this.options)
+    },
+    alreadyOnLists () {
+      return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
     }
   }
 }

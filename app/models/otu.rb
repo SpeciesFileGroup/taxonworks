@@ -261,7 +261,7 @@ class Otu < ApplicationRecord
   # @param used_on [String] required, one of `AssertedDistribution`, `Content`, `BiologicalAssociation`, `TaxonDetermination`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
-  def self.used_recently(used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '')
     t = case used_on 
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
@@ -286,10 +286,14 @@ class Otu < ApplicationRecord
                 t['biological_association_object_type'].eq('Otu')
               )
           )
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
           t.project(t['otu_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
 
@@ -318,19 +322,19 @@ class Otu < ApplicationRecord
     if target
       n = target.tableize.to_sym
       h[:recent] = (
-        Otu.joins(n)
-        .where(project_id: project_id, n => {updated_by_id: user_id})
-        .used_recently(target)
-        .limit(10).to_a + 
+#        Otu.joins(n)
+#        .where(project_id: project_id, n => {updated_by_id: user_id})
+        used_recently(user_id, project_id, target)
+        .limit(10).to_a +
       Otu.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
         .limit(3).to_a
-      ).uniq
+      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10)
     end
 
-    h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq 
+    h[:quick] = (Otu.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 

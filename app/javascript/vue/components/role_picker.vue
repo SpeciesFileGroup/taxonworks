@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="horizontal-left-content align-start">
+    <div
+      v-if="createForm"
+      class="horizontal-left-content align-start">
       <div class="horizontal-left-content">
         <autocomplete
           :autofocus="autofocus"
@@ -132,6 +134,10 @@
       filterByRole: {
         type: Boolean,
         default: false
+      },
+      createForm: {
+        type: Boolean,
+        default: true
       }
     },
     data: function () {
@@ -345,6 +351,7 @@
         }
       },
       setPerson: function (person) {
+        person.position = (this.roles_attributes.length + 1)
         this.roles_attributes.push(person)
         this.$emit('input', this.roles_attributes)
       }

@@ -280,7 +280,7 @@ class Source < ApplicationRecord
   # @param used_on [String] a model name 
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
-  def self.used_recently(used_on = 'TaxonName')
+  def self.used_recently(user_id, project_id, used_on = 'TaxonName')
     t = Citation.arel_table
     p = Source.arel_table
 
@@ -288,9 +288,11 @@ class Source < ApplicationRecord
     i = t.project(t['source_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['citation_object_type'].eq(used_on))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
-      .take(10)
       .distinct
+      .take(10)
 
     # z is a table alias
     z = i.as('recent_t')
@@ -311,16 +313,16 @@ class Source < ApplicationRecord
     h[:recent] = (
       Source.joins(:citations)
       .where( citations: { project_id: project_id, updated_by_id: user_id } )
-      .used_recently(target)
-      .limit(5).distinct.to_a +
+      .used_recently(user_id, project_id, target)
+      .distinct.limit(5).order(:cached).to_a +
     Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
       .order('created_at DESC')
-      .limit(5).to_a
+      .limit(5).order(:cached).to_a
     ).uniq
 
     h[:recent] ||= []
 
-    h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+    h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent]).uniq
     h
   end
 
@@ -352,9 +354,9 @@ class Source < ApplicationRecord
 
         case type
         when 'Source::Verbatim'
-          s.verbatim = m + verbatim
+          s.verbatim = m + verbatim.to_s
         when 'Source::Bibtex'
-          s.title = m + title
+          s.title = m + title.to_s
         end
 
         s.save!

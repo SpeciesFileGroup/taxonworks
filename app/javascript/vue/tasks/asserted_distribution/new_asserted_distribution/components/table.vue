@@ -94,7 +94,7 @@ export default {
   },
   methods: {
     nomenclatureBySourceRoute(id) {
-      return `${RouteNames.NomenclatureBySource}/${id}`
+      return `${RouteNames.NomenclatureBySource}?source_id=${id}`
     },
     removeItem(item) {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {

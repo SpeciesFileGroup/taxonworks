@@ -12,6 +12,12 @@
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div class="taxon-options">
+            <pin-component
+              type="TaxonName"
+              :object-id="taxon.id"/>
+            <a 
+              class=" button-circle btn-edit"
+              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
             <radial-annotator :global-id="taxon.global_id"/>
             <radial-object :global-id="taxon.global_id"/>
           </div>
@@ -29,7 +35,7 @@
         @click="newType"
         class="button normal-input button-default">New type</button>
 
-      <table class="margin-medium-top">
+      <table class="margin-medium-top full_width">
         <thead>
           <tr>
             <th>Type</th>
@@ -61,17 +67,17 @@
 </template>
 <script>
 
-import displayList from 'components/displayList.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
+import PinComponent from 'components/pin'
 
 export default {
   components: {
     RadialAnnotator,
     RadialObject,
-    displayList
+    PinComponent
   },
   computed: {
     typeMaterial () {

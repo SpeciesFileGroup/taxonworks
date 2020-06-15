@@ -73,7 +73,7 @@
             </label>
           </div>
         </div>
-        <div v-if="show == 'source' && taxon.id">
+        <div v-show="show == 'source' && taxon.id">
           <div class="horizontal-left-content">
             <autocomplete
               url="/sources/autocomplete"
@@ -118,7 +118,7 @@
             </div>
           </div>
         </div>
-        <div v-if="show == 'verbatim'">
+        <div v-show="show == 'verbatim'">
           <div class="field separate-top">
             <label>Verbatim author</label><br>
             <verbatim-author/>
@@ -128,7 +128,7 @@
             <verbatim-year/>
           </div>
         </div>
-        <div v-if="show == 'person'">
+        <div v-show="show == 'person'">
           <div class="flex-separate">
             <role-picker
               v-model="roles"
@@ -194,17 +194,12 @@ export default {
     verbatimFieldsWithData () {
       return (this.taxon.verbatim_author || this.taxon.year_of_publication)
     },
-    isAlreadyClone() {
-      if(this.citation.source.author_roles.length == 0) return true
+    isAlreadyClone () {
+      if (this.citation.source.author_roles.length === 0) return true
 
-      let authorsId = this.citation.source.author_roles.map(author => {
-          return Number(author.person.id)
-      })
+      const authorsId = this.citation.source.author_roles.map(author => { return Number(author.person.id) })
+      const personsIds = this.roles.map(role => { return role.person.id })
 
-      let personsIds = this.roles.map(role => {
-        return role.person.id
-      })
-      
       return authorsId.every(id => {
         return personsIds.includes(id)
       })
@@ -233,7 +228,7 @@ export default {
       if (this.autosave) {
         clearTimeout(this.autosave)
         this.autosave = null
-      }      
+      }
     }
   },
   mounted: function () {
@@ -257,23 +252,23 @@ export default {
         pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
-      
+
       if (this.autosave) {
         clearTimeout(this.autosave)
         this.autosave = null
       }
 
       this.autosave = setTimeout(function () {
-        that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon)
+        that.$store.dispatch(ActionNames.UpdateSource, citation)
       }, 3000)
     },
     cloneFromSource() {
-      let personsIds = this.roles.map(role => {
+      const personsIds = this.roles.map(role => {
         return role.person.id
       })
 
-      let authorsPerson = this.citation.source.author_roles.map(author => {
-        if(!personsIds.includes(Number(author.person.id))) {
+      const authorsPerson = this.citation.source.author_roles.map(author => {
+        if (!personsIds.includes(Number(author.person.id))) {
           return {
             person_id: author.person.id,
             type: "TaxonNameAuthor"

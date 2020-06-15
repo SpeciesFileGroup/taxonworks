@@ -118,13 +118,15 @@ export default {
     },
     createSequence() {
       CreateSequence(this.sequence).then(response => {
-        this.emitSequence(response.body)
+        this.$emit('getItem', response.body)
         this.create = false
         this.found = true
       })
     },
     emitSequence(sequence) {
-      this.$emit('getItem', sequence)
+      this.$http.get(`/sequences/${sequence.id}.json`).then(response => {
+        this.$emit('getItem', response.body)
+      })
     },
     callbackInput(event) {
       this.type = event
@@ -132,20 +134,3 @@ export default {
     }
   }
 }
-</script>
-<style lang="scss">
-.vue-otu-picker {
-  position: relative;
-  .new-otu-panel {
-    position: absolute;
-    z-index: 50;
-  }
-  .close-panel {
-    opacity: 0.5;
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    cursor: pointer;
-  }
-}
-</style>

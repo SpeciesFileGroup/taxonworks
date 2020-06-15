@@ -66,7 +66,7 @@ class Protonym < TaxonName
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnp|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icvcn|Icnp|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -83,7 +83,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Ictv|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Icvcn|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -250,7 +250,7 @@ class Protonym < TaxonName
     case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
-      when :ictv
+      when :icvcn
         ay = icn_author_and_year
       when :icnp
         ay = icn_author_and_year
@@ -626,7 +626,7 @@ class Protonym < TaxonName
     #
     # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
     # and this didn't do what you think it did, it's was returning an Array of two things
-    return e[:species][1] if rank_class.to_s =~ /Ictv/
+    return e[:species][1] if rank_class.to_s =~ /Icvcn/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 

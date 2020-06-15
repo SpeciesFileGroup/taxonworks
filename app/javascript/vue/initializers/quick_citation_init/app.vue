@@ -1,6 +1,7 @@
 <template>
   <quick-citation
     :id="id"
+    :class="klass"
     :global-id="globalId"
     :source-id="sourceId"/>
 </template>
@@ -24,6 +25,10 @@ export default {
     sourceId: {
       type: [String, Number],
       required: true
+    },
+    klass: {
+      type: String,
+      default: undefined
     }
   }
 }

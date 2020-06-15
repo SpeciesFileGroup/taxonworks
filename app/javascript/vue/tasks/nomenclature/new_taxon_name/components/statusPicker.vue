@@ -55,7 +55,7 @@
           type="radio"
           class="normal-input"
           @click="showAdvance = true">
-        <label for="status-picker-advanced">Advanced</label>
+        <label for="status-picker-advanced">Search</label>
         <input
           name="status-picker-options"
           id="status-picker-showall"

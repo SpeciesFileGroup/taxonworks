@@ -217,6 +217,8 @@ class TaxonName < ApplicationRecord
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
   has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+
+  # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
   has_many :taxon_name_relationships, foreign_key: :subject_taxon_name_id, dependent: :restrict_with_error, inverse_of: :subject_taxon_name
 
@@ -394,16 +396,16 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [TaxonName, nil] an ancestor at the specified rank
-  # @params rank [symbol|string|
+  # @param rank [symbol|string|
   #   like :species or 'genus'
-  def ancestor_at_rank(rank)
-    ancestors.with_rank_class(
-      Ranks.lookup(
-        is_combination? ? parent.nomenclatural_code : nomenclatural_code,
-        rank)
-    ).first
+  # @param include_self [Boolean]
+  #   if true then self will also be returned
+  def ancestor_at_rank(rank, include_self = false)
+    r = Ranks.lookup( is_combination? ? parent.nomenclatural_code : nomenclatural_code, rank)
+    return self if include_self && (rank_class.to_s == r)
+    ancestors.with_rank_class( r ).first
   end
-
+ 
   # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
@@ -443,7 +445,13 @@ class TaxonName < ApplicationRecord
   # Important, string format priority is 1) as provided verbatim, 2) as generated from people, and 3) as taken from the source.
   def author_string
     return verbatim_author if !verbatim_author.nil?
-    return Utilities::Strings.authorship_sentence( taxon_name_authors.order('roles.position').pluck(:last_name) ) if taxon_name_authors.any?
+    if taxon_name_authors.any?
+      if !source.nil? && source.authors.collect{|i| i.id} == taxon_name_authors.order('roles.position').pluck(:id).to_a
+        return source.authority_name if !source.nil?
+      else
+        return Utilities::Strings.authorship_sentence( taxon_name_authors.order('roles.position').pluck(:last_name) )
+      end
+    end
     return source.authority_name if !source.nil?
     nil
   end
@@ -522,7 +530,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [Array of String]
-  #   the unique string labels derived from TaxonNameClassifications
+  #   the unique string labels (human readable) derived from TaxonNameClassifications
   def statuses_from_classifications
     list = taxon_name_classifications_for_statuses
     list.empty? ? [] : list.collect{|c| c.classification_label }.sort
@@ -945,7 +953,7 @@ class TaxonName < ApplicationRecord
   def get_full_name
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
     return name if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-    return name if rank_class.to_s =~ /Ictv/
+    return name if rank_class.to_s =~ /Icvcn/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
     
     d = full_name_hash
@@ -1150,16 +1158,17 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
-  def self.used_recently_in_classifications(project_id, user_id)
-    TaxonName.where(project_id: project_id)
+  def self.used_recently_in_classifications(user_id, project_id)
+    TaxonName.where(project_id: project_id, created_by_id: user_id)
       .joins(:taxon_name_classifications)
+      .includes(:taxon_name_classifications)
       .where(taxon_name_classifications: { created_at: 1.weeks.ago..Time.now } )
-      .order('taxon_names.updated_at DESC')
+      .order('taxon_name_classifications.updated_at DESC')
   end
 
   # @return [Scope]
   #   All taxon names attached to relationships recently created by user
-  def self.used_recently_in_relationships(project_id, user_id)
+  def self.used_recently_in_relationships(user_id, project_id)
     t = TaxonNameRelationship.arel_table
     t1 = t.alias('tnr1')
     t2 = t.alias('tnr2')
@@ -1175,25 +1184,25 @@ class TaxonName < ApplicationRecord
       .where(taxon_names: {project_id: project_id})
       .where(sql2)
       .where(sql)
-      .order('taxon_names.updated_at DESC')
+      .order('taxon_names.updated_at DESC') ## needs optimisation. Does not sort by TNR date
   end
 
   # @return [Array]
   #   !! not a scope
-  def self.used_recently(project_id, user_id)
+  def self.used_recently(user_id, project_id)
 
     # !! If cached of one name is nill the raises an ArgumentError
     a = [
       TaxonName.touched_by(user_id).where(project_id: project_id).order(updated_at: :desc).limit(6).to_a,
-      used_recently_in_classifications(project_id, user_id).limit(6).to_a,
-      used_recently_in_relationships(project_id, user_id).limit(6).to_a
+      used_recently_in_classifications(user_id, project_id).limit(6).to_a,
+      used_recently_in_relationships(user_id, project_id).limit(6).to_a
     ].flatten.compact.uniq.sort{|a,b| a.cached <=> b.cached}
   end
 
   # @return [Hash]
   def self.select_optimized(user_id, project_id)
     h = {
-      recent: TaxonName.used_recently(project_id, user_id),
+      recent: TaxonName.used_recently(user_id, project_id),
       pinboard: TaxonName.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
@@ -1281,7 +1290,7 @@ class TaxonName < ApplicationRecord
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×[a-zA-Z]*$/) ||
           (nomenclatural_code == :icn && name =~  /^×[a-zA-Z]*$/) ||
-          (nomenclatural_code == :ictv)
+          (nomenclatural_code == :icvcn)
         correct_name_format = true
       end
 
@@ -1290,9 +1299,9 @@ class TaxonName < ApplicationRecord
         invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
         misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
 
-        ictv_species = (nomenclatural_code == :ictv && self.rank_string =~ /Species/) ? true : nil
+        icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
         misspellings = misspellings & taxon_name_relationships.pluck(:type)
-        if invalid_statuses.empty? && misspellings.empty? && ictv_species.nil?
+        if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end

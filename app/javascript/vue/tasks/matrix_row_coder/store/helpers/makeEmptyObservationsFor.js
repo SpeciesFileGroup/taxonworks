@@ -22,7 +22,15 @@ export default function (descriptor) {
       const emptyCharacterStateObservationData = Object.assign({}, emptyObservationData, { characterStateId: characterState.id })
       observations.push(makeObservation(emptyCharacterStateObservationData))
     })
-  } else { observations.push(makeObservation(emptyObservationData)) }
+  } else if (descriptor.componentName === ComponentNames.Continuous) {
+    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
+    observations.push(makeObservation(emptyContinuousObservationData))
+  } else if (descriptor.componentName === ComponentNames.Sample) {
+    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
+    observations.push(makeObservation(emptyContinuousObservationData))
+  } else {
+    observations.push(makeObservation(emptyObservationData))
+  }
 
   return observations
 };

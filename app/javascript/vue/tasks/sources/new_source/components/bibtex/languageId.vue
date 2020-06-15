@@ -3,11 +3,20 @@
     <div class="horizontal-left-content">
       <fieldset class="full_width">
         <legend>Language</legend>
-        <smart-selector
-          model="languages"
-          klass="source"
-          label="english_name"
-          @selected="setSelected"/>
+        <div class="flex-separate align-start">
+          <smart-selector
+            class="full_width"
+            model="languages"
+            ref="smartSelector"
+            klass="source"
+            label="english_name"
+            @selected="setSelected"/>
+          <div class="horizontal-right-content padding-medium-right">
+            <lock-component
+              class="circle-button-margin"
+              v-model="settings.lock.language_id"/>
+          </div>
+        </div>
         <div
           class="middle separate-top"
           v-if="selected">
@@ -19,7 +28,6 @@
             @click="unset"/>
         </div>
       </fieldset>
-      <lock-component v-model="settings.lock.language_id"/>
     </div>
   </div>
 </template>
@@ -30,7 +38,6 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
-import Autocomplete from 'components/autocomplete'
 import SmartSelector from 'components/smartSelector'
 
 import AjaxCall from 'helpers/ajaxCall'
@@ -56,6 +63,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
   watch: {
@@ -70,6 +80,13 @@ export default {
         }
       },
       immediate: true
+    },
+    lastSave: {
+      handler (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$refs.smartSelector.refresh()
+        }
+      }
     }
   },
   data () {

@@ -49,6 +49,11 @@ module Queries
       #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
+      # @param descendants_max_depth [Integer]
+      # A positive integer indicating how many levels deep of descenants to retrieve.
+      #   Ignored when descentants is false/unspecified
+      attr_accessor :descendants_max_depth
+
       # @param taxon_name_relationship [Array]
       #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
       # Each entry must have a 'type'
@@ -96,7 +101,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
-      #   &nomenclature_code=Iczn|Icnp|Icn|Ictv
+      #   &nomenclature_code=Iczn|Icnp|Icn|Icvcn
       attr_accessor :nomenclature_code
 
       # TODO: inverse is duplicated in autocomplete
@@ -117,6 +122,7 @@ module Queries
         @authors = (params[:authors]&.downcase == 'true' ? true : false) if !params[:authors].nil?
         @citations = params[:citations]
         @descendants = (params[:descendants]&.downcase == 'true' ? true : false) if !params[:descendants].nil?
+        @descendants_max_depth = params[:descendants_max_depth]
         @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
         @leaves = (params[:leaves]&.downcase == 'true' ? true : false) if !params[:leaves].nil?
         @name = params[:name]
@@ -171,12 +177,17 @@ module Queries
       # A merge facet.
       def descendant_facet
         return nil if taxon_name_id.empty? || descendants == false
-        ::TaxonName.where(
-          ::TaxonNameHierarchy.where(
-            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- is likely not the most optimal
-          ).arel.exists
+
+        descendants_subquery = ::TaxonNameHierarchy.where(
+          ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+          ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
         )
+
+        unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
+          descendants_subquery = descendants_subquery.where(TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+        end
+
+        ::TaxonName.where(descendants_subquery.arel.exists)
       end
 
       # @return Scope

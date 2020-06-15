@@ -17,7 +17,7 @@ const GetOtuSmartSelector = function () {
 }
 
 const GetPreparationTypes = function () {
-  return ajaxCall('get', `/preparation_types.json`)
+  return ajaxCall('get', '/preparation_types.json')
 }
 
 const GetOtu = function (id) {
@@ -25,7 +25,7 @@ const GetOtu = function (id) {
 }
 
 const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
+  return ajaxCall('get', '/people/select_options?role_type=Determiner')
 }
 
 const GetSqedMetadata = function () {
@@ -53,7 +53,7 @@ const CreateCollectionObject = function (data) {
 }
 
 const CreateTaxonDetermination = function (data) {
-  return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
+  return ajaxCall('post', '/taxon_determinations.json', { taxon_determination: data })
 }
 
 const UpdateAttribution = function (data) {

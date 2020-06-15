@@ -140,6 +140,10 @@ export default {
       type: Boolean,
       default: false
     },
+    defaultView: {
+      type: String,
+      default: undefined
+    },
     components: {
       type: Object,
       default: () => {
@@ -166,6 +170,9 @@ export default {
     }
   },
   computed: {
+    metadataLoaded () {
+      return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
+    },
     menuCreated () {
       return this.menuOptions.length > 0
     },
@@ -197,13 +204,28 @@ export default {
       }
     }
   },
+  watch: {
+    metadataLoaded () {
+      if (this.defaultView) {
+        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+      }
+    },
+    display (newVal) {
+      if (newVal && this.metadataLoaded) {
+        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+      }
+    }
+  },
   mounted () {
     if (this.showCount) {
       this.loadMetadata()
     }
   },
   methods: {
-    loadContextMenu() {
+    isComponentExist (componentName) {
+      return this.$options.components[componentName] ? true : false
+    },
+    loadContextMenu () {
       this.showContextMenu = true
       this.loadMetadata()
     },
@@ -246,7 +268,6 @@ export default {
     },
     displayAnnotator: function () {
       this.display = true
-      this.currentAnnotator = undefined
       this.loadMetadata()
       this.alreadyTagged()
     },
@@ -360,6 +381,7 @@ export default {
       height: 600px;
       flex-direction: column;
       overflow-y: scroll;
+      position: relative;
     }
     .radial-annotator-menu {
       padding-top: 1em;

@@ -57,8 +57,9 @@
       </button>
     </div>
 
-    <display-list
-      label="object_tag"
+    <table-list
+      :attributes="[['document', 'object_tag'], 'updated_at']"
+      :header="['Filename', 'Updated at', '']"
       :list="list"
       :pdf="true"
       download="document.file_url"
@@ -72,12 +73,12 @@
   import annotatorExtend from '../components/annotatorExtend.js'
   import Autocomplete from 'components/autocomplete.vue'
   import Dropzone from 'components/dropzone.vue'
-  import DisplayList from 'components/displayList.vue'
+  import TableList from 'components/table_list.vue'
 
   export default {
     mixins: [CRUD, annotatorExtend],
     components: {
-      DisplayList,
+      TableList,
       Autocomplete,
       Dropzone
     },

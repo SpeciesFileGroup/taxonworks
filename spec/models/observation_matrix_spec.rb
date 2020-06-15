@@ -42,11 +42,40 @@ RSpec.describe ObservationMatrix, type: :model, group: :matrix do
     end
 
     specify 'cascade creates columns from items 1' do
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor) 
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor)
       expect(observation_matrix.observation_matrix_columns.count).to eq(1)
     end
 
+    context 'deletable' do
+      specify 'delete matrix' do
+        om = ObservationMatrix.create(name: 'test')
+        descriptor1 = Descriptor::Continuous.create!(name: 'working')
+
+        r1 = ObservationMatrixRowItem::SingleOtu.create(otu: otu, observation_matrix: om)
+        r2 = ObservationMatrixRowItem::SingleCollectionObject.create(collection_object: collection_object, observation_matrix: om)
+        c3 = ObservationMatrixColumnItem::SingleDescriptor.create(descriptor: descriptor, observation_matrix: om)
+        o1 = Observation.create(otu: otu, descriptor: descriptor1, continuous_value: 6)
+        o2 = Observation.create(collection_object: collection_object, descriptor: descriptor1, continuous_value: 5)
+        om.reload
+
+        expect(ObservationMatrix.where(id: om.id).first.nil?).to be_falsey
+        expect(ObservationMatrixRowItem.where(id: r1.id).first.nil?).to be_falsey
+        expect(ObservationMatrixRowItem.where(id: r2.id).first.nil?).to be_falsey
+        expect(ObservationMatrixColumnItem.where(id: c3.id).first.nil?).to be_falsey
+
+        expect(om.destroy!).to be_truthy
+
+        expect(ObservationMatrix.where(id: om.id).first.nil?).to be_truthy
+        expect(ObservationMatrixRowItem.where(id: r1.id).first.nil?).to be_truthy
+        expect(ObservationMatrixRowItem.where(id: r2.id).first.nil?).to be_truthy
+        expect(ObservationMatrixColumnItem.where(id: c3.id).first.nil?).to be_truthy
+
+        expect(Otu.where(id: otu.id).first.nil?).to be_falsey
+        expect(CollectionObject.where(id: collection_object.id).first.nil?).to be_falsey
+        expect(Descriptor.where(id: descriptor1.id).first.nil?).to be_falsey
+        expect(Observation.where(id: o1.id).first.nil?).to be_falsey
+        expect(Observation.where(id: o2.id).first.nil?).to be_falsey
+      end
+    end
   end
-
-
 end

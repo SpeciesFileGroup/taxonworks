@@ -6,9 +6,42 @@
       :logo-size="{ width: '100px', height: '100px'}"
       legend="Loading..."/>
     <h1>Task - New asserted distribution</h1>
+    <nav-bar-component class="margin-medium-bottom">
+      <div class="flex-separate middle">
+        <div>
+          <span
+            v-if="currentAssertedDistribution"
+            v-html="currentAssertedDistribution.object_tag"/>
+          <span v-else>New record</span>
+        </div>
+        <div class="horizontal-center-content middle">
+          <button
+            type="button"
+            v-shortkey="[getMacKey(), 's']"
+            @shortkey="saveAssertedDistribution()"
+            :disabled="!validate"
+            class="button normal-input button-submit separate-right"
+            @click="saveAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
+          </button>
+          <button
+            type="button"
+            v-shortkey="[getMacKey(), 'n']"
+            @shortkey="createAndNewAssertedDistribution()"
+            :disabled="!validate"
+            class="button normal-input button-submit separate-left separate-right"
+            @click="createAndNewAssertedDistribution">{{ asserted_distribution.id ? 'Update and new' : 'Create and new' }}
+          </button>
+          <span
+            class="cursor-pointer"
+            @click="newWithLock">
+            <span data-icon="reset"/>Reset
+          </span>
+        </div>
+      </div>
+    </nav-bar-component>
     <div class="horizontal-left-content align-start">
       <div class="panel-section">
-        <div class="horizontal-left-content middle panel-section separate-right">
+        <div class="horizontal-left-content panel-section separate-right align-start">
           <source-component
             v-model="asserted_distribution.citations_attributes[0]"
             ref="sourceComponent"
@@ -16,40 +49,32 @@
               highlight: highlight.source
             }"
             class="separate-right"/>
-          <lock-component v-model="locks.citations_attributes"/>
+          <lock-component
+            class="margin-medium-top"
+            v-model="locks.citations_attributes"/>
         </div>
         <p class="horizontal-left-content">
-          <span class="separate-right">Add source: </span>
           <ul class="no_bullets context-menu">
             <li class="navigation-item context-menu-option">
               <a
-                target="blank" 
-                href="/sources/new">New</a>
-            </li>
-            <li class="navigation-item context-menu-option">
-              <a
-                target="blank"
-                href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
-            </li>
-            <li class="navigation-item context-menu-option">
-              <a
-                target="blank" 
-                href="/tasks/sources/individual_bibtex_source/index">New from bibtex</a>
+                href="/tasks/sources/new_source">New source</a>
             </li>
           </ul>
         </p>
       </div>
-      <div class="horizontal-left-content middle separate-bottom panel-section separate-left separate-right">
+      <div class="horizontal-left-content separate-bottom panel-section separate-left separate-right align-start">
         <otu-component
           class="separate-right"
+          ref="otuComponent"
           :class="{
             highlight: highlight.otu
           }"
-          ref="otuComponent"
           v-model="asserted_distribution.otu_id"/>
-        <lock-component v-model="locks.otu_id"/>
+        <lock-component
+          class="margin-medium-top"
+          v-model="locks.otu_id"/>
       </div>
-      <div class="horizontal-left-content middle panel-section separate-left">
+      <div class="horizontal-left-content panel-section separate-left align-start">
         <geographic-area
           class="separate-right"
           ref="geoComponent"
@@ -57,32 +82,12 @@
             highlight: highlight.geo
           }"
           v-model="asserted_distribution.geographic_area_id"/>
-        <lock-component v-model="locks.geographic_area_id"/>
+        <lock-component
+          class="margin-medium-top"
+          v-model="locks.geographic_area_id"/>
       </div>
     </div>
-    <div class="horizontal-center-content middle">
-      <button
-        type="button"
-        v-shortkey="[getMacKey(), 's']"
-        @shortkey="saveAssertedDistribution()"
-        :disabled="!validate"
-        class="button normal-input button-submit separate-right"
-        @click="saveAssertedDistribution">Save
-      </button>
-      <button
-        type="button"
-        v-shortkey="[getMacKey(), 'n']"
-        @shortkey="createAndNewAssertedDistribution()"
-        :disabled="!validate"
-        class="button normal-input button-submit separate-left separate-right"
-        @click="createAndNewAssertedDistribution">Save and new
-      </button>
-      <span
-        class="cursor-pointer"
-        @click="newWithLock">
-        <span data-icon="reset"/>Reset
-      </span>
-    </div>
+
     <table-component
       class="full_width"
       :list="list"
@@ -102,6 +107,7 @@ import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
 import LockComponent from 'components/lock'
 import SpinnerComponent from 'components/spinner'
+import NavBarComponent from 'components/navBar'
 import GetMacKey from 'helpers/getMacKey'
 
 import { CreateAssertedDistribution, RemoveAssertedDistribution, UpdateAssertedDistribution, LoadRecentRecords } from './request/resources.js'
@@ -113,16 +119,22 @@ export default {
     GeographicArea,
     TableComponent,
     LockComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NavBarComponent
   },
   computed: {
-    validate() {
+    validate () {
       return this.asserted_distribution.otu_id &&
         this.asserted_distribution.geographic_area_id &&
         this.asserted_distribution.citations_attributes[0].source_id
+    },
+    currentAssertedDistribution () {
+      return this.list.find(item => {
+        return item.id === this.asserted_distribution.id
+      })
     }
   },
-  data() {
+  data () {
     return {
       asserted_distribution: this.newAssertedDistribution(),
       list: [],
@@ -202,6 +214,7 @@ export default {
             this.asserted_distribution.id = response.body.id
             this.setCitation(response.body.citations[0])
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+            this.refreshSmarts()
             resolve(response.body)
           })
         }
@@ -212,6 +225,7 @@ export default {
             this.setCitation(response.body.citations[0])
             this.list.unshift(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
+            this.refreshSmarts()
             resolve(response.body)
           })
         }
@@ -224,9 +238,15 @@ export default {
         }), 1)
       })
     },
+    refreshSmarts () {
+      this.$refs.sourceComponent.refresh()
+      this.$refs.geoComponent.refresh()
+      this.$refs.otuComponent.refresh()
+    },
     setSourceOtu(item) {
       this.newWithLock()
       this.asserted_distribution.id = undefined
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.otu_id = item.otu.id
       this.$refs.sourceComponent.setSelected(item.citation)
@@ -234,9 +254,10 @@ export default {
     },
     setSourceGeo(item) {
       this.newWithLock()
+      item.citation.id = undefined
       this.setCitation(item.citation)
       this.asserted_distribution.geographic_area_id = item.geo.id
-      this.$refs.sourceComponent.setSelected(item.citation.source)
+      this.$refs.sourceComponent.setSelected(item.citation)
       this.$refs.geoComponent.setSelected(item.geo)
     },
     setGeoOtu(item) {
@@ -244,8 +265,8 @@ export default {
       this.asserted_distribution.id = item.id
       this.asserted_distribution.geographic_area_id = item.geo.id
       this.asserted_distribution.otu_id = item.otu.id
-      this.$refs.geoComponent.setSelected(item.geo)  
-      this.$refs.otuComponent.setSelected(item.otu)    
+      this.$refs.geoComponent.setSelected(item.geo)
+      this.$refs.otuComponent.setSelected(item.otu)
     },
     setCitation(item) {
       this.asserted_distribution.citations_attributes = []
@@ -254,7 +275,7 @@ export default {
         source_id: item.source_id,
         is_original: item.is_original,
         pages: item.pages
-      })      
+      })
     }
   }
 }

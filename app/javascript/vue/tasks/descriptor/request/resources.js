@@ -7,9 +7,16 @@ const ajaxCall = function (type, url, data = null) {
   Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
   return new Promise(function (resolve, reject) {
     Vue.http[type](url, data).then(response => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
       return resolve(response.body)
     }, response => {
-      handleError(response.body)
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(response)
+      }
+      if(response.status != 404)
+        handleError(response.body)
       return reject(response)
     })
   })
@@ -17,14 +24,11 @@ const ajaxCall = function (type, url, data = null) {
 
 const handleError = function (json) {
   if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
+  TW.workbench.alert.create(Object.values(json).join('<br>'), 'error')
+}
 
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
+const CreateObservationMatrixColumn = (data) => {
+  return ajaxCall('post', '/observation_matrix_column_items.json', { observation_matrix_column_item: data })
 }
 
 const CreateDescriptor = function (data) {
@@ -55,6 +59,10 @@ const GetSequence = (id) => {
   return ajaxCall('get', `/sequences/${id}.json`)
 }
 
+const GetMatrix = (id) => {
+  return ajaxCall('get', `/observation_matrices/${id}.json`)
+}
+
 export {
   CreateDescriptor,
   DeleteDescriptor,
@@ -63,4 +71,6 @@ export {
   GetUnits,
   GetSequenceSmartSelector,
   GetSequence,
+  CreateObservationMatrixColumn,
+  GetMatrix
 }

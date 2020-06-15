@@ -295,7 +295,7 @@ class TaxonNameRelationship < ApplicationRecord
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Icvcn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.try(:parent)
       unless rank_group == self.object_taxon_name.rank_class.try(:parent)
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.try(:rank_name)} rank group, not #{self.object_taxon_name.rank_class.try(:rank_name)}")

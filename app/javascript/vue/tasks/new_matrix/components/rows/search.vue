@@ -6,12 +6,12 @@
         v-for="item, key in autocomplete_type"
         class="field">
         <label class="label-flex">
-        <input
-          type="radio"
-          v-model="type"
-          name="autocomplete_type"
-          :value="key"
-          checked>
+          <input
+            type="radio"
+            v-model="type"
+            name="autocomplete_type"
+            :value="key"
+            checked>
           {{ key }}
         </label>
       </template>
@@ -19,17 +19,13 @@
         <autocomplete
           min="2"
           :placeholder="`Select a ${type}`"
-          label="label"
-          @getItem="objectId = $event.id"
+          label="label_html"
+          :clear-after="true"
+          @getItem="createRowItem($event.id)"
           :url="autocomplete_type[type]"
           param="term"/>
       </div>
     </div>
-    <button
-      class="normal-input button button-submit"
-      type="button"
-      @click="createRowItem">Create
-    </button>
   </div>
 </template>
 <script>
@@ -58,18 +54,17 @@ export default {
         Otu: 'ObservationMatrixRowItem::SingleOtu',
         CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
       },
-      type: 'Otu',
-      objectId: undefined,
+      type: 'Otu'
     }
   },
   methods: {
-    createRowItem() {
-      let data = {
+    createRowItem(id) {
+      const data = {
         observation_matrix_id: this.matrix.id,
         type: this.types[this.type]
       }
 
-      data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = this.objectId
+      data[(this.type === 'Otu' ? 'otu_id' : 'collection_object_id')] = id
 
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     }

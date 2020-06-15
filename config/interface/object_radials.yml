@@ -45,6 +45,11 @@ CollectingEvent:
     - filter_collecting_events_task
   config: 
     recent: true
+Document:
+  tasks:
+    - gnfinder_task
+  config: 
+    recent: true
 GeographicArea:
   tasks:
     - asserted_distributions_basic_endemism_task 
@@ -85,6 +90,7 @@ Source:
     - new_source_task
     - filter_sources_task   
     - nomenclature_by_source_task
+    - gnfinder_task
   new: new_source_task
   edit: new_source_task
   config:

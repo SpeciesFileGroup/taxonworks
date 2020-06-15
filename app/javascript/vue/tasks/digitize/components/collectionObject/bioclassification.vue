@@ -28,13 +28,10 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 
-import { 
-  GetBiocurationsTypes, 
-  GetBiocurationsCreated, 
+import {
+  GetBiocurationsCreated,
   CreateBiocurationClassification,
-  GetBiocurationsGroupTypes,
-  DestroyBiocuration,
-  GetBiocurationsTags } from '../../request/resources.js'
+  DestroyBiocuration } from '../../request/resources.js'
 
 export default {
   props: {
@@ -84,7 +81,7 @@ export default {
 
           setTimeout(() => {
             GetBiocurationsCreated(newVal).then(response => {
-              that.createdBiocutarions = response
+              that.createdBiocutarions = response.body
               that.$forceUpdate()
             })
           }, this.delay)
@@ -112,7 +109,7 @@ export default {
     processQueue () {
       this.addQueue.forEach((id) => {
         CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
-          this.createdBiocutarions.push(response)
+          this.createdBiocutarions.push(response.body)
         })
         this.addQueue = []
       })

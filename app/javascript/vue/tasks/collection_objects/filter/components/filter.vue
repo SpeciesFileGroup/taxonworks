@@ -1,12 +1,12 @@
 <template>
-  <div class="panel filter-container">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <span
         data-icon="reset"
         class="cursor-pointer"
         v-shortkey="[getMacKey, 'r']"
-        @shortkey="resetFilter"        
+        @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
     </div>
@@ -14,23 +14,23 @@
       :full-screen="true"
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching" 
+      v-if="searching"
     />
 
     <spinner-component
       :full-screen="true"
       :legend="`Building ${ DWCACount } ... ${ DWCASearch.length } unindexed records`"
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="loadingDWCA" 
+      v-if="loadingDWCA"
     />
     <div class="content">
-      <button 
+      <button
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
         v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchForCollectionObjects"
-        @click="searchForCollectionObjects">
+        @shortkey="searchForCollectionObjects(parseParams)"
+        @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
       <geographic-component
@@ -67,6 +67,7 @@ import BiocurationsComponent from './filters/biocurations'
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -86,20 +87,24 @@ export default {
     getMacKey () {
       return GetMacKey()
     },
-    emptyParams() {
-      if (!this.params) return 
-      return !this.params.biocurations.biocuration_class_ids.length && 
+    parseParams () {
+      return Object.assign({}, this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+    },
+    emptyParams () {
+      if (!this.params) return
+      return !this.params.biocurations.biocuration_class_ids.length &&
         !this.params.geographic.geographic_area_ids.length &&
-        !this.params.geographic.geo_json &&
+        !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_ids.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
+        !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
-        !Object.values(this.params.user).find(item => { return item != undefined }) &&
-        !Object.values(this.params.loans).find(item => { return item != undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item != undefined })
+        !Object.values(this.params.user).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.identifier).find(item => { return item !== undefined })
     }
   },
   data () {
@@ -115,18 +120,23 @@ export default {
       DWCASearch: 0
     }
   },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      urlParams.geo_json = urlParams.geo_json ? JSON.stringify(urlParams.geo_json) : []
+      this.searchForCollectionObjects(urlParams)
+    }
+  },
   methods: {
-    resetFilter() {
+    resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    searchForCollectionObjects () {
-      if(this.emptyParams) return
-      if(this.loadingDWCA) return
+    searchForCollectionObjects (params) {
+      if (this.loadingDWCA) return
       this.searching = true
       this.result = []
       this.$emit('newSearch')
-      const params = Object.assign({},  this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
 
       GetCollectionObjects(params).then(response => {
         this.coList = response.body
@@ -144,6 +154,8 @@ export default {
         }
         this.$emit('urlRequest', response.url)
         this.$emit('pagination', response)
+        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        history.pushState(null, null, `/tasks/collection_objects/filter?${urlParams.toString()}`)
         this.searching = false
         if(this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
@@ -194,7 +206,7 @@ export default {
           end_date: undefined,
           partial_overlap_dates: undefined,
           collecting_event_wildcards: [],
-          fields: undefined
+          fields: []
         },
         user: {
           user_id: undefined,
@@ -203,7 +215,7 @@ export default {
           user_date_end: undefined
         },
         geographic: {
-          geo_json: undefined,
+          geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
@@ -211,9 +223,8 @@ export default {
       }
     },
     loadPage(page) {
-      console.log(page)
       this.params.settings.page = page 
-      this.searchForCollectionObjects()
+      this.searchForCollectionObjects(this.parseParams)
     },
     setDays(days) {
       var date = new Date();
@@ -252,7 +263,6 @@ export default {
     },
     getDWCA(ids) {
       if(ids.length) {
-        //this.DWCACount = this.DWCACount + ids[0].length
         this.loadingDWCA = true
         let promises = []
         ids[0].forEach(id => {

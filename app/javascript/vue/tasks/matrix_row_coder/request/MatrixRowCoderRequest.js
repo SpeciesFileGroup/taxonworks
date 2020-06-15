@@ -70,7 +70,7 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     }
   }
 
-  getMatrixRow (rowId, globalId) {
+  getMatrixRow (rowId) {
     const extraParams = {
       observation_matrix_row_id: rowId
     }
@@ -110,7 +110,6 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   createObservation (payload) {
     const url = `${this.apiBase}/observations.json`
-    console.log(Object.assign(payload, this.apiParams))
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 
@@ -154,8 +153,14 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     return getJSON(url)
   }
 
+  getUnits () {
+    const url = this.buildGetUrl('/descriptors/units.json')
+    console.log(getJSON(url))
+    return getJSON(url)
+  }
+
   getConfidenceLevels () {
-    const url = this.buildGetUrl(`/confidence_levels.json`)
+    const url = this.buildGetUrl('/confidence_levels.json')
     return getJSON(url)
   }
 }

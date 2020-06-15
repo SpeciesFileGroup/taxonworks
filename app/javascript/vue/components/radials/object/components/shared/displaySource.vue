@@ -2,7 +2,7 @@
   <div>
     <a
       class="button-default circle-button btn-citation"
-      :href="`/tasks/nomenclature/by_source/${source.id}`"
+      :href="`/tasks/nomenclature/by_source?source_id=${source.id}`"
       target="blank"
       @mouseover="showSource = true"
       @mouseout="showSource = false"/>

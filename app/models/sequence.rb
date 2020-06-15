@@ -72,7 +72,7 @@ class Sequence < ApplicationRecord
   # @param used_on [String] required, one of `GeneAttribute` or `SequenceRelationship`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
-  def self.used_recently(used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '')
     t = case used_on
         when 'GeneAttribute'
           GeneAttribute.arel_table
@@ -85,6 +85,8 @@ class Sequence < ApplicationRecord
     # i is a select manager
     i = t.project(t['sequence_id'], t['updated_at']).from(t)
       .where(t['updated_at'].gt( 1.weeks.ago ))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
       .order(t['updated_at'].desc)
 
     # i is a select manager
@@ -94,10 +96,14 @@ class Sequence < ApplicationRecord
             .where(
               t['updated_at'].gt(1.weeks.ago)
           )
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'])
         else
           t.project(t['sequence_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'])
         end
 
@@ -131,7 +137,7 @@ class Sequence < ApplicationRecord
       a = target.tableize.to_sym
       h[:recent] = (
         b.limit(3).to_a + 
-        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(target).limit(10).to_a
+        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(user_id, project_id, target).limit(10).to_a
       ).uniq
     else
       h[:recent] = b.limit(10).to_a

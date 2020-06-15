@@ -36,16 +36,23 @@
     </div>
     <div class="field">
       <label>Repository</label>
-      <autocomplete
-        class="types_field"
-        url="/repositories/autocomplete"
-        param="term"
-        label="label_html"
-        :send-label="labelRepository"
-        placeholder="Select a repository"
-        @getItem="repositoryId = $event.id; labelRepository = $event.label"
-        display="label"
-        min="2"/>
+      <div class="horizontal-left-content">
+        <autocomplete
+          class="types_field margin-small-right"
+          url="/repositories/autocomplete"
+          param="term"
+          label="label_html"
+          :send-label="labelRepository"
+          placeholder="Select a repository"
+          @getItem="repositoryId = $event.id; labelRepository = $event.label"
+          display="label"
+          min="2"/>
+        <default-pin
+          class="button-circle margin-small-left"
+          type="Repository"
+          @getItem="repositoryId = $event.id; labelRepository = $event.label"
+          section="Repositories"/>
+      </div>
     </div>
     <div class="field">
       <label>Collection event</label>
@@ -69,6 +76,7 @@
 <script>
 
 import autocomplete from 'components/autocomplete.vue'
+import DefaultPin from 'components/getDefaultPin.vue'
 import toggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -77,7 +85,8 @@ import { GetCollectionEvent, GetRepository, GetPreparationTypes } from '../reque
 export default {
   components: {
     autocomplete,
-    toggleSwitch
+    toggleSwitch,
+    DefaultPin
   },
   computed: {
     typeMaterial () {

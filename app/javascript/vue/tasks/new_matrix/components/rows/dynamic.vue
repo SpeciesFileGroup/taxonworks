@@ -112,15 +112,15 @@ export default {
   },
   mounted() {
     GetSmartSelector('keywords').then(response => {
-      this.smartOptions = this.smartOptions.filter(value => Object.keys(response).includes(value))
-      this.selectorLists = response
+      this.smartOptions = this.smartOptions.filter(value => Object.keys(response.body).includes(value))
+      this.selectorLists = response.body
       this.loadingTag = false
       this.smartOptions.push('search')
     })
     GetSmartSelector('taxon_names').then(response => {
-      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter(value => Object.keys(response).includes(value))
+      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter(value => Object.keys(response.body).includes(value))
       this.smartTaxon.push('search')
-      this.listTaxon = response
+      this.listTaxon = response.body
       this.loadingTaxon = false
     })
   },
