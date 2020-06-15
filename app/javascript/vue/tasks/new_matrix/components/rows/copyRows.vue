@@ -157,10 +157,6 @@ export default {
     }
   },
   mounted () {
-    const ID = new URLSearchParams(window.location.search).get('import_dataset_id')
-    if (ID) {
-      this.loadDataset(ID)
-    }
     document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
     this.$el.querySelector('.modal-container').addEventListener('scroll', this.checkScroll)
   },
