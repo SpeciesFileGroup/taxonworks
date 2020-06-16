@@ -468,8 +468,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
-          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
- #           ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+ #         ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+            ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
@@ -585,14 +585,15 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               protonym = TaxonName.find(taxon_name_id)
 
 
-#              if row['TaxonNameID'].to_s == '1111197' || nomenclator_string == "Jivarus_hubbelli"
+#              if row['TaxonNameID'].to_s == '1128515' # || row['TaxonNameID'].to_s ==  '1128514'
 #                 byebug
-#              elsif nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == 'Jivarus' && nomenclator_ids[nomenclator_id.to_i]['species'] && nomenclator_ids[nomenclator_id.to_i]['species'][0] == 'hubbelli'
-#                byebug
 #              else
- #               next
+#                next
 #              end
 
+
+              #1128515 does not change to Adjective with the original citation.
+#
               # 1111197 - duplicate record for protonym without TNR
 #               1140778 - first synonym citation is missing
 #              1132873 - second synonym citation is missin
@@ -809,6 +810,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 #citation.notes.create(text: row['Note'], project_id: project_id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate']) unless row['Note'].blank?
 
                 citation.update(pages: row['CitePages'])
+
                 unless citation.id.nil?
                   unless row['Note'].blank?
                     #n = protonym.notes.find_or_create_by(text: row['Note'], project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
@@ -848,6 +850,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 #                        )
                 #                  end
                 #                end
+
+                if protonym.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' && protonym.name != nomenclator_ids[nomenclator_id.to_i]['species'][0]
+                  pr = Protonym.new(name: nomenclator_ids[nomenclator_id.to_i]['species'][0], rank_class: Ranks.lookup(:iczn, 'Species'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
+                  if protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
+                    ge = protonym.ancestor_at_rank('genus')
+                    unless ge.nil?
+                      if protonym.name.ends_with?('us')
+                        ge.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Masculine')
+                      elsif protonym.name.ends_with?('um') || protonym.name.ends_with?('e')
+                        ge.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Neuter')
+                      elsif protonym.name.ends_with?('a')
+                        ge.taxon_name_classifications.create(type: 'TaxonNameClassification::Latinized::Gender::Feminine')
+                      end
+                    end
+                    protonym.name = pr.name
+                    protonym.taxon_name_classifications.new(type: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective')
+                  end
+                end
 
                 if rank_pass == 'genus' && nomenclator_ids[nomenclator_id.to_i]['genus'] && protonym.name == nomenclator_ids[nomenclator_id.to_i]['genus'][0]
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: protonym, project_id: project_id) && protonym.original_genus.nil?
