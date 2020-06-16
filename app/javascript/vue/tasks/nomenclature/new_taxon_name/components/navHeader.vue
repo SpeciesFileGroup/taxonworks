@@ -33,7 +33,9 @@
         <save-taxon-name
           v-if="taxon.id"
           class="normal-input button button-submit separate-right"/>
-        <clone-taxon-name class="separate-right"/>
+        <clone-taxon-name
+          v-help.section.navbar.clone
+          class="separate-right"/>
         <create-new-button />
       </form>
     </div>
