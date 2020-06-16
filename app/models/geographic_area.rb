@@ -429,15 +429,14 @@ class GeographicArea < ApplicationRecord
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
-      .distinct
-#      .take(15)
 
     # z is a table alias
     z = i.as('recent_t')
 
     GeographicArea.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
-    )
+    ).distinct
+
   end
 
   # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
@@ -452,12 +451,12 @@ class GeographicArea < ApplicationRecord
     when 'CollectingEvent'
       h[:recent] = #GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
         used_recently(user_id, project_id, 'CollectingEvent').
-        distinct.limit(10).order(:name).to_a
+        limit(10).order(:name).to_a
     when 'AssertedDistribution'
       h[:recent] = #GeographicArea.joins(:asserted_distributions).
         #where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
         used_recently(user_id, project_id, 'AssertedDistribution').
-        distinct.limit(15).order(:name).to_a
+        limit(15).order(:name).to_a
     end
 
     h[:recent] ||= []
@@ -467,12 +466,12 @@ class GeographicArea < ApplicationRecord
     when 'CollectingEvent'
       h[:quick] = (h[:quick] + #GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
           used_recently(user_id, project_id, 'CollectingEvent').
-          distinct.limit(4).order(:name).to_a).uniq
+          limit(4).order(:name).to_a).uniq
     when 'AssertedDistribution'
       h[:quick] = (h[:quick] + #GeographicArea.joins(:asserted_distributions).
           #where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
           used_recently(user_id, project_id, 'AssertedDistribution').
-          distinct.limit(4).order(:name).to_a).uniq
+          limit(4).order(:name).to_a).uniq
     end
     h
   end

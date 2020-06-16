@@ -16,14 +16,12 @@ class Predicate < ControlledVocabularyTerm
       .where(i['created_by_id'].eq(user_id))
       .where(i['project_id'].eq(project_id))
       .order(i['created_at'].desc)
-      .distinct
-      .take(10)
 
     # z is a table alias 
     z = i.as('recent_t')
 
     Predicate.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id']))).distinct.take(10)
     )
   end
 

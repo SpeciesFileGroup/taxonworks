@@ -291,14 +291,12 @@ class Source < ApplicationRecord
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at'].desc)
-      .distinct
-      .take(10)
 
     # z is a table alias
     z = i.as('recent_t')
 
     Source.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id']))).distinct.take(10)
     )
   end
 

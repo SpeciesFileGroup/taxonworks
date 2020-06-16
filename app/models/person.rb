@@ -440,14 +440,12 @@ class Person < ApplicationRecord
       .where(t['created_at'].gt(1.weeks.ago))
       .where(t['type'].eq(role_type))
       .order(t['created_at'].desc)
-      .distinct
-      .take(10)
 
     # z is a table alias
     z = i.as('recent_t')
 
     Person.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id']))).distinct.take(10)
     )
   end
 

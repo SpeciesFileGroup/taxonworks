@@ -176,14 +176,12 @@ class Loan < ApplicationRecord
       .where(t['created_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
       .order(t['created_at']).desc
-      .distinct
-      .take(10)
 
     # z is a table alias 
     z = i.as('recent_t')
 
     Loan.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['loan_id'].eq(k['id'])))
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['loan_id'].eq(k['id']))).distinct.take(10)
     )
   end
 
