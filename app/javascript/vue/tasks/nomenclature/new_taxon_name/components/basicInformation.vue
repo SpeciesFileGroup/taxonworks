@@ -119,7 +119,7 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetTaxonName, value)
-        this.$store.commit(MutationNames.UpdateLastChange)
+        // this.$store.commit(MutationNames.UpdateLastChange)
       }
     },
     errors () {
