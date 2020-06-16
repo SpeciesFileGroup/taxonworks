@@ -76,35 +76,16 @@
             :object-lists="objectLists"
             :show-modal="showModal"
             valid-property="valid_subject_ranks"
+            @close="view = 'Common'"
             @selected="addEntry"
             mutation-name-add="AddTaxonRelationship"
             mutation-name-modal="SetModalRelationship"
             name-module="Relationship"
             display-name="subject_status_tag"/>
-          <div class="switch-radio">
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-common"
-              checked
-              type="radio"
-              class="normal-input button-active"
-              @click="showAdvance = false">
-            <label for="relationship-picker-common">Common</label>
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-advanced"
-              type="radio"
-              class="normal-input"
-              @click="showAdvance = true">
-            <label for="relationship-picker-advanced">Search</label>
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-showall"
-              type="radio"
-              class="normal-input"
-              @click="activeModal(true)">
-            <label for="relationship-picker-showall">Show all</label>
-          </div>
+
+          <switch-component
+            v-model="view"
+            :options="tabs"/>
           <p class="inline">
             <span v-html="taxonLabel"/>
             <span
@@ -115,7 +96,7 @@
           </p>
           <div class="separate-top">
             <autocomplete
-              v-if="showAdvance"
+              v-if="view === 'Advanced'"
               :array-list="objectLists.allList"
               label="subject_status_tag"
               min="3"
@@ -125,7 +106,7 @@
               @getItem="addEntry"
               param="term"/>
             <list-common
-              v-if="!showAdvance"
+              v-else
               :object-lists="objectLists.commonList"
               @addEntry="addEntry"
               display="subject_status_tag"
@@ -156,6 +137,7 @@ import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
+import SwitchComponent from 'components/switch'
 
 export default {
   components: {
@@ -165,6 +147,7 @@ export default {
     TreeDisplay,
     ListCommon,
     HardValidation,
+    SwitchComponent
   },
   computed: {
     taxonLabel() {
@@ -207,13 +190,13 @@ export default {
   },
   data () {
     return {
+      tabs: ['Common', 'Advanced', 'Show all'],
+      view: 'Common',
       objectLists: this.makeLists(),
       expanded: true,
       showAdvance: false,
       editMode: undefined,
-      options: [],
       lists: undefined,
-      view: 'search',
       isInsertaeSedis: false,
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
@@ -228,6 +211,11 @@ export default {
         this.refresh()
       },
       immediate: true
+    },
+    view (newVal) {
+      if (newVal === 'Show all') {
+        this.activeModal(true)
+      }
     }
   },
   methods: {

@@ -24,6 +24,7 @@
         :show-modal="showModal"
         :filter="getStatusCreated"
         valid-property="valid_subject_ranks"
+        @close="view = 'Common'"
         @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"
@@ -40,33 +41,12 @@
             @click="editStatus = undefined"/>
         </p>
       </div>
-      <div class="switch-radio">
-        <input
-          name="status-picker-options"
-          id="status-picker-common"
-          checked
-          type="radio"
-          class="normal-input button-active"
-          @click="showAdvance = false">
-        <label for="status-picker-common">Common</label>
-        <input
-          name="status-picker-options"
-          id="status-picker-advanced"
-          type="radio"
-          class="normal-input"
-          @click="showAdvance = true">
-        <label for="status-picker-advanced">Search</label>
-        <input
-          name="status-picker-options"
-          id="status-picker-showall"
-          type="radio"
-          class="normal-input"
-          @click="activeModal(true)">
-        <label for="status-picker-showall">Show all</label>
-      </div>
+      <switch-component
+        v-model="view"
+        :options="tabs"/>
       <div class="separate-top">
         <autocomplete
-          v-if="showAdvance"
+          v-if="view == 'Advanced'"
           :array-list="objectLists.allList"
           label="name"
           min="3"
@@ -76,7 +56,7 @@
           @getItem="addEntry"
           param="term"/>
         <list-common
-          v-if="!showAdvance && taxon.id"
+          v-if="view != 'Advanced' && taxon.id"
           :filter="true"
           :object-lists="objectLists.commonList"
           display="name"
@@ -111,6 +91,7 @@ import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import Expand from './expand.vue'
+import SwitchComponent from 'components/switch'
 
 export default {
   components: {
@@ -118,7 +99,8 @@ export default {
     Expand,
     TreeDisplay,
     ListCommon,
-    Autocomplete
+    Autocomplete,
+    SwitchComponent
   },
   computed: {
     treeList () {
@@ -147,10 +129,12 @@ export default {
   },
   data: function () {
     return {
+      tabs: ['Common', 'Advanced', 'Show all'],
+      view: 'Common',
       objectLists: this.makeLists(),
       expanded: true,
       showAdvance: false,
-      editStatus: undefined,
+      editStatus: undefined
     }
   },
   watch: {
@@ -160,6 +144,11 @@ export default {
         this.refresh()
       },
       immediate: true
+    },
+    view (newVal) {
+      if (newVal === 'Show all') {
+        this.activeModal(true)
+      }
     }
   },
   methods: {
