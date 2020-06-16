@@ -15,7 +15,9 @@
         </li>
       </ul>
       <form class="horizontal-center-content">
-        <label class="horizontal-left-content middle margin-medium-right">
+        <label
+          v-help.section.navbar.autosave
+          class="horizontal-left-content middle margin-medium-right">
           <input
             type="checkbox"
             v-model="isAutosaveActive">
