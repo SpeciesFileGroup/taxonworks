@@ -468,8 +468,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
- #         ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
-            ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+          ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
+ #           ['species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
 
             path = @args[:data_directory] + 'tblCites.txt'
             print "\ntblCites.txt Working on: #{rank_pass}\n"
@@ -851,7 +851,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 #                  end
                 #                end
 
-                if protonym.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' && protonym.name != nomenclator_ids[nomenclator_id.to_i]['species'][0]
+                if protonym.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['species'] && protonym.name != nomenclator_ids[nomenclator_id.to_i]['species'][0]
                   pr = Protonym.new(name: nomenclator_ids[nomenclator_id.to_i]['species'][0], rank_class: Ranks.lookup(:iczn, 'Species'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                   if protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
                     ge = protonym.ancestor_at_rank('genus')
