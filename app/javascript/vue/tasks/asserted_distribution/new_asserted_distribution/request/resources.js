@@ -1,43 +1,38 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const CreateAssertedDistribution = function(data) {
+const CreateAssertedDistribution = (data) => {
   return ajaxCall('post', '/asserted_distributions.json', { asserted_distribution: data })
 }
 
-const GetSource = function (id) {
+const GetGeographicArea = (id) => {
+  return ajaxCall('get', `/geographic_areas/${id}.json`)
+}
+
+const GetSource = (id) => {
   return ajaxCall('get', `/sources/${id}.json`)
 }
 
-const GetSourceSmartSelector = function() {
-  return ajaxCall('get', '/sources/select_options.json')
+const GetOtu = (id) => {
+  return ajaxCall('get', `/otus/${id}.json`)
 }
 
-const GetOtuSmartSelector = function() {
-  return ajaxCall('get', '/otus/select_options.json?target=AssertedDistribution')
-}
-
-const GetGeographicAreaSmartSelector = function() {
-  return ajaxCall('get', '/geographic_areas/select_options.json?target=AssertedDistribution')
-}
-
-const RemoveAssertedDistribution = function(id) {
+const RemoveAssertedDistribution = (id) => {
   return ajaxCall('delete', `/asserted_distributions/${id}.json`)
 }
 
-const UpdateAssertedDistribution = function(data) {
+const UpdateAssertedDistribution = (data) => {
   return ajaxCall('patch', `/asserted_distributions/${data.id}.json`, { asserted_distribution: data })
 }
 
-const LoadRecentRecords = function() {
+const LoadRecentRecords = () => {
   return ajaxCall('get', '/asserted_distributions.json?recent=true&per=15')
 }
 
 export {
   GetSource,
+  GetOtu,
+  GetGeographicArea,
   CreateAssertedDistribution,
-  GetSourceSmartSelector,
-  GetOtuSmartSelector,
-  GetGeographicAreaSmartSelector,
   RemoveAssertedDistribution,
   UpdateAssertedDistribution,
   LoadRecentRecords

@@ -8,40 +8,39 @@
       ref="smartSelector"
       pin-section="Sources"
       pin-type="Source"
-      @selected="sendItem">
-      <div class="margin-medium-top flex-separate middle">
+      v-model="citation.source">
+      <div class="flex-separate middle margin-medium-bottom">
         <label>
           <input
             type="checkbox"
-            v-model="value.is_original">
+            v-model="citation.is_original">
           Is original
         </label>
         <label>
           Pages:
           <input
             class="pages"
-            v-model="value.pages"
+            v-model="citation.pages"
             placeholder="Pages"
             type="text">
         </label>
       </div>
+      <template v-if="citation.source">
+        <p class="horizontal-left-content">
+          <span data-icon="ok"/>
+          <span v-html="citation.source.object_tag"/>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="unset"/>
+        </p>
+      </template>
     </smart-selector>
-    <template v-if="selected">
-      <p class="horizontal-left-content">
-        <span data-icon="ok"/>
-        <span v-html="selected"/>
-        <span
-          class="button circle-button btn-undo button-default"
-          @click="unset"/>
-      </p>
-    </template>
   </fieldset>
 </template>
 
 <script>
 
 import SmartSelector from 'components/smartSelector'
-import { GetSource } from '../request/resources.js'
 
 export default {
   components: {
@@ -50,41 +49,25 @@ export default {
   props: {
     value: {
       type: Object,
-      required: true
+      default: undefined
     }
   },
-  data () {
-    return {
-      selected: undefined
-    }
-  },
-  watch: {
-    value: {
-      handler (newVal) {
-        if (newVal.source_id == undefined)
-          this.selected = undefined
+  computed: {
+    citation: {
+      get () {
+        return this.value
       },
-      deep: true
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   },
   methods: {
-    sendItem (item) {
-      let newVal = this.value
-      newVal.source_id = item.id
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
-      this.$emit('input', newVal)
-    },
-    setSelected (item) {
-      GetSource(item.source_id).then(response => {
-        this.selected = response.body.object_tag
-      })
-    },
     refresh () {
       this.$refs.smartSelector.refresh()
     },
     unset () {
-      this.$emit('input', undefined)
-      this.selected = undefined
+      this.citation.source = undefined
     }
   }
 }

@@ -11,6 +11,7 @@
         @getId="getObject"
         :type="pinType"/>
     </div>
+    <slot />
     <template v-if="!addTabs.includes(view)">
       <ul
         v-if="view && view != 'search'"
@@ -29,9 +30,9 @@
           </template>
           <template
             v-else>
-            <label>
+            <label @click.prevent="sendObject(item)">
               <input
-                v-model="lastSelected"
+                v-model="selectedItem"
                 :value="item"
                 type="radio">
               <span v-html="item[label]"/>
@@ -60,7 +61,6 @@
           @getItem="getObject($event.id)"/>
       </div>
     </template>
-    <slot />
     <slot :name="view" />
   </div>
 </template>
@@ -84,6 +84,10 @@ export default {
     OtuPicker
   },
   props: {
+    value: {
+      type: Object,
+      default: undefined
+    },
     label: {
       type: String,
       default: 'object_tag'
@@ -165,12 +169,21 @@ export default {
       default: () => { return {} }
     }
   },
+  computed: {
+    selectedItem: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
   data () {
     return {
       lists: {},
       view: undefined,
       options: [],
-      lastSelected: undefined,
       firstTime: true
     }
   },
@@ -183,11 +196,6 @@ export default {
         this.addCustomElements()
       },
       deep: true
-    },
-    lastSelected (newVal) {
-      if (newVal) {
-        this.$emit('selected', newVal)
-      }
     }
   },
   mounted () {
@@ -201,6 +209,8 @@ export default {
     },
     sendObject (item) {
       this.lastSelected = item
+      this.selectedItem = item
+      this.$emit('selected', item)
     },
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return

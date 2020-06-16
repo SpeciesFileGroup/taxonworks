@@ -2,23 +2,32 @@
   <fieldset>
     <legend>Geographic area</legend>
     <smart-selector
+      v-model="assertedDistribution.geographicArea"
       model="geographic_areas"
       klass="AssertedDistribution"
       target="AssertedDistribution"
       ref="smartSelector"
       label="name"
       pin-section="GeographicAreas"
-      pin-type="GeographicArea"
-      @selected="sendItem"/>
-    <template v-if="selected">
-      <p class="horizontal-left-content">
-        <span data-icon="ok"/>
-        <span v-html="selected"/>
-        <span
-          class="button circle-button btn-undo button-default"
-          @click="unset"/>
-      </p>
-    </template>
+      pin-type="GeographicArea">
+      <div class="margin-medium-bottom">
+        <label>
+          <input
+            v-model="assertedDistribution.is_absent"
+            type="checkbox">
+          Is absent
+        </label>
+      </div>
+      <template v-if="assertedDistribution.geographicArea">
+        <p class="horizontal-left-content">
+          <span data-icon="ok"/>
+          <span v-html="assertedDistribution.geographicArea.name"/>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="unset"/>
+        </p>
+      </template>
+    </smart-selector>
   </fieldset>
 </template>
 
@@ -31,33 +40,27 @@ export default {
     SmartSelector
   },
   props: {
-    value: {}
-  },
-  data () {
-    return {
-      selected: undefined
+    value: {
+      type: Object,
+      default: undefined
     }
   },
-  watch: {
-    value (newVal) {
-      if (newVal == undefined)
-        this.selected = undefined
+  computed: {
+    assertedDistribution: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   },
   methods: {
-    sendItem(item) {
-      this.setSelected(item)
-      this.$emit('input', item.id)
-    },
-    setSelected(item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.name
-    },
     refresh () {
       this.$refs.smartSelector.refresh()
     },
     unset () {
-      this.$emit('input', undefined)
-      this.selected = undefined
+      this.assertedDistribution.geographicArea = undefined
     }
   }
 }
