@@ -38,8 +38,7 @@
     <autosave
       style="bottom: 0px; left: 0px;"
       class="position-absolute full_width"
-      :disabled="!taxon.id"
-      v-if="isAutosaveActive"/>
+      :disabled="!taxon.id || !isAutosaveActive"/>
   </nav-bar>
 </template>
 <script>

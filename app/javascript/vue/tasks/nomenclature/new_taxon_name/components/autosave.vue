@@ -48,6 +48,12 @@ export default {
       if (newVal > this.lastSave) {
         this.restart()
       }
+    },
+    disabled(newVal) {
+      this.restart()
+    },
+    lastSave (newVal) {
+      this.restart()
     }
   },
   methods: {
