@@ -156,11 +156,6 @@ import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
-import SmartSelector from 'components/switch'
-
-import { GetTaxonNameSmartSelector } from '../request/resources.js'
-import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
-import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 
 export default {
   components: {
@@ -170,7 +165,6 @@ export default {
     TreeDisplay,
     ListCommon,
     HardValidation,
-    SmartSelector
   },
   computed: {
     taxonLabel() {
@@ -201,7 +195,6 @@ export default {
         return this.$store.getters[GetterNames.GetTaxonRelationship]
       },
       set (value) {
-        this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonRelationship, value)
       }
     },

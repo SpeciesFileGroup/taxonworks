@@ -291,7 +291,9 @@ export default {
       }
     },
     updateTaxonName: function () {
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      if (this.isAutosaveActive) {
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      }
     }
   }
 }
