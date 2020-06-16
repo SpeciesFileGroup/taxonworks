@@ -7,7 +7,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Taxon name status and relationships soft validations display in Browse Nomenclature task
+- Interface to select OTUs and create rows in Observation Matrices Dashboard task
+- Autosave system in New Taxon Name task (refs [#649])
+
+### Changed
+- Optimized recently used geographic area and sources search
+- Improved part of speech and etymology soft validation messages
+- Year suffix and pages are now also used when sorting citations in Browse Nomenclature task
+- Replaced old geographic area smart selector with newer version
+- Swapped 'Masculine' and 'Femenine' positions in New Taxon Name task
+
+### Fixed
+- Recently used objects code on some models.
+
+[#649]: https://github.com/SpeciesFileGroup/taxonworks/issues/649
 
 ## [0.12.6] - 2020-06-12
 ### Added
