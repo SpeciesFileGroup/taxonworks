@@ -148,7 +148,8 @@ export default {
       lists: {},
       view: undefined,
       options: [],
-      lastSelected: undefined
+      lastSelected: undefined,
+      firstTime: true
     }
   },
   watch: {
@@ -180,7 +181,12 @@ export default {
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
         this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
-        this.view = SelectFirst(this.lists, this.options)
+
+        if (this.firstTime) {
+          this.view = SelectFirst(this.lists, this.options)
+          this.firstTime = false
+        }
+
         if (this.search) {
           this.options.push('search')
           if (!this.view) {
