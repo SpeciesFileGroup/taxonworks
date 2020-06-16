@@ -425,8 +425,39 @@ To add a new (discovered) symbol:
       box.add(retval)
       box.to_geometry
     end
-    def significant_digits(number_string)
 
+    # determine number of significant digits in string input argument
+    # return integer
+    def self.significant_digits(number_string)
+      # is there a decimal point?
+      dp = number_string.index(".")
+      if dp.nil?
+        intg = number_string
+        intg = intg.sub!(/^[0]+/,'')  # strip lead zeros
+        intg = intg.sub(/0+$/, '')    # strip trailing zeros
+        sig = intg.length
+      else
+        digits = number_string.split(".")
+        if digits.length > 2
+          raise   # or just ignore extra decimal poit and beyond?
+        else
+          # left of decimal
+          puts(digits[0])
+          if digits[0].length > 0
+            intg = digits[0].sub!(/^[0]+/,'')
+          else
+            intg = ''
+          end
+          mantissa = digits[1]
+          if intg.length > 0  # have full case nn.mm
+            sig = intg.length + mantissa.length
+          else
+            mantissa = digits[1].sub!(/^[0]+/,'')
+            sig = mantissa.length
+          end
+        end
+      end
+      sig
     end
   end
 end
