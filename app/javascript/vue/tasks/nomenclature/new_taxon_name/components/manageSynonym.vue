@@ -39,7 +39,7 @@
               None
             </button>
           </div>
-          <table class="full_width">
+          <table class="full_width margin-small-bottom margin-small-top">
             <thead>
               <tr>
                 <th>Child</th>
