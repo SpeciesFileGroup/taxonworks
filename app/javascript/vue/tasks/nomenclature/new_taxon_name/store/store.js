@@ -34,7 +34,8 @@ function makeInitialState () {
       saving: false,
       lastSave: 0,
       lastChange: 0,
-      initLoad: false
+      initLoad: false,
+      autosave: false
     },
     taxonStatusList: [],
     taxonRelationshipList: [],

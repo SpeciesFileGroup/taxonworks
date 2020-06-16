@@ -214,6 +214,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
+    },
+    isAutosaveActive () {
+      return this.$store.getters[GetterNames.GetAutosave]
     }
   },
   data: function () {
@@ -257,10 +260,11 @@ export default {
         clearTimeout(this.autosave)
         this.autosave = null
       }
-
-      this.autosave = setTimeout(function () {
-        that.$store.dispatch(ActionNames.UpdateSource, citation)
-      }, 3000)
+      if (this.isAutosaveActive) {
+        this.autosave = setTimeout(function () {
+          that.$store.dispatch(ActionNames.UpdateSource, citation)
+        }, 3000)
+      }
     },
     cloneFromSource() {
       const personsIds = this.roles.map(role => {

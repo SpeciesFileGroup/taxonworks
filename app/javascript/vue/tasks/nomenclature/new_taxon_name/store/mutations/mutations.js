@@ -38,6 +38,7 @@ import setOriginalCombination from './setOriginalCombination'
 import setNomenclaturalCode from './setNomenclaturalCode'
 import updateLastChange from './updateLastChange'
 import updateLastSave from './updateLastSave'
+import setAutosave from './setAutosave'
 
 const MutationNames = {
   AddTaxonStatus: 'addTaxonStatus',
@@ -46,6 +47,7 @@ const MutationNames = {
   RemoveTaxonStatus: 'removeTaxonStatus',
   RemoveTaxonRelationship: 'removeTaxonRelationship',
   RemoveOriginalCombination: 'removeOriginalCombination',
+  SetAutosave: 'setAutosave',
   SetInitLoad: 'setInitLoad',
   SetModalStatus: 'setModalStatus',
   SetModalType: 'setModalType',
@@ -89,6 +91,7 @@ const MutationFunctions = {
   [MutationNames.RemoveTaxonStatus]: removeTaxonStatus,
   [MutationNames.RemoveTaxonRelationship]: removeTaxonRelationship,
   [MutationNames.RemoveOriginalCombination]: removeOriginalCombination,
+  [MutationNames.SetAutosave]: setAutosave,
   [MutationNames.SetInitLoad]: setInitLoad,
   [MutationNames.SetModalStatus]: setModalStatus,
   [MutationNames.SetModalType]: setModalType,
