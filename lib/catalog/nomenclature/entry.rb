@@ -101,7 +101,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
   #   sorted by date, then taxon name name as rendered for this item
   def ordered_by_nomenclature_date
     now = Time.now
-    items.sort{|a,b| [(a.nomenclature_date || now), a.year_suffix, a.pages, a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.year_suffix, b.pages, b.object_class, b.base_object.cached_original_combination.to_s ] }
+    items.sort{|a,b| [(a.nomenclature_date || now), a.year_suffix.to_s, a.pages.to_s, a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.year_suffix.to_s, b.pages.to_s, b.object_class, b.base_object.cached_original_combination.to_s ] }
   end
 
   # @return [Array]
