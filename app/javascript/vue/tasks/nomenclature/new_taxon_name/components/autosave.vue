@@ -75,7 +75,7 @@ export default {
 
 <style lang="scss">
 .meter {
-  height: 2px;
+  height: 1px;
   position: relative;
   background-color: transparent;
   overflow: hidden;
