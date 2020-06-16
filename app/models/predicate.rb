@@ -21,7 +21,7 @@ class Predicate < ControlledVocabularyTerm
     z = i.as('recent_t')
 
     Predicate.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id']))).distinct.take(10)
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
     )
   end
 

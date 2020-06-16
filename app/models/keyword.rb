@@ -21,7 +21,7 @@ class Keyword < ControlledVocabularyTerm
     z = i.as('recent_t')
 
     Keyword.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['keyword_id'].eq(k['id']))).distinct.take(10)
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['keyword_id'].eq(k['id'])))
     )
   end
 

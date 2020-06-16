@@ -445,7 +445,7 @@ class Person < ApplicationRecord
     z = i.as('recent_t')
 
     Person.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id']))).distinct.take(10)
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
     )
   end
 
