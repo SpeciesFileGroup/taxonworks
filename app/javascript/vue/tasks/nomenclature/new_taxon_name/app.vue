@@ -20,7 +20,7 @@
             :full-screen="true"
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
             :logo-size="{ width: '100px', height: '100px'}"
-            v-if="loading || getSaving"/>
+            v-if="loading"/>
           <basic-information class="separate-bottom"/>
           <div class="new-taxon-name-block">
             <spinner

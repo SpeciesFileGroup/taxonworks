@@ -93,7 +93,7 @@ export default {
 }
 
 .meter-animation-enter-active {
-  animation: progressBar 5s linear;
+  animation: progressBar 3s linear;
   animation-fill-mode:both;
 }
 
