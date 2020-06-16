@@ -24,15 +24,15 @@
         </ul>
         <div v-if="inGroup('Species') && adjectiveOrParticiple">
           <div class="field">
-            <label>Feminine </label><br>
-            <input
-              v-model="feminine"
-              type="text">
-          </div>
-          <div class="field">
             <label>Masculine</label><br>
             <input
               v-model="masculine"
+              type="text">
+          </div>
+          <div class="field">
+            <label>Feminine </label><br>
+            <input
+              v-model="feminine"
               type="text">
           </div>
           <div class="field">
