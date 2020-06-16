@@ -14,15 +14,29 @@
     <template v-if="!addTabs.includes(view)">
       <ul
         v-if="view && view != 'search'"
-        class="no_bullets">
-        <li 
+        class="no_bullets"
+        :class="{ inline: inline }">
+        <li
           v-for="item in lists[view]"
           :key="item.id">
-          <label
-            @click.prevent="sendObject(item)">
-            <input type="radio">
-            <span v-html="item[label]"/>
-          </label>
+          <template
+            v-if="buttons">
+            <button
+              type="button"
+              class="button normal-input button-data"
+              v-html="item[label]"
+              @click.prevent="sendObject(item)"/>
+          </template>
+          <template
+            v-else>
+            <label>
+              <input
+                v-model="lastSelected"
+                :value="item"
+                type="radio">
+              <span v-html="item[label]"/>
+            </label>
+          </template>
         </li>
       </ul>
       <div v-else>
@@ -73,6 +87,14 @@ export default {
     label: {
       type: String,
       default: 'object_tag'
+    },
+    inline: {
+      type: Boolean,
+      default: false
+    },
+    buttons: {
+      type: Boolean,
+      default: false
     },
     otuPicker: {
       type: Boolean,
@@ -161,6 +183,11 @@ export default {
         this.addCustomElements()
       },
       deep: true
+    },
+    lastSelected (newVal) {
+      if (newVal) {
+        this.$emit('selected', newVal)
+      }
     }
   },
   mounted () {
@@ -174,7 +201,6 @@ export default {
     },
     sendObject (item) {
       this.lastSelected = item
-      this.$emit('selected', item)
     },
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
