@@ -1,7 +1,7 @@
 <div id="validation-panel" class="panel fullSize content separate-left separate-bottom">
   <%= render(partial: '/shared/data/all/show/soft_validation', locals: { object: @taxon_name }) -%> 
 
-  <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_classifications.any? %>
+  <%= content_tag(:h3, 'Relationships') if @taxon_name.taxon_name_relationships.any? %>
   <% @taxon_name.taxon_name_relationships.each do |relationship| %>
     <%= render(partial: '/shared/data/all/show/soft_validation_list', locals: { object: relationship }) -%>  
   <% end %>
