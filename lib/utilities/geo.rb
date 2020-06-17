@@ -94,7 +94,7 @@ To add a new (discovered) symbol:
       scale = 1_609.344 unless mi.blank?
 
       distance = value * scale
-
+      distance = significant_digits(value.to_s)
       distance
     end
 =begin
@@ -427,37 +427,49 @@ To add a new (discovered) symbol:
     end
 
     # determine number of significant digits in string input argument
-    # return integer
+    # return string with only significant digits
     def self.significant_digits(number_string)
       # is there a decimal point?
       dp = number_string.index(".")
+      intg = ''
+      decimal_point_zeros = ''
+      mantissa = ''
+      decimal_lead_zeros = 0
       if dp.nil?
         intg = number_string
         intg = intg.sub!(/^[0]+/,'')  # strip lead zeros
         intg = intg.sub(/0+$/, '')    # strip trailing zeros
-        sig = intg.length
+        # sig = intg.length
       else
         digits = number_string.split(".")
         if digits.length > 2
           raise   # or just ignore extra decimal poit and beyond?
         else
-          # left of decimal
-          puts(digits[0])
-          if digits[0].length > 0
+          if digits[0].length > 0 # left of decimal ?
             intg = digits[0].sub!(/^[0]+/,'')
           else
             intg = ''
           end
           mantissa = digits[1]
           if intg.length > 0  # have full case nn.mm
-            sig = intg.length + mantissa.length
-          else
-            mantissa = digits[1].sub!(/^[0]+/,'')
-            sig = mantissa.length
+            # sig = intg.length + mantissa.length
+          else  # mantissa might have "leading" zeros
+            decimal_lead_zeros = digits[1].length
+            mantissa = digits[1].sub!(/^[0]+/, '')
+            if mantissa.nil?
+              mantissa = digits[1]
+            end
+            decimal_lead_zeros = decimal_lead_zeros - mantissa.length
+            decimal_point_zeros = decimal_point_zeros.rjust(decimal_lead_zeros, '0')
           end
         end
       end
-      sig
+      if dp.nil?
+        sig = intg + mantissa
+      else
+        sig = intg + '.' + decimal_point_zeros + mantissa
+      end
+      [sig, intg.length + mantissa.length]
     end
   end
 end
