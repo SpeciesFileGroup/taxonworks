@@ -93,8 +93,12 @@ To add a new (discovered) symbol:
       scale = 1000.0 unless km.blank?
       scale = 1_609.344 unless mi.blank?
 
-      distance = value * scale
-      distance = significant_digits(value.to_s)
+      value_sig = significant_digits(value.to_s)
+      s_value = value_sig[0].to_f
+      s_sig = value_sig[1]
+
+      distance = s_value * scale
+      distance = conform_significant(distance.to_s, s_sig).to_f
       distance
     end
 =begin
@@ -437,16 +441,25 @@ To add a new (discovered) symbol:
       decimal_lead_zeros = 0
       if dp.nil?
         intg = number_string
-        intg = intg.sub!(/^[0]+/,'')  # strip lead zeros
-        intg = intg.sub(/0+$/, '')    # strip trailing zeros
+        intgl = intg.sub!(/^[0]+/,'')  # strip lead zeros
+        if intgl.nil?
+          intg = number_string
+        end
+        intgt = intg.sub(/0+$/, '')    # strip trailing zeros
+        if intgt.nil?
+          intg = intgl
+        end
         # sig = intg.length
       else
         digits = number_string.split(".")
         if digits.length > 2
-          raise   # or just ignore extra decimal poit and beyond?
+          raise   # or just ignore extra decimal point and beyond?
         else
           if digits[0].length > 0 # left of decimal ?
             intg = digits[0].sub!(/^[0]+/,'')
+            if intg.nil?
+              intg = digits[0]
+            end
           else
             intg = ''
           end
@@ -470,6 +483,18 @@ To add a new (discovered) symbol:
         sig = intg + '.' + decimal_point_zeros + mantissa
       end
       [sig, intg.length + mantissa.length]
+    end
+
+    # conform number to significant digits
+    # params number of significant digits, number
+    def self.conform_significant(number, digits)
+      input = significant_digits(number.to_s)
+      if input[1] > digits
+
+      else
+
+      end
+      number
     end
   end
 end
