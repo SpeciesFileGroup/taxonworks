@@ -855,7 +855,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
                 if protonym.rank_string == 'NomenclaturalRank::Iczn::SpeciesGroup::Species' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['species'] && protonym.name != nomenclator_ids[nomenclator_id.to_i]['species'][0]
                   pr = Protonym.new(name: nomenclator_ids[nomenclator_id.to_i]['species'][0], rank_class: Ranks.lookup(:iczn, 'Species'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
-                  if protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
+                  if protonym.name_with_alternative_spelling == pr.name_with_alternative_spelling && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && nomenclator_ids[nomenclator_id.to_i]['genus'][0] == protonym.original_genus.try(:name)
                     ge = protonym.ancestor_at_rank('genus')
                     unless ge.nil?
                       if protonym.name.ends_with?('us')
