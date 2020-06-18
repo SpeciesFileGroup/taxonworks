@@ -276,6 +276,7 @@ module Queries
         clauses += [
           otus_facet,
           type_material_facet,
+          type_material_type_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
           created_updated_facet, # See Queries::Concerns::Users
@@ -327,19 +328,19 @@ module Queries
       end
 
       # @return [Scope]
-      # def type_material_facet 
-      #   return nil if type_specimen_taxon_name_id.nil?
+      def type_material_facet
+        return nil if type_specimen_taxon_name_id.nil?
 
-      #   w = type_materials_table[:collection_object_id].eq(table[:id])
-      #     .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+        w = type_materials_table[:collection_object_id].eq(table[:id])
+          .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
 
-      #   ::CollectionObject.where(
-      #     ::TypeMaterial.where(w).arel.exists
-      #   )
-      # end
+        ::CollectionObject.where(
+          ::TypeMaterial.where(w).arel.exists
+        )
+      end
 
       # @return [Scope]
-      def type_material_facet
+      def type_material_type_facet
         return nil if is_type.empty?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
