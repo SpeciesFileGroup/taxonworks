@@ -951,7 +951,6 @@ describe 'Geo', group: :geo do
                    ' 123 f'                => 37.4904,
                    '   123 f.'             => 37.4904,
                    ' 123 m'                => 123,  # .0
-                   ' 123 m'                => 123.0,
                    '  123 meters'          => 123,  # .0
                    '     123 m.'           => 123,  # .0
                    '    123 km'            => 123_000,  # .0
@@ -968,6 +967,24 @@ describe 'Geo', group: :geo do
         specify "case #{@entry}: '#{distance}' should yield #{result}" do
           # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
           expect(Utilities::Geo.distance_in_meters(distance).round(6)).to eq(result)
+        end
+      }
+    end
+
+    context 'significant digits analysis' do
+      use_cases = {
+          '1' => ['1', 1, '1', '', '', ''],
+          '1.' => ['1.', 1, '1', '.', '', ''],
+          '1.2' => ['1.2', 2, '1', '.', '', '2'],
+          }
+
+      @entry = 0
+
+      use_cases.each { |number, result|
+        @entry += 1
+        specify "case #{@entry}: '#{number}' should yield #{result}" do
+          # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
+          expect(Utilities::Geo.significant_digits(number.to_s)).to eq(result)
         end
       }
     end

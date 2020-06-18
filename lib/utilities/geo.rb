@@ -439,6 +439,7 @@ To add a new (discovered) symbol:
       decimal_point_zeros = ''
       mantissa = ''
       decimal_lead_zeros = 0
+      decimal_point = ''
       if dp.nil?
         intg = number_string
         intgl = intg.sub!(/^[0]+/,'')  # strip lead zeros
@@ -451,6 +452,7 @@ To add a new (discovered) symbol:
         end
         # sig = intg.length
       else
+        decimal_point = '.'
         digits = number_string.split(".")
         if digits.length > 2
           raise   # or just ignore extra decimal point and beyond?
@@ -477,24 +479,31 @@ To add a new (discovered) symbol:
           end
         end
       end
-      if dp.nil?
-        sig = intg + mantissa
-      else
-        sig = intg + '.' + decimal_point_zeros + mantissa
-      end
-      [sig, intg.length + mantissa.length]
+      sig = intg + decimal_point + decimal_point_zeros + mantissa
+      [sig, intg.length + mantissa.length, intg, decimal_point, decimal_point_zeros, mantissa]
     end
 
-    # conform number to significant digits
+    # conform number to significant digits as string
     # params number of significant digits, number
     def self.conform_significant(number, digits)
       input = significant_digits(number.to_s)
-      if input[1] > digits
+      intg = input[2]
+      decimal_point = input[3]
+      lead_zeros = input[4]
+      mantissa = input[5]
+      reduction = input[1] - digits
+      if reduction > 0    # need to reduce significant digits
+        if intg.length > 0    # is intg >= 1 ?
+          if (lead_zeros.length + mantissa.length) > reduction - intg.length
+          else
 
-      else
-
+          end
+          result = input[0]
+        else
+        result = input[0]
       end
-      number
     end
+      result
+  end
   end
 end
