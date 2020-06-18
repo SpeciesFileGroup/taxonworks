@@ -1259,6 +1259,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
           puts 'new_name_status hash:'
           ap new_name_status
+
+          #### Clear Current (other import tasks assume this is unset)
+          Current.project_id = nil
+          Current.user_id = nil
         end
 
         ################################################################################################# Nomenclator 2nd pass - Invalid to Combination
@@ -1298,6 +1302,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             Current.project_id = value.to_i
             soft_validations_sf(value.to_i)
           end
+
+          #### Clear Current (other import tasks assume this is unset)
+          Current.project_id = nil
+          Current.user_id = nil
         end
         ######################################################################################################################################### END
 
