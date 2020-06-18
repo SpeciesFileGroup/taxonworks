@@ -281,6 +281,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_group, # !! different than autocomplete
       :nomenclature_code,
       :taxon_name_type,
+      :etymology,
       type: [],
       taxon_name_id: [],
       parent_id: [],
