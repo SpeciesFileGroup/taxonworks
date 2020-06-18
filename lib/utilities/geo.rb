@@ -278,7 +278,7 @@ To add a new (discovered) symbol:
       ordinal = $LAST_MATCH_INFO.to_s
       # return "#{dms}: Too many letters (#{ordinal})" if ordinal.length > 1
       # return nil if ordinal.length > 1
-      dms     = dms.gsub!(ordinal, '').strip.downcase
+      dms     = dms.gsub(ordinal, '').strip.downcase
 
       if dms.include? '.'
         no_point = false
@@ -431,7 +431,7 @@ To add a new (discovered) symbol:
     end
 
     # determine number of significant digits in string input argument
-    # return string with only significant digits
+    # @return [<string with only significant digits>, count, <left of decimal>, decimal point string, <right of decimal lead zeros string>, <mantissa string>
     def self.significant_digits(number_string)
       # is there a decimal point?
       dp = number_string.index(".")
@@ -442,7 +442,7 @@ To add a new (discovered) symbol:
       decimal_point = ''
       if dp.nil?
         intg = number_string
-        intgl = intg.sub!(/^[0]+/,'')  # strip lead zeros
+        intgl = intg.sub(/^[0]+/,'')  # strip lead zeros
         if intgl.nil?
           intg = number_string
         end
@@ -458,7 +458,7 @@ To add a new (discovered) symbol:
           raise   # or just ignore extra decimal point and beyond?
         else
           if digits[0].length > 0 # left of decimal ?
-            intg = digits[0].sub!(/^[0]+/,'')
+            intg = digits[0].sub(/^[0]+/,'')
             if intg.nil?
               intg = digits[0]
             end
@@ -466,16 +466,20 @@ To add a new (discovered) symbol:
             intg = ''
           end
           mantissa = digits[1]
-          if intg.length > 0  # have full case nn.mm
-            # sig = intg.length + mantissa.length
-          else  # mantissa might have "leading" zeros
-            decimal_lead_zeros = digits[1].length
-            mantissa = digits[1].sub!(/^[0]+/, '')
-            if mantissa.nil?
-              mantissa = digits[1]
+          unless digits[1].nil?
+            if intg.length > 0  # have full case nn.mm
+              # sig = intg.length + mantissa.length
+            else  # mantissa might have "leading" zeros
+              decimal_lead_zeros = digits[1].length
+              mantissa = digits[1].sub(/^[0]+/, '')
+              if mantissa.nil?
+                mantissa = digits[1]
+              end
+              decimal_lead_zeros = decimal_lead_zeros - mantissa.length
+              decimal_point_zeros = decimal_point_zeros.rjust(decimal_lead_zeros, '0')
             end
-            decimal_lead_zeros = decimal_lead_zeros - mantissa.length
-            decimal_point_zeros = decimal_point_zeros.rjust(decimal_lead_zeros, '0')
+          else
+            mantissa = ''
           end
         end
       end
@@ -492,6 +496,7 @@ To add a new (discovered) symbol:
       lead_zeros = input[4]
       mantissa = input[5]
       reduction = input[1] - digits
+      result = input[0]
       if reduction > 0    # need to reduce significant digits
         if intg.length > 0    # is intg >= 1 ?
           if (lead_zeros.length + mantissa.length) > reduction - intg.length
@@ -501,9 +506,9 @@ To add a new (discovered) symbol:
           result = input[0]
         else
         result = input[0]
+        end
       end
-    end
       result
-  end
+    end
   end
 end
