@@ -496,7 +496,6 @@ To add a new (discovered) symbol:
       lead_zeros = input[4]
       mantissa = input[5]
       reduction = input[1] - digits
-      result = input[0]
       if reduction > 0    # need to reduce significant digits
         if intg.length > 0    # is intg >= 1 ?
           if (lead_zeros.length + mantissa.length) > reduction - intg.length
@@ -507,6 +506,8 @@ To add a new (discovered) symbol:
         else
         result = input[0]
         end
+      else
+        result = input[0]
       end
       result
     end
