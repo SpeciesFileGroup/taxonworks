@@ -1407,6 +1407,11 @@ namespace :tw do
           ap get_sf_unique_id
         end
 
+        desc 'time rake tw:project_import:sf_import:specimens:set_dwc_occurrence user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define set_dwc_occurrence: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          Parallel.each(CollectionObject.find_each, progress: 'set_dwc_occurrence') { |o| o.set_dwc_occurrence }
+        end
+
       end
     end
   end
