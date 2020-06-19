@@ -34,6 +34,7 @@
         <h1
           v-html="otu.object_tag"/>
         <div class="horizontal-left-content">
+          <browse-taxon :object-id="otu.taxon_name_id"/>
           <radial-annotator
             :global-id="otu.global_id"
             type="annotations"/>
@@ -57,15 +58,15 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import QuickForms from 'components/radials/object/radial.vue'
+import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
-import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
     RadialAnnotator,
     RadialObject,
     QuickForms,
-    Autocomplete
+    BrowseTaxon
   },
   props: {
     otu: {
