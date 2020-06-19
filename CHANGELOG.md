@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name status and relationships soft validations display in Browse Nomenclature task
 - Interface to select OTUs and create rows in Observation Matrices Dashboard task
 - Autosave system in New Taxon Name task (refs [#649])
+- Spec to test md5 of multi-line verbatim labels  (refs [#1572])
 
 ### Changed
 - Optimized recently used geographic area and sources search
