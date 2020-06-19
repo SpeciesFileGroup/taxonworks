@@ -106,7 +106,11 @@
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Browse collection object', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Browse collection object', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+b`, 'Go to browse nomenclature', 'Comprehensive digitization task')
       },
       getMacKey: GetMacKey,
       setLockAll() {

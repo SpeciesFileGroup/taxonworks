@@ -78,6 +78,9 @@ export default {
   mounted: function () {
     this.loadTaxonTypes()
     TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Go to new taxon name task', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+o`, 'Go to browse OTU', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {
     taxon (newVal) {

@@ -208,20 +208,16 @@ export default {
   },
   methods: {
     switchNewTaxonName () {
-      if (!this.taxon) return
-      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.taxon.id}`, '_self')
+      window.open(`/tasks/nomenclature/new_taxon_name${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
     },
     switchBrowseNomenclature () {
-      if (!this.taxon) return
-      window.open(`/tasks/nomenclature/browse?taxon_name_id=${this.taxon.id}`, '_self')
+      window.open(`/tasks/nomenclature/browse${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
     },
     switchTypeMaterial () {
-      if (!this.taxon) return
-      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`, '_self')
+      window.open(`/tasks/type_material/edit_type_material${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
     },
     switchBrowseOtu () {
-      if (!this.taxon) return
-      window.open(`/tasks/otus/browse?taxon_name_id=${this.taxon.id}`, '_self')
+      window.open(`/tasks/otus/browse${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
     },
     selectTaxon (taxonId) {
       this.$store.dispatch(ActionNames.GetTaxon, taxonId)

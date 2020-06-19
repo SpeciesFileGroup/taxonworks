@@ -105,6 +105,12 @@ export default {
       immediate: true
     }
   },
+  mounted () {
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type specimen', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Go to comprehensive specimen digitization', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
+  },
   methods: {
     loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
