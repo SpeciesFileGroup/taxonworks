@@ -19,22 +19,30 @@
             <a>{{ key }}</a>
             <ul class="panel dropdown no_bullets">
               <li>Parents</li>
-              <li v-for="otu in item"
-              :key="otu.id">
+              <li
+                v-for="otu in item"
+                :key="otu.id">
                 <a :href="`/tasks/otus/browse/${otu.id}`">{{ otu.object_label }}</a>
               </li>
             </ul>
           </div>
         </li>
-        <li 
+        <li
           class="breadcrumb_item current_breadcrumb_position"
           v-html="navigation.current_otu.object_label"/>
       </ul>
       <div class="horizontal-left-content middle">
         <h1
+          v-shortkey="[getOSKey(), 't']"
+          @shortkey="switchNewTaxonName()"
           v-html="otu.object_tag"/>
-        <div class="horizontal-left-content">
-          <browse-taxon :object-id="otu.taxon_name_id"/>
+        <div
+          v-shortkey="[getOSKey(), 'b']"
+          @shortkey="switchBrowse()"
+          class="horizontal-left-content">
+          <browse-taxon
+            ref="browseTaxon"
+            :object-id="otu.taxon_name_id"/>
           <radial-annotator
             :global-id="otu.global_id"
             type="annotations"/>
@@ -44,6 +52,12 @@
           <quick-forms :global-id="otu.global_id"/>
         </div>
       </div>
+      <span
+        v-shortkey="[getOSKey(), 'm']"
+        @shortkey="switchTypeMaterial()"/>
+      <span
+        v-shortkey="[getOSKey(), 'c']"
+        @shortkey="switchComprehensive()"/>
       <ul class="context-menu no_bullets">
         <li v-for="item in menu">
           <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
@@ -60,6 +74,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import QuickForms from 'components/radials/object/radial.vue'
 import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
+import getOSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -91,9 +106,22 @@ export default {
     }
   },
   methods: {
-    loadOtu(event) {
+    loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
-    }
+    },
+    switchBrowse () {
+      this.$refs.browseTaxon.redirect()
+    },
+    switchNewTaxonName () {
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    switchTypeMaterial () {
+      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    switchComprehensive () {
+      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    getOSKey: getOSKey
   }
 
 }

@@ -98,7 +98,9 @@ export default {
   },
   mounted () {
     const value = convertType(sessionStorage.getItem('task::newtaxonname::autosave'))
-    this.isAutosaveActive = value === null ? false : value
+    if (value !== null) {
+      this.isAutosaveActive = value
+    }
   }
 }
 </script>

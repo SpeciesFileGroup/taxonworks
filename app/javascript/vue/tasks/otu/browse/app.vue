@@ -10,7 +10,7 @@
       v-if="isLoading"
     />
     <div class="flex-separate middle container">
-      <h1>Browse taxa</h1>
+      <h1>Browse OTUs</h1>
       <div class="horizontal-left-content">
         <ul
           v-if="navigate"

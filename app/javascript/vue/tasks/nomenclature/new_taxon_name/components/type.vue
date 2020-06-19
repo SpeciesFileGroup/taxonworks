@@ -41,10 +41,16 @@
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
           <ul class="no_bullets context-menu">
             <li>
-              <a :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`">Quick</a>
+              <a 
+                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
+                v-shortkey="[getMacKey(), 'm']"
+                @shortkey="switchTypeMaterial()">Quick</a>
             </li>
             <li>
-              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+              <a
+                :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`"
+                v-shortkey="[getMacKey(), 'c']"
+                @shortkey="switchComprehensive()">Comprehensive</a>
             </li>
           </ul>
           <ul class="table-entrys-list">
@@ -128,18 +134,17 @@ import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Expand from './expand.vue'
-import Autocomplete from 'components/autocomplete.vue'
 import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
+import getMacKey from 'helpers/getMacKey.js'
 
 import { GetTypeMaterial } from '../request/resources.js'
 
 export default {
   components: {
     ListEntrys,
-    Autocomplete,
     Expand,
     TreeDisplay,
     ListCommon,
@@ -221,6 +226,10 @@ export default {
       deep: true
     }
   },
+  mounted () {
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
+  },
   methods: {
     setEdit(relationship) {
       this.editType = relationship
@@ -289,7 +298,14 @@ export default {
       }
       return list
     },
-    showForThisGroup: showForThisGroup
+    switchTypeMaterial () {
+      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`, '_self')
+    },
+    switchComprehensive () {
+      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`, '_self')
+    },
+    showForThisGroup: showForThisGroup,
+    getMacKey: getMacKey
   }
 }
 </script>
