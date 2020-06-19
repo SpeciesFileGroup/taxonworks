@@ -254,7 +254,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
-    classifications.find_each  do |i|
+    classifications.each  do |i|
       soft_validations.add(:type, "The status  '#{self.type_class.label}' conflicting with another status: '#{i.type_class.label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end

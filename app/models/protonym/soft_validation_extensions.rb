@@ -746,7 +746,7 @@ module Protonym::SoftValidationExtensions
     def sv_type_placement1
       # this taxon is a type, but not included in nominal taxon
       if !!self.type_of_taxon_names
-        self.type_of_taxon_names.find_each do |t|
+        self.type_of_taxon_names.each do |t|
           soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
         end
       end
@@ -1053,7 +1053,7 @@ module Protonym::SoftValidationExtensions
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
-            taxa.find_each do |t|
+            taxa.each do |t|
               soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
               z = 1
             end
