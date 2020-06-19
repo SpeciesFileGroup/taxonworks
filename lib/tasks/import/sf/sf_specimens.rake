@@ -441,7 +441,7 @@ namespace :tw do
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
                 )
 
-                co_params.merge({
+                co_params.merge!({
                   biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}]
                 }) if specimen_category_id
 
