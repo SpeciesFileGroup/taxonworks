@@ -1,21 +1,12 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      class="anchor"
-      name="status"/>
+  <block-layout
+    :warning="checkValidation"
+    anchor="status">
+    <h3 slot="header">
+      Status
+    </h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonStatusList.list.length }">
-      <h3
-      v-help.section.status.container
-      >Status</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -79,7 +70,7 @@
         :list="getStatusCreated"
         :display="['object_tag']"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 
 <script>
@@ -90,17 +81,17 @@ import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import Expand from './expand.vue'
+import BlockLayout from './blockLayout'
 import SwitchComponent from 'components/switch'
 
 export default {
   components: {
     ListEntrys,
-    Expand,
     TreeDisplay,
     ListCommon,
     Autocomplete,
-    SwitchComponent
+    SwitchComponent,
+    BlockLayout
   },
   computed: {
     treeList () {
@@ -119,7 +110,10 @@ export default {
       return this.$store.getters[GetterNames.ActiveModalStatus]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
+    },
+    checkValidation () {
+      return this.softValidation ? this.softValidation.find(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)) : undefined
     },
     getStatusCreated () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {

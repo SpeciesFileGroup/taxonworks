@@ -4,7 +4,10 @@ import { MutationNames } from '../mutations/mutations'
 export default function ({ commit, state, dispatch }, id) {
   return new Promise(function (resolve, reject) {
     loadTaxonRelationships(id).then(response => {
-      commit(MutationNames.SetTaxonRelationshipList, response)
+      if (state.taxon_name.hasOwnProperty('type_taxon_name_relationship')) {
+        response.body.push(state.taxon_name.type_taxon_name_relationship)
+      }
+      commit(MutationNames.SetTaxonRelationshipList, response.body)
       dispatch('loadSoftValidation', 'taxonRelationshipList')
       return resolve()
     })

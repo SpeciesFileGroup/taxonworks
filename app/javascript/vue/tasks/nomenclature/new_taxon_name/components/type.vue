@@ -1,23 +1,13 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      name="type"
-      class="anchor"/>
+  <block-layout
+    anchor="type"
+    :warning="checkValidation"
+    v-help.section.type.container>
+    <h3 slot="header">Type</h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3
-      v-help.section.type.container
-      >Type</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <div v-if="!taxonRelation">
-        <div 
+        <div
           v-if="editType"
           class="horizontal-left-content">
           <span>
@@ -30,14 +20,11 @@
             class="button circle-button btn-undo button-default"
             @click="editType = undefined"/>
         </div>
-        <hard-validation
-          field="type"
-          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)">
-          <quick-taxon-name
-            slot="body"
-            @getItem="addTaxonType"
-            :group="childOfParent[getRankGroup.toLowerCase()]"/>
-        </hard-validation>
+        <quick-taxon-name
+          slot="body"
+          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)"
+          @getItem="addTaxonType"
+          :group="childOfParent[getRankGroup.toLowerCase()]"/>
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
           <ul class="no_bullets context-menu">
             <li>
@@ -121,11 +108,12 @@
         @edit="setEdit"
         :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
+import BlockLayout from './blockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
@@ -133,8 +121,6 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Expand from './expand.vue'
-import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
@@ -145,11 +131,10 @@ import { GetTypeMaterial } from '../request/resources.js'
 export default {
   components: {
     ListEntrys,
-    Expand,
+    BlockLayout,
     TreeDisplay,
     ListCommon,
-    QuickTaxonName,
-    HardValidation
+    QuickTaxonName
   },
   computed: {
     treeList () {
@@ -162,30 +147,23 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     GetRelationshipsCreated () {
-      var type = []
-      type = this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (item.type.split('::')[1] == 'Typification')
-      })
-      if (!type.length) {
-        if (this.taxon.hasOwnProperty('type_taxon_name_relationship') && this.taxon['type_taxon_name_relationship']) {
-          type.push(this.taxon.type_taxon_name_relationship)
-          return type
-        }
-      }
-      return type
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) => item.type.split('::')[1] === 'Typification')
     },
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
+    },
+    checkValidation () {
+      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
     },
     taxonRelation: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonType]
       },
       set (value) {
-        this.$store.commit(MutationNames.UpdateLastChange)
+        // this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonType, value)
       }
     },
@@ -199,7 +177,6 @@ export default {
   data: function () {
     return {
       objectLists: this.makeLists(),
-      expanded: true,
       showAdvance: false,
       editType: undefined,
       childOfParent: childOfParent,
@@ -218,7 +195,7 @@ export default {
       handler(newVal) {
         if(newVal.id) {
           GetTypeMaterial(newVal.id).then(response => {
-            this.typeMaterialList = response
+            this.typeMaterialList = response.body
           }) 
         }
       },
@@ -272,15 +249,13 @@ export default {
       if(this.editType) {
         item.id = this.editType.id
         this.$store.dispatch(ActionNames.UpdateTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
+          this.$store.commit(MutationNames.UpdateLastChange)
           this.editType = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
       else {
         this.$store.dispatch(ActionNames.AddTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
     },

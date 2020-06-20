@@ -1,55 +1,63 @@
 <template>
-  <form class="gender">
-    <block-layout
-      anchor="gender"
-      :spinner="saving">
-      <h3 slot="header">Gender and form</h3>
-      <div
-        slot="body"
-        v-if="taxon.id">
-        <ul class="flex-wrap-column no_bullets">
-          <li
-            v-for="item in list">
-            <label class="status-item">
-              <input
-                class="separate-right"
-                type="radio"
-                name="gender"
-                @click="addEntry(item)"
-                :checked="checkExist(item.type)"
-                :value="item.type">
-              <span>{{ item.name }}</span>
-            </label>
-          </li>
-        </ul>
-        <div v-if="inGroup('Species') && adjectiveOrParticiple">
-          <div class="field">
-            <label>Masculine</label><br>
+  <block-layout
+    anchor="gender"
+    :spinner="saving"
+  >
+    <h3 slot="header">
+      Gender and form
+    </h3>
+    <div
+      slot="body"
+      v-if="taxon.id"
+    >
+      <ul class="flex-wrap-column no_bullets">
+        <li
+          v-for="item in list"
+        >
+          <label class="status-item">
             <input
-              v-model="masculine"
-              type="text">
-          </div>
-          <div class="field">
-            <label>Feminine </label><br>
-            <input
-              v-model="feminine"
-              type="text">
-          </div>
-          <div class="field">
-            <label>Neuter</label><br>
-            <input
-              v-model="neuter"
-              type="text">
-          </div>
+              class="separate-right"
+              type="radio"
+              name="gender"
+              @click="addEntry(item)"
+              :checked="checkExist(item.type)"
+              :value="item.type"
+            >
+            <span>{{ item.name }}</span>
+          </label>
+        </li>
+      </ul>
+      <div v-if="inGroup('Species') && adjectiveOrParticiple">
+        <div class="field">
+          <label>Masculine</label><br>
+          <input
+            v-model="masculine"
+            type="text"
+          >
         </div>
-        <list-entrys
-          @delete="removeGender"
-          @addCitation="setCitation"
-          :list="getStatusGender"
-          :display="['object_tag']"/>
+        <div class="field">
+          <label>Feminine </label><br>
+          <input
+            v-model="feminine"
+            type="text"
+          >
+        </div>
+        <div class="field">
+          <label>Neuter</label><br>
+          <input
+            v-model="neuter"
+            type="text"
+          >
+        </div>
       </div>
-    </block-layout>
-  </form>
+      <list-entrys
+        @delete="removeGender"
+        @addCitation="setCitation"
+        :list="getStatusGender"
+        :display="['object_tag']"
+      />
+    </div>
+  </block-layout>
 </template>
 <script>
 import { GetterNames } from '../store/getters/getters'
@@ -90,7 +98,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxonStatusList]
     },
     adjectiveOrParticiple () {
-      let find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
+      const find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
         return (item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
           item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
       })
@@ -144,10 +152,10 @@ export default {
         }
       }
       this.list.sort((a, b) => {
-        if(a.name > b.name) {
+        if (a.name > b.name) {
           return 1
         }
-        if(a.name < b.name) {
+        if (a.name < b.name) {
           return -1
         }
         return 0
@@ -157,7 +165,7 @@ export default {
       return ((this.getStatusCreated.map(function (item) { return item.type })).indexOf(type) > -1)
     },
     searchExisting: function (type) {
-      let list = this.list.map(function (item) { return item.type })
+      const list = this.list.map(function (item) { return item.type })
 
       return this.getStatusCreated.find(function (item) {
         if (list.indexOf(item.type) > -1) {
@@ -165,21 +173,21 @@ export default {
         }
       })
     },
-    cleanNames() {
+    cleanNames () {
       this.masculine = null
       this.feminine = null
       this.neuter = null
     },
     addEntry: function (item) {
-      let that = this
-      let alreadyStored = this.searchExisting()
+      const that = this
+      const alreadyStored = this.searchExisting()
 
       this.saving = true
-      if(!(item.type == this.types.participle || item.type == this.types.adjective)) {
+      if (!(item.type == this.types.participle || item.type == this.types.adjective)) {
         this.cleanNames()
       }
-      let taxon = this.taxon
-      
+      const taxon = this.taxon
+
       delete taxon.feminine_name
       delete taxon.masculine_name
       delete taxon.neuter_name
@@ -207,7 +215,7 @@ export default {
       }
     },
     applicableRank: function (list, type) {
-      let found = list.find(function (item) {
+      const found = list.find(function (item) {
         if (item == type) { return true }
       })
       return (!!found)

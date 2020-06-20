@@ -14,22 +14,7 @@
           </a>
         </li>
       </ul>
-      <form class="horizontal-center-content">
-        <label
-          v-help.section.navbar.autosave
-          class="horizontal-left-content middle margin-medium-right">
-          <input
-            type="checkbox"
-            v-model="isAutosaveActive">
-          Autosave
-        </label>
-        <transition name="fade">
-          <span
-            data-icon="warning"
-            title="You have unsaved changes."
-            class="medium-icon separate-right"
-            v-if="unsavedChanges"/>
-        </transition>
+      <div class="horizontal-center-content">
         <save-taxon-name
           v-if="taxon.id"
           class="normal-input button button-submit separate-right"/>
@@ -37,7 +22,7 @@
           v-help.section.navbar.clone
           class="separate-right"/>
         <create-new-button />
-      </form>
+      </div>
     </div>
     <autosave
       style="bottom: 0px; left: 0px;"
@@ -53,8 +38,6 @@ import CloneTaxonName from './cloneTaxon'
 import NavBar from 'components/navBar'
 import Autosave from './autosave'
 import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { convertType } from 'helpers/types.js'
 
 export default {
   components: {
@@ -77,29 +60,13 @@ export default {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
-    isAutosaveActive: {
-      get () {
-        return this.$store.getters[GetterNames.GetAutosave]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetAutosave, value)
-      }
+    isAutosaveActive () {
+      return this.$store.getters[GetterNames.GetAutosave]
     }
   },
   data () {
     return {
       activePosition: 0
-    }
-  },
-  watch: {
-    isAutosaveActive (newVal) {
-      sessionStorage.setItem('task::newtaxonname::autosave', newVal)
-    }
-  },
-  mounted () {
-    const value = convertType(sessionStorage.getItem('task::newtaxonname::autosave'))
-    if (value !== null) {
-      this.isAutosaveActive = value
     }
   }
 }

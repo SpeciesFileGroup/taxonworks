@@ -1,109 +1,116 @@
 <template>
-  <div class="original-combination-picker">
-    <form class="horizontal-left-content">
-      <div class="button-current separate-right">
-        <button
-          v-if="!existOriginalCombination"
-          type="button"
-          @click="addOriginalCombination()"
-          class="normal-input button button-submit">Set as current
-        </button>
-      </div>
-      <div>
-        <draggable
-          class="flex-wrap-column"
-          v-model="taxonOriginal"
-          v-if="!existOriginalCombination"
-          :options="{
-            animation: 150,
-            group: {
-              name: 'combination',
-              put: isGenus,
-              pull: true
-            },
-            filter: '.item-filter'
-        }">
-          <div
-            v-for="item in taxonOriginal"
-            class="horizontal-left-content middle item-draggable">
-            <input
-              type="text"
-              class="normal-input current-taxon"
-              :value="item.name"
-              disabled>
-            <span
-              class="handle"
-              data-icon="scroll-v"/>
-          </div>
-        </draggable>
-      </div>
-    </form>
-    <hr>
-    <original-combination
-      class="separate-top separate-bottom"
-      nomenclature-group="Genus"
-      @processed="saveTaxonName"
-      @delete="saveTaxonName"
-      @create="saveTaxonName"
-      :disabled="!existOriginalCombination"
-      :options="{
-        animation: 150,
-        group: {
-          name: 'combination',
-          put: isGenus,
-          pull: false
-        },
-        filter: '.item-filter'
-      }"
-      :relationships="genusGroup"/>
-    <original-combination
-      class="separate-top separate-bottom"
-      v-if="!isGenus"
-      nomenclature-group="Species"
-      @processed="saveTaxonName"
-      @delete="saveTaxonName"
-      @create="saveTaxonName"
-      :disabled="!existOriginalCombination"
-      :options="{
-        animation: 150,
-        group: {
-          name: 'combination',
-          put: !isGenus,
-          pull: false
-        },
-        filter: '.item-filter'
-      }"
-      :relationships="speciesGroup"/>
-    <div class="original-combination separate-top separate-bottom">
-      <div class="flex-wrap-column rank-name-label">
-        <label class="row capitalize"/>
-      </div>
-      <div
-        v-if="existOriginalCombination"
-        class="flex-separate middle">
-        <span
-          class="original-combination-name"
-          v-html="taxon.original_combination"/>
-        <span
-          class="circle-button btn-delete"
-          @click="removeAllCombinations()"/>
+  <block-layout
+    anchor="original-combination"
+    v-help.section.originalCombination.container>
+    <h3 slot="header">Original combination and classification</h3>
+    <div
+      slot="body"
+      class="original-combination-picker">
+      <form class="horizontal-left-content">
+        <div class="button-current separate-right">
+          <button
+            v-if="!existOriginalCombination"
+            type="button"
+            @click="addOriginalCombination()"
+            class="normal-input button button-submit">Set as current
+          </button>
+        </div>
+        <div>
+          <draggable
+            class="flex-wrap-column"
+            v-model="taxonOriginal"
+            v-if="!existOriginalCombination"
+            :options="{
+              animation: 150,
+              group: {
+                name: 'combination',
+                put: isGenus,
+                pull: true
+              },
+              filter: '.item-filter'
+          }">
+            <div
+              v-for="item in taxonOriginal"
+              class="horizontal-left-content middle item-draggable">
+              <input
+                type="text"
+                class="normal-input current-taxon"
+                :value="item.name"
+                disabled>
+              <span
+                class="handle"
+                data-icon="scroll-v"/>
+            </div>
+          </draggable>
+        </div>
+      </form>
+      <hr>
+      <original-combination
+        class="separate-top separate-bottom"
+        nomenclature-group="Genus"
+        @processed="saveTaxonName"
+        @delete="saveTaxonName"
+        @create="saveTaxonName"
+        :disabled="!existOriginalCombination"
+        :options="{
+          animation: 150,
+          group: {
+            name: 'combination',
+            put: isGenus,
+            pull: false
+          },
+          filter: '.item-filter'
+        }"
+        :relationships="genusGroup"/>
+      <original-combination
+        class="separate-top separate-bottom"
+        v-if="!isGenus"
+        nomenclature-group="Species"
+        @processed="saveTaxonName"
+        @delete="saveTaxonName"
+        @create="saveTaxonName"
+        :disabled="!existOriginalCombination"
+        :options="{
+          animation: 150,
+          group: {
+            name: 'combination',
+            put: !isGenus,
+            pull: false
+          },
+          filter: '.item-filter'
+        }"
+        :relationships="speciesGroup"/>
+      <div class="original-combination separate-top separate-bottom">
+        <div class="flex-wrap-column rank-name-label">
+          <label class="row capitalize"/>
+        </div>
+        <div
+          v-if="existOriginalCombination"
+          class="flex-separate middle">
+          <span
+            class="original-combination-name"
+            v-html="taxon.original_combination"/>
+          <span
+            class="circle-button btn-delete"
+            @click="removeAllCombinations()"/>
+        </div>
       </div>
     </div>
-  </div>
+  </block-layout>
 </template>
 <script>
 
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
-import ListEntrys from './listEntrys.vue'
 import OriginalCombination from './originalCombination.vue'
+import BlockLayout from './blockLayout'
 
 export default {
   components: {
-    ListEntrys,
     Draggable,
-    OriginalCombination
+    OriginalCombination,
+    BlockLayout
   },
   data: function () {
     return {

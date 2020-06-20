@@ -1,21 +1,11 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      name="relationship"
-      class="anchor"/>
+  <block-layout
+    anchor="relationship"
+    :warning="checkValidation"
+    v-help.section.relationship.container>
+    <h3 slot="header">Relationship</h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3 v-help.section.relationship.container>
-        Relationship
-      </h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <div v-if="editMode">
         <p class="inline">
           <span class="separate-right">Editing relationship: </span>
@@ -27,28 +17,19 @@
         </p>
       </div>
       <div v-if="!taxonRelation">
-        <hard-validation field="object_taxon_name_id">
-          <div
-            class="horizontal-left-content"
-            slot="body">
-            <autocomplete
-              url="/taxon_names/autocomplete"
-              label="label_html"
-              min="2"
-              @getItem="taxonRelation = $event"
-              event-send="autocompleteTaxonRelationshipSelected"
-              placeholder="Search taxon name for the new relationship..."
-              :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
-              param="term"/>
-            <button
-              v-if="Object.keys(incertaeSedis).includes(nomenclaturalCode)"
-              type="button"
-              class="button normal-input button-default margin-small-left"
-              @click="setInsertaeSedis">
-              Set to parent
-            </button>
-          </div>
-        </hard-validation>
+        <div
+          class="horizontal-left-content"
+          slot="body">
+          <autocomplete
+            url="/taxon_names/autocomplete"
+            label="label_html"
+            min="2"
+            @getItem="taxonRelation = $event"
+            event-send="autocompleteTaxonRelationshipSelected"
+            placeholder="Search taxon name for the new relationship..."
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+            param="term"/>
+        </div>
       </div>
       <template v-else>
         <div v-if="isInsertaeSedis">
@@ -123,7 +104,7 @@
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 <script>
 
@@ -133,21 +114,19 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
+import BlockLayout from './blockLayout'
 
 export default {
   components: {
     ListEntrys,
     Autocomplete,
-    Expand,
     TreeDisplay,
     ListCommon,
-    HardValidation,
-    SwitchComponent
+    SwitchComponent,
+    BlockLayout
   },
   computed: {
     taxonLabel() {
@@ -161,7 +140,11 @@ export default {
     },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (item.type.split('::')[1] != 'OriginalCombination' && item.type.split('::')[1] != 'Typification')
+        return (
+          item.type.split('::')[1] !== 'OriginalCombination' &&
+          item.type.split('::')[1] !== 'Typification' &&
+          !item.type.endsWith('::UncertainPlacement') &&
+          !item.type.endsWith('::SourceClassifiedAs'))
       })
     },
     taxon () {
@@ -171,15 +154,10 @@ export default {
       return this.$store.getters[GetterNames.GetParent]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
-    taxonRelation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonRelationship]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonRelationship, value)
-      }
+    checkValidation () {
+      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
@@ -193,7 +171,8 @@ export default {
       tabs: ['Common', 'Advanced', 'Show all'],
       view: 'Common',
       objectLists: this.makeLists(),
-      expanded: true,
+      taxonRelation: undefined,
+      errors: undefined,
       showAdvance: false,
       editMode: undefined,
       lists: undefined,
@@ -254,11 +233,6 @@ export default {
         allList: [],
       }
     },
-    filterAlreadyPicked: function (list, type) {
-      return list.find(function (item) {
-        return (item.type == type)
-      })
-    },
     addEntry: function (item) {
       if(this.editMode) {
         let relationship = {
@@ -267,19 +241,21 @@ export default {
           object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
           type: item.type
         }
-        
+
         this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship).then(() => {
           this.taxonRelation = undefined
-          this.$store.commit(MutationNames.UpdateLastSave)
           this.editMode = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
       else {
-        this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
-        })
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, {
+          type: item.type,
+          taxonRelationshipId: this.taxonRelation.id
+        }).then(() => {
+          this.taxonRelation = undefined
+          this.$store.commit(MutationNames.UpdateLastChange)
+        }, (errors) => {})
       }
       this.isInsertaeSedis = false
     },
