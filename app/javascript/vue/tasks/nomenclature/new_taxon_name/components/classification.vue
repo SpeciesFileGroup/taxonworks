@@ -116,15 +116,11 @@ export default {
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
-    },
-    showModal () {
-      return this.$store.getters[GetterNames.ActiveModalRelationship]
     }
   },
   data () {
     return {
       taxonRelation: undefined,
-      expanded: true,
       editMode: undefined,
       incertaeSedis: {
         iczn: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement',
@@ -148,9 +144,6 @@ export default {
     setRelationship (item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
     },
-    activeModal: function (value) {
-      this.$store.commit(MutationNames.SetModalRelationship, value)
-    },
     addEntry: function (item) {
       if (this.editMode) {
         const relationship = {
@@ -162,9 +155,8 @@ export default {
 
         this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship).then(() => {
           this.taxonRelation = undefined
-          this.$store.commit(MutationNames.UpdateLastSave)
           this.editMode = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       } else {
         this.$store.dispatch(ActionNames.AddTaxonRelationship, {
@@ -172,23 +164,17 @@ export default {
           taxonRelationshipId: this.taxonRelation.id
         }).then(() => {
           this.taxonRelation = undefined
-          this.$store.commit(MutationNames.UpdateLastSave)
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         }, (errors) => {})
       }
     },
-    closeEdit() {
+    closeEdit () {
       this.editMode = undefined
       this.taxonRelation = undefined
     },
     editRelationship(value) {
       this.taxonRelation = value
       this.editMode = this.taxonRelation
-    },
-    addType (list) {
-      for (var key in list) {
-        Object.defineProperty(list[key], 'type', { value: key })
-      }
     }
   }
 }
