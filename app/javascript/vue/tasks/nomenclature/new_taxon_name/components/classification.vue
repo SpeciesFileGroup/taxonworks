@@ -94,9 +94,6 @@ export default {
     taxonLabel() {
       return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
     },
-    getRank () {
-      return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
-    },
     getRanks () {
       const currentRankGroup = getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
       return currentRankGroup === 'Genus' ? getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string) : [currentRankGroup, getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string)]
