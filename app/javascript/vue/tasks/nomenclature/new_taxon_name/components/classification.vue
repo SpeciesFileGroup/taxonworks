@@ -100,7 +100,7 @@ export default {
       })
     },
     showParentButton () {
-      return !showForThisGroup(['SpeciesGroup'], this.taxon) && Object.keys(this.incertaeSedis).includes(this.nomenclaturalCode)
+      return Object.keys(this.incertaeSedis).includes(this.nomenclaturalCode)
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
