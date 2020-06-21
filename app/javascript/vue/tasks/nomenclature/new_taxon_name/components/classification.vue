@@ -26,7 +26,7 @@
             @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new classification..."
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRanks }"
             param="term"/>
           <button
             v-if="Object.keys(incertaeSedis).includes(nomenclaturalCode)"
@@ -94,8 +94,12 @@ export default {
     taxonLabel() {
       return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
     },
-    getRankGroup () {
+    getRank () {
       return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
+    },
+    getRanks () {
+      const currentRankGroup = getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
+      return currentRankGroup === 'Genus' ? getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string) : [currentRankGroup, getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string)]
     },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {

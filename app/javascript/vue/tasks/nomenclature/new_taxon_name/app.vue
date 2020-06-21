@@ -117,7 +117,7 @@ export default {
         Author: true,
         Status: true,
         Relationship: true,
-        Classification: true,
+        Classification: showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
         'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
         Type: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
