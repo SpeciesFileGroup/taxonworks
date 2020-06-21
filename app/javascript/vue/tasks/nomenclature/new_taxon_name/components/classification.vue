@@ -26,10 +26,10 @@
             @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new classification..."
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRanks }"
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Family' }"
             param="term"/>
           <button
-            v-if="Object.keys(incertaeSedis).includes(nomenclaturalCode)"
+            v-if="showParentButton"
             type="button"
             class="button normal-input button-default margin-small-left"
             @click="setInsertaeSedis">
@@ -51,7 +51,7 @@
             <li @click.prevent="addEntry(incertaeSedis[nomenclaturalCode])">
               <label>
                 <input type="radio">
-                Insertae sedis
+                Incertae sedis
               </label>
             </li>
             <li @click.prevent="addEntry(SourceClassifiedAs)">
@@ -82,7 +82,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import BlockLayout from './blockLayout'
 import ListEntrys from './listEntrys.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import getRankGroup from '../helpers/getRankGroup'
+import showForThisGroup from '../helpers/showForThisGroup'
 
 export default {
   components: {
@@ -94,14 +94,13 @@ export default {
     taxonLabel() {
       return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
     },
-    getRanks () {
-      const currentRankGroup = getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
-      return currentRankGroup === 'Genus' ? getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string) : [currentRankGroup, getRankGroup(this.$store.getters[GetterNames.GetParent].rank_string)]
-    },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
         return (item.type.endsWith('::UncertainPlacement') || item.type.endsWith('::SourceClassifiedAs'))
       })
+    },
+    showParentButton () {
+      return !showForThisGroup(['SpeciesGroup'], this.taxon) && Object.keys(this.incertaeSedis).includes(this.nomenclaturalCode)
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
