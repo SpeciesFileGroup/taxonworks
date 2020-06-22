@@ -116,6 +116,8 @@ namespace :tw do
             sf_taxon_name_id = row['TaxonNameID']
             tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
             otu_id = nil # to make JDT happy!
+            collecting_event = nil
+
             if tw_taxon_name_id.nil?
               # is ill-formed taxon name; use otu instead
               otu_id = get_tw_otu_id[sf_taxon_name_id]
@@ -128,6 +130,8 @@ namespace :tw do
             if collecting_event_id.nil?
               logger.error "NO COLLECTING EVENT: Couldn't find CollectingEvent with 'id'=: unique_id = #{get_sf_unique_id[specimen_id]}: SpecimenID = '#{specimen_id}', sf_taxon_id #{sf_taxon_name_id} = tw_taxon_name_id #{tw_taxon_name_id}, FileID = '#{sf_file_id}', no_ce_counter = '#{no_ce_counter += 1}'"
               next
+            else
+              collecting_event = CollectingEvent.find(collecting_event_id)
             end
 
             logger.info "Processing SpecimenID = #{specimen_id}, FileID = '#{sf_file_id}', sf_taxon_id #{sf_taxon_name_id} = tw_taxon_name_id #{tw_taxon_name_id} ( processing_counter=#{processing_counter += 1} )[ zero_counter = #{zero_counter} ] \n"
@@ -136,7 +140,9 @@ namespace :tw do
             ranged_lot_category_id = nil
             count_override = false # boolean, primary type zero_count specimens, count = 1 unless syntype (use ranged_lot_category)
 
-            if get_specimen_category_counts[specimen_id].nil? && sf_depo_id == "0" # these are no-count specimens which fall into two categories:
+            # Do special treatment if missing counts, has not been deposited anywhere or doesn't have coordinates (the latter means it is a real specimen in OSF at least)
+            if get_specimen_category_counts[specimen_id].nil? && sf_depo_id == "0" &&
+              (collecting_event.verbatim_latitude.nil? || collecting_event.verbatim_longitude.nil?)
 
               if get_sf_identification_metadata[specimen_id][0]['type_kind_id'].nil?
                 logger.error "Identification error [ ident_error_counter = #{ident_error_counter += 1} ] \n"
@@ -171,7 +177,7 @@ namespace :tw do
                 otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
                 otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
 
-                geographic_area_id = CollectingEvent.find(collecting_event_id).geographic_area_id
+                geographic_area_id = collecting_event.geographic_area_id
 
                 sf_ref_id = get_sf_identification_metadata[specimen_id][0]['ref_id']
                 # if ref_id_containing_id_hash[sf_ref_id]
