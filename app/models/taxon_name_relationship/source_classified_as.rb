@@ -29,7 +29,7 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   def object_status
-    'used in classification'
+    'as classified'
   end
 
   def subject_status_connector_to_object
@@ -37,7 +37,7 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   def object_status_connector_to_subject
-    ''
+    ' for'
   end
 
   # genus.source_classified_as = Family
