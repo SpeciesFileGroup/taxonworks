@@ -32,7 +32,15 @@ const loadRelationships = () => ajaxCall('get', '/taxon_name_relationships/taxon
 
 const loadTaxonStatus = (id) => ajaxCall('get', `/taxon_names/${id}/taxon_name_classifications`)
 
-const loadTaxonRelationships = (id) => ajaxCall('get', `/taxon_names/${id}/taxon_name_relationships`, { params: { as_subject: true } })
+const loadTaxonRelationships = (id) => ajaxCall('get', `/taxon_names/${id}/taxon_name_relationships.json`, {
+  params: {
+    as_subject: true,
+    of_types: [
+      'synonym',
+      'status',
+      'classification']
+  }
+})
 
 export {
   createTaxonName,
