@@ -15,6 +15,12 @@
         </li>
       </ul>
       <div class="horizontal-center-content">
+        <save-taxon-name
+          v-if="taxon.id"
+          class="normal-input button button-submit separate-right"/>
+        <clone-taxon-name
+          v-help.section.navbar.clone
+          class="separate-right"/>
         <button
           type="button"
           title="Create a child of this taxon name"
@@ -29,12 +35,6 @@
           title="Create a new taxon name with the same parent"
           v-help.section.navbar.childIcon
           class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"/>
-        <save-taxon-name
-          v-if="taxon.id"
-          class="normal-input button button-submit separate-right"/>
-        <clone-taxon-name
-          v-help.section.navbar.clone
-          class="separate-right"/>
         <create-new-button />
       </div>
     </div>
