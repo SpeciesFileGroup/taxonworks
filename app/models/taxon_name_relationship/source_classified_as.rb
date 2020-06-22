@@ -24,13 +24,12 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
         TaxonNameClassification::Icn::NotEffectivelyPublished)
   end
 
-  # Shoudl be reversed!?
   def subject_status
-    'as classified'
+    'classified as'
   end
 
   def object_status
-    'classified'
+    'used in classification'
   end
 
   def subject_status_connector_to_object
