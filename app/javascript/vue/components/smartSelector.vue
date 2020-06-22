@@ -13,6 +13,27 @@
     </div>
     <slot />
     <template v-if="!addTabs.includes(view)">
+      <div
+        class="margin-medium-bottom">
+        <autocomplete
+          v-if="autocomplete"
+          :id="`smart-selector-${model}-autocomplete`"
+          :input-id="inputId"
+          class="separate-right"
+          placeholder="Search..."
+          :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
+          param="term"
+          :add-params="autocompleteParams"
+          label="label_html"
+          :clear-after="clear"
+          display="label"
+          @getItem="getObject($event.id)"/>
+        <otu-picker
+          v-if="otuPicker"
+          :input-id="inputId"
+          :clear-after="true"
+          @getItem="getObject($event.id)"/>
+      </div>
       <ul
         v-if="view && view != 'search'"
         class="no_bullets"
@@ -40,26 +61,6 @@
           </template>
         </li>
       </ul>
-      <div v-else>
-        <autocomplete
-          v-if="autocomplete"
-          :id="`smart-selector-${model}-autocomplete`"
-          :input-id="inputId"
-          class="separate-right"
-          placeholder="Search..."
-          :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
-          param="term"
-          :add-params="autocompleteParams"
-          label="label_html"
-          :clear-after="clear"
-          display="label"
-          @getItem="getObject($event.id)"/>
-        <otu-picker
-          v-if="otuPicker"
-          :input-id="inputId"
-          :clear-after="true"
-          @getItem="getObject($event.id)"/>
-      </div>
     </template>
     <slot :name="view" />
   </div>
