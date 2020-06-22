@@ -157,10 +157,6 @@ export default {
       type: String,
       default: undefined
     },
-    defaultView: {
-      type: String,
-      default: 'search'
-    },
     addTabs: {
       type: Array,
       default: () => { return [] }
@@ -223,15 +219,17 @@ export default {
         this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
 
-        if (this.search) {
-          this.options.push('search')
-        }
-
         if (this.firstTime) {
-          this.view = this.options.includes(this.defaultView) ? this.defaultView : SelectFirst(this.lists, this.options)
+          this.view = SelectFirst(this.lists, this.options)
           this.firstTime = false
         }
 
+        if (this.search) {
+          this.options.push('search')
+          if (!this.view) {
+            this.view = 'search'
+          }
+        }
         this.options = this.options.concat(this.addTabs)
       })
     },
