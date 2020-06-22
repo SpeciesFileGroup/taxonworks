@@ -5,7 +5,9 @@ export default {
   section: {
     navbar: {
       autosave: 'Enable/disable autosave for taxon name. Relationships and status will use autosave without considering this configuration.',
-      clone: 'Clone the current taxon name.'
+      clone: 'Clone the current taxon name.',
+      childIcon: 'Create a new taxon name with the same parent',
+      sisterIcon: 'Create a child of this taxon name'
     },
     basic: {
       container: 'Use this section to provide the minimily require information, a name, parent, and rank. Rank is guessed based on parent, and can be adjusted if the guess in not correct.',

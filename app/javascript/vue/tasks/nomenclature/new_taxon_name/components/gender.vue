@@ -152,7 +152,7 @@ export default {
         }
       }
 
-      this.list.sort((a, b) => {  
+      this.list.sort((a, b) => {
         return this.sortOrder.indexOf(a.name) - this.sortOrder.indexOf(b.name)
       })
     },

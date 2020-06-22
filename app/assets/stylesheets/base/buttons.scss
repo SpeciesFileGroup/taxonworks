@@ -259,6 +259,16 @@
   background-image: image-url('removefromproject.svg');
 }
 
+.btn-create-child {
+  background-size: 14px, 14px;
+  background-image: image-url('create_child_icon.svg');
+}
+
+.btn-create-sister {
+  background-size: 14px, 16px;
+  background-image: image-url('create_sister_icon.svg');
+}
+
 .circle-button-big {
   width: 30px;
   height: 30px;
