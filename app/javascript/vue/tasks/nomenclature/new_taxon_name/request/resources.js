@@ -16,7 +16,7 @@ const updateTaxonStatus = (newClassification) => ajaxCall('patch', `/taxon_name_
 
 const removeTaxonStatus = (id) => ajaxCall('delete', `/taxon_name_classifications/${id}`)
 
-const createTaxonRelationship = (relationship) => ajaxCall('post','/taxon_name_relationships', relationship)
+const createTaxonRelationship = (relationship) => ajaxCall('post', '/taxon_name_relationships', relationship)
 
 const loadSoftValidation = (globalId) => ajaxCall('get', `/soft_validations/validate?global_id=${globalId}`)
 

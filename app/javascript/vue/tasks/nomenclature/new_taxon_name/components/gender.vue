@@ -28,22 +28,22 @@
         </li>
       </ul>
       <div v-if="inGroup('Species') && adjectiveOrParticiple">
-        <div class="field">
-          <label>Masculine</label><br>
+        <div class="field label-above">
+          <label>Masculine</label>
           <input
             v-model="masculine"
             type="text"
           >
         </div>
-        <div class="field">
-          <label>Feminine </label><br>
+        <div class="field label-above">
+          <label>Feminine </label>
           <input
             v-model="feminine"
             type="text"
           >
         </div>
-        <div class="field">
-          <label>Neuter</label><br>
+        <div class="field label-above">
+          <label>Neuter</label>
           <input
             v-model="neuter"
             type="text"
@@ -75,14 +75,14 @@ export default {
   },
   data: function () {
     return {
-      radioGender: 'masculine',
       list: [],
       filterList: ['gender', 'part of speech'],
       saving: false,
       types: {
         adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
         participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
-      }
+      },
+      sortOrder: ['masculine', 'feminine', 'neuter']
     }
   },
   mounted: function () {
@@ -151,14 +151,9 @@ export default {
           if (this.filterList.indexOf(this.getStatusList[key].name) < 0) { this.list.push(this.getStatusList[key]) }
         }
       }
+
       this.list.sort((a, b) => {
-        if (a.name > b.name) {
-          return 1
-        }
-        if (a.name < b.name) {
-          return -1
-        }
-        return 0
+        return this.sortOrder.indexOf(a.name) - this.sortOrder.indexOf(b.name)
       })
     },
     checkExist: function (type) {

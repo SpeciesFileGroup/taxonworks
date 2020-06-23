@@ -42,7 +42,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
           current_target: matches_target)
       end
 
-      ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
+      ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES + TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION).each do |r|
 
         matches_target = entry_item_matches_target?(r.subject_taxon_name, object) # maybe 'v'
 

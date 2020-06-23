@@ -342,5 +342,15 @@ module Queries
       base_query.where(named.to_sql).limit(5)
     end
 
+    def autocomplete_common_name_exact
+      return nil if no_terms?
+      query_base.joins(:common_names).where(common_names: {name: query_string}).limit(1)
+    end
+
+    def autocomplete_common_name_like
+      return nil if no_terms?
+      query_base.joins(:common_names).where('"common_names"."name" ILIKE ' + "'#{wildcard_pieces}'").limit(5)
+    end
+
   end
 end

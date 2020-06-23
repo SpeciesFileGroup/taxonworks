@@ -138,7 +138,7 @@ import SummaryComponent from './components/Summary'
 import SpinnerComponent from 'components/spinner'
 import QuickGrid from './components/grid/Quick'
 import NavBar from './components/NavBar'
-
+import SetParam from 'helpers/setParam.js'
 
 export default {
   components: {
@@ -330,6 +330,7 @@ export default {
     loadSled (sledId) {
       return new Promise((resolve, reject) => {
         GetSledImage(sledId).then(response => {
+          SetParam('/tasks/collection_objects/grid_digitize/index', 'sled_image_id', sledId)
           if(response.body.metadata.length) {
             this.sledImage = response.body
           }

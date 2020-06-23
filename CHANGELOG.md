@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon name status and relationships soft validations display in Browse Nomenclature task
 - Interface to select OTUs and create rows in Observation Matrices Dashboard task
 - Autosave system in New Taxon Name task (refs [#649])
+- Etymology filter in Nomenclature Filter task (refs [#1549])
+- Added new shortcuts for Comprehensive Digitization, New Type Specimen, New Taxon Name and Browse Nomenclature tasks
+- Classification section in New Taxon Name task
 - Spec to test md5 of multi-line verbatim labels  (refs [#1572])
 
 ### Changed
@@ -19,11 +22,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Year suffix and pages are now also used when sorting citations in Browse Nomenclature task
 - Replaced old geographic area smart selector with newer version
 - Swapped 'Masculine' and 'Femenine' positions in New Taxon Name task
+- Replaced uses of `find_each` with `each` (refs [#1548])
+- Refactored New Taxon Name front end code
+- Display text of some taxon name relationships
 
 ### Fixed
-- Recently used objects code on some models.
+- Recently used objects code on some models
+- Collection Object Filter task not filternig by type material type ([#1551])
+- Forms not being cleared when pressing `new` on Compose Biological Relationships task ([#1563])
+- Not getting the full list of topics when clicking all in `Radial annotator -> Citation -> Topic` ([#1566])
+- Showing name instead of the short name in `Radial Annotator -> Identifiers -> Preview` ([#1567])
+- `create` button keeps disabled when creating a new citation fails in `Radial annotator -> Citation` ([#1568])
+- Incorrect method call in Match Georeference task view
+- Display of misspellings on taxon name relationships
 
 [#649]: https://github.com/SpeciesFileGroup/taxonworks/issues/649
+[#1548]: https://github.com/SpeciesFileGroup/taxonworks/issues/1548
+[#1549]: https://github.com/SpeciesFileGroup/taxonworks/issues/1549
+[#1551]: https://github.com/SpeciesFileGroup/taxonworks/issues/1551
+[#1563]: https://github.com/SpeciesFileGroup/taxonworks/issues/1563
+[#1566]: https://github.com/SpeciesFileGroup/taxonworks/issues/1566
+[#1567]: https://github.com/SpeciesFileGroup/taxonworks/issues/1567
+[#1568]: https://github.com/SpeciesFileGroup/taxonworks/issues/1568
+[#1572]: https://github.com/SpeciesFileGroup/taxonworks/issues/1572
 
 ## [0.12.6] - 2020-06-12
 ### Added
