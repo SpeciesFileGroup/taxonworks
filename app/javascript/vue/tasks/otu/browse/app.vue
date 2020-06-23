@@ -41,6 +41,7 @@
     <template v-if="otu">
       <header-bar
         class="container separate-bottom"
+        :menu="menu"
         :otu="otu" />
       <div class="separate-top separate-bottom"></div>
       <draggable
@@ -120,6 +121,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
+    },
+    menu () {
+      return this.preferences.sections.map(name => this.componentNames[name].title)
     }
   },
   data () {
