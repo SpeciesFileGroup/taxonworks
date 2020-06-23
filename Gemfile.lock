@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/ClosureTree/closure_tree.git
-  revision: 9b5245e77914a219e1faa769c0704612155699fa
-  ref: 9b5245e
+  revision: 15b253eab350321ac83668ab2228276eea450db8
+  ref: 15b253e
   specs:
     closure_tree (7.1.0)
       activerecord (>= 4.2.10)
