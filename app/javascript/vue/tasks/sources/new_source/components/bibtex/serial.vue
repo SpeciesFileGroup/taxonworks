@@ -15,11 +15,13 @@
             pin-section="Serials"
             pin-type="Serial"
             @selected="setSelected"/>
-          <div class="horizontal-right-content padding-medium-right">
-            <lock-component
-              class="circle-button-margin"
-              v-model="settings.lock.serial_id"/>
-          </div>
+          <lock-component
+            class="circle-button-margin"
+            v-model="settings.lock.serial_id"/>
+          <a
+            class="margin-small-top margin-small-left"
+            target="_blank"
+            href="/serials/new">New</a>
         </div>
         <div
           class="middle separate-top"

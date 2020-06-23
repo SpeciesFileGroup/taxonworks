@@ -11,11 +11,9 @@
             klass="source"
             label="english_name"
             @selected="setSelected"/>
-          <div class="horizontal-right-content padding-medium-right">
-            <lock-component
-              class="circle-button-margin"
-              v-model="settings.lock.language_id"/>
-          </div>
+          <lock-component
+            class="circle-button-margin"
+            v-model="settings.lock.language_id"/>
         </div>
         <div
           class="middle separate-top"
