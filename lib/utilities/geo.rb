@@ -88,13 +88,19 @@ To add a new (discovered) symbol:
       /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
 
-      scale = 1.0 unless m.blank?
+      # scale = 1.0 unless m.blank?
+      scale = 1 unless m.blank?
       scale = 0.3048 unless ft.blank?
-      scale = 1000.0 unless km.blank?
+      # scale = 1000.0 unless km.blank?
+      scale = 1000 unless km.blank?
       scale = 1_609.344 unless mi.blank?
 
       value_sig = significant_digits(value.to_s)
-      s_value = value_sig[0].to_f
+      if value_sig[0].include?('.')
+        s_value = value_sig[0].to_f
+      else
+        s_value = value_sig[0].to_i
+      end
       s_sig = value_sig[1]
 
       distance = s_value * scale
@@ -496,18 +502,57 @@ To add a new (discovered) symbol:
       lead_zeros = input[4]
       mantissa = input[5]
       reduction = input[1] - digits
+      result = input[0]   # failsafe result
       if reduction > 0    # need to reduce significant digits
-        if intg.length > 0    # is intg >= 1 ?
-          if (lead_zeros.length + mantissa.length) > reduction - intg.length
-          else
+        # if intg.length > 0    # is intg >= 1 ?
+        #   m_length = lead_zeros.length + mantissa.length
+        #   if (m_length) > reduction - intg.length
+        #   # can trim from mantissa
+        #     result = intg + decimal_point + (lead_zeros + mantissa).byteslice(0, m_length-reduction)
+        #   else
+        #     result = input[0]
+        #
+        #   end
+        # else
+        # result = input[0]
+        # end
+        result = ''
+        count = 0
 
+        for index in (0...digits)   # collect significant digits
+          digit = input[0][index]
+          if digit == decimal_point
+            count += 1
           end
-          result = input[0]
-        else
-        result = input[0]
+          result += digit
+          next
         end
-      else
-        result = input[0]
+        if intg.length > digits     # clean up integer least significant digits
+          if input[0][index + 1].to_i >= 5
+            result = (result.to_i + 1).to_s # round if necessary
+          end
+          for ndex in (0...(intg.length - digits))
+            result += '0'
+            index += 1
+            next
+          end
+        else              # parsed intg, check for decimal point
+          if input[0][index] == '.'
+            index += 1
+            result += '.'
+          end
+          #TODO: mantissa processing probably wrong
+          input_string = input[0]
+          if input_string.length > digits - (intg.length)
+            # if input[0][index].to_i >= 5
+            #   result = (result.to_i + 1).to_s # round if necessary
+            # end
+            for ndex in (0...digits - (input_string.length))
+              result += input[0][index]
+              index += 1
+            end
+          end
+        end
       end
       result
     end
