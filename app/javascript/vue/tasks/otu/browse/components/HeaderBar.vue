@@ -32,7 +32,7 @@
           v-html="navigation.current_otu.object_label"/>
       </ul>
       <div class="horizontal-left-content middle">
-        <h1
+        <h2
           v-shortkey="[getOSKey(), 't']"
           @shortkey="switchNewTaxonName()"
           v-html="otu.object_tag"/>

@@ -1,7 +1,8 @@
 <template>
   <section-panel
     :spinner="isLoading"
-    title="Descendants"
+    :status="status"
+    :title="title"
     @menu="showModal = true">
     <a name="descendants"/>
     <tree-view
@@ -41,9 +42,11 @@
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from 'components/modal'
 import TreeView from './TreeView'
+import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     ModalComponent,

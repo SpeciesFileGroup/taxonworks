@@ -1,6 +1,7 @@
 <template>
   <section-panel
-    title="Timeline"
+    :status="status"
+    :title="title"
     :spinner="isLoading"
     @menu="showModal = true">
     <a name="timeline"/>
@@ -191,23 +192,18 @@
 
 import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
-import SwitchComponent from 'components/switch'
 import ModalComponent from 'components/modal'
 import YearPicker from './nomenclature/yearsPick'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import extendSection from './shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
-    SwitchComponent,
     ModalComponent,
     YearPicker
-  },
-  props: {
-    otu: {
-      type: Object
-    }
   },
   computed: {
     selectedReferences () {

@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Content">
+  <section-panel
+    :status="status"
+    :title="title">
     <a name="content"/>
     <div class="separate-top">
       <ul>
@@ -20,8 +22,10 @@
 
 import { GetContent } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
+import extendSection from './shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel
   },

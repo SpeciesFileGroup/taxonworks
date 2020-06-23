@@ -54,3 +54,7 @@
 .vue-autocomplete ul:hover {
   display: block;
 }
+
+.vue-autocomplete-empty-list {
+  min-width: auto !important;
+}
