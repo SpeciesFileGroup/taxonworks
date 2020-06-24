@@ -27,7 +27,7 @@
           </label>
         </li>
       </ul>
-      <div v-if="inGroup('Species') && adjectiveOrParticiple">
+      <div v-if="inSpeciesGroup && adjectiveOrParticiple">
         <div class="field label-above">
           <label>Masculine</label>
           <input
@@ -89,6 +89,10 @@ export default {
     this.getList()
   },
   computed: {
+    inSpeciesGroup () {
+      const group = getRankGroup(this.taxon.rank_string)
+      return (group === 'SpeciesAndInfraspecies' || group === 'Species')
+    },
     getStatusGender () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
         return (item.type.split('::')[1] == 'Latinized')
@@ -178,19 +182,19 @@ export default {
       const alreadyStored = this.searchExisting()
 
       this.saving = true
-      if (!(item.type == this.types.participle || item.type == this.types.adjective)) {
+      if (!(item.type === this.types.participle || item.type === this.types.adjective)) {
         this.cleanNames()
       }
-      const taxon = this.taxon
+      const taxon = Object.assign({}, this.taxon)
 
-      delete taxon.feminine_name
-      delete taxon.masculine_name
-      delete taxon.neuter_name
+      taxon.feminine_name = null
+      taxon.masculine_name = null
+      taxon.neuter_name = null
 
       if (alreadyStored) {
         that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
-          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-            that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
+          that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
+            that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
               that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
                 that.saving = false
               })
@@ -216,7 +220,7 @@ export default {
       return (!!found)
     },
     inGroup: function (group) {
-      return (getRankGroup(this.taxon.rank_string) == group)
+      return (getRankGroup(this.taxon.rank_string) === group)
     }
   }
 }
