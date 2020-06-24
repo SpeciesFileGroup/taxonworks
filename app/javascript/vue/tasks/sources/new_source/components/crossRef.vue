@@ -82,7 +82,7 @@ export default {
         }
         else {
           this.found = false
-          TW.workbench.alert.create('Nothing found.', 'error')
+          TW.workbench.alert.create('Nothing found or the source already exist.', 'error')
         }
         this.searching = false
       }, () => {
