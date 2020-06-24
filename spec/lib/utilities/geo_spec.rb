@@ -944,12 +944,12 @@ describe 'Geo', group: :geo do
                    '3036m'                 => 3036.0,
                    '2.11km'                => 2110,
                    ' 123.45'               => 123.45,
-                   ' 123 ft'               => 37.4,    #37.4904,
-                   ' 123 ft.'              => 37.4,    #37.4904,
-                   ' 123 feet'             => 37.4,    #37.4904,
+                   ' 123 ft'               => 37.5,    #37.4904,
+                   ' 123 ft.'              => 37.5,    #37.4904,
+                   ' 123 feet'             => 37.5,    #37.4904,
                    ' 1 foot'               => 0.3,     #0.3048,
-                   ' 123 f'                => 37.4,    #37.4904,
-                   '   123 f.'             => 37.4,    #37.4904,
+                   ' 123 f'                => 37.5,    #37.4904,
+                   '   123 f.'             => 37.5,    #37.4904,
                    ' 123 m'                => 123,  # .0
                    '  123 meters'          => 123,  # .0
                    '     123 m.'           => 123,  # .0
@@ -1007,8 +1007,8 @@ describe 'Geo', group: :geo do
           '3036' => ['3036', 4],
           '2110' => ['2110', 3],
           '123.45' => ['123.45', 5],
-          '37.4904' => ['37.4', 3],
-          '0.3048' => ['0.3', 1],
+          '37.4904' => ['37.5', 3],
+          '0.3048' => ['.3', 1],
           '123.00020' => ['123.00', 5]
       }
 
@@ -1017,7 +1017,7 @@ describe 'Geo', group: :geo do
       use_cases.each { |number, result|
         @entry += 1
         specify "case #{@entry}: '#{number}', '#{result[1]}' should yield #{result[0]}" do
-          expect(Utilities::Geo.conform_significant(number.to_s, result[1])).to eq(result[0])
+          expect(Utilities::Geo.conform_significant(number, result[1])).to eq(result[0])
         end
       }
     end

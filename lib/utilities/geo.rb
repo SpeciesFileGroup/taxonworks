@@ -507,18 +507,18 @@ To add a new (discovered) symbol:
       if reduction > 0    # need to reduce significant digits
         result = ''
         count = 0
-        digits_decimal = digits + 1
-        digits_decimal = digits unless decimal_point == '.'
-        for index in (0...digits_decimal)   # collect significant digits
-          digit = input[0][index]
-          if digit == decimal_point
-            count += 1
-          end
+        digit_string = intg + mantissa
+        decimal_position = input_string.index('.')
+         for index in (0...digits)   # collect significant digits
+          digit = digit_string[index]
+          # if input_string[index] == '.'
+          #   decimal_position = index
+          # end
           result += digit
           next
         end
-        if input_string.length > digits     # clean up integer least significant digits
-          if input[0][index + 1].to_i >= 5
+        if digit_string.length > digits     # clean up integer least significant digits
+          if digit_string[index + 1].to_i >= 5
             result = (result.to_i + 1).to_s # round if necessary
           end
           for ndex in (0...(intg.length - digits))
@@ -527,19 +527,20 @@ To add a new (discovered) symbol:
             next
           end
         else              # parsed intg, check for decimal point
-          if input[0][index] == '.'
-            index += 1
-            result += '.'
-          end
           #TODO: mantissa processing probably wrong
-          if input_string.length > digits - (intg.length)
-            # if input[0][index].to_i >= 5
-            #   result = (result.to_i + 1).to_s # round if necessary
-            # end
-            for ndex in (0...(input_string.length) - digits)
-              result += input[0][index]
-              index += 1
-            end
+          # if input_string.length > digits - (intg.length)
+          #   # if input[0][index].to_i >= 5
+          #   #   result = (result.to_i + 1).to_s # round if necessary
+          #   # end
+          #   for ndex in (0...(input_string.length) - digits)
+          #     result += input[0][index]
+          #     index += 1
+          #   end
+          # end
+        end
+        unless decimal_position.nil?
+          if result.length <= digits
+            result.insert(decimal_position, decimal_point)
           end
         end
       end
