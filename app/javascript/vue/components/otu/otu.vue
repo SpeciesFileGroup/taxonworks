@@ -2,7 +2,7 @@
   <div class="otu-radial">
     <span
       class="circle-button"
-      :title="redirect ? 'Browse taxa' : 'OTU quick forms'"
+      :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
       :class="[{ 'button-submit': emptyList, 'button-default': !emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
       @click="openApp()"
       @contextmenu.prevent="openApp(true)"
