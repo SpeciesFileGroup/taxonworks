@@ -939,15 +939,15 @@ describe 'Geo', group: :geo do
     context 'multiple use cases' do
       use_cases = {' 12345'                => 12_345, # .0
                    '1.1 mi'                => 1800, #1770.2784,
-                   '2 mile'                => 3200, #3218.688,
-                   '3 miles'               => 4800, #4828.032,
+                   '2 mile'                => 3000, #3218.688,
+                   '3 miles'               => 5000, #4828.032,
                    '3036m'                 => 3036.0,
                    '2.11km'                => 2110,
                    ' 123.45'               => 123.45,
                    ' 123 ft'               => 37.4,    #37.4904,
                    ' 123 ft.'              => 37.4,    #37.4904,
                    ' 123 feet'             => 37.4,    #37.4904,
-                   ' 1 foot'               => 0.3,     #,0.3048,
+                   ' 1 foot'               => 0.3,     #0.3048,
                    ' 123 f'                => 37.4,    #37.4904,
                    '   123 f.'             => 37.4,    #37.4904,
                    ' 123 m'                => 123,  # .0
@@ -997,6 +997,31 @@ describe 'Geo', group: :geo do
         end
       }
     end
+
+    context 'significant digits conformance' do
+      use_cases = {
+          '12345' => ['12345', 5],
+          '1770.2784' => ['1800',2],
+          '3218.688' => ['3000', 1],
+          '4828.032' => ['5000', 1],
+          '3036' => ['3036', 4],
+          '2110' => ['2110', 3],
+          '123.45' => ['123.45', 5],
+          '37.4904' => ['37.4', 3],
+          '0.3048' => ['0.3', 1],
+          '123.00020' => ['123.00', 5]
+      }
+
+      @entry = 0
+
+      use_cases.each { |number, result|
+        @entry += 1
+        specify "case #{@entry}: '#{number}', '#{result[1]}' should yield #{result[0]}" do
+          expect(Utilities::Geo.conform_significant(number.to_s, result[1])).to eq(result[0])
+        end
+      }
+    end
+
   end
   # rubocop:enable Style/StringHashKeys
 end

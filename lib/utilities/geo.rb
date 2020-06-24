@@ -72,16 +72,16 @@ To add a new (discovered) symbol:
       dist_in   = '0.0 meters' if dist_in.blank?
       elevation = dist_in.strip.downcase
       pieces    = elevation.split(' ')
-      value     = elevation.to_f
+      # value     = elevation.to_f
       if pieces.count > 1 # two pieces, second is distance unit
         piece = 1
       else # one piece, may contain distance unit.
-        if elevation.include?('.')
-          value = elevation.to_f
-        else
-          value = elevation.to_i
-        end
         piece = 0
+      end
+      if elevation.include?('.')
+        value = elevation.to_f
+      else
+        value = elevation.to_i
       end
       scale = 1.0 # default is meters
 
@@ -499,27 +499,17 @@ To add a new (discovered) symbol:
       input = significant_digits(number.to_s)
       intg = input[2]
       decimal_point = input[3]
-      lead_zeros = input[4]
-      mantissa = input[5]
+      lead_zeros = input[4]   # lead_zeros length > 0 implies mantissa only case
+      mantissa = input[5]     # mantissa complete iff no lead_zeros
       reduction = input[1] - digits
+      input_string = input[0]
       result = input[0]   # failsafe result
       if reduction > 0    # need to reduce significant digits
-        # if intg.length > 0    # is intg >= 1 ?
-        #   m_length = lead_zeros.length + mantissa.length
-        #   if (m_length) > reduction - intg.length
-        #   # can trim from mantissa
-        #     result = intg + decimal_point + (lead_zeros + mantissa).byteslice(0, m_length-reduction)
-        #   else
-        #     result = input[0]
-        #
-        #   end
-        # else
-        # result = input[0]
-        # end
         result = ''
         count = 0
-
-        for index in (0...digits)   # collect significant digits
+        digits_decimal = digits + 1
+        digits_decimal = digits unless decimal_point == '.'
+        for index in (0...digits_decimal)   # collect significant digits
           digit = input[0][index]
           if digit == decimal_point
             count += 1
@@ -527,7 +517,7 @@ To add a new (discovered) symbol:
           result += digit
           next
         end
-        if intg.length > digits     # clean up integer least significant digits
+        if input_string.length > digits     # clean up integer least significant digits
           if input[0][index + 1].to_i >= 5
             result = (result.to_i + 1).to_s # round if necessary
           end
@@ -542,12 +532,11 @@ To add a new (discovered) symbol:
             result += '.'
           end
           #TODO: mantissa processing probably wrong
-          input_string = input[0]
           if input_string.length > digits - (intg.length)
             # if input[0][index].to_i >= 5
             #   result = (result.to_i + 1).to_s # round if necessary
             # end
-            for ndex in (0...digits - (input_string.length))
+            for ndex in (0...(input_string.length) - digits)
               result += input[0][index]
               index += 1
             end
