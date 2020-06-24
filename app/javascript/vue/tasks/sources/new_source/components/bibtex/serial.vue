@@ -102,6 +102,9 @@ export default {
             })
           }
         }
+        else {
+          this.selected = undefined
+        }
       },
       immediate: true,
       deep: true
