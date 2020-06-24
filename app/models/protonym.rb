@@ -332,6 +332,8 @@ class Protonym < TaxonName
     parent_rank_name = rank_name
     ncode = nomenclatural_code
 
+    return nil if ncode.nil? # Happens with some names like "Root"
+
     if child_string == child_string.downcase
       if !is_species_rank?
         r = Ranks.lookup(ncode, 'species')
