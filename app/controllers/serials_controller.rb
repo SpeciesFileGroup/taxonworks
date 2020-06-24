@@ -15,7 +15,7 @@ class SerialsController < ApplicationController
       end
       format.json {
         @serials = Serial.order(updated_at: :desc).limit(10)
-        # @taxon_names = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        # @serials = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
   end

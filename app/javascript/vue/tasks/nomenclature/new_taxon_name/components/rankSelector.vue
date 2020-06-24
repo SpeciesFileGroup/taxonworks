@@ -83,19 +83,23 @@ export default {
         this.$store.commit(MutationNames.SetRankClass, value)
         this.$store.commit(MutationNames.UpdateLastChange)
       }
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data: function () {
     return {
       childOfParent: childOfParent,
       showModal: false,
-      defaultRanks: ['family', 'genus', 'species']
+      defaultRanks: ['family', 'genus', 'species'],
+      timer: undefined
     }
   },
   watch: {
     ranks: {
       handler: function (val, oldVal) {
-        this.refresh()
+        //this.refresh()
       },
       deep: true,
       immediate: true
@@ -112,13 +116,30 @@ export default {
             if (response.body.predicted_rank.length) {
               this.rankClass = response.body.predicted_rank
             } else {
-              this.refresh()
+              //this.refresh()
             }
           })
         }
       },
       deep: true,
       immediate: true
+    },
+    taxonName: {
+      handler (newVal, oldVal) {
+        if (!this.taxon.id && this.parent && newVal.length && newVal !== oldVal) {
+          clearTimeout(this.timer)
+
+          const that = this
+          this.timer = setTimeout(() => {
+            GetPredictedRank(that.parent.id, that.taxon.name).then(response => {
+              if (response.body.predicted_rank.length) {
+                that.rankClass = response.body.predicted_rank
+              }
+            })
+          }, 500)
+        }
+      },
+      deep: true
     }
   },
   methods: {
