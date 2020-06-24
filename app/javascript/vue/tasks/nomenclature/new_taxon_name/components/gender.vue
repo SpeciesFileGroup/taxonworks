@@ -144,7 +144,12 @@ export default {
   },
   methods: {
     removeGender: function (item) {
-      this.$store.dispatch(ActionNames.RemoveTaxonStatus, item)
+      this.$store.dispatch(ActionNames.RemoveTaxonStatus, item).then(() => {
+        this.taxon.feminine_name = null
+        this.taxon.masculine_name = null
+        this.taxon.neuter_name = null
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      })
     },
     setCitation: function (item) {
       this.$store.dispatch(ActionNames.UpdateClassification, item)
@@ -202,8 +207,8 @@ export default {
           })
         })
       } else {
-        that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-          that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
+        that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
+          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
             setTimeout(function () {
               that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
                 that.saving = false
