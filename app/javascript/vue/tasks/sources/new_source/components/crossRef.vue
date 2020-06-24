@@ -73,7 +73,7 @@ export default {
         if(response.body.title) {
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
-          GetSerialMatch(response.body.title).then(response => {
+          GetSerialMatch(response.body.journal).then(response => {
             if (response.body.length) {
               this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
             }
