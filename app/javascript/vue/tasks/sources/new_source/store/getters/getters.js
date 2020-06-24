@@ -7,6 +7,7 @@ import getSettings from './getSettings'
 import getSoftValidation from './getSoftValidation'
 import getRoles from './getRoles'
 import getLastSave from './getLastSave'
+import getSerialId from './getSerialId'
 
 const GetterNames = {
   GetType: 'getType',
@@ -17,7 +18,8 @@ const GetterNames = {
   GetSettings: 'getSettings',
   GetSoftValidation: 'getSoftValidation',
   GetRoles: 'getRoles',
-  GetLastSave: 'getLastSave'
+  GetLastSave: 'getLastSave',
+  GetSerialId: 'getSerialId'
 }
 
 const GetterFunctions = {
@@ -29,7 +31,8 @@ const GetterFunctions = {
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetSoftValidation]: getSoftValidation,
   [GetterNames.GetRoles]: getRoles,
-  [GetterNames.GetLastSave]: getLastSave
+  [GetterNames.GetLastSave]: getLastSave,
+  [GetterNames.GetSerialId]: getSerialId
 }
 
 export {

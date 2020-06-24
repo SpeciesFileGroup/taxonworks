@@ -8,6 +8,7 @@ import setRoles from './setRoles'
 import setSoftValidation from './setSoftValidation'
 import addRole from './addRole'
 import setLastSave from './setLastSave'
+import setSerialId from './setSerialId'
 
 const MutationNames = {
   SetType: 'setType',
@@ -19,7 +20,8 @@ const MutationNames = {
   SetRoles: 'setRoles',
   SetSoftValidation: 'setSoftValidation',
   AddRole: 'addRole',
-  SetLastSave: 'setLastSave'
+  SetLastSave: 'setLastSave',
+  SetSerialId: 'setSerialId'
 }
 
 const MutationFunctions = {
@@ -32,7 +34,8 @@ const MutationFunctions = {
   [MutationNames.SetRoles]: setRoles,
   [MutationNames.SetSoftValidation]: setSoftValidation,
   [MutationNames.AddRole]: addRole,
-  [MutationNames.SetLastSave]: setLastSave
+  [MutationNames.SetLastSave]: setLastSave,
+  [MutationNames.SetSerialId]: setSerialId
 }
 
 export {

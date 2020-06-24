@@ -67,6 +67,14 @@ export default {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
+    serialId: {
+      get () {
+        return this.$store.getters[GetterNames.GetSerialId]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSerialId, value)
+      }
+    },
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -85,17 +93,18 @@ export default {
     }
   },
   watch: {
-    source: {
+    serialId: {
       handler(newVal, oldVal) {
-        if(newVal && newVal.serial_id) {
-          if(!oldVal || oldVal.serial_id != newVal.serial_id) {
-            AjaxCall('get', `/serials/${newVal.serial_id}.json`).then(response => {
+        if(newVal) {
+          if(oldVal !== newVal) {
+            AjaxCall('get', `/serials/${newVal}.json`).then(response => {
               this.selected = response.body
             })
           }
         }
       },
-      immediate: true
+      immediate: true,
+      deep: true
     },
     lastSave: {
       handler (newVal, oldVal) {
