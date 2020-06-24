@@ -326,13 +326,13 @@ class Protonym < TaxonName
   end
 
   ## taxon_name.predicted_children_rank('Cicadellidae') >> NomenclaturalRank::Iczn::FamilyGroup::Family
-  def predicted_child_rank(children_string)
-    return nil if children_string.blank?
+  def predicted_child_rank(child_string)
+    return nil if child_string.blank?
     parent_rank = rank_class.to_s
     parent_rank_name = rank_name
     ncode = nomenclatural_code
 
-    if children_string == children_string.downcase
+    if child_string == child_string.downcase
       if !is_species_rank?
         r = Ranks.lookup(ncode, 'species')
       elsif parent_rank_name == 'species'
@@ -346,13 +346,13 @@ class Protonym < TaxonName
       else
         return nil
       end
-    elsif children_string == children_string.capitalize
+    elsif child_string == child_string.capitalize
       if rank_name == 'genus'
         r = Ranks.lookup(ncode, 'subgenus')
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && children_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
