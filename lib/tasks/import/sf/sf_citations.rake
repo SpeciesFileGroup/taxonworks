@@ -291,6 +291,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           get_sf_verbatim_ref = import.get('RefIDToVerbatimRef') # key is SF.RefID, value is verbatim string
           get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
           get_cvt_id = import.get('CvtProjUriID')
+          ref_id_containing_id_hash = import.get('RefIDContainingHash')
           # get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           # get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           # get_tw_person_id = import.get('SFPersonIDToTWPersonID')
@@ -541,8 +542,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               source_id = get_tw_source_id[row['RefID']].to_i
               if source_id == 0
-                cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
-                next
+                source_id = get_tw_source_id[ref_id_containing_id_hash[row['RefID']]].to_i
+                if source_id == 0
+                  cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                  logger.error "RefID = #{row['RefID']} not mapped to TW source"
+                  next
+                end
+                logger.warn "Using TW source for containing ref of (RefID = #{row['RefID']})"
               end
 
               nomenclator_id = row['NomenclatorID']
