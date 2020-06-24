@@ -1,7 +1,9 @@
 <template>
   <div class="right-section">
-    <soft-validation/>
-    <matches-component/>
+    <div ref="section">
+      <soft-validation class="soft-validation-box"/>
+      <matches-component/>
+    </div>
   </div>
 </template>
 
@@ -28,18 +30,38 @@ export default {
           value: 'MatchesComponent'
         },
         {
-          label: 'Soft validation', 
+          label: 'Soft validation',
           value: 'SoftValidation'
         }
       ],
       componentSelected: 'MatchesComponent'
     }
+  },
+  mounted () {
+    window.addEventListener('scroll', this.scrollBox)
+  },
+  methods: {
+    scrollBox (event) {
+      const element = this.$el
+      if (element) {
+        if (element.offsetTop < document.documentElement.scrollTop + 50) {
+          this.$refs.section.classList.add('float-box')
+        } else {
+          this.$refs.section.classList.remove('float-box')
+        }
+      }
+    }
   }
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .right-section {
+    position: relative;
     width: 400px;
+  }
+  .float-box {
+    top: 70px;
+    position: fixed;
   }
 </style>
