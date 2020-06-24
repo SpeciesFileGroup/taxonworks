@@ -1,29 +1,7 @@
 <template>
   <div class="right-section">
-    <div class="content">
-      <ul class="no_bullets context-menu">
-        <li>
-          <label>
-            <input
-              v-model="componentSelected"
-              value="MatchesComponent"
-              type="radio">
-            Matches
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              v-model="componentSelected"
-              value="SoftValidation"
-              :disabled="!source.id"
-              type="radio">
-            Soft validation
-          </label>
-        </li>
-      </ul>
-    </div>
-    <component :is="componentSelected"/>
+    <soft-validation/>
+    <matches-component/>
   </div>
 </template>
 
