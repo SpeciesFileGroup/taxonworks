@@ -30,6 +30,7 @@ namespace :tw do
           get_cvt_id = import.get('CvtProjUriID')
           # get_containing_source_id = import.get('TWSourceIDToContainingSourceID') # use to determine if taxon_name_author must be created (orig desc only)
           # get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
+          ref_id_containing_id_hash = import.get('RefIDContainingHash')
 
           path = @args[:data_directory] + 'tblCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
@@ -45,6 +46,14 @@ namespace :tw do
             otu_id = get_tw_otu_id[sf_taxon_name_id]
 
             sf_ref_id = row['RefID']
+
+            if ref_id_containing_id_hash[sf_ref_id].nil? # this RefID does not have a ContainingRefID
+              add_different_authors = false # copy source_author list to taxon_name_author list
+            else
+              sf_ref_id = ref_id_containing_id_hash[sf_ref_id]
+              add_different_authors = true # add taxon_name_authors for contained ref
+            end
+
             source_id = get_tw_source_id[sf_ref_id].to_i
             next if source_id == 0
 
@@ -58,10 +67,11 @@ namespace :tw do
 
             # byebug
 
+            # TODO: Is this dealing properly with cases where the first citation predates the original description?
             if seqnum == "1" # original citation already in; need to find it and update cite_pages
-              citation = Citation.where(citation_object_type: 'Otu', citation_object_id: otu.id, is_original: :true, source_id: source_id)
+              citation = Citation.where(citation_object_type: 'Otu', citation_object_id: otu.id, is_original: true, source_id: source_id)
               if citation.nil?
-                puts 'ERROR'
+                logger.error "Couldn't find original citation for OTU #{otu.id}, source_id: #{source_id}"
               end
               citation.update(pages: cite_pages)
 

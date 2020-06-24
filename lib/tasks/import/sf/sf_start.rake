@@ -209,6 +209,7 @@ namespace :tw do
             logger.info "working with SF.RefID = #{ref_id}, SF.ContainingRefID = #{row['ContainingRefID']}, flags = #{row['Flags']} \n"
 
             ref_id_editor_array.push(ref_id) if row['Flags'].to_i & 2 == 2 # is_editor
+            # TODO: This might not be dealing with refs contained in contained refs.
             ref_id_containing_id_hash[ref_id] = containing_ref_id if containing_ref_id != '0'
             ref_id_pub_id_hash[ref_id] = pub_id
           end
