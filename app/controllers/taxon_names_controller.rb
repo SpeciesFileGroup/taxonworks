@@ -130,13 +130,9 @@ class TaxonNamesController < ApplicationController
   def predicted_rank
     if params[:parent_id]
       p = TaxonName.find(params[:parent_id])
-      unless p.nil?
-        render json: {predicted_rank: p.predicted_child_rank(params[:name]).to_s}.to_json
-      else
-        render json: {}
-      end
+      render json: {predicted_rank: p.predicted_child_rank(params[:name]).to_s}.to_json
     else
-      render json: {}
+      render json: {predicted_rank: ''}.to_json
     end
   end
 
