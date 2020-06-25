@@ -36,8 +36,8 @@
       </div>
       <ul
         v-if="view && view != 'search'"
-        class="no_bullets flex-wrap-row"
-        :class="{ inline: inline }">
+        class="no_bullets"
+        :class="{ 'flex-wrap-row': inline }">
         <li
           v-for="item in lists[view]"
           :key="item.id">
