@@ -42,6 +42,8 @@ const loadTaxonRelationships = (id) => ajaxCall('get', `/taxon_names/${id}/taxon
   }
 })
 
+const GetPredictedRank = (parentId, name) => ajaxCall('get', `/taxon_names/predicted_rank`, { params: { parent_id: parentId, name: name }})
+
 export {
   createTaxonName,
   updateTaxonName,
@@ -59,5 +61,6 @@ export {
   updateTaxonStatus,
   removeTaxonRelationship,
   createTaxonRelationship,
-  GetTypeMaterial
+  GetTypeMaterial,
+  GetPredictedRank
 }

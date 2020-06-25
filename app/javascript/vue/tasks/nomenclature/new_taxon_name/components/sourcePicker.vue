@@ -88,6 +88,8 @@
             label="label_html"
             placeholder="Type for search..."
             display="label"
+            :clear-after="true"
+            @getItem="setSource($event.id)"
           />
           <default-element
             v-if="!citation"
@@ -131,12 +133,12 @@
         </div>
       </div>
       <div v-show="show == 'verbatim'">
-        <div class="field separate-top">
-          <label>Verbatim author</label><br>
+        <div class="field separate-top label-above">
+          <label>Verbatim author</label>
           <verbatim-author />
         </div>
-        <div class="fields">
-          <label>Verbatim year</label><br>
+        <div class="fields label-above">
+          <label>Verbatim year</label>
           <verbatim-year />
         </div>
       </div>

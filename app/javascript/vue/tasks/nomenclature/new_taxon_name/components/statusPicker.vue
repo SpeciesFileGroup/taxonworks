@@ -55,7 +55,7 @@
           :list-created="getStatusCreated"/>
       </div>
       <ul
-        v-if="!getStatusCreated.length"
+        v-if="!getStatusCreated.length && taxon.id === taxon.cached_valid_taxon_name_id"
         class="table-entrys-list">
         <li class="list-complete-item middle">
           <p>Valid as default</p>

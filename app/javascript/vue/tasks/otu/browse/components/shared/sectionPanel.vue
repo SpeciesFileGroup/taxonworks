@@ -2,6 +2,7 @@
   <div class="panel basic-information">
     <spinner-component v-if="spinner" />
     <div
+      v-help.section.status
       :class="{ [status]: status }"
       class="header flex-separate middle">
       <a
@@ -15,11 +16,13 @@
       </div>
       <div class="horizontal-left-content">
         <div
+          v-help.section.options.drag
           data-icon="w_scroll-v"
           class="option-box button-default cursor-pointer handle"
         />
         <div
           class="option-box button-default cursor-pointer"
+          v-help.section.options.filter
           @click="$emit('menu')"
         >
           <div class="hamburger-menu">

@@ -87,11 +87,14 @@ export default {
     otu: {
       type: Object,
       required: true
+    },
+    menu: {
+      type: Array,
+      required: true
     }
   },
   data () {
     return {
-      menu: ['Descendants', 'Timeline', 'Images', 'Common names', 'Asserted distributions', 'Content', 'Type specimens', 'Specimen records', 'Biological associations', 'Annotations', 'Collecting events'],
       navigation: undefined
     }
   },

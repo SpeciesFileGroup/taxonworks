@@ -112,9 +112,7 @@ export default {
       }
     },
     validateInfo () {
-      return (this.parent != undefined && 
-        (this.taxon.name != undefined && 
-        this.taxon.name.replace(/\s/g, '').length > 2))
+      return true
     },
     taxonName: {
       get () {

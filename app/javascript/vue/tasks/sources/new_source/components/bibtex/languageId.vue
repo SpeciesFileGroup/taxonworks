@@ -64,6 +64,14 @@ export default {
     },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
+    },
+    languageId: {
+      get () {
+        return this.$store.getters[GetterNames.GetLanguageId]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetLanguageId, value)
+      }
     }
   },
   watch: {
@@ -83,6 +91,13 @@ export default {
       handler (newVal, oldVal) {
         if (newVal !== oldVal) {
           this.$refs.smartSelector.refresh()
+        }
+      }
+    },
+    languageId: {
+      handler (newVal) {
+        if(!newVal) {
+          this.selected = undefined
         }
       }
     }

@@ -634,6 +634,8 @@ resources :taxon_names do
     get :random
 
     get :rank_table, defaults: {format: :json}
+    get :predicted_rank, {format: :json}
+
   end
 
   member do

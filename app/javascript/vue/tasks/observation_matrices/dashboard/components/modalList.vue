@@ -172,8 +172,10 @@ export default {
               type: 'ObservationMatrixRowItem::SingleOtu'
             }
             CreateObservationMatrixRow(data).then(response => {
-              this.rows.push(response.body)
-              resolve(response)
+              GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+                this.rows = response.body
+                resolve(response)
+              })
             })
           })
         }

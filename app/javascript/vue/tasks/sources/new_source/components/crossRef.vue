@@ -51,6 +51,8 @@ import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import { MutationNames } from '../store/mutations/mutations'
 import ModalComponent from 'components/modal'
+import { GetSerialMatch } from '../request/resources'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -71,11 +73,16 @@ export default {
         if(response.body.title) {
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
+          GetSerialMatch(response.body.journal).then(response => {
+            if (response.body.length) {
+              this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
+            }
+          })
           TW.workbench.alert.create('Found! (please check).', 'notice')
         }
         else {
           this.found = false
-          TW.workbench.alert.create('Nothing found.', 'error')
+          TW.workbench.alert.create('Nothing found or the source already exist.', 'error')
         }
         this.searching = false
       }, () => {

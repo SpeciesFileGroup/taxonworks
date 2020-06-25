@@ -16,7 +16,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar>
+    <nav-bar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle">
           <span
