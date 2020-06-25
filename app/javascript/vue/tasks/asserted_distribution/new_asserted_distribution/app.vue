@@ -35,7 +35,7 @@
       <div class="panel-section">
         <div class="horizontal-left-content panel-section separate-right align-start">
           <source-component
-            v-model="asserted_distribution.citation"
+            v-model="asserted_distribution"
             ref="sourceComponent"
             class="separate-right"/>
           <lock-component
@@ -196,8 +196,6 @@ export default {
             this.$set(this.list, this.list.findIndex(item => {
               return item.id === response.body.id
             }), response.body)
-            this.asserted_distribution.id = response.body.id
-            this.citation.id = response.body.citations[0].id
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
             this.refreshSmarts()
             resolve(response.body)
@@ -205,8 +203,6 @@ export default {
         } else {
           assertedDistribution.citations_attributes[0].id = undefined
           CreateAssertedDistribution(assertedDistribution).then(response => {
-            this.asserted_distribution.id = response.body.id
-            this.asserted_distribution.citation.id = response.body.citations[0].id
             this.list.unshift(response.body)
             TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             this.refreshSmarts()

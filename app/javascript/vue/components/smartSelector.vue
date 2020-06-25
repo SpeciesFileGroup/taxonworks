@@ -19,7 +19,6 @@
           v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
-          class="separate-right"
           placeholder="Search..."
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
@@ -34,6 +33,7 @@
           :clear-after="true"
           @getItem="getObject($event.id)"/>
       </div>
+      <slot name="body"/>
       <ul
         v-if="view && view != 'search'"
         class="no_bullets"

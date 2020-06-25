@@ -321,8 +321,8 @@ class Source < ApplicationRecord
                 .order('created_at DESC')
                 .limit(5).order(:cached).to_a +
             Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
-        + Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
+        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+        Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
     h
