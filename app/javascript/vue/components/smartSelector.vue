@@ -51,9 +51,11 @@
           </template>
           <template
             v-else>
-            <label @click.prevent="sendObject(item)">
+            <label class="cursor-pointer">
               <input
+                :name="name"
                 v-model="selectedItem"
+                @click="sendObject(item)"
                 :value="item"
                 type="radio">
               <span v-html="item[label]"/>
@@ -169,7 +171,12 @@ export default {
     customList: {
       type: Object,
       default: () => { return {} }
-    }
+    },
+    name: {
+      type: String,
+      required: false,
+      default: () => { return Math.random().toString(36).substr(2, 5) }
+    },
   },
   computed: {
     selectedItem: {
