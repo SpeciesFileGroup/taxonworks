@@ -1284,9 +1284,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         ################################################################################################# Nomenclator 2nd pass - Invalid to Combination
         desc 'time rake tw:project_import:sf_import:citations:create_combinations user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
         LoggedTask.define create_combinations: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
-          # proceps = User.where(email: 'arboridia@gmail.com').first
-          #
-          # Current.user_id = proceps.id
+          Current.user_id = User.find_by(email: 'arboridia@gmail.com').id
+
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
