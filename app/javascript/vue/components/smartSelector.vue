@@ -11,7 +11,7 @@
         @getId="getObject"
         :type="pinType"/>
     </div>
-    <slot />
+    <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
       <div
         class="margin-medium-bottom">
@@ -63,6 +63,7 @@
       </ul>
     </template>
     <slot :name="view" />
+    <slot />
   </div>
 </template>
 
