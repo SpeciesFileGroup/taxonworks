@@ -592,9 +592,9 @@ class CollectionObject < ApplicationRecord
 
     if target && !r.empty?
       n = target.tableize.to_sym
-      h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
       h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
-          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
       h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
