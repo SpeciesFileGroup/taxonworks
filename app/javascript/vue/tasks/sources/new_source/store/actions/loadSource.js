@@ -5,12 +5,13 @@ import setParam from 'helpers/setParam'
 
 export default ({ state, commit }, id) => {
   GetSource(id).then(response => {
-    commit(MutationNames.SetSource, response.body)
-    let authors = state.source.author_roles
-    let editors = state.source.editor_roles
-    let people = authors.concat(editors)
+    const source = response.body
+    const authors = source.author_roles
+    const editors = source.editor_roles
+    const people = [].concat(authors, editors)
 
-    commit(MutationNames.SetRoles, people)
+    source.roles_attributes = people
+    commit(MutationNames.SetSource, source)
 
     LoadSoftValidation(response.body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)

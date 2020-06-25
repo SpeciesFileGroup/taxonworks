@@ -9,6 +9,7 @@ import getRoles from './getRoles'
 import getLastSave from './getLastSave'
 import getSerialId from './getSerialId'
 import getLanguageId from './getLanguageId'
+import getRoleAttributes from './getRoleAttributes'
 
 const GetterNames = {
   GetType: 'getType',
@@ -21,7 +22,8 @@ const GetterNames = {
   GetRoles: 'getRoles',
   GetLastSave: 'getLastSave',
   GetSerialId: 'getSerialId',
-  GetLanguageId: 'getLanguageId'
+  GetLanguageId: 'getLanguageId',
+  GetRoleAttributes: 'getRoleAttributes'
 }
 
 const GetterFunctions = {
@@ -35,7 +37,8 @@ const GetterFunctions = {
   [GetterNames.GetRoles]: getRoles,
   [GetterNames.GetLastSave]: getLastSave,
   [GetterNames.GetSerialId]: getSerialId,
-  [GetterNames.GetLanguageId]: getLanguageId
+  [GetterNames.GetLanguageId]: getLanguageId,
+  [GetterNames.GetRoleAttributes]: getRoleAttributes
 }
 
 export {

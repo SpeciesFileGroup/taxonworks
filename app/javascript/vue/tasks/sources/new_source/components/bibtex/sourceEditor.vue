@@ -14,9 +14,16 @@
       :autocomplete="false"
       @selected="addRole">
       <role-picker
+        slot="header"
         ref="rolePicker"
-        :create-form="view == 'search'"
-        v-model="source.roles_attributes"
+        :hidden-list="true"
+        v-model="roleAttributes"
+        :autofocus="false"
+        :filter-by-role="true"
+        role-type="SourceEditor"/>
+      <role-picker
+        :create-form="false"
+        v-model="roleAttributes"
         :autofocus="false"
         :filter-by-role="true"
         role-type="SourceEditor"/>
@@ -48,6 +55,14 @@ export default {
     },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
+    },
+    roleAttributes: {
+      get () {
+        return this.$store.getters[GetterNames.GetRoleAttributes]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRoles, value)
+      }
     }
   },
   data () {

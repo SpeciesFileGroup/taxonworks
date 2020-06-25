@@ -79,6 +79,7 @@
       </div>
     </div>
     <draggable
+      v-if="!hiddenList"
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
@@ -138,6 +139,10 @@
       createForm: {
         type: Boolean,
         default: true
+      },
+      hiddenList: {
+        type: Boolean,
+        default: false
       }
     },
     data: function () {
@@ -348,6 +353,7 @@
           this.$emit('input', this.roles_attributes)
           this.$emit('create', this.addPerson(item))
           this.person_attributes = this.makeNewPerson()
+          this.searchPerson = ''
         }
       },
       setPerson: function (person) {
