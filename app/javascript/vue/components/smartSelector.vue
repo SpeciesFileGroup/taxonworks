@@ -45,7 +45,7 @@
             v-if="buttons">
             <button
               type="button"
-              class="button normal-input button-data"
+              class="button normal-input tag_button button-data"
               v-html="item[label]"
               @click.prevent="sendObject(item)"/>
           </template>

@@ -9,6 +9,8 @@
         target="AssertedDistribution"
         ref="smartSelector"
         label="name"
+        :buttons="true"
+        :inline="true"
         pin-section="GeographicAreas"
         pin-type="GeographicArea"
         @selected="sendGeographic"
