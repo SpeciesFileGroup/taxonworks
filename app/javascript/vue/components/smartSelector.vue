@@ -66,6 +66,7 @@
     </template>
     <slot :name="view" />
     <slot />
+    <slot name="footer"/>
   </div>
 </template>
 

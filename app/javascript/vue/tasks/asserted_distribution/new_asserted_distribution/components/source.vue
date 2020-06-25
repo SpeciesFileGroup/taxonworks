@@ -9,9 +9,18 @@
       pin-section="Sources"
       pin-type="Source"
       v-model="assertedDistribution.citation.source">
-      <div slot="body">
+      <div slot="footer">
+        <template v-if="assertedDistribution.citation.source">
+          <p class="horizontal-left-content">
+            <span data-icon="ok"/>
+            <span v-html="assertedDistribution.citation.source.object_tag"/>
+            <span
+              class="button circle-button btn-undo button-default"
+              @click="unset"/>
+          </p>
+        </template>
         <div
-          class="horizontal-left-content middle margin-medium-bottom">
+          class="horizontal-left-content middle margin-medium-top">
           <label class="margin-small-right">
             <input
               class="pages"
@@ -38,15 +47,6 @@
             </li>
           </ul>
         </div>
-        <template v-if="assertedDistribution.citation.source">
-          <p class="horizontal-left-content">
-            <span data-icon="ok"/>
-            <span v-html="assertedDistribution.citation.source.object_tag"/>
-            <span
-              class="button circle-button btn-undo button-default"
-              @click="unset"/>
-          </p>
-        </template>
       </div>
     </smart-selector>
   </fieldset>
