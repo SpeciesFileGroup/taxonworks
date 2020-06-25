@@ -297,30 +297,34 @@ class Source < ApplicationRecord
 
     Source.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    )
+    ).pluck(:source_id).uniq
   end
 
   # @params target [String] a citable model name
   # @return [Hash] sources optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'TaxonName')
+    r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      recent: []
     }
 
-    h[:recent] = (
-      Source.joins(:citations)
-      .where( citations: { project_id: project_id, updated_by_id: user_id } )
-      .used_recently(user_id, project_id, target)
-      .distinct.limit(5).order(:cached).to_a +
-    Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
-      .order('created_at DESC')
-      .limit(5).order(:cached).to_a
-    ).uniq
+    if r.empty?
+      h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+                       .order('created_at DESC')
+                       .limit(5).order(:cached).to_a
+      h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+    else
+        h[:recent] =
+            (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
+                .order('created_at DESC')
+                .limit(5).order(:cached).to_a +
+            Source.where('"sources"."id" IN (?)', r.first(6) ).order(:name).to_a).uniq
+        h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+        + Source.where('"sources"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+    end
 
-    h[:recent] ||= []
-
-    h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent]).uniq
     h
   end
 

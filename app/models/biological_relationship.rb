@@ -60,19 +60,28 @@ class BiologicalRelationship < ApplicationRecord
 
     BiologicalRelationship.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_relationship_id'].eq(k['id'])))
-    ).distinct.limit(10)
+    ).pluck(:biological_relationship_id).uniq
   end
 
   # @params target [String] one of `Citation` or `Content`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id)
+    r = used_recently(user_id, project_id)
+
     h = {
-      recent: BiologicalRelationship.joins(:biological_associations).used_recently(user_id, project_id).distinct.limit(10).order(:name).to_a,
-      pinboard:  BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-        BiologicalRelationship.joins(:biological_associations).used_recently(user_id, project_id).distinct.limit(4).order(:name).to_a).uniq
+    if r.empty?
+      h[:quick] = BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = BiologicalRelationship.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          BiologicalRelationship.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+    end
+
     h
   end
 end

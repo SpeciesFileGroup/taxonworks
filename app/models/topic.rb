@@ -51,9 +51,9 @@ class Topic < ControlledVocabularyTerm
     # z is a table alias
     z = i.as('recent_t')
 
-    Topic.joins(
+    Topic.used_on_klass(used_on).joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
-    ).distinct.limit(10)
+    ).pluck(:id).uniq
   end
 
   # @params klass [String] if target is `Citation` then if provided limits to those classes with citations,
@@ -61,32 +61,23 @@ class Topic < ControlledVocabularyTerm
   # @params target [String] one of `Citation` or `Content`
   # @params klass [String] like TaxonName, required if target == `Citation`
   # @return [Hash] topics optimized for user selection
-  def self.select_optimized(user_id, project_id, klass, target = 'Citation')
+  def self.select_optimized(user_id, project_id, target = 'Citation')
+    r = used_recently(user_id, project_id, target)
     h = {
-      quick: [],
-      pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    case target
-    when 'Citation'
-      h[:recent] = (
-        Topic.where(project_id: project_id, citations: {updated_by_id: user_id})
-        .used_on_klass(klass)
-        .used_recently(user_id, project_id, 'Citation')
-        .distinct.limit(5).order(:name).to_a +
-      Topic.where(
-        project_id: project_id,
-        created_by_id: user_id,
-        updated_at: (3.hours.ago..Time.now)
-        ).limit(5).to_a
-        ).uniq
-    when 'Content'
-      h[:recent] = Topic.joins(:contents)
-        .where(project_id: project_id, contents: {updated_by_id: user_id}).used_recently(user_id, project_id, 'Content').distinct.limit(10).to_a
+    if r.empty?
+      h[:quick] = Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(5) ).order(:name).to_a +
+          Topic.where(project_id: project_id, created_by_id: user_id, updated_at: (3.hours.ago..Time.now)).limit(5).to_a).uniq
     end
 
-    h[:quick] = (Topic.pinned_by(user_id)
-      .pinboard_inserted.where(project_id: project_id).to_a + h[:recent]).uniq
     h
   end
 
