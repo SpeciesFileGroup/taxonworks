@@ -140,7 +140,6 @@ namespace :tw do
             Rake::Task["tw:project_import:sf_import:#{task}"].invoke
 
             Current.project_id = nil
-            Current.user_id = nil
 
             checkpoint["end_time"] = DateTime.now.utc.to_s
             checkpoints.set(task, checkpoint)

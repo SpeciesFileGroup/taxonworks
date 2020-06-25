@@ -550,8 +550,8 @@ namespace :tw do
           get_tw_project_id = {} # key = SF.FileID, value = TW.project_id
 
           # create mb as project member for each project -- comment out for Sandbox
-          user = User.find_by_email('mbeckman@illinois.edu')
-          Current.user_id = user.id # not sure if this is really needed?
+          # user = User.find_by_email('mbeckman@illinois.edu')
+          # Current.user_id = user.id # not sure if this is really needed?
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -579,7 +579,7 @@ namespace :tw do
               get_tw_project_id[file_id] = project.id.to_s
 
               # comment out project_member for Sandbox use
-              ProjectMember.create!(user_id: user.id, project: project, is_project_administrator: true)
+              ProjectMember.create!(user_id: Current.user_id, project: project, is_project_administrator: true)
 
             else
               logger.info "ERROR (#{error_counter += 1}): " + source.errors.full_messages.join(';')

@@ -269,15 +269,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
           logger.info 'Creating citations...'
 
-           Current.project_id = 2
-           Current.user_id = 1
-           pwd = rand(36 ** 10).to_s(36)
-           @proceps = User.where(email: 'arboridia@gmail.com').first
-           @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true) if @proceps.nil?
-           pm = ProjectMember.create(user: @proceps, project_id: Current.project_id, is_project_administrator: true)
+          # NOTE: Commented code below because it is overriding :user_id task
+          # Current.project_id = 2
+          # Current.user_id = 1
+          # pwd = rand(36 ** 10).to_s(36)
+          # @proceps = User.where(email: 'arboridia@gmail.com').first
+          # @proceps = User.create(email: 'arboridia@gmail.com', password: pwd, password_confirmation: pwd, name: 'proceps', is_administrator: true, self_created: true, is_flagged_for_password_reset: true) if @proceps.nil?
+          # pm = ProjectMember.create(user: @proceps, project_id: Current.project_id, is_project_administrator: true)
 
-           Current.user_id = @proceps.id
-           Current.project_id = nil
+          # Current.user_id = @proceps.id
+          # Current.project_id = nil
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
@@ -1275,10 +1276,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           # ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
           puts 'new_name_status hash:'
           ap new_name_status
-
-          #### Clear Current (other import tasks assume this is unset)
-          Current.project_id = nil
-          Current.user_id = nil
         end
 
         ################################################################################################# Nomenclator 2nd pass - Invalid to Combination
@@ -1303,9 +1300,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         ################################################################################################# Nomenclator 3rd pass - Soft validation fixes
         desc 'time rake tw:project_import:sf_import:citations:soft_validation_fixes user_id=1 data_directory=/Users/proceps/src/sf/import/onedb2tw/working/'
         LoggedTask.define soft_validation_fixes: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
-          proceps = User.where(email: 'arboridia@gmail.com').first
+          # proceps = User.where(email: 'arboridia@gmail.com').first
 
-          Current.user_id = proceps.id
+          # Current.user_id = proceps.id
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
@@ -1318,10 +1315,6 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             Current.project_id = value.to_i
             soft_validations_sf(value.to_i)
           end
-
-          #### Clear Current (other import tasks assume this is unset)
-          Current.project_id = nil
-          Current.user_id = nil
         end
         ######################################################################################################################################### END
 
