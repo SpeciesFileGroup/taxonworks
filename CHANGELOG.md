@@ -12,7 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Unauthorized json response
-- Vue autocomplete handle errors
+- Better error handle for vue-autocomplete
 
 ## [0.12.7] - 2020-06-26
 
