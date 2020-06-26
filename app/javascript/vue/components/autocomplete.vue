@@ -360,6 +360,9 @@ export default {
     },
     activeSpinner: function () {
       return 'ui-autocomplete-loading'
+    },
+    setFocus () {
+      this.$refs.autofocus.focus()
     }
   }
 }

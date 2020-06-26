@@ -16,6 +16,7 @@
       <div
         class="margin-medium-bottom">
         <autocomplete
+          ref="autocomplete"
           v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
@@ -255,6 +256,9 @@ export default {
     },
     alreadyOnLists () {
       return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
+    },
+    setFocus () {
+      this.$refs.autocomplete.setFocus()
     }
   }
 }

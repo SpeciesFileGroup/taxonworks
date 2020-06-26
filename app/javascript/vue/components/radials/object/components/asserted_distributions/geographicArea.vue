@@ -29,17 +29,25 @@ export default {
   components: {
     SmartSelector
   },
+  props: {
+    sourceLock: {
+      type: Boolean,
+      required: true
+    }
+  },
   data () {
     return {
       smartGeographics: [],
-      selected: undefined,
-      lock: false
+      selected: undefined
     }
   },
   methods: {
     sendGeographic (item) {
       this.selected = ''
       this.$emit('select', item.id)
+      if (this.sourceLock) {
+        this.$refs.smartSelector.setFocus()
+      }
     }
   }
 }
