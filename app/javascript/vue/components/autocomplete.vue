@@ -67,6 +67,9 @@ Parameters:
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   data: function () {
     return {
@@ -330,9 +333,8 @@ export default {
         this.searchEnd = true
         this.showList = (this.json.length > 0)
       } else {
-
-        this.$http.get(this.ajaxUrl(), {
-          before (request) {
+        AjaxCall('get', this.ajaxUrl(), {
+          before: (request) => {
             if(Object.keys(this.headers).length) {
               request.headers.map = this.headers
             }
@@ -341,8 +343,7 @@ export default {
             }
             this.previousRequest = request
           }}).then(response => {
-            this.json = this.getNested(response.body, this.nested)
-          
+          this.json = this.getNested(response.body, this.nested)
           this.showList = (this.json.length > 0)
           this.spinner = false
           this.searchEnd = true

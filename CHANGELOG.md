@@ -7,7 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Set autofocus on source and geographic area in OTU radial asserted distribution form
+
+### Changed
+- Unauthorized json response
+- Vue autocomplete handle errors
 
 ## [0.12.7] - 2020-06-26
 
