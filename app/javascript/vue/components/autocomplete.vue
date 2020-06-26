@@ -58,7 +58,9 @@ Parameters:
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
-    <ul v-if="type && searchEnd && !json.length">
+    <ul 
+      v-if="type && searchEnd && !json.length"
+      class="vue-autocomplete-empty-list">
       <li>--None--</li>
     </ul>
   </div>

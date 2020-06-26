@@ -130,15 +130,16 @@ export default {
         UpdateControlledVocabularyTerm(this.controlled_vocabulary_term).then(response => {
           this.afterSave(response.body)
           TW.workbench.alert.create(`${response.body.type} was successfully updated.`, 'notice')
-        }, (error) => {
-          TW.workbench.alert.create(response.bodyText, 'error')
+        }, () => {
+          this.isSaving = false
         })
       } else {
         CreateControlledVocabularyTerm(this.controlled_vocabulary_term).then(response => {
           this.afterSave(response.body)
+          this.isSaving = false
           TW.workbench.alert.create(`${this.view} was successfully created.`, 'notice')
-        }, (error) => {
-          TW.workbench.alert.create(response.bodyText, 'error')
+        }, () => {
+          this.isSaving = false
         })
       }
       e.preventDefault()
@@ -148,7 +149,6 @@ export default {
     },
     afterSave(ctv) {
       this.$refs.list.addCTV(ctv)
-      this.isSaving = false
       this.controlled_vocabulary_term = CONTROLLED_VOCABULARY_TERM()
       this.controlled_vocabulary_term.type = this.view
     }

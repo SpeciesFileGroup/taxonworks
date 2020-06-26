@@ -86,6 +86,10 @@ module Queries
       # @return [Protonym#id, nil]
       attr_accessor :type_specimen_taxon_name_id
 
+      # @return [Array]
+      #   of type_materials
+      attr_accessor :is_type
+
       # @return [SledImage#id, nil]
       attr_accessor :sled_image_id
 
@@ -98,6 +102,8 @@ module Queries
         @collecting_event_ids = params[:collecting_event_id].blank? ? [] : params[:collecting_event_id]
 
         @otu_ids = params[:otu_ids] || []
+        @is_type = params[:is_type] || []
+
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
@@ -270,6 +276,7 @@ module Queries
         clauses += [
           otus_facet,
           type_material_facet,
+          type_material_type_facet,
           ancestors_facet,
           matching_keyword_ids,   # See Queries::Concerns::Tags
           created_updated_facet, # See Queries::Concerns::Users
@@ -321,11 +328,23 @@ module Queries
       end
 
       # @return [Scope]
-      def type_material_facet 
+      def type_material_facet
         return nil if type_specimen_taxon_name_id.nil?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
           .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+
+        ::CollectionObject.where(
+          ::TypeMaterial.where(w).arel.exists
+        )
+      end
+
+      # @return [Scope]
+      def type_material_type_facet
+        return nil if is_type.empty?
+
+        w = type_materials_table[:collection_object_id].eq(table[:id])
+          .and( type_materials_table[:type_type].eq_any(is_type) )
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists

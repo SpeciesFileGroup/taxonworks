@@ -10,7 +10,7 @@
       v-if="isLoading"
     />
     <div class="flex-separate middle container">
-      <h1>Browse taxa</h1>
+      <h1>Browse OTUs</h1>
       <div class="horizontal-left-content">
         <ul
           v-if="navigate"
@@ -41,6 +41,7 @@
     <template v-if="otu">
       <header-bar
         class="container separate-bottom"
+        :menu="menu"
         :otu="otu" />
       <div class="separate-top separate-bottom"></div>
       <draggable
@@ -51,6 +52,8 @@
           class="separate-bottom full_width"
           v-for="component in preferences.sections"
           :key="component"
+          :title="componentNames[component].title"
+          :status="componentNames[component].status"
           :otu="otu"
           :is="component"/>
       </draggable>
@@ -86,6 +89,9 @@ import { ActionNames } from './store/actions/actions'
 import { GetOtu, GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
+import COMPONENT_NAMES from './const/componentNames'
+
+import showForThisGroup from '../../nomenclature/new_taxon_name/helpers/showForThisGroup'
 
 export default {
   components: {
@@ -115,6 +121,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
+    },
+    menu () {
+      return this.preferences.sections.map(name => this.componentNames[name].title)
     }
   },
   data () {
@@ -123,7 +132,8 @@ export default {
       otu: undefined,
       otus: [],
       navigate: undefined,
-      tmp: undefined
+      tmp: undefined,
+      componentNames: COMPONENT_NAMES()
     }
   },
   watch: {

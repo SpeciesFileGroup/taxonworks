@@ -126,7 +126,7 @@ class Serial < ApplicationRecord
     # provides an array of all previous incarnations of me
 
     out_array = []
-    start_serial.immediately_preceding_serials.order(:name).find_each do |serial|
+    start_serial.immediately_preceding_serials.order(:name).each do |serial|
       out_array.push(serial)
       prev = all_previous(serial)
 
@@ -140,7 +140,7 @@ class Serial < ApplicationRecord
   def all_succeeding(start_serial = self)
     # provides an array of all succeeding incarnations of me
     out_array = []
-    start_serial.immediately_succeeding_serials.order(:name).find_each do |serial|
+    start_serial.immediately_succeeding_serials.order(:name).each do |serial|
       out_array.push(serial)
       succeeding = all_succeeding(serial)
 

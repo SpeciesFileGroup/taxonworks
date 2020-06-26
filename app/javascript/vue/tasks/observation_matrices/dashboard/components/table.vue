@@ -5,7 +5,31 @@
       :full-screen="true"
       legend="Loading..."/>
     <div class="flex-separate margin-small-bottom">
+      <div class="horizontal-left-content">
+        <button
+          class="button normal-input button-default margin-small-right"
+          type="button"
+          @click="selectAll">
+          Select all
+        </button>
+        <button
+          class="button normal-input button-default margin-small-right"
+          type="button"
+          @click="unselect">
+          Unselect all
+        </button>
+        <add-to-matrix
+          :selected-ids="selectedIds"/>
+      </div>
       <ul class="no_bullets context-menu">
+        <li>
+          <label class="middle">
+            <input
+              v-model="withOtus"
+              type="checkbox">
+            Show taxon names with OTUs only
+          </label>
+        </li>
         <li class="horizontal-left-content">
           <div class="header-box middle separate-right">
             <span v-if="taxon">Scoped: {{ taxon.name }}</span>
@@ -21,14 +45,6 @@
             </select>
           </div>
         </li>
-        <li>
-          <label>
-            <input
-              v-model="withOtus"
-              type="checkbox">
-            Show taxon names with OTUs only
-          </label>
-        </li>
       </ul>
     </div>
     <table
@@ -36,6 +52,9 @@
       v-if="tableRanks">
       <thead>
         <tr>
+          <th>
+            Selected
+          </th>
           <th 
             v-if="renderFromPosition <= index"
             v-for="(header, index) in tableRanks.column_headers"
@@ -51,6 +70,13 @@
             v-if="withOtus ? row[1] : true && filterRow(index)"
             class="contextMenuCells btn btn-neutral"
             :class="{ even: (index % 2)}">
+            <td>
+              <input
+                :disabled="!row[1]"
+                :value="row[1]"
+                v-model="selectedIds"
+                type="checkbox">
+            </td>
             <template v-for="(header, hindex) in tableRanks.column_headers">
               <td v-if="renderFromPosition <= hindex">
                 {{ row[hindex] }}
@@ -73,11 +99,13 @@
 import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from 'components/spinner'
+import addToMatrix from './addToMatrix'
 
 export default {
   components: {
     ModalList,
-    SpinnerComponent
+    SpinnerComponent,
+    addToMatrix
   },
   props: {
     tableList: {
@@ -116,7 +144,8 @@ export default {
       },
       ascending: false,
       sorting: false,
-      withOtus: false
+      withOtus: false,
+      selectedIds: []
     }
   },
   watch: {
@@ -184,6 +213,12 @@ export default {
         const value = this.getValueFromTable(key, index)
         return (this.filter[key] === undefined) || (this.filter[key] ? value : !value)
       })
+    },
+    unselect () {
+      this.selectedIds = []
+    },
+    selectAll () {
+      this.selectedIds = this.tableList.data.filter(column => column[1] != null).map(column => column[1])
     }
   }
 }

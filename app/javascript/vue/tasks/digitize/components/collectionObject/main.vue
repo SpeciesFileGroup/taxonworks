@@ -5,7 +5,7 @@
         <h3>Collection Object</h3>
       </div>
       <div
-        v-shortkey="[getMacKey(), 't']"
+        v-shortkey="[getMacKey(), 'c']"
         @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
@@ -16,7 +16,7 @@
         <default-tag
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
-        <radial-object 
+        <radial-object
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>

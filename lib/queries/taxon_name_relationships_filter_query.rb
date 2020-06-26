@@ -47,7 +47,7 @@ module Queries
 
     # @return [Array]
     def of_types
-      keyword_args[:of_type] || []
+      keyword_args[:of_types] || []
     end
 
     # @return [Array]
@@ -56,6 +56,7 @@ module Queries
       of_types.each do |i|
         t = t + STATUS_TAXON_NAME_RELATIONSHIP_NAMES if i == 'status'
         t = t + TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM if i == 'synonym'
+        t = t + TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION if i == 'classification'
         # t = t + TAXON_NAME_RELATIONSHIPS_JSON[:typification][:all].keys if i == 'type'
       end
       t

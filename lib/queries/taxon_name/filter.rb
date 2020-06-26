@@ -86,6 +86,11 @@ module Queries
       #   whether the name has an Otu
       attr_accessor :otus
 
+      # @param etymology [Boolean, nil]
+      # ['true' or 'false'] on initialize
+      #   whether the name has etymology
+      attr_accessor :etymology
+
       # @param authors [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has an author string, from any source, provided 
@@ -129,6 +134,7 @@ module Queries
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @otus = (params[:otus]&.downcase == 'true' ? true : false) if !params[:otus].nil?
+        @etymology = (params[:etymology]&.downcase == 'true' ? true : false) if !params[:etymology].nil?
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @taxon_name_id = params[:taxon_name_id] || []
@@ -203,6 +209,14 @@ module Queries
         authors ? 
           ::TaxonName.where.not(cached_author_year: nil) :
           ::TaxonName.where(cached_author_year: nil)
+      end
+
+      # @return Scope
+      def with_etymology_facet
+        return nil if etymology.nil?
+        etymology ? 
+          ::TaxonName.where.not(etymology: nil) :
+          ::TaxonName.where(etymology: nil)
       end
 
       # @return Scope
@@ -374,6 +388,7 @@ module Queries
           type_metadata_facet,
           otus_facet,
           authors_facet,
+          with_etymology_facet,
           citations_facet
         ].compact
 

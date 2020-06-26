@@ -36,7 +36,7 @@ export default {
   },
   methods: {
     setNamespace (value) {
-      this.$emit('onLabelChange', (value.hasOwnProperty('label') ? value.label : value.name))
+      this.$emit('onLabelChange', (value.hasOwnProperty('label') ? value.label : value.short_name))
       this.$emit('input', value.id)
     }
   }

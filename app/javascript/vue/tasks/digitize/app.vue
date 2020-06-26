@@ -1,7 +1,7 @@
 <template>
   <div
     id="vue-all-in-one"
-    v-shortkey="[getMacKey(), 'l']"
+    v-shortkey="[getOSKey(), 'l']"
     @shortkey="setLockAll">
     <div class="flex-separate middle">
       <h1>Comprehensive specimen digitization</h1>
@@ -46,7 +46,7 @@
   import { ActionNames } from './store/actions/actions.js'
   import { GetterNames } from './store/getters/getters.js'
   import SpinnerComponent from 'components/spinner.vue'
-  import GetMacKey from 'helpers/getMacKey.js'
+  import GetOSKey from 'helpers/getMacKey.js'
 
   export default {
     components: {
@@ -101,14 +101,18 @@
     },
     methods: {
       addShortcutsDescription() {
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Save and new', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Add to container', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+r`, 'Reset all', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Browse collection object', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+s`, 'Save', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+n`, 'Save and new', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Add to container', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+r`, 'Reset all', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Browse collection object', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Comprehensive digitization task')
       },
-      getMacKey: GetMacKey,
+      getOSKey: GetOSKey,
       setLockAll() {
         this.$store.commit(MutationNames.LockAll)
       }

@@ -1,6 +1,7 @@
 <template>
-  <section-panel title="Annotations">
-    <a name="annotations"/>
+  <section-panel
+    :status="status"
+    :title="title">
     <list-component
       v-if="dataAttributes.length"
       title="Data attributes"
@@ -24,17 +25,14 @@
 
 import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
+import extendSection from './shared/extendSections'
 import { GetIdentifiers, GetNotes, GetTags, GetDataAttributes } from '../request/resources.js'
 
 export default {
+  mixins: [extendSection],
   components: {
     ListComponent,
     SectionPanel
-  },
-  props: {
-    otu: {
-      type: Object
-    }
   },
   data() {
     return {

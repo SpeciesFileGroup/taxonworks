@@ -1,11 +1,8 @@
-import { changeTaxonSource } from '../../request/resources'
-import { MutationNames } from '../mutations/mutations'
-
-export default function ({ commit, state }, source) {
+export default function ({ state }, source) {
   state.taxon_name['origin_citation_attributes'] = {
     id: (state.taxon_name.origin_citation == undefined ? null : state.taxon_name.origin_citation.id),
     source_id: source.id,
     is_original: true,
-    pages: (source == undefined ? null : source.pages)
+    pages: (source === undefined ? null : source.pages)
   }
 }

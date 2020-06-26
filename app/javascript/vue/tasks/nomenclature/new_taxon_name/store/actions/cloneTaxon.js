@@ -23,7 +23,7 @@ export default function ({ state }, copyValues) {
 
   state.settings.saving = true
   createTaxonName({ taxon_name: cloneTaxon }).then(response => {
-    const newTaxon = response
+    const newTaxon = response.body
     const promises = []
     if (copyValues.includes('original_combination')) {
       const keys = Object.keys(state.original_combination)
@@ -36,7 +36,7 @@ export default function ({ state }, copyValues) {
             type: state.original_combination[key].type
           }
           createTaxonRelationship({ taxon_name_relationship: relationship }).then(relationshipResponse => {
-            return resolve(relationshipResponse)
+            return resolve(relationshipResponse.body)
           })
         }))
       })
