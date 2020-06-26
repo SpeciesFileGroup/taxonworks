@@ -44,6 +44,7 @@
 <script>
   import { MutationNames } from '../store/mutations/mutations'
   import Modal from 'components/modal.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     data: function () {
@@ -69,7 +70,7 @@
       },
       createNewTopic: function () {
         let that = this
-        this.$http.post('/controlled_vocabulary_terms.json', this.topic).then(response => {
+        AjaxCall('post', '/controlled_vocabulary_terms.json', this.topic).then(response => {
           TW.workbench.alert.create(response.body.name + ' was successfully created.', 'notice')
           that.$parent.topics.push(response.body)
           this.$store.commit(MutationNames.AddToRecentTopics, response.body)

@@ -36,6 +36,7 @@
   import PaginationComponent from './components/pagination.vue'
 
   import GetPagination from 'helpers/getPagination.js'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -74,8 +75,7 @@
           roles: ['SourceAuthor']
         }
         this.isLoading = true
-        this.$http.get(`/people.json`, { params: Object.assign({}, args, params) }).then(response => {
-          console.log(response)
+        AjaxCall('get', `/people.json`, { params: Object.assign({}, args, params) }).then(response => {
           this.authorsList = response.body
           this.pagination = GetPagination(response)
           this.isLoading = false
@@ -83,7 +83,7 @@
       },
       getSources(author_id) {
         this.isLoading = true
-        this.$http.get(`/sources.json?author_ids[]=${author_id}`).then(response => {
+        AjaxCall('get', `/sources.json?author_ids[]=${author_id}`).then(response => {
           this.sourcesList = response.body;
           this.isLoading = false
           this.$nextTick(() => {

@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Unauthorized json response
 - Better error handle for vue-autocomplete
+- Replaced old method to handle ajax call in all tasks
 
 ## [0.12.7] - 2020-06-26
 

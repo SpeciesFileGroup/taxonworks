@@ -24,6 +24,7 @@
 <script>
 
 import Spinner from 'components/spinner.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -110,8 +111,8 @@ export default {
       if (this.search.length < Number(this.min)) return
       this.spinner = true
       this.clearResults()
-      this.$http.get(this.ajaxUrl(), {
-        before (request) {
+      AjaxCall('get', this.ajaxUrl(), {
+        before: (request) => {
           if (this.previousRequest) {
             this.previousRequest.abort()
           }

@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   props: {
     person: {
@@ -49,12 +52,12 @@ export default {
   methods: {
     getAnnotations(globalId) {
       let that = this
-      this.$http.get(`/annotations/${encodeURIComponent(globalId)}/metadata`).then(response => {
+      AjaxCall('get', `/annotations/${encodeURIComponent(globalId)}/metadata`).then(response => {
         Object.keys(response.body.endpoints).forEach((endpoint, index) => {
           if (response.body.endpoints[endpoint].total > 0) {
-            this.$http.get(`${response.body.url}/${endpoint}.json`).then(response => {
+            AjaxCall('get', `${response.body.url}/${endpoint}.json`).then(response => {
               that.annotationLists = that.annotationLists.concat(response.body)
-            }) 
+            })
           }
         })
       })
