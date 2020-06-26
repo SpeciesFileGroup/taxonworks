@@ -78,12 +78,13 @@ To add a new (discovered) symbol:
       else # one piece, may contain distance unit.
         piece = 0
       end
-      if elevation.include?('.')
+      if elevation.include?('.') && piece == 1 && pieces[0].include?('.')
         value = elevation.to_f
       else
         value = elevation.to_i
       end
-      scale = 1.0 # default is meters
+      value = pieces[0]
+      scale = 1 # default is meters
 
       /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
@@ -440,17 +441,21 @@ To add a new (discovered) symbol:
     # @return [<string with only significant digits>, count, <left of decimal>, decimal point string, <right of decimal lead zeros string>, <mantissa string>
     def self.significant_digits(number_string)
       # is there a decimal point?
-      dp = number_string.index(".")
       intg = ''
       decimal_point_zeros = ''
       mantissa = ''
       decimal_lead_zeros = 0
       decimal_point = ''
+      /(?<num>([0-9]*)(\.?)([0-9]*))/ =~ number_string
+      if num.nil?
+        raise
+      end
+      dp = num.index(".")
       if dp.nil?
-        intg = number_string
+        intg = num
         intgl = intg.sub(/^[0]+/,'')  # strip lead zeros
         if intgl.nil?
-          intg = number_string
+          intg = num
         end
         intgt = intg.sub(/0+$/, '')    # strip trailing zeros
         if intgt.nil?
@@ -458,8 +463,10 @@ To add a new (discovered) symbol:
         end
         # sig = intg.length
       else
+        # make sure truly numeric
         decimal_point = '.'
-        digits = number_string.split(".")
+
+        digits = num.split(".")
         if digits.length > 2
           raise   # or just ignore extra decimal point and beyond?
         else
@@ -506,27 +513,25 @@ To add a new (discovered) symbol:
       result = input[0]   # failsafe result
       if reduction > 0    # need to reduce significant digits
         result = ''
-        count = 0
         digit_string = intg + mantissa
         decimal_position = input_string.index('.')
-         for index in (0...digits)   # collect significant digits
-          digit = digit_string[index]
-          # if input_string[index] == '.'
-          #   decimal_position = index
-          # end
+        for index in (0...digits)       # collect ONLY significant digits
+          digit = digit_string[index]   # if number is "0", digit is nil
           result += digit
           next
         end
         if digit_string.length > digits     # clean up integer least significant digits
-          if digit_string[index + 1].to_i >= 5
-            result = (result.to_i + 1).to_s # round if necessary
+          if digits > 0
+            if digit_string[index + 1].to_i >= 5
+              result = (result.to_i + 1).to_s # round if necessary
+            end
           end
-          for ndex in (0...(intg.length - digits))
+           for ndex in (0...(intg.length - digits))
             result += '0'
-            index += 1
+            # index += 1
             next
           end
-        else              # parsed intg, check for decimal point
+        # else              # parsed intg, check for decimal point
           #TODO: mantissa processing probably wrong
           # if input_string.length > digits - (intg.length)
           #   # if input[0][index].to_i >= 5
