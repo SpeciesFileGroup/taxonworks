@@ -63,6 +63,7 @@ import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
 import ManuallyComponent from './manuallyComponent'
 import GeolocateComponent from './geolocateComponent'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -157,7 +158,7 @@ export default {
       }
       this.showSpinner = true
      
-      this.$http.patch(`/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
+      AjaxCall('patch', `/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
         this.showSpinner = false
         this.$emit('updated', response.body)
         this.getGeoreferences()
@@ -176,7 +177,7 @@ export default {
         }
       }
       this.showSpinner = true
-      this.$http.post('/georeferences.json', data).then(response => {
+      AjaxCall('post', '/georeferences.json', data).then(response => {
         this.showSpinner = false
         if(response.body.error_radius) {
           response.body.geo_json.properties.radius = response.body.error_radius
@@ -201,7 +202,7 @@ export default {
 
       this.showSpinner = true
      
-      this.$http.patch(`/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
+      AjaxCall('patch', `/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
         const index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
         this.showSpinner = false
         this.georeferences[index] = response.body
@@ -212,7 +213,7 @@ export default {
       
     },
     getGeoreferences() {
-      this.$http.get(`/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
+      AjaxCall('get', `/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
         this.georeferences = response.body
         this.populateShapes()
         this.$emit('onGeoreferences', this.georeferences)
@@ -231,7 +232,7 @@ export default {
       })
     },
     removeGeoreference(geo) {
-      this.$http.delete(`/georeferences/${geo.id}.json`).then(() => {
+      AjaxCall('delete', `/georeferences/${geo.id}.json`).then(() => {
         this.georeferences.splice(this.georeferences.findIndex((item => {
           return item.id === geo.id
         })), 1)
@@ -256,7 +257,7 @@ export default {
         }
       }
       this.showSpinner = true
-      this.$http.post('/georeferences.json', data).then(response => {
+      AjaxCall('post', '/georeferences.json', data).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()
@@ -267,13 +268,12 @@ export default {
       })
     },
     createGEOLocate(iframe_data) {
-
       this.showSpinner = true
-      this.$http.post('/georeferences.json', { georeference: {
-          iframe_response: iframe_data,
-          collecting_event_id: this.collectingEventId,
-          type: 'Georeference::GeoLocate'
-        }}).then(response => {
+      AjaxCall('post', '/georeferences.json', { georeference: {
+        iframe_response: iframe_data,
+        collecting_event_id: this.collectingEventId,
+        type: 'Georeference::GeoLocate'
+      }}).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()

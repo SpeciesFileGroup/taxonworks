@@ -15,6 +15,7 @@
 <script>
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     props: ['ajaxUrl', 'setItems', 'select', 'getItems', 'title'],
@@ -25,12 +26,12 @@
       }
     },
     mounted: function () {
-      this.$http.get(this.ajaxUrl).then(response => {
+      AjaxCall('get', this.ajaxUrl).then(response => {
         this.$store.commit(MutationNames[this.setItems], response.body)
       })
     },
     methods: {
-      save: function (saveMethod, item) {
+      save (saveMethod, item) {
         this.$store.commit(MutationNames[saveMethod], item)
       }
     }

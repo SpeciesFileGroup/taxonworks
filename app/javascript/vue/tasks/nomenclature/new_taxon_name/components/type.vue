@@ -192,8 +192,8 @@ export default {
       immediate: true
     },
     taxon: {
-      handler(newVal) {
-        if(newVal.id) {
+      handler(newVal, oldVal) {
+        if(newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
           GetTypeMaterial(newVal.id).then(response => {
             this.typeMaterialList = response.body
           }) 

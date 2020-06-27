@@ -65,6 +65,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import Autocomplete from 'components/autocomplete.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -279,7 +280,7 @@ export default {
       })
     },
     loadCombinations: function (id) {
-      this.$http.get(`/taxon_names/${id}/original_combination.json`).then(response => {
+      AjaxCall('get', `/taxon_names/${id}/original_combination.json`).then(response => {
         this.$store.commit(MutationNames.SetOriginalCombination, response.body)
       })
     }

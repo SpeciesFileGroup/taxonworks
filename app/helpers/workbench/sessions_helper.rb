@@ -150,7 +150,7 @@ module Workbench::SessionsHelper
     unless (sessions_signed_in? or @api_request) && sessions_project_selected?
       respond_to do |format|
         format.html { redirect_to root_url, notice: 'Whoa there, sign in and select a project first.'  }
-        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+        format.json { render json: { error: 'Whoa there, sign in and select a project first.' }, status: :unauthorized } # TODO: bad request, not unauthorized
       end
     end
   end

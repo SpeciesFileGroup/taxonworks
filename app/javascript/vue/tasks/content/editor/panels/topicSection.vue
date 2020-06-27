@@ -28,6 +28,7 @@
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
   import NewTopic from './newTopic.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     data: function () {
@@ -60,7 +61,7 @@
         TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="topic_list"]')
       },
       loadList: function () {
-        this.$http.get('/topics/list').then(response => {
+        AjaxCall('get', '/topics/list').then(response => {
           this.topics = response.body
           this.getParams()
         })
@@ -74,7 +75,7 @@
           })
           if(selectedTopic)
             this.loadTopic(selectedTopic)
-        }        
+        }
       }
     }
   }

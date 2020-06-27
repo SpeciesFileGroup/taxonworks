@@ -8,32 +8,46 @@
       ref="smartSelector"
       pin-section="Sources"
       pin-type="Source"
-      v-model="citation.source">
-      <div class="flex-separate middle margin-medium-bottom">
-        <label>
-          <input
-            type="checkbox"
-            v-model="citation.is_original">
-          Is original
-        </label>
-        <label>
-          Pages:
-          <input
-            class="pages"
-            v-model="citation.pages"
-            placeholder="Pages"
-            type="text">
-        </label>
+      v-model="assertedDistribution.citation.source">
+      <div slot="footer">
+        <template v-if="assertedDistribution.citation.source">
+          <p class="horizontal-left-content">
+            <span data-icon="ok"/>
+            <span v-html="assertedDistribution.citation.source.object_tag"/>
+            <span
+              class="button circle-button btn-undo button-default"
+              @click="unset"/>
+          </p>
+        </template>
+        <div
+          class="horizontal-left-content middle margin-medium-top">
+          <label class="margin-small-right">
+            <input
+              class="pages"
+              v-model="assertedDistribution.citation.pages"
+              placeholder="Pages"
+              type="text">
+          </label>
+          <ul class="no_bullets context-menu">
+            <li>
+              <label>
+                <input
+                  type="checkbox"
+                  v-model="assertedDistribution.citation.is_original">
+                Is original
+              </label>
+            </li>
+            <li>
+              <label>
+                <input
+                  v-model="assertedDistribution.is_absent"
+                  type="checkbox">
+                Is absent
+              </label>
+            </li>
+          </ul>
+        </div>
       </div>
-      <template v-if="citation.source">
-        <p class="horizontal-left-content">
-          <span data-icon="ok"/>
-          <span v-html="citation.source.object_tag"/>
-          <span
-            class="button circle-button btn-undo button-default"
-            @click="unset"/>
-        </p>
-      </template>
     </smart-selector>
   </fieldset>
 </template>
@@ -53,7 +67,7 @@ export default {
     }
   },
   computed: {
-    citation: {
+    assertedDistribution: {
       get () {
         return this.value
       },
@@ -67,7 +81,7 @@ export default {
       this.$refs.smartSelector.refresh()
     },
     unset () {
-      this.citation.source = undefined
+      this.assertedDistribution.citation.source = undefined
     }
   }
 }

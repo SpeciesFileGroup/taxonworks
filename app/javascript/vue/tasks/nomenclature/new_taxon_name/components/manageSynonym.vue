@@ -117,6 +117,7 @@ import BlockLayout from './blockLayout'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import Autocomplete from 'components/autocomplete'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -154,10 +155,10 @@ export default {
     taxon: {
       handler(newVal) {
         if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-          this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
+          AjaxCall('get', `/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            this.$http.get(`/taxon_names.json?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
+            AjaxCall('get', `/taxon_names.json?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
               this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
               this.isLoading = false
             })
@@ -198,10 +199,10 @@ export default {
           return children.childrenId == id
         })
         if(findPreSelected) {
-          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
+          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
         }
         else {
-          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
+          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
         }
       })
 

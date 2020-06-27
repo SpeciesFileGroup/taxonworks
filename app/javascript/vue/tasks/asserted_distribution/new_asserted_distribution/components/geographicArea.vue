@@ -10,14 +10,6 @@
       label="name"
       pin-section="GeographicAreas"
       pin-type="GeographicArea">
-      <div class="margin-medium-bottom">
-        <label>
-          <input
-            v-model="assertedDistribution.is_absent"
-            type="checkbox">
-          Is absent
-        </label>
-      </div>
       <template v-if="assertedDistribution.geographicArea">
         <p class="horizontal-left-content">
           <span data-icon="ok"/>

@@ -31,6 +31,7 @@ import Dropzone from 'components/dropzone.vue'
 import FigureItem from './figureItem.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   computed: {
@@ -69,7 +70,7 @@ export default {
     }
   },
   watch: {
-    'content': function (val, oldVal) {
+    content (val, oldVal) {
       if (val != undefined) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
@@ -80,17 +81,17 @@ export default {
     }
   },
   methods: {
-    'success': function (file, response) {
+    success (file, response) {
       this.$store.commit(MutationNames.AddDepictionToList, response)
       this.$refs.figure.removeFile(file)
     },
-    'sending': function (file, xhr, formData) {
+    sending (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.content.id)
       formData.append('depiction[depiction_object_type]', 'Content')
     },
     loadContent: function () {
       let ajaxUrl = `/contents/${this.content.id}/depictions.json`
-      this.$http.get(ajaxUrl).then(response => {
+      AjaxCall('get', ajaxUrl).then(response => {
         this.$store.commit(MutationNames.SetDepictionsList, response.body)
       })
     },
@@ -103,7 +104,7 @@ export default {
       this.depictions.forEach(function (item) {
         array.depiction_ids.push(item.id)
       })
-      this.$http.patch(ajaxUrl, array).then(response => {
+      AjaxCall('patch', ajaxUrl, array).then(response => {
       })
     }
   }

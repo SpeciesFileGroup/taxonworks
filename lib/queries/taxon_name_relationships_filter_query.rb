@@ -47,7 +47,7 @@ module Queries
 
     # @return [Array]
     def of_types
-      keyword_args[:of_type] || []
+      keyword_args[:of_types] || []
     end
 
     # @return [Array]

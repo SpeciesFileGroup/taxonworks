@@ -15,6 +15,7 @@
 
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
 
@@ -74,12 +75,12 @@
           citation_id: this.$store.getters[GetterNames.GetCitationSelected].id
         }
 
-        this.$http.post('/citation_topics.json', { citation_topic: citation_topic }).then(response => {
+        AjaxCall('post', '/citation_topics.json', { citation_topic: citation_topic }).then(response => {
           this.$store.commit(MutationNames.AddTopicSelected, response.body)
         })
       },
       removeCitationTopic: function () {
-        this.$http.delete('/citation_topics/' + this.citation_topic.id).then(() => {
+        AjaxCall('delete', '/citation_topics/' + this.citation_topic.id).then(() => {
           this.$store.commit(MutationNames.RemoveTopicSelected, this.citation_topic.id)
         })
       }

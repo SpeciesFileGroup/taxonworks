@@ -14,7 +14,13 @@
       :autocomplete="false"
       @selected="addRole">
       <role-picker
-        :create-form="view == 'search'"
+        slot="header"
+        :hidden-list="true"
+        v-model="collectors"
+        :autofocus="false"
+        role-type="Collector"/>
+      <role-picker
+        :create-form="false"
         v-model="collectors"
         :autofocus="false"
         role-type="Collector"/>

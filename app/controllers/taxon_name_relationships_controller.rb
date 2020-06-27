@@ -10,7 +10,7 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       format.html do
         @recent_objects = TaxonNameRelationship.recent_from_project_id(sessions_current_project_id)
-          .order(updated_at: :desc).limit(10)
+                            .order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
@@ -42,7 +42,7 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       if @taxon_name_relationship.save
         format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
-                      notice: 'Taxon name relationship was successfully created.' }
+                                  notice: 'Taxon name relationship was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'new' }
@@ -58,7 +58,7 @@ class TaxonNameRelationshipsController < ApplicationController
       if @taxon_name_relationship.update(taxon_name_relationship_params)
         @taxon_name_relationship = TaxonNameRelationship.find(@taxon_name_relationship.id) # reset class
         format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
-                      notice: 'Taxon name relationship was successfully updated.' }
+                                  notice: 'Taxon name relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'edit' }
@@ -73,21 +73,21 @@ class TaxonNameRelationshipsController < ApplicationController
     @taxon_name_relationship.destroy!
     respond_to do |format|
       format.html { redirect_to taxon_name_relationships_url,
-                    notice: 'Taxon name relationship was successfully destroyed.' }
+                                notice: 'Taxon name relationship was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
 
   def list
     @taxon_name_relationships = TaxonNameRelationship.with_project_id(sessions_current_project_id)
-      .order(:id).page(params[:page])
+                                  .order(:id).page(params[:page])
   end
 
   # GET /taxon_name_relationships/search
   def search
     if params[:id].blank?
       redirect_to taxon_name_relationship_path,
-        notice: 'You must select an item from the list with a click or tab press before clicking show.'
+                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_relationship_path(params[:id])
     end
@@ -96,7 +96,7 @@ class TaxonNameRelationshipsController < ApplicationController
   # GET /taxon_name_relationships/download
   def download
     send_data Export::Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
-      type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
+              type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
   end
 
   # GET /taxon_name_relationships/type_relationships

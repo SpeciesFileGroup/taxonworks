@@ -11,15 +11,15 @@
         @getId="getObject"
         :type="pinType"/>
     </div>
-    <slot />
+    <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
       <div
         class="margin-medium-bottom">
         <autocomplete
+          ref="autocomplete"
           v-if="autocomplete"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
-          class="separate-right"
           placeholder="Search..."
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
@@ -34,10 +34,11 @@
           :clear-after="true"
           @getItem="getObject($event.id)"/>
       </div>
+      <slot name="body"/>
       <ul
         v-if="view && view != 'search'"
-        class="no_bullets flex-wrap-row"
-        :class="{ inline: inline }">
+        class="no_bullets"
+        :class="{ 'flex-wrap-row': inline }">
         <li
           v-for="item in lists[view]"
           :key="item.id">
@@ -51,9 +52,11 @@
           </template>
           <template
             v-else>
-            <label @click.prevent="sendObject(item)">
+            <label class="cursor-pointer">
               <input
+                :name="name"
                 v-model="selectedItem"
+                @click="sendObject(item)"
                 :value="item"
                 type="radio">
               <span v-html="item[label]"/>
@@ -63,6 +66,8 @@
       </ul>
     </template>
     <slot :name="view" />
+    <slot />
+    <slot name="footer"/>
   </div>
 </template>
 
@@ -168,7 +173,12 @@ export default {
     customList: {
       type: Object,
       default: () => { return {} }
-    }
+    },
+    name: {
+      type: String,
+      required: false,
+      default: () => { return Math.random().toString(36).substr(2, 5) }
+    },
   },
   computed: {
     selectedItem: {
@@ -246,6 +256,9 @@ export default {
     },
     alreadyOnLists () {
       return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
+    },
+    setFocus () {
+      this.$refs.autocomplete.setFocus()
     }
   }
 }

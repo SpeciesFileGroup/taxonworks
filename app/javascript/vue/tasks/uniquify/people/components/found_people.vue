@@ -31,6 +31,8 @@
   // this is a list for selecting one person from potential selectees
   // only one person can be selected
   import Autocomplete from 'components/autocomplete.vue'
+  import AjaxCall from 'helpers/ajaxCall'
+
   export default {
     components: {
       Autocomplete
@@ -73,7 +75,7 @@
         this.selected = person
       },
       selectPerson(person) {
-        this.$http.get(`/people/${person.id.toString()}.json`).then(response => {
+        AjaxCall('get', `/people/${person.id.toString()}.json`).then(response => {
           this.selectedPerson = response.body;
           this.$emit('input', this.selectedPerson);
         })

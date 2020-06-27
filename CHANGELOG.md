@@ -8,6 +8,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Set autofocus on source and geographic area in OTU radial asserted distribution form
+
+### Changed
+- Unauthorized json response
+- Better error handle for vue-autocomplete
+- Replaced old method to handle ajax call in all tasks
+
+## [0.12.7] - 2020-06-26
+
+### Added
 - Taxon name status and relationships soft validations display in Browse Nomenclature task
 - Interface to select OTUs and create rows in Observation Matrices Dashboard task
 - Autosave system in New Taxon Name task (refs [#649])
@@ -15,16 +25,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added new shortcuts for Comprehensive Digitization, New Type Specimen, New Taxon Name and Browse Nomenclature tasks
 - Classification section in New Taxon Name task
 - Spec to test md5 of multi-line verbatim labels  (refs [#1572])
+- Display classifications alongside relationships in Browse Nomenclature task
+- Add children and add sibling buttons in New Taxon Name task (refs [#1503])
+- Link to create new serial on smart selector of New Source tast
+- Semantic section coloration in Browse OTU task (refs [#1571])
+- Rank prediction in New Taxon Name task (refs [#1054])
 
 ### Changed
 - Optimized recently used geographic area and sources search
 - Improved part of speech and etymology soft validation messages
 - Year suffix and pages are now also used when sorting citations in Browse Nomenclature task
 - Replaced old geographic area smart selector with newer version
-- Swapped 'Masculine' and 'Femenine' positions in New Taxon Name task
+- Swapped 'Masculine' and 'Femenine' positions in New Taxon Name task (refs [#660])
 - Replaced uses of `find_each` with `each` (refs [#1548])
 - Refactored New Taxon Name front end code
 - Display text of some taxon name relationships
+- Autocomplete visible in all tabs of smart selector
+- OTU autocomplete searches now also matches by common names (refs [#869])
+- Browse Taxa task renamed to Browse OTU
+- Using unreleased closure_tree code from official repo to address deprecation warning messages
+- "valid by default" no longer displayed when a relationship exists in New Taxon Name task (refs [#1525])
+- Improvements in BibTex and New Source task UI
+- Improvements in role picker and smart selectors in Comprehensive Collection Object Form and New Source tasks
+- Optimized some filters for some smart selectors (refs [#1534])
+- Smart selector for sources no longer ordered by name
+- Some minor UI tweaks in some places
+- Updated ruby gems
 
 ### Fixed
 - Recently used objects code on some models
@@ -35,16 +61,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `create` button keeps disabled when creating a new citation fails in `Radial annotator -> Citation` ([#1568])
 - Incorrect method call in Match Georeference task view
 - Display of misspellings on taxon name relationships
+- Femenine and neuter names ending in '-or' not being accepted ([#1575])
+- Spinner not disabled when entering malformed URIs in Manage Controlled Vocabulary task form ([#1561])
+- "--None--" results obscuring buttons until clicking off the record ([#1558])
 
 [#649]: https://github.com/SpeciesFileGroup/taxonworks/issues/649
+[#660]: https://github.com/SpeciesFileGroup/taxonworks/issues/660
+[#869]: https://github.com/SpeciesFileGroup/taxonworks/issues/869
+[#1054]: https://github.com/SpeciesFileGroup/taxonworks/issues/1054
+[#1503]: https://github.com/SpeciesFileGroup/taxonworks/issues/1503
+[#1525]: https://github.com/SpeciesFileGroup/taxonworks/issues/1525
+[#1534]: https://github.com/SpeciesFileGroup/taxonworks/issues/1534
 [#1548]: https://github.com/SpeciesFileGroup/taxonworks/issues/1548
 [#1549]: https://github.com/SpeciesFileGroup/taxonworks/issues/1549
 [#1551]: https://github.com/SpeciesFileGroup/taxonworks/issues/1551
+[#1558]: https://github.com/SpeciesFileGroup/taxonworks/issues/1558
+[#1561]: https://github.com/SpeciesFileGroup/taxonworks/issues/1561
 [#1563]: https://github.com/SpeciesFileGroup/taxonworks/issues/1563
 [#1566]: https://github.com/SpeciesFileGroup/taxonworks/issues/1566
 [#1567]: https://github.com/SpeciesFileGroup/taxonworks/issues/1567
 [#1568]: https://github.com/SpeciesFileGroup/taxonworks/issues/1568
+[#1571]: https://github.com/SpeciesFileGroup/taxonworks/issues/1571
 [#1572]: https://github.com/SpeciesFileGroup/taxonworks/issues/1572
+[#1575]: https://github.com/SpeciesFileGroup/taxonworks/issues/1575
 
 ## [0.12.6] - 2020-06-12
 ### Added
@@ -104,7 +143,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...development
+[0.12.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.4...v0.12.5
 [0.12.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.3...v0.12.4
