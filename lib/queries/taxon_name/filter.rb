@@ -121,7 +121,7 @@ module Queries
       attr_accessor :taxon_name_type
 
       # @param params [Params] 
-      #   a permitted via controller
+      #   as permitted via controller
       def initialize(params)
         @author = params[:author]
         @authors = (params[:authors]&.downcase == 'true' ? true : false) if !params[:authors].nil?

@@ -108,11 +108,6 @@ begin
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Misapplication',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Misapplication']
 
-    TAXON_NAME_RELATIONSHIP_CLASSIFICATION = [
-      'TaxonNameRelationship::SourceClassifiedAs',
-      'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-    ]
-
     # TODO: check .assignable property prior to building
 
     object_select, subject_select = [], []
