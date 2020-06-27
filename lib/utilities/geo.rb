@@ -78,11 +78,11 @@ To add a new (discovered) symbol:
       else # one piece, may contain distance unit.
         piece = 0
       end
-      if elevation.include?('.') && piece == 1 && pieces[0].include?('.')
-        value = elevation.to_f
-      else
-        value = elevation.to_i
-      end
+      # if elevation.include?('.') && piece == 1 && pieces[0].include?('.')
+      #   value = elevation.to_f
+      # else
+      #   value = elevation.to_i
+      # end
       value = pieces[0]
       scale = 1 # default is meters
 
@@ -105,7 +105,7 @@ To add a new (discovered) symbol:
       s_sig = value_sig[1]
 
       distance = s_value * scale
-      distance = conform_significant(distance.to_s, s_sig).to_f
+      distance = conform_significant(distance.to_s, s_sig)  #######.to_f
       distance
     end
 =begin
@@ -465,7 +465,6 @@ To add a new (discovered) symbol:
       else
         # make sure truly numeric
         decimal_point = '.'
-
         digits = num.split(".")
         if digits.length > 2
           raise   # or just ignore extra decimal point and beyond?
@@ -481,7 +480,7 @@ To add a new (discovered) symbol:
           mantissa = digits[1]
           unless digits[1].nil?
             if intg.length > 0  # have full case nn.mm
-              # sig = intg.length + mantissa.length
+              sig = intg.length + mantissa.length
             else  # mantissa might have "leading" zeros
               decimal_lead_zeros = digits[1].length
               mantissa = digits[1].sub(/^[0]+/, '')
@@ -502,49 +501,38 @@ To add a new (discovered) symbol:
 
     # conform number to significant digits as string
     # params number of significant digits, number
-    def self.conform_significant(number, digits)
+    def self.conform_significant(number, sig_digits)
       input = significant_digits(number.to_s)
       intg = input[2]
       decimal_point = input[3]
       lead_zeros = input[4]   # lead_zeros length > 0 implies mantissa only case
       mantissa = input[5]     # mantissa complete iff no lead_zeros
-      reduction = input[1] - digits
+      reduction = input[1] - sig_digits
       input_string = input[0]
       result = input[0]   # failsafe result
       if reduction > 0    # need to reduce significant digits
         result = ''
         digit_string = intg + mantissa
         decimal_position = input_string.index('.')
-        for index in (0...digits)       # collect ONLY significant digits
+        for index in (0...sig_digits)       # collect ONLY significant digits
           digit = digit_string[index]   # if number is "0", digit is nil
           result += digit
           next
         end
-        if digit_string.length > digits     # clean up integer least significant digits
-          if digits > 0
+        if digit_string.length > sig_digits     # clean up integer least significant digits
+          if sig_digits > 0     # test degenerate case of 0 input
             if digit_string[index + 1].to_i >= 5
               result = (result.to_i + 1).to_s # round if necessary
             end
           end
-           for ndex in (0...(intg.length - digits))
+           for ndex in (0...(intg.length - sig_digits))
             result += '0'
             # index += 1
             next
           end
-        # else              # parsed intg, check for decimal point
-          #TODO: mantissa processing probably wrong
-          # if input_string.length > digits - (intg.length)
-          #   # if input[0][index].to_i >= 5
-          #   #   result = (result.to_i + 1).to_s # round if necessary
-          #   # end
-          #   for ndex in (0...(input_string.length) - digits)
-          #     result += input[0][index]
-          #     index += 1
-          #   end
-          # end
         end
         unless decimal_position.nil?
-          if result.length <= digits
+          if result.length <= sig_digits
             result.insert(decimal_position, decimal_point)
           end
         end
