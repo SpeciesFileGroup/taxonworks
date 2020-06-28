@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Unauthorized json response
 - Better error handle for vue-autocomplete
 - Replaced old method to handle ajax call in all tasks
+- Updated relationships filter param on new taxon name task (refs [#1584])
 
 ## [0.12.7] - 2020-06-26
 

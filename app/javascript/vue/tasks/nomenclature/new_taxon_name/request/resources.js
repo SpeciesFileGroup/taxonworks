@@ -35,7 +35,7 @@ const loadTaxonStatus = (id) => ajaxCall('get', `/taxon_names/${id}/taxon_name_c
 const loadTaxonRelationships = (id) => ajaxCall('get', `/taxon_names/${id}/taxon_name_relationships.json`, {
   params: {
     as_subject: true,
-    of_types: [
+    taxon_name_relationship_set: [
       'synonym',
       'status',
       'classification']
