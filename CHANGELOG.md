@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Better error handle for vue-autocomplete
 - Replaced old method to handle ajax call in all tasks
 - Updated relationships filter param on new taxon name task (refs [#1584])
+- ControlledVocabularyTerm model no longer requires SKOS with URI (refs [#1562, #1561])
 
 ## [0.12.7] - 2020-06-26
 
