@@ -31,7 +31,7 @@
         </div>
         <div class="horizontal-right-content">
           <button
-            v-shortkey="[getMacKey(), 's']"
+            v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
             @click="saveCollectingEvent"
             class="button normal-input button-submit button-size separate-right separate-left"
@@ -45,7 +45,7 @@
             Recent
           </button>
           <button
-            v-shortkey="[getMacKey(), 'n']"
+            v-shortkey="[getOSKey(), 'n']"
             @shortkey="reset"
             @click="reset"
             class="button normal-input button-default button-size separate-left"
@@ -71,7 +71,7 @@ import RecentComponent from './components/Recent'
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetMacKey from 'helpers/getMacKey'
+import GetOSKey from 'helpers/getMacKey'
 
 import PinComponent from 'components/pin'
 
@@ -83,7 +83,6 @@ import RightSection from './components/RightSection'
 import NavBar from 'components/navBar'
 
 import collectingEventForm from './components/CollectingEventForm'
-
 
 export default {
   components: {
@@ -112,8 +111,8 @@ export default {
     }
   },
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'New collecting event')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'New', 'New collecting event')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+s`, 'Save', 'New collecting event')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+n`, 'New', 'New collecting event')
 
     const urlParams = new URLSearchParams(window.location.search)
     const collectingEventId = urlParams.get('collecting_event_id')
@@ -133,7 +132,7 @@ export default {
     saveCollectingEvent () {
       // this.$store.dispatch(ActionNames.SaveCollectingEvent)
     },
-    getMacKey: GetMacKey
+    getOSKey: GetOSKey
   }
 }
 </script>

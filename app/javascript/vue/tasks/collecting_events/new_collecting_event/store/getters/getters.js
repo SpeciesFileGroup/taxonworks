@@ -1,11 +1,14 @@
 import getCollectingEvent from './getCollectingEvent'
+import getTripCode from './getTripCode'
 
 const GetterNames = {
-  GetCollectingEvent: 'getCollectingEvent'
+  GetCollectingEvent: 'getCollectingEvent',
+  GetTripCode: 'getTripCode'
 }
 
 const GetterFunctions = {
-  [GetterNames.GetCollectingEvent]: getCollectingEvent
+  [GetterNames.GetCollectingEvent]: getCollectingEvent,
+  [GetterNames.GetTripCode]: getTripCode
 }
 
 export {

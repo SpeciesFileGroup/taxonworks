@@ -52,6 +52,12 @@ function makeInitialState () {
       field_notes: undefined,
       roles_attributes: [],
       identifiers_attributes: []
+    },
+    tripCode: {
+      id: undefined,
+      namespace_id: undefined,
+      type: 'Identifier::Local::TripCode',
+      identifier: undefined
     }
   }
 }

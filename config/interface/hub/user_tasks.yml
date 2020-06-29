@@ -595,5 +595,6 @@ index_new_collecting_event_task:
   related:
   categories:
     - collecting_event
+    - new
   status: prototype
   description: 'Create a new collecting event.'
