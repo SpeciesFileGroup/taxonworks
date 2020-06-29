@@ -74,6 +74,7 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Modal from 'components/modal.vue'
 import getMacKey from 'helpers/getMacKey'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -130,7 +131,7 @@ export default {
   },
   methods: {
     deleteTaxon: function () {
-      this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
+      AjaxCall('delete', `/taxon_names/${this.taxon.id}`).then(response => {
         this.reloadPage()
       })
     },

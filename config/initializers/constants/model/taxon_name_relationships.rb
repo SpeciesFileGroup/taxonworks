@@ -108,7 +108,6 @@ begin
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Misapplication',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Misapplication']
 
-
     # TODO: check .assignable property prior to building
 
     object_select, subject_select = [], []

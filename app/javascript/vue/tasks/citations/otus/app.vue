@@ -72,6 +72,7 @@
   import TopicsChecklist from './components/topicsChecklist.vue'
   import SourceCitations from './components/sourceCitations.vue'
   import SourcePicker from './components/sourcePicker.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -122,7 +123,7 @@
         let that = this,
           filterUrl = `/citations.json?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu`
 
-        this.$http.get(filterUrl).then(response => {
+        AjaxCall('get', filterUrl).then(response => {
           if (response.body.length) {
             that.$store.commit(MutationNames.SetSourceCitationsList, response.body)
           }
@@ -133,7 +134,7 @@
         let that = this,
           filterUrl = `/citations.json?citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
 
-        this.$http.get(filterUrl).then(response => {
+        AjaxCall('get', filterUrl).then(response => {
           if (response.body.length) {
             that.$store.commit(MutationNames.SetOtuCitationsList, response.body)
           }
@@ -144,11 +145,11 @@
         let that = this,
           filterUrl = `/citations?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
 
-        this.$http.get('/otus/' + that.$store.getters[GetterNames.GetOtuSelected] + '/citations').then(response => {
+        AjaxCall('get', '/otus/' + that.$store.getters[GetterNames.GetOtuSelected] + '/citations').then(response => {
           that.$store.commit(MutationNames.SetCitationsList, response.body)
         })
 
-        this.$http.get(filterUrl).then(response => {
+        AjaxCall('get', filterUrl).then(response => {
           if (response.body.length) {
             that.$store.commit(MutationNames.SetCurrentCitation, response.body[0])
             that.$store.commit(MutationNames.AddCitation, response.body[0])
@@ -160,7 +161,7 @@
               source_id: that.$store.getters[GetterNames.GetSourceSelected].id
             }
 
-            this.$http.post('/citations',{ citation: citation }).then(response => {
+            AjaxCall('post', '/citations',{ citation: citation }).then(response => {
               that.$store.commit(MutationNames.SetCurrentCitation, response.body)
               that.$store.commit(MutationNames.AddCitation, response.body)
               that.$store.commit(MutationNames.AddToSourceList, response.body)
@@ -173,7 +174,7 @@
     },
 
     beforeCreate: function () {
-      this.$http.get('/topics.json').then(response => {
+      AjaxCall('get', '/topics.json').then(response => {
         this.$store.commit(MutationNames.SetTopicsList, response.body)
       })
     }

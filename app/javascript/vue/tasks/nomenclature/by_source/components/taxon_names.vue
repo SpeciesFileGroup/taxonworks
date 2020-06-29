@@ -54,7 +54,7 @@
     methods: {
       getCites() {
         this.showSpinner = true
-        this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
+        AjaxCall('get', '/citations.json?verbose_object=true&citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           this.taxon_names_cites_list = response.body;
           this.showSpinner = false
         });

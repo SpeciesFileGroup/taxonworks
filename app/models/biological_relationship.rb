@@ -77,9 +77,9 @@ class BiologicalRelationship < ApplicationRecord
     if r.empty?
       h[:quick] = BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = BiologicalRelationship.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:recent] = BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(10) ).order(:name).to_a
       h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          BiologicalRelationship.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+          BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
 
     h

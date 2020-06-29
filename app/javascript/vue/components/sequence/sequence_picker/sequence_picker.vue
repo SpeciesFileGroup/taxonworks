@@ -67,6 +67,7 @@
 
 import Autocomplete from '../../autocomplete.vue'
 import ModalComponent from 'components/modal.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 import { CreateSequence } from '../request/resources'
 
@@ -124,7 +125,7 @@ export default {
       })
     },
     emitSequence(sequence) {
-      this.$http.get(`/sequences/${sequence.id}.json`).then(response => {
+      AjaxCall('get', `/sequences/${sequence.id}.json`).then(response => {
         this.$emit('getItem', response.body)
       })
     },

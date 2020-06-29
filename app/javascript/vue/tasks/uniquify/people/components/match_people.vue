@@ -30,6 +30,7 @@
 // this is a list for selecting one person from potential matchees
 // only one person can be selected
 import Autocomplete from 'components/autocomplete.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -73,7 +74,7 @@ export default {
       this.selected = person
     },
     selectMergePerson(person) {
-      this.$http.get(`/people/${person.id}.json`).then(response => {
+      AjaxCall('get', `/people/${person.id}.json`).then(response => {
           this.mergePerson = response.body;
           this.$emit("input", this.mergePerson);
         });
@@ -87,7 +88,7 @@ export default {
         this.selected = {};
         return false;
       }
-      this.$http.get(`/people/${person.id}/similar`).then(response => {
+      AjaxCall('get', `/people/${person.id}/similar`).then(response => {
         this.matchPeople = response.body;
         this.removeFromList(person.id);
         this.$emit("matchPeople", this.matchPeople)   // notify app's watcher

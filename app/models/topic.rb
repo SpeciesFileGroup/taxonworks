@@ -31,7 +31,7 @@ class Topic < ControlledVocabularyTerm
   # @param used_on [String] one of `Citation` (default) or `Content`
   # @return [Scope]
   #    the max 10 most recently used topics, as used on Content or Citation
-  def self.used_recently(user_id, project_id, used_on = 'Citation')
+  def self.used_recently(user_id, project_id, klass, used_on = 'Citation')
     t = case used_on
         when 'Citation'
           CitationTopic.arel_table
@@ -51,9 +51,15 @@ class Topic < ControlledVocabularyTerm
     # z is a table alias
     z = i.as('recent_t')
 
-    Topic.used_on_klass(used_on).joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
-    ).pluck(:id).uniq
+    if klass.blank?
+      Topic.joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    else
+      Topic.used_on_klass(klass).joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
   end
 
   # @params klass [String] if target is `Citation` then if provided limits to those classes with citations,
@@ -61,8 +67,8 @@ class Topic < ControlledVocabularyTerm
   # @params target [String] one of `Citation` or `Content`
   # @params klass [String] like TaxonName, required if target == `Citation`
   # @return [Hash] topics optimized for user selection
-  def self.select_optimized(user_id, project_id, target = 'Citation')
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, klass, target = 'Citation')
+    r = used_recently(user_id, project_id, klass, target)
     h = {
         quick: [],
         pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a,

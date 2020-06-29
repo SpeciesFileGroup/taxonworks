@@ -15,8 +15,12 @@ const ajaxCall = function (type, url, data = null) {
       if (process.env.NODE_ENV !== 'production') {
         console.log(response)
       }
-      if(response.status != 404)
-        handleError(response.body)
+      switch (response.status) {
+        case 404:
+          break
+        default:
+          handleError(response.body)
+      }
       return reject(response)
     })
   })
@@ -25,7 +29,7 @@ const ajaxCall = function (type, url, data = null) {
 const handleError = function (json) {
   if (typeof json !== 'object') return
   TW.workbench.alert.create(Object.keys(json).map(key => {
-    return `<span data-icon="warning">${key}:</span> <ul><li>${json[key].map(line => capitalize(line)).join('</li><li>')}</li></ul>`
+    return `<span data-icon="warning">${key}:</span> <ul><li>${Array.isArray(json[key]) ? json[key].map(line => capitalize(line)).join('</li><li>') : json[key]}</li></ul>`
   }).join(''), 'error')
 }
 

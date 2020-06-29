@@ -452,6 +452,7 @@ resources :otus do
     get :timeline, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
+    get :coordinate, defaults: {format: :json}
   end
 
 end

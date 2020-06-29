@@ -26,6 +26,7 @@
 
   import { GetterNames } from '../store/getters/getters'
   import Modal from 'components/modal.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     computed: {
@@ -49,7 +50,7 @@
       }
     },
     watch: {
-      'otu': function (val, oldVal) {
+      otu (val, oldVal) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
         }
@@ -62,7 +63,7 @@
           pinned_object_type: 'Source'
         }
 
-        this.$http.post('/pinboard_items.json', pinboard_item).then(() => {
+        AjaxCall('post', '/pinboard_items.json', pinboard_item).then(() => {
           TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
         }, () => {
           TW.workbench.alert.create(item.source.object_tag + ' already pinned.', 'alert')
@@ -74,7 +75,7 @@
         let that = this
         let ajaxUrl = `/otus/${this.otu.id}/citations.json?topic_id=${this.topic.id}`
 
-        this.$http.get(ajaxUrl).then(response => {
+        AjaxCall('get', ajaxUrl).then(response => {
           that.citations = response.body
         })
       }
