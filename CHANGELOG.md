@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Set autofocus on source and geographic area in OTU radial asserted distribution form
 - `/otus/123/coordinate.json` endpoint - all OTUs coordinate with this one (refs [1585])
+- Autosave on new asserted distribution task
 
 ### Changed
 - Unauthorized json response

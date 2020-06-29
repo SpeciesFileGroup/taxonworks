@@ -15,6 +15,12 @@
           <span v-else>New record</span>
         </div>
         <div class="horizontal-center-content middle">
+          <label class="middle margin-small-right">
+            <input
+              v-model="autosave"
+              type="checkbox">
+            Autosave
+          </label>
           <button
             type="button"
             v-shortkey="[getMacKey(), 's']"
@@ -23,11 +29,12 @@
             class="button normal-input button-submit separate-left separate-right"
             @click="createAndNewAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
           </button>
-          <span
-            class="cursor-pointer"
+          <button
+            type="button"
+            class="button normal-input button-default padding-medium-left padding-medium-right"
             @click="newWithLock">
-            <span data-icon="reset"/>Reset
-          </span>
+            New
+          </button>
         </div>
       </div>
     </nav-bar-component>
@@ -125,11 +132,22 @@ export default {
       asserted_distribution: this.newAssertedDistribution(),
       list: [],
       loading: true,
+      autosave: true,
       locks: {
         otu: false,
         geographicArea: false,
-        citation: false,
+        citation: false
       }
+    }
+  },
+  watch: {
+    validate: {
+      handler (newVal) {
+        if (newVal && this.autosave) {
+          this.createAndNewAssertedDistribution()
+        }
+      },
+      deep: true
     }
   },
   mounted () {
@@ -140,7 +158,7 @@ export default {
     })
   },
   methods: {
-    addShortcutsDescription() {
+    addShortcutsDescription () {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
     },
     newAssertedDistribution () {
@@ -167,7 +185,7 @@ export default {
       })
       this.asserted_distribution = newObject
     },
-    getMacKey() {
+    getMacKey () {
       return GetMacKey()
     },
     createAndNewAssertedDistribution() {
@@ -177,7 +195,7 @@ export default {
       })
     },
     saveAssertedDistribution () {
-      if(!this.validate) return
+      if (!this.validate) return
       const assertedDistribution = {
         id: this.asserted_distribution.id,
         otu_id: this.asserted_distribution.otu.id,
@@ -191,7 +209,7 @@ export default {
         }]
       }
       return new Promise((resolve, reject) => {
-        if(assertedDistribution.id) {
+        if (assertedDistribution.id) {
           UpdateAssertedDistribution(assertedDistribution).then(response => {
             this.$set(this.list, this.list.findIndex(item => {
               return item.id === response.body.id
@@ -214,7 +232,7 @@ export default {
     removeAssertedDistribution(asserted) {
       RemoveAssertedDistribution(asserted.id).then(response => {
         this.list.splice(this.list.findIndex(item => {
-          return item.id == asserted.id
+          return item.id === asserted.id
         }), 1)
       })
     },
@@ -237,6 +255,7 @@ export default {
     },
     setGeoOtu (item) {
       this.newWithLock()
+      this.autosave = false
       this.asserted_distribution.id = item.id
       this.asserted_distribution.geographicArea = item.geographic_area
       this.asserted_distribution.otu = item.otu
