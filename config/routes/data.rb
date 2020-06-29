@@ -138,6 +138,7 @@ resources :collecting_events do
   collection do
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :parse_verbatim_label, defaults: {format: :json}
 
     post :preview_castor_batch_load
     post :create_castor_batch_load
