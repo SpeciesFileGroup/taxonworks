@@ -96,6 +96,7 @@ class Project < ApplicationRecord
      Descriptor
      ProjectMember
      Download
+     DatasetRecord
      ImportDataset
     }
   
