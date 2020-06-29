@@ -35,8 +35,17 @@ class DatasetRecord < ApplicationRecord
   end
 
   def set_data_field(index, value)
-    data_fields[index].merge!({
-      "value" => value
-    }) unless data_fields[index]["frozen"]
+    unless data_fields[index]["frozen"]
+      data_fields[index].merge!({
+        "value" => value
+      })
+      data_field_changed(index, value)
+    end
+  end
+
+  private
+
+  def data_field_changed(index, value)
+    # Subclasses may re-implement to perform actions when field change
   end
 end
