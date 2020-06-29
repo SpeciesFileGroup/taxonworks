@@ -513,6 +513,140 @@ class CollectingEvent < ApplicationRecord
     [start_date_string, end_date_string].compact
   end
 
+  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
+  # .select {|ce| ce.georeferences.empty?}
+  # @param [Boolean] reference_self
+  # @param [Boolean] no_cached
+  # @return [Georeference::VerbatimData, false]
+  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
+  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
+    return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
+    begin
+      CollectingEvent.transaction do
+        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
+        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
+        a = Georeference::VerbatimData.new(vg_attributes)
+        if a.valid?
+          a.save
+        end
+        return a
+      end
+    rescue
+      raise
+    end
+    false
+  end
+
+  # @return [GeographicItem, nil]
+  #    a GeographicItem instance representing a translation of the verbatim values, not saved
+  def build_verbatim_geographic_item
+    if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
+      local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
+      local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
+      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
+      GeographicItem.new(point: point)
+    else
+      nil
+    end
+  end
+
+  # @return [Integer]
+  # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
+  # @TODO: See Utilities::Geo.distance_in_meters(String)
+  def get_error_radius
+    return nil if verbatim_geolocation_uncertainty.blank?
+    return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)
+    nil
+  end
+
+  # @return [Scope]
+  #   all geographic_items associated with this collecting_event through georeferences only
+  def all_geographic_items
+    GeographicItem.
+      joins('LEFT JOIN georeferences g2 ON geographic_items.id = g2.error_geographic_item_id').
+      joins('LEFT JOIN georeferences g1 ON geographic_items.id = g1.geographic_item_id').
+      where(['(g1.collecting_event_id = ? OR g2.collecting_event_id = ?) AND (g1.geographic_item_id IS NOT NULL OR g2.error_geographic_item_id IS NOT NULL)', self.id, self.id])
+  end
+
+  # @return [GeographicItem, nil]
+  #  returns the geographic_item corresponding to the geographic area, if provided
+  def geographic_area_default_geographic_item
+    try(:geographic_area).try(:default_geographic_item)
+  end
+
+  # @param [GeographicItem]
+  # @return [String]
+  #   see how far away we are from another gi
+  def distance_to(geographic_item_id)
+    GeographicItem.distance_between(preferred_georeference.geographic_item_id, geographic_item_id)
+  end
+
+  # @param [Double] distance in meters
+  # @return [Scope]
+  def collecting_events_within_radius_of(distance)
+    return CollectingEvent.none if !preferred_georeference
+    geographic_item_id = preferred_georeference.geographic_item_id
+    # geographic_item_id = preferred_georeference.try(:geographic_item_id)
+    # geographic_item_id = Georeference.where(collecting_event_id: id).first.geographic_item_id if geographic_item_id.nil?
+    CollectingEvent.not_self(self)
+      .joins(:geographic_items)
+      .where(GeographicItem.within_radius_of_item_sql(geographic_item_id, distance))
+  end
+
+  # @return [Scope]
+  # Find all (other) CEs which have GIs or EGIs (through georeferences) which intersect self
+  def collecting_events_intersecting_with
+    pieces = GeographicItem.with_collecting_event_through_georeferences.intersecting('any', self.geographic_items.first).distinct
+    gr     = [] # all collecting events for a geographic_item
+
+    pieces.each { |o|
+      gr.push(o.collecting_events_through_georeferences.to_a)
+      gr.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+
+    # @todo change 'id in (?)' to some other sql construct
+    pieces = CollectingEvent.where(id: gr.flatten.map(&:id).uniq)
+    pieces.not_including(self)
+  end
+
+  # @return [Scope]
+  # Find other CEs that have GRs whose GIs or EGIs are contained in the EGI
+
+  def collecting_events_contained_in_error
+    # find all the GIs and EGIs associated with CEs
+    # TODO: this will be impossibly slow in present form
+    pieces = GeographicItem.with_collecting_event_through_georeferences.to_a
+
+    me = self.error_geographic_items.first.geo_object
+    gi = []
+    # collect all the GIs which are within the EGI
+    pieces.each { |o|
+      gi.push(o) if o.geo_object.within?(me)
+    }
+    # collect all the CEs which refer to these GIs
+    ce = []
+    gi.each { |o|
+      ce.push(o.collecting_events_through_georeferences.to_a)
+      ce.push(o.collecting_events_through_georeference_error_geographic_item.to_a)
+    }
+
+    # @todo Directly map this
+    pieces = CollectingEvent.where(id: ce.flatten.map(&:id).uniq)
+    pieces.not_including(self)
+  end
+
+  # DEPRECATED for shared code
+  # @param [String, String, Integer]
+  # @return [Scope]
+  def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
+    return CollectingEvent.none if compared_string.nil?
+    order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
+    CollectingEvent.where('id <> ?', id.to_s).
+      order(Arel.sql(order_str)).
+      limit(limit)
+  end
+
   # @param [String]
   #   one or more names from GeographicAreaType
   # @return [Hash]
