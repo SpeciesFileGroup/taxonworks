@@ -1,24 +1,17 @@
 <template>
   <div>
-    <p>Select</p>
     <div class="flex-wrap">
       <div class="field">
         <autocomplete
           min="2"
-          :display="displayAutocomplete"
-          :placeholder="`Select a descriptor`"
+          :clear-after="true"
+          placeholder="Select a descriptor"
           label="label"
-          @getItem="setResult"
+          @getItem="createColumnItem($event.id)"
           url="/descriptors/autocomplete"
           param="term"/>
       </div>
     </div>
-    <button
-      :disabled="!objectId"
-      class="normal-input button button-submit"
-      type="button"
-      @click="createColumnItem">Create
-    </button>
   </div>
 </template>
 <script>
@@ -37,26 +30,20 @@ export default {
       return this.$store.getters[GetterNames.GetMatrix]
     }
   },
-  data() {
+  data () {
     return {
       displayAutocomplete: undefined,
-      objectId: undefined,
+      objectId: undefined
     }
   },
   methods: {
-    createColumnItem() {
-      let data = {
+    createColumnItem (id) {
+      const data = {
         observation_matrix_id: this.matrix.id,
-        descriptor_id: this.objectId,
+        descriptor_id: id,
         type: 'ObservationMatrixColumnItem::SingleDescriptor'
       }
-      this.displayAutocomplete = undefined
-      this.objectId = undefined
       this.$store.dispatch(ActionNames.CreateColumnItem, data)
-    },
-    setResult(descriptor) {
-      this.objectId = descriptor.id
-      this.displayAutocomplete = descriptor.label
     }
   }
 }

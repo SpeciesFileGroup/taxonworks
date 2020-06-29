@@ -342,5 +342,27 @@ module Queries
       base_query.where(named.to_sql).limit(5)
     end
 
+    def common_name_table
+      ::CommonName.arel_table
+    end
+
+    def common_name_name
+      common_name_table[:name].eq(query_string)
+    end
+
+    def common_name_wild_pieces
+      common_name_table[:name].matches(wildcard_pieces)
+    end
+
+    def autocomplete_common_name_exact
+      return nil if no_terms?
+      query_base.joins(:common_names).where(common_name_name.to_sql).limit(1)
+    end
+
+    def autocomplete_common_name_like
+      return nil if no_terms?
+      query_base.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
+    end
+
   end
 end

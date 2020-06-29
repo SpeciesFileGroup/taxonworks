@@ -10,6 +10,9 @@
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   props: {
     pinObject: {
@@ -73,17 +76,18 @@ export default {
       let pinItem = {
         pinboard_item: {
           pinned_object_id: this.id,
-          pinned_object_type: this.type
+          pinned_object_type: this.type,
+          is_inserted: true
         }
       }
-      this.$http.post('/pinboard_items', pinItem).then(response => {
+      AjaxCall('post', '/pinboard_items', pinItem).then(response => {
         this.pin = response.body
-        TW.workbench.pinboard.addToPinboard(response.body)
+        TW.workbench.pinboard.addToPinboard(response.body, true)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
     deletePin: function () {
-      this.$http.delete(`/pinboard_items/${this.pin.id}`, { _destroy: true }).then(response => {
+      AjaxCall('delete', `/pinboard_items/${this.pin.id}`, { _destroy: true }).then(response => {
         TW.workbench.pinboard.removeItem(this.pin.id)
         this.pin = undefined
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')

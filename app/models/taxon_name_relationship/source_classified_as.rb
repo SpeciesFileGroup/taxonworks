@@ -24,21 +24,20 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
         TaxonNameClassification::Icn::NotEffectivelyPublished)
   end
 
-  # Shoudl be reversed!?
   def subject_status
-    'as classified'
-  end
-
-  def object_status
     'classified'
   end
 
+  def object_status
+    'as classified'
+  end
+
   def subject_status_connector_to_object
-    ' for'
+    ' as'
   end
 
   def object_status_connector_to_subject
-    ' as'
+    ' for'
   end
 
   # genus.source_classified_as = Family

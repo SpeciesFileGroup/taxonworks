@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="horizontal-left-content align-start">
+    <div
+      v-if="createForm"
+      class="horizontal-left-content align-start">
       <div class="horizontal-left-content">
         <autocomplete
           :autofocus="autofocus"
@@ -77,6 +79,7 @@
       </div>
     </div>
     <draggable
+      v-if="!hiddenList"
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
@@ -130,6 +133,14 @@
         default: () => { return [] }
       },
       filterByRole: {
+        type: Boolean,
+        default: false
+      },
+      createForm: {
+        type: Boolean,
+        default: true
+      },
+      hiddenList: {
         type: Boolean,
         default: false
       }
@@ -342,9 +353,11 @@
           this.$emit('input', this.roles_attributes)
           this.$emit('create', this.addPerson(item))
           this.person_attributes = this.makeNewPerson()
+          this.searchPerson = ''
         }
       },
       setPerson: function (person) {
+        person.position = (this.roles_attributes.length + 1)
         this.roles_attributes.push(person)
         this.$emit('input', this.roles_attributes)
       }

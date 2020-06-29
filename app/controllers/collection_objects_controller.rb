@@ -385,6 +385,7 @@ class CollectionObjectsController < ApplicationController
       :user_target,
       :validity,
       :wkt,
+      is_type: [],
       otu_ids: [],
       keyword_ids: [],
       collecting_event_ids: [],

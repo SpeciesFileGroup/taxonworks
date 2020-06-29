@@ -1,23 +1,37 @@
 <template>
   <section-panel
     :spinner="isLoading"
-    title="Descendants"
+    :status="status"
+    :title="title"
     @menu="showModal = true">
     <a name="descendants"/>
     <tree-view
       :current-taxon-id="otu.taxon_name_id"
+      :only-valid="onlyValid"
       :list="childOfCurrentName"/>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
       <h3 slot="header">Filter</h3>
       <div slot="body">
-        <label>
-          <input
-            v-model="onlyChildrens"
-            type="checkbox">
-          Show children only
-        </label>
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                v-model="onlyChildrens"
+                type="checkbox">
+              Show children only
+            </label>
+          </li>
+          <li>
+            <label>
+              <input
+                v-model="onlyValid"
+                type="checkbox">
+              Show only valid names
+            </label>
+          </li>
+        </ul>
       </div>
     </modal-component>
   </section-panel>
@@ -25,12 +39,14 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
 import SectionPanel from './shared/sectionPanel'
 import ModalComponent from 'components/modal'
 import TreeView from './TreeView'
+import extendSection from './shared/extendSections'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     ModalComponent,
@@ -44,7 +60,7 @@ export default {
   },
   computed: {
     childOfCurrentName () {
-      return (this.onlyChildrens ? this.childs.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.childs).sort(function (a, b) {
+      return (this.onlyChildrens ? this.children.filter(child => { return this.otu.taxon_name_id === child.parent_id }) : this.children).sort(function (a, b) {
         if (a.cached > b.cached) {
           return 1
         }
@@ -53,33 +69,26 @@ export default {
         }
         return 0
       })
+    },
+    children () {
+      return this.$store.getters[GetterNames.GetDescendants].taxon_names
+    },
+    isLoading () {
+      return this.$store.getters[GetterNames.GetLoadState].descendants
     }
   },
   data () {
     return {
       onlyChildrens: true,
-      childs: [],
+      onlyValid: true,
       max: 10,
       showAll: false,
-      isLoading: false,
       showModal: false
-    }
-  },
-  watch: {
-    otu: {
-      handler (newVal) {
-        this.isLoading = true
-        AjaxCall('get', `/taxon_names.json?taxon_name_id[]=${newVal.taxon_name_id}&descendants=true`).then(response => {
-          this.childs = response.body
-          this.isLoading = false
-        })
-      },
-      immediate: true
     }
   },
   methods: {
     showChildrensOf (taxon) {
-      return this.childs.filter(item => { return taxon.id === item.parent_id })
+      return this.children.filter(item => { return taxon.id === item.parent_id })
     }
   }
 }

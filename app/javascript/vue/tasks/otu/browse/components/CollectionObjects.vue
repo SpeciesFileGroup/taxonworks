@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Specimen records">
+  <section-panel
+    :status="status"
+    :title="title">
     <a name="specimen-records"/>
     <div
       v-if="collectionObjects.length"
@@ -35,9 +37,11 @@
 
 import SectionPanel from './shared/sectionPanel'
 import SpecimenInformation from './specimens/Information'
+import extendSection from './shared/extendSections'
 import { GetCollectionObjects } from '../request/resources'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     SpecimenInformation

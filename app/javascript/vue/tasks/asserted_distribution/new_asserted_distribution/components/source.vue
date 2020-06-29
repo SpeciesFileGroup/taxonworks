@@ -1,124 +1,87 @@
 <template>
   <fieldset>
     <legend>Source</legend>
-    <smart-selector 
-      name="source"
-      class="separate-bottom"
-      v-model="view"
-      :options="options"/>
-    <div class="separate-bottom flex-separate middle">
-      <label>
-        <input
-          type="checkbox"
-          v-model="value.is_original">
-        Is original
-      </label>
-      <label>
-        Pages: 
-        <input
-          class="pages"
-          v-model="value.pages"
-          placeholder="Pages"
-          type="text">
-      </label>
-    </div>
-    <div v-if="isViewSearch">
-      <autocomplete
-        url="/sources/autocomplete"
-        label="label_html"
-        placeholder="Select a source"
-        ref="autocomplete"
-        :clear-after="true"
-        param="term"
-        display="label"
-        @getItem="sendItem"/>
-    </div>
-    <div v-else>
-      <ul
-        class="no_bullets">
-        <li v-for="item in lists[view]">
-          <label @click="sendItem(item)">
+    <smart-selector
+      model="sources"
+      klass="AssertedDistribution"
+      target="AssertedDistribution"
+      ref="smartSelector"
+      pin-section="Sources"
+      pin-type="Source"
+      v-model="assertedDistribution.citation.source">
+      <div slot="footer">
+        <template v-if="assertedDistribution.citation.source">
+          <p class="horizontal-left-content">
+            <span data-icon="ok"/>
+            <span v-html="assertedDistribution.citation.source.object_tag"/>
+            <span
+              class="button circle-button btn-undo button-default"
+              @click="unset"/>
+          </p>
+        </template>
+        <div
+          class="horizontal-left-content middle margin-medium-top">
+          <label class="margin-small-right">
             <input
-              name="source"
-              type="radio"
-              :value="item.id"
-              :checked="item.id == value.source_id">
-            <span v-html="item.object_tag"/>
+              class="pages"
+              v-model="assertedDistribution.citation.pages"
+              placeholder="Pages"
+              type="text">
           </label>
-        </li>
-      </ul>
-    </div>
-    <template v-if="selected">
-      <p>
-        <span data-icon="ok"/>
-        <span v-html="selected"/>
-      </p>
-    </template>
+          <ul class="no_bullets context-menu">
+            <li>
+              <label>
+                <input
+                  type="checkbox"
+                  v-model="assertedDistribution.citation.is_original">
+                Is original
+              </label>
+            </li>
+            <li>
+              <label>
+                <input
+                  v-model="assertedDistribution.is_absent"
+                  type="checkbox">
+                Is absent
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </smart-selector>
   </fieldset>
 </template>
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import SmartSelector from 'components/switch'
-import { GetSourceSmartSelector } from '../request/resources.js'
-import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   components: {
-    SmartSelector,
-    Autocomplete
+    SmartSelector
   },
   props: {
     value: {
       type: Object,
-      required: true
+      default: undefined
     }
   },
   computed: {
-    isViewSearch() {
-      return this.view == 'search'
-    }
-  },
-  data() {
-    return {
-      options: [],
-      lists: [],
-      selected: undefined,
-      view: undefined,
-    }
-  },
-  watch: {
-    value: {
-      handler(newVal) {
-        if(newVal.source_id == undefined)
-          this.selected = undefined
+    assertedDistribution: {
+      get () {
+        return this.value
       },
-    deep: true
+      set (value) {
+        this.$emit('input', value)
+      }
     }
-  },
-  mounted() {
-    this.loadSmartSelector()
   },
   methods: {
-    sendItem(item) {
-      let newVal = this.value
-      newVal.source_id = item.id
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
-      this.$emit('input', newVal)
+    refresh () {
+      this.$refs.smartSelector.refresh()
     },
-    loadSmartSelector() {
-      GetSourceSmartSelector().then(response => {
-        this.lists = response.body
-        this.options = OrderSmartSelector(Object.keys(response.body))
-        let newView = SelectFirstSmartOption(this.lists, this.options)
-        this.options.push('search')
-        this.view = (newView ? newView : 'search')
-      })
-    },
-    setSelected(item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
+    unset () {
+      this.assertedDistribution.citation.source = undefined
     }
   }
 }

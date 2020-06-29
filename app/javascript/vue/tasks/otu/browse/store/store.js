@@ -9,6 +9,12 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    loadState: {
+      descendants: true,
+      distribution: true,
+      assertedDistribution: true,
+      collectionObjects: true
+    },
     preferences: {
       sections: [
         'NomenclatureHistory',
@@ -107,12 +113,17 @@ function makeInitialState () {
       }
     },
     currentOtu: undefined,
+    assertedDistributions: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
     georeferences: [],
     typeMaterials: [],
-    descendants: [],
+    descendants: {
+      taxon_names: [],
+      collecting_events: [],
+      georeferences: []
+    },
     userId: undefined
   }
 }

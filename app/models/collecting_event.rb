@@ -295,6 +295,7 @@ class CollectingEvent < ApplicationRecord
             unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
+  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
 
   # @param [String]
   def verbatim_label=(value)
@@ -302,7 +303,7 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   class << self
@@ -316,13 +317,16 @@ class CollectingEvent < ApplicationRecord
         recent: (CollectingEvent.used_in_project(project_id)
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
+          .distinct
           .limit(5)
-          .distinct.to_a +
+          .order(:cached)
+          .to_a +
         CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
 
-      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  +
+          h[:recent]).uniq
       h
     end
 
@@ -988,10 +992,10 @@ class CollectingEvent < ApplicationRecord
   def verbatim_map_center(delta_z = 0.0)
     retval = nil
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
-      lat     = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
-      long    = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev    = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
-      delta_z = elev unless elev == 0.0
+      lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
+      delta_z = elev unless elev == 0.0 # Meh, BAD! must be nil
       retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
     retval
@@ -1133,7 +1137,11 @@ class CollectingEvent < ApplicationRecord
   end
 
   def check_date_range
-    errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    begin
+      errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    rescue
+      errors.add(:base, 'Start and/or end date invalid.')
+    end
     errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
   end
 
@@ -1143,6 +1151,16 @@ class CollectingEvent < ApplicationRecord
 
   def check_elevation_range
     errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
+  end
+
+  def sv_georeference_matches_verbatim
+    if a = georeferences.where(type: 'Georeference::VerbatimData').first
+      unless (a.latitude == verbatim_latitude) && (b.longitude == verbatim_longitude)
+        soft_validations.add(
+          :base,
+          "Verbatim latitude #{verbatim_latitude} and/or longitude #{verbatim_longitude} and point geoference latitude #{a.latitude} and/or longitude #{a.longitude} do not match") 
+          end
+    end
   end
 
   def sv_minimally_check_for_a_label

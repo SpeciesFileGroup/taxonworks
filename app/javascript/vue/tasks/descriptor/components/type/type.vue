@@ -14,7 +14,7 @@
               type="radio"
               v-model="selection"
               :value="key"
-              name="type-descriptor"/>
+              name="type-descriptor">
             {{ label }}
           </label>
         </li>
@@ -23,37 +23,34 @@
   </div>
 </template>
 <script>
-  export default {
-    props: {
-      value: {
-        type: String,
+
+import TYPES from '../../const/types'
+
+export default {
+  props: {
+    value: {
+      type: String,
+      default: undefined
+    },
+    descriptorId: {
+      type: [String, Number],
+      default: undefined
+    }
+  },
+  computed: {
+    selection: {
+      get () {
+        return this.value
       },
-      descriptorId: {
-        default: undefined
+      set (value) {
+        this.$emit('input', value)
       }
-    },
-    computed: {
-      selection: {
-        get() {
-          return this.value
-        },
-        set(value) {
-          this.$emit('input', value)
-        }
-      }
-    },
-    data() {
-      return {
-        types: {
-          'Descriptor::Qualitative': 'Qualitative (e.g. a phylogenetic character, or telegraphic description)',
-          'Descriptor::PresenceAbsence': 'Presence absence', 
-          'Descriptor::Continuous': 'Quantitative (i.e continuous, e.g. a measurement)',
-          'Descriptor::Sample': 'Sample ( a statistical summary, n, min, max, std, etc.)',
-          'Descriptor::Gene': 'Gene',
-          'Descriptor::Working': 'Free text',
-          'Descriptor::Media': 'Media',
-        }
-      }
-    },
+    }
+  },
+  data () {
+    return {
+      types: TYPES()
+    }
   }
+}
 </script>

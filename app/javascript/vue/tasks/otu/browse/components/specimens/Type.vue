@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Type specimens">
+  <section-panel
+    :status="status"
+    :title="title">
     <a name="type-specimens"/>
     <div
       v-if="types.length"
@@ -24,9 +26,10 @@
 import SectionPanel from '../shared/sectionPanel'
 import { GetTypeMaterials, GetCollectionObjects } from '../../request/resources.js'
 import SpecimenInformation from './Information'
-import { GetterNames } from '../../store/getters/getters'
+import extendSection from '../shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     SpecimenInformation

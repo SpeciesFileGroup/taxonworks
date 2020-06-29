@@ -9,14 +9,14 @@ export default function ({ commit, state }) {
     if(ValidateLabel(label)) {
       if(label.id) {
         UpdateLabel(label).then(response => {
-          commit(MutationNames.SetLabel, response)
-          return resolve(response)
+          commit(MutationNames.SetLabel, response.body)
+          return resolve(response.body)
         })
       }
       else {
         CreateLabel(label).then(response => {
-          commit(MutationNames.SetLabel, response)
-          return resolve(response)
+          commit(MutationNames.SetLabel, response.body)
+          return resolve(response.body)
         })
       }
     }

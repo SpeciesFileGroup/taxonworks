@@ -324,7 +324,7 @@ new_combination_task:
   description: 'Create a new or subsequent nomenclatural combination.'
 browse_otus_task:
   hub: true
-  name: 'Browse taxa'
+  name: 'Browse OTUs'
   related:
   categories:
     - browse
@@ -418,8 +418,8 @@ new_source_task:
   categories:
    - source
    - new
-  status: prototype
-  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
+  status: stable
+  description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'

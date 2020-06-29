@@ -1,4 +1,5 @@
 <h1> Task - Global Names Finder playground </h1>
+<p> <%= link_to('Report a problem with gnfinder results (verification, unfound names, etc.).', 'https://github.com/gnames/gnfinder/issues', target: :blank) -%><em>Issues that match gnfinder data to TaxonWorks data should be reported in the TaxonWorks issue tracker.</em></p>
 <div>
 <% if @source %>
   <span class="feedback feedback-primary"><%= object_link(@source) -%> </span>
@@ -74,7 +75,7 @@
             <%= content_tag(:td, v.first.is_verified? ? content_tag(:span, v.first.best_match_type, class: [:feedback, 'feedback-info', 'feedback-thin']) : content_tag(:span, 'No', class: [:feedback, 'feedback-warning', 'feedback-thin'])) -%>
             <%= content_tag(:td, v.first.best_result&.data_source_title) -%>
             <%= content_tag(:td, content_tag(:span, v.first.log_odds.round(4), data: {'heatmap': 'base-10'}) ) -%>
-            <%= content_tag(:td, content_tag(:pre, (v.first.words_before.join('&nbsp;') + v.first.words_after.join(' ')).html_safe )) -%>
+            <%= content_tag(:td, content_tag(:pre, (v.first.words_before.join('&nbsp;') + '&nbsp;<em>*</em>&nbsp;' + v.first.words_after.join(' ')).html_safe )) -%>
           </tr>
         <% end %>
       </table>

@@ -5,7 +5,7 @@
         <h3>Collection Object</h3>
       </div>
       <div
-        v-shortkey="[getMacKey(), 't']"
+        v-shortkey="[getMacKey(), 'c']"
         @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
@@ -16,7 +16,7 @@
         <default-tag
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
-        <radial-object 
+        <radial-object
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>
@@ -198,7 +198,7 @@
       },
       updatePreferences(key, value) {
         UpdateUserPreferences(this.preferences.id, { [key]: value }).then(response => {
-          this.preferences.layout = response.preferences.layout
+          this.preferences.layout = response.body.preferences.layout
         })
       },
       getMacKey: function () {
@@ -248,8 +248,8 @@
           depiction_object_type: 'CollectionObject',
           image_id: depiction.image_id
         }
-        CreateDepiction(newDepiction).then(createdDepiction => {
-          this.depictions.push(createdDepiction)
+        CreateDepiction(newDepiction).then(response => {
+          this.depictions.push(response.body)
         })
       },
       createDepictionForAll(depiction) {

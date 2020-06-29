@@ -47,7 +47,8 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
+gem 'closure_tree', github: 'ClosureTree/closure_tree', ref: '15b253e' # '~> 7.0'
+
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 10.3', '>= 10.3.1'
@@ -94,7 +95,7 @@ gem 'rgb'
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.5.8'
-gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'use-biodiversity-gem'
+gem 'dwc-archive', '~> 1.1.1'
 gem 'biodiversity', '~> 4.0', '>= 4.0.3'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 

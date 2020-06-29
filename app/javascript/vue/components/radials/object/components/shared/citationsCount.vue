@@ -45,13 +45,25 @@ export default {
     target: {
       type: String,
       required: true
+    },
+    values: {
+      type: Array,
+      default: undefined
     }
   },
-  data() {
+  data () {
     return {
       showCitations: false,
       citations: []
     }
+  },
+  watch: {
+    values: {
+      handler (newVal) {
+        this.citations = newVal
+      }
+    },
+    deep: true
   },
   mounted() {
     this.loadCitations()
@@ -71,9 +83,14 @@ export default {
       })
     },
     loadCitations() {
-      this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
-        this.citations = response.body
-      })
+      if (!this.values) {
+        this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
+          this.citations = response.body
+        })
+      }
+      else {
+        this.citations = this.values
+      }
     },
     refreshCitations(event) {
       if(event) {

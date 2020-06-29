@@ -1,14 +1,16 @@
 <template>
   <div class="panel basic-information">
-    <div class="header">
+    <div class="header flex-separate">
       <h3>Matrix</h3>
     </div>
     <div class="body">
-      <div class="field">
-        <label>Name</label><br>
-        <input
-          v-model="matrixName"
-          type="text">
+      <div class="flex-separate">
+        <div class="field">
+          <label>Name</label><br>
+          <input
+            v-model="matrixName"
+            type="text">
+        </div>
       </div>
       <button
         v-if="!matrix.id"
@@ -40,9 +42,9 @@
 import { CreateMatrix } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
+import { ActionNames } from '../../store/actions/actions'
 
 import SwitchComponent from './switch.vue'
-import { ActionNames } from '../../store/actions/actions';
 
 export default {
   components: {
@@ -81,18 +83,18 @@ export default {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },
-    validateData() {
+    validateData () {
       return this.$store.getters[GetterNames.GetMatrix].name &&
             !this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   methods: {
-    create() {
+    create () {
       CreateMatrix(this.matrix).then(response => {
-        this.matrix = response
-      }); 
+        this.matrix = response.body
+      })
     },
-    updateMatrix() {
+    updateMatrix () {
       this.$store.dispatch(ActionNames.UpdateMatrix)
     }
   }

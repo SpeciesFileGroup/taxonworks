@@ -1,4 +1,4 @@
-FROM locodelassembly/passenger-ruby27:latest AS base
+FROM phusion/passenger-ruby27:latest AS base
 ARG BUNDLER_WORKERS=1
 
 # From Phusion
@@ -11,7 +11,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Until we move to update Ubuntu
 RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 # TaxonWorks dependancies

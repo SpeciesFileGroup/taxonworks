@@ -3,11 +3,11 @@ import { GetMatrixObservationRowsDynamic } from '../../request/resources'
 
 export default function ({ commit, state }, id) {
   return new Promise((resolve, reject) => {
-      return GetMatrixObservationRowsDynamic(id).then(rows => {
-        commit(MutationNames.SetMatrixRowsDynamic, rows)
-        return resolve(rows)
-      }, (response) => {
-        return reject(response)
-      })
+    return GetMatrixObservationRowsDynamic(id).then(response => {
+      commit(MutationNames.SetMatrixRowsDynamic, response)
+      return resolve(response)
+    }, (response) => {
+      return reject(response)
+    })
   })
 }

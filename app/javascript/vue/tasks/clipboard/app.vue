@@ -53,8 +53,10 @@
       }
     },
     mounted() {
-      document.removeEventListener("keydown", this.KeyPress)
-      document.removeEventListener("keyup", this.removeKey)
+      document.addEventListener('turbolinks:load', (event) => {
+        document.removeEventListener("keydown", this.KeyPress)
+        document.removeEventListener("keyup", this.removeKey)
+      })
       document.addEventListener("keydown", this.KeyPress)
       document.addEventListener("keyup", this.removeKey)
       GetClipboard().then(response => {

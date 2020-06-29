@@ -30,6 +30,7 @@ import setDescriptorSavedOnce from './setDescriptorSavedOnce'
 import setObservationId from './setObservationId'
 import setMatrixRow from './setMatrixRow'
 import resetState from './resetState'
+import setUnits from './setUnits'
 
 export const MutationNames = {
   SetDescriptors: 'setDescriptors',
@@ -53,17 +54,18 @@ export const MutationNames = {
   SetSampleStandardDeviation: 'setSampleStandardDeviation',
   SetSampleStandardError: 'setSampleStandardError',
   SetSampleMaxFor: 'setSampleMaxFor',
-  SetSampleMinFor: `setSampleMinFor`,
-  SetSampleNFor: `setSampleNFor`,
-  SetSampleUnitFor: `setSampleUnitFor`,
-  SetMatrixRow: `setMatrixRow`,
+  SetSampleMinFor: 'setSampleMinFor',
+  SetSampleNFor: 'setSampleNFor',
+  SetSampleUnitFor: 'setSampleUnitFor',
+  SetMatrixRow: 'setMatrixRow',
   ClearObservation: 'clearObservation',
-  ObservationSaved: `observationSaved`,
-  CountdownStartedFor: `countdownStartedFor`,
-  SetDescriptorSaving: `setDescriptorSaving`,
-  SetDescriptorSavedOnce: `setDescriptorSavedOnce`,
-  SetObservationId: `setObservationId`,
-  ResetState: `resetState`,
+  ObservationSaved: 'observationSaved',
+  CountdownStartedFor: 'countdownStartedFor',
+  SetDescriptorSaving: 'setDescriptorSaving',
+  SetDescriptorSavedOnce: 'setDescriptorSavedOnce',
+  SetObservationId: 'setObservationId',
+  ResetState: 'resetState',
+  SetUnits: 'setUnits'
 }
 
 export const MutationFunctions = {
@@ -98,5 +100,6 @@ export const MutationFunctions = {
   [MutationNames.SetDescriptorSaving]: setDescriptorSaving,
   [MutationNames.SetDescriptorSavedOnce]: setDescriptorSavedOnce,
   [MutationNames.SetObservationId]: setObservationId,
-  [MutationNames.SetMatrixRow]: setMatrixRow
+  [MutationNames.SetMatrixRow]: setMatrixRow,
+  [MutationNames.SetUnits]: setUnits
 }

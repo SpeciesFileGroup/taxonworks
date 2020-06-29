@@ -31,6 +31,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   props: ['figure'],
@@ -52,7 +53,7 @@ export default {
   methods: {
     deleteDepiction: function () {
       let ajaxUrl = `/depictions/${this.depiction.id}`
-      this.$http.delete(ajaxUrl).then(() => {
+      AjaxCall('delete', ajaxUrl).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
@@ -69,7 +70,7 @@ export default {
           figure_label: this.depiction.figure_label
         }
 
-      this.$http.patch(ajaxUrl, depiction).then(() => {
+      AjaxCall('patch', ajaxUrl, depiction).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     }

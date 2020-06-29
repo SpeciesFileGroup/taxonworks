@@ -1,11 +1,16 @@
 <template>
-  <section-panel title="Asserted distributions">
+  <section-panel
+    :status="status"
+    :title="title">
     <a
-      :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${otu.id}`"
+      v-if="currentOtu"
+      :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
       slot="title">Expand</a>
     <a name="asserted-distributions"/>
     <ul class="no_bullets">
-      <li v-for="assertedDistribution in assertedDistributions">
+      <li
+        v-for="assertedDistribution in assertedDistributions"
+        :key="assertedDistribution.id">
         <span v-html="assertedDistribution.geographic_area.name"/>
       </li>
     </ul>
@@ -14,33 +19,21 @@
 
 <script>
 
-import { GetAssertedDistributions } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
+import extendSection from './shared/extendSections'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
-  data() {
-    return {
-      assertedDistributions: []
-    }
-  },
-  watch: {
-    otu: { 
-      handler (newVal) {
-        if(newVal) {
-          GetAssertedDistributions(newVal.id).then(response => {
-            this.assertedDistributions = response.body
-          })
-        }
-      },
-      immediate: true
+  computed: {
+    assertedDistributions () {
+      return this.$store.getters[GetterNames.GetAssertedDistributions]
+    },
+    currentOtu () {
+      return this.$store.getters[GetterNames.GetCurrentOtu]
     }
   }
 }

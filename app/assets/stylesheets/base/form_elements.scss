@@ -36,6 +36,10 @@ input[type=checkbox].increment {
   background-image: image-url('unlocked.svg');
 }
 
+button {
+  font-size: 12px;
+}
+
 input[type=checkbox]:checked + label.lock {
   background-image: image-url('locked.svg');
   box-shadow: inset 0px 1px 2px 0px $navigation_border;

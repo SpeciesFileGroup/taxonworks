@@ -30,6 +30,7 @@ import getLastChange from './getLastChange'
 import getSaving from './getSaving'
 import getLastSave from './getLastSave'
 import getInitLoad from './getInitLoad'
+import getAutosave from './getAutosave'
 
 const GetterNames = {
   GetAllRanks: 'getAllRanks',
@@ -63,7 +64,8 @@ const GetterNames = {
   GetLastChange: 'getLastChange',
   GetSaving: 'getSaving',
   GetLastSave: 'getLastSave',
-  GetInitLoad: 'getInitLoad'
+  GetInitLoad: 'getInitLoad',
+  GetAutosave: 'getAutosave'
 }
 
 const GetterFunctions = {
@@ -98,7 +100,8 @@ const GetterFunctions = {
   [GetterNames.GetEtymology]: getEtymology,
   [GetterNames.GetLastChange]: getLastChange,
   [GetterNames.GetLastSave]: getLastSave,
-  [GetterNames.GetInitLoad]: getInitLoad
+  [GetterNames.GetInitLoad]: getInitLoad,
+  [GetterNames.GetAutosave]: getAutosave
 }
 
 export {

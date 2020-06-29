@@ -79,8 +79,9 @@
         }
       },
       sendCitation() {
-        this.$emit('create', this.citation);
-        this.citation = this.newCitation();
+        this.$emit('create', this.citation)
+        this.citation = this.newCitation()
+        this.autocompleteLabel = undefined
       }
     }
   }

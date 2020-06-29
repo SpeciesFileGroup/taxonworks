@@ -347,7 +347,8 @@ export default {
       const pinItem = {
         pinboard_item: {
           pinned_object_id: this.metadata.id,
-          pinned_object_type: this.metadata.type
+          pinned_object_type: this.metadata.type,
+          is_inserted: true
         }
       }
       this.create('/pinboard_items', pinItem).then(response => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="panel filter-container">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <span
@@ -31,6 +31,7 @@
         title="In project"
         name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
+        param="in_project"
         v-model="params.source.in_project"
       />
       <title-component v-model="params.source"/>
@@ -42,32 +43,11 @@
       <citation-types-component v-model="params.source.citation_object_type"/>
       <users-component v-model="params.user"/>
       <with-component
-        title="Citations"
-        v-model="params.byRecordsWith.citations"
-      />
-      <with-component
-        title="DOI"
-        v-model="params.byRecordsWith.with_doi"
-      />
-      <with-component
-        title="Roles"
-        v-model="params.byRecordsWith.roles"
-      />
-      <with-component
-        title="Tags"
-        v-model="params.byRecordsWith.tags"
-      />
-      <with-component
-        title="Notes"
-        v-model="params.byRecordsWith.notes"
-      />
-      <with-component
-        title="Documents"
-        v-model="params.byRecordsWith.documents"
-      />
-      <with-component
-        title="Nomenclatural"
-        v-model="params.byRecordsWith.nomenclature"
+        v-for="(item, key) in params.byRecordsWith"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.byRecordsWith[key]"
       />
     </div>
   </div>
@@ -86,6 +66,7 @@ import CitationTypesComponent from './filters/citationTypes'
 import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
 
@@ -120,11 +101,10 @@ export default {
     }
   },
   mounted () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const params = Object.fromEntries(urlParams)
+    const urlParams = URLParamsToJSON(location.href)
 
-    if (Object.keys(params).length) {
-      this.getSources(params)
+    if (Object.keys(urlParams).length) {
+      this.getSources(urlParams)
     }
   },
   methods: {
@@ -147,6 +127,8 @@ export default {
         this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
+        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        history.pushState(null, null, `/tasks/sources/filter?${urlParams.toString()}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }

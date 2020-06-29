@@ -464,6 +464,7 @@ resources :otus do
     get :timeline, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
+    get :coordinate, defaults: {format: :json}
   end
 
 end
@@ -646,6 +647,8 @@ resources :taxon_names do
     get :random
 
     get :rank_table, defaults: {format: :json}
+    get :predicted_rank, {format: :json}
+
   end
 
   member do

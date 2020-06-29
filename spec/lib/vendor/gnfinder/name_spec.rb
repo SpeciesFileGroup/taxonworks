@@ -1,9 +1,10 @@
 require 'rails_helper'
+# TODO: Uses of contain_exactly here might not produce intended behaviour as this matcher doesn't care about order.
 describe Vendor::Gnfinder::Name, type: [:model]  do
 
   let(:finder) { Vendor::Gnfinder.finder }
 
-  let(:monomial_string) { 'The DIAPRIINAE of the World' }
+  let(:monomial_string) { 'The ACRIDIDAE of the World' }
   let(:binomial_string) { 'Turripria woldai sp. nov. is the same as Turripria woldaii' }
 
   let(:gnfinder_monomial) { finder.find_names(monomial_string, verification: true, tokens_around: 3).names.first }
@@ -21,11 +22,11 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     let(:n) { mn.found }
 
     specify '#name' do
-      expect(n.name).to eq('Diapriinae')
+      expect(n.name).to eq('Acrididae')
     end
 
     specify '#verbatim' do
-      expect(n.verbatim).to eq('DIAPRIINAE')
+      expect(n.verbatim).to eq('ACRIDIDAE')
     end
 
     specify '#words_start' do
@@ -33,7 +34,7 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
     end
 
     specify '#words_end' do
-      expect(n.offset_end).to eq(14)
+      expect(n.offset_end).to eq(13)
     end
 
     specify '#words_before' do
@@ -46,19 +47,19 @@ describe Vendor::Gnfinder::Name, type: [:model]  do
   end
 
   specify '#classification_path' do
-    expect(mn.classification_path).to contain_exactly()
+    expect(mn.classification_path).to contain_exactly("Acrididae", "Acridoidea", "Animalia", "Arthropoda", "Insecta", "Orthoptera")
   end
 
   specify '#classification_rank' do
-    expect(mn.classification_rank).to contain_exactly()
+    expect(mn.classification_rank).to contain_exactly("class", "family", "kingdom", "order", "phylum", "superfamily")
   end
 
   specify '#data_source_title' do
-    expect(mn.best_result.data_source_title).to eq('Wikispecies')
+    expect(mn.best_result.data_source_title).to eq('Catalogue of Life')
   end
 
   specify '#protonym_name 1' do
-    expect(mn.protonym_name).to eq('Diapriinae')
+    expect(mn.protonym_name).to eq('Acrididae')
   end
 
   specify '#protonym_name 2' do

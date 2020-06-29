@@ -17,6 +17,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   computed: {
@@ -26,13 +27,13 @@ export default {
   },
   methods: {
     removeCitation: function (item) {
-      this.$http.delete(`/citations/${item.id}`).then(() => {
+      AjaxCall('delete', `/citations/${item.id}`).then(() => {
         this.$store.commit(MutationNames.RemoveOtuFormCitationList, item.id)
         this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
       })
     },
     setSource(item) {
-      this.$http.get(`/sources/${item.source.id}.json`).then(response => {
+      AjaxCall('get', `/sources/${item.source.id}.json`).then(response => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
       })
     }

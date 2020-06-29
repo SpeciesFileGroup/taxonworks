@@ -8,7 +8,7 @@ module Lib::Vendor::GnfinderHelper
     gnfinder_names.each do |n|
       s = link_to(n.cached, browse_nomenclature_task_path(taxon_name_id: n))
       if source
-        s = s + ': ' + quick_citation_tag(source.id, n, 'right_float')
+        s = quick_citation_tag(source.id, n, 'margin-small-right') + ' ' + s
       end
       r.push s
     end

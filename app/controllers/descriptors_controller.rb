@@ -43,7 +43,7 @@ class DescriptorsController < ApplicationController
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to url_for(@descriptor.metamorphosize),
-          notice: 'Descriptor was successfully created.' }
+                      notice: 'Descriptor was successfully created.' }
 
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else

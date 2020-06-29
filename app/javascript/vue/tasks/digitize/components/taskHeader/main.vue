@@ -1,5 +1,5 @@
 <template>
-  <nav-bar>
+  <nav-bar style="z-index: 1001">
     <div class="flex-separate">
       <div class="horizontal-left-content">
         <autocomplete

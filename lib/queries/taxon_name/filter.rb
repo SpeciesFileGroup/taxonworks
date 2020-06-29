@@ -49,6 +49,11 @@ module Queries
       #   Ignored when taxon_name_id[].empty? Return descendants of parents as well.
       attr_accessor :descendants
 
+      # @param descendants_max_depth [Integer]
+      # A positive integer indicating how many levels deep of descenants to retrieve.
+      #   Ignored when descentants is false/unspecified
+      attr_accessor :descendants_max_depth
+
       # @param taxon_name_relationship [Array]
       #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
       # Each entry must have a 'type'
@@ -81,6 +86,11 @@ module Queries
       #   whether the name has an Otu
       attr_accessor :otus
 
+      # @param etymology [Boolean, nil]
+      # ['true' or 'false'] on initialize
+      #   whether the name has etymology
+      attr_accessor :etymology
+
       # @param authors [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has an author string, from any source, provided 
@@ -96,7 +106,7 @@ module Queries
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
-      #   &nomenclature_code=Iczn|Icnp|Icn|Ictv
+      #   &nomenclature_code=Iczn|Icnp|Icn|Icvcn
       attr_accessor :nomenclature_code
 
       # TODO: inverse is duplicated in autocomplete
@@ -111,18 +121,20 @@ module Queries
       attr_accessor :taxon_name_type
 
       # @param params [Params] 
-      #   a permitted via controller
+      #   as permitted via controller
       def initialize(params)
         @author = params[:author]
         @authors = (params[:authors]&.downcase == 'true' ? true : false) if !params[:authors].nil?
         @citations = params[:citations]
         @descendants = (params[:descendants]&.downcase == 'true' ? true : false) if !params[:descendants].nil?
+        @descendants_max_depth = params[:descendants_max_depth]
         @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
         @leaves = (params[:leaves]&.downcase == 'true' ? true : false) if !params[:leaves].nil?
         @name = params[:name]
         @nomenclature_code = params[:nomenclature_code]  if !params[:nomenclature_code].nil?
         @nomenclature_group = params[:nomenclature_group]  if !params[:nomenclature_group].nil?
         @otus = (params[:otus]&.downcase == 'true' ? true : false) if !params[:otus].nil?
+        @etymology = (params[:etymology]&.downcase == 'true' ? true : false) if !params[:etymology].nil?
         @project_id = params[:project_id]
         @taxon_name_classification = params[:taxon_name_classification] || [] 
         @taxon_name_id = params[:taxon_name_id] || []
@@ -171,12 +183,17 @@ module Queries
       # A merge facet.
       def descendant_facet
         return nil if taxon_name_id.empty? || descendants == false
-        ::TaxonName.where(
-          ::TaxonNameHierarchy.where(
-            ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id)) # TODO- is likely not the most optimal
-          ).arel.exists
+
+        descendants_subquery = ::TaxonNameHierarchy.where(
+          ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
+          ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
         )
+
+        unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
+          descendants_subquery = descendants_subquery.where(TaxonNameHierarchy.arel_table[:generations].lteq(descendants_max_depth.to_i))
+        end
+
+        ::TaxonName.where(descendants_subquery.arel.exists)
       end
 
       # @return Scope
@@ -192,6 +209,14 @@ module Queries
         authors ? 
           ::TaxonName.where.not(cached_author_year: nil) :
           ::TaxonName.where(cached_author_year: nil)
+      end
+
+      # @return Scope
+      def with_etymology_facet
+        return nil if etymology.nil?
+        etymology ? 
+          ::TaxonName.where.not(etymology: nil) :
+          ::TaxonName.where(etymology: nil)
       end
 
       # @return Scope
@@ -363,6 +388,7 @@ module Queries
           type_metadata_facet,
           otus_facet,
           authors_facet,
+          with_etymology_facet,
           citations_facet
         ].compact
 
