@@ -1,5 +1,8 @@
 <template>
-  <section-panel title="Distribution">
+  <section-panel
+    :status="status"
+    :title="title"
+    :spinner="isLoading">
     <a name="collecting-events"/>
     <ul>
       <li
@@ -39,21 +42,21 @@
 import SectionPanel from './shared/sectionPanel'
 import MapComponent from 'components/georeferences/map.vue'
 import SwitchComponent from 'components/switch.vue'
+import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     MapComponent,
     SwitchComponent
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
   computed: {
+    isLoading () {
+      return this.$store.getters[GetterNames.GetLoadState].distribution
+    },
     collectingEvents: {
       get () {
         return this.$store.getters[GetterNames.GetCollectingEvents]

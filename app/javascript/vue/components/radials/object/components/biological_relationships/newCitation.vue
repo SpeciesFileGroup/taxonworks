@@ -7,18 +7,25 @@
           url="/sources/autocomplete"
           label="label"
           min="2"
-          :send-label="autocompleteLabel"
+          :clear-after="true"
           ref="autocomplete"
-          @getItem="citation.source_id = $event.id"
+          @getItem="setSource"
           placeholder="Select a source"
-          param="term"/>
+          param="term"
+        />
         <default-element
           class="separate-left"
           label="source"
           type="Source"
-          @getLabel="autocompleteLabel = $event"
-          @getId="citation.source_id = $event"
+          @getItem="setSource"
           section="Sources"
+        />
+        <lock-component v-model="lock" />
+      </div>
+      <div class="margin-small-top">
+        <span
+          v-if="citation.source_id && !citation.id"
+          v-html="autocompleteLabel"
         />
       </div>
       <div class="flex-separate separate-bottom">
@@ -26,11 +33,14 @@
           type="text"
           class="normal-input inline pages"
           v-model="citation.pages"
-          placeholder="Pages">
+          @input="setPage"
+          placeholder="Pages"
+        >
         <label class="inline middle">
           <input
             v-model="citation.is_original"
-            type="checkbox">
+            type="checkbox"
+          >
           Is original
         </label>
       </div>
@@ -39,58 +49,83 @@
 </template>
 
 <script>
-  import DefaultElement from 'components/getDefaultPin.vue'
-  import Autocomplete from 'components/autocomplete.vue'
+import DefaultElement from 'components/getDefaultPin.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import LockComponent from 'components/lock.vue'
+import { convertType } from 'helpers/types'
 
-  export default {
-    components: {
-      DefaultElement,
-      Autocomplete
-    },
-    props: {
-      globalId: {
-        type: String,
-        required: true
-      }
-    },
-    computed: {
-      validateFields() {
-        return this.citation.source_id
-      }
-    },
-    data() {
-      return {
-        autocompleteLabel: undefined,
-        citation: this.newCitation()
-      }
-    },
-    watch: {
-      citation: {
-        handler(newVal) {
-          this.sendCitation()
-        },
-        deep: true
-      }
-    },
-    methods: {
-      newCitation() {
-        return {
-          annotated_global_entity: decodeURIComponent(this.globalId),
-          source_id: undefined,
-          is_original: undefined,
-          pages: undefined,
-        }
-      },
-      sendCitation() {
-        if(this.validateFields) {
-          this.$emit('create', this.citation);
-        }
-      },
-      cleanCitation() {
-        this.autocompleteLabel = ''
-        this.$refs.autocomplete.cleanInput()
-        this.citation = this.newCitation()
-      }
+export default {
+  components: {
+    DefaultElement,
+    Autocomplete,
+    LockComponent
+  },
+  props: {
+    globalId: {
+      type: String,
+      required: true
     }
+  },
+  computed: {
+    validateFields () {
+      return this.citation.source_id
+    }
+  },
+  data () {
+    return {
+      autocompleteLabel: undefined,
+      citation: this.newCitation(),
+      lock: false
+    }
+  },
+  watch: {
+    citation: {
+      handler (newVal) {
+        this.sendCitation()
+      },
+      deep: true
+    },
+    lock (newVal) {
+      sessionStorage.setItem('radialObject::source::lock', newVal)
+      this.$emit('lock', newVal)
+    }
+  },
+  mounted () {
+    this.lock = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    if (this.lock) {
+      this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
+      this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))
+      this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
+    }
+  },
+  methods: {
+    newCitation () {
+      return {
+        annotated_global_entity: decodeURIComponent(this.globalId),
+        source_id: undefined,
+        is_original: undefined,
+        pages: undefined
+      }
+    },
+    sendCitation () {
+      if (this.validateFields) {
+        this.$emit('create', this.citation)
+      }
+    },
+    cleanCitation () {
+      this.autocompleteLabel = undefined
+      this.citation = this.newCitation()
+    },
+    setSource (source) {
+      sessionStorage.setItem('radialObject::source::id', source.id)
+      sessionStorage.setItem('radialObject::source::label', source.label)
+      this.citation.source_id = source.id
+      this.autocompleteLabel = source.label
+    },
+    setPage (value) {
+      sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
+    }
+
   }
+}
 </script>

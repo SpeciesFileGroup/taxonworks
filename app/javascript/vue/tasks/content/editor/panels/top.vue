@@ -18,6 +18,7 @@
   import Autocomplete from 'components/autocomplete.vue'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     name: 'PanelTop',
@@ -34,7 +35,7 @@
     },
     methods: {
       loadOtu(id) {
-        this.$http.get(`/otus/${id}.json`).then(response => {
+        AjaxCall('get', `/otus/${id}.json`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
         })        
       },
@@ -43,7 +44,7 @@
         var otuId = url.searchParams.get("otu_id");
         if(otuId != null && Number.isInteger(Number(otuId))) {
           this.loadOtu(otuId)
-        }        
+        }
       }
     }
   }

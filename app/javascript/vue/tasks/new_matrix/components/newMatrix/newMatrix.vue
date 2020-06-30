@@ -83,18 +83,18 @@ export default {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },
-    validateData() {
+    validateData () {
       return this.$store.getters[GetterNames.GetMatrix].name &&
             !this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   methods: {
-    create() {
+    create () {
       CreateMatrix(this.matrix).then(response => {
-        this.matrix = response
-      }); 
+        this.matrix = response.body
+      })
     },
-    updateMatrix() {
+    updateMatrix () {
       this.$store.dispatch(ActionNames.UpdateMatrix)
     }
   }

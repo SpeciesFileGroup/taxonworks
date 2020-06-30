@@ -102,7 +102,23 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_part_of_speach
       if is_species_rank? && self.part_of_speech_class.nil? && !has_misspelling_relationship? && is_available?
-        soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+
+        z = TaxonNameClassification.
+            joins(:taxon_name).
+            where(taxon_names: { name: name, project_id: project_id }).
+            where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::PartOfSpeech%'").
+            group(:type).
+            count(:type)
+
+        if z.empty?
+          soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+        else
+          l = []
+          z.each do |key, value|
+            l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
+          end
+          soft_validations.add(:base, 'Part of speech is not specified. The name was previously used' + l.join('; '))
+        end
       end
     end
 
@@ -730,7 +746,7 @@ module Protonym::SoftValidationExtensions
     def sv_type_placement1
       # this taxon is a type, but not included in nominal taxon
       if !!self.type_of_taxon_names
-        self.type_of_taxon_names.find_each do |t|
+        self.type_of_taxon_names.each do |t|
           soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
         end
       end
@@ -1016,7 +1032,18 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
-        soft_validations.add(:etymology, 'Etymology is missing')
+        z = TaxonName.
+            where(name: name, project_id: project_id).where.not(etymology: nil).
+            group(:etymology).
+            count(:etymology)
+
+        if z.empty?
+          soft_validations.add(:etymology, 'Etymology is missing')
+        else
+          z1 = z.sort_by {|k, v| -v}
+          t = z1[0][1] == 1 ? 'time' : 'times'
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+        end
       end
     end
 
@@ -1026,7 +1053,7 @@ module Protonym::SoftValidationExtensions
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
-            taxa.find_each do |t|
+            taxa.each do |t|
               soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
               z = 1
             end

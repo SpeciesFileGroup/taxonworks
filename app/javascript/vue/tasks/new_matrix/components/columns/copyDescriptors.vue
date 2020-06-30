@@ -2,17 +2,19 @@
   <div>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '500px' }"
-      @close="showModal = false">
+      :container-style="{ width: '500px', 'overflow-y': 'scroll', 'max-height': '60vh' }"
+      @close="closeModal">
       <h3 slot="header">Copy descriptors from matrix</h3>
       <div slot="body">
         <spinner-component
           v-if="isLoading"
-          legend="Loading observation matrices..."/>
+          legend="Loading..."/>
         <select
           class="full_width margin-medium-bottom"
           v-model="matrixSelected">
-          <option :value="undefined"> Select a observation matrix </option>
+          <option :value="undefined">
+            Select a observation matrix
+          </option>
           <option
             v-for="item in observationMatrices"
             :key="item.id"
@@ -20,6 +22,30 @@
             {{ item.name }}
           </option>
         </select>
+        <div
+          v-if="matrixSelected"
+          class="flex-separate margin-small-bottom">
+          <div>
+            <button
+              @click="addDescriptors"
+              :disabled="!descriptorsSelected.length"
+              class="button normal-input button-submit">
+              Add descriptors
+            </button>
+          </div>
+          <div v-if="matrixSelected">
+            <button
+              class="button normal-input button-default"
+              @click="selectAll">
+              Select all
+            </button>
+            <button
+              class="button normal-input button-default"
+              @click="unselectAll">
+              Unselect all
+            </button>
+          </div>
+        </div>
         <ul
           class="no_bullets">
           <li
@@ -41,13 +67,31 @@
           </li>
         </ul>
       </div>
-      <button
+      <div
         slot="footer"
-        @click="addDescriptors"
-        :disabled="!descriptorsSelected.length"
-        class="button normal-input button-submit">
-        Add descriptors
-      </button>
+        v-if="matrixSelected"
+        class="flex-separate">
+        <div>
+          <button
+            @click="addDescriptors"
+            :disabled="!descriptorsSelected.length"
+            class="button normal-input button-submit">
+            Add descriptors
+          </button>
+        </div>
+        <div>
+          <button
+            class="button normal-input button-default"
+            @click="selectAll">
+            Select all
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="unselectAll">
+            Unselect all
+          </button>
+        </div>
+      </div>
     </modal-component>
   </div>
 </template>
@@ -55,12 +99,11 @@
 <script>
 
 import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
 import SpinnerComponent from 'components/spinner'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-import { GetMatrixObservation, GetMatrixObservationColumns, CreateColumnItem, GetObservationMatrices } from '../../request/resources'
+import { GetMatrixObservationColumns, CreateColumnItem, GetObservationMatrices } from '../../request/resources'
 
 export default {
   components: {
@@ -94,8 +137,8 @@ export default {
         if (newVal) {
           this.isLoading = true
           GetObservationMatrices().then(response => {
-            response.splice(response.findIndex(item => { return this.matrixId === item.id }), 1)
-            this.observationMatrices = response
+            response.body.splice(response.body.findIndex(item => { return this.matrixId === item.id }), 1)
+            this.observationMatrices = response.body
             this.isLoading = false
           })
         }
@@ -112,8 +155,10 @@ export default {
   },
   methods: {
     loadDescriptors (matrixId) {
-      GetMatrixObservationColumns(matrixId).then(response => {
-        this.descriptors = response
+      this.isLoading = true
+      GetMatrixObservationColumns(matrixId, { per: 500 }).then(response => {
+        this.descriptors = response.body
+        this.isLoading = false
       })
     },
     addDescriptors () {
@@ -137,12 +182,23 @@ export default {
         this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
         this.descriptorsSelected = []
         TW.workbench.alert.create('Descriptors was successfully added to matrix.', 'notice')
+        this.closeModal()
       })
     },
     alreadyExist (item) {
       return this.columns.find(column => {
         return item.descriptor_id === column.descriptor_id
       })
+    },
+    closeModal () {
+      this.showModal = false
+      this.$emit('close')
+    },
+    selectAll () {
+      this.descriptorsSelected = this.descriptors.filter(item => { return !this.alreadyExist(item)})
+    },
+    unselectAll () {
+      this.descriptorsSelected = []
     }
   }
 }

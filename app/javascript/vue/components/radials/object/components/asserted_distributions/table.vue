@@ -6,20 +6,23 @@
           <th>Geographic area</th>
           <th>Type</th>
           <th>Parent</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in list"
           :key="item.id"
-          class="list-complete-item">
+          class="list-complete-item"
+        >
           <td>
-            <span 
+            <span
               :class="{ absent: item.is_absent }"
-              v-html="item.geographic_area.name"/>
+              v-html="item.geographic_area.name"
+            />
           </td>
           <td>
             <span> {{ item.geographic_area.geographic_area_type.name }} </span>
@@ -30,14 +33,18 @@
           <td class="vue-table-options">
             <citation-count
               :object="item"
-              target="asserted_distributions"/>
-            <radial-annotator :global-id="item.global_id"/>
+              :values="item.citations"
+              target="asserted_distributions"
+            />
+            <radial-annotator :global-id="item.global_id" />
             <span
               class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
+              @click="$emit('edit', Object.assign({}, item))"
+            />
             <span
               class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
+              @click="deleteItem(item)"
+            >Remove
             </span>
           </td>
         </tr>
@@ -47,33 +54,33 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import CitationCount from '../shared/citationsCount.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import CitationCount from '../shared/citationsCount.vue'
 
-  export default {
-    components: {
-      RadialAnnotator,
-      CitationCount
-    },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-    },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
+export default {
+  components: {
+    RadialAnnotator,
+    CitationCount
+  },
+  props: {
+    list: {
+      type: Array,
+      default: () => {
+        return []
+      }
+    }
+  },
+  mounted () {
+    this.$options.components.RadialAnnotator = RadialAnnotator
+  },
+  methods: {
+    deleteItem (item) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.$emit('delete', item)
       }
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   .vue-table-container {

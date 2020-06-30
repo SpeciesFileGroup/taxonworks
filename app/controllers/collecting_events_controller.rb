@@ -132,6 +132,14 @@ class CollectingEventsController < ApplicationController
               filename: "collecting_events_#{DateTime.now}.csv")
   end
 
+  # parse verbatim label, return date and coordinates
+  def parse_verbatim_label
+    if params[:verbatim_label]
+      render json: {date: Utilities::Dates.date_regex_from_verbatim_label(params[:verbatim_label]),
+                    geo: Utilities::Geo.coordinates_regex_from_verbatim_label(params[:verbatim_label])}.to_json
+    end
+  end
+
    # GET collecting_events/batch_load
   def batch_load
   end

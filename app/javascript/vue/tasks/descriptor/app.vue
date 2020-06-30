@@ -75,9 +75,9 @@
                 <template v-if="existComponent">
                   <div>
                     <component
-                      v-if="descriptor.type && showDescriptor"
+                      v-if="descriptor.type"
                       :is="loadComponent + 'Component'"
-                      @save="saveDescriptor"
+                      @save="saveDescriptor($event, false)"
                       v-model="descriptor"
                     />
                   </div>
@@ -112,7 +112,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'
 import QualitativeComponent from './components/character/character.vue'
-import ContinuousComponent from './components/units/units.vue'
+import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
 import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, CreateObservationMatrixColumn, GetMatrix } from './request/resources'
@@ -127,20 +127,18 @@ export default {
     QualitativeComponent,
     TypeComponent,
     DefinitionComponent,
-    ContinuousComponent,
+    ContinuousComponent: UnitComponent,
+    SampleComponent: UnitComponent,
     PreviewComponent,
     GeneComponent,
     Spinner,
     Autocomplete,
     DefaultPin,
-    CreateComponent
+    CreateComponent,
   },
   computed: {
     loadComponent () {
       return this.descriptor.type ? this.descriptor.type.split('::')[1] : undefined
-    },
-    showDescriptor () {
-      return !['Sample', 'PresenceAbsence'].includes(this.loadComponent)
     },
     existComponent () {
       return this.$options.components[this.loadComponent + 'Component']
@@ -201,14 +199,14 @@ export default {
         short_name: undefined
       }
     },
-    saveDescriptor (descriptor) {
+    saveDescriptor (descriptor, redirect = true) {
       this.saving = true
       if (this.descriptor.id) {
         UpdateDescriptor(descriptor).then(response => {
           this.descriptor = response
           this.saving = false
           TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
-          if (this.matrix) {
+          if (this.matrix && redirect) {
             window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
           }
         }, rejected => {
@@ -221,7 +219,7 @@ export default {
           this.setParameters()
           TW.workbench.alert.create('Descriptor was successfully created.', 'notice')
           if (this.matrix) {
-            this.addToMatrix(this.descriptor)
+            this.addToMatrix(this.descriptor, redirect)
           }
         }, rejected => {
           this.saving = false
@@ -235,7 +233,7 @@ export default {
         TW.workbench.alert.create('Descriptor was successfully deleted.', 'notice')
       })
     },
-    addToMatrix (descriptor) {
+    addToMatrix (descriptor, redirect) {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
@@ -243,7 +241,9 @@ export default {
       }
       CreateObservationMatrixColumn(data).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
-        window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
+        if (redirect) {
+          window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
+        }
       })
     },
     loadMatrix (id) {

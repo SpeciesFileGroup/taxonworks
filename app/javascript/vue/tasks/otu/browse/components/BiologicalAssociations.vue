@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Biological associations">
+  <section-panel
+    :status="status"
+    :title="title">
     <a name="biological-associations"/>
     <ul class="no_bullets">
       <li v-for="biologicalAssociation in biologicalAssociations">
@@ -15,15 +17,12 @@
 
 import SectionPanel from './shared/sectionPanel'
 import { GetBiologicalAssociations } from '../request/resources.js'
+import extendSection from './shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel
-  },
-  props: {
-    otu: {
-      type: Object
-    }
   },
   data() {
     return {

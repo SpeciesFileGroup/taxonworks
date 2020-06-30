@@ -108,6 +108,7 @@
   import OtuButton from 'components/otu/otu'
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -251,7 +252,7 @@
         }
         if (this.existCitation(citation)) return
 
-        this.$http.post('/citations', citation).then(response => {
+        AjaxCall('post', '/citations', citation).then(response => {
           this.$store.commit(MutationNames.AddCitationToList, response.body)
         }, response => {
 
@@ -287,13 +288,13 @@
         let ajaxUrl = `/contents/${this.record.content.id}`
 
         if (this.record.content.id == '') {
-          this.$http.post(ajaxUrl, this.record).then(response => {
+          AjaxCall('post', ajaxUrl, this.record).then(response => {
             this.record.content.id = response.body.id
             this.$store.commit(MutationNames.AddToRecentContents, response.body)
             this.$store.commit(MutationNames.SetContentSelected, response.body)
           })
         } else {
-          this.$http.patch(ajaxUrl, this.record).then(response => {
+          AjaxCall('patch', ajaxUrl, this.record).then(response => {
             this.$store.commit(MutationNames.AddToRecentContents, response.body)
           })
         }
@@ -307,7 +308,7 @@
 
         this.firstInput = true
         this.resetAutoSave()
-        this.$http.get(ajaxUrl).then(response => {
+        AjaxCall('get', ajaxUrl).then(response => {
           if (response.body.length > 0) {
             this.record.content.id = response.body[0].id
             this.record.content.text = response.body[0].text

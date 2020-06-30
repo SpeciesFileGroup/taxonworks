@@ -9,6 +9,12 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    loadState: {
+      descendants: true,
+      distribution: true,
+      assertedDistribution: true,
+      collectionObjects: true
+    },
     preferences: {
       sections: [
         'NomenclatureHistory',

@@ -16,7 +16,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar>
+    <nav-bar class="source-navbar">
       <div class="flex-separate full_width">
         <div class="middle">
           <span
@@ -177,8 +177,10 @@ export default {
   },
   watch: {
     source: { 
-      handler () {
-        this.settings.lastEdit = Date.now()
+      handler (newVal, oldVal) {
+        if (newVal.id === oldVal.id) {
+          this.settings.lastEdit = Date.now()
+        }
       },
       deep: true
     }

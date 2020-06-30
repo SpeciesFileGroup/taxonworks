@@ -14,7 +14,8 @@
         :is="componentSelected"
         :batch-type="view"
         :matrix-id="matrix.id"
-        :list="lists[view]"/>
+        :list="lists[view]"
+        @close="view = undefined"/>
     </div>
   </div>
 </template>
@@ -57,8 +58,8 @@
     },
     mounted() {
       GetMatrixColumnMetadata().then(response => {
-        this.smartOptions = Object.keys(response)
-        this.lists = response
+        this.smartOptions = Object.keys(response.body)
+        this.lists = response.body
       })
     },
     methods: {

@@ -1,7 +1,7 @@
 class CrashTestController < ApplicationController
 
   def index
-    1 / 0
+    User.create!
   end
 
 end

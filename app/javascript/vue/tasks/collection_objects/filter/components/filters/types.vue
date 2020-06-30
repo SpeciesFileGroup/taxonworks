@@ -41,6 +41,7 @@
 <script>
 
 import { GetTypes } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -74,6 +75,8 @@ export default {
     GetTypes().then(response => {
       this.types = response.body
     })
+    const urlParams = URLParamsToJSON(location.href)
+    this.selectedTypes.is_type = urlParams.is_type ? urlParams.is_type : []
   }
 }
 </script>

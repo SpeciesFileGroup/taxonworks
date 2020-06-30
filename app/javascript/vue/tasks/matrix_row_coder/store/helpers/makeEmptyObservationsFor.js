@@ -6,7 +6,8 @@ const ComponentNamesToObservations = {
   [ComponentNames.Qualitative]: ObservationTypes.Qualitative,
   [ComponentNames.Continuous]: ObservationTypes.Continuous,
   [ComponentNames.Sample]: ObservationTypes.Sample,
-  [ComponentNames.Presence]: ObservationTypes.Presence
+  [ComponentNames.Presence]: ObservationTypes.Presence,
+  [ComponentNames.Media]: ObservationTypes.Media
 }
 
 export default function (descriptor) {
@@ -23,6 +24,9 @@ export default function (descriptor) {
       observations.push(makeObservation(emptyCharacterStateObservationData))
     })
   } else if (descriptor.componentName === ComponentNames.Continuous) {
+    const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
+    observations.push(makeObservation(emptyContinuousObservationData))
+  } else if (descriptor.componentName === ComponentNames.Sample) {
     const emptyContinuousObservationData = Object.assign({}, emptyObservationData, { default_unit: descriptor.default_unit })
     observations.push(makeObservation(emptyContinuousObservationData))
   } else {

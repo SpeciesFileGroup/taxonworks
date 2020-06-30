@@ -87,6 +87,7 @@
     <new-citation
       class="separate-top"
       ref="citation"
+      @lock="lockSource = $event"
       @create="citation = $event"
       :global-id="globalId"/>
 
@@ -134,6 +135,9 @@ export default {
       else {
         return undefined
       }
+    },
+    alreadyExist () {
+      return this.list.find(item => item.biological_relationship_id === this.biologicalRelationship.id && item.biological_association_object_id === this.biologicalRelation.id)
     }
   },
   data () {
@@ -144,6 +148,7 @@ export default {
       biologicalRelation: undefined,
       citation: undefined,
       flip: false,
+      lockSource: false,
       urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
     }
   },
@@ -151,10 +156,12 @@ export default {
     reset() {
       this.biologicalRelation = undefined
       this.biologicalRelationship = undefined
-      this.citation = undefined
       this.flip = false
       this.edit = undefined
-      this.$refs.citation.cleanCitation()
+      if (!this.lockSource) {
+        this.citation = undefined
+        this.$refs.citation.cleanCitation()
+      }
     },
     createAssociation () {
       const data = {
@@ -163,12 +170,19 @@ export default {
         subject_global_id: (this.flip ? this.biologicalRelation.global_id : this.globalId),
         citations_attributes: [this.citation]
       }
-
-      this.create('/biological_associations.json', { biological_association: data }).then(response => {
-        this.reset()
-        TW.workbench.alert.create('Biological association was successfully created.', 'notice')
-        this.list.push(response.body)
-      })
+      if (this.alreadyExist) {
+        this.update(`/biological_associations/${this.alreadyExist.id}.json`, { biological_association: data }).then(response => {
+          this.reset()
+          TW.workbench.alert.create('Citation was successfully added to biological association.', 'notice')
+          this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+        })
+      } else {
+        this.create('/biological_associations.json', { biological_association: data }).then(response => {
+          this.reset()
+          TW.workbench.alert.create('Biological association was successfully created.', 'notice')
+          this.list.push(response.body)
+        })
+      }
     },
     updateAssociation () {
       let data = {

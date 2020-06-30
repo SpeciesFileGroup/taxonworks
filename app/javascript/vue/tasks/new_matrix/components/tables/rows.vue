@@ -20,12 +20,12 @@ export default {
     tableList
   },
   computed: {
-    list() {
+    list () {
       return this.$store.getters[GetterNames.GetMatrixRows]
     }
   },
   methods: {
-    removeRow(row) {
+    removeRow (row) {
       this.$store.dispatch(ActionNames.RemoveRow, row.id)
     }
   }

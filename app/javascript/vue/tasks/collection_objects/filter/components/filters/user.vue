@@ -42,18 +42,20 @@
       <div class="field">
         <label>End date:</label>
         <br>
-        <input
-          type="date"
-          class="date-input"
-          :disabled="!user.user_id || !user.user_target"
-          v-model="user.user_date_end">
-        <button
-          type="button"
-          :disabled="!user.user_id || !user.user_target"
-          class="button normal-input button-default"
-          @click="setActualDate">
-          Now
-        </button>
+        <div class="horizontal-left-content">
+          <input
+            type="date"
+            class="date-input"
+            :disabled="!user.user_id || !user.user_target"
+            v-model="user.user_date_end">
+          <button
+            type="button"
+            :disabled="!user.user_id || !user.user_target"
+            class="button normal-input button-default margin-small-left"
+            @click="setActualDate">
+            Now
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -62,6 +64,7 @@
 <script>
 
 import { GetUsers } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -116,6 +119,14 @@ export default {
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
+
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      this.user.user_id = urlParams.user_id
+      this.user.user_date_start = urlParams.user_date_start
+      this.user.user_date_end = urlParams.user_date_end
+      this.user.user_target = urlParams.user_target
+    }
   },
   methods: {
     setActualDate () {

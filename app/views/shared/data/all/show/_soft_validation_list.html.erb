@@ -1,6 +1,6 @@
 <div class="soft_validation list">
   <% object.soft_validate -%>
-  <ul> 
+  <ul class="no_bullets"> 
     <% object.soft_validations.soft_validations.each do |a| -%>
       <%= content_tag :li, a.message.html_safe -%>
     <% end %>

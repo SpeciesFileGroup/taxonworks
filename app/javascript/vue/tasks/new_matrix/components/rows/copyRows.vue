@@ -2,13 +2,13 @@
   <div>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '500px' }"
-      @close="showModal = false">
+      :container-style="{ width: '500px', 'overflow-y': 'scroll', 'max-height': '60vh' }"
+      @close="closeModal">
       <h3 slot="header">Copy rows from matrix</h3>
       <div slot="body">
         <spinner-component
           v-if="isLoading"
-          legend="Loading observation matrices..."/>
+          legend="Loading..."/>
         <select
           class="full_width margin-medium-bottom"
           v-model="matrixSelected">
@@ -20,6 +20,30 @@
             {{ item.name }}
           </option>
         </select>
+        <div
+          v-if="matrixSelected"
+          class="flex-separate margin-small-bottom">
+          <div>
+            <button
+              @click="addRows"
+              :disabled="!rowsSelected.length"
+              class="button normal-input button-submit">
+              Add rows
+            </button>
+          </div>
+          <div v-if="matrixSelected">
+            <button
+              class="button normal-input button-default"
+              @click="selectAll">
+              Select all
+            </button>
+            <button
+              class="button normal-input button-default"
+              @click="unselectAll">
+              Unselect all
+            </button>
+          </div>
+        </div>
         <ul
           class="no_bullets">
           <li
@@ -41,13 +65,30 @@
           </li>
         </ul>
       </div>
-      <button
+      <div
         slot="footer"
-        @click="addRows"
-        :disabled="!rowsSelected.length"
-        class="button normal-input button-submit">
-        Add rows
-      </button>
+        class="flex-separate">
+        <div>
+          <button
+            @click="addRows"
+            :disabled="!rowsSelected.length"
+            class="button normal-input button-submit">
+            Add rows
+          </button>
+        </div>
+        <div v-if="matrixSelected">
+          <button
+            class="button normal-input button-default"
+            @click="selectAll">
+            Select all
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="unselectAll">
+            Unselect all
+          </button>
+        </div>
+      </div>
     </modal-component>
   </div>
 </template>
@@ -56,6 +97,7 @@
 
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
+import getPagination from 'helpers/getPagination'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
@@ -81,14 +123,15 @@ export default {
     return {
       types: {
         Otu: 'ObservationMatrixRowItem::SingleOtu',
-        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
+        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject'
       },
       isLoading: false,
       matrixSelected: undefined,
       rowsSelected: [],
       rows: [],
       showModal: true,
-      observationMatrices: []
+      observationMatrices: [],
+      pagination: undefined
     }
   },
   watch: {
@@ -97,8 +140,8 @@ export default {
         if (newVal) {
           this.isLoading = true
           GetObservationMatrices().then(response => {
-            response.splice(response.findIndex(item => { return this.matrixId === item.id }), 1)
-            this.observationMatrices = response
+            response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
+            this.observationMatrices = response.body
             this.isLoading = false
           })
         }
@@ -107,16 +150,23 @@ export default {
     },
     matrixSelected (newVal) {
       if (newVal) {
-        this.loadRows(newVal.id)
+        this.loadRows()
       } else {
         this.rows = []
       }
     }
   },
+  mounted () {
+    document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
+    this.$el.querySelector('.modal-container').addEventListener('scroll', this.checkScroll)
+  },
   methods: {
-    loadRows (matrixId) {
-      GetMatrixObservationRows(matrixId).then(response => {
-        this.rows = response
+    loadRows (page = undefined) {
+      this.isLoading = true
+      GetMatrixObservationRows(this.matrixSelected.id, { per: 500, page: page }).then(response => {
+        this.rows = this.rows.concat(response.body)
+        this.pagination = getPagination(response)
+        this.isLoading = false
       })
     },
     addRows () {
@@ -137,15 +187,39 @@ export default {
       data.forEach(row => { promises.push(CreateRowItem({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
-        this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+        this.$store.dispatch(ActionNames.GetMatrixObservationRows)
         this.rowsSelected = []
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
+        this.closeModal()
       })
     },
     alreadyExist (item) {
       return this.existingRows.find(row => {
         return item.row_object.id === row.row_object.id
       })
+    },
+    closeModal () {
+      this.showModal = false
+      this.$emit('close')
+    },
+    selectAll () {
+      this.rowsSelected = this.rows.filter(item => { return !this.alreadyExist(item) })
+    },
+    unselectAll () {
+      this.rowsSelected = []
+    },
+    checkScroll (event) {
+
+      const scrollPosition = event.target.clientHeight + event.target.scrollTop
+      const listHeght = event.target.scrollHeight
+
+      const bottomOfTable = (scrollPosition >= listHeght)
+      if (bottomOfTable && !this.isLoading) {
+        console.log(this.pagination)
+        if (this.pagination.nextPage) {
+          this.loadRows(this.pagination.nextPage)
+        }
+      }
     }
   }
 }

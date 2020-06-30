@@ -19,6 +19,9 @@
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   props: {
     person: {
@@ -50,7 +53,7 @@ export default {
   },
   methods: {
     getPerson() {
-      this.$http.get(`/people/${this.person.id}/roles.json`).then(response => {
+      AjaxCall('get', `/people/${this.person.id}/roles.json`).then(response => {
         this.personRoles = response.body
       })
     }

@@ -34,8 +34,8 @@
     methods: {
       updatePreferences() {
         UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
-          this.preferences.layout = response.preferences
-          this.componentsOrder = response.preferences.layout[this.keyStorage]
+          this.preferences.layout = response.body.preferences
+          this.componentsOrder = response.body.preferences.layout[this.keyStorage]
         })
       }
     }

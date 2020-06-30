@@ -1059,4 +1059,62 @@ describe 'Geo', group: :geo do
 
   end
   # rubocop:enable Style/StringHashKeys
+
+  context 'test coordinates_regex_from_verbatim_label' do
+    context 'multiple use cases in coordinates_regex_from_verbatim_label' do
+
+      use_cases = {
+                   'text, 42°5ʼ18.1"S 88°11ʼ43.3"W, text' => '42/5/18.1/S/88/11/43.3/W',
+                   'text, S42°5ʼ18.1"W88°11ʼ43.3", text'  => '42/5/18.1/S/88/11/43.3/W',
+                   'text, S42°5.18ʼW88°11.43ʼ, text'      => '42/5.18//S/88/11.43//W',
+                   'text, 42°5.18ʼS88°11.43ʼW, text'      => '42/5.18//S/88/11.43//W',
+                   'text, S42.18°W88.34°, text'           => '42.18///S/88.34///W',
+                   'text, 42.18°S88.34°W, text'           => '42.18///S/88.34///W',
+                   'text, -12.263, 49.398, text'          => '12.263///S/49.398///E'    }
+
+      @entry = 0
+
+      use_cases.each { |co_ordinate, result|
+        @entry += 1
+        specify "case #{@entry}: '#{co_ordinate}' should yield #{result}" do
+          use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(co_ordinate)
+          u = use_case[:parsed][:lat_deg].to_s + '/' +
+              use_case[:parsed][:lat_min].to_s + '/' +
+              use_case[:parsed][:lat_sec].to_s + '/' +
+              use_case[:parsed][:lat_ns].to_s + '/' +
+              use_case[:parsed][:long_deg].to_s + '/' +
+              use_case[:parsed][:long_min].to_s + '/' +
+              use_case[:parsed][:long_sec].to_s + '/' +
+              use_case[:parsed][:long_we].to_s
+
+          expect(u).to eq(result)
+        end
+      }
+    end
+
+    context 'coordinates_regex_from_verbatim_label values' do
+      specify 'strings 1' do
+        str = 'text, S42°5ʼ18.1" W88°11ʼ43.3", text'
+        use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
+        u = use_case[:verbatim][:verbatim_latitude] + '/' + use_case[:verbatim][:verbatim_longitude]
+        expect(u).to eq("42°5'18.1\"S/88°11'43.3\"W")
+      end
+
+      specify 'strings 2' do
+        str = 'text, -12.263, 49.398, text'
+        use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
+        u = use_case[:verbatim][:verbatim_latitude] + '/' + use_case[:verbatim][:verbatim_longitude]
+        expect(u).to eq("-12.263/49.398")
+      end
+
+      specify 'decimal' do
+        str = 'text, S42°5ʼ18.1" W88°11ʼ43.3", text'
+        use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
+        u = use_case[:decimal][:decimal_latitude] + '/' + use_case[:decimal][:decimal_longitude]
+        expect(u).to eq("-42.088361/-88.195361")
+      end
+    end
+  end
+
+
 end

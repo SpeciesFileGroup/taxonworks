@@ -35,6 +35,8 @@
 
 import SmartSelector from 'components/smartSelector'
 import DisplayList from 'components/displayList'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetPeople } from '../../request/resources'
 
 export default {
   components: {
@@ -76,6 +78,18 @@ export default {
         this.source.author_ids = this.authors.map(author => { return author.id })
       },
       deep: true
+    }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.source.author = params.author
+    this.source.exact_author = params.exact_author
+    if (params.author_ids) {
+      params.author_ids.forEach(id => {
+        GetPeople(id).then(response => {
+          this.addAuthor(response.body)
+        })
+      })
     }
   },
   methods: {

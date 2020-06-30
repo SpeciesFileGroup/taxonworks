@@ -43,10 +43,11 @@
           v-if="!asserted_distribution.citations_attributes[0].source_id || asserted_distribution.id"
           :show-legend="false"
           :show-spinner="false"/>
-        <geographic-area 
+        <geographic-area
           class="separate-bottom"
           @lock="lockGeo = $event"
           :created-list="list"
+          :source-lock="lockSource"
           @select="asserted_distribution.geographic_area_id = $event; createAsserted()"/>
       </div>
     </div>
@@ -56,8 +57,7 @@
         :href="`/tasks/gis/otu_distribution_data?otu_id=${metadata.object_id}`"
         target="blank">Map</a>
     </div>
-    <h3>In this geographic area</h3>
-    <table-list 
+    <table-list
       class="separate-top"
       :header="['Geographic area', 'Absent', '']"
       :attributes="[['geographic_area', 'name'], 'is_absent']"
@@ -98,25 +98,10 @@
         return this.list.findIndex(item => item.id === this.asserted_distribution.id);
       },
       filterList() {
-        let newList = []
-        let that = this;
-
-        if(this.asserted_distribution.citations_attributes[0].source_id) {
-          this.list.forEach(item => {
-            if(item.citations.find(citation => { 
-                return citation.source_id == that.asserted_distribution.citations_attributes[0].source_id 
-              })) {
-              newList.push(item)
-            }
-          })
-          return newList
-        }
-        else {
-          return this.list
-        }
+        return this.list
       },
       existingArea() {
-        return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && item.is_absent === this.asserted_distribution.is_absent })
+        return this.list.find(item => { return item.geographic_area_id === this.asserted_distribution.geographic_area_id && (item.is_absent === null ? false : item.is_absent) === (this.asserted_distribution.is_absent === undefined ? false : this.asserted_distribution.is_absent) })
       }
     },
     data() {
@@ -149,14 +134,16 @@
       createAsserted() {
         if(!this.existingArea) {
           this.create('/asserted_distributions.json', { asserted_distribution: this.asserted_distribution }).then(response => {
+            TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
             this.addToList(response.body)
           })
         }
         else {
           this.asserted_distribution['id'] = this.existingArea.id
           this.update(`/asserted_distributions/${this.existingArea.id}.json`, { asserted_distribution: this.asserted_distribution }).then(response => {
+            TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
             this.addToList(response.body)
-          })          
+          })
         }
       },
       removeCitation(item) {
@@ -176,6 +163,7 @@
         this.editTitle = item.object_tag
         if(!this.lockSource) {
           this.$refs.source.cleanInput()
+          this.$refs.source.setFocus()
         }
         if(this.idIndex > -1) {
           this.$set(this.list, this.idIndex, item)

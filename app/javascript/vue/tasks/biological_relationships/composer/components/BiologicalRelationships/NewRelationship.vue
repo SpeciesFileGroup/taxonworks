@@ -3,7 +3,7 @@
     <button
       class="button normal-input button-submit"
       type="button"
-      @click="showModal = true">
+      @click="openModal">
       New
     </button>
     <modal-component
@@ -19,28 +19,33 @@
             class="full_width"
             type="text">
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>Inverted name</label>
-          <br>
           <input
             v-model="biologicalRelationship.inverted_name"
             class="full_width"
             type="text">
         </div>
-        <div class="field">
-          <input
-            v-model="biologicalRelationship.is_transitive"
-            type="checkbox">
-          <label>Is transitive</label>
-        </div>
-        <div class="field">
-          <input
-            v-model="biologicalRelationship.is_reflexive"
-            type="checkbox">
-          <label>Is reflexive</label>
-        </div>
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                v-model="biologicalRelationship.is_transitive"
+                type="checkbox">
+              Is transitive
+            </label>
+          </li>
+          <li>
+            <label>
+              <input
+                v-model="biologicalRelationship.is_reflexive"
+                type="checkbox">
+              Is reflexive
+            </label>
+          </li>
+        </ul>
         <button
-          class="button normal-input button-submit"
+          class="button normal-input button-submit margin-medium-top"
           @click="create">
           Create
         </button>
@@ -60,21 +65,28 @@ export default {
   },
   data () {
     return {
-      biologicalRelationship: {
-        name: undefined,
-        inverted_name: undefined,
-        is_transitive: undefined,
-        is_reflexive: undefined
-      },
+      biologicalRelationship: this.newBiologicalRelationship(),
       showModal: false
     }
   },
   methods: {
-    create() {
+    create () {
       CreateBiologicalRelationship(this.biologicalRelationship).then(response => {
         this.$emit('create', response.body)
         this.showModal = false
       })
+    },
+    newBiologicalRelationship () {
+      return {
+        name: undefined,
+        inverted_name: undefined,
+        is_transitive: undefined,
+        is_reflexive: undefined
+      }
+    },
+    openModal () {
+      this.biologicalRelationship = this.newBiologicalRelationship()
+      this.showModal = true
     }
   }
 }

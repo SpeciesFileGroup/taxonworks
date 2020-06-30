@@ -16,6 +16,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -42,10 +45,9 @@ export default {
         Person: 'Source::Human'
       }
     }
+  },
+  mounted () {
+    this.type = URLParamsToJSON(location.href).source_type
   }
 }
 </script>
-
-<style>
-
-</style>
