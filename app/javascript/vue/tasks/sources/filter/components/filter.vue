@@ -39,6 +39,7 @@
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
       <tags-component v-model="params.source.keyword_ids"/>
+      <topics-component v-model="params.source.topic_ids"/>
       <identifier-component v-model="params.identifier"/>
       <citation-types-component v-model="params.source.citation_object_type"/>
       <users-component v-model="params.user"/>
@@ -65,6 +66,7 @@ import IdentifierComponent from './filters/identifiers'
 import CitationTypesComponent from './filters/citationTypes'
 import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
+import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
@@ -81,7 +83,8 @@ export default {
     CitationTypesComponent,
     WithComponent,
     TypeComponent,
-    UsersComponent
+    UsersComponent,
+    TopicsComponent
   },
   computed: {
     getMacKey () {
@@ -156,6 +159,7 @@ export default {
           source_type: undefined,
           citation_object_type: [],
           keyword_ids: [],
+          topic_ids: [],
           users: []
         },
         byRecordsWith: {
