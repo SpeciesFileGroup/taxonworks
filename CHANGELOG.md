@@ -7,11 +7,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Endpoint for verbatim label parsing (dates and geographic coordinates)
+
+### Changed
+- Display `[sic]` on misspellings of family-group full taxon names
 
 ### Fixed
-
 - Containerized objects not showing up together [#1590]
+
+[#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
 
 ## [0.12.8] - 2020-06-29
 
