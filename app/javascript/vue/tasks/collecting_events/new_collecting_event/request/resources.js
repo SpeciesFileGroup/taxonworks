@@ -6,9 +6,11 @@ const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.jso
 
 const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`)
 
-const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', `/geographic_areas/by_lat_long?latitude=${lat}&longitude=${long}`)
+const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_areas/by_lat_long', { params: { latitude: lat, longitude: long } })
 
-const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json?per=10&recent=true')
+const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
+
+const GetProjectPreferences = () => ajaxCall('get', '/project_preferences.json')
 
 const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce.id}`, { collecting_events: ce })
 
@@ -16,7 +18,7 @@ const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json
 
 const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
-const LoadSoftValidation = (globalId) => ajaxCall('get', `/soft_validations/validate?global_id=${globalId}`)
+const LoadSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
 
 export {
   CreateCollectingEvent,
@@ -24,6 +26,7 @@ export {
   GetGeographicArea,
   GetRecentCollectingEvents,
   GetUserPreferences,
+  GetProjectPreferences,
   GetGeographicAreaByCoords,
   LoadSoftValidation,
   UpdateCollectingEvent,

@@ -23,18 +23,24 @@
       </div>
       <div>
         Unit
-        <label>
-          <input
-            type="radio"
-            name="elevation">
-          Meters
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="elevation">
-          Feet
-        </label>
+        <ul class="no_bullets">
+          <li>
+            <label>
+              <input
+                type="radio"
+                name="elevation">
+              Meters
+            </label>
+          </li>
+          <li>
+            <label>
+              <input
+                type="radio"
+                name="elevation">
+              Feet
+            </label>
+          </li>
+        </ul>
       </div>
     </div>
   </div>

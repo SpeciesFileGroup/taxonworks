@@ -3,7 +3,7 @@
     <div>
       <label class="separate-bottom"><b>Start time</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-right">
+        <div class="separate-right label-above">
           <label>Hour</label>
           <input
             type="number"
@@ -11,7 +11,7 @@
             max="23"
             v-model="collectingEvent.time_start_hour">
         </div>
-        <div class="separate-left separate-right">
+        <div class="separate-left separate-right label-above">
           <label>Minute</label>
           <input
             type="number"
@@ -19,7 +19,7 @@
             max="60"
             v-model="collectingEvent.time_start_minute">
         </div>
-        <div class="separate-left">
+        <div class="separate-left label-above">
           <label>Seconds</label>
           <input
             type="number"
@@ -32,7 +32,7 @@
     <div>
       <label class="separate-bottom"><b>End time</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-right">
+        <div class="separate-right label-above">
           <label>Hour</label>
           <input
             type="number"
@@ -40,7 +40,7 @@
             max="23"
             v-model="collectingEvent.time_end_hour">
         </div>
-        <div class="separate-left separate-right">
+        <div class="separate-left separate-right label-above">
           <label>Minute</label>
           <input
             type="number"
@@ -48,7 +48,7 @@
             max="60"
             v-model="collectingEvent.time_end_minute">
         </div>
-        <div class="separate-left">
+        <div class="separate-left label-above">
           <label>Seconds</label>
           <input
             type="number"

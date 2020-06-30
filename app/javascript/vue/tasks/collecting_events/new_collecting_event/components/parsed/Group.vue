@@ -43,13 +43,13 @@
       </div>
     </div>
     <div class="horizontal-left-content ma-fields">
-      <div class="separate-right">
+      <div class="separate-right label-above">
         <label>Minumum MA</label>
         <input
           type="text"
           v-model="collectingEvent.min_ma">
       </div>
-      <div class="separate-left">
+      <div class="separate-left label-above">
         <label>Maximum MA</label>
         <input
           type="text"

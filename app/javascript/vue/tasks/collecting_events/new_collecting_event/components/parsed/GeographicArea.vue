@@ -90,9 +90,7 @@ export default {
     return {
       selected: undefined,
       showModal: false,
-      delay: 1000,
       areasByCoors: [],
-      ajaxCall: undefined,
       geoId: undefined,
       geographicArea: undefined
     }

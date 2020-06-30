@@ -77,7 +77,7 @@ export default {
     }
   },
   methods: {
-    setNamespace(namespace) {
+    setNamespace (namespace) {
       this.tripCode.namespace_id = namespace.id
     }
   }

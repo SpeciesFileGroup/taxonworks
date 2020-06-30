@@ -1,19 +1,23 @@
 <template>
   <div class="panel content">
     <div class="horizontal-left-content align-start">
-      <draggable
-        class="full_width"
-        v-for="(column, key) in componentsOrder"
-        v-model="componentsOrder[key]"
-        :key="key"
-        :disabled="!sortable">
-        <component
-          class="separate-bottom"
-          v-for="(componentName) in column"
-          v-model="collectingEvent"
-          :key="componentName"
-          :is="componentName"/>
-      </draggable>
+      <div
+        class="flex-wrap-column full_width"
+        v-for="(column, key) in componentsOrder">
+        <h2 v-if="titleSection[key]">{{ titleSection[key] }}</h2>
+        <draggable
+          class="full_width"
+          v-model="componentsOrder[key]"
+          :key="key"
+          :disabled="!sortable">
+          <component
+            class="separate-bottom"
+            v-for="(componentName) in column"
+            v-model="collectingEvent"
+            :key="componentName"
+            :is="componentName"/>
+        </draggable>
+      </div>
     </div>
   </div>
 </template>
@@ -40,6 +44,14 @@ export default {
       }
     }
   },
+  watch: {
+    componentsOrder: {
+      handler (newVal) {
+        console.log(newVal)
+      },
+      deep: true
+    }
+  },
   data () {
     return {
       componentsOrder: {
@@ -47,7 +59,11 @@ export default {
         componentParse: Object.keys(ComponentParse),
         componentMap: Object.keys(ComponentMap)
       },
-      sortable: true
+      sortable: true,
+      titleSection: {
+        componentVerbatim: 'Verbatim',
+        componentParse: 'Parse'
+      }
     }
   }
 }
