@@ -503,17 +503,17 @@ To add a new (discovered) symbol:
     # params number of significant digits, number
     def self.conform_significant(number, sig_digits)
       input = significant_digits(number.to_s)
+      input_string = input[0]
       intg = input[2]
       decimal_point = input[3]
-      lead_zeros = input[4]   # lead_zeros length > 0 implies mantissa only case
-      mantissa = input[5]     # mantissa complete iff no lead_zeros
+      decimal_position = input_string.index('.')
+      decimal_point_zeros = input[4]   # decimal_point_zeros length > 0 implies mantissa only case
+      mantissa = input[5]     # mantissa complete iff no decimal_point_zeros
+      digit_string = intg + decimal_point_zeros + mantissa
       reduction = input[1] - sig_digits
-      input_string = input[0]
-      result = input[0]   # failsafe result
+      result = digit_string   # failsafe result
       if reduction > 0    # need to reduce significant digits
         result = ''
-        digit_string = intg + mantissa
-        decimal_position = input_string.index('.')
         for index in (0...sig_digits)       # collect ONLY significant digits
           digit = digit_string[index]   # if number is "0", digit is nil
           result += digit
@@ -525,19 +525,30 @@ To add a new (discovered) symbol:
               result = (result.to_i + 1).to_s # round if necessary
             end
           end
-           for ndex in (0...(intg.length - sig_digits))
+          for ndex in (0...(intg.length - sig_digits))
             result += '0'
-            # index += 1
             next
           end
         end
-        unless decimal_position.nil?
-          if result.length <= sig_digits
-            result.insert(decimal_position, decimal_point)
+      else        # no reduction or add digits
+        for ndex in (0...(sig_digits - digit_string.length))
+          result += '0'
+          next
+        end
+      end
+      unless decimal_position.nil?
+        if result.length <= sig_digits
+          if decimal_position == 0
+            result.insert(decimal_position, '0' + decimal_point)  # make a valid Ruby number
+          else
+            if decimal_position < sig_digits
+              result.insert(decimal_position, decimal_point)
+            end
           end
         end
       end
       result
     end
+
   end
 end

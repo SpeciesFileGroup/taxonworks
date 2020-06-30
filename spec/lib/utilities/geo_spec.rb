@@ -933,109 +933,61 @@ describe 'Geo', group: :geo do
     context 'single use cases' do
       specify "case '123 miles' should yield #{197_949.312}" do
         # expect(Utilities::Geo.distance_in_meters('123 mi.').to_f).to eq(198_000)    # was 197_949.312
-        expect(Utilities::Geo.distance_in_meters('123 mi.')).to eq('198000')    # was 197_949.312
+        expect(Utilities::Geo.distance_in_meters('')).to eq('0')
+        # expect(Utilities::Geo.distance_in_meters('2.0000000 miles')).to eq('3218.6880')
       end
     end
 
-    # context 'multiple use cases' do
-    #   use_cases = {' 12345'                => 12_345, # .0
-    #                '1.1 mi'                => 1800, #1770.2784,
-    #                '1.10 mi'               => 1770, #1770.2784,
-    #                '1.100 mi'              => 1770, #1770.2784,
-    #                '2 mile'                => 3000, #3218.688,
-    #                '2. mile'               => 3000, #3218.688,
-    #                '2.0 mile'              => 3200, #3218.688,
-    #                '2.00 mile'             => 3220, #3218.688,
-    #                '2.000 mile'            => 3219, #3218.688,
-    #                '2.0000 mile'           => 3218.7, #3218.688,
-    #                '2.00000 mile'          => 3218.69, #3218.688,
-    #                '2.000000 mile'         => 3218.688, #3218.688,
-    #                '2.0000000 mile'        => 3218.6880, #3218.688,
-    #                '3 miles'               => 5000, #4828.032,
-    #                '.03 mi'                => 50,
-    #                '.030 mi'               => 48,
-    #                '.0300 mi'              => 48.3,
-    #                '.03000 mi'             => 48.28,
-    #                '0.03 mi'               => 50,
-    #                '0.030 mi'              => 48,
-    #                '0.0300 mi'             => 48.3,
-    #                '0.03000 mi'            => 48.28,
-    #                '3036m'                 => 3036.0,
-    #                '2.11km'                => 2110,
-    #                ' 123.45'               => 123.45,
-    #                ' 123 ft'               => 37.5,    #37.4904,
-    #                ' 123 ft.'              => 37.5,    #37.4904,
-    #                ' 123 feet'             => 37.5,    #37.4904,
-    #                ' 1 foot'               => 0.3,     #0.3048,
-    #                ' 123 f'                => 37.5,    #37.4904,
-    #                '   123 f.'             => 37.5,    #37.4904,
-    #                '   123f.'              => 37.5,    #37.4904,
-    #                '   123ft.'             => 37.5,    #37.4904,
-    #                ' 123 m'                => 123,  # .0
-    #                '  123 meters'          => 123,  # .0
-    #                '     123 m.'           => 123,  # .0
-    #                '    123 km'            => 123_000,  # .0
-    #                ' 123 km.'              => 123_000,  # .0
-    #                '       123 kilometers' => 123_000,  # .0
-    #                '123 kilometer'         => 123_000,  # .0
-    #                ''                      => 0.0,
-    #                'sillyness'             => 0.0,
-    #                'No. N0t a number.'     => 0.0}
-    #
-    #   @entry = 0
-    #
-    #   use_cases.each { |distance, result|
-    #     @entry += 1
-    #     specify "case #{@entry}: '#{distance}' should yield #{result}" do
-    #       # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
-    #       # expect(Utilities::Geo.distance_in_meters(distance).round(6)).to eq(result)
-    #       expect(Utilities::Geo.distance_in_meters(distance).to_f).to eq(result)
-    #     end
-    #   }
-    # end
-
     context 'multiple use cases as string values' do
       use_cases = {' 12345'                => '12345', # .0
-                   '1.1 mi'                => '1800', #1770.2784,
-                   '1.10 mi'               => '1770', #1770.2784,
-                   '1.100 mi'              => '1770.', #1770.2784,
-                   '2 mile'                => '3000', #3218.688,
-                   '2. mile'               => '3000', #3218.688,
-                   '2.0 mile'              => '3200', #3218.688,
-                   '2.00 mile'             => '3220', #3218.688,
-                   '2.000 mile'            => '3219', #3218.688,      ##### ambiguous decimal point
-                   '2.0000 mile'           => '3218.7', #3218.688,
-                   '2.00000 mile'          => '3218.69', #3218.688,
-                   '2.000000 mile'         => '3218.688', #3218.688,
-                   '2.0000000 mile'        => '3218.6880', #3218.688, ##### more significant digits than product !
+                   '1.1 mi'                => '1800', #1770.2784
+                   '1.10 mi'               => '1770',
+                   '1.100 mi'              => '1770',
+                   '1.1000 mi'             => '1770.3',
+                   '1.10000 mi'            => '1770.28',
+                   '2 mile'                => '3000', #3218.688
+                   '2. mile'               => '3000',
+                   '2.0 mile'              => '3200',
+                   '2.00 mile'             => '3220',
+                   '2.000 mile'            => '3219',          ##### @mjy ambiguous decimal point 3219. -> 3219
+                   '2.0000 mile'           => '3218.7',
+                   '2.00000 mile'          => '3218.69',
+                   '2.000000 mile'         => '3218.688',
+                   '2.0000000 mile'        => '3218.6880',    ##### @mjy more significant digits than product fixed
                    '3 miles'               => '5000', #4828.032,
                    '.03 mi'                => '50',
-                   '.030 mi'               => '48',   #               ##### ambiguous decimal point
+                   '.030 mi'               => '48',   #               ##### @mjy ambiguous decimal point  48. -> 48
                    '.0300 mi'              => '48.3',
                    '.03000 mi'             => '48.28',
                    '0.03 mi'               => '50',
-                   '0.030 mi'              => '48',   #               ##### ambiguous decimal point
+                   '0.030 mi'              => '48',   #               ##### @mjy ambiguous decimal point  48. -> 48
                    '0.0300 mi'             => '48.3',
                    '0.03000 mi'            => '48.28',
+                   '0.030000 mi'           => '48.280',
+                   '0.0300000 mi'          => '48.2803',
+                   '0.3000000 mi'          => '482.8032',
+                   '0.30000000 mi'         => '482.80320',
                    '3036m'                 => '3036',
                    '2.11km'                => '2110',
                    ' 123.45'               => '123.45',
-                   ' 123 ft'               => '37.5',    #37.4904,
-                   ' 123 ft.'              => '37.5',    #37.4904,
-                   ' 123 feet'             => '37.5',    #37.4904,
-                   ' 1 foot'               => '0.3',     #0.3048,     ##### ambiguous single lead 0 before mantissa
-                   ' 123 f'                => '37.5',    #37.4904,
-                   '   123 f.'             => '37.5',    #37.4904,
-                   '   123f.'              => '37.5',    #37.4904,
-                   '   123ft.'             => '37.5',    #37.4904,
-                   ' 123 m'                => '123',  # .0
-                   '  123 meters'          => '123',  # .0
-                   '     123 m.'           => '123',  # .0
-                   '    123 km'            => '123000',  # .0
-                   ' 123 km.'              => '123000',  # .0
-                   '       123 kilometers' => '123000',  # .0
-                   '123 kilometer'         => '123000',  # .0
-                   ''                      => '0',          #         ##### ambiguous/erroneous leading decimal point
+                   ' 123 ft'               => '37.5',    #37.4904
+                   ' 123 ft.'              => '37.5',
+                   ' 123 feet'             => '37.5',
+                   ' 1 foot'               => '0.3',     #0.3048,     ##### @mjy ambiguous (missing) single lead 0 before mantissa
+                   ' 123 f'                => '37.5',                      ## ^ .3 now computes to 0.3 (valid Ruby number)
+                   '   123 f.'             => '37.5',
+                   '   123f.'              => '37.5',    #37.4904
+                   '   123ft.'             => '37.5',
+                   '   123.0ft.'           => '37.49',
+                   ' 123.0000000 mi'       => '197949.3120',
+                   ' 123 m'                => '123',
+                   '  123 meters'          => '123',
+                   '     123 m.'           => '123',
+                   '    123 km'            => '123000',
+                   ' 123 km.'              => '123000',
+                   '       123 kilometers' => '123000',
+                   '123 kilometer'         => '123000',
+                   ''                      => '0',          #         ##### ambiguous/erroneous leading decimal point fixed
                    'sillyness'             => '0',
                    'No. N0t a number.'     => '0'}
 
@@ -1091,7 +1043,7 @@ describe 'Geo', group: :geo do
           '2110'      => ['2110', 3],
           '123.45'    => ['123.45', 5],
           '37.4904'   => ['37.5', 3],
-          '0.3048'    => ['.3', 1],
+          '0.3048'    => ['0.3', 1],
           '123.00020' => ['123.00', 5]
       }
 
