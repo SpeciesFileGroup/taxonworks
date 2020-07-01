@@ -175,12 +175,12 @@ class Georeference < ApplicationRecord
 
   # @return [Float]
   def latitude
-    geographic_item.center_coords[1]
+    geographic_item.center_coords[0]
   end
 
   # @return [Float]
   def longitude
-    geographic_item.center_coords[0]
+    geographic_item.center_coords[1]
   end
 
   # TODO: parametrize to include gazeteer
