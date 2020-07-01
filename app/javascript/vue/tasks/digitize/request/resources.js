@@ -196,6 +196,8 @@ const CreateTaxonDetermination = function (data) {
   return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
 }
 
+const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verbatim_label', { params: { verbatim_label: label } })
+
 const CreateBiocurationClassification = function (data) {
   return ajaxCall('post', `/biocuration_classifications.json`, data)
 }
@@ -299,5 +301,6 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetGeographicArea
+  GetGeographicArea,
+  ParseVerbatim
 }
