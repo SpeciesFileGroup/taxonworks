@@ -866,6 +866,31 @@ module Utilities::Dates
         .gsub('ii', '2')
         .gsub('i', '1') if date[:end_date_month]
 
+    date[:verbatim_date] = date[:verbatim_date].gsub('january', 'January')
+        .gsub('february', 'February')
+        .gsub('march', 'March')
+        .gsub('april', 'April')
+        .gsub('may', 'May')
+        .gsub('june', 'June')
+        .gsub('july', 'July')
+        .gsub('august', 'August')
+        .gsub('september', 'September')
+        .gsub('october', 'October')
+        .gsub('november', 'November')
+        .gsub('december', 'December')
+        .gsub('xii', 'XII')
+        .gsub('xi', 'XI')
+        .gsub('ix', 'IX')
+        .gsub('x', 'X')
+        .gsub('viii', 'VIII')
+        .gsub('vii', 'VII')
+        .gsub('vi', 'VI')
+        .gsub('iv', 'IV')
+        .gsub('v', 'V')
+        .gsub('iii', 'III')
+        .gsub('ii', 'II')
+        .gsub('i', 'I') if date[:verbatim_date]
+
     if date[:start_date_year] && date[:start_date_year].length >=2 && date[:start_date_year].length < 4
       y = date[:start_date_year].last(2)
       if y.to_i >= 90
