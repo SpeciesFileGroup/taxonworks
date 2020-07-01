@@ -13,9 +13,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Endpoint for verbatim label parsing (dates and geographic coordinates)
+- Smart selection source on new combination and citations annotator
 
 ### Changed
 - Display `[sic]` on misspellings of family-group full taxon names
+- Replaced vue-resource package by axios
 
 ### Fixed
 - Containerized objects not showing up together [#1590]

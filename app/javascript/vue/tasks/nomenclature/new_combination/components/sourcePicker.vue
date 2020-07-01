@@ -22,8 +22,6 @@
         <smart-selector
           class="full_width"
           model="sources"
-          klass="Combination"
-          target="Combination"
           ref="smartSelector"
           pin-section="Sources"
           pin-type="Source"
