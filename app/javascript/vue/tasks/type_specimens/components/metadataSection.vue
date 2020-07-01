@@ -143,7 +143,7 @@ export default {
       handler (newVal, oldVal) {
         if(newVal.source_id && newVal.source_id !== oldVal.source_id) {
           GetSource(newVal.source_id).then(response => {
-            this.showSource = response.object_tag
+            this.showSource = response.body.object_tag
           })
         }
       },
@@ -152,7 +152,7 @@ export default {
   },
   mounted: function () {
     GetTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
   },
   methods: {
