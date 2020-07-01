@@ -536,6 +536,7 @@ class CollectionObject < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
+    return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
           TaxonDetermination.arel_table

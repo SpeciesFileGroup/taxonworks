@@ -9,6 +9,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+### Fixed
+
+- Containerized objects not showing up together [#1590]
+
 ## [0.12.8] - 2020-06-29
 
 ### Added

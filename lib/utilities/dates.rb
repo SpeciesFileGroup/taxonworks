@@ -148,6 +148,15 @@ module Utilities::Dates
                                hdr: 'ymodmod'}
   }.freeze
 
+  class DateFromLabel
+    attr_reader(:verbatim_label, :date)
+
+    # @param [String] label
+    def initialize(label)
+      @verbatim_label = label
+      @date = Utilities::Dates.date_regex_from_verbatim_label(label)
+    end
+  end
 
 
   # @param [String]
@@ -663,6 +672,236 @@ module Utilities::Dates
       trial[:end_date] = trial[:end_date_year] + ' ' + trial[:end_date_month] + ' ' + trial[:end_date_day]
     end
     trial
+  end
+
+  # @return [Hash]
+  # date from the label parsed to elements
+  def self.date_regex_from_verbatim_label(text)
+    return nil if text.blank?
+    text = ' ' + text.downcase + ' '
+
+    date = {}
+    # June 27 1946 - July 1 1947
+    if matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s\.,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[3]
+      date[:end_day]  = matchdata1[5]
+      date[:end_month] = matchdata1[4]
+      date[:end_year] = matchdata1[6]
+      # 27 June 1946 - 1 July 1947
+    elsif matchdata1 = text.match(/\W(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[1]
+      date[:start_month] = matchdata1[2]
+      date[:start_year] = matchdata1[3]
+      date[:end_day]  = matchdata1[4]
+      date[:end_month] = matchdata1[5]
+      date[:end_year] = matchdata1[6]
+      # 5 27 1946 - 6 1 1947
+    elsif matchdata1 = text.match(/\W(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|'?\d{2})\s?[-–]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[3]
+      date[:end_day]  = matchdata1[5]
+      date[:end_month] = matchdata1[4]
+      date[:end_year] = matchdata1[6]
+      # June 27 - July 1 1947
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[5]
+      date[:end_day]  = matchdata1[4]
+      date[:end_month] = matchdata1[3]
+      date[:end_year] = matchdata1[5]
+      # 27 June - 1 July 1947
+    elsif matchdata1 = text.match(/\W(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–]\s?(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[,-–\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[1]
+      date[:start_month] = matchdata1[2]
+      date[:start_year] = matchdata1[5]
+      date[:end_day]  = matchdata1[3]
+      date[:end_month] = matchdata1[4]
+      date[:end_year] = matchdata1[5]
+      # 5 27 - 6 1 1947
+    elsif matchdata1 = text.match(/\W(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-–]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[5]
+      date[:end_day]  = matchdata1[4]
+      date[:end_month] = matchdata1[3]
+      date[:end_year] = matchdata1[5]
+      # June 27-29 1947
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.;,]?[-\s\.–,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[4]
+      date[:end_day]  = matchdata1[3]
+      date[:end_month] = matchdata1[1]
+      date[:end_year] = matchdata1[4]
+      # 27-29 June 1947
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[1]
+      date[:start_month] = matchdata1[3]
+      date[:start_year] = matchdata1[4]
+      date[:end_day]  = matchdata1[2]
+      date[:end_month] = matchdata1[3]
+      date[:end_year] = matchdata1[4]
+      # 12 27-29 1947
+    elsif matchdata1 = text.match(/\W(\d\d)[\s\.,\/]\s?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.,]?[\s,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[4]
+      date[:end_day]  = matchdata1[3]
+      date[:end_month] = matchdata1[1]
+      date[:end_year] = matchdata1[4]
+      # Jun 29 1947     Jun 29, 1947    June 29, 1947    VI-29-1947   X.25.2000   Jun 29, '47   June 29, '47    VI-4-08
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-–_,\/]?\s?(\d\d?)[\.;,]?\s?[-–_\/\.',\s]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[3]
+      # 29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000  25X2000  29 June '47   29 Jun '47
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-–,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[1]
+      date[:start_month] = matchdata1[2]
+      date[:start_year] = matchdata1[3]
+      # 6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994
+    elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(\d{4})\W/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[3]
+      # 6/29/47    6/29/'47    7.10.94    5-17-97
+    elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(['´`ʹʼˊ]?\s?\d{2})\W/)
+      date[:date_verbatim] = matchdata1[0].strip
+      date[:start_day] = matchdata1[2]
+      date[:start_month] = matchdata1[1]
+      date[:start_year] = matchdata1[3]
+    end
+
+    return {} if date[:date_verbatim].blank?
+
+    date[:date_verbatim] = date[:date_verbatim][0..-2] if date[:date_verbatim] =~ /[;,:\)\.\/]$/
+
+    date[:start_month] = date[:start_month].gsub('january', '1')
+        .gsub('february', '2')
+        .gsub('march', '3')
+        .gsub('april', '4')
+        .gsub('may', '5')
+        .gsub('june', '6')
+        .gsub('july', '7')
+        .gsub('august', '8')
+        .gsub('september', '9')
+        .gsub('october', '10')
+        .gsub('november', '11')
+        .gsub('december', '12')
+        .gsub('jan', '1')
+        .gsub('feb', '2')
+        .gsub('mar', '3')
+        .gsub('apr', '4')
+        .gsub('sept', '9')
+        .gsub('jun', '6')
+        .gsub('jul', '7')
+        .gsub('aug', '8')
+        .gsub('sep', '9')
+        .gsub('oct', '10')
+        .gsub('nov', '11')
+        .gsub('dec', '12')
+        .gsub('xii', '12')
+        .gsub('xi', '11')
+        .gsub('ix', '9')
+        .gsub('x', '10')
+        .gsub('viii', '8')
+        .gsub('vii', '7')
+        .gsub('vi', '6')
+        .gsub('iv', '4')
+        .gsub('v', '5')
+        .gsub('iii', '3')
+        .gsub('ii', '2')
+        .gsub('i', '1') if date[:start_month]
+
+    date[:end_month] = date[:end_month].gsub('january', '1')
+        .gsub('february', '2')
+        .gsub('march', '3')
+        .gsub('april', '4')
+        .gsub('may', '5')
+        .gsub('june', '6')
+        .gsub('july', '7')
+        .gsub('august', '8')
+        .gsub('september', '9')
+        .gsub('october', '10')
+        .gsub('november', '11')
+        .gsub('december', '12')
+        .gsub('jan', '1')
+        .gsub('feb', '2')
+        .gsub('mar', '3')
+        .gsub('apr', '4')
+        .gsub('sept', '9')
+        .gsub('jun', '6')
+        .gsub('jul', '7')
+        .gsub('aug', '8')
+        .gsub('sep', '9')
+        .gsub('oct', '10')
+        .gsub('nov', '11')
+        .gsub('dec', '12')
+        .gsub('xii', '12')
+        .gsub('xi', '11')
+        .gsub('ix', '9')
+        .gsub('x', '10')
+        .gsub('viii', '8')
+        .gsub('vii', '7')
+        .gsub('vi', '6')
+        .gsub('iv', '4')
+        .gsub('v', '5')
+        .gsub('iii', '3')
+        .gsub('ii', '2')
+        .gsub('i', '1') if date[:end_month]
+
+    if date[:start_year] && date[:start_year].length >=2 && date[:start_year].length < 4
+      y = date[:start_year].last(2)
+      if y.to_i >= 90
+        y = '18' + y
+      else
+        y = '19' + y
+      end
+      date[:start_year] = y
+    end
+    if date[:end_year] && date[:end_year].length >=2 && date[:end_year].length < 4
+      y = date[:end_year].last(2)
+      if y.to_i >= 90
+        y = '18' + y
+      else
+        y = '19' + y
+      end
+      date[:end_year] = y
+    end
+
+    if Date.valid_date?(date[:start_year].to_i, date[:start_month].to_i, date[:start_day].to_i) &&
+        Date.parse(date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s) <= Date.today &&
+        date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s > '1700-01-01'
+      if date[:end_year] && Date.valid_date?(date[:end_year].to_i, date[:end_month].to_i, date[:end_day].to_i) &&
+          Date.parse(date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s) <= Date.today &&
+          Date.parse(date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s) >= Date.parse(date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s) &&
+          date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s > '1700-01-01'
+        return date
+      elsif date[:end_year].nil?
+        return date
+      else
+        return {}
+      end
+    else
+      return {}
+    end
+
   end
 
 end
