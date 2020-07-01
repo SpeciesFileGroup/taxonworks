@@ -683,116 +683,116 @@ module Utilities::Dates
     date = {}
     # June 27 1946 - July 1 1947
     if matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s\.,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[3]
-      date[:end_day]  = matchdata1[5]
-      date[:end_month] = matchdata1[4]
-      date[:end_year] = matchdata1[6]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[3]
+      date[:end_date_day]  = matchdata1[5]
+      date[:end_date_month] = matchdata1[4]
+      date[:end_date_year] = matchdata1[6]
       # 27 June 1946 - 1 July 1947
     elsif matchdata1 = text.match(/\W(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[1]
-      date[:start_month] = matchdata1[2]
-      date[:start_year] = matchdata1[3]
-      date[:end_day]  = matchdata1[4]
-      date[:end_month] = matchdata1[5]
-      date[:end_year] = matchdata1[6]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[1]
+      date[:start_date_month] = matchdata1[2]
+      date[:start_date_year] = matchdata1[3]
+      date[:end_date_day]  = matchdata1[4]
+      date[:end_date_month] = matchdata1[5]
+      date[:end_date_year] = matchdata1[6]
       # 5 27 1946 - 6 1 1947
     elsif matchdata1 = text.match(/\W(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|'?\d{2})\s?[-–]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[3]
-      date[:end_day]  = matchdata1[5]
-      date[:end_month] = matchdata1[4]
-      date[:end_year] = matchdata1[6]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[3]
+      date[:end_date_day]  = matchdata1[5]
+      date[:end_date_month] = matchdata1[4]
+      date[:end_date_year] = matchdata1[6]
       # June 27 - July 1 1947
     elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[5]
-      date[:end_day]  = matchdata1[4]
-      date[:end_month] = matchdata1[3]
-      date[:end_year] = matchdata1[5]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[5]
+      date[:end_date_day]  = matchdata1[4]
+      date[:end_date_month] = matchdata1[3]
+      date[:end_date_year] = matchdata1[5]
       # 27 June - 1 July 1947
     elsif matchdata1 = text.match(/\W(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–]\s?(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[,-–\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[1]
-      date[:start_month] = matchdata1[2]
-      date[:start_year] = matchdata1[5]
-      date[:end_day]  = matchdata1[3]
-      date[:end_month] = matchdata1[4]
-      date[:end_year] = matchdata1[5]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[1]
+      date[:start_date_month] = matchdata1[2]
+      date[:start_date_year] = matchdata1[5]
+      date[:end_date_day]  = matchdata1[3]
+      date[:end_date_month] = matchdata1[4]
+      date[:end_date_year] = matchdata1[5]
       # 5 27 - 6 1 1947
     elsif matchdata1 = text.match(/\W(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-–]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[5]
-      date[:end_day]  = matchdata1[4]
-      date[:end_month] = matchdata1[3]
-      date[:end_year] = matchdata1[5]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[5]
+      date[:end_date_day]  = matchdata1[4]
+      date[:end_date_month] = matchdata1[3]
+      date[:end_date_year] = matchdata1[5]
       # June 27-29 1947
     elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.;,]?[-\s\.–,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[4]
-      date[:end_day]  = matchdata1[3]
-      date[:end_month] = matchdata1[1]
-      date[:end_year] = matchdata1[4]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[4]
+      date[:end_date_day]  = matchdata1[3]
+      date[:end_date_month] = matchdata1[1]
+      date[:end_date_year] = matchdata1[4]
       # 27-29 June 1947
     elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[1]
-      date[:start_month] = matchdata1[3]
-      date[:start_year] = matchdata1[4]
-      date[:end_day]  = matchdata1[2]
-      date[:end_month] = matchdata1[3]
-      date[:end_year] = matchdata1[4]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[1]
+      date[:start_date_month] = matchdata1[3]
+      date[:start_date_year] = matchdata1[4]
+      date[:end_date_day]  = matchdata1[2]
+      date[:end_date_month] = matchdata1[3]
+      date[:end_date_year] = matchdata1[4]
       # 12 27-29 1947
     elsif matchdata1 = text.match(/\W(\d\d)[\s\.,\/]\s?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.,]?[\s,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[4]
-      date[:end_day]  = matchdata1[3]
-      date[:end_month] = matchdata1[1]
-      date[:end_year] = matchdata1[4]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[4]
+      date[:end_date_day]  = matchdata1[3]
+      date[:end_date_month] = matchdata1[1]
+      date[:end_date_year] = matchdata1[4]
       # Jun 29 1947     Jun 29, 1947    June 29, 1947    VI-29-1947   X.25.2000   Jun 29, '47   June 29, '47    VI-4-08
     elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-–_,\/]?\s?(\d\d?)[\.;,]?\s?[-–_\/\.',\s]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[3]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[3]
       # 29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000  25X2000  29 June '47   29 Jun '47
     elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-–,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[1]
-      date[:start_month] = matchdata1[2]
-      date[:start_year] = matchdata1[3]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[1]
+      date[:start_date_month] = matchdata1[2]
+      date[:start_date_year] = matchdata1[3]
       # 6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994
     elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(\d{4})\W/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[3]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[3]
       # 6/29/47    6/29/'47    7.10.94    5-17-97
     elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(['´`ʹʼˊ]?\s?\d{2})\W/)
-      date[:date_verbatim] = matchdata1[0].strip
-      date[:start_day] = matchdata1[2]
-      date[:start_month] = matchdata1[1]
-      date[:start_year] = matchdata1[3]
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[2]
+      date[:start_date_month] = matchdata1[1]
+      date[:start_date_year] = matchdata1[3]
     end
 
-    return {} if date[:date_verbatim].blank?
+    return {} if date[:verbatim_date].blank?
 
-    date[:date_verbatim] = date[:date_verbatim][0..-2] if date[:date_verbatim] =~ /[;,:\)\.\/]$/
+    date[:verbatim_date] = date[:verbatim_date][0..-2] if date[:verbatim_date] =~ /[;,:\)\.\/]$/
 
-    date[:start_month] = date[:start_month].gsub('january', '1')
+    date[:start_date_month] = date[:start_date_month].gsub('january', '1')
         .gsub('february', '2')
         .gsub('march', '3')
         .gsub('april', '4')
@@ -827,9 +827,9 @@ module Utilities::Dates
         .gsub('v', '5')
         .gsub('iii', '3')
         .gsub('ii', '2')
-        .gsub('i', '1') if date[:start_month]
+        .gsub('i', '1') if date[:start_date_month]
 
-    date[:end_month] = date[:end_month].gsub('january', '1')
+    date[:end_date_month] = date[:end_date_month].gsub('january', '1')
         .gsub('february', '2')
         .gsub('march', '3')
         .gsub('april', '4')
@@ -864,36 +864,36 @@ module Utilities::Dates
         .gsub('v', '5')
         .gsub('iii', '3')
         .gsub('ii', '2')
-        .gsub('i', '1') if date[:end_month]
+        .gsub('i', '1') if date[:end_date_month]
 
-    if date[:start_year] && date[:start_year].length >=2 && date[:start_year].length < 4
-      y = date[:start_year].last(2)
+    if date[:start_date_year] && date[:start_date_year].length >=2 && date[:start_date_year].length < 4
+      y = date[:start_date_year].last(2)
       if y.to_i >= 90
         y = '18' + y
       else
         y = '19' + y
       end
-      date[:start_year] = y
+      date[:start_date_year] = y
     end
-    if date[:end_year] && date[:end_year].length >=2 && date[:end_year].length < 4
-      y = date[:end_year].last(2)
+    if date[:end_date_year] && date[:end_date_year].length >=2 && date[:end_date_year].length < 4
+      y = date[:end_date_year].last(2)
       if y.to_i >= 90
         y = '18' + y
       else
         y = '19' + y
       end
-      date[:end_year] = y
+      date[:end_date_year] = y
     end
 
-    if Date.valid_date?(date[:start_year].to_i, date[:start_month].to_i, date[:start_day].to_i) &&
-        Date.parse(date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s) <= Date.today &&
-        date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s > '1700-01-01'
-      if date[:end_year] && Date.valid_date?(date[:end_year].to_i, date[:end_month].to_i, date[:end_day].to_i) &&
-          Date.parse(date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s) <= Date.today &&
-          Date.parse(date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s) >= Date.parse(date[:start_year].to_s + '-' + date[:start_month].to_s + '-' + date[:start_day].to_s) &&
-          date[:end_year].to_s + '-' + date[:end_month].to_s + '-' + date[:end_day].to_s > '1700-01-01'
+    if Date.valid_date?(date[:start_date_year].to_i, date[:start_date_month].to_i, date[:start_date_day].to_i) &&
+        Date.parse(date[:start_date_year].to_s + '-' + date[:start_date_month].to_s + '-' + date[:start_date_day].to_s) <= Date.today &&
+        date[:start_date_year].to_s + '-' + date[:start_date_month].to_s + '-' + date[:start_date_day].to_s > '1700-01-01'
+      if date[:end_date_year] && Date.valid_date?(date[:end_date_year].to_i, date[:end_date_month].to_i, date[:end_date_day].to_i) &&
+          Date.parse(date[:end_date_year].to_s + '-' + date[:end_date_month].to_s + '-' + date[:end_date_day].to_s) <= Date.today &&
+          Date.parse(date[:end_date_year].to_s + '-' + date[:end_date_month].to_s + '-' + date[:end_date_day].to_s) >= Date.parse(date[:start_date_year].to_s + '-' + date[:start_date_month].to_s + '-' + date[:start_date_day].to_s) &&
+          date[:end_date_year].to_s + '-' + date[:end_date_month].to_s + '-' + date[:end_date_day].to_s > '1700-01-01'
         return date
-      elsif date[:end_year].nil?
+      elsif date[:end_date_year].nil?
         return date
       else
         return {}
