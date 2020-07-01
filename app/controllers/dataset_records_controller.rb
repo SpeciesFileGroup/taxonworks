@@ -12,6 +12,7 @@ class DatasetRecordsController < ApplicationController
     params[:filter]&.each do |k, v|
       @dataset_records = @dataset_records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
     end
+    @dataset_records = @dataset_records.where(status: params[:status]) unless params[:status].blank?
 
     @dataset_records = @dataset_records.order(id: :asc)
   end
