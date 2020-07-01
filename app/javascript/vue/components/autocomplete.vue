@@ -79,7 +79,8 @@ export default {
       getRequest: 0,
       type: this.sendLabel,
       json: [],
-      current: -1
+      current: -1,
+      requestId: Math.random().toString(36).substr(2, 5)
     }
   },
 
@@ -334,15 +335,8 @@ export default {
         this.showList = (this.json.length > 0)
       } else {
         AjaxCall('get', this.ajaxUrl(), {
-          before: (request) => {
-            if(Object.keys(this.headers).length) {
-              request.headers.map = this.headers
-            }
-            if (this.previousRequest) {
-              this.previousRequest.abort()
-            }
-            this.previousRequest = request
-          }}).then(response => {
+          requestId: this.requestId
+        }).then(response => {
           this.json = this.getNested(response.body, this.nested)
           this.showList = (this.json.length > 0)
           this.spinner = false
