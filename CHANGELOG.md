@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Containerized objects not showing up together [#1590]
 - Citations by Source task not loading taxon names list [#1591]
 - Filter collecting events was passing a wrong(changed name) parameters and structure for maps and geographic area.
+- Not showing up people list after a crossref source [#1597]
 
 [#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
 [#1591]: https://github.com/SpeciesFileGroup/taxonworks/issues/1591
