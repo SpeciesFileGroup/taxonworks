@@ -7,26 +7,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
-
-## [0.12.9] - 2020-07-01
-
 ### Added
-- Endpoint for verbatim label parsing (dates and geographic coordinates)
 - Smart selection source on new combination and citations annotator
 - Parsed verbatim label on comprehensive specimen digitization task
 - Soft validation in timeline on Browse OTUs [#1593]
 
 ### Changed
-- Display `[sic]` on misspellings of family-group full taxon names
 - Replaced vue-resource package by axios
 - Disabled parallel upload on new image task [#1596]
 
 ### Fixed
-- Containerized objects not showing up together [#1590]
-- Citations by Source task not loading taxon names list [#1591]
 - Filter collecting events was passing a wrong(changed name) parameters and structure for maps and geographic area.
 - Not showing up people list after a crossref source [#1597]
+
+## [0.12.9] - 2020-07-01
+
+### Added
+- Endpoint for verbatim label parsing (dates and geographic coordinates)
+
+### Changed
+- Display `[sic]` on misspellings of family-group full taxon names
+
+### Fixed
+- Containerized objects not showing up together [#1590]
+- Citations by Source task not loading taxon names list [#1591]
 
 [#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
 [#1591]: https://github.com/SpeciesFileGroup/taxonworks/issues/1591
