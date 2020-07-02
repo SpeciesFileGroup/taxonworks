@@ -137,7 +137,8 @@ class CollectingEventsController < ApplicationController
     if params[:verbatim_label]
       render json: {date: Utilities::Dates.date_regex_from_verbatim_label(params[:verbatim_label]),
                     geo: Utilities::Geo.coordinates_regex_from_verbatim_label(params[:verbatim_label]),
-                    collecting_method: Utilities::CollectingMethods.method_from_verbatim_label(params[:verbatim_label]),
+                    elevation: Utilities::Elevation.elevation_regex_from_verbatim_label(params[:verbatim_label]),
+                    collecting_method: Utilities::CollectingMethods.method_regex_from_verbatim_label(params[:verbatim_label]),
                   }.to_json
     end
   end

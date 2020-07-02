@@ -61,11 +61,11 @@ module Utilities::CollectingMethods
     # @param [String] label
     def initialize(label)
       @verbatim_label = label
-      @collecting_method = Utilities::CollectingMethods.method_from_verbatim_label(label)
+      @collecting_method = Utilities::CollectingMethods.method_regex_from_verbatim_label(label)
     end
   end
 
-  def self.method_from_verbatim_label(text)
+  def self.method_regex_from_verbatim_label(text)
     text = ' ' + text.downcase + ' '
     METHODS.each do |k, v|
       if text =~ /[\s,.;:\/|\(\)-]#{k}[\s,.;:\/|\(\)-]/
