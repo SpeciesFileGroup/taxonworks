@@ -57,9 +57,10 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         specify 'adds taxon determinations' do
           fill_in('determination-otu-autocomplete', with: 'Foo')
 
-          find('li', text: 'Foo').hover.click 
+          find('#determination-add-button') # Hopefully eliminates random failures at click_button call below
+          find('li', text: 'Foo').hover.click
           click_button 'determination-add-button'
-          page.find('body').send_keys([OS.mac? ? :control : :alt, 's'])
+          find('body').send_keys([OS.mac? ? :control : :alt, 's'])
           expect(page).to have_text('det. Foo')
         end
       end
