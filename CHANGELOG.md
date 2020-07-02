@@ -15,10 +15,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Replaced vue-resource package by axios
 - Disabled parallel upload on new image task [#1596]
+- Default verbatim fields order on comprehensive specimen digitization
 
 ### Fixed
 - Filter collecting events was passing a wrong(changed name) parameters and structure for maps and geographic area.
 - Not showing up people list after a crossref source [#1597]
+- Scroller in georeferences map modal
 
 ## [0.12.9] - 2020-07-01
 
