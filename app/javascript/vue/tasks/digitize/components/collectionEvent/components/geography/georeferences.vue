@@ -26,6 +26,7 @@
           :lat="lat"
           :lng="lng"
           :geographic-area="geographicArea"
+          :geolocation-uncertainty="geolocationUncertainty"
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
@@ -57,6 +58,9 @@ export default {
     },
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    geolocationUncertainty () {
+      return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_geolocation_uncertainty
     },
     georeferenceVerbatimLatitude () {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal(this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1], 6) : undefined

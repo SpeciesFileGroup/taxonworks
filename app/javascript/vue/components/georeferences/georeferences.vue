@@ -29,7 +29,7 @@
       <spinner-component
         v-if="showSpinner || !collectingEventId"
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
-      <map-component 
+      <map-component
         ref="leaflet"
         v-if="show"
         :height="height"
@@ -60,7 +60,7 @@
         :disabled="verbatimGeoreferenceAlreadyCreated"
         @click="createVerbatimShape"
         class="button normal-input button-submit">
-        Create georeference from verbatim 
+        Create georeference from verbatim
       </button>
     </div>
     <display-list
@@ -112,6 +112,10 @@ export default {
       required: false,
       default: 0
     },
+    geolocationUncertainty: {
+      type: [String, Number],
+      default: undefined
+    },
     verbatimLng: {
       type: [Number, String],
       default: 0
@@ -135,11 +139,7 @@ export default {
   },
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
-      return this.georeferences.find(item => {
-        return item.geo_json.geometry.type === 'Point' &&
-          Number(item.geo_json.geometry.coordinates[0]) === Number(this.verbatimLng) &&
-          Number(item.geo_json.geometry.coordinates[1]) === Number(this.verbatimLat)
-      })
+      return this.georeferences.find(item => { return item.type === 'Georeference::VerbatimData' })
     }
   },
   data () {
@@ -269,7 +269,8 @@ export default {
         georeference: {
           geographic_item_attributes: { shape: JSON.stringify(shape) },
           collecting_event_id: this.collectingEventId,
-          type: 'Georeference::VerbatimData'
+          type: 'Georeference::VerbatimData',
+          error_radius: this.geolocationUncertainty
         }
       }
       this.showSpinner = true
