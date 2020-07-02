@@ -71,6 +71,7 @@
         </template>
       </ul>
     </div>
+    <soft-validation-modal/>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
@@ -197,13 +198,15 @@ import YearPicker from './nomenclature/yearsPick'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import extendSection from './shared/extendSections'
+import SoftValidationModal from './softValidationModal'
 
 export default {
   mixins: [extendSection],
   components: {
     SectionPanel,
     ModalComponent,
-    YearPicker
+    YearPicker,
+    SoftValidationModal
   },
   computed: {
     selectedReferences () {

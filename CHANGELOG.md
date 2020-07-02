@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Endpoint for verbatim label parsing (dates and geographic coordinates)
 - Smart selection source on new combination and citations annotator
 - Parsed verbatim label on comprehensive specimen digitization task
+- Soft validation in timeline on Browse OTUs [#1593]
 
 ### Changed
 - Display `[sic]` on misspellings of family-group full taxon names
