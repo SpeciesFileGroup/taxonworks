@@ -18,7 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Display `[sic]` on misspellings of family-group full taxon names
 - Replaced vue-resource package by axios
-- Disabled parallelU upload on new image task [#1596]
+- Disabled parallel upload on new image task [#1596]
 
 ### Fixed
 - Containerized objects not showing up together [#1590]
