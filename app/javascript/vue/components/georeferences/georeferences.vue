@@ -5,7 +5,23 @@
       maxHeight: '80vh',
       overflowY: 'scroll'
   }">
-    <div 
+    <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+      <manually-component
+        class="margin-small-right"
+        @create="saveGeoreference"/>
+      <geolocate-component
+        class="margin-small-right"
+        @create="createGEOLocate"/>
+      <button
+        type="button"
+        v-if="verbatimLat && verbatimLng"
+        :disabled="verbatimGeoreferenceAlreadyCreated"
+        @click="createVerbatimShape"
+        class="button normal-input button-submit">
+        Create georeference from verbatim
+      </button>
+    </div>
+    <div
       :style="{
         height: height,
         width: width
@@ -43,7 +59,7 @@
         v-if="verbatimLat && verbatimLng"
         :disabled="verbatimGeoreferenceAlreadyCreated"
         @click="createVerbatimShape"
-        class="button normal-input button-submit separate-bottom separate-top">
+        class="button normal-input button-submit">
         Create georeference from verbatim 
       </button>
     </div>
