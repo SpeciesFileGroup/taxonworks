@@ -41,6 +41,8 @@ import Georeferences from 'components/georeferences/georeferences'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { ActionNames } from '../../../../store/actions/actions'
 
+import { truncateDecimal } from 'helpers/math.js'
+
 export default {
   components: {
     ModalComponent,
@@ -57,10 +59,10 @@ export default {
       return parseFloat(this.collectingEvent.verbatim_longitude)
     },
     georeferenceVerbatimLatitude () {
-      return this.verbatimGeoreferenceAlreadyCreated ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1] : undefined
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal(this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1], 6) : undefined
     },
     georeferenceVerbatimLongitude () {
-      return this.verbatimGeoreferenceAlreadyCreated ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0] : undefined
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal(this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0], 6) : undefined
     },
     georeferenceVerbatimRadiusError () {
       return this.verbatimGeoreferenceAlreadyCreated ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : undefined
