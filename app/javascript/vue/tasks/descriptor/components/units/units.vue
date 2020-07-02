@@ -43,7 +43,7 @@ export default {
   },
   mounted () {
     GetUnits().then(response => {
-      this.list = response
+      this.list = response.body
     })
   }
 }

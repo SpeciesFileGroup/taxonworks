@@ -64,7 +64,7 @@
         let shapeText = this.shapes[this.shapes.length - 1];
         let params = {shape: shapeText};  // take only last shape pro tem
         AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
-          this.$emit('jsonUrl', response.url)
+          this.$emit('jsonUrl', response.request.responseURL)
           this.collectingEventList = response.body
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;

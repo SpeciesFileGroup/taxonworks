@@ -174,7 +174,7 @@ export default {
     if (/^\d+$/.test(descriptorId)) {
       this.loading = true
       LoadDescriptor(descriptorId).then(response => {
-        this.descriptor = response
+        this.descriptor = response.body
         this.loading = false
         this.setParameters()
       }, () => {
@@ -203,7 +203,7 @@ export default {
       this.saving = true
       if (this.descriptor.id) {
         UpdateDescriptor(descriptor).then(response => {
-          this.descriptor = response
+          this.descriptor = response.body
           this.saving = false
           TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
           if (this.matrix && redirect) {
@@ -214,7 +214,7 @@ export default {
         })
       } else {
         CreateDescriptor(descriptor).then(response => {
-          this.descriptor = response
+          this.descriptor = response.body
           this.saving = false
           this.setParameters()
           TW.workbench.alert.create('Descriptor was successfully created.', 'notice')
@@ -248,7 +248,7 @@ export default {
     },
     loadMatrix (id) {
       GetMatrix(id).then(response => {
-        this.matrix = response
+        this.matrix = response.body
         this.setParameters()
       })
     },

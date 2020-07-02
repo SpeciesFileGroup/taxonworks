@@ -1,12 +1,33 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
+// use requestId to cancel previous request with the same Id
+import Axios from 'axios'
 import { capitalize } from './strings'
-Vue.use(VueResource)
 
-const ajaxCall = function (type, url, data = null) {
-  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+const axios = Axios.create({
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json'
+  }
+})
+
+const CancelToken = Axios.CancelToken
+const previousTokenRequests = []
+
+const ajaxCall = function (type, url, data = {}, config = {}) {
+  const requestId = config.requestId || data.requestId
+  axios.defaults.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+  if (requestId) {
+    const source = CancelToken.source()
+    Object.assign(config, { cancelToken: source.token })
+
+    if (previousTokenRequests[requestId]) { previousTokenRequests[requestId].cancel() }
+    previousTokenRequests[requestId] = source
+  }
+
   return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
+    axios[type](url, data, config).then(response => {
+      response.body = response.data
+      delete response.data
       if (process.env.NODE_ENV !== 'production') {
         console.log(response)
       }

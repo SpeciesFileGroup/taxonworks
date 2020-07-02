@@ -7,9 +7,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.12.9] - 2020-07-01
+
+### Added
+- Endpoint for verbatim label parsing (dates and geographic coordinates)
+- Smart selection source on new combination and citations annotator
+
+### Changed
+- Display `[sic]` on misspellings of family-group full taxon names
+- Replaced vue-resource package by axios
+
+### Fixed
+- Containerized objects not showing up together [#1590]
+- Citations by Source task not loading taxon names list [#1591]
+
+[#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
+[#1591]: https://github.com/SpeciesFileGroup/taxonworks/issues/1591
+
+## [0.12.8] - 2020-06-29
+
 ### Added
 - Set autofocus on source and geographic area in OTU radial asserted distribution form
-- `/otus/123/coordinate.json` endpoint - all OTUs coordinate with this one (refs [1585])
+- `/otus/123/coordinate.json` endpoint - all OTUs coordinate with this one (refs [#1585])
 - Autosave on new asserted distribution task
 
 ### Changed
@@ -17,7 +38,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Better error handle for vue-autocomplete
 - Replaced old method to handle ajax call in all tasks
 - Updated relationships filter param on new taxon name task (refs [#1584])
-- ControlledVocabularyTerm model no longer requires SKOS with URI (refs [#1562, #1561])
+- ControlledVocabularyTerm model no longer requires SKOS with URI (refs [#1562], [#1561])
+- Improved sorting of objects in the Browse Nomenclatue task
+- Updated dwc-archive gem to version 1.1.1
+
+### Fixed
+- Topic `select_optimized` controller method crash
+- Recent list of biological associations not working due to the use of incorrect table
+
+[#1561]: https://github.com/SpeciesFileGroup/taxonworks/issues/1561
+[#1562]: https://github.com/SpeciesFileGroup/taxonworks/issues/1562
+[#1584]: https://github.com/SpeciesFileGroup/taxonworks/issues/1584
+[#1585]: https://github.com/SpeciesFileGroup/taxonworks/issues/1585
 
 ## [0.12.7] - 2020-06-26
 
@@ -147,7 +179,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...development
+[0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9
+[0.12.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...v0.12.8
 [0.12.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.6...v0.12.7
 [0.12.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.5...v0.12.6
 [0.12.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.4...v0.12.5

@@ -118,7 +118,7 @@ export default {
   },
   mounted() {
     GetLabels().then(response => {
-      this.list = response
+      this.list = response.body
     })
   },
   methods: {
@@ -146,7 +146,7 @@ export default {
     removeLabel(label) {
       RemoveLabel(label.id).then(() => {
         this.list.splice(this.list.findIndex(item => {
-          return item.id == label.id
+          return item.id === label.id
         }),1)
       })
     },
@@ -160,15 +160,15 @@ export default {
     },
     createLabel(label) {
       CreateLabel(label).then(response => {
-        this.list.push(response)
+        this.list.push(response.body)
       })
     },
     updateLabel(label) {
       UpdateLabel(label).then(response => {
-        let index = this.list.findIndex(item => {
-          return item.id == label.id
+        const index = this.list.findIndex(item => {
+          return item.id === label.id
         })
-        this.$set(this.list, index, response)
+        this.$set(this.list, index, response.body)
       })
     }
   }

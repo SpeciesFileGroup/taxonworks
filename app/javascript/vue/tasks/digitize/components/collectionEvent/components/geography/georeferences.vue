@@ -10,9 +10,9 @@
         ({{ count }})
       </template>
     </button>
-    <i
-      v-if="verbatimGeoreferenceAlreadyCreated"
-      class="disabled">Verbatim coordinates match</i>
+    <template v-if="verbatimGeoreferenceAlreadyCreated">
+      <span>Lat: {{ georeferenceVerbatimLatitude }}, Long: {{ georeferenceVerbatimLongitude }}<span v-if="georeferenceVerbatimRadiusError">, Radius error: {{ georeferenceVerbatimRadiusError }}</span></span>
+    </template>
     <modal-component
       class="modal-georeferences"
       @close="closeModal"
@@ -38,9 +38,10 @@
 
 import ModalComponent from 'components/modal'
 import Georeferences from 'components/georeferences/georeferences'
-import { GetGeographicArea } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { ActionNames } from '../../../../store/actions/actions'
+
+import { truncateDecimal } from 'helpers/math.js'
 
 export default {
   components: {
@@ -57,16 +58,21 @@ export default {
     lng() {
       return parseFloat(this.collectingEvent.verbatim_longitude)
     },
+    georeferenceVerbatimLatitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal(this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1], 6) : undefined
+    },
+    georeferenceVerbatimLongitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal(this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0], 6) : undefined
+    },
+    georeferenceVerbatimRadiusError () {
+      return this.verbatimGeoreferenceAlreadyCreated ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : undefined
+    },
     geographicArea () {
       if(!this.$store.getters[GetterNames.GetGeographicArea]) return
       return this.$store.getters[GetterNames.GetGeographicArea]['shape']
     },
     verbatimGeoreferenceAlreadyCreated () {
-      return this.georeferences.find(item => {
-        return item.geo_json.geometry.type === 'Point' &&
-          Number(item.geo_json.geometry.coordinates[0]) === Number(this.lng) &&
-          Number(item.geo_json.geometry.coordinates[1]) === Number(this.lat)
-      })
+      return this.georeferences.find(item => { return item.type === 'Georeference::VerbatimData' })
     },
     count () {
       return this.georeferences.length

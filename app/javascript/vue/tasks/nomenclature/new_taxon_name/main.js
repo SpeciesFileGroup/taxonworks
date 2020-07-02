@@ -13,8 +13,6 @@ import vueShortkey from 'vue-shortkey'
     })
     Vue.use(vueShortkey)
 
-    var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-    Vue.http.headers.common['X-CSRF-Token'] = token
     new Vue({
       store: newStore,
       el: '#new_taxon_name_task',

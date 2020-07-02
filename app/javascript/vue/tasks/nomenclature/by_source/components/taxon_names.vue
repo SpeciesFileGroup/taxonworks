@@ -20,6 +20,7 @@
 
   import TaxonNamesTable from './tables/taxon_names_table.vue'
   import SpinnerComponent from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {

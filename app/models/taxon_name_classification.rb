@@ -180,6 +180,23 @@ class TaxonNameClassification < ApplicationRecord
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
+        elsif type_name =~ /Latinized::PartOfSpeach/
+          t.update_columns(
+              cached: t.get_full_name,
+              cached_html: t.get_full_name_html,
+              cached_original_combination: t.get_original_combination,
+              cached_original_combination_html: t.get_original_combination_html
+          )
+          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+            t1.update_cached_original_combinations
+          end
+          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+            t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            t1.update_columns(
+                cached: t1.get_full_name,
+                cached_html: t1.get_full_name_html
+            )
+          end
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
             t1.update_columns(
@@ -187,10 +204,10 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html
             )
           end
-          TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
-          TaxonNameRelationship.where(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             t1.update_columns(
                 cached: t1.get_full_name,

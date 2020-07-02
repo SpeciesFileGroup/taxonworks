@@ -83,7 +83,7 @@
     label {
       display: block;
     }
-    input, textarea {
+    input[type="text"], textarea {
       width: 100%;
     }
   }
