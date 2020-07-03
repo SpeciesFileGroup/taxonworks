@@ -18,12 +18,10 @@
         <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
       </template>
     </div>
-    <div>
-      <h3>Citations</h3>
+    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => { return { [item.key]: !item.value } }))">
+      <h3>Citations ({{ filteredList.length }})</h3>
       <ul class="taxonomic_history">
-        <li 
-          v-for="item in itemsList"
-          v-if="checkFilter(item)">
+        <li v-for="item in filteredList">
           <span v-html="item.label_html"/>
         </li>
       </ul>
@@ -224,6 +222,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
+    },
+    filteredList () {
+      return Array.isArray(this.itemsList) ? this.itemsList.filter(item => this.checkFilter(item)) : []
     }
   },
   data () {
@@ -272,32 +273,14 @@ export default {
           this.isLoading = true
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
-            this.$nextTick(() => {
-              this.filterDOM([].concat(this.preferences.filterSections.show, this.preferences.filterSections.topic))
-            })
             this.isLoading = false
           })
         }
       },
       immediate: true
-    },
-    filterSections: {
-      handler (newVal) {
-        this.$nextTick(() => {
-          this.filterDOM([].concat(this.preferences.filterSections.show, this.preferences.filterSections.topic))
-        })
-      },
-      deep: true
     }
   },
   methods: {
-    filterDOM (sections) {
-      sections.forEach(item => {
-        document.querySelectorAll(item.key).forEach(element => {
-          item.value ? element.classList.remove('hidden') : element.classList.add('hidden')
-        })
-      })
-    },
     checkFilter (item) {
       const keysAND = Object.keys(this.preferences.filterSections.and)
       const keysOR = Object.keys(this.preferences.filterSections.or)
@@ -344,7 +327,7 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
   .hidden {
     display: none;
   }
@@ -363,5 +346,20 @@ export default {
   }
   /deep/ .annotation__note {
     display: inline;
+  }
+  /deep/ .hide-validations {
+    .soft_validation_anchor {
+      display: none !important;
+    }
+  }
+  /deep/ .hide-notes {
+    .history__citation_notes {
+      display: none !important;
+    }
+  }
+  /deep/ .hide-topics {
+    .history__citation_topics {
+      display: none !important;
+    }
   }
 </style>

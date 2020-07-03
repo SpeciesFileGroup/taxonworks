@@ -12,12 +12,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Parsed verbatim label on comprehensive specimen digitization task
 - Soft validation in timeline on Browse OTUs [#1593]
 - Topic facet in Filter Sources task [#1589]
+- Counts on type specimen and specimen records sections on Browse OTUs
 
 ### Changed
 - Replaced vue-resource package by axios
 - Disabled parallel upload on new image task [#1596]
 - Default verbatim fields order on comprehensive specimen digitization
 - Set radius error in verbatim georeference [#1602]
+- Timeline filter.
 
 ### Fixed
 - Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
