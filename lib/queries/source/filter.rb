@@ -24,6 +24,9 @@ module Queries
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
 
+      # @params author [Array of Integer, Topic#id]
+      attr_accessor :topic_ids
+
       # @params year_start [Integer, nil]
       attr_accessor :year_start
 
@@ -79,6 +82,7 @@ module Queries
         
         @author = params[:author]
         @author_ids = params[:author_ids] || []
+        @topic_ids = params[:topic_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
         @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
@@ -167,6 +171,10 @@ module Queries
         b = b.as('z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      end
+
+      def topic_ids_facet
+        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: topic_ids }).distinct unless topic_ids.empty?
       end
 
       def in_project_facet
@@ -272,6 +280,7 @@ module Queries
       def merge_clauses
         clauses = [
           author_ids_facet,
+          topic_ids_facet,
           citation_facet,
           citation_object_type_facet,
           document_facet,

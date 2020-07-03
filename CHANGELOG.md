@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selection source on new combination and citations annotator
 - Parsed verbatim label on comprehensive specimen digitization task
 - Soft validation in timeline on Browse OTUs [#1593]
+- Topic facet in Filter Sources task [#1589]
 
 ### Changed
 - Replaced vue-resource package by axios
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Containerized objects not showing up together [#1590]
 - Citations by Source task not loading taxon names list [#1591]
 
+[#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
 [#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
 [#1591]: https://github.com/SpeciesFileGroup/taxonworks/issues/1591
 
