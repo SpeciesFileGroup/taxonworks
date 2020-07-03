@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Default verbatim fields order on comprehensive specimen digitization
 - Set radius error in verbatim georeference [#1602]
 - Timeline filter.
+- Missing High classification ranks on classfication autocomplete on new taxon name [#1595]
 
 ### Fixed
 - Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
