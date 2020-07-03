@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replaced vue-resource package by axios
 - Disabled parallel upload on new image task [#1596]
 - Default verbatim fields order on comprehensive specimen digitization
+- Set radius error in verbatim georeference [#1602]
 
 ### Fixed
 - Filter collecting events was passing a wrong(changed name) parameters and structure for maps and geographic area.
