@@ -20,9 +20,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set radius error in verbatim georeference [#1602]
 
 ### Fixed
-- Filter collecting events was passing a wrong(changed name) parameters and structure for maps and geographic area.
+- Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
 - Not showing up people list after a crossref source [#1597]
 - Scroller in georeferences map modal
+- Grid Digitizer task failing to update containerized specimens matched by identifiers [#1601]
+
+[#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
+[#1601]: https://github.com/SpeciesFileGroup/taxonworks/issues/1601
 
 ## [0.12.9] - 2020-07-01
 
@@ -36,7 +40,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Containerized objects not showing up together [#1590]
 - Citations by Source task not loading taxon names list [#1591]
 
-[#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
 [#1590]: https://github.com/SpeciesFileGroup/taxonworks/issues/1590
 [#1591]: https://github.com/SpeciesFileGroup/taxonworks/issues/1591
 
