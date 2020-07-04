@@ -27,9 +27,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Not showing up people list after a crossref source [#1597]
 - Scroller in georeferences map modal
 - Grid Digitizer task failing to update containerized specimens matched by identifiers [#1601]
+- Specimen not associate with genus after create it in type section on new taxon name [#1604]
 
 [#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
+[#1593]: https://github.com/SpeciesFileGroup/taxonworks/issues/1593
+[#1595]: https://github.com/SpeciesFileGroup/taxonworks/issues/1595
+[#1596]: https://github.com/SpeciesFileGroup/taxonworks/issues/1596
+[#1597]: https://github.com/SpeciesFileGroup/taxonworks/issues/1597
 [#1601]: https://github.com/SpeciesFileGroup/taxonworks/issues/1601
+[#1602]: https://github.com/SpeciesFileGroup/taxonworks/issues/1602
+[#1604]: https://github.com/SpeciesFileGroup/taxonworks/issues/1604
 
 ## [0.12.9] - 2020-07-01
 
