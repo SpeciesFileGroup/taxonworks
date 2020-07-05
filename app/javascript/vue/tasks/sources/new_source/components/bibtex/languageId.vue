@@ -10,6 +10,7 @@
             ref="smartSelector"
             klass="source"
             label="english_name"
+            :filter-ids="languageId"
             @selected="setSelected"/>
           <lock-component
             class="circle-button-margin"
