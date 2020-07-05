@@ -547,6 +547,9 @@ To add a new (discovered) symbol:
         end
       end
       unless decimal_position.nil?
+        # this devolves to if decimal_position = 0, prepend "0."   OR
+        # if decimal_position == end of string, don't add decimal_point
+        # otherwise add decimal_point at decimal_position
         if result.length <= sig_digits
           if decimal_position == 0
             result.insert(decimal_position, '0' + decimal_point)  # make a valid Ruby number
