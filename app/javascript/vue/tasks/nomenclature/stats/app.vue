@@ -179,7 +179,7 @@ export default {
       }
       this.isLoading = true
       GetRanksTable(this.taxon.id, params).then(response => {
-        this.jsonUrl = response.url
+        this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
         this.isLoading = false
       }, () => {

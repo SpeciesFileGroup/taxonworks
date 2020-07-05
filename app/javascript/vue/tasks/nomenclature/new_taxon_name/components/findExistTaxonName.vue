@@ -112,12 +112,7 @@ export default {
       this.spinner = true
       this.clearResults()
       AjaxCall('get', this.ajaxUrl(), {
-        before: (request) => {
-          if (this.previousRequest) {
-            this.previousRequest.abort()
-          }
-          this.previousRequest = request
-        }
+        requestId: 'findTaxon'
       }).then(response => {
         this.json = response.body
         if(Array.isArray(response.body))

@@ -71,6 +71,7 @@ export default {
       this.searching = true
       AjaxCall('get', `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`).then(response => {
         if(response.body.title) {
+          response.body.roles_attributes = []
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
           GetSerialMatch(response.body.journal).then(response => {

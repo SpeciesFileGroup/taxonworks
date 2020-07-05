@@ -44,13 +44,11 @@ import { MutationNames } from '../../../../store/mutations/mutations'
 import CloneLabel from './cloneLabel'
 import { GetCEMd5Label } from '../../../../request/resources'
 import ModalComponent from 'components/modal'
-import TableComponent from 'components/table_list'
 
 export default {
   components: {
     CloneLabel,
-    ModalComponent,
-    TableComponent
+    ModalComponent
   },
   computed: {
     label: {

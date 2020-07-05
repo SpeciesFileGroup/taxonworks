@@ -5,6 +5,7 @@
         <tr>
           <th>Georeference ID</th>
           <th>Shape</th>
+          <th>Coordinates</th>
           <th>Error radius</th>
           <th>Type</th>
           <th></th>
@@ -19,7 +20,7 @@
           class="list-complete-item">
           <td>{{ item.id }}</td>
           <td>{{ item.geo_json.geometry.type }}</td>
-          
+          <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
           <td>
             <edit-in-place 
               v-model="item.error_radius"
@@ -92,6 +93,9 @@ export default {
       } else {
         this.$emit('delete', item)
       }
+    },
+    getCoordinates (coordinates) {
+      return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
     }
   }
 }

@@ -51,26 +51,26 @@
         <div
           class="flex-wrap-column"
           v-if="expandPerson">
-          <div class="field">
-            <label>Given name</label><br>
+          <div class="field label-above">
+            <label>Given name</label>
             <input
               v-model="person_attributes.first_name"
               type="text">
           </div>
-          <div class="field">
-            <label>Family name prefix</label><br>
+          <div class="field label-above">
+            <label>Family name prefix</label>
             <input
               v-model="person_attributes.prefix"
               type="text">
           </div>
-          <div class="field">
-            <label>Family name</label><br>
+          <div class="field label-above">
+            <label>Family name</label>
             <input
               v-model="person_attributes.last_name"
               type="text">
           </div>
-          <div class="field">
-            <label>Family name suffix</label><br>
+          <div class="field label-above">
+            <label>Family name suffix</label>
             <input
               v-model="person_attributes.suffix"
               type="text">

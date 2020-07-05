@@ -26,7 +26,7 @@
             @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new classification..."
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': 'Family' }"
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': ['Family', 'HigherClassification'] }"
             param="term"/>
           <button
             v-if="showParentButton"

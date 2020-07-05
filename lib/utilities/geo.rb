@@ -88,22 +88,15 @@ To add a new (discovered) symbol:
       else # one piece, may contain distance unit.
         piece = 0
       end
-      # if elevation.include?('.') && piece == 1 && pieces[0].include?('.')
-      #   value = elevation.to_f
-      # else
-      #   value = elevation.to_i
-      # end
       value = pieces[0]
       scale = 1 # default is meters
 
       /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
 
-      # scale = 1.0 unless m.blank?
-      scale = 1 unless m.blank?
+      scale = 1 unless m.blank?    # previously 1.0
       scale = 0.3048 unless ft.blank?
-      # scale = 1000.0 unless km.blank?
-      scale = 1000 unless km.blank?
+      scale = 1000 unless km.blank? # previously 1000.0
       scale = 1_609.344 unless mi.blank?
 
       value_sig = significant_digits(value.to_s)
@@ -115,7 +108,7 @@ To add a new (discovered) symbol:
       s_sig = value_sig[1]
 
       distance = s_value * scale
-      distance = conform_significant(distance.to_s, s_sig)  #######.to_f
+      distance = conform_significant(distance.to_s, s_sig)  ####### previously .to_f
       distance
     end
 =begin
@@ -144,7 +137,7 @@ To add a new (discovered) symbol:
     }.freeze
 =end
     #  ' = \u0027, converted so that the regex can be used for SQL
-    # TODO: Add Unicode right single (u2019) and double (u201D) quote as minutes seconds
+    # Added Unicode right single (u2019) and double (u201D) quote as minutes seconds
     REGEXP_COORD   = {
         # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
         dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
@@ -571,11 +564,15 @@ To add a new (discovered) symbol:
       return nil if text.blank?
       text = ' ' + text + ' '
       text.gsub("''", '"')
+          .gsub("´´", '"')
+          .gsub("ʹʹ", '"')
+          .gsub("ʼʼ", '"')
+          .gsub("ˊˊ", '"')
 
       coordinates = {}
 
       #  pattern: 42°5'18.1"S88°11'43.3"W
-      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]? ?([wW]|[eE])\W/)
+      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata1[1]
         coordinates[:lat_min] = matchdata1[2]
         coordinates[:lat_sec] = matchdata1[3]
@@ -585,7 +582,7 @@ To add a new (discovered) symbol:
         coordinates[:long_sec] = matchdata1[7]
         coordinates[:long_we]  = matchdata1[8]
         # pattern: S42°5'18.1"W88°11'43.3"
-      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]?['´ʹʼˊ]?\D/)
+      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]?['´ʹʼˊ]?\D/)
         coordinates[:lat_deg] = matchdata2[2]
         coordinates[:lat_min] = matchdata2[3]
         coordinates[:lat_sec] = matchdata2[4]

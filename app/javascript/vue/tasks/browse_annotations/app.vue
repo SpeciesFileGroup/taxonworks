@@ -138,7 +138,7 @@
             this.resultList = concat
           }
 
-          this.request.url = response.url
+          this.request.url = response.request.responseURL
           this.request.total = response.body.length
           this.isLoading = false
         })

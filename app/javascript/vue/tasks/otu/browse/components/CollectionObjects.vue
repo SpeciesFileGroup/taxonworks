@@ -1,7 +1,7 @@
 <template>
   <section-panel
     :status="status"
-    :title="title">
+    :title="`${title} (${collectionObjects.length})`">
     <a name="specimen-records"/>
     <div
       v-if="collectionObjects.length"
