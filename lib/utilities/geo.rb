@@ -77,7 +77,7 @@ To add a new (discovered) symbol:
     # 123 mi > 123 milee > 123 miles
     #
     # @param [String] dist_in
-    # @return [Float]
+    # @return [String]      #     ##### changed from previous type
     def self.distance_in_meters(dist_in)
       dist_in   = '0.0 meters' if dist_in.blank?
       elevation = dist_in.strip.downcase
@@ -345,7 +345,7 @@ To add a new (discovered) symbol:
     end
     # rubocop:enable Metrics/MethodLength
 
-    # @param [String] char as singlr character
+    # @param [String] char as single character
     # @return [String]
     def uni_string(char)
       format('\\u%04X', char.ord)
@@ -441,7 +441,8 @@ To add a new (discovered) symbol:
     end
 
     # determine number of significant digits in string input argument
-    # @return [<string with only significant digits>, count, <left of decimal>, decimal point string, <right of decimal lead zeros string>, <mantissa string>
+    # @param [String] number_string
+    # @return [Array] [<string with only significant digits>, count, <left of decimal>, decimal point string, <right of decimal lead zeros string>, <mantissa string>]
     def self.significant_digits(number_string)
       # is there a decimal point?
       intg = ''
@@ -503,7 +504,9 @@ To add a new (discovered) symbol:
     end
 
     # conform number to significant digits as string
-    # params number of significant digits, number
+    # @param [String] number to be conformed
+    # @param [Integer] sig_digits (desired number of significant digits)
+    # @return [String] number limited to specified significant digits
     def self.conform_significant(number, sig_digits)
       input = significant_digits(number.to_s)
       input_string = input[0]

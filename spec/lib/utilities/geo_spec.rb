@@ -996,8 +996,6 @@ describe 'Geo', group: :geo do
       use_cases.each { |distance, result|
         @entry += 1
         specify "case #{@entry}: '#{distance}' should yield #{result}" do
-          # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
-          # expect(Utilities::Geo.distance_in_meters(distance).round(6)).to eq(result)
           expect(Utilities::Geo.distance_in_meters(distance)).to eq(result)
         end
       }

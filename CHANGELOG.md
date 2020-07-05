@@ -8,39 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Smart selection source on new combination and citations annotator
-- Parsed verbatim label on comprehensive specimen digitization task
-- Soft validation in timeline on Browse OTUs [#1593]
-- Topic facet in Filter Sources task [#1589]
-- Counts on type specimen and specimen records sections on Browse OTUs
-
+- Handling for new unicode minutes, seconds symbols [#1526]
 ### Changed
-- Replaced vue-resource package by axios
-- Disabled parallel upload on new image task [#1596]
-- Default verbatim fields order on comprehensive specimen digitization
-- Set radius error in verbatim georeference [#1602]
-- Timeline filter.
-- Missing High classification ranks on classfication autocomplete on new taxon name [#1595]
-
+- return value format for Utilities::Geo.distance_in_meters changed from [Float] to [String]
 ### Fixed
-- Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
-- Not showing up people list after a crossref source [#1597]
-- Scroller in georeferences map modal
-- Grid Digitizer task failing to update containerized specimens matched by identifiers [#1601]
-- Specimen not associate with genus after create it in type section on new taxon name [#1604]
-- Volume field only accepted numbers [#1606]
-- Smart selectors not remove the previous selection after press new on New source task [#1605] 
+- Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions.   Decimal degrees not affected at this time. [#1512] 
 
-[#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
-[#1593]: https://github.com/SpeciesFileGroup/taxonworks/issues/1593
-[#1595]: https://github.com/SpeciesFileGroup/taxonworks/issues/1595
-[#1596]: https://github.com/SpeciesFileGroup/taxonworks/issues/1596
-[#1597]: https://github.com/SpeciesFileGroup/taxonworks/issues/1597
-[#1601]: https://github.com/SpeciesFileGroup/taxonworks/issues/1601
-[#1602]: https://github.com/SpeciesFileGroup/taxonworks/issues/1602
-[#1604]: https://github.com/SpeciesFileGroup/taxonworks/issues/1604
-[#1605]: https://github.com/SpeciesFileGroup/taxonworks/issues/1605
-[#1606]: https://github.com/SpeciesFileGroup/taxonworks/issues/1606
+[#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
+[#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
 
 ## [0.12.9] - 2020-07-01
 
