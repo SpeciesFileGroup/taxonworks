@@ -250,6 +250,7 @@ export default {
           }
         }
         this.options = this.options.concat(this.addTabs)
+        this.addCustomElements()
       })
     },
     addCustomElements () {
