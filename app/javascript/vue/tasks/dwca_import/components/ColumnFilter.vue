@@ -1,22 +1,33 @@
 <template>
-  <div
-    @keyup.esc="show = false"
-    class="column-filter">
-    <button
-      class="button"
-      :disabled="disabled"
-      :class="{
-        'button-data': applied,
-        'button-default': !applied
-      }"
-      @click="show = !show">▼
-    </button>
+  <th class="column-filter">
+    <div class="flex-separate middle">
+      <span>{{ title }}</span>
+      <div
+        class="margin-small-left"
+        @keyup.esc="show = false"
+      >
+        <button
+          class="button"
+          :disabled="disabled"
+          :class="{
+            'button-data': applied,
+            'button-default': !applied
+          }"
+          @click="show = !show"
+        >
+          ▼
+        </button>
+      </div>
+    </div>
     <div
+      @mouseleave="show = false"
       v-if="show && !disabled"
-      class="panel content filter-container margin-medium-top">
+      class="panel content filter-container"
+    >
       <div
         v-if="!value"
-        class="horizontal-left-content">
+        class="horizontal-left-content"
+      >
         <autocomplete
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
           :add-params="{
@@ -28,18 +39,21 @@
           param="value"
           @getItem="applyFilter"
           placeholder="Type to search..."
-          type="text"/>
+          type="text"
+        />
       </div>
       <div
         v-else
-        class="flex-separate middle">
+        class="flex-separate middle"
+      >
         <span>{{ value }}</span>
         <span
           @click="unselect"
-          class="button circle-button btn-delete button-default"/>
+          class="button circle-button btn-delete button-default"
+        />
       </div>
     </div>
-  </div>
+  </th>
 </template>
 
 <script>
@@ -61,11 +75,15 @@ export default {
     },
     importId: {
       type: [String, Number],
-      require: true
+      required: true
     },
     disabled: {
       type: Boolean,
       default: false
+    },
+    title: {
+      type: String,
+      required: true
     }
   },
   computed: {
@@ -104,9 +122,18 @@ export default {
     position: relative;
 
     .filter-container {
-      transform: translateX(-50%);
-      left:50%;
+      display: none;
+      min-width: 200px;
+      left:0;
       position: absolute;
     }
+  }
+  .column-filter:hover {
+    .filter-container {
+      display: flex;
+    }
+  }
+  /deep/ .vue-autocomplete-input {
+    min-width: 200px !important;
   }
 </style>

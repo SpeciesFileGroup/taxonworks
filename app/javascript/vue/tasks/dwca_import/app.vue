@@ -9,13 +9,13 @@
       v-if="table"
       class="position-relative">
       <transition name="bounce">
-      <div
-        v-if="isProcessing"
-        class="show-import-process panel">
-        <spinner-component
-          legend="Importing rows... please wait."
-        />
-      </div>
+        <div
+          v-if="isProcessing"
+          class="show-import-process panel">
+          <spinner-component
+            legend="Importing rows... please wait."
+          />
+        </div>
       </transition>
       <navbar-component
         :pagination="pagination"
@@ -45,6 +45,7 @@ import NavbarComponent from './components/NavBar'
 import { GetDataset, GetDatasetRecords, ImportRows } from './request/resources'
 import GetPagination from 'helpers/getPagination'
 import SpinnerComponent from 'components/spinner'
+import Qs from 'qs'
 
 export default {
   components: {
@@ -83,7 +84,7 @@ export default {
   methods: {
     loadDatasetRecords (id, page = undefined, params = {}) {
       this.isLoading = true
-      GetDatasetRecords(id, Object.assign({}, { page: page }, { filter: params })).then(response => {
+      GetDatasetRecords(id, { params: Object.assign({}, { page: page }, params), paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' }) }).then(response => {
         this.pagination = GetPagination(response)
         this.table.rows = page ? this.table.rows.concat(response.body) : response.body
         this.isLoading = false

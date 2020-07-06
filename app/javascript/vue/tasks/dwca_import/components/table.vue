@@ -7,24 +7,18 @@
             class="position-sticky">
             Selected
           </th>
-          <th
-            class="position-sticky">
-            Status
-          </th>
-          <th
-            class="position-sticky"
+          <status-filter
+            class="margin-medium-left"
+            v-model="params.status"/>
+          <column-filter
             v-for="(item, index) in table.headers"
-            :key="index">
-            <div class="flex-separate middle">
-              <span>{{ item }}</span>
-              <column-filter
-                :disabled="disabled"
-                class="margin-medium-left"
-                :import-id="importId"
-                v-model="filters[index]"
-                :field="index"/>
-            </div>
-          </th>
+            :key="index"
+            :title="item"
+            :disabled="disabled"
+            class="margin-medium-left"
+            :import-id="importId"
+            v-model="params.filter[item]"
+            :field="index"/>
         </tr>
       </thead>
       <tbody>
@@ -45,11 +39,14 @@
 
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
+import StatusFilter from './StatusFilter'
+import FilterStatus from '../const/filterStatus'
 
 export default {
   components: {
     RowComponent,
-    ColumnFilter
+    ColumnFilter,
+    StatusFilter
   },
   props: {
     table: {
@@ -81,13 +78,19 @@ export default {
   },
   data () {
     return {
-      filters: {},
+      params: {
+        filter: {},
+        status: FilterStatus()
+      },
       isProcessing: false
     }
   },
   watch: {
-    filters: {
+    params: {
       handler (newVal) {
+        if(newVal.status.length === FilterStatus().length) {
+          newVal.status = []
+        }
         this.$emit('onParams', newVal)
       },
       deep: true

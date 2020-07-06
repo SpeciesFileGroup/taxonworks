@@ -15,6 +15,7 @@
     "pdfjs-dist": "2.3.200",
     "postcss-cssnext": "^3.1.0",
     "postcss-smart-import": "^0.7.6",
+    "qs": "^6.9.4",
     "resolve-url-loader": "^3.1.1",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
