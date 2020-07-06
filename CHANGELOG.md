@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validation in timeline on Browse OTUs [#1593]
 - Topic facet in Filter Sources task [#1589]
 - Counts on type specimen and specimen records sections on Browse OTUs
+- Collecting method parsing in verbatim label text
 
 ### Changed
 - Replaced vue-resource package by axios
@@ -21,6 +22,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set radius error in verbatim georeference [#1602]
 - Timeline filter.
 - Missing High classification ranks on classfication autocomplete on new taxon name [#1595]
+- Date and geo-coordinates parsing improvements
+- Also update cached taxon name fields when Adjective or Participle is selected
 
 ### Fixed
 - Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
@@ -29,7 +32,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Grid Digitizer task failing to update containerized specimens matched by identifiers [#1601]
 - Specimen not associate with genus after create it in type section on new taxon name [#1604]
 - Volume field only accepted numbers [#1606]
-- Smart selectors not remove the previous selection after press new on New source task [#1605] 
+- Smart selectors not remove the previous selection after press new on New source task [#1605]
+- Georeference methods `latitude` returning longitude and `longitude` latitude
 
 [#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
 [#1593]: https://github.com/SpeciesFileGroup/taxonworks/issues/1593
