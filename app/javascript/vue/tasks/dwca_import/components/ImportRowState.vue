@@ -30,9 +30,37 @@
         </ul>
       </modal-component>
     </template>
-    <span
-      v-else
-      v-html="row.status"/>
+    <template v-else>
+      <template v-if="importedErrors">
+        <modal-component
+          v-if="showErrors"
+          @close="showErrors = false">
+          <h3 slot="header">Errors</h3>
+          <div slot="body">
+            <template v-for="(messages, typeError) in importedErrors.messages">
+              <span
+                :key="typeError"
+                class="soft_validation"
+                data-icon="warning">
+                {{ typeError }}
+              </span>
+              <ul>
+                <li
+                  v-for="error in messages"
+                  v-html="error"/>
+              </ul>
+            </template>
+          </div>
+        </modal-component>
+        <a
+          class="red"
+          @click="showErrors = true"
+          v-html="row.status"/>
+      </template>
+      <span
+        v-else
+        v-html="row.status"/>
+    </template>
   </td>
 </template>
 
@@ -55,6 +83,9 @@ export default {
     importedObjects () {
       return this.row.metadata.imported_objects
     },
+    importedErrors () {
+      return this.row.metadata.error_data
+    },
     importedCount () {
       return this.importedObjects ? Object.keys(this.importedObjects).length : 0
     }
@@ -64,7 +95,8 @@ export default {
       urlTask: {
         taxon_name: (id) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
       },
-      showModal: false
+      showModal: false,
+      showErrors: false
     }
   },
   methods: {
@@ -77,7 +109,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
