@@ -6,6 +6,7 @@
         v-for="(item, key) in importedObjects"
         :key="key"
         :href="loadTask(key, item)"
+        target="_blank"
         v-html="row.status"/>
       <a
         v-else
@@ -21,7 +22,10 @@
           <li
             v-for="(item, key) in importedObjects"
             :key="(item + key)">
-            <a :href="loadTask(key, item)">{{ key }}</a>
+            <a
+              :href="loadTask(key, item)"
+              target="_blank">{{ key }}
+            </a>
           </li>
         </ul>
       </modal-component>
