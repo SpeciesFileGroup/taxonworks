@@ -2,9 +2,10 @@ module Utilities::CollectingMethods
 
   METHODS = {'malaise trap' => 'Malaise trap',
              'malaise' => 'Malaise trap',
-             'sweeping' => 'sweeping',
-             'sweep net' => 'sweeping',
-             'sweepnet' => 'sweeping',
+             'sweeping' => 'sweep net',
+             'sweep netting' => 'sweep net',
+             'sweep net' => 'sweep net',
+             'sweepnet' => 'sweep net',
 
              'uv light trap' => 'UV light trap',
              'uv trap' => 'UV light trap',

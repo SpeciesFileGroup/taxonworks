@@ -462,7 +462,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
