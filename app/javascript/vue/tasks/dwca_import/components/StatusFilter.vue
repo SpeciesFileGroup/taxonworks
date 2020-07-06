@@ -2,7 +2,7 @@
   <th class="position-sticky column-filter">
     <div class="flex-separate middle">
       Status
-      <div>
+      <div class="margin-small-left">
         <button
           class="button"
           :disabled="disabled"
@@ -76,21 +76,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .column-filter {
-    position: relative;
-
-    .filter-container {
-      display: none;
-      min-width: 200px;
-      left:0;
-      position: absolute;
-    }
-  }
-  .column-filter:hover {
-    .filter-container {
-      display: flex;
-    }
-  }
-</style>

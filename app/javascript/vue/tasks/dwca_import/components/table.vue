@@ -8,14 +8,14 @@
             Selected
           </th>
           <status-filter
-            class="margin-medium-left"
+            class="position-sticky margin-medium-left"
             v-model="params.status"/>
           <column-filter
             v-for="(item, index) in table.headers"
             :key="index"
             :title="item"
             :disabled="disabled"
-            class="margin-medium-left"
+            class="position-sticky margin-medium-left"
             :import-id="importId"
             v-model="params.filter[item]"
             :field="index"/>

@@ -116,24 +116,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .column-filter {
-    position: relative;
-
-    .filter-container {
-      display: none;
-      min-width: 200px;
-      left:0;
-      position: absolute;
-    }
-  }
-  .column-filter:hover {
-    .filter-container {
-      display: flex;
-    }
-  }
-  /deep/ .vue-autocomplete-input {
-    min-width: 200px !important;
-  }
-</style>

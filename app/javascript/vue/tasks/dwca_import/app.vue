@@ -108,7 +108,7 @@ export default {
       const bottomOfTable = (document.documentElement.scrollTop + window.innerHeight) >= document.documentElement.offsetHeight
 
       if (bottomOfTable && this.importId) {
-        if (this.pagination.nextPage) {
+        if (this.pagination.nextPage && this.pagination.nextPage > this.pagination.paginationPage) {
           this.loadDatasetRecords(this.importId, this.pagination.nextPage, this.tableParams)
         }
       }
@@ -135,13 +135,29 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .show-import-process {
-    width: 400px;
-    position: fixed;
-    bottom: 0px;
-    height: 100px;
-    z-index: 201;
-    left: calc(50% - 200px);
+<style lang="scss">
+  #vue-task-dwca-import-new {
+    .show-import-process {
+      width: 400px;
+      position: fixed;
+      bottom: 0px;
+      height: 100px;
+      z-index: 201;
+      left: calc(50% - 200px);
+    }
+
+    .column-filter {
+      .filter-container {
+        display: none;
+        min-width: 200px;
+        left:0;
+        position: absolute;
+      }
+    }
+    .column-filter:hover {
+      .filter-container {
+        display: flex;
+      }
+    }
   }
 </style>
