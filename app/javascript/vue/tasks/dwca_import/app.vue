@@ -153,11 +153,15 @@ export default {
         left:0;
         position: absolute;
       }
+      .vue-autocomplete-input {
+        width: 200px;
+      }
     }
     .column-filter:hover {
       .filter-container {
         display: flex;
       }
     }
+    
   }
 </style>
