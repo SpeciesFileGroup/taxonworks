@@ -7,7 +7,7 @@
         :value="row.id"
         type="checkbox">
     </td>
-    <td v-html="row.status" />
+    <import-row-state :row="row"/>
     <cell-component
       v-for="(data_field, index) in row.data_fields"
       :key="index"
@@ -20,12 +20,14 @@
 
 <script>
 
+import ImportRowState from './ImportRowState'
 import CellComponent from './Cell'
 import { UpdateRow } from '../request/resources'
 
 export default {
   components: {
-    CellComponent
+    CellComponent,
+    ImportRowState
   },
   props: {
     row: {
