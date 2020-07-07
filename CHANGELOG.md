@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Volume field only accepted numbers [#1606]
 - Smart selectors not remove the previous selection after press new on New source task [#1605]
 - Georeference methods `latitude` returning longitude and `longitude` latitude
+- Duplicate shortcut, using the same one for comprehensive specimen digitization and clipboard [#1612]
 
 [#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
 [#1593]: https://github.com/SpeciesFileGroup/taxonworks/issues/1593

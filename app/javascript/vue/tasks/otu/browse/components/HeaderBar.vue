@@ -56,7 +56,7 @@
         v-shortkey="[getOSKey(), 'm']"
         @shortkey="switchTypeMaterial()"/>
       <span
-        v-shortkey="[getOSKey(), 'c']"
+        v-shortkey="[getOSKey(), 'e']"
         @shortkey="switchComprehensive()"/>
       <ul class="context-menu no_bullets">
         <li v-for="item in menu">
@@ -111,7 +111,7 @@ export default {
   mounted () {
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type specimen', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Go to comprehensive specimen digitization', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
   },
   methods: {

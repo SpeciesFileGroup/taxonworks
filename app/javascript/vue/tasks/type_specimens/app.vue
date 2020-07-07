@@ -79,7 +79,7 @@ export default {
     this.loadTaxonTypes()
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'New type material')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'New type material')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {

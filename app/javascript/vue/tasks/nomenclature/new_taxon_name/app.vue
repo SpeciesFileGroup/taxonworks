@@ -187,6 +187,7 @@ export default {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
