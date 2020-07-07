@@ -9,10 +9,6 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
   def upload
   end
 
-  # GET
-  def workbench
-  end
-
 private
 
   def dwc_import_params
