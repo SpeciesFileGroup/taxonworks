@@ -5,15 +5,15 @@
       legend="Uploading import..."
       v-if="isUploading"/>
     <div class="field">
-      <label class="block">Name</label>
+      <label class="block">Description</label>
       <input 
         type="text"
-        v-model="name">
+        v-model="description">
     </div>
     <div>
       <spinner-component 
         :show-spinner="false"
-        legend="Fill name field first"
+        legend="Fill description field first"
         v-if="!validate"/>
       <dropzone
         class="dropzone-card"
@@ -42,12 +42,12 @@ export default {
   },
   computed: {
     validate () {
-      return this.name.length >= 2
+      return this.description.length >= 2
     }
   },
   data () {
     return {
-      name: '',
+      description: '',
       isUploading: false,
       dropzone: {
         paramName: 'import_dataset[source]',
@@ -70,7 +70,7 @@ export default {
     },
     sending (file, xhr, formData) {
       this.isUploading = true
-      formData.append('import_dataset[description]', this.name)
+      formData.append('import_dataset[description]', this.description)
     },
     completeQueue (file, response) {
       this.isUploading = false
