@@ -123,14 +123,22 @@ export default {
       this.isProcessing = true
       ImportRows(this.importId).then(response => {
         if (response.body.results.length) {
+          response.body.results.forEach(row => {
+            this.updateRow(row)
+          })
           this.processImport()
         } else {
-          this.loadDatasetRecords(this.importId)
           this.isProcessing = false
         }
       }, () => {
         this.isProcessing = false
       })
+    },
+    updateRow (row) {
+      const index = this.table.rows.findIndex(item => item.id === row.id)
+      if (index > -1) {
+        this.$set(this.table.rows, index, row)
+      }
     }
   }
 }
