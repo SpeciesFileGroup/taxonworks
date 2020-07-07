@@ -143,13 +143,13 @@ To add a new (discovered) symbol:
       dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
              hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "”´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
       dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
+      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["”\u0027]?\s*[EW])/i,
              hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
       dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
@@ -438,11 +438,15 @@ To add a new (discovered) symbol:
       return nil if text.blank?
       text = ' ' + text + ' '
       text.gsub("''", '"')
+          .gsub("´´", '"')
+          .gsub("ʹʹ", '"')
+          .gsub("ʼʼ", '"')
+          .gsub("ˊˊ", '"')
 
       coordinates = {}
 
       #  pattern: 42°5'18.1"S88°11'43.3"W
-      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]? ?([wW]|[eE])\W/)
+      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata1[1]
         coordinates[:lat_min] = matchdata1[2]
         coordinates[:lat_sec] = matchdata1[3]
@@ -452,7 +456,7 @@ To add a new (discovered) symbol:
         coordinates[:long_sec] = matchdata1[7]
         coordinates[:long_we]  = matchdata1[8]
         # pattern: S42°5'18.1"W88°11'43.3"
-      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]['´ʹʼˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺˮ'´ʹʼˊ]?['´ʹʼˊ]?\D/)
+      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]?['´ʹʼˊ]?\D/)
         coordinates[:lat_deg] = matchdata2[2]
         coordinates[:lat_min] = matchdata2[3]
         coordinates[:lat_sec] = matchdata2[4]

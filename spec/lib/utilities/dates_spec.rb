@@ -265,12 +265,12 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
         @entry += 1
         specify "case #{@entry}: '#{co_ordinate}' should yield #{result}" do
           use_case = Utilities::Dates.date_regex_from_verbatim_label(co_ordinate)
-          u = use_case[:start_day].to_s + '/' +
-              use_case[:start_month].to_s + '/' +
-              use_case[:start_year].to_s + '/' +
-              use_case[:end_day].to_s + '/' +
-              use_case[:end_month].to_s + '/' +
-              use_case[:end_year].to_s
+          u = use_case[:start_date_day].to_s + '/' +
+              use_case[:start_date_month].to_s + '/' +
+              use_case[:start_date_year].to_s + '/' +
+              use_case[:end_date_day].to_s + '/' +
+              use_case[:end_date_month].to_s + '/' +
+              use_case[:end_date_year].to_s
 
           expect(u).to eq(result)
         end

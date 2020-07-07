@@ -5,7 +5,7 @@
         <h3>Collection Object</h3>
       </div>
       <div
-        v-shortkey="[getMacKey(), 'c']"
+        v-shortkey="[getMacKey(), 'e']"
         @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"

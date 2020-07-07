@@ -115,15 +115,15 @@ export default {
       }
     },
     create () {
-      createTaxonName({ 
-        taxon_name: { 
-          name: this.name, 
-          rank_class: this.speciesRank, 
+      createTaxonName({
+        taxon_name: {
+          name: this.name,
+          rank_class: this.speciesRank,
           parent_id: this.taxon.id,
           type: 'Protonym'
         }
       }).then(response => {
-        this.$emit('getItem', response)
+        this.$emit('getItem', response.body)
       })
     }
   }

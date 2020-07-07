@@ -106,7 +106,7 @@
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Add to container', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+l`, 'Lock/Unlock all', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+r`, 'Reset all', 'Comprehensive digitization task')
-        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Browse collection object', 'Comprehensive digitization task')
+        TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Browse collection object', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'Comprehensive digitization task')
         TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type material', 'Comprehensive digitization task')

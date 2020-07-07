@@ -60,14 +60,14 @@ export default {
   },
   mounted() {
     GetPredicates().then(response => {
-      this.list = response
+      this.list = response.body
     })
   },
   methods: {
     newPredicate(predicate) {
       CreateControlledVocabularyTerm(predicate).then(response => {
         TW.workbench.alert.create('Predicate was successfully created.', 'notice')
-        this.list.push(response)
+        this.list.push(response.body)
       })
     },
     updateList() {

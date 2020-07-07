@@ -65,8 +65,6 @@ class Serial < ApplicationRecord
 
   validates_presence_of :name
 
-  scope :used_recently, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order('"sources"."created_at" DESC') }
-
   soft_validate(:sv_duplicate?)
 
   # @param [String] compared_string
@@ -149,21 +147,38 @@ class Serial < ApplicationRecord
     return out_array
   end
 
+  def self.used_recently(user_id)
+    t = Source.arel_table
+    p = Serial.arel_table
+
+    # i is a select manager
+    i = t.project(t['serial_id'], t['created_at']).from(t)
+            .where(t['created_at'].gt(1.weeks.ago))
+            .where(t['created_by_id'].eq(user_id))
+            .order(t['created_at'].desc)
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Serial.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['serial_id'].eq(p['id'])))
+    ).pluck(:id).uniq
+  end
+
   def self.select_optimized(user_id, project_id)
+    r = used_recently(user_id)
     h = {
       recent: (
-        Serial.used_recently
-        .where('project_sources.project_id = ? AND sources.updated_by_id = ?', project_id, user_id)
-        .distinct
-        .limit(5).to_a +
-      Serial.recently_created
+        Serial.where('"serials"."id" IN (?)', r.first(10) ).order(:name).to_a +
+        Serial.recently_created
         .where(created_by_id: user_id)
         .distinct
         .limit(5).to_a).uniq.sort{|a,b| a.name <=> b.name},
       pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
-    h[:quick] = (Serial.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent]).uniq
+    h[:quick] = (Serial.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a +
+        Serial.where('"serials"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
     h
   end
 

@@ -179,7 +179,7 @@ export default {
   mounted: function () {
     this.updateLabels()
     GetPreparationTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
   },
   methods: {
@@ -194,14 +194,14 @@ export default {
     setEventLabel (id) {
       if (id) {
         GetCollectionEvent(id).then(response => {
-          this.labelEvent = response.verbatim_label
+          this.labelEvent = response.body.verbatim_label
         })
       }
     },
     setRepositoryLabel (id) {
       if (id) {
         GetRepository(id).then(response => {
-          this.labelRepository = response.name
+          this.labelRepository = response.body.name
         })
       }
     }

@@ -36,7 +36,7 @@
             <li>
               <a
                 :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`"
-                v-shortkey="[getMacKey(), 'c']"
+                v-shortkey="[getMacKey(), 'e']"
                 @shortkey="switchComprehensive()">Comprehensive</a>
             </li>
           </ul>

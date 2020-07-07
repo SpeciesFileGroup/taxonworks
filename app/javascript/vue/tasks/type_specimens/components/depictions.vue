@@ -74,7 +74,7 @@ export default {
         if(newVal.id != oldVal.id) {
           this.$refs.depiction.setOption('autoProcessQueue', true)
           GetDepictions(newVal.collection_object.id).then(response => {
-            this.figuresList = response
+            this.figuresList = response.body
           })
         }
       } else {

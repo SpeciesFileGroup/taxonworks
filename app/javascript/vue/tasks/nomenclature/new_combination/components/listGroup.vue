@@ -186,12 +186,12 @@ export default {
       })
       return newOrder
     },
-    getFromAutocomplete(event) {
+    getFromAutocomplete (event) {
       GetTaxonName(event.id).then(response => {
-        this.selectTaxon(response)
+        this.selectTaxon(response.body)
         this.haltWatcher = true
-        this.displaySearch = false;
-        this.$emit('addToList', { rank:this.rankName, taxon: response })
+        this.displaySearch = false
+        this.$emit('addToList', { rank:this.rankName, taxon: response.body })
       })
     },
     selectTaxon (taxon) {

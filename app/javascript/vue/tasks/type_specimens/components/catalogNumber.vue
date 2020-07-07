@@ -101,7 +101,7 @@ export default {
         if (newVal.namespace_id) {
           if (newVal.namespace_id !== oldVal.namespace_id) {
             GetNamespace(newVal.namespace_id).then(response => {
-              this.namespace = response
+              this.namespace = response.body
             })
           }
         } else {
@@ -121,7 +121,7 @@ export default {
       if (this.isIdentifierDataSet) {
         this.saveRequest = setTimeout(() => {
           CheckForExistingIdentifier(that.namespace.id, that.identifier.identifier).then(response => {
-            that.existingIdentifier = (response.length > 0 ? response[0] : false)
+            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : false)
           })
         }, this.delay)
       }

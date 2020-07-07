@@ -15,7 +15,7 @@
             v-shortkey="[getOSKey(), 'o']"
             @shortkey="switchBrowseOtu()"/>
           <span
-            v-shortkey="[getOSKey(), 'c']"
+            v-shortkey="[getOSKey(), 'e']"
             @shortkey="switchComprehensive()"/>
           <span
             v-shortkey="[getOSKey(), 't']"

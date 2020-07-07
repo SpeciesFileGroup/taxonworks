@@ -39,30 +39,32 @@
         v-if="view && view != 'search'"
         class="no_bullets"
         :class="{ 'flex-wrap-row': inline }">
-        <li
-          v-for="item in lists[view]"
-          :key="item.id">
-          <template
-            v-if="buttons">
-            <button
-              type="button"
-              class="button normal-input tag_button button-data"
-              v-html="item[label]"
-              @click.prevent="sendObject(item)"/>
-          </template>
-          <template
-            v-else>
-            <label class="cursor-pointer">
-              <input
-                :name="name"
-                v-model="selectedItem"
-                @click="sendObject(item)"
-                :value="item"
-                type="radio">
-              <span v-html="item[label]"/>
-            </label>
-          </template>
-        </li>
+        <template v-for="item in lists[view]">
+          <li
+            v-if="filterItem(item)"
+            :key="item.id">
+            <template
+              v-if="buttons">
+              <button
+                type="button"
+                class="button normal-input tag_button button-data"
+                v-html="item[label]"
+                @click.prevent="sendObject(item)"/>
+            </template>
+            <template
+              v-else>
+              <label class="cursor-pointer">
+                <input
+                  :name="name"
+                  @click="sendObject(item)"
+                  :value="item"
+                  :checked="selectedItem && item.id == selectedItem.id"
+                  type="radio">
+                <span v-html="item[label]"/>
+              </label>
+            </template>
+          </li>
+        </template>
       </ul>
     </template>
     <slot :name="view" />
@@ -179,6 +181,10 @@ export default {
       required: false,
       default: () => { return Math.random().toString(36).substr(2, 5) }
     },
+    filterIds: {
+      type: [Number, Array],
+      default: () => []
+    }
   },
   computed: {
     selectedItem: {
@@ -223,6 +229,9 @@ export default {
       this.selectedItem = item
       this.$emit('selected', item)
     },
+    filterItem (item) {
+      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item.id) : this.filterIds !== item.id
+    },
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
@@ -241,6 +250,7 @@ export default {
           }
         }
         this.options = this.options.concat(this.addTabs)
+        this.addCustomElements()
       })
     },
     addCustomElements () {

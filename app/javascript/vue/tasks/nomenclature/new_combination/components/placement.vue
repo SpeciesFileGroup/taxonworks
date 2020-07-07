@@ -46,15 +46,15 @@ export default {
   },
   methods: {
     create () {
-      let data = {
+      const data = {
         taxon_name: {
           id: this.taxon.id,
           parent_id: this.parent.id
         }
       }
       CreatePlacement(this.taxon.id, data).then(response => {
-        TW.workbench.alert.create(`Updated parent of ${response.name} to ${response.parent.name}`, 'notice')
-        this.$emit('created', response)
+        TW.workbench.alert.create(`Updated parent of ${response.body.name} to ${response.body.parent.name}`, 'notice')
+        this.$emit('created', response.body)
       })
     },
     orderRanks () {
