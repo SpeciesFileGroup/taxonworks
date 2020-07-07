@@ -28,6 +28,7 @@
         :table="table"
         :disabled="isProcessing"
         v-model="selectedIds"
+        @onUpdateRow="updateRow"
         @onParams="tableParams = $event"/>
       <div style="height: 60px"/>
     </div>

@@ -58,7 +58,9 @@ export default {
   },
   methods: {
     updateRecord (data) {
-      UpdateRow(this.importId, this.row.id, { data_fields: JSON.stringify(data) })
+      UpdateRow(this.importId, this.row.id, { data_fields: JSON.stringify(data) }).then(response => {
+        this.$emit('onUpdate', response.body)
+      })
     }
   }
 }

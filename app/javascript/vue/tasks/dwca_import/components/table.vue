@@ -28,6 +28,7 @@
           :class="{ 'even': (index % 2 == 0) }"
           :id="row.id"
           :row="row"
+          @onUpdate="updateRow"
           v-model="selectedIds"
           :import-id="importId"/>
       </tbody>
@@ -94,6 +95,11 @@ export default {
         this.$emit('onParams', newVal)
       },
       deep: true
+    }
+  },
+  methods: {
+    updateRow (row) {
+      this.$emit('onUpdateRow', row)
     }
   }
 }
