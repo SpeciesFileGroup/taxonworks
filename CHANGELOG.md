@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.12.10] - 2020-07-07
+
 ### Added
 - Smart selection source on new combination and citations annotator
 - Parsed verbatim label on comprehensive specimen digitization task
@@ -24,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing High classification ranks on classfication autocomplete on new taxon name [#1595]
 - Date and geo-coordinates parsing improvements
 - Also update cached taxon name fields when Adjective or Participle is selected
+- Repositories and Serials smart selectors' recent entries optimizations
 
 ### Fixed
 - Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
@@ -36,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeference methods `latitude` returning longitude and `longitude` latitude
 - Smart selector overrides custom list after lists are loaded [#1608]
 - Duplicate shortcut, using the same one for comprehensive specimen digitization and clipboard [#1612]
+- Typo in taxon name relationship soft validation message.
 
 [#1589]: https://github.com/SpeciesFileGroup/taxonworks/issues/1589
 [#1593]: https://github.com/SpeciesFileGroup/taxonworks/issues/1593
@@ -218,7 +224,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...development
+[0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10
 [0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9
 [0.12.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...v0.12.8
 [0.12.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.6...v0.12.7
