@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Protonym parent priority soft validation [#1613]
+
+[#1613]: https://github.com/SpeciesFileGroup/taxonworks/issues/1613
 
 ## [0.12.10] - 2020-07-07
 
