@@ -151,7 +151,7 @@ namespace :tw do
 
               type_kind_id = get_sf_identification_metadata[specimen_id][0]['type_kind_id'] # used in identification section as integer
 
-              if [1..5, 7..11].include?(type_kind_id.to_i)
+              if [*(1..5), *(7..11)].include?(type_kind_id.to_i)
                 # if TypeKindID in (1 holotype, 2 syntypes, 3 neotype, 4 lectotype, 5 unspecified primary type, [not 6 unknown],
                 #   7 allotype, 8 paratype, 9 lectoallotype, 10 paralectotype, 11 neoallotype), create coll obj
                 #     1,3,4,5,7,9,11 use count = 1; 2,8,10 use ranged lot 2-100; rest of coll obj logic applies except for 3 former syntypes now lectotypes
