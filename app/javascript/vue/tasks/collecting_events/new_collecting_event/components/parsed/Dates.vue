@@ -3,7 +3,7 @@
     <div>
       <label class="separate-bottom"><b>Start date</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-left label-above">
+        <div class="label-above">
           <label>Day</label>
           <input
             type="text"
@@ -45,7 +45,7 @@
     <div>
       <label class="separate-bottom"><b>End date</b></label>
       <div class="horizontal-left-content separate-bottom">
-        <div class="separate-left label-above">
+        <div class="label-above">
           <label>Day</label>
           <input
             type="text"

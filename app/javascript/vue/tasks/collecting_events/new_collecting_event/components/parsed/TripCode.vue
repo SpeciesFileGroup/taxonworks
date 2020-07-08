@@ -14,7 +14,7 @@
             target="CollectingEvent"
             klass="CollectingEvent"
             v-model="namespace"
-            @selected="setTripCode"
+            @selected="setNamespace"
           />
           <template v-if="tripCode.namespace_id">
             <div class="middle separate-top">
@@ -46,10 +46,7 @@
 
 <script>
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
 import SmartSelector from 'components/smartSelector.vue'
-
 import extendCE from '../mixins/extendCE'
 
 export default {
@@ -57,23 +54,15 @@ export default {
   components: {
     SmartSelector
   },
-  computed: {
-    tripCode: {
-      get () {
-        return this.$store.getters[GetterNames.GetTripCode]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTripCode)
-      }
-    }
-  },
   data () {
     return {
-      namespace: undefined
-    }
-  },
-  watch: {
-    namespace (newVal) {
+      namespace: undefined,
+      tripCode: {
+        id: undefined,
+        namespace_id: undefined,
+        type: 'Identifier::Local::TripCode',
+        identifier: undefined
+      }
     }
   },
   methods: {

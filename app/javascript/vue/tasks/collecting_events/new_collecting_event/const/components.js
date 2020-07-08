@@ -16,6 +16,8 @@ import Time from '../components/parsed/Time.vue'
 import TripCode from '../components/parsed/TripCode.vue'
 import Predicates from '../components/parsed/Predicates.vue'
 
+import MapComponent from '../components/map/Map.vue'
+
 const ComponentVerbatim = {
   Collectors: 'Collectors',
   DateComponent: 'DateComponent',
@@ -33,13 +35,15 @@ const ComponentParse = {
   GeographicArea: 'GeographicArea',
   Dates: 'Dates',
   Elevation: 'Elevation',
-  Group: 'Group',
   Time: 'Time',
   TripCode: 'TripCode',
+  Group: 'Group',
   Predicates: 'Predicates'
 }
 
-const ComponentMap = {}
+const ComponentMap = {
+  Map: 'Map'
+}
 
 const VueComponents = {
   [ComponentVerbatim.Collectors]: Collectors,
@@ -59,7 +63,8 @@ const VueComponents = {
   [ComponentParse.Group]: Group,
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
-  [ComponentParse.Predicates]: Predicates
+  [ComponentParse.Predicates]: Predicates,
+  [ComponentMap.Map]: MapComponent
 }
 
 export {

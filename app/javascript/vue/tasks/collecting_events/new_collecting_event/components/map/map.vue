@@ -12,7 +12,7 @@
     </div>
 
     <div
-      v-if="(!latitude || !longitude) && (collectionEvent.verbatim_latitude || collectionEvent.verbatim_longitude)"
+      v-if="(!latitude || !longitude) && (collectingEvent.verbatim_latitude || collectingEvent.verbatim_longitude)"
       class="panel aligner middle"
       style="height: 300px; align-items: center; width:100%; text-align: center;">
       <h3>
@@ -24,7 +24,7 @@
     </div>
 
     <div
-      v-show="!collectionEvent.verbatim_latitude && !collectionEvent.verbatim_longitude"
+      v-show="!collectingEvent.verbatim_latitude && !collectingEvent.verbatim_longitude"
       class="panel aligner"
       style="height: 300px; align-items: center; width:100%; text-align: center;">
       <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
@@ -50,10 +50,10 @@ export default {
   mixins: [extendCE],
   computed: {
     latitude () {
-      return convertDMS(this.collectionEvent.verbatim_latitude)
+      return convertDMS(this.collectingEvent.verbatim_latitude)
     },
     longitude () {
-      return convertDMS(this.collectionEvent.verbatim_longitude)
+      return convertDMS(this.collectingEvent.verbatim_longitude)
     }
   },
   data () {

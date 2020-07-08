@@ -10,6 +10,8 @@ const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_ar
 
 const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
 
+const GetDepictions = (id) => ajaxCall('get', `/collecting_events/${id}/depictions.json`)
+
 const GetProjectPreferences = () => ajaxCall('get', '/project_preferences.json')
 
 const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce.id}`, { collecting_events: ce })
@@ -20,12 +22,16 @@ const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
 const LoadSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
 
+const DestroyDepiction = (id) => ajaxCall('delete', `/depictions/${id}`)
+
 export {
   CreateCollectingEvent,
+  DestroyDepiction,
   GetCollectingEvent,
   GetGeographicArea,
   GetRecentCollectingEvents,
   GetUserPreferences,
+  GetDepictions,
   GetProjectPreferences,
   GetGeographicAreaByCoords,
   LoadSoftValidation,
