@@ -490,6 +490,10 @@ class Protonym < TaxonName
     FAMILY_RANK_NAMES.include?(rank_string)
   end
 
+  def is_higher_rank?
+    HIGHER_RANK_NAMES.include?(rank_string)
+  end
+
   # @return Boolean
   #   could also be determined by parens in cached_author year
   def is_original_name?
