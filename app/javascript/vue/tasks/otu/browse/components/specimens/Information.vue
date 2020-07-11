@@ -5,14 +5,14 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span> (<span v-html="countAndBiocurations" />)</span>
+        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"
       class="content">
       <span class="middle">
         <span class="mark-box button-default separate-right"/>
-          <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
+        <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
       </span>
       <ul class="no_bullets">
         <li>
@@ -150,19 +150,3 @@ export default {
   }
 }
 </script>
-
-<style module>
-  .expand-box {
-    width: 18px;
-    height: 18px;
-    padding: 0px;
-    background-size: 10px;
-    background-position: center;
-  }
-
-  .mark-box {
-    width: 10px;
-    height: 10px;
-    padding: 0px;
-  }
-</style>

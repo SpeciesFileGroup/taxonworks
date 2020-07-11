@@ -7,7 +7,8 @@ const RouteNames = {
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   BrowseNomenclature: '/tasks/nomenclature/browse',
-  NomenclatureStats: '/tasks/nomenclature/stats'
+  NomenclatureStats: '/tasks/nomenclature/stats',
+  TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
 export {
