@@ -32,5 +32,24 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(interactive_key.descriptor_available_languages.count).to eq(2)
     end
 
+    specify 'language_to_use' do
+      eng
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      a = AlternateValue.create(type: 'AlternateValue::Translation', value: 'zzz', alternate_value_object: descriptor1, alternate_value_object_attribute: 'name', language_id: rus.id)
+      observation_matrix.reload
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, language_id: rus.id)
+      expect(interactive_key.language_to_use).to eq(rus)
+    end
+
+    specify 'descriptor_available_tags' do
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      k = Keyword.create(name: 'zzz', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
+      descriptor1.tags.create(keyword: k)
+      observation_matrix.reload
+      expect(interactive_key.descriptor_available_tags.count).to eq(1)
+    end
+
   end
 end

@@ -1,22 +1,48 @@
 # Contains methods used to build an interactive key
 class InteractiveKey
 
+  # required attribude to build the key
   attr_accessor :observation_matrix_id
 
+  #required attribute to build the key
   attr_accessor :project_id
 
+  #returns ObservationMatrix object
   attr_accessor :observation_matrix
 
+  #optional attribute to display the characters in a particular language
+  attr_accessor :language_id
+
+  #optional attribute to provide a list of tags to limit the set of characters "1|5|15"
+  attr_accessor :tag_ids
+
+
+
+  #returns the list of Languages used as translations for descriptors
   attr_accessor :descriptor_available_languages
 
+  #returns the list of all descriptors for this matrix
   attr_accessor :descriptors
 
-  def initialize(observation_matrix_id: nil, observation_matrix: nil, project_id: nil, descriptor_available_languages: nil)
+  #returns the list of all Tags used with the descriptors
+  attr_accessor :descriptor_available_tags
+
+  #the validated Language object to display descriptors in a particular language
+  attr_accessor :language_to_use
+
+  #list of descriptors reduced by tag_ids
+  attr_accessor :descriptors_to_use
+
+  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, tag_ids: nil)
     raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
     @observation_matrix = observation_matrix
     @descriptor_available_languages = descriptor_available_languages
+    @language_id = language_id
+    @language_to_use = language_to_use
+    @descriptors_to_use =
+    @descriptor_available_tags = descriptor_available_tags
   end
 
   def observation_matrix
@@ -38,98 +64,54 @@ class InteractiveKey
     languages
   end
 
+  def language_to_use
+    return nil if @language_id.blank?
+    l = Language.where(id: @language_id).first
+    return nil if l.nil? || !descriptor_available_languages.to_a.include?(l)
+    l
+  end
+
+  def descriptor_available_tags
+    descriptor_ids = descriptors.pluck(:id)
+    tags = Keyword.joins(:tags)
+                    .where(tags: {tag_object_type: 'Descriptor'})
+                    .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
+  end
+
+  def descriptor_import_predicate
+    ###TODO import_attribute 'char_weight' exclude characters with weight == 0
+  end
+
+  def observations
+    # id
+    # descriptor_id
+    # otu_id
+    # collection_object_id
+    # character_state_id
+    # continuous_value
+    # continuous_unit
+    # sample_min
+    # sample_max
+    # sample_unit
+    # presence
+    # description
+    # cached
+    # cached_column_label
+    # cached_row_label
+    # description
+    # type
+    ### types: Qualitative(char_states); Presence absence; Quantitative (single measurement); Sample (min, max); Free text
+  end
+
+  # rst = All characters ordered by Characters.Weight DESC, Characters.Char, State.State"
+  # rst2 = List of all taxa from the key ordered by hiercode
+  # filter = taxa with specic IDs
+  # list of used states
+  # count the number of errors for each taxon
 end
 
 =begin
 
-strSQL = "SELECT Morph, Morph" & lng & " FROM Morph ORDER BY Morph"
-Set rst1 = Server.CreateObject("ADODB.Recordset")
-rst1.Open strSQL,Conn
-
-<title>3I - Characters</title>
-<link rel="stylesheet" href="style.css">
-<link rel="meta" href="labels.rdf" type="application/rdf+xml" title="ICRA labels" />
-</head>
-
-<%
-' Open recordset Set of all characters and states
-
-if sex <> replace(sex, "e", "") then where = where & "Characters.Type Like '%e%' or "
-if sex <> replace(sex, "l", "") then where = where & "Characters.Type Like '%l%' or "
-if sex <> replace(sex, "p", "") then where = where & "Characters.Type Like '%p%' or "
-if sex <> replace(sex, "n", "") then where = where & "Characters.Type Like '%n%' or "
-if sex <> replace(sex, "m", "") then where = where & "Characters.Type Like '%m%' or "
-if sex <> replace(sex, "f", "") then where = where & "Characters.Type Like '%f%' or "
-if sex <> replace(sex, "d", "") then where = where & "Characters.Type Like '%d%' or "
-if where & "" <> "" then where = "( " & left(where, len(where)-4) & ") and "
-where = "WHERE " & where & "(Characters.Weight is Null or Characters.Weight Not Like '0') "
-if keyN <> "" then where1 = "AND ','&Characters.KeyN&',' Like '%," & keyN & ",%' "
-
-strSQL = "SELECT Characters.Key1, Characters.Char, Characters.Type, Characters.Numeric, Characters.Morph, Characters.Weight, Characters.Char" & lng & ", Characters.Descr" & lng & ", State.Key2, State.State, State.State" & lng & ", State.Fig " &_
-	"FROM Characters INNER JOIN State ON Characters.Key1 = State.Key1 "
-if cat = "1" then
-	strSQL = strSQL & where & where1 & "ORDER BY Characters.Morph, Characters.Weight DESC, Characters.Char, State.State"
-else
-	strSQL = strSQL & where & where1 & "ORDER BY Characters.Weight DESC, Characters.Char, State.State"
-end if
-Set rst = Server.CreateObject("ADODB.Recordset")
-rst.Open strSQL,Conn
-
-' Fill out array taxa() with set of taxa
-
-if keyN = "" then
-	strSQL = "SELECT Key, Hiercode FROM TaxonQuery2 ORDER BY Hiercode"
-else
-	strSQL = "SELECT Key, Hiercode FROM TaxonQuery2 Where ','&KeyN&',' Like '%," & keyN & ",%' ORDER BY Hiercode"
-end if
-Set rst2 = Server.CreateObject("ADODB.Recordset")
-rst2.Open strSQL, Conn
-
-if rank = "" then
-	Do Until rst2.EOF
-		taxaMax = taxaMax + 1
-		taxa(taxaMax, 0) = CStr(rst2("Key"))
-		taxa(taxaMax, 1) = CStr(rst2("Hiercode"))
-		if filter = "" or inStr(filter, "a" & rst2("Key") & "a") > 0 then
-			taxa(taxaMax, 2) = "0"
-		else
-			taxa(taxaMax, 2) = "-1"
-		end if
-		rst2.MoveNext
-	Loop
-	rst2.Close
-else
-	Set rst4 = Server.CreateObject("ADODB.Recordset")
-	strSQL = "SELECT Key, Hiercode, Rank FROM Taxon WHERE Rank>=" & rank & " ORDER BY Hiercode"
-	rst4.Open strSQL, Conn, 3, 3
-	Do Until rst2.EOF
-		rst4.moveLast
-		do until rst4("Hiercode") = left(rst2("Hiercode"), len(rst4("Hiercode")))
-			rst4.movePrevious
-		loop
-		hc = rst4("Hiercode")
-		i = rst4("Key")
-
-		if hc > taxa(taxaMax, 1) then
-			taxaMax = taxaMax + 1
-			taxa(taxaMax, 0) = i
-			taxa(taxaMax, 1) = hc
-			if filter = "" or inStr(filter, "a" & i & "a") > 0 then
-				taxa(taxaMax, 2) = "0"
-			else
-				taxa(taxaMax, 2) = "-1"
-			end if
-			taxa(taxaMax, 3) = "0"
-		end if
-		do until hc <> left(rst2("Hiercode"), len(hc))
-			rst2.MoveNext
-			if rst2.EOF then exit do
-		loop
-	Loop
-	rst2.Close
-	rst4.Close
-	Set rst4 = Nothing
-end if
 
 ' Save all used characters and their states into array charUsed()
 
