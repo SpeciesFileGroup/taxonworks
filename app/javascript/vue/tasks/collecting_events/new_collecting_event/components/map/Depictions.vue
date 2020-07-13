@@ -138,7 +138,7 @@ export default {
     },
     processGeoreferencesQueue () {
       this.coordinatesQueue.forEach(geo => {
-        const shape = {
+        const geojson = {
           type: 'Feature',
           properties: {},
           geometry: {
@@ -148,8 +148,8 @@ export default {
         }
         const data = {
           georeference: {
-            geographic_item_attributes: { shape: JSON.stringify(shape) },
-            collecting_event_id: this.collectingEventId,
+            geographic_item_attributes: { shape: JSON.stringify(geojson) },
+            collecting_event_id: this.collectingEvent.id,
             type: 'Georeference::Exif'
           }
         }
