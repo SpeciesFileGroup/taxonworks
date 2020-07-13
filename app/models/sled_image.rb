@@ -226,7 +226,7 @@ class SledImage < ApplicationRecord
         j = identifier_for(i)
 
         # Check to see if object exists
-        if j && k = Identifier::Local::CatalogNumber.where(p[:identifiers_attributes].first.merge(identifier: j)).first
+        if j && k = Identifier::Local::CatalogNumber.find_by(p[:identifiers_attributes].first.merge(identifier: j, identifier_object_type: 'CollectionObject'))
           # Remove the identifier attributes, identifier exists
           p.delete :identifiers_attributes
           p.delete :tags_attributes
@@ -242,7 +242,6 @@ class SledImage < ApplicationRecord
           if c.identifiers.first
             c.identifiers.first.identifier = identifier_for(i)
           end
-
           c.save!
         end
 
