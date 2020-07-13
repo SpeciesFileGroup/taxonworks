@@ -17,6 +17,7 @@ import TripCode from '../components/parsed/TripCode.vue'
 import Predicates from '../components/parsed/Predicates.vue'
 
 import MapComponent from '../components/map/Map.vue'
+import Depictions from '../components/map/Depictions.vue'
 
 const ComponentVerbatim = {
   Collectors: 'Collectors',
@@ -42,7 +43,8 @@ const ComponentParse = {
 }
 
 const ComponentMap = {
-  Map: 'Map'
+  Map: 'Map',
+  Depictions: 'Depictions'
 }
 
 const VueComponents = {
@@ -64,7 +66,8 @@ const VueComponents = {
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
   [ComponentParse.Predicates]: Predicates,
-  [ComponentMap.Map]: MapComponent
+  [ComponentMap.Map]: MapComponent,
+  [ComponentMap.Depictions]: Depictions
 }
 
 export {

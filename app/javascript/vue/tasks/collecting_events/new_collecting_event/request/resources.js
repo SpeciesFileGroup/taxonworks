@@ -2,6 +2,8 @@ import ajaxCall from 'helpers/ajaxCall'
 
 const CreateCollectingEvent = (ce) => ajaxCall('post', '/collecting_events.json', { collecting_events: ce })
 
+const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
+
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
 const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`)
@@ -26,6 +28,7 @@ const DestroyDepiction = (id) => ajaxCall('delete', `/depictions/${id}`)
 
 export {
   CreateCollectingEvent,
+  CreateGeoreference,
   DestroyDepiction,
   GetCollectingEvent,
   GetGeographicArea,
