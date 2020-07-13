@@ -22,6 +22,7 @@ import updateClassification from './updateClassification'
 import updateTaxonRelationship from './updateTaxonRelationship'
 import updateTaxonStatus from './updateTaxonStatus'
 import updateTaxonType from './updateTaxonType'
+import updateSource from './updateSource'
 
 const ActionNames = {
   SetParentAndRanks: 'setParentAndRanks',
@@ -47,7 +48,8 @@ const ActionNames = {
   UpdateClassification: 'updateClassification',
   UpdateTaxonRelationship: 'updateTaxonRelationship',
   UpdateTaxonStatus: 'updateTaxonStatus',
-  UpdateTaxonType: 'updateTaxonType'
+  UpdateTaxonType: 'updateTaxonType',
+  UpdateSource: 'updateSource'
 }
 
 const ActionFunctions = {
@@ -74,7 +76,8 @@ const ActionFunctions = {
   [ActionNames.UpdateClassification]: updateClassification,
   [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship,
   [ActionNames.UpdateTaxonStatus]: updateTaxonStatus,
-  [ActionNames.UpdateTaxonType]: updateTaxonType
+  [ActionNames.UpdateTaxonType]: updateTaxonType,
+  [ActionNames.UpdateSource]: updateSource
 }
 
 export {

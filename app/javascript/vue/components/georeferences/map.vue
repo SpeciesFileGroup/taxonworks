@@ -342,7 +342,7 @@ export default {
     generateHue (index) {
       const PHI = (1 + Math.sqrt(5)) / 2
       const n = index * PHI - Math.floor(index * PHI)
-      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 70) + 40}% , ${(Math.floor((n) + 1) * 60) + 10}%)`
+      return `hsl(${Math.floor(n * 256)}, ${Math.floor(n * 50) + 100}% , ${(Math.floor((n) + 1) * 60) + 10}%)`
     },
     defaultShapeStyle () {
       return {
@@ -354,10 +354,10 @@ export default {
     randomShapeStyle (index) {
       return {
         weight: 1,
-        color: this.generateHue(index),
+        color: this.generateHue(index + 6),
         dashArray: '3',
         dashOffset: '3',
-        fillOpacity: 0.6
+        fillOpacity: 0.5
       }
     },
     stripeShapeStyle (index) {
@@ -369,7 +369,7 @@ export default {
         spaceWeight: 0.05,
         height: 0.1,
         angle: 45,
-        color: this.generateHue(index + 1),
+        color: this.generateHue(index + 6),
         opacity: 0.9,
         spaceColor: color,
         spaceOpacity: 0.2

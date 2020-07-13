@@ -23,13 +23,13 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       showSource: false
     }
   },
   methods: {
-    nomenclatureRoute() {
+    nomenclatureRoute () {
       return `${RouteNames.NomenclatureBySource}?source_id=${this.source.id}`
     }
   }

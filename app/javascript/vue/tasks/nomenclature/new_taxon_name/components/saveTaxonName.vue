@@ -3,7 +3,7 @@
     type="button"
     v-shortkey="[getMacKey(), 's']"
     @shortkey="saveTaxon()"
-    :disabled="!validateInfo"
+    :disabled="!validateInfo || isSaving"
     @click="saveTaxon()">
     {{ taxon.id == undefined ? 'Create': 'Save' }}
   </button>
@@ -26,15 +26,18 @@ export default {
       return (this.parent != undefined && 
         (this.taxon.name != undefined && 
         this.taxon.name.replace(' ','').length >= 2))
+    },
+    isSaving () {
+      return this.$store.getters[GetterNames.GetSaving]
     }
   },
   methods: {
     saveTaxon: function () {
-      if (this.validateInfo) {
-        if (this.taxon.id == undefined) {
-          this.createTaxonName()
-        } else {
+      if (this.validateInfo && !this.GetSaving) {
+        if (this.taxon.id) {
           this.updateTaxonName()
+        } else {
+          this.createTaxonName()
         }
       }
     },

@@ -24,21 +24,20 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
         TaxonNameClassification::Icn::NotEffectivelyPublished)
   end
 
-  # Shoudl be reversed!?
   def subject_status
-    'as classified'
-  end
-
-  def object_status
     'classified'
   end
 
+  def object_status
+    'as classified'
+  end
+
   def subject_status_connector_to_object
-    ' for'
+    ' as'
   end
 
   def object_status_connector_to_subject
-    ' as'
+    ' for'
   end
 
   # genus.source_classified_as = Family
@@ -57,7 +56,7 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   def self.nomenclatural_priority
-    :reverse
+    nil
   end
 
   def sv_coordinated_taxa
@@ -69,10 +68,11 @@ class TaxonNameRelationship::SourceClassifiedAs < TaxonNameRelationship
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
-    if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
-      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
-    end
+    nil
+#    date1 = self.subject_taxon_name.nomenclature_date
+#    date2 = self.object_taxon_name.nomenclature_date
+#    if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
+#      soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+#    end
   end
 end

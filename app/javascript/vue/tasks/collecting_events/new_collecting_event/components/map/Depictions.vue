@@ -150,7 +150,7 @@ export default {
           georeference: {
             geographic_item_attributes: { shape: JSON.stringify(shape) },
             collecting_event_id: this.collectingEventId,
-            type: 'Georeference::VerbatimData'
+            type: 'Georeference::Exif'
           }
         }
         CreateGeoreference(data).then(response => {

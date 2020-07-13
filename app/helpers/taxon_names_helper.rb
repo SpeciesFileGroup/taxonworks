@@ -10,7 +10,7 @@ module TaxonNamesHelper
 
   def label_for_taxon_name(taxon_name)
     return nil if taxon_name.nil?
-    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ') 
+    [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
  
   def taxon_name_autocomplete_tag(taxon_name, term)

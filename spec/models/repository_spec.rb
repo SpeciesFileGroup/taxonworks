@@ -25,7 +25,7 @@ describe Repository, type: :model do
     let!(:s2) { Specimen.create!(total: 1, repository: r2) }
 
     specify '#used_recently' do
-      expect(Repository.used_recently).to contain_exactly(r1, r2)
+      expect(Repository.used_recently(s1.created_by_id, s1.project_id)).to contain_exactly(r1.id, r2.id)
     end
 
     specify '#used_in_project' do

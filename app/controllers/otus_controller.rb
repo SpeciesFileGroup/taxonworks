@@ -1,7 +1,7 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline]
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate]
   after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
 
   # GET /otus
@@ -43,6 +43,12 @@ class OtusController < ApplicationController
 
   # GET /otus/1/navigation.json
   def navigation
+  end
+
+  # GET /otus/1/coordinate.json
+  def coordinate
+    @otus = Otu.coordinate_otus(@otu.id)
+    render :index
   end
 
   # GET /otus/1/navigation.json

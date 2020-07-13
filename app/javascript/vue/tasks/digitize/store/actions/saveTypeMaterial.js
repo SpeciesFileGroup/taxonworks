@@ -10,14 +10,14 @@ export default function ({ commit, state }) {
       if(type_material.id) {
         UpdateTypeMaterial(type_material).then(response => {
           commit(MutationNames.NewTypeMaterial)
-          return resolve(response)
+          return resolve(response.body)
         })
       }
       else {
         CreateTypeMaterial(type_material).then(response => {
-          commit(MutationNames.AddTypeMaterial, response)
-          commit(MutationNames.NewTypeMaterial, response)
-          return resolve(response)
+          commit(MutationNames.AddTypeMaterial, response.body)
+          commit(MutationNames.NewTypeMaterial, response.body)
+          return resolve(response.body)
         })
       }
     }

@@ -5,6 +5,9 @@ import getMatrixRowsDynamic from './getMatrixRowsDynamic'
 import getMatrixColumnsDynamic from './getMatrixColumnsDynamic'
 import getMatrixView from './getMatrixView'
 import getMatrixMode from './getMatrixMode'
+import getRowFixedPagination from './getRowFixedPagination'
+import getColumnFixedPagination from './getColumnFixedPagination'
+import getSettings from './getSettings'
 
 const GetterNames = {
   GetMatrix: 'getMatrix',
@@ -13,7 +16,10 @@ const GetterNames = {
   GetMatrixView: 'getMatrixView',
   GetMatrixMode: 'getMatrixMode',
   GetMatrixColumns: 'getMatrixColumns',
-  GetMatrixColumnsDynamic: 'getMatrixColumnsDynamic'
+  GetMatrixColumnsDynamic: 'getMatrixColumnsDynamic',
+  GetRowFixedPagination: 'getRowFixedPagination',
+  getColumnFixedPagination: 'getColumnFixedPagination',
+  getSettings: 'getSettings'
 }
 
 const GetterFunctions = {
@@ -23,7 +29,10 @@ const GetterFunctions = {
   [GetterNames.GetMatrixView]: getMatrixView,
   [GetterNames.GetMatrixMode]: getMatrixMode,
   [GetterNames.GetMatrixColumns]: getMatrixColumns,
-  [GetterNames.GetMatrixColumnsDynamic]: getMatrixColumnsDynamic
+  [GetterNames.GetMatrixColumnsDynamic]: getMatrixColumnsDynamic,
+  [GetterNames.GetRowFixedPagination]: getRowFixedPagination,
+  [GetterNames.GetColumnFixedPagination]: getColumnFixedPagination,
+  [GetterNames.GetSettings]: getSettings
 }
 
 export {

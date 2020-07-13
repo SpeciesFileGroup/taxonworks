@@ -232,6 +232,8 @@ class SledImage < ApplicationRecord
           p.delete :tags_attributes
           p.delete :notes_attributes
           p.delete :taxon_determinations_attributes
+          p.delete :data_attributes_attributes
+          p.delete :total
 
           k.identifier_object.update!(p)
         else

@@ -70,12 +70,13 @@
   import AnnotationFor from './components/annotation_for'
   import AnnotationDates from './components/annotation_dates'
   import AnnotationLogic from './components/annotation_logic'
-  import AnnotationBy from "./components/annotation_by";
+  import AnnotationBy from './components/annotation_by'
   //
   import ViewList from './components/view/list.vue'
   import RequestBar from './components/view/requestBar.vue'
 
   import Spinner from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -121,7 +122,7 @@
         params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
         this.isLoading = true
 
-        this.$http.get(`/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
+        AjaxCall('get', `/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
 
           if(this.filter.annotation_logic == 'replace') {
             this.resultList = response.body
@@ -137,7 +138,7 @@
             this.resultList = concat
           }
 
-          this.request.url = response.url
+          this.request.url = response.request.responseURL
           this.request.total = response.body.length
           this.isLoading = false
         })

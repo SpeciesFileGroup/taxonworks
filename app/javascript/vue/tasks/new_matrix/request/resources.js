@@ -1,31 +1,4 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
-
-Vue.use(VueResource)
-
-const ajaxCall = function (type, url, data = null) {
-  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-  return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
-      return resolve(response.body)
-    }, response => {
-      handleError(response.body)
-      return reject(response)
-    })
-  })
-}
-
-const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
-
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
-}
+import ajaxCall from 'helpers/ajaxCall.js'
 
 const GetObservationMatrices = () => {
   return ajaxCall('get', '/observation_matrices.json')
@@ -40,27 +13,27 @@ const UpdateMatrix = function (id, data) {
 }
 
 const GetMatrixObservation = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}.json`)
+  return ajaxCall('get',`/observation_matrices/${id}.json`, { per: 500 })
 }
 
-const GetMatrixObservationRows = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_rows.json`)
+const GetMatrixObservationRows = function (id, params = undefined) {
+  return ajaxCall('get', `/observation_matrices/${id}/observation_matrix_rows.json`, { params: params })
 }
 
-const GetMatrixObservationRowsDynamic = function(id) {
+const GetMatrixObservationRowsDynamic = function (id) {
   return new Promise((resolve, reject) => {
     let promises = []
     promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaggedRowItem`))
     promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaxonNameRowItem`))
 
     Promise.all(promises).then((response) => {
-      return resolve(response[0].concat(response[1]))
+      return resolve(response[0].body.concat(response[1].body))
     })
   })
 }
 
-const GetMatrixObservationColumns = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_columns.json`)
+const GetMatrixObservationColumns = function(id, params) {
+  return ajaxCall('get', `/observation_matrices/${id}/observation_matrix_columns.json`, { params: params })
 }
 
 const GetMatrixObservationColumnsDynamic = function(id) {

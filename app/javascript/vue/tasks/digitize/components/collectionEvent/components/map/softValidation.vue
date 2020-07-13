@@ -2,14 +2,16 @@
   <div
     v-if="validation.length"
     class="panel content soft-validation-box separate-top validation-warning">
-    <template v-if="validation.length">
-      <h3>Collecting event</h3>
+    <div class="margin-medium-left">
+      <h3>Soft validation</h3>
+    </div>
+    <div class="body">
       <ul class="no_bullets">
         <li v-for="item in validation">
           <span data-icon="warning" v-html="item.message"/>
         </li>
       </ul>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -37,12 +39,19 @@ export default {
       handler (newVal) {
         if (newVal && this.collectingEvent.id) {
           GetSoftValidation(this.collectingEvent.global_id).then(response => {
-            this.validation = response.validations.soft_validations
+            this.validation = response.body.validations.soft_validations
           })
         }
       },
       deep: true,
       immediate: true
+    },
+    collectingEvent (newVal, oldVal) {
+      if (newVal.id && newVal.id != oldVal.id) {
+        GetSoftValidation(this.collectingEvent.global_id).then(response => {
+          this.validation = response.body.validations.soft_validations
+        })
+      }
     }
   }
 }

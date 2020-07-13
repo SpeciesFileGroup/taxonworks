@@ -57,6 +57,10 @@ const GetContent = function (id) {
   return ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
 }
 
+const GetTaxonNames = function (params) {
+  return ajaxCall('get', '/taxon_names.json', { params: params })
+}
+
 const GetOtus = function (id) {
   return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
     headers: {
@@ -113,6 +117,8 @@ const UpdateUserPreferences = (id, data) => {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
 
+const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId }})
+
 export {
   GetOtu,
   GetUserPreferences,
@@ -140,5 +146,7 @@ export {
   GetGeoreferences,
   GetOtusCollectionObjects,
   UpdateUserPreferences,
-  GetOtuAssertedDistribution
+  GetOtuAssertedDistribution,
+  GetTaxonNames,
+  GetSoftValidation
 }

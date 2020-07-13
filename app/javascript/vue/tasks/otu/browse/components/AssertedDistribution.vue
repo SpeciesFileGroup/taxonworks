@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Asserted distributions">
+  <section-panel
+    :status="status"
+    :title="title">
     <a
       v-if="currentOtu"
       :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
@@ -18,9 +20,11 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
+import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel
   },

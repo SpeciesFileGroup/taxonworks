@@ -246,7 +246,8 @@ class SourcesController < ApplicationController
       :year_start,
       author_ids: [],
       citation_object_type: [],
-      keyword_ids: []
+      keyword_ids: [],
+      topic_ids: []
     )
   end
 

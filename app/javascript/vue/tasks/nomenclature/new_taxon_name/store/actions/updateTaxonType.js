@@ -11,12 +11,11 @@ export default function ({ commit, state, dispatch }, data) {
     }
   }
   updateTaxonRelationship(relationship).then(response => {
-    commit(MutationNames.AddTaxonRelationship, response)
+    commit(MutationNames.AddTaxonRelationship, response.body)
     dispatch('loadSoftValidation', 'taxonRelationshipList')
     dispatch('loadSoftValidation', 'taxon_name')
   }, response => {
-    commit(MutationNames.SetHardValidation, response)
+    commit(MutationNames.SetHardValidation, response.body)
   })
   state.taxonType = undefined
 }
-

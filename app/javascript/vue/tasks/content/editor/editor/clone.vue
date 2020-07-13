@@ -34,6 +34,7 @@
 import { GetterNames } from '../store/getters/getters'
 import removeDuplicate from '../helpers/removeDuplicate'
 import Modal from 'components/modal.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
 
@@ -59,7 +60,7 @@ export default {
     }
   },
   watch: {
-    'content': function (val, oldVal) {
+    content (val, oldVal) {
       if (val != undefined) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
@@ -74,7 +75,7 @@ export default {
       if (this.disabled) return
       var that = this,
         ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
-      this.$http.get(ajaxUrl).then(response => {
+      AjaxCall('get', ajaxUrl).then(response => {
         that.contents = removeDuplicate(response.body, this.content.id)
       })
     },

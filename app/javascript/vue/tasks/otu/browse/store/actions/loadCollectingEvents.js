@@ -1,8 +1,8 @@
 import { GetCollectingEvents, GetGeoreferences } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
-export default ({ state, commit }, otuId) => {
-  GetCollectingEvents([otuId]).then(response => {
+export default ({ state, commit }, otusId) => {
+  GetCollectingEvents(otusId).then(response => {
     const CEs = response.body
 
     commit(MutationNames.SetCollectingEvents, CEs)

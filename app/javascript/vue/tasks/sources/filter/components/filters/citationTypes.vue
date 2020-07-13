@@ -19,6 +19,7 @@
 
 import { GetCitationTypes } from '../../request/resources'
 import Decamelize from 'helpers/decamelize'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -46,6 +47,8 @@ export default {
     GetCitationTypes().then(response => {
       this.types = response.body
     })
+    const urlParams = URLParamsToJSON(location.href)
+    this.citationTypes = urlParams.citation_object_type ? urlParams.citation_object_type : []
   },
   methods: {
     decamelize: Decamelize

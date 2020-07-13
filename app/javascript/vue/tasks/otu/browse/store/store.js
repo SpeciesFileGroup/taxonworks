@@ -4,25 +4,21 @@ import Vuex from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
+import componentNames from '../const/componentNames'
 
 Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    loadState: {
+      descendants: true,
+      distribution: true,
+      assertedDistribution: true,
+      collectionObjects: true
+    },
     preferences: {
-      sections: [
-        'NomenclatureHistory',
-        'Descendants',
-        'ImageGallery',
-        'CommonNames',
-        'TypeSpecimens',
-        'CollectionObjects',
-        'ContentComponent',
-        'AssertedDistribution',
-        'BiologicalAssociations',
-        'AnnotationsComponent',
-        'CollectingEvents'
-      ],
+      preferenceSchema: 20200703,
+      sections: Object.keys(componentNames()),
       filterSections: {
         and: {
           current: [
@@ -88,19 +84,19 @@ function makeInitialState () {
         show: [
           {
             label: 'Notes',
-            key: '.history__citation_notes',
+            key: 'hide-notes',
             value: false
           },
           {
             label: 'Soft validation',
-            key: '.soft_validation_anchor',
+            key: 'hide-validations',
             value: false
           }
         ],
         topic: [
           {
             label: 'On citations',
-            key: '.history__citation_topics',
+            key: 'hide-topics',
             value: true
           }
         ]
@@ -113,7 +109,11 @@ function makeInitialState () {
     otus: [],
     georeferences: [],
     typeMaterials: [],
-    descendants: [],
+    descendants: {
+      taxon_names: [],
+      collecting_events: [],
+      georeferences: []
+    },
     userId: undefined
   }
 }

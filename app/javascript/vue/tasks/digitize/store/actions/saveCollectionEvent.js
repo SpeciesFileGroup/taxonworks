@@ -17,25 +17,24 @@ export default function ({ commit, state }) {
     else {
       if(collection_event.id) {
         UpdateCollectionEvent(collection_event).then(response => {
-          commit(MutationNames.SetCollectionEvent, response)
+          commit(MutationNames.SetCollectionEvent, response.body)
           if(state.collection_event.hasOwnProperty('identifiers') && state.collection_event.identifiers.length) {
             state.collectingEventIdentifier = state.collection_event.identifiers[0]
           }
-          return resolve(response)
+          return resolve(response.body)
         }, (response) => {
-          reject(response)
+          reject(response.body)
         })
       }
       else {
         CreateCollectionEvent(collection_event).then(response => {
-          commit(MutationNames.SetCollectionEvent, response)
+          commit(MutationNames.SetCollectionEvent, response.body)
           if(state.collection_event.hasOwnProperty('identifiers') && state.collection_event.identifiers.length) {
             state.collectingEventIdentifier = state.collection_event.identifiers[0]
           }
-          return resolve(response)
+          return resolve(response.body)
         }, (response) => {
-          TW.workbench.alert.create(JSON.stringify(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>')), 'error')
-          reject(response)
+          reject(response.body)
         })
       }
     }

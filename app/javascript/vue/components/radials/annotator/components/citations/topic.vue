@@ -13,9 +13,8 @@
       :add-tabs="['all']"
       @selected="addTopic">
       <div
-        v-if="slotProps.view === 'all'"
-        class="flex-wrap-row"
-        slot-scope="slotProps">
+        slot="all"
+        class="flex-wrap-row">
         <div 
           v-for="item in topicsAllList"
           :key="item.id"

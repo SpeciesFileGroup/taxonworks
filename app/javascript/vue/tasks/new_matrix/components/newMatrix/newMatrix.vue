@@ -2,9 +2,6 @@
   <div class="panel basic-information">
     <div class="header flex-separate">
       <h3>Matrix</h3>
-      <copy-descriptors
-        v-if="matrix.id"
-        :matrix-id="matrix.id"/>
     </div>
     <div class="body">
       <div class="flex-separate">
@@ -48,12 +45,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 
 import SwitchComponent from './switch.vue'
-import CopyDescriptors from '../columns/copyDescriptors'
 
 export default {
   components: {
-    SwitchComponent,
-    CopyDescriptors
+    SwitchComponent
   },
   computed: {
     matrixName: {
@@ -88,18 +83,18 @@ export default {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },
-    validateData() {
+    validateData () {
       return this.$store.getters[GetterNames.GetMatrix].name &&
             !this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   methods: {
-    create() {
+    create () {
       CreateMatrix(this.matrix).then(response => {
-        this.matrix = response
-      }); 
+        this.matrix = response.body
+      })
     },
-    updateMatrix() {
+    updateMatrix () {
       this.$store.dispatch(ActionNames.UpdateMatrix)
     }
   }

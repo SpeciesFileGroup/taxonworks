@@ -12,7 +12,7 @@ module Export::Coldp::Files::Name
       'ICN'
     when :icnp
       'ICNP'
-    when :ictv
+    when :icvcn
       'ICVCN' # doublecheck
     end
   end
@@ -39,14 +39,15 @@ module Export::Coldp::Files::Name
 
   # @return [String, nil]
   # https://api.catalogue.life/vocab/nomStatus
-  # Todo, move this to the concern
+  # TODO, move this to the concern
   #   https://github.com/SpeciesFileGroup/taxonworks/issues/1040
   def self.nom_status_field(taxon_name)
     case taxon_name.type
     when 'Combination'
       'chresonym'
     else
-      nil
+      c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
+      c ? c.class::NOMEN_URI : nil
     end
   end
 
@@ -105,10 +106,10 @@ module Export::Coldp::Files::Name
           t.cached,                                  # scientificName
           authorship_field(t, original),             # authorship
           t.rank,                                    # rank
-          t.ancestor_at_rank('genus')&.cached,       # genus
-          t.ancestor_at_rank('subgenus')&.cached,    # infragenericEpithet
-          t.ancestor_at_rank('species')&.cached,     # specificEpithet
-          t.ancestor_at_rank('subspecies')&.cached,  # infraspecificEpithet
+          t.ancestor_at_rank('genus', true)&.name,         # genus
+          t.ancestor_at_rank('subgenus', true)&.name,      # infragenericEpithet
+          t.ancestor_at_rank('species', true)&.name,       # specificEpithet
+          t.ancestor_at_rank('subspecies', true)&.name,    # infraspecificEpithet
           source&.id,                                # publishedInID
           source&.pages,                             # publishedInPage
           t.year_of_publication,                     # publishedInYear

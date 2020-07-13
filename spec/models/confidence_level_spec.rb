@@ -37,11 +37,11 @@ describe ConfidenceLevel, type: :model, group: :confidences do
     end
 
     specify '#used_recently' do
-      expect(ConfidenceLevel.used_recently).to contain_exactly(k1)
+      expect(ConfidenceLevel.used_recently(k1.created_by_id, k1.project_id, 'CollectionObject')).to contain_exactly(k1.id)
     end
 
     specify '#used_on_klass.used_recently' do
-      expect(ConfidenceLevel.used_on_klass('Otu').used_recently).to contain_exactly(k1)
+      expect(ConfidenceLevel.used_recently(k1.created_by_id, k1.project_id, 'Otu')).to contain_exactly(k1.id)
     end
   end
 

@@ -59,6 +59,7 @@ export default {
         paramName: 'image[image_file]',
         url: '/images',
         autoProcessQueue: true,
+        parallelUploads: 1,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },

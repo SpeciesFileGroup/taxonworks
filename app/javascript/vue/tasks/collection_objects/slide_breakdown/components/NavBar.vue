@@ -71,8 +71,8 @@ export default {
       handler(newVal, oldVal) {
         if(newVal.id && oldVal.id != newVal.id) {
           NavigationSled(this.sledImage.global_id).then(response => {
-            this.navigation.next = response.headers.map['navigation-next'] ? response.headers.map['navigation-next'][0] : undefined
-            this.navigation.previous = response.headers.map['navigation-previous'] ? response.headers.map['navigation-previous'][0] : undefined
+            this.navigation.next = response.headers['navigation-next'] ? response.headers['navigation-next'][0] : undefined
+            this.navigation.previous = response.headers['navigation-previous'] ? response.headers['navigation-previous'][0] : undefined
           })
         }
       }

@@ -1,4 +1,4 @@
-FROM locodelassembly/passenger-ruby27:latest AS base
+FROM phusion/passenger-ruby27:latest AS base
 ARG BUNDLER_WORKERS=1
 
 # From Phusion

@@ -26,7 +26,7 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       when /(um|rum)$/
         m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
       when /ra$/
-        m_name, f_name, n_name = t.name[0..-3] + 'er', t.name, t.name[0..-3] + 'rum'
+        m_name, f_name, n_name = t.name[0..-4] + 'er', t.name, t.name[0..-2] + 'um'
       when /a$/
         m_name, f_name, n_name = t.name[0..-2] + 'us', t.name, t.name[0..-2] + 'um'
       when /or$/

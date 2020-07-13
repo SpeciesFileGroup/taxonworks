@@ -12,11 +12,11 @@
       class="content">
       <span class="middle">
         <span class="mark-box button-default separate-right"/>
-          <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
+        <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
       </span>
       <ul class="no_bullets">
         <li>
-          <span>Counts: <b>{{ biocurations.map(item => { return item.object_tag }).join(', ') }} {{ specimen.individualCount }}</b></span>
+          <span>Counts: <b v-html="countAndBiocurations" /></span>
         </li>
         <li>
           <span>Repository: <b>{{ repositoryLabel }}</b></span>
@@ -66,6 +66,10 @@ export default {
     }
   },
   computed: {
+    countAndBiocurations () {
+      return this.biocurations.length ? `${this.specimen.individualCount} ${this.biocurations.map(item => { return item.object_tag.toLowerCase() }).join(', ')}` : this.specimen.individualCount
+
+    },
     collectingEvents () {
       return this.$store.getters[GetterNames.GetCollectingEvents]
     },
@@ -121,13 +125,15 @@ export default {
       }
     }
   },
+  mounted () {
+    GetBiocurations(this.specimen.collection_objects_id).then(response => {
+      this.biocurations = response.body
+    })
+  },
   methods: {
     loadData () {
       GetDepictions('collection_objects', this.specimen.collection_objects_id).then(response => {
         this.depictions = response.body
-      })
-      GetBiocurations(this.specimen.collection_objects_id).then(response => {
-        this.biocurations = response.body
       })
       GetCollectionObject(this.specimen.collection_objects_id).then(response => {
         this.collectionObject = response.body
@@ -144,19 +150,3 @@ export default {
   }
 }
 </script>
-
-<style module>
-  .expand-box {
-    width: 18px;
-    height: 18px;
-    padding: 0px;
-    background-size: 10px;
-    background-position: center;
-  }
-
-  .mark-box {
-    width: 10px;
-    height: 10px;
-    padding: 0px;
-  }
-</style>
