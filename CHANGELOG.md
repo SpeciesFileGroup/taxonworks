@@ -17,7 +17,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Protonym parent priority soft validation [#1613]
 - Type specimens count in Browse OTUs task
+- Attempting to update containers as if them were collection objects in Grid Digitizer task [#1601]
 
+[#1601]: https://github.com/SpeciesFileGroup/taxonworks/issues/1601
 [#1613]: https://github.com/SpeciesFileGroup/taxonworks/issues/1613
 [#1614]: https://github.com/SpeciesFileGroup/taxonworks/issues/1614
 
