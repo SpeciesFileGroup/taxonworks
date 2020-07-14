@@ -9,6 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.12.11] - 2020-07-14
+
+### Changed
+- Type material designations are now grouped by collection object in Browse OTUs (refs [#1614])
+
+### Fixed
+- Protonym parent priority soft validation [#1613]
+- Type specimens count in Browse OTUs task
+
+[#1613]: https://github.com/SpeciesFileGroup/taxonworks/issues/1613
+[#1614]: https://github.com/SpeciesFileGroup/taxonworks/issues/1614
+
 ## [0.12.10] - 2020-07-07
 
 ### Added
@@ -224,7 +236,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...development
+[0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10
 [0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9
 [0.12.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...v0.12.8

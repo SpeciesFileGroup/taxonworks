@@ -71,7 +71,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_parent_rank
-      if self.rank_class
+      if self.rank_class && self.id == self.cached_valid_taxon_name_id
         if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
@@ -840,7 +840,7 @@ module Protonym::SoftValidationExtensions
         rank_group = self.rank_class.parent
         parent = self.parent
 
-        if parent && rank_group == parent.rank_class.parent
+        if !is_higher_rank? && parent && rank_group == parent.rank_class.parent
           unless unavailable_or_invalid?
             date1 = self.nomenclature_date
             date2 = parent.nomenclature_date
