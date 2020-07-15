@@ -8,12 +8,12 @@
         pin-section="Sources"
         :klass="objectType"
         pin-type="Source"
-        @selected="citation.source_id = $event.id"
+        @selected="citation.source_id = $event.id; citation.author_year = getAuthorYear($event)"
         v-model="source">
         <div slot="footer">
           <div
             v-if="source"
-            class="horizontal-left-content margin-small-bottom">
+            class="horizontal-left-content margin-medium-bottom margin-medium-top">
             <span
               v-html="source.object_tag"/>
             <span
@@ -86,7 +86,8 @@
           source_id: undefined,
           is_original: false,
           pages: undefined,
-          citation_topics_attributes: []
+          citation_topics_attributes: [],
+          author_year: undefined
         }
       },
       sendCitation() {
@@ -97,6 +98,9 @@
       unsetSource () {
         this.citation.source_id = undefined,
         this.source = undefined
+      },
+      getAuthorYear (source) {
+        return `${source.cached_author_string}, ${source.year}`
       }
     }
   }
