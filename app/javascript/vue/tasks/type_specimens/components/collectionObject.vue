@@ -18,21 +18,23 @@
         rows="5"
         v-model="bufferedLabels"/>
     </div>
-    <div class="field">
-      <label>Total</label>
-      <input
-        type="number"
-        v-model="total">
-    </div>
-    <div class="field">
-      <label>Preparation type</label>
-      <select
-        v-model="preparationId"
-        class="normal-input">
-        <option
-          v-for="item in types"
-          :value="item.id">{{ item.name }}</option>
-      </select>
+    <div class="horizontal-left-content">
+      <div class="field label-above">
+        <label>Total</label>
+        <input
+          type="number"
+          v-model="total">
+      </div>
+      <div class="field label-above margin-small-left">
+        <label>Preparation type</label>
+        <select
+          v-model="preparationId"
+          class="normal-input">
+          <option
+            v-for="item in types"
+            :value="item.id">{{ item.name }}</option>
+        </select>
+      </div>
     </div>
     <div class="field">
       <label>Repository</label>
