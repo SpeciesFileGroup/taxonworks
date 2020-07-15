@@ -70,7 +70,7 @@
               </div>
             </template>
           </div>
-          <div class="margin-small-left">
+          <div class="margin-medium-left">
             <div
               class="field"
               v-if="protonymId"

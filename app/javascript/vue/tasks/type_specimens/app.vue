@@ -163,14 +163,6 @@ export default {
        visibility:hidden;
     }
 
-    .types_field {
-      input[type="text"], textarea {
-        width: 300px;
-      }
-      .vue-autocomplete-input {
-          width: 300px;
-      }
-    }
     hr {
         height: 1px;
         color: #f5f5f5;
