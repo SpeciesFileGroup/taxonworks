@@ -460,16 +460,13 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_disjoint_subject
-    tname = self.type_name
-    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Icvcn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-      classifications = self.subject_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
-      disjoint_subject_classes = self.type_class.disjoint_subject_classes
-      compare = disjoint_subject_classes & classifications
-      compare.each do |i|
-        c = i.demodulize.underscore.humanize.downcase
-        soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
-        soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
-      end
+    classifications = self.subject_taxon_name.taxon_name_classifications.reload.map {|i| i.type_name}
+    disjoint_subject_classes = self.type_class.disjoint_subject_classes
+    compare = disjoint_subject_classes & classifications
+    compare.each do |i|
+      c = i.demodulize.underscore.humanize.downcase
+      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
+      soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
 
