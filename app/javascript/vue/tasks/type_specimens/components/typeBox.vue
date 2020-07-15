@@ -115,7 +115,9 @@ export default {
       window.location.href = '/tasks/type_material/edit_type_material'
     },
     removeTypeSpecimen (item) {
-      this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
+      if (window.confirm('Are you sure you want to destroy this record?')) {
+        this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
+      }
     },
     setTypeMaterial (material) {
       this.$store.dispatch(ActionNames.LoadTypeMaterial, material)

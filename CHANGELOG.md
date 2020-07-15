@@ -10,16 +10,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added 
 
 - Delete confirmation for original combinations [#1618]
+- Delete confirmation for type specimens in new type specimen task
 
 ### Changed
 
 - Improve/unify image modal [#1617]
-- Replace repository and source autocompletes for smart selectors in new type material
+- Replace repository and source autocompletes for smart selectors in new type material task
 
 
 ### Fixed
 
-- Flip object to subject on type label in new taxon name
+- Flip object to subject on type label in new taxon name task
 
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618

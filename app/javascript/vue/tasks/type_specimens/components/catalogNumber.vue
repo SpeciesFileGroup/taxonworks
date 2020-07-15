@@ -1,50 +1,47 @@
 <template>
   <div>
     <h3>Catalog number</h3>
-    <div
-      class="flex-wrap-column middle align-start">
-      <fieldset>
-        <legend>Namespace</legend>
-        <smart-selector
-          class="margin-medium-top"
-          model="namespaces"
-          klass="Source"
-          pin-section="Namespaces"
-          pin-type="Namespace"
-          @selected="setNamespace"/>
-        <div
-          v-if="namespace"
-          class="horizontal-left-content">
-          <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
+    <fieldset>
+      <legend>Namespace</legend>
+      <smart-selector
+        class="margin-medium-top"
+        model="namespaces"
+        klass="Source"
+        pin-section="Namespaces"
+        pin-type="Namespace"
+        @selected="setNamespace"/>
+      <div
+        v-if="namespace"
+        class="horizontal-left-content">
+        <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
+        <span
+          @click="removeNamespace"
+          class="button circle-button btn-undo button-default"/>
+      </div>
+      <div class="separate-top">
+        <label>Identifier</label>
+        <div class="horizontal-left-content field">
+          <input
+            id="identifier-field"
+            :class="{ 'validate-identifier': existingIdentifier }"
+            type="text"
+            @input="checkIdentifier"
+            v-model="identifier.identifier">
           <span
-            @click="removeNamespace"
-            class="button circle-button btn-undo button-default"/>
+            class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
         </div>
-        <div class="separate-top">
-          <label>Identifier</label>
-          <div class="horizontal-left-content field">
-            <input
-              id="identifier-field"
-              :class="{ 'validate-identifier': existingIdentifier }"
-              type="text"
-              @input="checkIdentifier"
-              v-model="identifier.identifier">
-            <span
-              class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
-          </div>
+        <span
+          v-if="!namespace && identifier && identifier.length"
+          style="color: red">Namespace is needed.</span>
+        <template v-if="existingIdentifier">
           <span
-            v-if="!namespace && identifier && identifier.length"
-            style="color: red">Namespace is needed.</span>
-          <template v-if="existingIdentifier">
-            <span
-              style="color: red">Identifier already exists, and it won't be saved:</span>
-            <a
-              :href="existingIdentifier.identifier_object.object_url"
-              v-html="existingIdentifier.identifier_object.object_tag"/>
-          </template>
-        </div>
-      </fieldset>
-    </div>
+            style="color: red">Identifier already exists, and it won't be saved:</span>
+          <a
+            :href="existingIdentifier.identifier_object.object_url"
+            v-html="existingIdentifier.identifier_object.object_tag"/>
+        </template>
+      </div>
+    </fieldset>
   </div>
 </template>
 
