@@ -105,7 +105,8 @@ import {
   RemoveAssertedDistribution,
   UpdateAssertedDistribution,
   LoadRecentRecords,
-  GetSource
+  GetSource,
+  GetAssertedDistribution
 } from './request/resources.js'
 
 export default {
@@ -216,11 +217,28 @@ export default {
           })
         } else {
           assertedDistribution.citations_attributes[0].id = undefined
-          CreateAssertedDistribution(assertedDistribution).then(response => {
-            this.list.unshift(response.body)
-            TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-            this.refreshSmarts()
-            resolve(response.body)
+          GetAssertedDistribution({ 
+            otu_id: assertedDistribution.otu_id,
+            geographic_area_id: assertedDistribution.geographic_area_id
+          }).then(response => {
+            if (response.body.length) {
+              assertedDistribution.id = response.body[0].id
+              UpdateAssertedDistribution(assertedDistribution).then(response => {
+                this.$set(this.list, this.list.findIndex(item => {
+                  return item.id === response.body.id
+                }), response.body)
+                TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+                this.refreshSmarts()
+                resolve(response.body)
+              })
+            } else {
+              CreateAssertedDistribution(assertedDistribution).then(response => {
+                this.list.unshift(response.body)
+                TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
+                this.refreshSmarts()
+                resolve(response.body)
+              })
+            }
           })
         }
       })
