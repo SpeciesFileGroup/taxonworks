@@ -3,6 +3,7 @@
     <div v-if="!citation.hasOwnProperty('id')">
       <citation-new
         :global-id="globalId"
+        :object-type="objectType"
         @create="createNew"/>
       <table-list
         :list="list"

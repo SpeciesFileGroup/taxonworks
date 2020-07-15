@@ -6,6 +6,7 @@
         model="sources"
         ref="smartSelector"
         pin-section="Sources"
+        :klass="objectType"
         pin-type="Source"
         @selected="citation.source_id = $event.id"
         v-model="source">
@@ -59,6 +60,10 @@
     },
     props: {
       globalId: {
+        type: String,
+        required: true
+      },
+      objectType: {
         type: String,
         required: true
       }
