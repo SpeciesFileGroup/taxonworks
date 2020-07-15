@@ -11,12 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
+- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task
 
 ### Changed
 
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
 - Changed autosave behaviour in new asserted distribution task
+- Gender list order in new taxon name task
 
 
 ### Fixed
