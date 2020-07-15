@@ -43,10 +43,11 @@
           v-if="!asserted_distribution.citations_attributes[0].source_id || asserted_distribution.id"
           :show-legend="false"
           :show-spinner="false"/>
-        <geographic-area 
+        <geographic-area
           class="separate-bottom"
           @lock="lockGeo = $event"
           :created-list="list"
+          :source-lock="lockSource"
           @select="asserted_distribution.geographic_area_id = $event; createAsserted()"/>
       </div>
     </div>
@@ -162,6 +163,7 @@
         this.editTitle = item.object_tag
         if(!this.lockSource) {
           this.$refs.source.cleanInput()
+          this.$refs.source.setFocus()
         }
         if(this.idIndex > -1) {
           this.$set(this.list, this.idIndex, item)

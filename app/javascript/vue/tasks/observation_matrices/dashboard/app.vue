@@ -108,9 +108,9 @@ export default {
         limit: this.limit
       }
       GetRanksTable(Object.assign({}, data, params)).then(response => {
-        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 
-        this.jsonUrl = response.url
+        this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
 
         history.pushState(null, null, `/tasks/observation_matrices/dashboard/index?${urlParams.toString()}`)

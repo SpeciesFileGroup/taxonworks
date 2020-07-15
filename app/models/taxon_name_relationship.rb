@@ -438,7 +438,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_validate_disjoint_relationships
     subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
-    subject_relationships.find_each  do |i|
+    subject_relationships.each  do |i|
       if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
         soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
       end
@@ -462,7 +462,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end

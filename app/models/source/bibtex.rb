@@ -1063,7 +1063,7 @@ class Source::Bibtex < Source
   end
 
   def sv_missing_roles
-    soft_validations.add(:base, 'Author roles are not selected.') if self.roles.empty?
+    soft_validations.add(:base, 'Author roles are not selected.') if self.author_roles.empty?
   end
 
   # rubocop:enable Metrics/MethodLength

@@ -48,17 +48,17 @@ export default {
     return {
       options: [
         {
-          label: 'Both',
-          value: undefined
+          label: 'Absent',
+          value: false
         },
         {
-          label: 'with',
+          label: 'Present',
           value: true
         },
         {
-          label: 'without',
-          value: false
-        }
+          label: 'Both',
+          value: undefined
+        },
       ]
     }
   }

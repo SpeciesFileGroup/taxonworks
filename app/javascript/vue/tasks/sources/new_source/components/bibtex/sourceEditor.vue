@@ -7,6 +7,7 @@
       target="Source"
       @onTabSelected="view = $event"
       klass="Source"
+      :filter-ids="peopleIds"
       :params="{ role_type: 'SourceEditor' }"
       :autocomplete-params="{
         roles: ['SourceEditor']
@@ -14,9 +15,16 @@
       :autocomplete="false"
       @selected="addRole">
       <role-picker
+        slot="header"
         ref="rolePicker"
-        :create-form="view == 'search'"
-        v-model="source.roles_attributes"
+        :hidden-list="true"
+        v-model="roleAttributes"
+        :autofocus="false"
+        :filter-by-role="true"
+        role-type="SourceEditor"/>
+      <role-picker
+        :create-form="false"
+        v-model="roleAttributes"
         :autofocus="false"
         :filter-by-role="true"
         role-type="SourceEditor"/>
@@ -48,6 +56,17 @@ export default {
     },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
+    },
+    roleAttributes: {
+      get () {
+        return this.$store.getters[GetterNames.GetRoleAttributes]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRoles, value)
+      }
+    },
+    peopleIds () {
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
     }
   },
   data () {

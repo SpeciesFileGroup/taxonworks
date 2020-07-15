@@ -11,15 +11,32 @@
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
           </a>
-          <div class="taxon-options">
-            <pin-component
-              type="TaxonName"
-              :object-id="taxon.id"/>
-            <a 
-              class=" button-circle btn-edit"
-              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
-            <radial-annotator :global-id="taxon.global_id"/>
-            <radial-object :global-id="taxon.global_id"/>
+          <span
+            v-shortkey="[getOSKey(), 'o']"
+            @shortkey="switchBrowseOtu()"/>
+          <span
+            v-shortkey="[getOSKey(), 'e']"
+            @shortkey="switchComprehensive()"/>
+          <span
+            v-shortkey="[getOSKey(), 't']"
+            @shortkey="switchNewTaxonName()"/>
+          <div>
+            <div class="horizontal-right-content">
+              <otu-radial
+                ref="browseOtu"
+                :object-id="taxon.id"
+                :taxon-name="taxon.object_tag"/>
+              <radial-annotator :global-id="taxon.global_id"/>
+              <radial-object :global-id="taxon.global_id"/>
+            </div>
+            <div class="horizontal-right-content">
+              <pin-component
+                type="TaxonName"
+                :object-id="taxon.id"/>
+              <a 
+                class=" button-circle btn-edit"
+                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
+            </div>
           </div>
         </h3>
         <span
@@ -72,11 +89,14 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 import PinComponent from 'components/pin'
+import OtuRadial from 'components/otu/otu.vue'
+import GetOSKey from 'helpers/getMacKey'
 
 export default {
   components: {
     RadialAnnotator,
     RadialObject,
+    OtuRadial,
     PinComponent
   },
   computed: {
@@ -102,7 +122,17 @@ export default {
     },
     newType () {
       this.$store.dispatch(ActionNames.SetNewTypeMaterial)
-    }
+    },
+    switchNewTaxonName () {
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.taxon.id}`, '_self')
+    },
+    switchComprehensive () {
+      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}${this.typeMaterial.collection_object_id ? `&collection_object_id=${this.typeMaterial.collection_object_id}` : ''}`, '_self')
+    },
+    switchBrowseOtu () {
+      this.$refs.browseOtu.openApp()
+    },
+    getOSKey: GetOSKey
   }
 }
 </script>

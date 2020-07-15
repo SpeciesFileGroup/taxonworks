@@ -72,6 +72,7 @@
 
 import Autocomplete from 'components/autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -128,7 +129,7 @@ export default {
       if (this.taxon) {
         this.otu.taxon_name_id = this.taxon.id
       }
-      this.$http.post('/otus', { otu: this.otu }).then(response => {
+      AjaxCall('post', '/otus', { otu: this.otu }).then(response => {
         this.emitOtu(response.body)
         this.create = false
         this.found = true

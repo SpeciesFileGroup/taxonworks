@@ -18,14 +18,12 @@
   a {
     text-decoration: none;
   }
+  
   h3 {
     padding: $standard_padding*.2 0;
     margin: $standard_padding*.2 0;
     display: flex;
     flex-direction: row;
-  }
-  h2 { 
-    border-bottom: 1px solid $navigation_border;    
   }
 
   .subtitle { 

@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Type specimens">
+  <section-panel
+    :status="status"
+    :title="`${title} (${collectionObjects.length})`">
     <a name="type-specimens"/>
     <div
       v-if="types.length"
@@ -7,12 +9,12 @@
       <ul
         class="no_bullets">
         <li
-          v-for="type in types"
-          :key="type.id">
-          <specimen-information
+          v-for="co in collectionObjects"
+          :key="co.collection_objects_id">
+          <type-information
             :otu="otu"
-            :type="type"
-            :specimen="getSpecimen(type.collection_object_id)"/>
+            :types="types.filter(item => co.collection_objects_id === item.collection_object_id)"
+            :specimen="co"/>
         </li>
       </ul>
     </div>
@@ -23,17 +25,29 @@
 
 import SectionPanel from '../shared/sectionPanel'
 import { GetTypeMaterials, GetCollectionObjects } from '../../request/resources.js'
-import SpecimenInformation from './Information'
-import { GetterNames } from '../../store/getters/getters'
+import TypeInformation from './TypeInformation'
+import extendSection from '../shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
-    SpecimenInformation
+    TypeInformation
   },
   props: {
     otu: {
-      type: Object
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    typeMaterialList () {
+      const output = this.types.reduce((acc, v) => {
+        acc[v.collection_object_id] = acc[v.collection_object_id] || []
+        acc[v.collection_object_id].push(v)
+        return acc
+      }, {})
+      return output
     }
   },
   data () {
@@ -71,7 +85,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

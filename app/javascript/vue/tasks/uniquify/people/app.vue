@@ -119,7 +119,8 @@
   import MatchPeople from './components/match_people'
   import CompareComponent from './components/compare.vue'
 
-  import Spinner from '../../../components/spinner.vue'
+  import Spinner from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -196,14 +197,14 @@
         this.clearFoundData();
         this.displayCount = true;
         let that = this;
-        this.$http.get('/people.json', {params: params}).then(response => {
+        AjaxCall('get', '/people.json', {params: params}).then(response => {
           this.foundPeople = response.body;
           that.isLoading = false
         })
       },
       getPerson(id) {
         this.isLoading = true
-        this.$http.get(`/people/${id}.json`,).then(response => {
+        AjaxCall('get', `/people/${id}.json`).then(response => {
           this.foundPeople = [response.body]
           this.selectedPerson = response.body
           this.isLoading = false
@@ -214,7 +215,7 @@
           person_to_destroy: this.mergePerson.id // this.selectedPerson.id
         };
         this.isSaving = true
-        this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
+        AjaxCall('post', '/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
           this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
           this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
           this.mergePerson = {};

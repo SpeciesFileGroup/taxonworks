@@ -19,6 +19,7 @@
 
 import TableComponent from './tables/table.vue'
 import SpinnerComponent from 'components/spinner.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -45,15 +46,15 @@ import SpinnerComponent from 'components/spinner.vue'
     methods: {
       getCites() {
         this.showSpinner = true
-        this.$http.get('/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
-          this.asserted_distributions_cites_list = response.body;
+        AjaxCall('get', '/citations.json?citation_object_type=AssertedDistribution&source_id=' + this.sourceID).then(response => {
+          this.asserted_distributions_cites_list = response.body
           this.showSpinner = false
         })
       },
       summarize() {
-        this.$emit('summarize', { 
-          type: 'asserted_distribution_ids', 
-          list: this.asserted_distributions_cites_list 
+        this.$emit('summarize', {
+          type: 'asserted_distribution_ids',
+          list: this.asserted_distributions_cites_list
         })
       }
     },

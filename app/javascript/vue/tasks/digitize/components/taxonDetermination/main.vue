@@ -48,10 +48,17 @@
             @onTabSelected="view = $event"
             @selected="addRole">
             <role-picker
+              slot="header"
               class="role-picker"
               :autofocus="false"
-              :create-form="view == 'search'"
+              :hidden-list="true"
               ref="rolepicker"
+              role-type="Determiner"
+              v-model="roles"/>
+            <role-picker
+              class="role-picker"
+              :autofocus="false"
+              :create-form="false"
               role-type="Determiner"
               v-model="roles"/>
           </smart-selector>

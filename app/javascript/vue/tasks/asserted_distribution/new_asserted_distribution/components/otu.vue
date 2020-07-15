@@ -2,6 +2,7 @@
   <fieldset>
     <legend>Otu</legend>
     <smart-selector
+      v-model="otu"
       model="otus"
       klass="AssertedDistribution"
       target="AssertedDistribution"
@@ -10,59 +11,50 @@
       pin-type="Otu"
       :search="true"
       :autocomplete="false"
-      :otu-picker="true"
-      @selected="sendItem"/>
-    <template v-if="selected">
-      <p class="horizontal-left-content">
-        <span data-icon="ok"/>
-        <span v-html="selected"/>
-        <span
-          class="button circle-button btn-undo button-default"
-          @click="unset"/>
-      </p>
-    </template>
+      :otu-picker="true">
+      <template v-if="otu">
+        <p class="horizontal-left-content">
+          <span data-icon="ok"/>
+          <span v-html="otu.object_tag"/>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="unset"/>
+        </p>
+      </template>
+    </smart-selector>
   </fieldset>
 </template>
 
 <script>
 
 import SmartSelector from 'components/smartSelector'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
-    SmartSelector,
-    OtuPicker
+    SmartSelector
   },
   props: {
-    value: {}
-  },
-  data () {
-    return {
-      otu: undefined,
-      selected: undefined
+    value: {
+      type: Object,
+      default: undefined
     }
   },
-  watch: {
-    value (newVal) {
-      if (newVal == undefined)
-        this.selected = undefined
+  computed: {
+    otu: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
   },
   methods: {
-    sendItem (item) {
-      this.setSelected(item)
-      this.$emit('input', item.id)
-    },
-    setSelected (item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.object_tag
-    },
     refresh () {
       this.$refs.smartSelector.refresh()
     },
     unset () {
-      this.$emit('input', undefined)
-      this.selected = undefined
+      this.otu = undefined
     }
   }
 }

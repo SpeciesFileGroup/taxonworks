@@ -43,6 +43,7 @@
       <citations-component v-model="params.base.citations"/>
       <authors-component v-model="params.base.authors"/>
       <otus-component v-model="params.base.otus"/>
+      <etymology-component v-model="params.base.etymology"/>
     </div>
   </div>
 </template>
@@ -66,6 +67,7 @@ import CodeComponent from './filters/nomenclature_code'
 import ChildrenComponent from './filters/children'
 import InRelationshipComponent from './filters/in_relationship'
 import TaxonNameTypeComponent from './filters/taxon_name_type'
+import EtymologyComponent from './filters/etymology'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -91,10 +93,11 @@ export default {
     ChildrenComponent,
     InRelationshipComponent,
     AuthorsComponent,
-    TaxonNameTypeComponent
+    TaxonNameTypeComponent,
+    EtymologyComponent
   },
   computed: {
-    getMacKey() {
+    getMacKey () {
       return GetMacKey()
     },
     parseParams () {
@@ -127,12 +130,12 @@ export default {
       GetTaxonNames(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
-        this.$emit('urlRequest', response.url)
+        this.$emit('urlRequest', response.request.responseURL)
         this.searching = false
         if (this.result.length === 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-        const urlParams = new URLSearchParams(response.url.split('?')[1])
+        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
         history.pushState(null, null, `/tasks/taxon_names/filter/index?${urlParams.toString()}`)
       }, () => {
         this.searching = false
@@ -158,6 +161,7 @@ export default {
           nomenclature_group: undefined,
           nomenclature_code: undefined,
           leaves: undefined,
+          etymology: undefined,
           taxon_name_id: [],
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],

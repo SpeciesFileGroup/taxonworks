@@ -119,31 +119,27 @@ class Sequence < ApplicationRecord
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['sequence_id'].eq(p['id'])))
         end
 
-    Sequence.joins(j).distinct.limit(10)
+    Sequence.joins(j).pluck(:sequence_id).uniq
   end
 
   # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
     h = {
       recent: [],
       quick: [],
       pinboard: Sequence.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    b = Sequence.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC')
-
-    if target
-      a = target.tableize.to_sym
-      h[:recent] = (
-        b.limit(3).to_a + 
-        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(user_id, project_id, target).limit(10).to_a
-      ).uniq
+    if r.empty?
+      h[:quick] = Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = b.limit(10).to_a
+      h[:recent] = Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a).uniq
     end
 
-    h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 

@@ -14,6 +14,8 @@
 </template>
 
 <script>
+  import AjaxCall from 'helpers/ajaxCall'
+
   export default {
     props: {
       value: {
@@ -22,7 +24,7 @@
       }
     },
     mounted: function() {
-      this.$http.get('/people/role_types.json').then(response => {
+      AjaxCall('get', '/people/role_types.json').then(response => {
       this.roleTypes = response.body;
       this.loading = false;
     })

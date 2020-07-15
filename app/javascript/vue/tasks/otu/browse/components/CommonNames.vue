@@ -1,5 +1,7 @@
 <template>
-  <section-panel title="Common names">
+  <section-panel
+    :status="status"
+    :title="title">
     <a name="common-names"/>
     <table-display 
       v-if="commonNames.length"
@@ -15,8 +17,10 @@
 import { GetCommonNames } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
 import TableDisplay from 'components/table_list'
+import extendSection from './shared/extendSections'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
     TableDisplay

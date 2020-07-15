@@ -55,6 +55,16 @@ To add a new (discovered) symbol:
       end
     end
 
+    class CoordinatesFromLabel
+      attr_reader(:verbatim_label, :coordinates)
+
+      # @param [String] label
+      def initialize(label)
+        @verbatim_label = label
+        @coordinates = Utilities::Geo.coordinates_regex_from_verbatim_label(label)
+      end
+    end
+
     # 12345       (presume meters)
     # 123.45
     # 123 ft > 123 ft. > 123 feet > 1 foot > 123 f > 123 f.
@@ -133,13 +143,13 @@ To add a new (discovered) symbol:
       dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
              hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "”´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
       dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
              hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["\u0027]?\s*[EW])/i,
+      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["”\u0027]?\s*[EW])/i,
              hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
       dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
@@ -420,5 +430,133 @@ To add a new (discovered) symbol:
       box.add(retval)
       box.to_geometry
     end
+
+
+    # @return [Hash]
+    # coordinates from the label parsed to elements
+    def self.coordinates_regex_from_verbatim_label(text)
+      return nil if text.blank?
+      text = ' ' + text + ' '
+      text.gsub("''", '"')
+          .gsub("´´", '"')
+          .gsub("ʹʹ", '"')
+          .gsub("ʼʼ", '"')
+          .gsub("ˊˊ", '"')
+
+      coordinates = {}
+
+      #  pattern: 42°5'18.1"S88°11'43.3"W
+      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]? ?([wW]|[eE])\W/)
+        coordinates[:lat_deg] = matchdata1[1]
+        coordinates[:lat_min] = matchdata1[2]
+        coordinates[:lat_sec] = matchdata1[3]
+        coordinates[:lat_ns]  = matchdata1[4]
+        coordinates[:long_deg] = matchdata1[5]
+        coordinates[:long_min] = matchdata1[6]
+        coordinates[:long_sec] = matchdata1[7]
+        coordinates[:long_we]  = matchdata1[8]
+        # pattern: S42°5'18.1"W88°11'43.3"
+      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]['´ʹʼˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼˊ]?['´ʹʼˊ]?\D/)
+        coordinates[:lat_deg] = matchdata2[2]
+        coordinates[:lat_min] = matchdata2[3]
+        coordinates[:lat_sec] = matchdata2[4]
+        coordinates[:lat_ns]  = matchdata2[1]
+        coordinates[:long_deg] = matchdata2[6]
+        coordinates[:long_min] = matchdata2[7]
+        coordinates[:long_sec] = matchdata2[8]
+        coordinates[:long_we]  = matchdata2[5]
+        # pattern: S42°5.18'W88°11.43'
+      elsif matchdata3 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼˊ][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼˊ]?\D/)
+        coordinates[:lat_deg] = matchdata3[2]
+        coordinates[:lat_min] = matchdata3[3]
+        coordinates[:lat_ns]  = matchdata3[1]
+        coordinates[:long_deg] = matchdata3[5]
+        coordinates[:long_min] = matchdata3[6]
+        coordinates[:long_we]  = matchdata3[4]
+        # pattern: 42°5.18'S88°11.43'W
+      elsif matchdata4 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼˊ]? ?([wW]|[eE])\W/)
+        coordinates[:lat_deg] = matchdata4[1]
+        coordinates[:lat_min] = matchdata4[2]
+        coordinates[:lat_ns]  = matchdata4[3]
+        coordinates[:long_deg] = matchdata4[4]
+        coordinates[:long_min] = matchdata4[5]
+        coordinates[:long_we]  = matchdata4[6]
+        # pattern: S42.18°W88.34°
+      elsif matchdata5 = text.match(/\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ]?\D/)
+        coordinates[:lat_deg] = matchdata5[2]
+        coordinates[:lat_ns]  = matchdata5[1]
+        coordinates[:long_deg] = matchdata5[4]
+        coordinates[:long_we]  = matchdata5[3]
+        # pattern: 42.18°S88.43°W
+      elsif matchdata6 = text.match(/\D(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([wW]|[eE])\W/)
+        coordinates[:lat_deg] = matchdata6[1]
+        coordinates[:lat_ns]  = matchdata6[2]
+        coordinates[:long_deg] = matchdata6[3]
+        coordinates[:long_we]  = matchdata6[4]
+        # pattern: -12.263, 49.398
+      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\D/)
+        coordinates[:lat_deg] = matchdata7[1]
+        coordinates[:long_deg] = matchdata7[2]
+      end
+      coordinates[:lat_deg] = coordinates[:lat_deg].gsub(',', '.') if coordinates[:lat_deg]
+      coordinates[:lat_min] = coordinates[:lat_min].gsub(',', '.') if coordinates[:lat_min]
+      coordinates[:lat_sec] = coordinates[:lat_sec].gsub(',', '.') if coordinates[:lat_sec]
+      coordinates[:lat_ns] = coordinates[:lat_ns].capitalize if coordinates[:lat_ns]
+      coordinates[:long_deg] = coordinates[:long_deg].gsub(',', '.') if coordinates[:long_deg]
+      coordinates[:long_min] = coordinates[:long_min].gsub(',', '.') if coordinates[:long_min]
+      coordinates[:long_sec] = coordinates[:long_sec].gsub(',', '.') if coordinates[:long_sec]
+      coordinates[:lat_we] = coordinates[:lat_we].capitalize if coordinates[:lat_we]
+
+      return {} if !coordinates[:lat_deg] || !coordinates[:long_deg]
+      return {} if coordinates[:lat_deg].to_f > 90 || coordinates[:lat_deg].to_f < -90
+      return {} if coordinates[:lat_min].to_f >= 60
+      return {} if coordinates[:lat_sec].to_f >= 60
+      return {} if coordinates[:long_deg].to_f > 180 || coordinates[:long_deg].to_f < -180
+      return {} if coordinates[:long_min].to_f >= 60
+      return {} if coordinates[:long_sec].to_f >= 60
+
+
+      if coordinates[:lat_ns].nil?
+        lat_string = coordinates[:lat_deg]
+        if coordinates[:lat_deg].to_f < 0 # -5° S; 5° N
+          coordinates[:lat_ns] = 'S'
+          coordinates[:lat_deg] = coordinates[:lat_deg].gsub('-', '')
+        else
+          coordinates[:lat_ns] = 'N' # -5° W; 5° E
+        end
+      else
+        lat_string = coordinates[:lat_deg] + '°'
+        lat_string += coordinates[:lat_min] + "'" if coordinates[:lat_min]
+        lat_string += coordinates[:lat_sec] + '"' if coordinates[:lat_sec]
+        lat_string += coordinates[:lat_ns]
+      end
+      if coordinates[:long_we].nil?
+        long_string = coordinates[:long_deg]
+        if coordinates[:long_deg].to_f < 0
+          coordinates[:long_we] = 'W'
+          coordinates[:long_deg] = coordinates[:long_deg].gsub('-', '')
+        else
+          coordinates[:long_we] = 'E'
+        end
+      else
+        long_string = coordinates[:long_deg] + '°'
+        long_string += coordinates[:long_min] + "'" if coordinates[:long_min]
+        long_string += coordinates[:long_sec] + '"' if coordinates[:long_sec]
+        long_string += coordinates[:long_we]
+      end
+
+      lat_dec = (coordinates[:lat_deg].to_f + (coordinates[:lat_min].to_f / 60) + (coordinates[:lat_sec].to_f / 3600)).round(6).to_s
+      lat_dec = '-' + lat_dec if coordinates[:lat_ns] == 'S'
+      long_dec = (coordinates[:long_deg].to_f + (coordinates[:long_min].to_f / 60) + (coordinates[:long_sec].to_f / 3600)).round(6).to_s
+      long_dec = '-' + long_dec if coordinates[:long_we] == 'W'
+
+      c = {
+          verbatim: {verbatim_latitude: lat_string, verbatim_longitude: long_string},
+          decimal: {decimal_latitude: lat_dec, decimal_longitude: long_dec},
+          parsed: coordinates
+      }
+      return c
+    end
+
   end
 end

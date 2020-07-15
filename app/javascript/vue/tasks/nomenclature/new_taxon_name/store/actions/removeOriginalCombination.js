@@ -8,7 +8,7 @@ export default function ({ commit, state, dispatch }, combination) {
       commit(MutationNames.RemoveTaxonRelationship, combination)
       dispatch('loadSoftValidation', 'taxonRelationshipList')
       dispatch('loadSoftValidation', 'taxon_name')
-      resolve(response)
+      resolve(response.body)
     })
   })
 }

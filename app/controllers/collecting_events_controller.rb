@@ -132,6 +132,17 @@ class CollectingEventsController < ApplicationController
               filename: "collecting_events_#{DateTime.now}.csv")
   end
 
+  # parse verbatim label, return date and coordinates
+  def parse_verbatim_label
+    if params[:verbatim_label]
+      render json: {date: Utilities::Dates.date_regex_from_verbatim_label(params[:verbatim_label]),
+                    geo: Utilities::Geo.coordinates_regex_from_verbatim_label(params[:verbatim_label]),
+                    elevation: Utilities::Elevation.elevation_regex_from_verbatim_label(params[:verbatim_label]),
+                    collecting_method: Utilities::CollectingMethods.method_regex_from_verbatim_label(params[:verbatim_label]),
+                  }.to_json
+    end
+  end
+
    # GET collecting_events/batch_load
   def batch_load
   end
@@ -268,9 +279,11 @@ class CollectingEventsController < ApplicationController
       :start_date, # used in date range
       :end_date,   # used in date range
       :partial_overlap_dates,
+      :spatial_geographic_areas,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
-      otu_ids: [],
+      geographic_area_ids: [],
+      otu_ids: []
     )
   end
 

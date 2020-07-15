@@ -10,12 +10,11 @@
             ref="smartSelector"
             klass="source"
             label="english_name"
+            :filter-ids="languageId"
             @selected="setSelected"/>
-          <div class="horizontal-right-content padding-medium-right">
-            <lock-component
-              class="circle-button-margin"
-              v-model="settings.lock.language_id"/>
-          </div>
+          <lock-component
+            class="circle-button-margin"
+            v-model="settings.lock.language_id"/>
         </div>
         <div
           class="middle separate-top"
@@ -66,6 +65,14 @@ export default {
     },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
+    },
+    languageId: {
+      get () {
+        return this.$store.getters[GetterNames.GetLanguageId]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetLanguageId, value)
+      }
     }
   },
   watch: {
@@ -85,6 +92,13 @@ export default {
       handler (newVal, oldVal) {
         if (newVal !== oldVal) {
           this.$refs.smartSelector.refresh()
+        }
+      }
+    },
+    languageId: {
+      handler (newVal) {
+        if(!newVal) {
+          this.selected = undefined
         }
       }
     }

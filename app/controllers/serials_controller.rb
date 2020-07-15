@@ -6,10 +6,27 @@ class SerialsController < ApplicationController
 
   # GET /serials
   # GET /serials.json
+
   def index
-    @recent_objects = Serial.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Serial.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        #@serials = Serial.order(updated_at: :desc).limit(10)
+        @serials = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
+
+  def filter_params
+    params.permit(
+        :name, :id,
+        data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+    )
+  end
+
 
   def list
     @serials = Serial.order(:id).page(params[:page])

@@ -14,7 +14,7 @@
     </div>
     <div>
       <div
-        v-shortkey="[getMacKey(), 't']"
+        v-shortkey="[getOSKey(), 't']"
         @shortkey="switchTaxonNameTask()"
         class="flexbox horizontal-center-content align-start">
         <div class="ccenter item separate-right">
@@ -48,7 +48,7 @@ import spinner from 'components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
-import GetMacKey from 'helpers/getMacKey.js'
+import GetOSKey from 'helpers/getMacKey.js'
 
 import setParamsId from './helpers/setParamsId'
 
@@ -77,7 +77,10 @@ export default {
   },
   mounted: function () {
     this.loadTaxonTypes()
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+t`, 'Go to new taxon name task', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {
     taxon (newVal) {
@@ -125,7 +128,7 @@ export default {
         window.open('/tasks/nomenclature/new_taxon_name', '_self')
       }
     },
-    getMacKey: GetMacKey
+    getOSKey: GetOSKey
   }
 }
 

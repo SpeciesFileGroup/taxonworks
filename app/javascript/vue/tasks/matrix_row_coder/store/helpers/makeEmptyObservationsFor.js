@@ -6,7 +6,8 @@ const ComponentNamesToObservations = {
   [ComponentNames.Qualitative]: ObservationTypes.Qualitative,
   [ComponentNames.Continuous]: ObservationTypes.Continuous,
   [ComponentNames.Sample]: ObservationTypes.Sample,
-  [ComponentNames.Presence]: ObservationTypes.Presence
+  [ComponentNames.Presence]: ObservationTypes.Presence,
+  [ComponentNames.Media]: ObservationTypes.Media
 }
 
 export default function (descriptor) {

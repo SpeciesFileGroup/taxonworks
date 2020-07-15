@@ -11,11 +11,11 @@ export default function ({ commit, state }, data) {
   }
   return new Promise((resolve, reject) => {
     createTaxonRelationship(relationship).then(response => {
-      commit(MutationNames.AddOriginalCombination, response)
-      resolve(response)
+      commit(MutationNames.AddOriginalCombination, response.body)
+      resolve(response.body)
     }, response => {
-      commit(MutationNames.SetHardValidation, response)
-      reject(response)
+      commit(MutationNames.SetHardValidation, response.body)
+      reject(response.body)
     })
   })
 }

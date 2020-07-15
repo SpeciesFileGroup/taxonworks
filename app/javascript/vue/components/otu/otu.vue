@@ -2,9 +2,10 @@
   <div class="otu-radial">
     <span
       class="circle-button"
-      :title="redirect ? 'Browse taxa' : 'OTU quick forms'"
+      :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
       :class="[{ 'button-submit': emptyList, 'button-default': !emptyList }, (redirect ? 'btn-hexagon-empty-w' : 'btn-hexagon-w')]"
-      @click="openApp"
+      @click="openApp()"
+      @contextmenu.prevent="openApp(true)"
     >Otu
     </span>
     <modal
@@ -123,12 +124,17 @@ export default {
         })
       }
     },
-    openApp () {
+    openApp (newTab = false) {
       if (this.loaded) {
         if (this.emptyList) {
-          this.createOtu(this.objectId)
+          this.creatingOtu = true
+          CreateOtu(this.objectId).then(response => {
+            this.list.push(response.body)
+            this.sendCreatedEvent()
+            this.processCall(response.body, newTab)
+          })
         } else if (this.list.length === 1) {
-          this.processCall(this.list[0])
+          this.processCall(this.list[0], newTab)
         } else {
           this.modalOpen = true
         }
@@ -140,18 +146,6 @@ export default {
         this.$refs.annotator.displayAnnotator()
       })
     },
-    createOtu (id) {
-      this.creatingOtu = true
-      CreateOtu(id).then(response => {
-        this.list.push(response.body)
-        this.sendCreatedEvent()
-        if (this.redirect) {
-          this.redirectTo(response.body.id)
-        } else {
-          this.openRadial(response.body)
-        }
-      })
-    },
     sendCreatedEvent () {
       const event = new CustomEvent('vue-otu:created', {
         detail: {
@@ -161,15 +155,15 @@ export default {
       })
       document.dispatchEvent(event)
     },
-    processCall (otu) {
+    processCall (otu, newTab) {
       if (this.redirect) {
-        this.redirectTo(otu.id)
+        this.redirectTo(otu.id, newTab)
       } else {
         this.openRadial(otu)
       }
     },
-    redirectTo (id) {
-      window.location.href = `/tasks/otus/browse/${id}`
+    redirectTo (id, newTab = false) {
+      window.open(`/tasks/otus/browse/${id}`, `${newTab ? '_blank' : '_self'}`)
     }
   }
 }

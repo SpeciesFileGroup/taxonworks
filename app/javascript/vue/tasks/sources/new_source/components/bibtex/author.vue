@@ -11,12 +11,20 @@
       :autocomplete-params="{
         roles: ['SourceAuthor']
       }"
+      :filter-ids="peopleIds"
       :autocomplete="false"
       @selected="addRole">
       <role-picker
-        :create-form="view == 'search'"
+        slot="header"
         ref="rolePicker"
-        v-model="source.roles_attributes"
+        v-model="roleAttributes"
+        :autofocus="false"
+        :hidden-list="true"
+        :filter-by-role="true"
+        role-type="SourceAuthor"/>
+      <role-picker
+        :create-form="false"
+        v-model="roleAttributes"
         :autofocus="false"
         :filter-by-role="true"
         role-type="SourceAuthor"/>
@@ -48,6 +56,17 @@ export default {
     },
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
+    },
+    roleAttributes: {
+      get () {
+        return this.$store.getters[GetterNames.GetRoleAttributes]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRoles, value)
+      }
+    },
+    peopleIds () {
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
     }
   },
   data () {

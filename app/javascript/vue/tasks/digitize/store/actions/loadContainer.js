@@ -5,7 +5,7 @@ export default function ({ commit, state }, globalId) {
   return new Promise((resolve, reject) => {
     GetContainer(globalId).then(response => {
       commit(MutationNames.SetContainer, response.body)
-      response.container_items.forEach(item => {
+      response.body.container_items.forEach(item => {
         commit(MutationNames.AddContainerItem, item.container_item)
         GetCollectionObject(item.container_item.contained_object_id).then(response => {
           commit(MutationNames.AddCollectionObject, response.body)

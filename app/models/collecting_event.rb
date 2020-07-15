@@ -1155,11 +1155,18 @@ class CollectingEvent < ApplicationRecord
 
   def sv_georeference_matches_verbatim
     if a = georeferences.where(type: 'Georeference::VerbatimData').first
-      unless (a.latitude == verbatim_latitude) && (b.longitude == verbatim_longitude)
+      d_lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude).to_f
+      d_long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude).to_f
+      if (a.latitude.to_f !=  d_lat)
         soft_validations.add(
           :base,
-          "Verbatim latitude #{verbatim_latitude} and/or longitude #{verbatim_longitude} and point geoference latitude #{a.latitude} and/or longitude #{a.longitude} do not match") 
-          end
+        "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
+      end
+      if (a.longitude.to_f != d_long)
+        soft_validations.add(
+            :base,
+            "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
+      end
     end
   end
 

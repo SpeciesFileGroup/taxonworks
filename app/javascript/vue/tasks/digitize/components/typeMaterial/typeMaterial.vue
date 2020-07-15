@@ -2,6 +2,18 @@
   <block-layout :warning="!(typeMaterial.id || typeMaterials.length)">
     <div slot="header">
       <h3>Type material</h3>
+      <span
+        v-shortkey="[getOSKey(), 'm']"
+        @shortkey="switchTypeMaterial"/>
+      <span
+        v-shortkey="[getOSKey(), 't']"
+        @shortkey="switchNewTaxonName"/>
+      <span
+        v-shortkey="[getOSKey(), 'o']"
+        @shortkey="switchBrowseOtu"/>
+      <span
+        v-shortkey="[getOSKey(), 'b']"
+        @shortkey="switchBrowseNomenclature"/>
     </div>
     <div slot="body">
       <ul
@@ -104,6 +116,7 @@ import { MutationNames } from '../../store/mutations/mutations'
 import BlockLayout from '../../../../components/blockLayout.vue'
 import SmartSelector from 'components/smartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import GetOSKey from 'helpers/getMacKey'
 
 export default {
   components: {
@@ -194,14 +207,18 @@ export default {
     }
   },
   methods: {
-    // getTaxon (taxonId) {
-    //   GetTaxon(taxonId).then(response => {
-    //     if(response.type == 'Protonym' && response.rank_string.indexOf('SpeciesGroup') > -1) {
-    //       this.listsTaxon.quick.unshift(response)
-    //       this.viewTaxon = 'quick'
-    //     }
-    //   })
-    // },
+    switchNewTaxonName () {
+      window.open(`/tasks/nomenclature/new_taxon_name${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
+    },
+    switchBrowseNomenclature () {
+      window.open(`/tasks/nomenclature/browse${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
+    },
+    switchTypeMaterial () {
+      window.open(`/tasks/type_material/edit_type_material${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
+    },
+    switchBrowseOtu () {
+      window.open(`/tasks/otus/browse${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
+    },
     selectTaxon (taxonId) {
       this.$store.dispatch(ActionNames.GetTaxon, taxonId)
     },
@@ -219,7 +236,8 @@ export default {
         source_id: undefined,
         pages: undefined
       }
-    }
+    },
+    getOSKey: GetOSKey
   }
 }
 </script>
