@@ -8,6 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 \-
+### Changed
+
+- Improve/unify image modal [#1617]
+
+[#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 
 ## [0.12.11] - 2020-07-14
 
