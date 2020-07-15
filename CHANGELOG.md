@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added 
+
+- Delete confirmation for original combinations [#1618]
+
 ### Changed
 
 - Improve/unify image modal [#1617]
@@ -18,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Flip object to subject on type label in new taxon name
 
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
+[#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
 
 ## [0.12.11] - 2020-07-14
 

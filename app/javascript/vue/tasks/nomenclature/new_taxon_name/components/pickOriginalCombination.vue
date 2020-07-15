@@ -172,17 +172,19 @@ export default {
       }]
     },
     removeAllCombinations: function () {
-      let that = this
-      let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-      let allDelete = []
-      for (var key in combinations) {
-        allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
-          return true
-        }))
+      if(window.confirm('Are you sure you want to remove all combinations?')) {
+        let that = this
+        let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
+        let allDelete = []
+        for (var key in combinations) {
+          allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
+            return true
+          }))
+        }
+        Promise.all(allDelete).then(function () {
+          that.saveTaxonName()
+        })
       }
-      Promise.all(allDelete).then(function () {
-        that.saveTaxonName()
-      })
     },
     addOriginalCombination: function () {
       var that = this
