@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Identifier</h3>
+    <h3>Catalog number</h3>
     <div
       class="flex-wrap-column middle align-start">
       <fieldset>
@@ -20,30 +20,30 @@
             @click="removeNamespace"
             class="button circle-button btn-undo button-default"/>
         </div>
-      </fieldset>
-      <div class="separate-top">
-        <label>Identifier</label>
-        <div class="horizontal-left-content field">
-          <input
-            id="identifier-field"
-            :class="{ 'validate-identifier': existingIdentifier }"
-            type="text"
-            @input="checkIdentifier"
-            v-model="identifier.identifier">
+        <div class="separate-top">
+          <label>Identifier</label>
+          <div class="horizontal-left-content field">
+            <input
+              id="identifier-field"
+              :class="{ 'validate-identifier': existingIdentifier }"
+              type="text"
+              @input="checkIdentifier"
+              v-model="identifier.identifier">
+            <span
+              class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
+          </div>
           <span
-            class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
+            v-if="!namespace && identifier && identifier.length"
+            style="color: red">Namespace is needed.</span>
+          <template v-if="existingIdentifier">
+            <span
+              style="color: red">Identifier already exists, and it won't be saved:</span>
+            <a
+              :href="existingIdentifier.identifier_object.object_url"
+              v-html="existingIdentifier.identifier_object.object_tag"/>
+          </template>
         </div>
-        <span
-          v-if="!namespace && identifier && identifier.length"
-          style="color: red">Namespace is needed.</span>
-        <template v-if="existingIdentifier">
-          <span
-            style="color: red">Identifier already exists, and it won't be saved:</span>
-          <a
-            :href="existingIdentifier.identifier_object.object_url"
-            v-html="existingIdentifier.identifier_object.object_tag"/>
-        </template>
-      </div>
+      </fieldset>
     </div>
   </div>
 </template>
