@@ -1,6 +1,7 @@
 <template>
   <block-layout
     anchor="original-combination"
+    :warning="softValidation.length"
     v-help.section.originalCombination.container>
     <h3 slot="header">Original combination and classification</h3>
     <div
@@ -145,6 +146,9 @@ export default {
         }
         return exist
       }
+    },
+    softValidation () {
+      return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
     }
   },
   watch: {

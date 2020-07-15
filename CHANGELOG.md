@@ -11,7 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
-- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task
+- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
 
 ### Changed
 
@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Flip object to subject on type label in new taxon name task
 
+[#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
 
