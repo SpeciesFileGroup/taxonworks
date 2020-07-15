@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
+- Changed autosave behaviour in new asserted distribution task
 
 
 ### Fixed

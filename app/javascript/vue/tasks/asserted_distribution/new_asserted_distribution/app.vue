@@ -71,6 +71,7 @@
         <geographic-area
           class="separate-right"
           ref="geoComponent"
+          @selected="triggerAutosave"
           v-model="asserted_distribution"/>
         <lock-component
           class="margin-medium-top"
@@ -99,7 +100,7 @@ import SpinnerComponent from 'components/spinner'
 import NavBarComponent from 'components/navBar'
 import GetMacKey from 'helpers/getMacKey'
 
-import { 
+import {
   CreateAssertedDistribution,
   RemoveAssertedDistribution,
   UpdateAssertedDistribution,
@@ -140,16 +141,6 @@ export default {
       }
     }
   },
-  watch: {
-    validate: {
-      handler (newVal) {
-        if (newVal && this.autosave) {
-          this.createAndNewAssertedDistribution()
-        }
-      },
-      deep: true
-    }
-  },
   mounted () {
     this.addShortcutsDescription()
     LoadRecentRecords().then(response => {
@@ -158,6 +149,11 @@ export default {
     })
   },
   methods: {
+    triggerAutosave () {
+      if (this.validate && this.autosave) {
+        this.createAndNewAssertedDistribution()
+      }
+    },
     addShortcutsDescription () {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
     },
