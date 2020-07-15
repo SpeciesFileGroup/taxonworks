@@ -34,8 +34,8 @@
         <fieldset v-if="!citationCreated">
           <legend>Source</legend>
           <smart-selector
-            ref="sourceSmartSelector"
             model="sources"
+            klass="CollectionObject"
             pin-section="Sources"
             pin-type="Source"
             @selected="selectSource"
@@ -181,8 +181,3 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-/deep/ .vue-autocomplete-input {
-  width: 400px;
-}
-</style>

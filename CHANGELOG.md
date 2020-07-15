@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Improve/unify image modal [#1617]
+- Replace repository and source autocompletes for smart selectors in new type material
 
 
 ### Fixed
