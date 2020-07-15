@@ -14,7 +14,7 @@ class InteractiveKey
   attr_accessor :language_id
 
   #optional attribute to provide a list of tags to limit the set of characters "1|5|15"
-  attr_accessor :tag_ids
+  attr_accessor :keyword_ids
 
 
 
@@ -25,15 +25,15 @@ class InteractiveKey
   attr_accessor :descriptors
 
   #returns the list of all Tags used with the descriptors
-  attr_accessor :descriptor_available_tags
+  attr_accessor :descriptor_available_keywords
 
   #the validated Language object to display descriptors in a particular language
   attr_accessor :language_to_use
 
-  #list of descriptors reduced by tag_ids
-  attr_accessor :descriptors_to_use
+  #list of descriptors reduced by keyword_ids
+  attr_accessor :descriptors_with_filter
 
-  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, tag_ids: nil)
+  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil)
     raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -41,8 +41,9 @@ class InteractiveKey
     @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
     @language_to_use = language_to_use
-    @descriptors_to_use =
-    @descriptor_available_tags = descriptor_available_tags
+    @keyword_ids = keyword_ids
+    @descriptor_available_keywords = descriptor_available_keywords
+    @descriptors_with_filter = descriptors_with_keywords
   end
 
   def observation_matrix
@@ -71,11 +72,19 @@ class InteractiveKey
     l
   end
 
-  def descriptor_available_tags
+  def descriptor_available_keywords
     descriptor_ids = descriptors.pluck(:id)
     tags = Keyword.joins(:tags)
                     .where(tags: {tag_object_type: 'Descriptor'})
                     .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
+  end
+
+  def descriptors_with_keywords
+    if @keyword_ids
+      descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|') )
+    else
+      descriptors
+    end
   end
 
   def descriptor_import_predicate

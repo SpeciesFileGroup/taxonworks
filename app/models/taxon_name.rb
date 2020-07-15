@@ -1338,7 +1338,7 @@ class TaxonName < ApplicationRecord
             maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
             minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
             unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
-              soft_validations.add(:base, 'Original citation is out of the source page range')
+              soft_validations.add(:base, 'Original citation could be out of the source page range')
             end
           end
         end

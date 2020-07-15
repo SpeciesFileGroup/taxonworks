@@ -97,16 +97,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @genus.source.pages = '1-10, i-v'
         @genus.origin_citation.pages = '11'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_truthy
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation could be out of the source page range')).to be_truthy
         @genus.origin_citation.pages = '1'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation could be out of the source page range')).to be_falsey
         @genus.origin_citation.pages = '10'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation could be out of the source page range')).to be_falsey
         @genus.origin_citation.pages = '5'
         @genus.soft_validate(:missing_fields)
-        expect(@genus.soft_validations.messages_on(:base).include?('Original citation is out of the source page range')).to be_falsey
+        expect(@genus.soft_validations.messages_on(:base).include?('Original citation could be out of the source page range')).to be_falsey
       end
       specify 'etymology is missing' do
         @species.soft_validate(:missing_fields)

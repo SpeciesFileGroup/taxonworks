@@ -42,13 +42,27 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(interactive_key.language_to_use).to eq(rus)
     end
 
-    specify 'descriptor_available_tags' do
+    specify 'descriptor_available_keywords' do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
       k = Keyword.create(name: 'zzz', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
       descriptor1.tags.create(keyword: k)
       observation_matrix.reload
-      expect(interactive_key.descriptor_available_tags.count).to eq(1)
+      expect(interactive_key.descriptor_available_keywords.count).to eq(1)
+    end
+
+    specify 'descriptors_with_keywords' do
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      k1 = Keyword.create(name: 'zzz1', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
+      k2 = Keyword.create(name: 'zzz2', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzzz')
+      t1 = descriptor1.tags.create(keyword: k1)
+      t2 = descriptor2.tags.create(keyword: k2)
+      observation_matrix.reload
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id)
+      expect(interactive_key.descriptors_with_filter.count).to eq(1)
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id.to_s + '|' + t2.id.to_s)
+      expect(interactive_key.descriptors_with_filter.count).to eq(2)
     end
 
   end
