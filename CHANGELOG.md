@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete confirmation for type specimens in new type specimen task
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
 - Modal on duplicate original citations in radial annotator [#1576]
+- Soft validations component for citations in radial annotator
 
 ### Changed
 

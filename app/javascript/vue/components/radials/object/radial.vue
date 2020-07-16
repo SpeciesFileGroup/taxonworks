@@ -3,6 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -301,69 +302,3 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-
-  .radial-annotator {
-    position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
-    .modal-close {
-      top: 30px;
-      right: 20px;
-    }
-    .modal-mask {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-    .modal-container {
-      box-shadow: none;
-      background-color: transparent;
-    }
-    .modal-container {
-      min-width: 1024px;
-      width: 1200px;
-    }
-    .radial-annotator-template {
-      border-radius: 3px;
-      background: #FFFFFF;
-      padding: 1em;
-      width: 100%;
-      max-width: 100%;
-      min-height: 600px;
-    }
-    .radial-annotator-container {
-      display: flex;
-      height: 600px;
-      flex-direction: column;
-      overflow-y: scroll;
-    }
-    .radial-annotator-menu {
-      padding-top: 1em;
-      padding-bottom: 1em;
-      width: 700px;
-      min-height: 650px;
-    }
-    .annotator-buttons-list {
-      overflow-y: scroll;
-    }
-    .save-annotator-button {
-      width: 100px;
-    }
-    .circle-count {
-      bottom: -6px;
-    }
-  }
-
-  .tag_button {
-    padding-left: 12px;
-    padding-right: 8px;
-    width: auto !important;
-    min-width: auto !important;
-    cursor: pointer;
-    margin: 2px;
-    border: none;
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-  }
-</style>

@@ -88,8 +88,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  /deep/ .modal-container {
-    background-color: white !important;
-  }
-</style>
