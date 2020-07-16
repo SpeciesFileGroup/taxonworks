@@ -1325,8 +1325,8 @@ class TaxonName < ApplicationRecord
 
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
-      elsif self.origin_citation.pages.blank?
-        soft_validations.add(:base, 'Original citation pages are not indicated')
+      elsif self.origin_citation.try(:pages).blank?
+        soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
         matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
         if matchdata1
