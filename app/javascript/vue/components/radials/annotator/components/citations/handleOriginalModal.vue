@@ -4,11 +4,6 @@
     <h3 slot="header">Select original citation</h3>
     <div slot="body">
       <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
-      <p>
-        <span>Existing original citation: <b v-html="originalCitation.source.author_year"/></span>
-        <br>
-        <span>Proposed new original citation: <b v-html="citation.author_year"/></span>
-      </p>
       <ul class="no_bullets">
         <li v-for="option in options">
           <label>
@@ -17,7 +12,7 @@
               type="radio"
               :value="option.value"
               v-model="keepOriginal">
-            {{ option.label }}
+            <span v-html="option.label"/>
           </label>
         </li>
       </ul>
@@ -57,11 +52,11 @@ export default {
     return {
       options: [
         {
-          label: 'Keep the existing citation as original, save a new one as non original.',
+          label: `Keep <i>${this.originalCitation.source.author_year}</i> as original, save <i>${this.citation.author_year}</i> as non original.`,
           value: true
         },
         {
-          label: 'Save a new citation as original.',
+          label: `Save <i>${this.citation.author_year}</i> as original citation.`,
           value: false
         }
       ],
