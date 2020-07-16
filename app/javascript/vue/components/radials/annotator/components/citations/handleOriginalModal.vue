@@ -3,11 +3,11 @@
     @close="$emit('close')">
     <h3 slot="header">Select original citation</h3>
     <div slot="body">
-      <p>Already exist an original citation. Select one of the following options to proceed:</p>
+      <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
       <p>
-        <span>Current original citation: <b v-html="originalCitation.source.author_year"/></span>
+        <span>Existing original citation: <b v-html="originalCitation.source.author_year"/></span>
         <br>
-        <span>New citation: <b v-html="citation.author_year"/></span>
+        <span>Proposed new original citation: <b v-html="citation.author_year"/></span>
       </p>
       <ul class="no_bullets">
         <li v-for="option in options">
@@ -57,11 +57,11 @@ export default {
     return {
       options: [
         {
-          label: 'Keep previous citation as original, create new one as non original.',
+          label: 'Keep the existing citation as original, save a new one as non original.',
           value: true
         },
         {
-          label: 'Make new citation original.',
+          label: 'Save a new citation as original.',
           value: false
         }
       ],
