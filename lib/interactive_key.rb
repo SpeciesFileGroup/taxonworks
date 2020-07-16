@@ -13,8 +13,11 @@ class InteractiveKey
   #optional attribute to display the characters in a particular language
   attr_accessor :language_id
 
-  #optional attribute to provide a list of tags to limit the set of characters "1|5|15"
+  #optional attribute to provide a list of tagIDs to limit the set of characters "1|5|15"
   attr_accessor :keyword_ids
+
+  #optional attribute to provide a list of rowIDs to limit the set "1|5|10"
+  attr_accessor :row_filter
 
 
 
@@ -33,7 +36,10 @@ class InteractiveKey
   #list of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
-  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil)
+  #list of rows to be included into the matrix
+  attr_accessor :rows_with_filter
+
+  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil, row_filter: nil)
     raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -44,6 +50,8 @@ class InteractiveKey
     @keyword_ids = keyword_ids
     @descriptor_available_keywords = descriptor_available_keywords
     @descriptors_with_filter = descriptors_with_keywords
+    @row_filter = row_filter
+    @rows_with_filter = rows_with_filter
   end
 
   def observation_matrix
@@ -81,10 +89,23 @@ class InteractiveKey
 
   def descriptors_with_keywords
     if @keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|') )
+      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|') )
     else
       descriptors
     end
+  end
+
+  def rows
+    ObservationMatrixRow.where(observation_matrix_id: @observation_matrix_id)
+  end
+
+  def rows_with_filter
+    if @row_item_filter
+      rows
+    else
+      rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|'))
+    end
+
   end
 
   def descriptor_import_predicate

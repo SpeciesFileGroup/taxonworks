@@ -65,5 +65,16 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(interactive_key.descriptors_with_filter.count).to eq(2)
     end
 
+    specify 'rows_with_filter' do
+      o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu1)
+      o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu2)
+      observation_matrix.reload
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
+      expect(interactive_key.rows_with_filter.count).to eq(1)
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id.to_s + '|' + observation_matrix.observation_matrix_rows.last.id.to_s)
+      expect(interactive_key.rows_with_filter.count).to eq(2)
+    end
+
+
   end
 end

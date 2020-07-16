@@ -52,11 +52,11 @@ export default {
     return {
       options: [
         {
-          label: `Keep <i>${this.originalCitation.source.author_year}</i> as original, save <i>${this.citation.author_year}</i> as non original.`,
+          label: `Keep <b>${this.originalCitation.source.author_year}</b> as original, save <b>${this.citation.author_year}</b> as non original.`,
           value: true
         },
         {
-          label: `Save <i>${this.citation.author_year}</i> as original citation.`,
+          label: `Save <b>${this.citation.author_year}</b> as original citation.`,
           value: false
         }
       ],
