@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
 - Modal on duplicate original citations in radial annotator [#1576]
 - Soft validations component for citations in radial annotator and tasks [#1552]
+- Redirect to valid name in browse nomenclature [#446]
 
 ### Changed
 

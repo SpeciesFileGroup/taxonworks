@@ -28,6 +28,7 @@ Parameters:
     <input
       :id="inputId"
       ref="autofocus"
+      :style="inputStyle"
       class="vue-autocomplete-input normal-input"
       type="text"
       :placeholder="placeholder"
@@ -201,6 +202,11 @@ export default {
     eventSend: {
       type: String,
       default: 'itemSelect'
+    },
+
+    inputStyle: {
+      type: Object,
+      default: () => {}
     }
   },
 
