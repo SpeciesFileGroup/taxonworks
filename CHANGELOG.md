@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Flip object to subject label on type section in new taxon name task
+- Shapes are possible to drag even if this option is not set up
 
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
 [#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
