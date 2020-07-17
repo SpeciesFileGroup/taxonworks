@@ -59,7 +59,7 @@ class InteractiveKey
   end
 
   def descriptors
-    observation_matrix.descriptors
+    observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order(:position)
   end
 
   def descriptor_available_languages

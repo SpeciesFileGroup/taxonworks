@@ -28,7 +28,6 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
       a = AlternateValue.create(type: 'AlternateValue::Translation', value: 'zzz', alternate_value_object: descriptor1, alternate_value_object_attribute: 'name', language_id: rus.id)
-      observation_matrix.reload
       expect(interactive_key.descriptor_available_languages.count).to eq(2)
     end
 
@@ -37,7 +36,6 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
       a = AlternateValue.create(type: 'AlternateValue::Translation', value: 'zzz', alternate_value_object: descriptor1, alternate_value_object_attribute: 'name', language_id: rus.id)
-      observation_matrix.reload
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, language_id: rus.id)
       expect(interactive_key.language_to_use).to eq(rus)
     end
@@ -47,8 +45,18 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
       k = Keyword.create(name: 'zzz', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
       descriptor1.tags.create(keyword: k)
-      observation_matrix.reload
       expect(interactive_key.descriptor_available_keywords.count).to eq(1)
+    end
+
+    specify 'descriptor_weight' do
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
+      expect(interactive_key.descriptors_with_filter.count).to eq(2)
+      descriptor1.weight = 0
+      descriptor1.save
+      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
+      expect(interactive_key.descriptors_with_filter.count).to eq(1)
     end
 
     specify 'descriptors_with_keywords' do
@@ -58,7 +66,6 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       k2 = Keyword.create(name: 'zzz2', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzzz')
       t1 = descriptor1.tags.create(keyword: k1)
       t2 = descriptor2.tags.create(keyword: k2)
-      observation_matrix.reload
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id)
       expect(interactive_key.descriptors_with_filter.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id.to_s + '|' + t2.id.to_s)
@@ -68,7 +75,6 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     specify 'rows_with_filter' do
       o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu1)
       o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu2)
-      observation_matrix.reload
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
       expect(interactive_key.rows_with_filter.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id.to_s + '|' + observation_matrix.observation_matrix_rows.last.id.to_s)
