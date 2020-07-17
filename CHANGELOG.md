@@ -13,7 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Delete confirmation for type specimens in new type specimen task
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
 - Modal on duplicate original citations in radial annotator [#1576]
-- Soft validations component for citations in radial annotator
+- Soft validations component for citations in radial annotator and tasks [#1552]
 
 ### Changed
 
@@ -28,9 +28,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Flip object to subject label on type section in new taxon name task
 
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
+[#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
 [#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
+
 
 ## [0.12.11] - 2020-07-14
 
