@@ -2,11 +2,8 @@
   <div class="field">
     <div class="horizontal-left-content">
       <span v-html="editCitation.object_tag"/>
-      <soft-validation
-        class="margin-small-left"
-        :global-id="editCitation.global_id"/>
     </div>
-    <div class="flex-separate separate-bottom separate-top field">
+    <div class="flex-separate separate-top field">
       <label class="inline middle">
         <input
           type="text"
@@ -19,8 +16,11 @@
         Is original (does not apply to topics)
       </label>
     </div>
+    <soft-validation
+      :in-place="true"
+      :global-id="editCitation.global_id"/>
     <button
-      class="button button-submit normal-input separate-bottom"
+      class="button button-submit normal-input separate-bottom margin-medium-top"
       :disabled="!validateFields"
       @click="sendCitation()"
       type="button">Update
