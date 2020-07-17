@@ -11,7 +11,7 @@
           <span v-html="title" />
           <span
             v-if="metadata"
-            class="separate-right"> 
+            class="separate-right">
             {{ metadata.object_type }}
           </span>
         </h3>

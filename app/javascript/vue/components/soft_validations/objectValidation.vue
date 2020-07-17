@@ -37,12 +37,26 @@ export default {
     globalId: {
       type: String,
       required: true
+    },
+    validateObject: {
+      type: Object,
+      default: undefined
     }
   },
   data () {
     return {
       validations: [],
       showModal: false
+    }
+  },
+  watch: {
+    validateObject: {
+      handler (newVal) {
+        if (newVal) {
+          this.getSoftValidation()
+        }
+      },
+      deep: true
     }
   },
   mounted () {

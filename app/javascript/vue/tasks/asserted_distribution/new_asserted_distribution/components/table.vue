@@ -27,6 +27,9 @@
               target="blank"
               :href="nomenclatureBySourceRoute(item.citations[0].source.id)"
               v-html="item.citations[0].citation_source_body"/>
+            <soft-validation
+              class="margin-small-left"
+              :global-id="item.global_id"/>
           </td>
         </template>
         <td>
@@ -74,11 +77,13 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
 import { RouteNames } from 'routes/routes'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
     CitationCount,
-    RadialAnnotator
+    RadialAnnotator,
+    SoftValidation
   },
   props: {
     list: {

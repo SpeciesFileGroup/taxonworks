@@ -107,6 +107,10 @@
                 target="_blank"
                 v-html="citation.source.object_tag"
               />
+              <soft-validation
+                class="margin-small-left"
+                :validate-object="citation"
+                :global-id="citation.global_id"/>
             </p>
             <div class="horizontal-left-content">
               <citation-pages
@@ -182,6 +186,7 @@ import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
 import BlockLayout from './blockLayout'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
@@ -194,7 +199,8 @@ export default {
     CitationPages,
     RadialAnnotator,
     RadialObject,
-    BlockLayout
+    BlockLayout,
+    SoftValidation
   },
   computed: {
     lastSave () {

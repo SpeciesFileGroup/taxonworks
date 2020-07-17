@@ -73,7 +73,12 @@
         <div
           v-else
           class="horizontal-left-content">
-          <span v-html="typeMaterial.origin_citation.object_tag"/>
+          <span>
+            <span v-html="typeMaterial.origin_citation.object_tag"/>
+            <soft-validation
+              class="margin-small-left"
+              :global-id="typeMaterial.origin_citation.global_id"/>
+          </span>
           <span
             class="circle-button btn-delete"
             @click="removeCitation"/>
@@ -88,6 +93,7 @@
 import Expand from './expand.vue'
 import SmartSelector from 'components/smartSelector'
 import Spinner from 'components/spinner.vue'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -97,7 +103,8 @@ export default {
   components: {
     Spinner,
     Expand,
-    SmartSelector
+    SmartSelector,
+    SoftValidation
   },
   computed: {
     citation: {
