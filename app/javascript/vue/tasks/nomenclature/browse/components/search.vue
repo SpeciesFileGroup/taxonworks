@@ -22,6 +22,10 @@
 import Autocomplete from 'components/autocomplete'
 import { RouteNames } from 'routes/routes'
 
+const SettingsStore = {
+  redirectValid: 'browseNomenclature::redirectValid'
+}
+
 export default {
   components: {
     Autocomplete
@@ -29,6 +33,19 @@ export default {
   data () {
     return {
       validName: true
+    }
+  },
+  watch: {
+    validName: {
+      handler (newVal) {
+        sessionStorage.setItem(SettingsStore.redirectValid, newVal)
+      }
+    }
+  },
+  mounted () {
+    const value = sessionStorage.getItem(SettingsStore.redirectValid)
+    if (value !== null) {
+      this.validName = value === 'true'
     }
   },
   methods: {

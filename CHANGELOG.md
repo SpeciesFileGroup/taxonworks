@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Modal on duplicate original citations in radial annotator [#1576]
 - Soft validations component for citations in radial annotator and tasks [#1552]
 - Redirect to valid name in browse nomenclature [#446]
+- sessionStorage for browse nomenclature autocomplete [#446]
 
 ### Changed
 
