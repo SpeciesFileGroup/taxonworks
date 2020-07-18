@@ -1307,13 +1307,18 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           skipped_file_ids = import.get('SkippedFileIDs')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
 
-          get_tw_project_id.each do |key, value|
+          # Runs in parallel only if PARALLEL_PROCESSOR_COUNT is explicitely set (screen output is not very readable in parallel mode at present)
+          output = Parallel.map(get_tw_project_id.values, in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0) do |value|
             if skipped_file_ids.include? value.to_i
               next
             end
             print "\nSoft validations for the project #{value} \n"
             Current.project_id = value.to_i
             soft_validations_sf(value.to_i)
+          end
+
+          output.each do |output|
+            output.each { |o| logger.info o } if output
           end
         end
         ######################################################################################################################################### END
@@ -1478,6 +1483,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
         end
 
         def soft_validations_sf(project_id)
+          output = []
           fixed = 0
           print "\nApply soft validation fixes to taxa 1st pass \n"
           i = 0
@@ -1492,6 +1498,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             end
           end
 
+          output.push "[project_id=#{project_id}] Soft validation fixes to taxa 1st pass: #{i} names, #{fixed} fixes applied"
+
           print "\nApply soft validation fixes to relationships \n"
           i = 0
           GC.start
@@ -1504,8 +1512,10 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               fixed += 1 if f.fixed?
             end
           end
-          print "\nApply soft validation fixes to taxa 2nd pass \n"
 
+          output.push "[project_id=#{project_id}] Soft validation fixes to relationships: #{i} relationships, #{fixed} fixes applied (including previous step)"
+
+          print "\nApply soft validation fixes to taxa 2nd pass \n"
           i = 0
           GC.start
           TaxonName.where(project_id: project_id).find_each do |t|
@@ -1517,11 +1527,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
               fixed += 1 if f.fixed?
             end
           end
+
+          output.push "[project_id=#{project_id}] Soft validation fixes to taxa 2nd pass: #{i} names, #{fixed} fixes applied (including previous steps)"
+          output
         end
 
       end
     end
   end
 end
-
 

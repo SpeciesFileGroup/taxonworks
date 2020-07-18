@@ -1416,7 +1416,8 @@ namespace :tw do
         desc 'time rake tw:project_import:sf_import:specimens:set_dwc_occurrence user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define set_dwc_occurrence: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           GC.start # VERY important, line below will fork into [number of threads] copies of this process, so memory usage must be as minimal as possible before starting.
-          Parallel.each(CollectionObject.find_each, progress: 'set_dwc_occurrence') { |o| o.set_dwc_occurrence }
+          # Runs in parallel only if PARALLEL_PROCESSOR_COUNT is explicitely set
+          Parallel.each(CollectionObject.find_each, progress: 'set_dwc_occurrence', in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0) { |o| o.set_dwc_occurrence }
         end
 
       end
