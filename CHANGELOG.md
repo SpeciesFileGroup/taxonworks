@@ -19,11 +19,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Cleanup and add spec basis for nomenclature tabular stats queries  
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
 - Changed autosave behaviour in new asserted distribution task
 - Gender list order in new taxon name task
-
 
 ### Fixed
 
