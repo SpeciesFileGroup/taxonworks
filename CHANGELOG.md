@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Flip object to subject label on type section in new taxon name task
 - Shapes are possible to drag even if this option is not set up
+- Columns size of georeference table [#1622]
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
@@ -36,7 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
-
+[#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
 
 ## [0.12.11] - 2020-07-14
 
