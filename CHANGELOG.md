@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Soft validations component for citations in radial annotator and tasks [#1552]
 - Redirect to valid name in browse nomenclature [#446]
 - sessionStorage for browse nomenclature autocomplete [#446]
+- Observation matrices in radial object [#1527]
 
 ### Changed
 
@@ -30,9 +31,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Flip object to subject label on type section in new taxon name task
 - Shapes are possible to drag even if this option is not set up
 - Columns size of georeference table [#1622]
+- Webpacker host and port bind on docker container
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
+[#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
 [#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
 [#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617

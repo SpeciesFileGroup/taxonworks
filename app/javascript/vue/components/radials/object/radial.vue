@@ -3,7 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
-        :container-style="{ backgroundColor: 'transparent' }"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -80,6 +80,7 @@ import common_namesAnnotator from './components/common_names/main.vue'
 import contentsAnnotator from './components/contents/main.vue'
 import biocuration_classificationsAnnotator from './components/biocurations/biocurations'
 import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
+import observation_matricesAnnotator from './components/observation_matrices/main.vue'
 
 import Icons from './images/icons.js'
 
@@ -96,7 +97,8 @@ export default {
     common_namesAnnotator,
     contentsAnnotator,
     biocuration_classificationsAnnotator,
-    taxon_determinationsAnnotator
+    taxon_determinationsAnnotator,
+    observation_matricesAnnotator
   },
   props: {
     reload: {
@@ -144,7 +146,13 @@ export default {
       title: 'Otu radial',
       menuOptions: [],
       defaultTag: undefined,
-      tagCreated: false
+      tagCreated: false,
+      hardcodeSections: [
+        {
+          section: 'observation_matrices',
+          objectTypes: ['Otu', 'CollectionObject']
+        }
+      ]
     }
   },
   computed: {
@@ -235,6 +243,7 @@ export default {
       const that = this
       this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         that.metadata = response.body
+        that.metadata.endpoints = Object.assign({}, that.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
         that.title = response.body.object_tag
         that.menuOptions = that.createMenuOptions(response.body.endpoints)
         that.url = response.body.url
@@ -297,6 +306,11 @@ export default {
         this.tagCreated = false
         this.defaultTag = undefined
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+      })
+    },
+    addHardcodeSections (type) {
+      return this.hardcodeSections.filter(item => item.objectTypes.includes(type)).map(item => {
+        return { [item.section]: { total: 0 } }
       })
     }
   }
