@@ -142,7 +142,7 @@ export default {
     },
     createRow () {
       return new Promise((resolve, reject) => {
-        if (window.confirm('Are you sure you want to add this otu to this matrix?')) {
+        if (window.confirm(`Are you sure you want to add this ${this.metadata.object_type} to this matrix?`)) {
           const promises = []
 
           Promise.all(promises).then(() => {
