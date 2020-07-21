@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="imports.length">
     <h2>Created imports</h2>
     <div class="horizontal-left-content">
       <div
