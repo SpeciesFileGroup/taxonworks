@@ -5,42 +5,44 @@
       legend="Loading records..."
       v-if="isLoading"/>
     <h1>DwC-A Workbench</h1>
-    <div
-      v-if="table"
-      class="position-relative">
-      <transition name="bounce">
-        <div
-          v-if="isProcessing"
-          class="show-import-process panel">
-          <spinner-component
-            legend="Importing rows... please wait."
-          />
-        </div>
-      </transition>
-      <navbar-component
-        :pagination="pagination"
-        :rows-count="table.rows.length"
-        @select="selectAll"
-        @unselect="unselectAll"
-        @import="processImport"/>
-      <table-component
-        :import-id="importId"
-        :table="table"
-        :disabled="isProcessing"
-        v-model="selectedIds"
-        @onUpdateRow="updateRow"
-        @onParams="tableParams = $event"/>
-      <div style="height: 60px"/>
-    </div>
-    <new-import
-      @onCreate="loadDataset($event.id)"
-      v-else/>
+    <template v-if="table">
+      <div class="position-relative">
+        <transition name="bounce">
+          <div
+            v-if="isProcessing"
+            class="show-import-process panel">
+            <spinner-component
+              legend="Importing rows... please wait."
+            />
+          </div>
+        </transition>
+        <navbar-component
+          :pagination="pagination"
+          :rows-count="table.rows.length"
+          @select="selectAll"
+          @unselect="unselectAll"
+          @import="processImport"/>
+        <table-component
+          :import-id="importId"
+          :table="table"
+          :disabled="isProcessing"
+          v-model="selectedIds"
+          @onUpdateRow="updateRow"
+          @onParams="tableParams = $event"/>
+        <div style="height: 60px"/>
+      </div>
+    </template>
+    <template v-else>
+      <new-import @onCreate="loadDataset($event.id)"/>
+      <import-list @onSelect="loadDataset"/>
+    </template>
   </div>
 </template>
 
 <script>
 
 import NewImport from './components/NewImport'
+import ImportList from './components/ImportList'
 import TableComponent from './components/table'
 import NavbarComponent from './components/NavBar'
 import { GetDataset, GetDatasetRecords, ImportRows } from './request/resources'
@@ -51,6 +53,7 @@ import Qs from 'qs'
 export default {
   components: {
     NewImport,
+    ImportList,
     TableComponent,
     SpinnerComponent,
     NavbarComponent

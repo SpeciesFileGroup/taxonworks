@@ -1,12 +1,12 @@
 <template>
   <div>
-    <spinner-component 
+    <spinner-component
       :full-screen="true"
       legend="Uploading import..."
       v-if="isUploading"/>
-    <div class="field">
-      <label class="block">Description</label>
-      <input 
+    <div class="field label-above">
+      <label>Description</label>
+      <input
         type="text"
         v-model="description">
     </div>
