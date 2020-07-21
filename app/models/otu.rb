@@ -308,7 +308,7 @@ class Otu < ApplicationRecord
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
         end
 
-    Otu.pluck(:id).uniq
+    Otu.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
