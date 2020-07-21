@@ -7,7 +7,7 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = ImportDataset.find(params[:import_dataset_id]).core_records.page(params[:page]).per(params[:per] || 100)
+    @dataset_records = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id]).core_records.page(params[:page]).per(params[:per] || 100)
 
     params[:filter]&.each do |k, v|
       @dataset_records = @dataset_records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
