@@ -5,17 +5,9 @@
     <div class="flex-separate middle">
 
       <div class="middle">
-        <div class="separate-right">
-          <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
-            <%= render  'workbench/elements/forms/ajax_select',
-              controller: '/taxon_names',
-              object: '',
-              method:  'taxon_name_id',
-              send_select: true,
-              tag_id:  'taxon_name_id_for_browse_nomenclature',
-              size: 20 %>
-          <% end %>
-        </div>
+        <div
+          class="separate-right"
+          id="vue-browse-nomenclature-search"></div>
 
         <div class="separate-left separate-right">
         <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>

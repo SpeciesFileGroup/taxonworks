@@ -12,6 +12,7 @@
             target="Source"
             klass="Source"
             label="name"
+            :filter-ids="serialId"
             pin-section="Serials"
             pin-type="Serial"
             @selected="setSelected"/>

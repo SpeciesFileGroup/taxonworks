@@ -345,7 +345,6 @@ scope :tasks do
       get :index, as: 'index_dashboard_task'
     end
 
-
     scope :view, controller: 'tasks/observation_matrices/view' do
       get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
@@ -364,6 +363,10 @@ scope :tasks do
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
+    end
+
+    scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
+      get '(:observation_matrix_id)', as: 'interactive_key_task', action: :index
     end
   end
 

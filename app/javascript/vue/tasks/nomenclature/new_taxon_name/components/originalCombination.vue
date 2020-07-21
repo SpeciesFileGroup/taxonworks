@@ -229,11 +229,13 @@ export default {
     },
 
     removeCombination: function (value) {
-      let that = this
+      if(window.confirm('Are you sure you want to remove this combination?')) {
+        let that = this
 
-      this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
-        that.$emit('delete', response)
-      })
+        this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
+          that.$emit('delete', response)
+        })
+      }
     },
     onMove: function (evt) {
       this.newPosition = evt.draggedContext.futureIndex

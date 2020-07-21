@@ -35,7 +35,7 @@ import { GetDepictions, DestroyDepiction } from '../request/resources'
 
 import dropzone from 'components/dropzone.vue'
 import spinner from 'components/spinner.vue'
-import depictionImage from './depictionImage.vue'
+import depictionImage from 'components/depictions/depictionImage.vue'
 
 export default {
   components: {

@@ -7,6 +7,7 @@
       target="Source"
       @onTabSelected="view = $event"
       klass="Source"
+      :filter-ids="peopleIds"
       :params="{ role_type: 'SourceEditor' }"
       :autocomplete-params="{
         roles: ['SourceEditor']
@@ -63,6 +64,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
+    },
+    peopleIds () {
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
     }
   },
   data () {

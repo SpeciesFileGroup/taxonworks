@@ -54,6 +54,8 @@ HIGHER_RANK_NAMES_ICN = NomenclaturalRank::Icn::HigherClassificationGroup.descen
 HIGHER_RANK_NAMES_ICNP = NomenclaturalRank::Icnp::HigherClassificationGroup.descendants.map(&:to_s).freeze
 HIGHER_RANK_NAMES_ICTV = ['NomenclaturalRank::Icvcn::Kingdom', 'NomenclaturalRank::Icvcn::Order'].freeze
 
+HIGHER_RANK_NAMES = (HIGHER_RANK_NAMES_ICZN + HIGHER_RANK_NAMES_ICN + HIGHER_RANK_NAMES_ICNP + HIGHER_RANK_NAMES_ICTV).freeze
+
 # All assignable ranks for family group and above family names, for ICZN, ICN, ICNP
 FAMILY_AND_ABOVE_RANK_NAMES_ICZN = FAMILY_RANK_NAMES_ICZN + HIGHER_RANK_NAMES_ICZN
 FAMILY_AND_ABOVE_RANK_NAMES_ICN = FAMILY_RANK_NAMES_ICN + HIGHER_RANK_NAMES_ICN

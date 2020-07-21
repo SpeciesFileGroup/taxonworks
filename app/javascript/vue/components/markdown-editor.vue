@@ -53,6 +53,9 @@ export default {
       this.simplemde.codemirror.on('change', () => {
         this.$emit('input', this.simplemde.value())
       })
+      this.simplemde.codemirror.on('blur', () => {
+        this.$emit('blur', this.simplemde.value())
+      })
       this.simplemde.codemirror.on('mousedown', (cm, ev) => {
         let that = this
 

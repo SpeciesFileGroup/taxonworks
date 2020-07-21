@@ -15,7 +15,7 @@
             v-shortkey="[getOSKey(), 'o']"
             @shortkey="switchBrowseOtu()"/>
           <span
-            v-shortkey="[getOSKey(), 'c']"
+            v-shortkey="[getOSKey(), 'e']"
             @shortkey="switchComprehensive()"/>
           <span
             v-shortkey="[getOSKey(), 't']"
@@ -115,7 +115,9 @@ export default {
       window.location.href = '/tasks/type_material/edit_type_material'
     },
     removeTypeSpecimen (item) {
-      this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
+      if (window.confirm('Are you sure you want to destroy this record?')) {
+        this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
+      }
     },
     setTypeMaterial (material) {
       this.$store.dispatch(ActionNames.LoadTypeMaterial, material)

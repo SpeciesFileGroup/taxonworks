@@ -91,8 +91,6 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
 
-import showForThisGroup from '../../nomenclature/new_taxon_name/helpers/showForThisGroup'
-
 export default {
   components: {
     SearchOtu,
@@ -206,6 +204,19 @@ export default {
       text-transform: uppercase;
       color: #888;
       font-size: 14px;
+    }
+    .expand-box {
+      width: 18px;
+      height: 18px;
+      padding: 0px;
+      background-size: 10px;
+      background-position: center;
+    }
+
+    .mark-box {
+      width: 10px;
+      height: 10px;
+      padding: 0px;
     }
   }
 </style>

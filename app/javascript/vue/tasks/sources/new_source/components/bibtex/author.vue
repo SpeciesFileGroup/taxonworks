@@ -11,6 +11,7 @@
       :autocomplete-params="{
         roles: ['SourceAuthor']
       }"
+      :filter-ids="peopleIds"
       :autocomplete="false"
       @selected="addRole">
       <role-picker
@@ -63,6 +64,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
+    },
+    peopleIds () {
+      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
     }
   },
   data () {

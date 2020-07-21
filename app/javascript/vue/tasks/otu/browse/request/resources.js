@@ -117,6 +117,8 @@ const UpdateUserPreferences = (id, data) => {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
 
+const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId }})
+
 export {
   GetOtu,
   GetUserPreferences,
@@ -145,5 +147,6 @@ export {
   GetOtusCollectionObjects,
   UpdateUserPreferences,
   GetOtuAssertedDistribution,
-  GetTaxonNames
+  GetTaxonNames,
+  GetSoftValidation
 }

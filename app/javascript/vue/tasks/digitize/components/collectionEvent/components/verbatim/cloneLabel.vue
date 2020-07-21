@@ -104,7 +104,7 @@ export default {
         this.searching = false
         ParseVerbatim(this.bufferedCollectingEvent).then(response => {
           const parsed = response.body
-          this.collectingEvent = Object.assign(this.collectingEvent, parsed.date, parsed.geo.verbatim)
+          this.collectingEvent = Object.assign(this.collectingEvent, parsed.date, parsed.geo.verbatim, parsed.elevation, parsed.collecting_method)
         })
       })
     },

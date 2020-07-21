@@ -14,7 +14,7 @@
     </modal>
     <div class="panel basic-information">
       <div class="content header">
-        <h3
+        <div
           v-if="taxon.id"
           class="flex-separate middle">
           <a
@@ -54,7 +54,7 @@
                 class="circle-button btn-delete"/>
             </div>
           </div>
-        </h3>
+        </div>
         <h3
           class="taxonname"
           v-else>New</h3>

@@ -9,6 +9,7 @@ export default function ({ commit, state, dispatch }, id) {
       }
       commit(MutationNames.SetTaxonRelationshipList, response.body)
       dispatch('loadSoftValidation', 'taxonRelationshipList')
+      dispatch('loadSoftValidation', 'original_combination')
       return resolve()
     })
   })
