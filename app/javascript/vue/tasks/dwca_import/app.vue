@@ -46,6 +46,8 @@ import ImportList from './components/ImportList'
 import TableComponent from './components/table'
 import NavbarComponent from './components/NavBar'
 import { GetDataset, GetDatasetRecords, ImportRows } from './request/resources'
+import { RouteNames } from 'routes/routes'
+import SetParam from 'helpers/setParam.js'
 import GetPagination from 'helpers/getPagination'
 import SpinnerComponent from 'components/spinner'
 import Qs from 'qs'
@@ -99,6 +101,7 @@ export default {
       this.importId = id
       this.isLoading = true
       GetDataset(id).then(response => {
+        SetParam(RouteNames.DwcImport, 'import_dataset_id', id)
         table.headers = response.body.metadata.core_headers
         return GetDatasetRecords(id)
       }).then(response => {
