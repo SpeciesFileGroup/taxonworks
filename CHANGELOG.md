@@ -7,8 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-### Added 
-
+### Added
+- Interactive keys task
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
@@ -17,23 +17,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Redirect to valid name in browse nomenclature [#446]
 - sessionStorage for browse nomenclature autocomplete [#446]
 - Observation matrices in radial object [#1527]
+- Comprehensive task to taxon name radial [#934]
 
 ### Changed
-
 - Cleanup and add spec basis for nomenclature tabular stats queries  
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
 - Changed autosave behaviour in new asserted distribution task
 - Gender list order in new taxon name task
+- Page range soft validation message made less strict
+- Original citation-related UI text
 
 ### Fixed
-
 - Flip object to subject label on type section in new taxon name task
 - Shapes are possible to drag even if this option is not set up
 - Columns size of georeference table [#1622]
 - Webpacker host and port bind on docker container
+- Wrong taxon name relationship soft validation message for genera
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
+[#934]: https://github.com/SpeciesFileGroup/taxonworks/issues/934
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
 [#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
 [#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
