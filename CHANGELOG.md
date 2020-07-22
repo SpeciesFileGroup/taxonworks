@@ -14,7 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Seeing OTUs in Recent that do not belong to project [#1626]
 
-[#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1614
+[#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1626
 
 ## [0.12.11] - 2020-07-14
 
