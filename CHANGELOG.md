@@ -8,6 +8,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Map on OTU radial in asserted distribution form [#856]
+
+[#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
+
+## [0.12.12] - 2020-07-22
+
+### Added
 - Interactive keys task
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
