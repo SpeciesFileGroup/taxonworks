@@ -8,24 +8,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Map on OTU radial in asserted distribution form [#856]
-
-### Changed
-- Moved taxon name input search to right column in new taxon name
-- Persons autosave in new taxon name
-
-### Fixed
-- Modal confirmation its not displaying in manage synonyms section [#1627]
-- Manage synonyms includes combinations [#1628]
-
-[#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
-[#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
-[#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
-
-## [0.12.12] - 2020-07-22
-
-### Added
-- Interactive keys task
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
@@ -35,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - sessionStorage for browse nomenclature autocomplete [#446]
 - Observation matrices in radial object [#1527]
 - Comprehensive task to taxon name radial [#934]
+- Map on OTU radial in asserted distribution form [#856]
 
 ### Changed
 - Cleanup and add spec basis for nomenclature tabular stats queries  
@@ -44,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Gender list order in new taxon name task
 - Page range soft validation message made less strict
 - Original citation-related UI text
+- Moved taxon name input search to right column in new taxon name
+- Persons autosave in new taxon name
 
 ### Fixed
 - Flip object to subject label on type section in new taxon name task
@@ -51,9 +36,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Columns size of georeference table [#1622]
 - Webpacker host and port bind on docker container
 - Wrong taxon name relationship soft validation message for genera
-- Seeing OTUs in Recent that do not belong to project [#1626]
+- Modal confirmation its not displaying in manage synonyms section [#1627]
+- Manage synonyms includes combinations [#1628]
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
+[#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
 [#934]: https://github.com/SpeciesFileGroup/taxonworks/issues/934
 [#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
 [#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
@@ -62,6 +49,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
 [#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
+[#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
+[#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+
+## [0.12.12] - 2020-07-22
+
+### Fixed
+- Seeing OTUs in Recent that do not belong to project [#1626]
+
 [#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1626
 
 ## [0.12.11] - 2020-07-14
@@ -293,7 +288,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...development
+[0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
 [0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10
 [0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9
