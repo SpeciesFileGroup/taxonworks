@@ -7,10 +7,54 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added 
+
+- Delete confirmation for original combinations [#1618]
+- Delete confirmation for type specimens in new type specimen task
+- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
+- Modal on duplicate original citations in radial annotator [#1576]
+- Soft validations component for citations in radial annotator and tasks [#1552]
+- Redirect to valid name in browse nomenclature [#446]
+- sessionStorage for browse nomenclature autocomplete [#446]
+- Observation matrices in radial object [#1527]
+
+### Changed
+
+- Cleanup and add spec basis for nomenclature tabular stats queries  
+- Improve/unify image modal [#1617]
+- Replace repository and source autocompletes for smart selectors in new type material task
+- Changed autosave behaviour in new asserted distribution task
+- Gender list order in new taxon name task
+
+### Fixed
+
+- Flip object to subject label on type section in new taxon name task
+- Shapes are possible to drag even if this option is not set up
+- Columns size of georeference table [#1622]
+- Webpacker host and port bind on docker container
+
+[#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
+[#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
+[#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
+[#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
+[#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
+[#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
+[#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
+[#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
+
+## [0.12.11] - 2020-07-14
+
+### Changed
+- Type material designations are now grouped by collection object in Browse OTUs (refs [#1614])
+
 ### Fixed
 - Protonym parent priority soft validation [#1613]
+- Type specimens count in Browse OTUs task
+- Attempting to update containers as if them were collection objects in Grid Digitizer task [#1601]
 
+[#1601]: https://github.com/SpeciesFileGroup/taxonworks/issues/1601
 [#1613]: https://github.com/SpeciesFileGroup/taxonworks/issues/1613
+[#1614]: https://github.com/SpeciesFileGroup/taxonworks/issues/1614
 
 ## [0.12.10] - 2020-07-07
 
@@ -227,7 +271,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...development
+[0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10
 [0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9
 [0.12.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.7...v0.12.8

@@ -82,7 +82,15 @@ export default {
         adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
         participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
       },
-      sortOrder: ['masculine', 'feminine', 'neuter']
+      sortOrder: [
+        'masculine',
+        'feminine',
+        'neuter',
+        'noun in apposition',
+        'noun in genitive case',
+        'adjective',
+        'participle'
+      ]
     }
   },
   mounted: function () {

@@ -64,7 +64,7 @@
           mutation-name-add="AddTaxonType"
           mutation-name-modal="SetModalType"
           name-module="Types"
-          display-name="object_status_tag"/>
+          display-name="subject_status_tag"/>
         <div class="switch-radio">
           <input
             name="type-picker-options"
@@ -95,7 +95,7 @@
             :object-lists="objectLists.common"
             :filter="true"
             @addEntry="addEntry"
-            display="object_status_tag"
+            display="subject_status_tag"
             :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
@@ -106,7 +106,7 @@
         :list="GetRelationshipsCreated"
         @delete="removeType"
         @edit="setEdit"
-        :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
   </block-layout>
 </template>

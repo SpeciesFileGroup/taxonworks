@@ -1325,8 +1325,8 @@ class TaxonName < ApplicationRecord
 
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
-      elsif self.origin_citation.pages.blank?
-        soft_validations.add(:base, 'Original citation pages are not indicated')
+      elsif self.origin_citation.try(:pages).blank?
+        soft_validations.add(:base, 'Original citation pages are not recorded')
       elsif !self.source.pages.blank?
         matchdata1 = self.origin_citation.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
         if matchdata1
@@ -1338,7 +1338,7 @@ class TaxonName < ApplicationRecord
             maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
             minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
             unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
-              soft_validations.add(:base, 'Original citation is out of the source page range')
+              soft_validations.add(:base, 'Original citation could be out of the source page range')
             end
           end
         end

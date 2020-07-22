@@ -26,6 +26,7 @@ class Language < ApplicationRecord
 
   has_many :serials, inverse_of: :language, foreign_key: :primary_language_id
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
+  has_many :alternate_value_translations, class_name: 'AlternateValue::Translation'
   
   scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { created_at: 1.weeks.ago..Time.now } ).order('"sources"."created_at" DESC') }
   scope :used_recently_on_serials, -> { joins(:serials).includes(:serials).where(serials: { created_at: 1.weeks.ago..Time.now } ).order('"serials"."created_at" DESC') }
