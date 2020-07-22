@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Moved taxon name input search to right column in new taxon name
+- Persons autosave in new taxon name
 
 ### Fixed
 - Modal confirmation its not displaying in manage synonyms section [#1627]
