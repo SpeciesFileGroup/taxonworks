@@ -152,7 +152,7 @@
             v-model="roles"
             @create="updateLastChange"
             @delete="updateLastChange"
-            @sortable="updateTaxonName"
+            @sortable="updateLastChange"
             @update="updatePersons"
             role-type="TaxonNameAuthor"
           />
