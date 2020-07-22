@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Map on OTU radial in asserted distribution form [#856]
 
+### Changed
+- Moved taxon name input search to right column in new taxon name
+
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
 
 ## [0.12.12] - 2020-07-22

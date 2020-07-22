@@ -12,6 +12,7 @@
           Autosave
         </label>
         <autocomplete
+          v-if="!getTaxon.id"
           class="autocomplete-search-bar"
           url="/taxon_names/autocomplete"
           param="term"
@@ -43,6 +44,16 @@
           v-if="getTaxon.id"
           class="cright item separate-left">
           <div id="cright-panel">
+            <div class="panel content margin-medium-bottom">
+              <autocomplete
+                url="/taxon_names/autocomplete"
+                param="term"
+                :add-params="{ 'type[]': 'Protonym' }"
+                label="label_html"
+                placeholder="Search a taxon name..."
+                @getItem="loadTaxon"
+                :clearAfter="true"/>
+            </div>
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
             <soft-validation class="separate-top"/>
