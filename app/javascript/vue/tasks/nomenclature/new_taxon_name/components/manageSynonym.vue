@@ -160,8 +160,13 @@ export default {
           AjaxCall('get', `/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            AjaxCall('get', `/taxon_names.json?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
-              this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
+            AjaxCall('get', '/taxon_names.json', {
+              params: {
+                taxon_name_id: [this.taxon.id],
+                descendants: true,
+                taxon_name_type: 'Protonym'
+              }}).then(response => {
+              this.childrenList = response.body.filter(item => { return item.id !== this.taxon.id })
               this.isLoading = false
             })
           })
