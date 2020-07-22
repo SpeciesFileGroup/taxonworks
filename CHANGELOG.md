@@ -15,9 +15,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Modal confirmation its not displaying in manage synonyms section [#1627]
+- Manage synonyms includes combinations [#1628]
 
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
 [#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
+[#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
 
 ## [0.12.12] - 2020-07-22
 
