@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_01_201911) do
+ActiveRecord::Schema.define(version: 2020_07_16_192152) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -557,6 +557,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.string "default_unit"
     t.string "description_name"
     t.string "key_name"
+    t.integer "weight"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
     t.index ["project_id"], name: "index_descriptors_on_project_id"

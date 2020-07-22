@@ -23,3 +23,171 @@
   position: relative;
   text-align: left;
 }
+
+
+#header3i {
+  position: fixed;
+  width: 100%;
+  height: 56px;
+  top: 99px;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  border-bottom: 2px solid #CCCCCC;
+  background-color: #C0C0B0;
+}
+
+#header3i h1
+{
+  margin: 0px;
+  font-size: 16pt;
+  font-weight: bold;
+  text-align: center;
+  font-family: arial,sans-serif;
+  color: #004050;
+}
+
+#header3i table {
+  width: 100%;
+  background-color: #C0C0B0;
+  text-align: center;
+  color: #004050;
+}
+
+#characters3i {
+  position: fixed;
+  top: 157px;
+  bottom: 45%;
+  left: 0px;
+  right: 0px;
+  margin: 0px 0px 0px 0px;
+  width: auto;
+  height: auto;
+  padding-left: 5px;
+  padding-right: 12px;
+  background-color: #CFCFBE;
+  border-bottom: 2px solid #CCCCCC;
+  overflow: auto;
+}
+
+div.vertical #characters3i {
+  position: fixed;
+  top: 157px;
+  bottom: 42px;
+  left: 0px;
+  right: 50%;
+  margin: 0px 0px 0px 0px;
+  width: auto;
+  height: auto;
+  padding-left: 5px;
+  padding-right: 12px;
+  background-color: #CFCFBE;
+  border-bottom: 2px solid #CCCCCC;
+  overflow: auto;
+}
+
+#characters3i h1, #content h2 {
+  color: #C00000;
+}
+
+#taxa1_3i {
+  position: fixed;
+  top: 55%;
+  bottom: 42px;
+  margin: 0px 0px 0px 0px;
+  right: 50%;
+  left: 0px;
+  width: auto;
+  height: auto;
+  padding-left: 5px;
+  padding-right: 12px;
+  background-color: #C0C0B0;
+  border-bottom: 2px solid #CCCCCC;
+  overflow: auto;
+}
+
+div.vertical #taxa1_3i {
+  position: fixed;
+  top: 157px;
+  bottom: 45%;
+  margin: 0px 0px 0px 0px;
+  right: 0px;
+  left: 50%;
+  width: auto;
+  height: auto;
+  padding-left: 5px;
+  padding-right: 12px;
+  background-color: #C0C0B0;
+  border-left: 2px solid #CCCCCC;
+  border-bottom: 2px solid #CCCCCC;
+  overflow: auto;
+}
+
+#taxa2_3i {
+  position: fixed;
+  top: 55%;
+  bottom: 42px;
+  margin: 0px 0px 0px 0px;
+  width: auto;
+  height: auto;
+  left: 50%;
+  right: 0px;
+  padding-left: 5px;
+  padding-right: 12px;
+  background-color: #C0C0B0;
+  border-left: 2px solid #CCCCCC;
+  border-bottom: 2px solid #CCCCCC;
+  overflow: auto;
+}
+
+.mainfont { color: #004050;}
+.red { color: #C00000; }
+.redbold { color: #C00000; font-weight: bold; }
+
+div.i3{
+  color: #004050;
+  font-family: arial,sans-serif;
+}
+
+div.i3 a { color: #004050;}
+div.i3 a:visited { color: #004050;}
+div.i3 a:hover { color: #C00000;}
+
+div.help3i
+{
+  background-color: #CAD9EE;
+  height: auto;
+  border: 1px solid;
+  padding: 1px;
+}
+
+div.helpBox3i{
+  background-color: #CAD9EE;
+  margin-left: 10px;
+  max-width: 300px;
+  position: absolute;
+  display: inline-block;
+  border: 1px solid;
+  z-index:10000;
+}
+
+.a1 a, .a2 a, .a3 a, .a0 a {
+  text-decoration: none;
+}
+
+.a1	{ border:2px solid transparent; }
+.a2	{ border:2px outset #FFFFFF; cursor: hand; }
+.a3	{ border:2px inset #FFFFFF; }
+.a0 { border:3px solid transparent;}
+.a5	{ border:3px outset #FFFFFF; cursor: hand; }
+.a6	{ border:3px inset #FFFFFF; }
+
+table.key {
+  background-color: #CAD9DD;
+  text-align: center;
+  color: #000080;
+}
+
+table.key td.taxon {text-align: left;}
+table.key td.image {vertical-align: top;}
+
