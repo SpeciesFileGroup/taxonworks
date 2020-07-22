@@ -57,6 +57,7 @@
     </nav-bar>
     <recent-component
       v-if="showRecent"
+      @select="setCollectingEvent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
       <collecting-event-form class="full_width"/>
@@ -67,22 +68,29 @@
 
 <script>
 
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
+import { RouteNames } from 'routes/routes'
+
 import RecentComponent from './components/Recent'
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import GetOSKey from 'helpers/getMacKey'
+import SetParam from 'helpers/setParam'
 
 import PinComponent from 'components/pin'
-
-import { GetUserPreferences } from './request/resources'
-import { GetterNames } from './store/getters/getters'
-import { MutationNames } from './store/mutations/mutations'
-
 import RightSection from './components/RightSection'
 import NavBar from 'components/navBar'
 
 import collectingEventForm from './components/CollectingEventForm'
+
+import {
+  GetCollectingEvent,
+  GetUserPreferences,
+  CreateCollectingEvent,
+  UpdateCollectingEvent
+} from './request/resources'
 
 export default {
   components: {
@@ -129,8 +137,25 @@ export default {
     reset () {
       // this.$store.dispatch(ActionNames.ResetApp)
     },
+    loadCollectingEvent (id) {
+      GetCollectingEvent(id).then(response => {
+        this.setCollectingEvent(response.body)
+        SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', id)
+      })
+    },
+    setCollectingEvent (ce) {
+      this.collectingEvent = ce
+    },
     saveCollectingEvent () {
-      // this.$store.dispatch(ActionNames.SaveCollectingEvent)
+      if (this.collectingEvent.id) {
+        UpdateCollectingEvent(this.collectingEvent).then(response => {
+          this.collectingEvent = response.body
+        })
+      } else {
+        CreateCollectingEvent(this.collectingEvent).then(response => {
+          this.collectingEvent = response.body
+        })
+      }
     },
     getOSKey: GetOSKey
   }
