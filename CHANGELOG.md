@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Columns size of georeference table [#1622]
 - Webpacker host and port bind on docker container
 - Wrong taxon name relationship soft validation message for genera
+- Seeing OTUs in Recent that do not belong to project [#1626]
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#934]: https://github.com/SpeciesFileGroup/taxonworks/issues/934
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
 [#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
 [#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
+[#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1626
 
 ## [0.12.11] - 2020-07-14
 
