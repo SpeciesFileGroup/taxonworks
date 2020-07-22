@@ -13,7 +13,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Moved taxon name input search to right column in new taxon name
 
+### Fixed
+- Modal confirmation its not displaying in manage synonyms section [#1627]
+
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
+[#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
 
 ## [0.12.12] - 2020-07-22
 
