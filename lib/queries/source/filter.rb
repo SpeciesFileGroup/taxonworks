@@ -45,6 +45,10 @@ module Queries
       attr_accessor :citations
 
       # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
+
+      # @return [Boolean, nil]
       # @params roles ['true', 'false', nil]
       attr_accessor :roles
 
@@ -98,6 +102,7 @@ module Queries
         @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
         @year_end = params[:year_end]
         @year_start = params[:year_start]
+        @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
 
         build_terms
         set_identifier(params)
@@ -342,6 +347,8 @@ module Queries
         else
           q = ::Source.all
         end
+
+        q = q.order(updated_at: :desc) if recent
         q
       end
 

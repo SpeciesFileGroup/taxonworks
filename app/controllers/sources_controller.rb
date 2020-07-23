@@ -230,6 +230,7 @@ class SourcesController < ApplicationController
       :namespace_id,
       :nomenclature,
       :notes,
+      :per,
       :project_id,
       :query_term,
       :recent, 
