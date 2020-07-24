@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrices in radial object [#1527]
 - Comprehensive task to taxon name radial [#934]
 - Map on OTU radial in asserted distribution form [#856]
+- Pin objects from list in filter sources
 
 ### Changed
 - Cleanup and add spec basis for nomenclature tabular stats queries  
