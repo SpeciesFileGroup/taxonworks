@@ -42,6 +42,11 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetCollectingEvent)
       }
+    },
+    collectingEventId: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectingEvent].id
+      }
     }
   },
   watch: {

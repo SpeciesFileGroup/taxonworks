@@ -13,6 +13,9 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    collectingEventId () {
+      return this.collectingEvent.id
     }
   }
 }

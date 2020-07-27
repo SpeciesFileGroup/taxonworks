@@ -15,6 +15,7 @@ import Group from '../components/parsed/Group.vue'
 import Time from '../components/parsed/Time.vue'
 import TripCode from '../components/parsed/TripCode.vue'
 import Predicates from '../components/parsed/Predicates.vue'
+import Georeferences from '../components/parsed/georeferences/georeferences.vue'
 
 import MapComponent from '../components/map/Map.vue'
 import Depictions from '../components/map/Depictions.vue'
@@ -34,6 +35,7 @@ const ComponentVerbatim = {
 
 const ComponentParse = {
   GeographicArea: 'GeographicArea',
+  Georeferences: 'Georeferences',
   Dates: 'Dates',
   Elevation: 'Elevation',
   Time: 'Time',
@@ -62,6 +64,7 @@ const VueComponents = {
   [ComponentParse.Dates]: Dates,
   [ComponentParse.Elevation]: Elevation,
   [ComponentParse.GeographicArea]: GeographicArea,
+  [ComponentParse.Georeferences]: Georeferences,
   [ComponentParse.Group]: Group,
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
