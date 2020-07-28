@@ -41,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Modal confirmation its not displaying in manage synonyms section [#1627]
 - Manage synonyms includes combinations [#1628]
 - Recent and per params in source filter and controller
+- Missing ZIP dependency for docker images
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
