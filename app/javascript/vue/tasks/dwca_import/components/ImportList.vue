@@ -27,16 +27,13 @@
 <script>
 
 import { GetImports } from '../request/resources'
+import ImportColors from '../const/importColors'
 
 export default {
   data () {
     return {
       imports: [],
-      colors: {
-        Errored: 'red',
-        Imported: 'green',
-        Unsupported: 'brown'
-      }
+      colors: ImportColors
     }
   },
   mounted () {

@@ -7,15 +7,6 @@
     <h1>DwC-A Workbench</h1>
     <template v-if="table">
       <div class="position-relative">
-        <transition name="bounce">
-          <div
-            v-if="isProcessing"
-            class="show-import-process panel">
-            <spinner-component
-              legend="Importing rows... please wait."
-            />
-          </div>
-        </transition>
         <navbar-component
           :pagination="pagination"
           :rows-count="table.rows.length"
@@ -177,6 +168,5 @@ export default {
         display: flex;
       }
     }
-    
   }
 </style>
