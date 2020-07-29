@@ -3,7 +3,11 @@
     <div
       v-for="(value, key) in progress"
       :key="key"
-      :style="{ backgroundColor: colors[key], width: `${getPorcent(progress.Imported)}%` }"/>
+      :style="{
+        backgroundColor: colors[key],
+        height: '10px',
+        width: `${getPorcent(value)}%`
+      }"/>
   </div>
 </template>
 
