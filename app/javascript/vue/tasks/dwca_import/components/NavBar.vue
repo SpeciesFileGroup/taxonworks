@@ -8,27 +8,20 @@
     }">
     <div class="flex-separate middle">
       <div>
-        <span>{{ rowsCount }} of {{ pagination.total }} records.</span>
+        <span v-if="pagination">{{ datasetRecords.length }} of {{ pagination.total }} records.</span>
       </div>
       <div>
         <button
           class="button normal-input button-default margin-small-right"
-          :disabled="disabled"
-          @click="$emit('select')">
+          @click="selectAll">
           Select all
         </button>
         <button
-          :disabled="disabled"
           class="button normal-input button-default margin-small-right"
-          @click="$emit('unselect')">
+          @click="unselectAll">
           Unselect all
         </button>
-        <button
-          @click="$emit('import')"
-          :disabled="disabled"
-          class="button normal-input button-submit">
-          Import
-        </button>
+        <import-modal/>
       </div>
     </div>
   </navbar-component>
@@ -37,23 +30,32 @@
 <script>
 
 import NavbarComponent from 'components/navBar'
+import ImportModal from './ImportModal'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
-    NavbarComponent
+    NavbarComponent,
+    ImportModal
   },
-  props: {
-    pagination: {
-      type: Object,
-      default: undefined
+  computed: {
+    pagination () {
+      return this.$store.getters[GetterNames.GetPagination]
     },
-    disabled: {
-      type: Boolean,
-      default: false
+    dataset () {
+      return this.$store.getters[GetterNames.GetDataset]
     },
-    rowsCount: {
-      type: [String, Number],
-      default: 0
+    datasetRecords () {
+      return this.$store.getters[GetterNames.GetDatasetRecords]
+    }
+  },
+  methods: {
+    selectAll () {
+      this.$store.commit(MutationNames.SetSelectedRowIds, this.datasetRecords.filter(row => row.status === 'Ready').map(row => row.id))
+    },
+    unselectAll () {
+      this.$store.commit(MutationNames.SetSelectedRowIds, [])
     }
   }
 }

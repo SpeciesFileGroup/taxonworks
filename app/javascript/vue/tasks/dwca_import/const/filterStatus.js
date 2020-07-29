@@ -1,3 +1,3 @@
 export default () => {
-  return ['Errored', 'Imported', 'Not Ready', 'Ready']
+  return ['Errored', 'Imported', 'NotReady', 'Ready']
 }

@@ -1,35 +1,48 @@
 <template>
   <div>
     <button
-      @click="$emit('import')"
-      :disabled="disabled"
-      class="button normal-input button-submit">
+      @click="setModalView(true)"
+      class="button normal-input button-default">
       Import
     </button>
     <modal-component
+      v-if="showModal"
+      @close="stopImport(); setModalView(false)"
       :container-style="{
         width: '700px'
       }">
-      <h3>Import dataset</h3>
+      <h3 slot="header">Import dataset</h3>
       <div slot="body">
-        <div>
-          <transition name="bounce">
-            <div
-              v-if="isProcessing"
-              class="show-import-process panel">
-              <spinner-component
-                legend="Importing rows... please wait."
-              />
-            </div>
-          </transition>
-        </div>
+        <transition name="bounce">
+          <div
+            v-if="settings.isProcessing"
+            style="height: 200px">
+            <spinner-component
+              legend="Importing rows... please wait."
+            />
+          </div>
+        </transition>
+        <progress-bar :progress="dataset.progress"/>
+        <progress-list
+          class="no_bullets context-menu"
+          :progress="dataset.progress"/>
+      </div>
+      <template slot="footer">
         <button
+          v-if="settings.isProcessing"
           type="button"
           class="button normal-input button-default margin-medium-top"
-          @click="processImport">
+          @click="stopImport">
           Cancel
         </button>
-      </div>
+        <button
+          v-else
+          type="button"
+          class="button normal-input button-submit"
+          @click="startImport">
+          Start import
+        </button>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -37,32 +50,48 @@
 <script>
 
 import ModalComponent from 'components/modal'
+import SpinnerComponent from 'components/spinner'
+import ProgressBar from './ProgressBar'
+import ProgressList from './ProgressList'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    ModalComponent
+    SpinnerComponent,
+    ModalComponent,
+    ProgressBar,
+    ProgressList
+  },
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    },
+    dataset () {
+      return this.$store.getters[GetterNames.GetDataset]
+    }
   },
   data () {
     return {
-      isProcessing: false
+      showModal: false
     }
   },
   methods: {
-    processImport () {
-      this.isProcessing = true
-      ImportRows(this.importId).then(response => {
-        if (response.body.results.length) {
-          response.body.results.forEach(row => {
-            this.updateRow(row)
-          })
-          //this.processImport()
-        } else {
-          this.isProcessing = false
-        }
-      }, () => {
-        this.isProcessing = false
-      })
+    setModalView (value) {
+      this.showModal = value
     },
+    startImport (value) {
+      this.$store.dispatch(ActionNames.ProcessImport)
+    },
+    stopImport () {
+      this.settings.isProcessing = false
+    }
   }
 }
 </script>

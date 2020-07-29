@@ -9,10 +9,19 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
-    importId: undefined,
-    import: undefined,
+    settings: {
+      isLoading: false,
+      isProcessing: false
+    },
+    paramsFilter: {
+      filter: {},
+      status: []
+    },
+    dataset: {},
+    datasetRecords: [],
     selectedRowIds: [],
-    table: undefined
+    table: undefined,
+    pagination: undefined
   }
 }
 

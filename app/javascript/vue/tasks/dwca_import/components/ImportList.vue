@@ -10,15 +10,12 @@
         <h3>{{ item.description }}</h3>
         <span class="subtle">{{ item.type }}</span>
         <hr class="line full_width">
-
-        <ul class="no_bullets">
-          <li
-            class="flex-separate"
-            v-for="(property) in Object.keys(item.progress).sort()"
-            :key="property">
-            {{ property }}: <b :class="colors[property]">{{ item.progress[property] }}</b>
-          </li>
-        </ul>
+        <progress-bar
+          class="full_width"
+          :progress="item.progress"/>
+        <progress-list
+          class="no_bullets"
+          :progress="item.progress"/>
       </div>
     </div>
   </div>
@@ -26,14 +23,18 @@
 
 <script>
 
-import { GetImports } from '../request/resources'
-import ImportColors from '../const/importColors'
+import { GetImports } from '../request/resources.js'
+import ProgressBar from './ProgressBar.vue'
+import ProgressList from './ProgressList'
 
 export default {
+  components: {
+    ProgressBar,
+    ProgressList
+  },
   data () {
     return {
-      imports: [],
-      colors: ImportColors
+      imports: []
     }
   },
   mounted () {

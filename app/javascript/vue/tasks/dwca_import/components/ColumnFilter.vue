@@ -59,6 +59,7 @@
 <script>
 
 import Autocomplete from 'components/autocomplete'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -72,10 +73,6 @@ export default {
     value: {
       type: String,
       default: undefined
-    },
-    importId: {
-      type: [String, Number],
-      required: true
     },
     disabled: {
       type: Boolean,
@@ -97,6 +94,9 @@ export default {
     },
     applied () {
       return this.value
+    },
+    importId () {
+      return this.$store.getters[GetterNames.GetDataset].id
     }
   },
   data () {

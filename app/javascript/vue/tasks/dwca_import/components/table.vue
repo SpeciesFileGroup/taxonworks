@@ -11,26 +11,21 @@
             class="position-sticky margin-medium-left"
             v-model="params.status"/>
           <column-filter
-            v-for="(item, index) in table.headers"
+            v-for="(item, index) in datasetHeaders"
             :key="index"
             :title="item"
             :disabled="disabled"
             class="position-sticky margin-medium-left"
-            :import-id="importId"
             v-model="params.filter[item]"
             :field="index"/>
         </tr>
       </thead>
       <tbody>
         <row-component
-          v-for="(row, index) in table.rows"
+          v-for="(row, index) in datasetRecords"
           class="contextMenuCells"
           :class="{ 'even': (index % 2 == 0) }"
-          :id="row.id"
-          :row="row"
-          @onUpdate="updateRow"
-          v-model="selectedIds"
-          :import-id="importId"/>
+          :row="row"/>
       </tbody>
     </table>
   </div>
@@ -38,10 +33,13 @@
 
 <script>
 
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
+
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
 import StatusFilter from './StatusFilter'
-import FilterStatus from '../const/filterStatus'
 
 export default {
   components: {
@@ -50,56 +48,38 @@ export default {
     StatusFilter
   },
   props: {
-    table: {
-      type: Object,
-      required: true
-    },
-    importId: {
-      type: [String, Number],
-      required: true
-    },
     disabled: {
       type: Boolean,
       default: false
-    },
-    value: {
-      type: Array,
-      required: true
     }
   },
   computed: {
-    selectedIds: {
+    params: {
       get () {
-        return this.value
+        return this.$store.getters[GetterNames.GetParamsFilter]
       },
       set (value) {
-        this.$emit('input', value)
+        this.$store.commit(MutationNames.SetParamsFilter, value)
       }
+    },
+    datasetHeaders () {
+      return this.$store.getters[GetterNames.GetDataset].metadata.core_headers
+    },
+    datasetRecords () {
+      return this.$store.getters[GetterNames.GetDatasetRecords]
     }
   },
   data () {
     return {
-      params: {
-        filter: {},
-        status: FilterStatus()
-      },
       isProcessing: false
     }
   },
   watch: {
     params: {
-      handler (newVal) {
-        if(newVal.status.length === FilterStatus().length) {
-          newVal.status = []
-        }
-        this.$emit('onParams', newVal)
+      handler () {
+        this.$store.dispatch(ActionNames.LoadDatasetRecords)
       },
       deep: true
-    }
-  },
-  methods: {
-    updateRow (row) {
-      this.$emit('onUpdateRow', row)
     }
   }
 }

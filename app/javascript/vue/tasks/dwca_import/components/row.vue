@@ -2,7 +2,7 @@
   <tr>
     <td>
       <input
-        v-model="ids"
+        v-model="selectedIds"
         :disabled="!isReady"
         :value="row.id"
         type="checkbox">
@@ -13,7 +13,6 @@
       :key="index"
       :cell="data_field.value"
       :cell-index="index"
-      :import-id="importId"
       @update="updateRecord"/>
   </tr>
 </template>
@@ -22,7 +21,9 @@
 
 import ImportRowState from './ImportRowState'
 import CellComponent from './Cell'
-import { UpdateRow } from '../request/resources'
+import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
@@ -33,23 +34,15 @@ export default {
     row: {
       type: Object,
       required: true
-    },
-    importId: {
-      type: [String, Number],
-      required: true
-    },
-    value: {
-      type: Array,
-      required: true
     }
   },
   computed: {
-    ids: {
+    selectedIds: {
       get () {
-        return this.value
+        return this.$store.getters[GetterNames.GetSelectedRowIds]
       },
       set (value) {
-        this.$emit('input', value)
+        this.$store.commit(MutationNames.SetSelectedRowIds, value)
       }
     },
     isReady () {
@@ -58,9 +51,7 @@ export default {
   },
   methods: {
     updateRecord (data) {
-      UpdateRow(this.importId, this.row.id, { data_fields: JSON.stringify(data) }).then(response => {
-        this.$emit('onUpdate', response.body)
-      })
+      this.$store.dispatch(ActionNames.UpdateRow, { rowId: this.row.id, data_fields: JSON.stringify(data) })
     }
   }
 }
