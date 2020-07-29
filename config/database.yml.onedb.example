@@ -1,0 +1,33 @@
+#
+# This example is for development only.
+# See config/docker/database.yml.erb for a potential production example.
+#
+development:
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_development 
+    username: taxonworks_development
+    password:
+  #  host: db
+  onedb:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: onedb_development 
+    username: taxonworks_development
+    password:
+    migrations_paths: db/onedb_migrate
+  #  host: db
+test: 
+  adapter: postgis
+  encoding: utf8 
+  postgis_extension: true
+  pool: 5
+  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+  username: taxonworks_development 
+  password:
+#  host: db
