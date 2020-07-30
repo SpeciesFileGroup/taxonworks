@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Map on OTU radial in asserted distribution form [#856]
 - Pin objects from list in filter sources
 - Checkbox to make document public on list in radial annotator
+- Title legend for "make default" icon in pinboard slide
 
 ### Changed
 - Cleanup and add spec basis for nomenclature tabular stats queries  
