@@ -9,7 +9,7 @@ class SF::Taxon < SpeciesFileRecord
   belongs_to :original_genus, class_name: 'SF::Taxon', foreign_key: 'OriginalGenusID', optional: true
 
   has_many :children, class_name: 'SF::Taxon', foreign_key: 'AboveID'
-  has_many :citations, class_name: 'SF::Cite', foreign_key: 'TaxonNameID'
+  has_many :citations, -> { order(:SeqNum) }, class_name: 'SF::Cite', foreign_key: 'TaxonNameID' # NOTE: order is overriden by (non-conflicting) SF::Cite default scope
 
   belongs_to :creator, class_name: 'SF::FileUser', foreign_key: 'CreatedBy'
   belongs_to :updater, class_name: 'SF::FileUser', foreign_key: 'ModifiedBy'
