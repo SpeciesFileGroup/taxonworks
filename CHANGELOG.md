@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pin objects from list in filter sources
 - Checkbox to make document public on list in radial annotator
 - Title legend for "make default" icon in pinboard slide
+- Checkbox to alternative between AND/OR filter for authors in filter sources
 
 ### Changed
 - Cleanup and add spec basis for nomenclature tabular stats queries  
