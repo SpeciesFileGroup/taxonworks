@@ -24,6 +24,9 @@ module Queries
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
 
+      # @params author [Boolean, nil]
+      attr_accessor :author_ids_or
+
       # @params author [Array of Integer, Topic#id]
       attr_accessor :topic_ids
 
@@ -86,6 +89,9 @@ module Queries
         
         @author = params[:author]
         @author_ids = params[:author_ids] || []
+
+        @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
+
         @topic_ids = params[:topic_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
@@ -169,7 +175,12 @@ module Queries
         )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(author_ids)
+   
+        if author_ids_or 
+          f = c[:person_id].eq_any(author_ids)
+        else
+          f = c[:person_id].eq_all(author_ids)
+        end
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
