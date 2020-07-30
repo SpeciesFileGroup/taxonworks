@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Checkbox to make document public on list in radial annotator
 - Title legend for "make default" icon in pinboard slide
 - Checkbox to alternative between AND/OR filter for authors in filter sources
+- Lep staged 2 layout for staged images [#1635]
 
 ### Changed
 - Cleanup and add spec basis for nomenclature tabular stats queries  
@@ -57,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
 [#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
 [#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+[#1635]: https://github.com/SpeciesFileGroup/taxonworks/issues/1635
 
 ## [0.12.12] - 2020-07-22
 
