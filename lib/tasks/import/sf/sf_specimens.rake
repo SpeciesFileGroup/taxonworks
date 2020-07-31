@@ -102,6 +102,18 @@ namespace :tw do
           no_geo_area = 0
           no_source = 0
 
+          ## Create unspecified primary type confidence for each project
+
+          unspecified_primary_type_confidence_level = {}
+
+          Project.all.each do |project|
+            unspecified_primary_type_confidence_level[project.id] = ConfidenceLevel.create!(
+              name: "Unspecified primary type",
+              definition: "Originally recorded as unspecified primary type, now forced to syntype(s)",
+              project: project
+            )
+          end
+
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
             next if excluded_taxa.include? row['TaxonNameID']
@@ -426,12 +438,12 @@ namespace :tw do
 
               # This outer loop loops through total, category pairs, we create
               # a new collection object for each pair
+
               (get_specimen_category_counts[specimen_id] || { nil => 1 }).each do |specimen_category_id, count|
 
                 count = 1 if count_override # is true (applies only to zero-count specimens with primary types except syntypes [=ranged_lot])
 
                 co_params = metadata.merge(
-                  total: count,
                   ranged_lot_category_id: ranged_lot_category_id,
                   collecting_event_id: collecting_event_id,
                   repository_id: repository_id,
@@ -446,6 +458,7 @@ namespace :tw do
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
                 )
+                co_params.merge!({ total: count }) unless ranged_lot_category_id
 
                 co_params.merge!({
                   biocuration_classifications_attributes: [{biocuration_class_id: get_biocuration_class_id[specimen_category_id.to_s], project_id: project_id}]
@@ -642,11 +655,11 @@ namespace :tw do
                     end
 
                     type_kind_id = identification['type_kind_id'].to_i # exclude TypeKindID = undefined (0) and unknown (6)
-                    if [1, 2, 3, 4, 8, 10].include? type_kind_id
+                    if [1, 2, 3, 4, 5, 7, 8, 10].include? type_kind_id
                       type_kind = case type_kind_id
                                   when 1
                                     'holotype'
-                                  when 2
+                                  when 2, 5
                                     if o.total == 1
                                       'syntype'
                                     else
@@ -656,7 +669,7 @@ namespace :tw do
                                     'neotype'
                                   when 4
                                     'lectotype'
-                                  when 8
+                                  when 7, 8
                                     if o.total == 1
                                       'paratype'
                                     else
@@ -670,13 +683,19 @@ namespace :tw do
                                     end
                                   end
 
-                      TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
+                      type_material = TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
                                            collection_object: o, # = collection_object/biological_collection_object
                                            type_type: type_kind,
                                            project_id: project_id)
-                      # puts "type_material created for '#{type_kind}'"
 
-                    elsif [5, 7, 9].include? type_kind_id
+                      Confidence.create!(confidence_object: type_material,
+                                         confidence_level: unspecified_primary_type_confidence_level[project_id.to_i],
+                                         project_id: project_id) if type_kind_id == 5
+
+                      # puts "type_material created for '#{type_kind}'"
+                    end
+
+                    if [5, 7, 9].include? type_kind_id
                       # create a data_attribute
                       type_kind = case type_kind_id
                                   when 5
