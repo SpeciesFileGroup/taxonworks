@@ -19,6 +19,21 @@ class InteractiveKey
   #optional attribute to provide a list of rowIDs to limit the set "1|5|10"
   attr_accessor :row_filter
 
+  #optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized', a default
+  attr_accessor :sorting
+
+  #optional attribute to eliminate taxa with not scored descriptors
+  attr_accessor :eliminate_unknown
+
+  #optional attribute number of allowed erros during identification
+  attr_accessor :error_tolerance
+
+  #limit identification to a particular nomenclatural rank 'genus', 'species', 'otu'
+  attr_accessor :identified_to_rank
+
+  #optional attribute: descriptors and states selected during identification
+  attr_accessor :selected_descriptors
+
 
 
   #returns the list of Languages used as translations for descriptors
@@ -39,7 +54,22 @@ class InteractiveKey
   #list of rows to be included into the matrix
   attr_accessor :rows_with_filter
 
-  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil, row_filter: nil)
+  #return the list of descriptors with selections
+  attr_accessor :used_descriptors
+
+  #return the list of useful descriptors
+  attr_accessor :useful_descriptors
+
+  #return the list of descriptors not useful for identification
+  attr_accessor :not_useful_descriptors
+
+  #list of remaining rows
+  attr_accessor :remaining
+
+  #list of eliminated rows
+  attr_accessor :eliminated
+
+  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil, row_filter: nil, sorting: 'optimized', error_tolerance: 0, identified_to_rank: nil, eliminate_unknown: nil, selected_descriptors: nil)
     raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -52,6 +82,16 @@ class InteractiveKey
     @descriptors_with_filter = descriptors_with_keywords
     @row_filter = row_filter
     @rows_with_filter = rows_with_filter
+    @sorting = sorting
+    @error_tolerance = error_tolerance
+    @eliminate_unknown = eliminate_unknown
+    @identified_to_rank = identified_to_rank
+    @selected_descriptors = selected_descriptors
+    @used_descriptors ###
+    @useful_descriptors ####
+    @not_useful_descriptors ####
+    @remaining ###
+    @eliminated ###
   end
 
   def observation_matrix
@@ -59,7 +99,11 @@ class InteractiveKey
   end
 
   def descriptors
-    observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order(:position)
+    if @sorting = 'weighted'
+      observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order('descriptors.weight DESC, descriptors.position')
+    else
+      observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order(:position)
+    end
   end
 
   def descriptor_available_languages
@@ -96,7 +140,8 @@ class InteractiveKey
   end
 
   def rows
-    ObservationMatrixRow.where(observation_matrix_id: @observation_matrix_id)
+    observation_matrix.reorder_rows(by = 'nomenclature')
+#    ObservationMatrixRow.where(observation_matrix_id: @observation_matrix_id)
   end
 
   def rows_with_filter
@@ -105,12 +150,43 @@ class InteractiveKey
     else
       rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|'))
     end
-
   end
 
-  def descriptor_import_predicate
-    ###TODO import_attribute 'char_weight' exclude characters with weight == 0
+  def row_hash
+    h = {}
+    rows_with_filter.each do |r|
+      h[r.id] = {}
+      h[r.id][:object] = r
+      if @identified_to_rank == 'otu'
+        h[r.id][:object_at_rank] = r.current_otu || r
+      elsif @identified_to_rank
+        h[r.id][:object_at_rank] = r.current_taxon_name.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+      else
+        h[r.id][:object_at_rank] = r
+      end
+      h[r.id][:errors] = 0
+    end
+    h
   end
+
+  def descriptors_hash
+    h = {}
+    descriptors_with_keywords.each do |d|
+      h[d.id] = {}
+      h[d.id][:descriptor] = d
+      h[d.id][:states] = {}
+      h[d.id][:observations] = {}
+    end
+    @observation_matrix.observations.each do |o|
+      if h[o.descriptor_id]
+        h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] = [] if h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s].nil?
+        h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] += [o]
+        h[o.descriptor_id][:states][o.character_state_id] = {} if o.character_state_id
+      end
+    end
+    h
+  end
+
 
   def observations
     # id
@@ -133,7 +209,19 @@ class InteractiveKey
     ### types: Qualitative(char_states); Presence absence; Quantitative (single measurement); Sample (min, max); Free text
   end
 
-  # rst = All characters ordered by Characters.Weight DESC, Characters.Char, State.State"
+
+=begin
+  not numeric
+  weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
+
+  numeric for each measurement for a particular species
+                                 i = max - min ; if 0 then (numMax - numMin) / 10
+                                 sum of all i
+                                 if numMax = numMin then numMax = numMax + 0.00001
+                                 weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
+=end
+
+                                                                                                                                                    # rst = All characters ordered by Characters.Weight DESC, Characters.Char, State.State"
   # rst2 = List of all taxa from the key ordered by hiercode
   # filter = taxa with specic IDs
   # list of used states
