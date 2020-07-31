@@ -7,10 +7,14 @@
       margin: '0px'
     }">
     <div class="flex-separate middle">
-      <div>
+      <div class="half_width">
         <span v-if="pagination">{{ datasetRecords.length }} of {{ pagination.total }} records.</span>
       </div>
-      <div>
+      <div class="full_width">
+        <progress-bar class="full_width" :progress="dataset.progress"/>
+        <progress-list class="context-menu" :progress="dataset.progress"/>
+      </div>
+      <div class="horizontal-right-content half_width">
         <button
           class="button normal-input button-default margin-small-right"
           @click="selectAll">
@@ -33,11 +37,15 @@ import NavbarComponent from 'components/navBar'
 import ImportModal from './ImportModal'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import ProgressBar from './ProgressBar'
+import ProgressList from './ProgressList'
 
 export default {
   components: {
     NavbarComponent,
-    ImportModal
+    ImportModal,
+    ProgressBar,
+    ProgressList
   },
   computed: {
     pagination () {
