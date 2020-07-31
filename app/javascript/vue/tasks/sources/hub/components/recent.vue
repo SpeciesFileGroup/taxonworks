@@ -28,7 +28,9 @@
           </td>
           <td> {{ item.year }} </td>
           <td>
-            <citations-count :source-id="item.id"/>
+            <div>
+              <citations-count :source-id="item.id"/>
+            </div>
           </td>
           <td>
             <documents-component :source-id="item.id"/>

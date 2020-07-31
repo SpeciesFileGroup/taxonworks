@@ -24,6 +24,7 @@ RUN apt-get update && \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
+      zip \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 

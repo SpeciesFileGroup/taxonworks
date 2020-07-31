@@ -299,16 +299,16 @@ class Otu < ApplicationRecord
 
     z = i.as('recent_t')
 
-    j = case used_on
+    case used_on
         when 'BiologicalAssociation' 
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+          j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
             z['biological_association_object_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
+          j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
         end
 
-    Otu.pluck(:id).uniq
+    Otu.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'

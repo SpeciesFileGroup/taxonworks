@@ -444,14 +444,6 @@ index_dashboard_task:
     - matrix
   status: prototype
   description: 'Summarize observations across a nomenclaturally-based hierarchy.'
-interactive_key_task:
-  hub: true
-  name: 'Interactive key'
-  related:
-  categories:
-    - matrix
-  status: prototype
-  description: 'Interactive key based on an observation matrix.'
 index_stats_task:
   hub: true
   name: 'Nomenclature stats'

@@ -25,6 +25,7 @@ RUN apt-get update && \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
+                       zip \
                        nodejs && \
                        apt clean && \
                        rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*

@@ -10,9 +10,9 @@ module PinboardItemsHelper
 
   def insert_pinboard_item_link(pinboard_item)
     if pinboard_item.is_inserted
-      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), class: ['circle-button', 'button-pinboard-default', 'button-delete', 'option-default'], method: :put, remote: true ) 
+      link_to('Disable default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: false}), title: 'Disable default', class: ['circle-button', 'button-pinboard-default', 'button-delete', 'option-default'], method: :put, remote: true ) 
     else
-      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), class: ['circle-button', 'button-pinboard-default','button-submit', 'option-default'], method: :put, remote: true )
+      link_to('Make default', pinboard_item_path(pinboard_item, pinboard_item: {is_inserted: true}), title: 'Make default', class: ['circle-button', 'button-pinboard-default','button-submit', 'option-default'], method: :put, remote: true )
     end
   end
 
