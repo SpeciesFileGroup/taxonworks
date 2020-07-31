@@ -20,7 +20,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
 
   let(:query) { Queries::TaxonName::Tabular.new }
 
-  specify '#column_headers: nomenclatural_stats' do
+  xspecify '#column_headers: nomenclatural_stats' do
     query.ancestor_id = genus.id.to_s
     query.ranks = ['genus', 'species']
     query.rank_data =  ['genus', 'species']
@@ -47,7 +47,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     expect(query.column_headers.include? 'descriptors_scored').to be_falsey
   end
 
-  specify '#column_headers: observations' do
+  xspecify '#column_headers: observations' do
     query.ancestor_id = genus.id.to_s
     query.ranks = ['genus', 'species']
     query.rank_data =  ['genus', 'species']
@@ -72,7 +72,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     expect(query.column_headers.include? 'descriptors_scored').to be_truthy
   end
 
-  specify '#number_of_species: nomenclature stats' do
+  xspecify '#number_of_species: nomenclature stats' do
     query.ancestor_id = genus.id.to_s
     query.ranks = ['genus', 'species']
     query.rank_data =  ['genus', 'species']
@@ -109,7 +109,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     expect(query.all[2]['combination']).to eq(1)
   end
 
-  specify '#number_of_species: nomenclature stats: unavailable' do
+  xspecify '#number_of_species: nomenclature stats: unavailable' do
     # all TN with the TaxonNameClassification in the array: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
     # should be excluded from counting of valid names.
     tc = TaxonNameClassification.create!(taxon_name: species1, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
@@ -133,7 +133,7 @@ describe Queries::TaxonName::Tabular, type: :model, group: [:nomenclature] do
     expect(query.all[0]['combination']).to eq(1)
   end
 
-  specify '#number_of_species: observations' do
+  xspecify '#number_of_species: observations' do
     observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
     observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
     observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu1)
