@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lep staged 2 layout for staged images [#1635]
 
 ### Changed
+- Use amazing_print instead of awesome_print gem
 - Cleanup and add spec basis for nomenclature tabular stats queries  
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
