@@ -32,7 +32,7 @@ namespace :tw do
           # get_sf_taxon_name_authors = import.get('SFRefIDToTaxonNameAuthors') # contains ordered array of SF.PersonIDs
           ref_id_containing_id_hash = import.get('RefIDContainingHash')
 
-          path = @args[:data_directory] + 'tblCites.txt'
+          path = @args[:data_directory] + 'sfCites.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
           count_found = 0
@@ -480,11 +480,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
 
           cites_id_done = {}
+          missing_cites = []
           ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
  #           ['species',  'synonym'].each do |rank_pass|
 
-            path = @args[:data_directory] + 'tblCites.txt'
-            print "\ntblCites.txt Working on: #{rank_pass}\n"
+            path = @args[:data_directory] + 'sfCites.txt'
+            print "\nsfCites.txt Working on: #{rank_pass}\n"
             raise "file #{path} not found" if not File.exists?(path)
             file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
 
@@ -517,11 +518,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               if excluded_taxa.include? row['TaxonNameID']
                 cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "EXCLUDED_TAXA"]
                 next
               end
 
               if skipped_file_ids.include? row['FileID'].to_i
                 cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "EXCLUDED_FILE_ID"]
                 next
               end
 
@@ -538,6 +541,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   logger.info "SF.TaxonNameID = #{row['TaxonNameID']} added to otu_not_found_array (otu_not_found_counter = #{otu_not_found_counter += 1})"
                 end
                 cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "TAXON_NOT_IMPORTED"]
                 next
               end
 
@@ -546,6 +550,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 source_id = get_tw_source_id[ref_id_containing_id_hash[row['RefID']]].to_i
                 if source_id == 0
                   cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                  missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SOURCE_MISSING"]
                   logger.error "RefID = #{row['RefID']} not mapped to TW source"
                   next
                 end
@@ -823,6 +828,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
 
               cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
               if source_id.nil?
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "NO_SOURCE"]
                 next
               elsif !citation.nil? && citation.pages.blank? && orig_desc_source_id != [source_id, protonym.id]
                 orig_desc_source_id = [source_id, protonym.id] # prevents duplicate citation to same source being processed as original description
@@ -926,12 +932,13 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['subgenus']
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && protonym.original_genus.nil?
                 end
-                protonym.save
+                protonym.save!
                 #string = [project_id, protonym.original_genus.try(:name), protonym.original_subgenus.try(:name), protonym.original_species.try(:name), protonym.original_subspecies.try(:name), protonym.original_variety.try(:name), protonym.original_form.try(:name)].compact.join('_')
                 tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
                 next
               elsif nomenclator_id == '0'
                 # no nomenclator data.
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "NO_NOMENCLATOR"]
               elsif citation_on_otu || new_protonym
                               # just create another citation
               elsif tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s]
@@ -951,7 +958,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                         protonym = p
                         taxon_name_id = p.id
                       end
-                      citation = Citation.create(
+                      citation = Citation.create!(
                           source_id: source_id,
                           pages: row['CitePages'],
                           citation_object: tr,
@@ -974,7 +981,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
                     tr = TaxonNameRelationship.find_or_create_by(object_taxon_name_id: p.id, subject_taxon_name_id: protonym.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                   end
-                  citation = Citation.create(
+                  citation = Citation.create!(
                       source_id: source_id,
                       pages: row['CitePages'],
                       citation_object: tr,
@@ -1043,6 +1050,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 p.save
                 if p.id.nil?
                   cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
+                  missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "PROTONYM_SAVE_FAILED"]
                   next
                 end
 
@@ -1056,7 +1064,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p1.id).first
 
                   tr = TaxonNameRelationship.create(subject_taxon_name_id: protonym.id, object_taxon_name_id: p1.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id) if tr.nil?
-                      citation = Citation.create(
+                      citation = Citation.create!(
                           source_id: source_id,
                           pages: row['CitePages'],
                           citation_object: tr,
@@ -1111,7 +1119,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 )
 
                 begin
-                  citation.save
+                  citation.save!
                   if !qualifier_string.blank? && !citation.id.nil?
                     n = citation.notes.create(text: 'Cited as ' + qualifier_string, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                   end
@@ -1158,20 +1166,24 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   # yes I know this is ugly but it works
                   if citation.errors.messages[:source_id].nil?
                     logger.error "Citation ERROR [TW.project_id: #{project_id}, citation_object #{use_this_object_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, otu_id #{otu_id}, SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                    missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "CITATION_SAVE_FAILED"]
                     next
                   else # make pages unique and save again
                     if citation.errors.messages[:source_id].include?('has already been taken') # citation.errors.messages[:source_id][0] == 'has already been taken'
                       citation.pages = "#{row['CitePages']} [dupl #{row['SeqNum']}"
                       begin
                       #  citation.save # - looks ugly
+                      missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SOURCE_ALREADY_TAKEN"] # If line above gets uncommented this one must be commented
                       rescue ActiveRecord::RecordInvalid
                         # [ERROR]2018-03-30 17:09:43.127: Citation ERROR [TW.project_id: 11, SF.TaxonNameID 1152999 = TW.taxon_name_id 47338, SF.RefID 16047 = TW.source_id 12047, SF.SeqNum 2, nomenclator_string = Limnoperla jaffueli, name_status = 3] (total_error_counter = 1, source_used_counter = 1): Source has already been taken
                         logger.error "Citation ERROR [TW.project_id: #{project_id}, citation_object #{use_this_object_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, otu_id #{otu_id}, SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}, nomenclator_string = #{nomenclator_string}, name_status = #{row['NewNameStatusID']}], (current_error_counter = #{error_counter += 1}, source_used_counter = #{source_used_counter += 1}): " + citation.errors.full_messages.join(';')
                         logger.info "NewNameStatusID = #{row['NewNameStatusID']}, count = #{new_name_status[row['NewNameStatusID'].to_i] += 1}"
+                        missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "DUPL_WORKAROUND_FAILED"]
                         next
                       end
                     else # citation error was not already been taken (other validation failure)
                       logger.error "Citation ERROR [TW.project_id: #{project_id}, citation_object #{use_this_object_id}, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id}, otu_id #{otu_id}, SF.RefID #{row['RefID']} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (#{error_counter += 1}): " + citation.errors.full_messages.join(';')
+                      missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "CITATION_NOT_VALID"]
                       next
                     end
                   end
@@ -1271,6 +1283,16 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             end
           end # genus, subgenus, species, subspecies
 
+          logger.info "Looking for citations not marked as done..."
+          CSV.foreach(@args[:data_directory] + 'sfCites.txt', col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8') do |row|
+            unless cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s]
+              logger.error "[#{row['FileID']}, #{row['TaxonNameID']}, #{row['SeqNum']}] not marked as done"
+            end
+          end
+
+          logger.info "#{missing_cites.length} citations flagged as non-imported:\n" +
+            "FileID\tTaxonNameID\tSeqNum\tReasonCode\t\n" +
+            missing_cites.map { |c| c.join("\t") }.join("\n")
 
           # logger.info "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
           # ap "total funny exceptions = '#{funny_exceptions_counter}', total unique_bad_nomenclators = '#{unique_bad_nomenclators.count}', \n unique_bad_nomenclators = '#{unique_bad_nomenclators}'"
