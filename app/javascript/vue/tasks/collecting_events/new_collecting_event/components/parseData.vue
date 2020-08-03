@@ -1,0 +1,62 @@
+<template>
+  <div>
+    <button
+      class="button normal-input button-default"
+      @click="setModalView(true)">Parse from Collection Object
+    </button>
+    <modal-component
+      v-if="showModal"
+      @close="setModalView(false)">
+      <h3 slot="header">Parse collection object buffered data</h3>
+      <div slot="body">
+        <smart-selector
+          model="collection_objects"
+          target="CollectingEvent"
+          @selected="parseData"
+        />
+      </div>
+    </modal-component>
+  </div>
+</template>
+
+<script>
+
+import ModalComponent from 'components/modal'
+import SmartSelector from 'components/smartSelector'
+import { ParseVerbatim } from '../request/resources'
+
+export default {
+  components: {
+    ModalComponent,
+    SmartSelector
+  },
+  data () {
+    return {
+      collectionObject: undefined,
+      parsableData: undefined,
+      showModal: false
+    }
+  },
+  methods: {
+    setCollectionObject (co) {
+      this.collectionObject = co
+    },
+    parseData (co) {
+      ParseVerbatim(co.buffered_collecting_event).then(response => {
+        if (response.body) {
+          this.parsableData = response.body
+
+          this.$emit('onParse', Object.assign({},
+            this.parsableData.date,
+            this.parsableData.geo.verbatim,
+            this.parsableData.elevation,
+            this.parsableData.collecting_method))
+        }
+      })
+    },
+    setModalView (value) {
+      this.showModal = value
+    }
+  }
+}
+</script>

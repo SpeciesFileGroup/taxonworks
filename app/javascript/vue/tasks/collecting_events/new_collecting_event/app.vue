@@ -15,21 +15,31 @@
     </div>
     <nav-bar>
       <div class="flex-separate full_width">
-        <div class="middle">
-          <span
-            class="word_break"
-            v-if="collectingEvent.id"
-            v-html="collectingEvent.cached"/>
-          <span v-else>New record</span>
-          <template v-if="collectingEvent.id">
-            <pin-component
-              :object-id="collectingEvent.id"
-              type="CollectingEvent"/>
-            <radial-annotator :global-id="collectingEvent.global_id"/>
-            <radial-object :global-id="collectingEvent.global_id"/>
-          </template>
+        <div class="horizontal-left-content">
+          <autocomplete
+            url="/collecting_events/autocomplete"
+            param="term"
+            label="label_html"
+            :clear-after="true"
+            placeholder="Search a collecting event"
+            @getItem="loadCollectingEvent($event.id)"/>
+          <div class="middle margin-small-left">
+            <span
+              class="word_break"
+              v-if="collectingEvent.id"
+              v-html="collectingEvent.cached"/>
+            <span v-else>New record</span>
+            <template v-if="collectingEvent.id">
+              <pin-component
+                :object-id="collectingEvent.id"
+                type="CollectingEvent"/>
+              <radial-annotator :global-id="collectingEvent.global_id"/>
+              <radial-object :global-id="collectingEvent.global_id"/>
+            </template>
+          </div>
         </div>
         <div class="horizontal-right-content">
+          <parse-data @onParse="setParsedData"/>
           <button
             v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
@@ -60,8 +70,8 @@
       @select="setCollectingEvent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
-      <collecting-event-form class="full_width"/>
-      <right-section class="separate-left"/>
+      <collecting-event-form class="full_width" />
+      <right-section class="separate-left" />
     </div>
   </div>
 </template>
@@ -71,6 +81,7 @@
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { RouteNames } from 'routes/routes'
+import Autocomplete from 'components/autocomplete'
 
 import RecentComponent from './components/Recent'
 
@@ -82,6 +93,7 @@ import SetParam from 'helpers/setParam'
 import PinComponent from 'components/pin'
 import RightSection from './components/RightSection'
 import NavBar from 'components/navBar'
+import ParseData from './components/parseData'
 
 import collectingEventForm from './components/CollectingEventForm'
 
@@ -99,8 +111,10 @@ export default {
     PinComponent,
     RightSection,
     NavBar,
+    ParseData,
     RecentComponent,
-    collectingEventForm
+    collectingEventForm,
+    Autocomplete
   },
   computed: {
     collectingEvent: {
@@ -126,7 +140,7 @@ export default {
     const collectingEventId = urlParams.get('collecting_event_id')
 
     if (/^\d+$/.test(collectingEventId)) {
-      // this.$store.dispatch(ActionNames.LoadCollectingEvent, collectingEventId)
+      this.loadCollectingEvent(collectingEventId)
     }
 
     GetUserPreferences().then(response => {
@@ -150,12 +164,17 @@ export default {
       if (this.collectingEvent.id) {
         UpdateCollectingEvent(this.collectingEvent).then(response => {
           this.collectingEvent = response.body
+          TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
         })
       } else {
         CreateCollectingEvent(this.collectingEvent).then(response => {
           this.collectingEvent = response.body
+          TW.workbench.alert.create('Collection objects was successfully created.', 'notice')
         })
       }
+    },
+    setParsedData (data) {
+      this.collectingEvent = Object.assign({}, this.collectingEvent, data)
     },
     getOSKey: GetOSKey
   }

@@ -230,6 +230,7 @@ export default {
         Promise.all(promises).then(() => {
           this.showSpinner = false
           this.queueGeoreferences = []
+          this.populateShapes()
           resolve()
         })
       })
