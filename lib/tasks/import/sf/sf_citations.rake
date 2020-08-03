@@ -932,13 +932,12 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['subgenus'][0]]), project_id: project_id) if nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['subgenus']
                   protonym.related_taxon_name_relationships.new(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: TaxonName.find(tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0]]), project_id: project_id) if protonym.original_genus.nil? && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && protonym.original_genus.nil?
                 end
-                protonym.save!
+                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "PROTONYM_SAVE_FAILED"] unless protonym.save
                 #string = [project_id, protonym.original_genus.try(:name), protonym.original_subgenus.try(:name), protonym.original_species.try(:name), protonym.original_subspecies.try(:name), protonym.original_variety.try(:name), protonym.original_form.try(:name)].compact.join('_')
                 tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s] = protonym.id if tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s].nil?
                 next
               elsif nomenclator_id == '0'
                 # no nomenclator data.
-                missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "NO_NOMENCLATOR"]
               elsif citation_on_otu || new_protonym
                               # just create another citation
               elsif tw_taxa_ids[project_id + '_' + nomenclator_string + '_' + protonym.cached_valid_taxon_name_id.to_s]
@@ -958,16 +957,19 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                         protonym = p
                         taxon_name_id = p.id
                       end
-                      citation = Citation.create!(
-                          source_id: source_id,
-                          pages: row['CitePages'],
-                          citation_object: tr,
-                          project_id: project_id,
-                          created_at: row['CreatedOn'],
-                          updated_at: row['LastUpdate'],
-                          created_by_id: get_tw_user_id[row['CreatedBy']],
-                          updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                      ) if tr.try(:id)
+                      if tr.try(:id)
+                        citation = Citation.create(
+                            source_id: source_id,
+                            pages: row['CitePages'],
+                            citation_object: tr,
+                            project_id: project_id,
+                            created_at: row['CreatedOn'],
+                            updated_at: row['LastUpdate'],
+                            created_by_id: get_tw_user_id[row['CreatedBy']],
+                            updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                        )
+                        missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "TR_CITATION_CREATE_FAILED"] unless citation.id
+                      end
                       skip_citation = true if tr.try(:id)
                     end
                 end
@@ -981,16 +983,19 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                     tnc = protonym.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid') if protonym.id == protonym.cached_valid_taxon_name_id
                     tr = TaxonNameRelationship.find_or_create_by(object_taxon_name_id: p.id, subject_taxon_name_id: protonym.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id)
                   end
-                  citation = Citation.create!(
-                      source_id: source_id,
-                      pages: row['CitePages'],
-                      citation_object: tr,
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  ) if tr.try(:id)
+                  if tr.try(:id)
+                    citation = Citation.create(
+                        source_id: source_id,
+                        pages: row['CitePages'],
+                        citation_object: tr,
+                        project_id: project_id,
+                        created_at: row['CreatedOn'],
+                        updated_at: row['LastUpdate'],
+                        created_by_id: get_tw_user_id[row['CreatedBy']],
+                        updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                    )
+                    missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED"] unless citation.id
+                  end
                   skip_citation = true if tr.try(:id)
                 end
               else
@@ -1050,7 +1055,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                 p.save
                 if p.id.nil?
                   cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s] = true
-                  missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "PROTONYM_SAVE_FAILED"]
+                  missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "PROTONYM_SAVE_FAILED_2"]
                   next
                 end
 
@@ -1064,7 +1069,8 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                   tr = TaxonNameRelationship::Iczn::Invalidating::Synonym.where(subject_taxon_name_id: protonym.id, object_taxon_name_id: p1.id).first
 
                   tr = TaxonNameRelationship.create(subject_taxon_name_id: protonym.id, object_taxon_name_id: p1.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id) if tr.nil?
-                      citation = Citation.create!(
+                    if tr.nil? # Looks imposible to be false. Originally placed as if modifier of line below
+                      citation = Citation.create(
                           source_id: source_id,
                           pages: row['CitePages'],
                           citation_object: tr,
@@ -1073,7 +1079,9 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
                           updated_at: row['LastUpdate'],
                           created_by_id: get_tw_user_id[row['CreatedBy']],
                           updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                      ) if tr.nil?
+                      )
+                      missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED_2"] unless citation.id
+                    end
                   skip_citation = true if tr.try(:id)
                 end
 
