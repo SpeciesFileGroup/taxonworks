@@ -1,7 +1,7 @@
 import { createTaxonRelationship } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, state }, data) {
+export default function ({ commit, state, dispatch }, data) {
   let relationship = {
     taxon_name_relationship: {
       object_taxon_name_id: state.taxon_name.id,
@@ -12,6 +12,7 @@ export default function ({ commit, state }, data) {
   return new Promise((resolve, reject) => {
     createTaxonRelationship(relationship).then(response => {
       commit(MutationNames.AddOriginalCombination, response.body)
+      dispatch('loadSoftValidation', 'original_combination')
       resolve(response.body)
     }, response => {
       commit(MutationNames.SetHardValidation, response.body)

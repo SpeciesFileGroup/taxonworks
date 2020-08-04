@@ -4,6 +4,7 @@
       class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -11,7 +12,7 @@
           <span v-html="title" />
           <span
             v-if="metadata"
-            class="separate-right"> 
+            class="separate-right">
             {{ metadata.object_type }}
           </span>
         </h3>
@@ -359,10 +360,6 @@ export default {
     }
     .modal-mask {
       background-color: rgba(0, 0, 0, 0.7);
-    }
-    .modal-container {
-      box-shadow: none;
-      background-color: transparent;
     }
     .modal-container {
       min-width: 1024px;

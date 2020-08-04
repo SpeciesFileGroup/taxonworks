@@ -36,11 +36,14 @@ const ajaxCall = function (type, url, data = {}, config = {}) {
       if (process.env.NODE_ENV !== 'production') {
         console.log(error.response)
       }
+      error.response.body = error.response.data
+      delete error.response.data
+
       switch (error.response.status) {
         case 404:
           break
         default:
-          handleError(error.response.data)
+          handleError(error.response.body)
       }
       return reject(error.response)
     })

@@ -12,6 +12,7 @@
           Autosave
         </label>
         <autocomplete
+          v-if="!getTaxon.id"
           class="autocomplete-search-bar"
           url="/taxon_names/autocomplete"
           param="term"
@@ -43,6 +44,16 @@
           v-if="getTaxon.id"
           class="cright item separate-left">
           <div id="cright-panel">
+            <div class="panel content margin-medium-bottom">
+              <autocomplete
+                url="/taxon_names/autocomplete"
+                param="term"
+                :add-params="{ 'type[]': 'Protonym' }"
+                label="label_html"
+                placeholder="Search a taxon name..."
+                @getItem="loadTaxon"
+                :clearAfter="true"/>
+            </div>
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
             <soft-validation class="separate-top"/>
@@ -187,6 +198,7 @@ export default {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

@@ -53,6 +53,11 @@ function makeInitialState () {
       taxonStatusList: {
         title: 'Status',
         list: []
+      },
+      original_combination: {
+        title: 'Original combination',
+        list: [],
+        transform: (value) => { return Object.values(value) }
       }
     },
     hardValidation: undefined,

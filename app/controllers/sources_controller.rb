@@ -218,6 +218,7 @@ class SourcesController < ApplicationController
     params[:project_id] = sessions_current_project_id
     params.permit(
       :author,
+      :author_ids_or,
       :citations,
       :documents,
       :exact_author,
@@ -230,6 +231,7 @@ class SourcesController < ApplicationController
       :namespace_id,
       :nomenclature,
       :notes,
+      :per,
       :project_id,
       :query_term,
       :recent, 

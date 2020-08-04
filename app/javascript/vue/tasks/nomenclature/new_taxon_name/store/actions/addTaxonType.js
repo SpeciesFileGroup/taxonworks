@@ -13,6 +13,7 @@ export default function ({ commit, state, dispatch }, data) {
     createTaxonRelationship(relationship).then(response => {
       commit(MutationNames.AddTaxonRelationship, response.body)
       dispatch('loadSoftValidation', 'taxonRelationshipList')
+      dispatch('loadSoftValidation', 'original_combination')
       dispatch('loadSoftValidation', 'taxon_name')
       resolve(response)
     }, response => {

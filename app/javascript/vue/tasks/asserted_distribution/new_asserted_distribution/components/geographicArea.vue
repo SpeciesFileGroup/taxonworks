@@ -9,6 +9,7 @@
       ref="smartSelector"
       label="name"
       pin-section="GeographicAreas"
+      @selected="onSelect"
       pin-type="GeographicArea">
       <template v-if="assertedDistribution.geographicArea">
         <p class="horizontal-left-content">
@@ -53,6 +54,10 @@ export default {
     },
     unset () {
       this.assertedDistribution.geographicArea = undefined
+    },
+    onSelect (geo) {
+      this.assertedDistribution.geographicArea = geo
+      this.$emit('selected')
     }
   }
 }

@@ -181,6 +181,7 @@ describe Otu, type: :model, group: :otu do
     before do
       otu.name = 'Foo recently'
       otu.save!
+      PinboardItem.create!(pinned_object: o2, is_inserted: true, user_id: 1)
     end
 
     let(:o2) { Otu.create(name: 'o2') }

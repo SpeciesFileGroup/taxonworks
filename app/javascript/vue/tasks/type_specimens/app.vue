@@ -79,7 +79,7 @@ export default {
     this.loadTaxonTypes()
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'New type material')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'New type material')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+c`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {
@@ -163,14 +163,6 @@ export default {
        visibility:hidden;
     }
 
-    .types_field {
-      input[type="text"], textarea {
-        width: 300px;
-      }
-      .vue-autocomplete-input {
-          width: 300px;
-      }
-    }
     hr {
         height: 1px;
         color: #f5f5f5;

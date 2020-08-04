@@ -7,6 +7,8 @@ export default function ({ commit, state }, type) {
 
   if (Array.isArray(state[type])) {
     validations = state[type]
+  } else if (state.softValidation[type].transform) {
+    validations = state.softValidation[type].transform(state[type])
   } else {
     validations.push(state[type])
   }

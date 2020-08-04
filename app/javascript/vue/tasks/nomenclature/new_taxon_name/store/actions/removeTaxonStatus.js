@@ -6,6 +6,7 @@ export default function ({ commit, state, dispatch }, status) {
     removeTaxonStatus(status.id).then(response => {
       commit(MutationNames.RemoveTaxonStatus, status)
       dispatch('loadSoftValidation', 'taxonRelationshipList')
+      dispatch('loadSoftValidation', 'original_combination')
       dispatch('loadSoftValidation', 'taxonStatusList')
       dispatch('loadSoftValidation', 'taxon_name')
       resolve(response.body)
