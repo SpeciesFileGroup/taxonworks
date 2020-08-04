@@ -22,6 +22,19 @@ class SourcesController < ApplicationController
     end
   end
 
+  # GET /api/v1/sources
+  def api_index
+    @sources =
+        Queries::Source::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/sources/api/index.json.jbuilder'
+  end
+
+  # GET /api/v1/sources/:id
+  def api_show
+    @taxon_name = Source.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/sources/api/show.json.jbuilder'
+  end
+
   def list
     @sources = Source.page(params[:page])
   end
@@ -53,7 +66,7 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
-    @source = new_source 
+    @source = new_source
     respond_to do |format|
       if @source&.save
         format.html { redirect_to url_for(@source.metamorphosize),
@@ -198,10 +211,10 @@ class SourcesController < ApplicationController
   end
 
   # GET /sources/generate.json?<filter params>
-  def generate 
+  def generate
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
     @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
-    render '/downloads/show' 
+    render '/downloads/show'
   end
 
   private
@@ -234,7 +247,7 @@ class SourcesController < ApplicationController
       :per,
       :project_id,
       :query_term,
-      :recent, 
+      :recent,
       :roles,
       :source_type,
       :tags,
