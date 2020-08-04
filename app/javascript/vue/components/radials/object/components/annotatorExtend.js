@@ -24,14 +24,17 @@ const vueAnnotator = {
   data: function () {
     return {
       list: [],
-      urlList: undefined
+      urlList: undefined,
+      loadOnMounted: true
     }
   },
   mounted: function () {
     let that = this
-    this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
-      that.list = response.body
-    })
+    if(this.loadOnMounted) {
+      this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
+        that.list = response.body
+      })
+    }
   },
   watch: {
     list: {

@@ -2,7 +2,7 @@
   <div>
     <div class="separate-bottom horizontal-left-content">
       <switch-components
-        class="full_width"
+        class="full_width capitalize"
         v-model="view"
         :options="options"/>
       <default-pin

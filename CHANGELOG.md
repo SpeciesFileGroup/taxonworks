@@ -9,6 +9,64 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.12.13] - 2020-08-04
+
+### Added
+- Delete confirmation for original combinations [#1618]
+- Delete confirmation for type specimens in new type specimen task
+- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
+- Modal on duplicate original citations in radial annotator [#1576]
+- Soft validations component for citations in radial annotator and tasks [#1552]
+- Redirect to valid name in browse nomenclature [#446]
+- sessionStorage for browse nomenclature autocomplete [#446]
+- Observation matrices in radial object [#1527]
+- Comprehensive task to taxon name radial [#934]
+- Map on OTU radial in asserted distribution form [#856]
+- Pin objects from list in filter sources
+- Checkbox to make document public on list in radial annotator
+- Title legend for "make default" icon in pinboard slide
+- Checkbox to alternative between AND/OR filter for authors in filter sources
+- Lep staged 2 layout for staged images [#1635]
+
+### Changed
+- Use amazing_print instead of awesome_print gem
+- Cleanup and add spec basis for nomenclature tabular stats queries  
+- Improve/unify image modal [#1617]
+- Replace repository and source autocompletes for smart selectors in new type material task
+- Changed autosave behaviour in new asserted distribution task
+- Gender list order in new taxon name task
+- Page range soft validation message made less strict
+- Original citation-related UI text
+- Moved taxon name input search to right column in new taxon name
+- Persons autosave in new taxon name
+- Updated elliptic node package. [#1632]
+
+### Fixed
+- Flip object to subject label on type section in new taxon name task
+- Shapes are possible to drag even if this option is not set up
+- Columns size of georeference table [#1622]
+- Webpacker host and port bind on docker container
+- Wrong taxon name relationship soft validation message for genera
+- Modal confirmation its not displaying in manage synonyms section [#1627]
+- Manage synonyms includes combinations [#1628]
+- Recent and per params in source filter and controller
+- Missing ZIP dependency for docker images
+
+[#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
+[#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
+[#934]: https://github.com/SpeciesFileGroup/taxonworks/issues/934
+[#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
+[#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
+[#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
+[#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
+[#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
+[#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
+[#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
+[#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
+[#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+[#1632]: https://github.com/SpeciesFileGroup/taxonworks/pull/1632
+[#1635]: https://github.com/SpeciesFileGroup/taxonworks/issues/1635
+
 ## [0.12.12] - 2020-07-22
 
 ### Fixed
@@ -245,7 +303,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...development
+[0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13
 [0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
 [0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10

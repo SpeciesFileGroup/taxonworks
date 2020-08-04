@@ -3,6 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"

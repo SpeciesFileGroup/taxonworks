@@ -1,26 +1,23 @@
 <template>
   <div>
-    <h3>Identifier</h3>
-    <div
-      class="flex-wrap-column middle align-start">
-      <fieldset>
-        <legend>Namespace</legend>
-        <smart-selector
-          class="margin-medium-top"
-          model="namespaces"
-          klass="Source"
-          pin-section="Namespaces"
-          pin-type="Namespace"
-          @selected="setNamespace"/>
-        <div
-          v-if="namespace"
-          class="horizontal-left-content">
-          <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
-          <span
-            @click="removeNamespace"
-            class="button circle-button btn-undo button-default"/>
-        </div>
-      </fieldset>
+    <h3>Catalog number</h3>
+    <fieldset>
+      <legend>Namespace</legend>
+      <smart-selector
+        class="margin-medium-top"
+        model="namespaces"
+        klass="Source"
+        pin-section="Namespaces"
+        pin-type="Namespace"
+        @selected="setNamespace"/>
+      <div
+        v-if="namespace"
+        class="horizontal-left-content">
+        <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
+        <span
+          @click="removeNamespace"
+          class="button circle-button btn-undo button-default"/>
+      </div>
       <div class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
@@ -44,7 +41,7 @@
             v-html="existingIdentifier.identifier_object.object_tag"/>
         </template>
       </div>
-    </div>
+    </fieldset>
   </div>
 </template>
 

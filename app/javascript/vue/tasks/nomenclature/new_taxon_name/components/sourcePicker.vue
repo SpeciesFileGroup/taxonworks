@@ -107,6 +107,10 @@
                 target="_blank"
                 v-html="citation.source.object_tag"
               />
+              <soft-validation
+                class="margin-small-left"
+                :validate-object="citation"
+                :global-id="citation.global_id"/>
             </p>
             <div class="horizontal-left-content">
               <citation-pages
@@ -146,9 +150,9 @@
         <div class="flex-separate">
           <role-picker
             v-model="roles"
-            @create="updateTaxonName"
-            @delete="updateTaxonName"
-            @sortable="updateTaxonName"
+            @create="updateLastChange"
+            @delete="updateLastChange"
+            @sortable="updateLastChange"
             @update="updatePersons"
             role-type="TaxonNameAuthor"
           />
@@ -182,6 +186,7 @@ import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
 import BlockLayout from './blockLayout'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
@@ -194,7 +199,8 @@ export default {
     CitationPages,
     RadialAnnotator,
     RadialObject,
-    BlockLayout
+    BlockLayout,
+    SoftValidation
   },
   computed: {
     lastSave () {
@@ -309,6 +315,9 @@ export default {
       if (this.isAutosaveActive) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       }
+    },
+    updateLastChange () {
+      this.$store.commit(MutationNames.UpdateLastChange)
     }
   }
 }

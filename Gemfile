@@ -103,7 +103,7 @@ gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 gem 'gnfinder', '~> 0.11.0'
 
 # Minor Utils/helpers
-gem 'awesome_print', '~> 1.8'
+gem 'amazing_print', '~> 1.2.1'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED

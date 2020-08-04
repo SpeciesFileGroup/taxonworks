@@ -15,9 +15,12 @@
           :key="item.id"
           class="list-complete-item">
           <td>
-            <span 
+            <span
               :class="{ originalCitation: item.is_original }"
               v-html="item.object_tag"/>
+            <soft-validation
+              class="margin-small-left"
+              :global-id="item.global_id"/>
           </td>
           <td class="vue-table-options">
             <a
@@ -43,35 +46,35 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import CitationCount from '../shared/citationsCount.vue'
-  import PdfButton from 'components/pdfButton.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import PdfButton from 'components/pdfButton.vue'
+import SoftValidation from 'components/soft_validations/objectValidation'
 
-  export default {
-    components: {
-      RadialAnnotator,
-      CitationCount,
-      PdfButton
+export default {
+  components: {
+    RadialAnnotator,
+    SoftValidation,
+    PdfButton
+  },
+  props: {
+    list: {
+      type: Array,
+      default: () => {
+        return []
+      }
     },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-    },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
+  },
+  mounted() {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+  methods: {
+    deleteItem(item) {
+      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
       }
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   .vue-table-container {

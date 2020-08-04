@@ -24,6 +24,9 @@ module Queries
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
 
+      # @params author [Boolean, nil]
+      attr_accessor :author_ids_or
+
       # @params author [Array of Integer, Topic#id]
       attr_accessor :topic_ids
 
@@ -43,6 +46,10 @@ module Queries
       # @return [Boolean, nil]
       # @params citations ['true', 'false', nil]
       attr_accessor :citations
+
+      # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
 
       # @return [Boolean, nil]
       # @params roles ['true', 'false', nil]
@@ -82,6 +89,9 @@ module Queries
         
         @author = params[:author]
         @author_ids = params[:author_ids] || []
+
+        @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
+
         @topic_ids = params[:topic_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
@@ -98,6 +108,7 @@ module Queries
         @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
         @year_end = params[:year_end]
         @year_start = params[:year_start]
+        @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
 
         build_terms
         set_identifier(params)
@@ -168,6 +179,7 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
         b = b.as('z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
@@ -342,6 +354,8 @@ module Queries
         else
           q = ::Source.all
         end
+
+        q = q.order(updated_at: :desc) if recent
         q
       end
 

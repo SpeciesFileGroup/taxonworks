@@ -146,6 +146,7 @@ export default {
           page: 1
         },
         source: {
+          author_ids_or: undefined,
           query_term: undefined,
           author: undefined,
           exact_author: undefined,
