@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Original citation-related UI text
 - Moved taxon name input search to right column in new taxon name
 - Persons autosave in new taxon name
+- Updated elliptic node package. [#1632]
 
 ### Fixed
 - Flip object to subject label on type section in new taxon name task
@@ -59,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
 [#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
 [#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+[#1632]: https://github.com/SpeciesFileGroup/taxonworks/pull/1632
 [#1635]: https://github.com/SpeciesFileGroup/taxonworks/issues/1635
 
 ## [0.12.12] - 2020-07-22
