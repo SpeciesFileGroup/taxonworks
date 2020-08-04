@@ -51,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Manage synonyms includes combinations [#1628]
 - Recent and per params in source filter and controller
 - Missing ZIP dependency for docker images
+- Attempting to return geographic areas in OTU smart selector on certain conditions
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
