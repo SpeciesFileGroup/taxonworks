@@ -35,9 +35,17 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
+      get '/identifiers', to: '/identifiers#api_index'
+      get '/identifiers/:id', to: '/identifiers#api_show'
+      get '/identifiers/autocomplete', to: '/identifiers#autocomplete'
+
       get '/sources', to: '/sources#api_index'
       get '/sources/:id', to: '/sources#api_show'
       get '/sources/autocomplete', to: '/sources#autocomplete'
+
+      get '/people', to: '/people#api_index'
+      get '/people/:id', to: '/people#api_show'
+      get '/people/autocomplete', to: '/people#autocomplete'
 
     end
 

@@ -31,7 +31,7 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources/:id
   def api_show
-    @taxon_name = Source.where(project_id: sessions_current_project_id).find(params[:id])
+    @sources = Source.where(project_id: sessions_current_project_id).find(params[:id])
     render '/sources/api/show.json.jbuilder'
   end
 

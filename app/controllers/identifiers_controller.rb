@@ -18,6 +18,19 @@ class IdentifiersController < ApplicationController
     end
   end
 
+  # GET /api/v1/identifiers
+  def api_index
+    @identifiers =
+        Queries::Identifier::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/identifiers/api/index.json.jbuilder'
+  end
+
+  # GET /api/v1/identifiers/:id
+  def api_show
+    @identifiers = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/identifiers/api/show.json.jbuilder'
+  end
+
   # GET /identifers/1
   def show
   end
@@ -115,7 +128,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact 
+    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
   end
 
 end

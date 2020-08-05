@@ -2,7 +2,7 @@ class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
-  after_action -> { set_pagination_headers(:people) }, only: [:index], if: :json_request? 
+  after_action -> { set_pagination_headers(:people) }, only: [:index], if: :json_request?
 
   # GET /people
   # GET /people.json
@@ -14,9 +14,22 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/people
+  def api_index
+    @people =
+        Queries::Person::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/people/api/index.json.jbuilder'
+  end
+
+  # GET /api/v1/people/:id
+  def api_show
+    @taxon_name = Person.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/people/api/show.json.jbuilder'
   end
 
   # GET /people/1
@@ -50,7 +63,7 @@ class PeopleController < ApplicationController
   end
 
   def similar
-    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name) 
+    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name)
     render '/people/index'
   end
 
