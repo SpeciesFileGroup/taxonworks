@@ -71,7 +71,6 @@ export default {
     },
     addRole (role) {
       if(!this.roleExist(role.id)) {
-        //this.collectors.push(CreatePerson(role, 'Collector'))
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }
