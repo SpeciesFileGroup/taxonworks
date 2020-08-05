@@ -152,6 +152,10 @@ class InteractiveKey
     end
   end
 
+  ## row_hash: {row.id: {:object,           ### (collection_object or OTU)
+  ##                     :object_at_rank,   ### (converted to OTU or TN)
+  ##                     :errors,           ### (calculated number of errors)
+  ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash
     h = {}
     rows_with_filter.each do |r|
@@ -165,10 +169,15 @@ class InteractiveKey
         h[r.id][:object_at_rank] = r
       end
       h[r.id][:errors] = 0
+      h[r.id][:status] = 'remaining'
     end
     h
   end
 
+  ## descriptors_hash: {descriptor.id: {:descriptor,           ### (descriptor)
+  ##                                    :states,   ### (hash of states)
+  ##                                    :errors,           ### (calculated number of errors)
+  ##                                    :status }}         ### ('remaining', 'eliminated')
   def descriptors_hash
     h = {}
     descriptors_with_keywords.each do |d|
