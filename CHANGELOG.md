@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Collectors order in comprehensive specimen digitization
 
 ## [0.12.13] - 2020-08-04
 
