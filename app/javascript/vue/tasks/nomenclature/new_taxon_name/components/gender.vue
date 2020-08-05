@@ -208,7 +208,7 @@ export default {
         that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
           that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
             that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
+              that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
                 that.saving = false
               })
             })
@@ -218,7 +218,7 @@ export default {
         that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
           that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
             setTimeout(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
+              that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
                 that.saving = false
               })
             }, 1000)
