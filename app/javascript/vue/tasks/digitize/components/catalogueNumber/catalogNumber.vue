@@ -48,7 +48,9 @@
           </template>
         </fieldset>
       </div>
-      <div class="separate-top">
+      <div
+        v-help.sections.collectionObject.identifier
+        class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input

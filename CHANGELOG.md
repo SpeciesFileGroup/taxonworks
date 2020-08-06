@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Help tips in comprehensive specimen digitization task
+
 ### Fixed
 - Collectors order in comprehensive specimen digitization
 - Losses data of etymology form after set a gender
