@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend v-help.section.BibTeX.authors>Authors</legend>
+  <fieldset v-help.section.BibTeX.authors>
+    <legend>Authors</legend>
     <smart-selector
       ref="smartSelector"
       model="people"

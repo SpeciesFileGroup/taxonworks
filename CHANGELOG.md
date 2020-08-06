@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Help tips in comprehensive specimen digitization task
+- Help tips in new source task
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
