@@ -22,7 +22,7 @@ class InteractiveKey
   #optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized', a default
   attr_accessor :sorting
 
-  #optional attribute to eliminate taxa with not scored descriptors
+  #optional attribute to eliminate taxa with not scored descriptors: 'false' - default or 'true'
   attr_accessor :eliminate_unknown
 
   #optional attribute number of allowed erros during identification
@@ -31,7 +31,7 @@ class InteractiveKey
   #limit identification to a particular nomenclatural rank 'genus', 'species', 'otu'
   attr_accessor :identified_to_rank
 
-  #optional attribute: descriptors and states selected during identification
+  #optional attribute: descriptors and states selected during identification "123:1|3||125:3|5||135:2"
   attr_accessor :selected_descriptors
 
 
@@ -69,6 +69,16 @@ class InteractiveKey
   #list of eliminated rows
   attr_accessor :eliminated
 
+  #hash of used descriptors and their states
+  attr_accessor :selected_descriptors_hash
+
+  #temporary hash of rows; used for calculation of remaining and eliminated rows
+  attr_accessor :row_hash
+
+  #temporary hash of descriptors; used for calculation of useful and not useful characters and their states
+  attr_accessor :descriptors_hash
+
+
   def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil, row_filter: nil, sorting: 'optimized', error_tolerance: 0, identified_to_rank: nil, eliminate_unknown: nil, selected_descriptors: nil)
     raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
@@ -83,15 +93,23 @@ class InteractiveKey
     @row_filter = row_filter
     @rows_with_filter = rows_with_filter
     @sorting = sorting
-    @error_tolerance = error_tolerance
-    @eliminate_unknown = eliminate_unknown
+    @error_tolerance = error_tolerance.to_i
+    @eliminate_unknown = eliminate_unknown == 'true' ? true : false
     @identified_to_rank = identified_to_rank
     @selected_descriptors = selected_descriptors
+    @selected_descriptors_hash = selected_descriptors_hash_initiate
+    @row_hash = row_hash_initiate
+    @descriptors_hash = descriptors_hash_initiate
+
+    #main_logic
+    @remaining = remaining_taxa
+    @eliminated ###
     @used_descriptors ###
     @useful_descriptors ####
     @not_useful_descriptors ####
-    @remaining ###
-    @eliminated ###
+
+    @row_hash = nil
+    @descriptors_hash = nil
   end
 
   def observation_matrix
@@ -156,7 +174,7 @@ class InteractiveKey
   ##                     :object_at_rank,   ### (converted to OTU or TN)
   ##                     :errors,           ### (calculated number of errors)
   ##                     :status }}         ### ('remaining', 'eliminated')
-  def row_hash
+  def row_hash_initiate
     h = {}
     rows_with_filter.each do |r|
       h[r.id] = {}
@@ -178,27 +196,66 @@ class InteractiveKey
   ##                                    :observations,         ### (array of observations for )
   ##                                    :state_ids,            ### {hash of state_ids used in the particular matrix}
   ##                                    }}
-  def descriptors_hash
+  def descriptors_hash_initiate
     h = {}
     descriptors_with_keywords.each do |d|
       h[d.id] = {}
       h[d.id][:descriptor] = d
-      h[d.id][:states_ids] = {}
-      h[d.id][:observations] = {}
+      h[d.id][:states_ids] = [] if d.type == 'Descriptor::Qualitative' # array of used state_ids
+      h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
+      h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
+      h[d.id][:observations] = []
     end
-    @observation_matrix.observations.each do |o|
+    t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
+    @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
       if h[o.descriptor_id]
-        h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] = [] if h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s].nil?
-        h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] += [o]
-        h[o.descriptor_id][:state_ids][o.character_state_id] = {} if o.character_state_id
+        otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
+        h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil?
+        h[o.descriptor_id][:observations][otu_collection_object] += [o]
+        h[o.descriptor_id][:state_ids] += [o.character_state_id.to_s] if o.character_state_id
+        h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && o.character_state_id < h[o.descriptor_id][:min]
+        h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && o.character_state_id > h[o.descriptor_id][:max]
+        h[o.descriptor_id][:min] = o.sample_min if o.sample_min && o.sample_min < h[o.descriptor_id][:min]
+        h[o.descriptor_id][:max] = o.sample_max if o.sample_max && o.sample_max > h[o.descriptor_id][:max]
       end
     end
     h
   end
 
-  def remaining_taxa
-    row_hash.each do |r|
+  # returns {123: ['1', '3'], 125: ['3', '5'], 135: ['2']}
+  def selected_descriptors_hash_initiate
+    # "123:1|3||125:3|5||135:2"
+    h = {}
+    a = @selected_descriptors.split('||')
+    a.each do |i|
+      d = i.split(':')
+      h[d[0]].to_i = d[1].split('|')
+    end
+    h
+  end
 
+  def remaining_taxa
+#    @error_tolerance = error_tolerance
+#    @eliminate_unknown = eliminate_unknown
+
+    @row_hash.each do |r_key, r_value|
+      @selected_descriptors_hash.each do |d_key, d_value|
+        otu_collection_object = r_value[:object].otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
+        if @eliminate_unknown && @descriptors_hash[d_key][:observations][otu_collection_object].nil?
+          r_value[:errors] += 1
+        elsif @descriptors_hash[d_key][:observations][otu_collection_object].nil?
+          #character not scored but no error
+        else
+          case @descriptors_hash[d_key][:descriptor].type
+            when 'Descriptor::Continuous'
+            when 'Descriptor::PresenceAbsence'
+            when 'Descriptor::Qualitative'
+            when 'Descriptor::Sample'
+          end
+
+        end
+
+      end
     end
   end
 
