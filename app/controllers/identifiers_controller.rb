@@ -21,7 +21,7 @@ class IdentifiersController < ApplicationController
   # GET /api/v1/identifiers
   def api_index
     @identifiers =
-        Queries::Identifier::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+        Queries::Identifier::Filter.new(identifier_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
     render '/identifiers/api/index.json.jbuilder'
   end
 
