@@ -24,15 +24,14 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources
   def api_index
-    @sources =
-        Queries::Source::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/sources/api/index.json.jbuilder'
+    @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/sources/index.json.jbuilder'#####/sources/api/index.json.jbuilder
   end
 
   # GET /api/v1/sources/:id
   def api_show
-    @sources = Source.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/sources/api/show.json.jbuilder'
+    @source = Source.find(params[:id])
+    render '/sources/show.json.jbuilder'######/sources/api/show.json.jbuilder
   end
 
   def list

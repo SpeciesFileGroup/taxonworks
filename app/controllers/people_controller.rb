@@ -21,15 +21,14 @@ class PeopleController < ApplicationController
 
   # GET /api/v1/people
   def api_index
-    @people =
-        Queries::Person::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/people/api/index.json.jbuilder'
+    @people = Queries::Person::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/people/index.json.jbuilder'######/people/api/index.json.jbuilder'
   end
 
   # GET /api/v1/people/:id
   def api_show
-    @taxon_name = Person.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/people/api/show.json.jbuilder'
+    @person = Person.find(params[:id])
+    render '/people/show.json.jbuilder'########/people/api/show.json.jbuilder'
   end
 
   # GET /people/1
