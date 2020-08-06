@@ -175,25 +175,31 @@ class InteractiveKey
   end
 
   ## descriptors_hash: {descriptor.id: {:descriptor,           ### (descriptor)
-  ##                                    :states,   ### (hash of states)
-  ##                                    :errors,           ### (calculated number of errors)
-  ##                                    :status }}         ### ('remaining', 'eliminated')
+  ##                                    :observations,         ### (array of observations for )
+  ##                                    :state_ids,            ### {hash of state_ids used in the particular matrix}
+  ##                                    }}
   def descriptors_hash
     h = {}
     descriptors_with_keywords.each do |d|
       h[d.id] = {}
       h[d.id][:descriptor] = d
-      h[d.id][:states] = {}
+      h[d.id][:states_ids] = {}
       h[d.id][:observations] = {}
     end
     @observation_matrix.observations.each do |o|
       if h[o.descriptor_id]
         h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] = [] if h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s].nil?
         h[o.descriptor_id][:observations][o.otu_id.to_s + '|' + o.collection_object_id.to_s] += [o]
-        h[o.descriptor_id][:states][o.character_state_id] = {} if o.character_state_id
+        h[o.descriptor_id][:state_ids][o.character_state_id] = {} if o.character_state_id
       end
     end
     h
+  end
+
+  def remaining_taxa
+    row_hash.each do |r|
+
+    end
   end
 
 
