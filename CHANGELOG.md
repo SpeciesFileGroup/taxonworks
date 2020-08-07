@@ -10,6 +10,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Help tips in comprehensive specimen digitization task
 - Help tips in new source task
+- Type section in Browse OTUs task [#1615]
+- Automatically filter sections by taxon rank in Browse OTUs task
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
@@ -19,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New combination redirect to the valid name [#1639]
 - Rename comprehensive specimen digitization task card
 
+[#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
 [#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
 
 ## [0.12.13] - 2020-08-04
