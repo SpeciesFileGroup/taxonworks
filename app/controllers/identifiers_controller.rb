@@ -21,13 +21,13 @@ class IdentifiersController < ApplicationController
   # GET /api/v1/identifiers
   def api_index
     @identifiers = Queries::Identifier::Filter.new(identifier_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/identifiers/api/index.json.jbuilder'
+    render '/identifiers/index.json.jbuilder'#######/identifiers/api/index.json.jbuilder
   end
 
   # GET /api/v1/identifiers/:id
   def api_show
-    @identifiers = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/identifiers/api/show.json.jbuilder'
+    @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/identifiers/show.json.jbuilder'#######/identifiers/api/show.json.jbuilder
   end
 
   # GET /identifers/1
