@@ -49,7 +49,10 @@
         <div class="panel separate-left separate-right">
           <div>
             <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
-              <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
+            <h3 class="item center_text">
+              <%= content_tag(:span, rank_tag(@taxon_name), class: :subtle) -%>
+              <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: :name) -%>
+            </h3>
             </div>
             <div class="horizontal-center-content filter">
               <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>

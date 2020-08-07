@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Help tips in new source task
 - Type section in Browse OTUs task [#1615]
 - Automatically filter sections by taxon rank in Browse OTUs task
+- Rank string in browse nomenclature
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
