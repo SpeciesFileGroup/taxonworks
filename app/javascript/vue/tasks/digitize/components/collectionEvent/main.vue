@@ -20,7 +20,8 @@
         />
       </div>
     </div>
-    <div slot="body">
+    <div
+      slot="body">
       <fieldset class="separate-bottom">
         <legend>Selector</legend>
         <div class="horizontal-left-content align-start separate-bottom">
@@ -60,9 +61,9 @@
         </div>
       </fieldset>
       <div class="horizontal-left-content align-start">
-        <block-verbatin class="separate-right item" />
-        <block-geography class="separate-left item separate-right" />
-        <block-map class="separate-left item" />
+        <block-verbatin class="separate-right half_width" />
+        <block-geography class="separate-left separate-right full_width" />
+        <block-map class="separate-left full_width" />
       </div>
     </div>
   </block-layout>
