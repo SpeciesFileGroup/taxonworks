@@ -75,7 +75,8 @@ export default {
     completeQueue (file, response) {
       this.isUploading = false
     },
-    error () {
+    error (file, error, xhr) {
+      TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
       this.isUploading = false
     }
   }
