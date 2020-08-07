@@ -7,7 +7,10 @@ describe 'Elevation', group: :collecting_event do
     use_cases = {
         'text, 10 ft, text' => '3.05//m',
         'text, 10-20 ft., text'  => '3.05/6.1/m',
-        'text, 25m text'      => '25//m', }
+        'text, 25m text'      => '25//m',
+        'text, 1,025m text'      => '1025//m',
+        'text, 1,000 - 2,000 ft. text'      => '304.8/609.6/m'
+    }
 
     @entry = 0
 
