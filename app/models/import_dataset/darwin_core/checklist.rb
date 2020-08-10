@@ -3,12 +3,6 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Taxon'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
-  # TODO: Revisit this (check existing STI in TW and whether this is safe or not).
-  #       Taken from https://stackoverflow.com/questions/4507149/best-practices-to-handle-routes-for-sti-subclasses-in-rails
-  def self.model_name
-    ImportDataset.model_name
-  end
-
   def initialize(params)
     super(params)
 

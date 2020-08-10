@@ -6,7 +6,7 @@ class ImportDatasetsController < ApplicationController
   # GET /import_datasets
   # GET /import_datasets.json
   def index
-    @recent_objects = ImportDataset.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+    @recent_objects = ImportDataset.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10).map { |i| i.becomes(ImportDataset) }
     render '/shared/data/all/index'
   end
 
@@ -37,7 +37,7 @@ class ImportDatasetsController < ApplicationController
 
     respond_to do |format|
       if @import_dataset.save!
-        format.html { redirect_to @import_dataset, notice: 'Import dataset was successfully created.' }
+        format.html { redirect_to @import_dataset.becomes(ImportDataset), notice: 'Import dataset was successfully created.' }
         format.json { render :show, status: :created, location: @import_dataset }
       else
         format.html { render :new }
@@ -51,7 +51,7 @@ class ImportDatasetsController < ApplicationController
   def update
     respond_to do |format|
       if @import_dataset.update(import_dataset_params)
-        format.html { redirect_to @import_dataset, notice: 'Import dataset was successfully updated.' }
+        format.html { redirect_to @import_dataset.becomes(ImportDataset), notice: 'Import dataset was successfully updated.' }
         format.json { render :show, status: :ok, location: @import_dataset }
       else
         format.html { render :edit }
