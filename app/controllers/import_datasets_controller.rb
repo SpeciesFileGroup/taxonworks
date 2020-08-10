@@ -33,7 +33,7 @@ class ImportDatasetsController < ApplicationController
   # POST /import_datasets.json
   def create
     # TODO: Must not default to DwC-A Checklist.
-    @import_dataset = ImportDataset::DwcChecklist.new(import_dataset_params)
+    @import_dataset = ImportDataset::DarwinCore::Checklist.new(import_dataset_params)
 
     respond_to do |format|
       if @import_dataset.save!

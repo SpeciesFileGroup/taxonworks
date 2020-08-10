@@ -1,4 +1,4 @@
-class DatasetRecord::DwcTaxon < DatasetRecord
+class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   KNOWN_KEYS_COMBINATIONS = [
     ["uninomial"],
@@ -70,7 +70,7 @@ class DatasetRecord::DwcTaxon < DatasetRecord
         if status == "Imported"
           taxon_id = data_fields[fields_mapping["taxonID"]]["value"]
 
-          DatasetRecord::DwcTaxon
+          DatasetRecord::DarwinCore::Taxon
             .where(import_dataset: self.import_dataset, status: "NotReady")
             .where("data_fields -> :parent_field ->> 'value' = :parent_id OR data_fields -> :accepted_field ->> 'value' = :accepted_id",
               {

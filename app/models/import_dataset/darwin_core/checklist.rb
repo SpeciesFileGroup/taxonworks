@@ -1,7 +1,7 @@
-class ImportDataset::DwcChecklist < ImportDataset
+class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
-  has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DwcTaxon'
-  has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DwcExtension'
+  has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Taxon'
+  has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
   # TODO: Revisit this (check existing STI in TW and whether this is safe or not).
   #       Taken from https://stackoverflow.com/questions/4507149/best-practices-to-handle-routes-for-sti-subclasses-in-rails
@@ -74,7 +74,7 @@ class ImportDataset::DwcChecklist < ImportDataset
       end
 
       core_records.each do |record|
-        dwc_taxon = DatasetRecord::DwcTaxon.new
+        dwc_taxon = DatasetRecord::DarwinCore::Taxon.new
         dwc_taxon.initialize_data_fields(record[:src_data].map { |k, v| v })
         dwc_taxon.status = !record[:invalid] && !record[:is_synonym] && record[:parent].nil? ? "Ready" : "NotReady"
         record.delete(:src_data)
@@ -85,7 +85,7 @@ class ImportDataset::DwcChecklist < ImportDataset
 
       records[:extensions].each do |extension_type, records|
         records.each do |record|
-          dwc_extension = DatasetRecord::DwcExtension.new
+          dwc_extension = DatasetRecord::DarwinCore::Extension.new
           dwc_extension.initialize_data_fields(record.map { |k, v| v })
           dwc_extension.status = "Unsupported"
           dwc_extension.metadata = { "type" => extension_type }
@@ -124,7 +124,7 @@ class ImportDataset::DwcChecklist < ImportDataset
     headers = { core: [], extensions: {} }
 
     if ["application/zip", "application/octet-stream"].include? source.content_type
-      dwc = DarwinCore.new(source_path)
+      dwc = ::DarwinCore.new(source_path)
       
       records[:core], headers[:core] = get_dwc_records(dwc.core)
 

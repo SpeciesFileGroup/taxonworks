@@ -6,7 +6,10 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     respond_to do |format|
       format.html
       format.json {
-        @datasets = ImportDataset::DwcChecklist.with_project_id(sessions_current_project_id).order(:updated_at, :description).page(params[:page]).per(params[:per] || 25)
+        @datasets = ImportDataset::DarwinCore::Checklist
+          .with_project_id(sessions_current_project_id)
+          .order(:updated_at, :description)
+          .page(params[:page]).per(params[:per] || 25)
       }
     end
   end
