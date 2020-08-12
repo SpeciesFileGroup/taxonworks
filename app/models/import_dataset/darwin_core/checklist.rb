@@ -9,7 +9,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     if params[:source]
       records, headers = get_records(params[:source])
 
-      parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] })
+      parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
       records_lut = { }
 
       core_records = records[:core].each_with_index.map do |record, index|
@@ -108,53 +108,6 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   # Returns a hash with the record counts grouped by status
   def progress
     core_records.group(:status).count
-  end
-
-  private
-
-  def get_records(source)
-    source_path = source.tempfile.path
-    records = { core: [], extensions: {} }
-    headers = { core: [], extensions: {} }
-
-    if ["application/zip", "application/octet-stream"].include? source.content_type
-      dwc = ::DarwinCore.new(source_path)
-      
-      records[:core], headers[:core] = get_dwc_records(dwc.core)
-
-      dwc.extensions.each do |extension|
-        type = extension.properties[:rowType]
-        records[:extensions][type], headers[:extensions][type] = get_dwc_records(extension)
-      end
-    elsif ["text/plain"].include? source.content_type
-      records[:core] = CSV.read(source_path, headers: true, col_sep: "\t").map { |r| r.to_h }
-      headers[:core] = records.first.to_h.keys
-    else
-      raise "Unsupported input format"
-    end
-
-    return records, headers
-  end
-
-  def get_dwc_records(table)
-    records = []
-    headers = []
-
-    headers[table.id[:index]] = "id"
-    # TODO: Think what to do about complex namespaces like "/std/Iptc4xmpExt/2008-02-29/" (currently returning the full URI as header)
-    table.fields.each do |field| 
-      term = field[:term].match(/\/([^\/]+)\/terms\/([^\/]+)\/?$/)
-      #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
-      headers[field[:index]] = term ? term[2] : field[:term]
-    end
-    
-    records = table.read.first.map do |row|
-      record = {}
-      row.each_with_index { |v, i| record[headers[i]] = v }
-      record
-    end
-
-    return records, headers
   end
 
 end

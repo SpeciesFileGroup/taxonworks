@@ -61,7 +61,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         else
           self.status = "Unsupported"
           self.metadata[:error_data] = {
-            messages: ["Synonym taxa is not supported at this time. Please revisit this record later."]
+            messages: { unsupported: ["Synonym taxa is not supported at this time. Please revisit this record later."] }
           }
         end
 

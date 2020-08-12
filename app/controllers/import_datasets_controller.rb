@@ -33,12 +33,12 @@ class ImportDatasetsController < ApplicationController
   # POST /import_datasets.json
   def create
     # TODO: Must not default to DwC-A Checklist.
-    @import_dataset = ImportDataset::DarwinCore::Checklist.new(import_dataset_params)
+    @import_dataset = ImportDataset::DarwinCore.create_with_subtype_detection(import_dataset_params)
 
     respond_to do |format|
-      if @import_dataset.save!
+      if @import_dataset.save
         format.html { redirect_to @import_dataset.becomes(ImportDataset), notice: 'Import dataset was successfully created.' }
-        format.json { render :show, status: :created, location: @import_dataset }
+        format.json { render :show, status: :created, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :new }
         format.json { render json: @import_dataset.errors, status: :unprocessable_entity }
@@ -52,7 +52,7 @@ class ImportDatasetsController < ApplicationController
     respond_to do |format|
       if @import_dataset.update(import_dataset_params)
         format.html { redirect_to @import_dataset.becomes(ImportDataset), notice: 'Import dataset was successfully updated.' }
-        format.json { render :show, status: :ok, location: @import_dataset }
+        format.json { render :show, status: :ok, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :edit }
         format.json { render json: @import_dataset.errors, status: :unprocessable_entity }

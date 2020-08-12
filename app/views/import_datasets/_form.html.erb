@@ -1,5 +1,5 @@
 <%= form_for(@import_dataset.becomes(ImportDataset), multipart: true) do |f| %>
-    <%= render 'shared/errors', object: @import_dataset %>
+    <%= render 'shared/errors', object: @import_dataset.becomes(ImportDataset) %>
 
     <div class="field">
       <%= f.label :source %><br>
