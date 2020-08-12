@@ -21,9 +21,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - New combination redirect to the valid name [#1639]
 - Rename comprehensive specimen digitization task card
+- Updated chartkick gem [#1646]
 
 [#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
 [#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
+[#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
 
 ## [0.12.13] - 2020-08-04
 

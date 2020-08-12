@@ -82,7 +82,7 @@ gem 'serrano', '~> 0.6.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.3'
+gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
