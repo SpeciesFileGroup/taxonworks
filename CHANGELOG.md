@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Collectors order in comprehensive specimen digitization
 - Losses data of etymology form after set a gender
+- Autocomplete component not encoding query params properly
 
 ### Changed
 - New combination redirect to the valid name [#1639]
