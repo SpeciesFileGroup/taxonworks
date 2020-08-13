@@ -1,6 +1,6 @@
 <template>
   <div
-    v-shortkey="['ctrl', 'p']"
+    v-shortkey="[getOSKey(), 'p']"
     @shortkey="openModal">
     <modal-component
       @close="showModal = false"
@@ -48,6 +48,7 @@
 import ModalComponent from 'components/modal'
 import Shortcuts from './const/shortcuts.js'
 import { shorten } from 'helpers/strings.js'
+import GetOSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -60,6 +61,9 @@ export default {
       defaultItems: {},
       selected: undefined
     }
+  },
+  mounted () {
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Open pinboard navigator', 'Pinboard')
   },
   methods: {
     test () {
@@ -81,7 +85,8 @@ export default {
       this.selected = undefined
       this.showModal = true
     },
-    shorten: shorten
+    shorten: shorten,
+    getOSKey: GetOSKey
   }
 }
 </script>
