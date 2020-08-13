@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Type section in Browse OTUs task [#1615]
 - Automatically filter sections by taxon rank in Browse OTUs task
 - Rank string in browse nomenclature
+- Pinboard navigator [#1647]
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
 [#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
 [#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
+[#1647]: https://github.com/SpeciesFileGroup/taxonworks/issues/1647
 
 ## [0.12.13] - 2020-08-04
 
