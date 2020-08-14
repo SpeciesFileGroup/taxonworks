@@ -42,6 +42,7 @@
         @onUserslist="usersList = $event"
         v-model="params.user"/>
       <keywords-component v-model="params.keywords.keyword_ids" />
+      <repository-component v-model="params.repository.repository_id"/>
       <identifier-component v-model="params.identifier"/>
       <types-component v-model="params.types"/>
       <loan-component v-model="params.loans"/>
@@ -63,6 +64,7 @@ import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
+import RepositoryComponent from './filters/repository.vue'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -81,14 +83,15 @@ export default {
     TypesComponent,
     LoanComponent,
     InRelationship,
-    BiocurationsComponent
+    BiocurationsComponent,
+    RepositoryComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -100,6 +103,7 @@ export default {
         !this.params.keywords.keyword_ids.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
+        !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
         !Object.values(this.params.user).find(item => { return item !== undefined }) &&
@@ -219,6 +223,9 @@ export default {
           radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
+        },
+        repository: {
+          repository_id: undefined
         }
       }
     },
