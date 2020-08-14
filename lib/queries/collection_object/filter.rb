@@ -230,7 +230,7 @@ module Queries
       end
 
       def repository_facet
-        return nil if repository_id.empty?
+        return nil if repository_id.blank?
         table[:repository_id].eq(repository_id)
       end
 
