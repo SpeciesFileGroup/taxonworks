@@ -7,37 +7,42 @@
       v-if="showModal">
       <h3 slot="header">Pinboard navigator - Browse tasks</h3>
       <div slot="body">
-        <ul class="no_bullets">
-          <template v-for="(item, key) in defaultItems">
+        <ul
+          v-if="Object.keys(defaultItems).length"
+          class="no_bullets">
+          <template v-for="(item, key) in sections">
             <li
               class="margin-small-bottom"
-              v-if="sections[key]"
+              v-if="defaultItems[key]"
               :key="key"
-              v-shortkey="[sections[key].shortcut]"
-              @shortkey="selectItem(key, item)">
+              v-shortkey="[item.shortcut]"
+              @shortkey="selectItem(key, defaultItems[key])">
               <transition
                 v-if="selected && selected.klass == key"
                 name="bounce"
-                @after-enter="test"
+                @after-enter="redirect"
                 appear>
                 <div class="horizontal-left-content cursor-pointer">
                   <div class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right">
-                    <span class="capitalize"><b>{{ sections[key].shortcut }}</b></span>
+                    <span class="capitalize"><b>{{ item.shortcut }}</b></span>
                   </div>
-                  <span v-html="shorten(item.label, 38)"/>
+                  <span v-html="shorten(defaultItems[key].label, 38)"/>
                 </div>
               </transition>
               <div
                 v-else
-                class="horizontal-left-content cursor-pointer">
-                <div class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right">
-                  <span class="capitalize"><b>{{ sections[key].shortcut }}</b></span>
+                class="cursor-pointer dislay-inline-flex align-center"
+                @click="selectItem(key, defaultItems[key])">
+                <div
+                  class="rounded-circle button-default horizontal-center-content circle-s middle margin-small-right">
+                  <span class="capitalize"><b>{{ item.shortcut }}</b></span>
                 </div>
-                <span v-html="shorten(item.label, 38)"/>
+                <span v-html="shorten(defaultItems[key].label, 38)"/>
               </div>
             </li>
           </template>
         </ul>
+        <h4 v-else>Nothing is on your pinboard yet</h4>
       </div>
     </modal-component>
   </div>
@@ -57,7 +62,7 @@ export default {
   data () {
     return {
       showModal: false,
-      sections: Shortcuts,
+      sections: this.orderShortcuts(Shortcuts),
       defaultItems: {},
       selected: undefined
     }
@@ -66,7 +71,7 @@ export default {
     TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Open pinboard navigator', 'Pinboard')
   },
   methods: {
-    test () {
+    redirect () {
       const klass = this.selected.klass
       window.open(`${this.sections[klass].path}?${this.sections[klass].param}=${this.selected.object.id}`, '_self')
     },
@@ -86,7 +91,14 @@ export default {
       this.showModal = true
     },
     shorten: shorten,
-    getOSKey: GetOSKey
+    getOSKey: GetOSKey,
+    orderShortcuts (sections) {
+      const ordered = {}
+      Object.keys(sections).sort((a, b) => a.shortcut - b.shortcut).forEach((key) => {
+        ordered[key] = sections[key]
+      })
+      return ordered
+    }
   }
 }
 </script>
