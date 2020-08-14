@@ -71,7 +71,7 @@
             v-if="namespace"
             class="separate-left"
             :show-message="checkValidation"
-            legend="Namespace and identifier needs to be set to be save."
+            legend="Namespace and identifier needs to be set to be saved."
           />
         </div>
         <span
