@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Repository</h3>
+    <h2>Repository</h2>
     <smart-selector
       class="margin-medium-top"
       model="repositories"
