@@ -81,9 +81,12 @@ export default {
     openModal () {
       this.defaultItems = {}
       document.querySelectorAll('[data-pinboard-section]').forEach(node => {
-        this.defaultItems[node.getAttribute('data-pinboard-section')] = {
-          id: node.querySelector('[data-insert="true"]').getAttribute('data-pinboard-object-id'),
-          label: node.querySelector('[data-insert="true"] a').textContent
+        const element = node.querySelector('[data-insert="true"]')
+        if (element) {
+          this.defaultItems[node.getAttribute('data-pinboard-section')] = {
+            id: element.getAttribute('data-pinboard-object-id'),
+            label: element.querySelector('a').textContent
+          }
         }
       })
 
