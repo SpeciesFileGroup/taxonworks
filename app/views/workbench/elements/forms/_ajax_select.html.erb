@@ -16,7 +16,7 @@
 <input autocomplete="off"
        title="Find and select a <%= object_name -%>. You must click or tab off a row to choose the item."
        placeholder="Select a <%= object_name -%>"
-       class="mx-autocomplete <%= css_class -%>"
+       class="mx-autocomplete <%= css_class -%> mousetrap"
        id="<%= tag_id %>"
        <%= ('autofocus="autofocus"').html_safe if !autofocus.nil? -%>
        data-send-select="<%= send_select %>"

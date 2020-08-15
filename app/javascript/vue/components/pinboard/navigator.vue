@@ -1,6 +1,6 @@
 <template>
   <div
-    v-shortkey="[getOSKey(), 'p']"
+    v-shortkey="[getOSKey(), 'g']"
     @shortkey="openModal">
     <modal-component
       @close="showModal = false"

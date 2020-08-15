@@ -13,8 +13,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Type section in Browse OTUs task [#1615]
 - Automatically filter sections by taxon rank in Browse OTUs task
 - Rank string in browse nomenclature
-- Pinboard navigator [#1647]
+- Pinboard navigator (Ctrl/Alt + G) [#1647]
 - Filter by repository in filter collection objects [#1650]
+- Hotkey for add element to pinboard (Ctrl/Alt + P)
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
