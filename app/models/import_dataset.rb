@@ -32,7 +32,7 @@ class ImportDataset < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 
-  attribute :status, :string, default: "Pending"
+  attribute :status, :string, default: "Uploaded"
 
   has_many :dataset_records, dependent: :destroy
 
@@ -46,4 +46,9 @@ class ImportDataset < ApplicationRecord
   validates_attachment :source, presence: true,
     content_type: { content_type: ["text/plain", "application/zip", "application/octet-stream"] },
     size: { greater_than: 1.bytes }
+
+  # Stages all records from source file into DB. Implementors must not assume it will be called only once.
+  def stage
+    raise "Implementation missing"
+  end
 end

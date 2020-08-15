@@ -1,6 +1,8 @@
 class ImportDataset::DarwinCore < ImportDataset
   # self.abstract_class = true # TODO: Why causes app/views/shared/data/project/_show.html.erb to fail when visiting /import_datasets/list if uncommented?
 
+  after_create -> (dwc) { ImportDatasetStageJob.perform_later(dwc) }
+
   CHECKLIST_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Taxon"
   OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
 
@@ -52,15 +54,26 @@ class ImportDataset::DarwinCore < ImportDataset
     core_records.group(:status).count
   end
 
+  # Stages DwC-A records into DB.
+  def stage
+    dataset_records.delete_all if status == "Staging" # ActiveJob being retried could cause this state
+
+    update!(status: "Staging") if status == "Uploaded"
+
+    if status != "Ready"
+      perform_staging
+      update!(status: "Ready")
+    end
+  end
+
   protected
 
   def get_records(source)
-    source_path = source.tempfile.path
     records = { core: [], extensions: {} }
     headers = { core: [], extensions: {} }
 
     if ["application/zip", "application/octet-stream"].include? source.content_type
-      dwc = ::DarwinCore.new(source_path)
+      dwc = ::DarwinCore.new(source.path)
 
       records[:core], headers[:core] = get_dwc_records(dwc.core)
 
@@ -69,7 +82,7 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type], headers[:extensions][type] = get_dwc_records(extension)
       end
     elsif ["text/plain"].include? source.content_type
-      records[:core] = CSV.read(source_path, headers: true, col_sep: "\t", quote_char: nil).map { |r| r.to_h }
+      records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil).map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys
     else
       raise "Unsupported input format"
