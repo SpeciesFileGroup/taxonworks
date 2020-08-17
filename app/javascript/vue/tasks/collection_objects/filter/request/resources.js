@@ -24,6 +24,10 @@ const GetNamespace = (id) => {
   return ajaxCall('get', `/namespaces/${id}.json`)
 }
 
+const GetRepository = (id) => {
+  return ajaxCall('get', `/repositories/${id}.json`)
+}
+
 const GetOtu = (id) => {
   return ajaxCall('get', `/otus/${id}.json`)
 }
@@ -74,5 +78,6 @@ export {
   GetOtu,
   GetNamespace,
   GetCollectingEvents,
-  GetKeyword
+  GetKeyword,
+  GetRepository
 }

@@ -360,6 +360,9 @@ export default {
     label {
       display: block;
     }
+    li label {
+      display: inline;
+    }
     .date-fields {
       input {
         max-width: 80px;

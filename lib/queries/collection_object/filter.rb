@@ -86,6 +86,9 @@ module Queries
       # @return [Protonym#id, nil]
       attr_accessor :type_specimen_taxon_name_id
 
+      # @return [Repository#id, nil]
+      attr_accessor :repository_id
+
       # @return [Array]
       #   of type_materials
       attr_accessor :is_type
@@ -131,6 +134,8 @@ module Queries
 
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
         @depicted = (params[:depicted]&.downcase == 'true' ? true : false) if !params[:depicted].nil?
+
+        @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
 
         set_identifier(params)
         set_tags_params(params)
@@ -224,6 +229,11 @@ module Queries
         table[:collecting_event_id].eq_any(collecting_event_ids)
       end
 
+      def repository_facet
+        return nil if repository_id.blank?
+        table[:repository_id].eq(repository_id)
+      end
+
       def collecting_event_merge_clauses
         c = []
 
@@ -263,7 +273,8 @@ module Queries
 
         clauses += [
           collecting_event_ids_facet,
-          type_facet
+          type_facet,
+          repository_facet
         ]
         clauses.compact!
         clauses

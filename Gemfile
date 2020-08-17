@@ -82,7 +82,7 @@ gem 'serrano', '~> 0.6.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.3'
+gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
@@ -94,7 +94,7 @@ gem 'rgb'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
-gem 'sqed', '0.5.8'
+gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1.1'
 gem 'biodiversity', '~> 4.0', '>= 4.0.3'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'

@@ -17,7 +17,7 @@ function makeInitialState () {
       collectionObjects: true
     },
     preferences: {
-      preferenceSchema: 20200703,
+      preferenceSchema: 20200807,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {
@@ -102,6 +102,7 @@ function makeInitialState () {
         ]
       }
     },
+    taxonName: undefined,
     currentOtu: undefined,
     assertedDistributions: [],
     collectingEvents: [],

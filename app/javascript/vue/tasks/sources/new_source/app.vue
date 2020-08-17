@@ -60,6 +60,7 @@
             Clone
           </button>
           <button
+            v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
             type="button"
             @click="showModal = true">

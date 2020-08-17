@@ -9,6 +9,38 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.12.14] - 2020-08-17
+
+### Added
+- Help tips in comprehensive specimen digitization task
+- Help tips in new source task
+- Type section in Browse OTUs task [#1615]
+- Automatically filter sections by taxon rank in Browse OTUs task
+- Rank string in browse nomenclature
+- Pinboard navigator (Ctrl/Alt + G) [#1647]
+- Filter by repository in filter collection objects [#1650]
+- Hotkey for add element to pinboard (Ctrl/Alt + P)
+
+### Fixed
+- Collectors order in comprehensive specimen digitization
+- Losses data of etymology form after set a gender
+- Autocomplete component not encoding query params properly
+- Random RGeo deserialization errors [#1553]
+
+### Changed
+- New combination redirect to the valid name [#1639]
+- Rename comprehensive specimen digitization task card
+- Updated chartkick gem [#1646]
+- Improved verbatim date and geographic coordinates recognition
+- Improved soft validation messages for coordinated species-group
+
+[#1553]: https://github.com/SpeciesFileGroup/taxonworks/issues/1553
+[#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
+[#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
+[#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
+[#1647]: https://github.com/SpeciesFileGroup/taxonworks/issues/1647
+[#1650]: https://github.com/SpeciesFileGroup/taxonworks/issues/1650
+
 ## [0.12.13] - 2020-08-04
 
 ### Added
@@ -304,7 +336,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...development
+[0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
 [0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13
 [0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
 [0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
