@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.12.14] - 2020-08-17
 
+### Fixed
+- Sqed hook initiated with String, not Class [#1654]
+
 ### Added
 - Help tips in comprehensive specimen digitization task
 - Help tips in new source task
