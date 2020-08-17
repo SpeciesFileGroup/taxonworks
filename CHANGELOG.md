@@ -27,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New combination redirect to the valid name [#1639]
 - Rename comprehensive specimen digitization task card
 - Updated chartkick gem [#1646]
+- Improved verbatim date and geographic coordinates recognition
+- Improved soft validation messages for coordinated species-group
 
 [#1553]: https://github.com/SpeciesFileGroup/taxonworks/issues/1553
 [#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
