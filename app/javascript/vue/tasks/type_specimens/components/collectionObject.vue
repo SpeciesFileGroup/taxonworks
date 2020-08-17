@@ -25,15 +25,17 @@
       <div class="field label-above">
         <label>Total</label>
         <input
+          class="input-xsmall-width"
           type="number"
           v-model="total">
       </div>
-      <div class="field label-above margin-small-left">
+      <div class="field label-above margin-small-left full_width">
         <label>Preparation type</label>
         <select
           v-model="preparationId"
-          class="normal-input">
+          class="normal-input full_width">
           <option
+            class="full_width"
             v-for="item in types"
             :value="item.id">{{ item.name }}</option>
         </select>

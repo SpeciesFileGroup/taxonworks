@@ -898,10 +898,10 @@ module Utilities::Dates
         .gsub('vii', 'VII')
         .gsub('vi', 'VI')
         .gsub('iv', 'IV')
-        .gsub('v', 'V')
+        .gsub(' v', ' V')  # space needed not to replace in 'November'
         .gsub('iii', 'III')
         .gsub('ii', 'II')
-        .gsub('i', 'I') if date[:verbatim_date]
+        .gsub(' i', ' I') if date[:verbatim_date] # space needed not to replace in 'April'
 
     if date[:start_date_year] && date[:start_date_year].length >=2 && date[:start_date_year].length < 4
       y = date[:start_date_year].last(2)

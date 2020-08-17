@@ -494,7 +494,7 @@ To add a new (discovered) symbol:
         coordinates[:long_deg] = matchdata6[3]
         coordinates[:long_we]  = matchdata6[4]
         # pattern: -12.263, 49.398
-      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\D/)
+      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?\d+),.*?(-?\d+[\.|,]\d+|\-?\d+)\D/)
         coordinates[:lat_deg] = matchdata7[1]
         coordinates[:long_deg] = matchdata7[2]
       end

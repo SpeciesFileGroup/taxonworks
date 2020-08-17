@@ -5,6 +5,7 @@ import loadCollectingEvents from './loadCollectingEvents'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
+import loadTaxonName from './loadTaxonName'
 
 const ActionFunctions = {
   [ActionNames.LoadInformation]: loadInformation,
@@ -12,7 +13,8 @@ const ActionFunctions = {
   [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
   [ActionNames.LoadPreferences]: loadPreferences,
   [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
-  [ActionNames.LoadDescendants]: loadDescendants
+  [ActionNames.LoadDescendants]: loadDescendants,
+  [ActionNames.LoadTaxonName]: loadTaxonName
 }
 
 export {

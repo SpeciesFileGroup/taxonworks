@@ -288,17 +288,17 @@ export default {
     },
 
     ajaxUrl: function () {
-      var tempUrl = this.url + '?' + this.param + '=' + this.type
+      var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
         Object.keys(this.addParams).forEach((key) => {
           if(Array.isArray(this.addParams[key])) {
             this.addParams[key].forEach((param) => {
-              params += `&${key}=${param}`
+              params += `&${key}=${encodeURIComponent(param)}`
             })
           }
           else {
-            params += `&${key}=${this.addParams[key]}`
+            params += `&${key}=${encodeURIComponent(this.addParams[key])}`
           }
         })
       }
