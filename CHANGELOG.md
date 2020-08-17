@@ -21,12 +21,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collectors order in comprehensive specimen digitization
 - Losses data of etymology form after set a gender
 - Autocomplete component not encoding query params properly
+- Random RGeo deserialization errors [#1553]
 
 ### Changed
 - New combination redirect to the valid name [#1639]
 - Rename comprehensive specimen digitization task card
 - Updated chartkick gem [#1646]
 
+[#1553]: https://github.com/SpeciesFileGroup/taxonworks/issues/1553
 [#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
 [#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
 [#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
