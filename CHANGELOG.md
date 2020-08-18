@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Highlight metadata that is not in this project in uniquify people task [#1648]
+
+[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
 
 ## [0.12.15] - 2020-08-18
 
@@ -27,7 +30,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pinboard navigator (Ctrl/Alt + G) [#1647]
 - Filter by repository in filter collection objects [#1650]
 - Hotkey for add element to pinboard (Ctrl/Alt + P)
-- Highlight metadata that is not in this project in uniquify people task [#1648]
 
 ### Fixed
 - Collectors order in comprehensive specimen digitization
@@ -47,7 +49,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
 [#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
 [#1647]: https://github.com/SpeciesFileGroup/taxonworks/issues/1647
-[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
 [#1650]: https://github.com/SpeciesFileGroup/taxonworks/issues/1650
 
 ## [0.12.13] - 2020-08-04
