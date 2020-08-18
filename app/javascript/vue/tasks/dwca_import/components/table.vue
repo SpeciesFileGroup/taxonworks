@@ -16,7 +16,7 @@
             :title="item"
             :disabled="disabled"
             class="position-sticky margin-medium-left"
-            v-model="params.filter[item]"
+            v-model="params.filter[index]"
             :field="index"/>
         </tr>
       </thead>
