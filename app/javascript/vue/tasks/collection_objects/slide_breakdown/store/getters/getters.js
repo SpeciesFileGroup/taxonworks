@@ -4,6 +4,7 @@ import getIdentifier from './getIdentifier'
 import getImage from './getImage'
 import getNavigation from './getNavigation'
 import getDepiction from './getDepiction'
+import getLocks from './getLocks'
 
 const GetterNames = {
   GetSledImage: 'getSledImage',
@@ -11,7 +12,8 @@ const GetterNames = {
   GetCollectionObject: 'getCollectionObject',
   GetImage: 'getImage',
   GetNavigation: 'getNavigation',
-  GetDepiction: 'getDepiction'
+  GetDepiction: 'getDepiction',
+  GetLocks: 'getLocks'
 }
 
 const GetterFunctions = {
@@ -20,7 +22,8 @@ const GetterFunctions = {
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetImage]: getImage,
   [GetterNames.GetNavigation]: getNavigation,
-  [GetterNames.GetDepiction]: getDepiction
+  [GetterNames.GetDepiction]: getDepiction,
+  [GetterNames.GetLocks]: getLocks
 }
 
 export {
