@@ -7,12 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
-
-## [0.12.14] - 2020-08-17
-
 ### Fixed
 - Sqed hook initiated with String, not Class [#1654]
+
+[#1654]: https://github.com/SpeciesFileGroup/taxonworks/issues/1654
+
+## [0.12.14] - 2020-08-17
 
 ### Added
 - Help tips in comprehensive specimen digitization task
