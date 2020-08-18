@@ -9,7 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Highlight metadata that is not in this project in uniquify people task [#1648]
+- Locks buttons on grid digitizer task [#1599]
 
+[#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
 [#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
 
 ## [0.12.15] - 2020-08-18
