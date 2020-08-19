@@ -46,6 +46,15 @@
         </tr>
       </tbody>
     </table>
+    <div
+      class="margin-medium-top"
+      v-if="Object.keys(selected).length || Object.keys(merge).length">
+      <ul class="no_bullets context-menu">
+        <li class="middle"><div class="circle-info-project in-project margin-small-right"/><span>In project</span></li>
+        <li class="middle"><div class="circle-info-project no-in-project margin-small-right"/><span>Not in project</span></li>
+        <li class="middle"><div class="circle-info-project nulled margin-small-right"/><span>Not determinated</span></li>
+      </ul>
+    </div>
     <div class="horizontal-left-content align-start">
       <table-person-roles
         :class="{ 'separate-right': Object.keys(merge).length }"
@@ -155,5 +164,19 @@ export default {
     min-width: 250px;
     padding-left: 1em;
     padding-right: 1em;
+  }
+  .circle-info-project {
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+  }
+  .nulled {
+    background-color: #E5D2BE;
+  }
+  .in-project {
+    background-color: #5D9ECE;
+  }
+  .no-in-project {
+    background-color: #C38A8A;
   }
 </style>

@@ -7,6 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Highlight metadata that is not in this project in uniquify people task [#1648]
+- Locks buttons on grid digitizer task [#1599]
+
+[#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
+[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
+
+## [0.12.15] - 2020-08-18
+
 ### Fixed
 - Sqed hook initiated with String, not Class [#1654]
 
@@ -339,7 +348,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...development
+[0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
 [0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
 [0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13
 [0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
