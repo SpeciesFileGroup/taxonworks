@@ -21,7 +21,7 @@ const GetCitationTypes = () => {
 }
 
 const GetBibtex = (params) => {
-  return ajaxCall('get', '/sources.bib', { params: params })
+  return ajaxCall('get', '/sources.bib', params)
 }
 
 const GetGenerateLinks = (params) => {
