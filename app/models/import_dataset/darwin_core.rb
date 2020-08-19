@@ -75,7 +75,8 @@ class ImportDataset::DarwinCore < ImportDataset
     if ["application/zip", "application/octet-stream"].include? source.content_type
       dwc = ::DarwinCore.new(source.path)
 
-      records[:core], headers[:core] = get_dwc_records(dwc.core)
+      headers[:core] = get_dwc_headers(dwc.core)
+      records[:core] = get_dwc_records(dwc.core)
 
       dwc.extensions.each do |extension|
         type = extension.properties[:rowType]
@@ -91,8 +92,7 @@ class ImportDataset::DarwinCore < ImportDataset
     return records, headers
   end
 
-  def get_dwc_records(table)
-    records = []
+  def get_dwc_headers(table)
     headers = []
 
     headers[table.id[:index]] = "id"
@@ -103,13 +103,20 @@ class ImportDataset::DarwinCore < ImportDataset
       headers[field[:index]] = term ? term[2] : field[:term]
     end
 
+    headers
+  end
+
+  def get_dwc_records(table)
+    records = []
+    headers = get_dwc_headers(table)
+
     records = table.read.first.map do |row|
       record = {}
       row.each_with_index { |v, i| record[headers[i]] = v }
       record
     end
 
-    return records, headers
+    return records
   end
 
 end

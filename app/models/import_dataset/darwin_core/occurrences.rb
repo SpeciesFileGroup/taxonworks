@@ -3,6 +3,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Occurrence'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
+  MINIMUM_FIELD_SET = ["occurrenceID", "scientificName", "basisOfRecord"]
+
+  validate :source, :check_field_set
+
   # Stages core (Occurrence) records and all extension records.
   def perform_staging
     records, headers = get_records(source)
@@ -14,14 +18,12 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     })
 
     parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
-    records_lut = { }
 
     core_records = records[:core].each_with_index.map do |record, index|
-      records_lut[record["taxonID"]] = {
-        index: index,
-        type: nil,
+      {
         parse_results: parse_results[index],
-        src_data: record
+        src_data: record,
+        basisOfRecord: record["basisOfRecord"]
       }
     end
 
@@ -35,6 +37,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       dwc_occurrence = DatasetRecord::DarwinCore::Occurrence.new(import_dataset: self)
       dwc_occurrence.initialize_data_fields(record[:src_data].map { |k, v| v })
       dwc_occurrence.status = !record[:invalid] ? "Ready" : "NotReady"
+      dwc_occurrence.status = "Unsupported" unless "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0
       record.delete(:src_data)
       dwc_occurrence.metadata = record
 
@@ -66,6 +69,18 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   # Returns a hash with the record counts grouped by status
   def progress
     core_records.group(:status).count
+  end
+
+  def check_field_set
+    if source.staged?
+      headers = get_dwc_headers(::DarwinCore.new(source.staged_path).core)
+
+      missing_headers = MINIMUM_FIELD_SET - headers
+
+      missing_headers.each do |header|
+        errors.add(:source, "required field #{header} missing.")
+      end
+    end
   end
 
 end
