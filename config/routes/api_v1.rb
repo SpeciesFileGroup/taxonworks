@@ -8,17 +8,17 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
-    get '/sources', to: '/sources#api_index'
-    get '/sources/:id', to: '/sources#api_show'
-    get '/sources/autocomplete', to: '/sources#autocomplete'
-
-    get '/people', to: '/people#api_index'
-    get '/people/:id', to: '/people#api_show'
-    get '/people/autocomplete', to: '/people#autocomplete'
-
     # authenticated by user_token
     defaults authenticate_user: true do
       get '/user_authenticated', to: 'base#index'
+
+      get '/sources', to: '/sources#api_index'
+      get '/sources/:id', to: '/sources#api_show'
+      get '/sources/autocomplete', to: '/sources#autocomplete'
+
+      get '/people', to: '/people#api_index'
+      get '/people/:id', to: '/people#api_show'
+      get '/people/autocomplete', to: '/people#autocomplete'
     end
 
     # authenticated by project token
