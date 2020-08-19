@@ -20,8 +20,14 @@
         :key="item.id"
         :depiction="item"/>
     </div>
+    <div>
+      <label>
+        <input
+          v-model="autogeo"
+          type="checkbox"> Create georeferences from EXIF
+      </label>
+    </div>
     <div v-if="coordinatesEXIF.length">
-      <h3>Create georeferences from image EXIF</h3>
       <ul class="no_bullets">
         <li v-for="item in coordinatesEXIF">
           <label class="middle">
@@ -47,7 +53,9 @@
 import { CreateGeoreference, GetDepictions, DestroyDepiction } from '../../request/resources.js'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
-import ParseDMS from 'helpers/parseDMS'
+import ParseDMS from 'helpers/parseDMS.js'
+import addGeoreference from '../../helpers/addGeoreference.js'
+import createGeoJSONFeature from '../../helpers/createGeoJSONFeature.js'
 import EXIF from 'exif-js'
 
 export default {
@@ -56,19 +64,20 @@ export default {
     Dropzone
   },
   computed: {
-    coordinatesEXIF () {
-      return this.imagesEXIF.filter(item => item.hasOwnProperty('GPSLatitude')).map((item) => {
-        return {
-          latitude: ParseDMS(this.parseEXIFCoordinate(item.GPSLatitude) + item.GPSLatitudeRef),
-          longitude: ParseDMS(this.parseEXIFCoordinate(item.GPSLongitude) + item.GPSLongitudeRef)
-        }
-      })
+    queueGeoreferences: {
+      get () {
+        return this.collectingEvent.queueGeoreferences
+      },
+      set (value) {
+        this.collectingEvent.queueGeoreferences = value
+      }
     }
   },
   data () {
     return {
       figuresList: [],
       dropzoneId: Math.random().toString(36).substr(2, 5),
+      autogeo: true,
       dropzone: {
         paramName: 'depiction[image_attributes][image_file]',
         url: '/depictions',
@@ -79,7 +88,7 @@ export default {
         dictDefaultMessage: 'Drop images or click here to add figures',
         acceptedFiles: 'image/*'
       },
-      imagesEXIF: [],
+      coordinatesEXIF: [],
       coordinatesQueue: []
     }
   },
@@ -88,7 +97,6 @@ export default {
       if (newVal.id && (newVal.id !== oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
-        this.processGeoreferencesQueue()
         GetDepictions(newVal.id).then(response => {
           this.figuresList = response
         })
@@ -113,8 +121,16 @@ export default {
     addedfile (file) {
       EXIF.getData(file, () => {
         var allMetaData = EXIF.getAllTags(file)
-        this.imagesEXIF.push(allMetaData)
-        console.log(JSON.stringify(allMetaData, null, '\t'))
+        if (allMetaData.hasOwnProperty('GPSLatitude')) {
+          const coordinates = {
+            latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
+            longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
+          }
+          this.coordinatesEXIF.push(coordinates)
+          if (this.autogeo) {
+            this.collectingEvent.queueGeoreferences.push(addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude, 'Georeference::Exit')))
+          }
+        }
       })
       if (this.collectingEvent.id) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
@@ -135,28 +151,6 @@ export default {
     },
     parseEXIFCoordinate (GPSCoordinate) {
       return `${GPSCoordinate[0]}° ${GPSCoordinate[1]}' ${GPSCoordinate[2]}"`
-    },
-    processGeoreferencesQueue () {
-      this.coordinatesQueue.forEach(geo => {
-        const geojson = {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Point',
-            coordinates: [geo.longitude, geo.latitude]
-          }
-        }
-        const data = {
-          georeference: {
-            geographic_item_attributes: { shape: JSON.stringify(geojson) },
-            collecting_event_id: this.collectingEvent.id,
-            type: 'Georeference::Exif'
-          }
-        }
-        CreateGeoreference(data).then(response => {
-          console.log(response)
-        })
-      })
     }
   }
 }

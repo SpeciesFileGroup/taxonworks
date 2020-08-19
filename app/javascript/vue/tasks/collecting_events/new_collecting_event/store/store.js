@@ -51,7 +51,9 @@ function makeInitialState () {
       min_ma: undefined,
       field_notes: undefined,
       roles_attributes: [],
-      identifiers_attributes: []
+      identifiers_attributes: [],
+      georeferences: [],
+      queueGeoreferences: []
     },
     tripCode: {
       id: undefined,

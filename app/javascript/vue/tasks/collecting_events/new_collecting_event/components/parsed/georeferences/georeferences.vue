@@ -145,18 +145,32 @@ export default {
     },
     verbatimLng () {
       return this.collectingEvent.verbatim_longitude
+    },
+    georeferences: {
+      get () {
+        return this.collectingEvent.georeferences
+      },
+      set (value) {
+        this.collectingEvent.georeferences = value
+      }
+    },
+    queueGeoreferences: {
+      get () {
+        return this.collectingEvent.queueGeoreferences
+      },
+      set (value) {
+        this.collectingEvent.queueGeoreferences = value
+      }
     }
   },
   data () {
     return {
       showSpinner: false,
       selectedGeoreference: undefined,
-      georeferences: [],
       shapes: {
         type: 'FeatureCollection',
         features: []
       },
-      queueGeoreferences: [],
       showModal: false
     }
   },
