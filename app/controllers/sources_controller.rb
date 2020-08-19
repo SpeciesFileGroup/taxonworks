@@ -80,6 +80,12 @@ class SourcesController < ApplicationController
       .pluck(:citation_object_type).sort
   end
 
+
+  # GET /sources/csl_types.json
+  def csl_types
+    render json:  TaxonWorks::Vendor::BibtexRuby::CSL_STYLES
+  end
+
   def parse
     error_message = 'Unknown'
 

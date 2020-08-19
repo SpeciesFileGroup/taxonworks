@@ -1,7 +1,15 @@
+require 'csl/styles'
+
 module TaxonWorks
   module Vendor
 
     module BibtexRuby
+
+      # TODO: Might have to move to constant/init
+      # !! this will add 2-3 seconds to boot perhaps !!
+      styles = CSL::Style.list.map { |id| CSL::Style.load id }.reject { |s| s.bibliography.nil? }
+      CSL_STYLES = styles.inject({}){|h, a| h.merge(a.id => a.title)}.freeze
+
       def self.bibliography(sources)
         b = BibTeX::Bibliography.new
         sources.each do |s|
