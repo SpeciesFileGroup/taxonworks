@@ -134,6 +134,7 @@ export default {
       return new Promise((resolve, reject) => {
         this.isLoading = true
         GetBibtex({ params: Object.assign({}, this.params, { is_public: true, style_id: this.styleId }) }).then(response => {
+          this.links = undefined
           this.bibtex = response.body
           this.isLoading = false
           resolve(response)

@@ -10,12 +10,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Highlight metadata that is not in this project in uniquify people task [#1648]
 - Locks buttons on grid digitizer task [#1599]
+- Option to export styled bibliography on filter sources task [#1652]
 
 ### Fixed
 - BibTex html no longer escaped [#1657]
 
 [#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
 [#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
+[#1652]: https://github.com/SpeciesFileGroup/taxonworks/issues/1652
 [#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
 
 ## [0.12.15] - 2020-08-18
