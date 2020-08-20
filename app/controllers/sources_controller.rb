@@ -281,7 +281,7 @@ class SourcesController < ApplicationController
       :publisher, :school, :series, :title, :type, :volume, :doi,
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
       roles_attributes: [
         :id,
         :_destroy,
