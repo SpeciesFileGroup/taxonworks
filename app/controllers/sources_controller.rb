@@ -25,7 +25,7 @@ class SourcesController < ApplicationController
   # GET /api/v1/sources
   def api_index
     @sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/sources/index.json.jbuilder'#####/sources/api/index.json.jbuilder
+    render '/sources/api/index.json.jbuilder'
   end
 
   # GET /api/v1/sources/:id
