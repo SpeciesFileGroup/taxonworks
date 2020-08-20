@@ -6,7 +6,7 @@ module TaxonWorks
     module BibtexRuby
 
       # TODO: Might have to move to constant/init
-      # !! this will add 2-3 seconds to boot perhaps !!
+      # !! This add 3+ seconds to boot I think
       styles = CSL::Style.list.map { |id| CSL::Style.load id }.reject { |s| s.bibliography.nil? }
       CSL_STYLES = styles.inject({}){|h, a| h.merge(a.id => a.title)}.freeze
 
@@ -20,6 +20,14 @@ module TaxonWorks
         end
         b
       end
+
+     # @return Array
+      #   of styled sources
+      def self.styled(sources = [], style_id = 'http://www.zotero.org/styles/vancouver')
+        return [] unless s = CSL_STYLES[style_id]
+        sources.collect{|b| b.render_with_style(style_id) }.sort
+      end
+
     end
   end
 end
