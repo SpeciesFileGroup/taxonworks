@@ -14,11 +14,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - BibTex html no longer escaped [#1657]
+- Some of the elements of the form are not accessible on overflow. [#1661]
 
 [#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
 [#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
 [#1652]: https://github.com/SpeciesFileGroup/taxonworks/issues/1652
 [#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
+[#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
 
 ## [0.12.15] - 2020-08-18
 
