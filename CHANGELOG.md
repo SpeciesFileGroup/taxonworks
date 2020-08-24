@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Highlight metadata that is not in this project in uniquify people task [#1648]
 - Locks buttons on grid digitizer task [#1599]
 - Option to export styled bibliography on filter sources task [#1652]
+- Edit button in content section on radial object [#1670]
 
 ### Changed
 - Drag button style on new taxon name [#1669]
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
 [#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
 [#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
+[#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
 
 ## [0.12.15] - 2020-08-18
 

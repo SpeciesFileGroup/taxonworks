@@ -20,6 +20,9 @@
             v-html="getValue(item, attr)"/>
           <td>
             <div class="horizontal-right-content">
+              <slot
+                :item="item"
+                name="options"/>
               <pdf-component
                 v-if="pdf"
                 :pdf="item.document"/>
