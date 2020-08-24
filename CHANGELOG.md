@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- DOMPurify package to sanitize html
+
+### Changed
+- Replace SimpleMDE for EasyMDE
 
 ## [0.12.16] - 2020-08-24
 

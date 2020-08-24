@@ -6,8 +6,9 @@
 
 <script>
 
-import SimpleMDE from 'simplemde'
-import 'simplemde/dist/simplemde.min.css'
+import SimpleMDE from 'easymde'
+import DOMPurify from 'dompurify'
+import 'easymde/dist/easymde.min.css'
 
 export default {
   template: '',
@@ -37,7 +38,11 @@ export default {
   },
   methods: {
     initialize () {
-      const configs = {}
+      const configs = {
+        renderingConfig: {
+          sanitizerFunction: (renderedHTML) => DOMPurify.sanitize(renderedHTML)
+        }
+      }
       Object.assign(configs, this.configs)
       configs.element = configs.element || this.$el.firstElementChild
       configs.initialValue = configs.initialValue || this.value
