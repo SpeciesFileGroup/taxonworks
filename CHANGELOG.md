@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Drag button style on new taxon name [#1669]
 - Removed SimpleMDE lib from ruby assets and added to npm dependencies
+- Allow taxon name type relationships to be cited [#1667]
 
 ### Fixed
 - BibTex html no longer escaped [#1657]
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
 [#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
 [#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
+[#1667]: https://github.com/SpeciesFileGroup/taxonworks/issues/1667
 [#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
 [#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
 [#1671]: https://github.com/SpeciesFileGroup/taxonworks/issues/1671
