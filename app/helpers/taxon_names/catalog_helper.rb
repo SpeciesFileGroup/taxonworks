@@ -182,14 +182,16 @@ module TaxonNames::CatalogHelper
   
   def history_type_material(entry_item)
     return nil if entry_item.object_class != 'Protonym' || !entry_item.is_first # is_subsequent?
-    str = citations_tag(entry_item.base_object&.type_taxon_name_relationship)
+    type_taxon_name_relationship = entry_item.base_object&.type_taxon_name_relationship
+    
+    str = citations_tag(type_taxon_name_relationship) if type_taxon_name_relationship
 
     [ content_tag(:span, ' '.html_safe + type_taxon_name_relationship_tag(entry_item.base_object.type_taxon_name_relationship), class: 'history__type_information'),
 
 #      citations_tag(entry_item.base_object&.type_taxon_name_relationship)
 #      (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') + citations_tag(entry_item.base_object&.type_taxon_name_relationship)) : '')
-    (entry_item.base_object&.type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') +
-        link_to(content_tag(:span, str, title: entry_item.base_object&.type_taxon_name_relationship&.citations&.first&.source&.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: entry_item.base_object&.type_taxon_name_relationship&.citations&.first&.source&.id) )  ) : '')
+    (type_taxon_name_relationship&.citations&.load&.any? ? (content_tag(:em, ' in ') +
+        link_to(content_tag(:span, str, title: type_taxon_name_relationship&.citations&.first&.source&.cached, class: 'history__pages'), send(:nomenclature_by_source_task_path, source_id: type_taxon_name_relationship&.citations&.first&.source&.id) )  ) : '')
 
 
     #      history_in(entry_item.base_object&.type_taxon_name_relationship&.source)
