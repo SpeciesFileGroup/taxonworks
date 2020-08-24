@@ -39,7 +39,7 @@
                 :value="item.name"
                 disabled>
               <span
-                class="handle button circle-button button-default"
+                class="handle button circle-button button-submit"
                 title="Press and hold to drag input"
                 data-icon="w_scroll-v"/>
             </div>

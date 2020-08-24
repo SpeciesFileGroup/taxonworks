@@ -33,7 +33,7 @@
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
             param="term"/>
           <span
-            class="handle button circle-button button-default"
+            class="handle button circle-button button-submit"
             title="Press and hold to drag input"
             data-icon="w_scroll-v"/>
         </div>
@@ -47,7 +47,7 @@
             </span>
           </div>
           <span
-            class="handle button circle-button button-default"
+            class="handle button circle-button button-submit"
             title="Press and hold to drag input"
             data-icon="w_scroll-v"/>
           <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>

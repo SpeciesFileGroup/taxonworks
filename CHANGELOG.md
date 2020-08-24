@@ -12,6 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Locks buttons on grid digitizer task [#1599]
 - Option to export styled bibliography on filter sources task [#1652]
 
+### Changed
+- Drag button style on new taxon name [#1669]
+
 ### Fixed
 - BibTex html no longer escaped [#1657]
 - Some of the elements of the form are not accessible on overflow. [#1661]
@@ -23,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
 [#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
 [#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
+[#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
 
 ## [0.12.15] - 2020-08-18
 
