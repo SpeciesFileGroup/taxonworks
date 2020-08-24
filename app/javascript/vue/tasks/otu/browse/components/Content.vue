@@ -11,7 +11,7 @@
           <b><span v-html="content.topic.name"/></b>
           <p 
             class="pre"
-            v-html="content.text"/>
+            v-html="markdownToHtml(content.text)"/>
         </li>
       </ul>
     </div>
@@ -23,11 +23,12 @@
 import { GetContent } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
+import SimpleMDE from 'simplemde'
 
 export default {
   mixins: [extendSection],
   components: {
-    SectionPanel
+    SectionPanel,
   },
   props: {
     otu: {
@@ -49,6 +50,12 @@ export default {
         }
       },
       immediate: true
+    }
+  },
+  methods: {
+    markdownToHtml (text) {
+      const markdown = new SimpleMDE()
+      return markdown.options.previewRender(text)
     }
   }
 }

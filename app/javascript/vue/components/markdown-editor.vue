@@ -5,6 +5,10 @@
 </template>
 
 <script>
+
+import SimpleMDE from 'simplemde'
+import 'simplemde/dist/simplemde.min.css'
+
 export default {
   template: '',
   props: {
@@ -18,10 +22,7 @@ export default {
     },
     configs: {
       type: Object,
-      default () {
-        return {
-        }
-      }
+      default: () => {}
     }
   },
   data: function () {
@@ -31,16 +32,12 @@ export default {
       cursorPosition: 0
     }
   },
-  ready () {
-    this.initialize()
-    this.syncValue()
-  },
   mounted () {
     this.initialize()
   },
   methods: {
     initialize () {
-      let configs = {}
+      const configs = {}
       Object.assign(configs, this.configs)
       configs.element = configs.element || this.$el.firstElementChild
       configs.initialValue = configs.initialValue || this.value
@@ -81,11 +78,6 @@ export default {
       wrapper.nextSibling.className += ` ${className}`
       preview.className = `editor-preview ${className}`
       wrapper.appendChild(preview)
-    },
-    syncValue () {
-      this.simplemde.codemirror.on('change', () => {
-        this.value = this.simplemde.value()
-      })
     }
   },
   destroyed () {

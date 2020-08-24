@@ -15,11 +15,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Drag button style on new taxon name [#1669]
+- Removed SimpleMDE lib from ruby assets and added to npm dependencies
 
 ### Fixed
 - BibTex html no longer escaped [#1657]
 - Some of the elements of the form are not accessible on overflow. [#1661]
 - Populate masculine, feminine and neuter on gender form [#1665]
+- Markdown render on Browse OTU [#1671]
 
 [#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
 [#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
@@ -29,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
 [#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
 [#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
+[#1671]: https://github.com/SpeciesFileGroup/taxonworks/issues/1671
 
 ## [0.12.15] - 2020-08-18
 
