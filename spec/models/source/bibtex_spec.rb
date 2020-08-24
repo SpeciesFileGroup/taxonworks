@@ -2,6 +2,9 @@ require 'rails_helper'
 
 describe Source::Bibtex, type: :model, group: :sources do
 
+  # TODO: shouldn't be needed ultimately
+  after(:all) { Source.destroy_all }
+
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
@@ -19,8 +22,6 @@ describe Source::Bibtex, type: :model, group: :sources do
   let(:gem_bibtex_bibliography) {
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
-
-  after(:all) { Source.destroy_all }
 
   context '#clone' do
     before do
@@ -348,9 +349,9 @@ describe Source::Bibtex, type: :model, group: :sources do
       #  Registrant using SICI: doi:10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
       #  Registrant using internal scheme: doi:10.6789/JoesPaper56
 
-      identifier                = '10.2345/S1384107697000225'
+      identifier = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
-      s                         = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -360,6 +361,25 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'validation' do
+
+    specify 'title italics 1' do
+      bibtex.title = '<i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_truthy
+    end
+
+    specify 'title italics 2' do
+      bibtex.title = '</i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_truthy
+    end
+
+    specify 'title italics 3' do
+      bibtex.title = '<i> asdfa</i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_falsey
+    end
+
     specify 'must have a valid bibtex_type' do
       local_src = FactoryBot.build(:valid_source_bibtex)
       expect(local_src.valid?).to be_truthy
@@ -385,8 +405,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'test date related fields' do
       let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
+      # TODO: break to individual tests
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg = 'must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -1108,43 +1129,17 @@ describe Source::Bibtex, type: :model, group: :sources do
                            month:       'jul')
       }
 
-      context '#identical' do
-        specify 'full matching' do
-          [bib1, bib2, bib3, bib4, bib1a]
-          expect(Source.identical(bib1.attributes).ids).to contain_exactly(bib2.id, bib1.id, bib1a.id)
-        end
+      specify '#identical, full matchine' do
+        [bib1, bib2, bib3, bib4, bib1a]
+        expect(Source.identical(bib1.attributes).ids).to contain_exactly(bib2.id, bib1.id, bib1a.id)
       end
 
-      context '#similar' do
-        specify 'full matching' do
-          [bib1, bib2, bib3, bib4, bib1a]
-          expect(Source.similar(trial.attributes).ids).to contain_exactly(bib3.id, bib4.id)
-        end
+      specify '#similar, full matching' do
+        [bib1, bib2, bib3, bib4, bib1a]
+        expect(Source.similar(trial.attributes).ids).to contain_exactly(bib3.id, bib4.id)
       end
     end
   end
-
-=begin
-  context 'supporting libs' do
-    # TODO support for a zotero bibliography
-    context 'if I have a zotero bibliography' do
-      context 'and I import it to TW' do
-        context 'when I update a record in zotero' do
-          specify 'then TW should be aware and notify me of discrepancies' do
-            skip 'not implemented yet'
-          end
-        end
-      end
-    end
-
-    context 'Hackathon requirements' do
-      # TODO: code lib/bibtex   - round trip a file?
-      # note that we've determined that some fields won't round trip properly (notes)
-      skip 'Should be able to round trip data a whole file '
-      #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
-    end
-  end
-=end
 
   context 'soft validations' do
     let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }

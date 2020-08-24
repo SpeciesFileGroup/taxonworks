@@ -527,12 +527,6 @@ class Person < ApplicationRecord
     set_role_object_cached
   end
 
-  # def set_cached_for_related(role)
-  #   byebug
-  #   role.check_for_last
-  #   set_role_object_cached
-  # end
-
   # @return [Ignored]
   def set_role_object_cached
     if change_to_cached_attribute?

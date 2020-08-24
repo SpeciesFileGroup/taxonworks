@@ -67,8 +67,9 @@
             <span class="separate-left separate-right">|</span>
             <csv-button :list="csvList"/>
             <span class="separate-left separate-right">|</span>
-            <bibtex-button
-              :params="params"/>
+            <bibliography-button :params="params"/>
+            <span class="separate-left separate-right">|</span>
+            <bibtex-button :params="params"/>
           </div>
         </div>
         <div
@@ -118,6 +119,7 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 import BibtexButton from './components/bibtex'
+import BibliographyButton from './components/bibliography.vue'
 import PlatformKey from 'helpers/getMacKey'
 
 export default {
@@ -126,7 +128,8 @@ export default {
     FilterComponent,
     ListComponent,
     CsvButton,
-    BibtexButton
+    BibtexButton,
+    BibliographyButton
   },
   computed: {
     csvFields () {

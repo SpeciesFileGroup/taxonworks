@@ -9,6 +9,36 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.12.16] - 2020-08-24
+
+### Added
+- Highlight metadata that is not in this project in uniquify people task [#1648]
+- Locks buttons on grid digitizer task [#1599]
+- Option to export styled bibliography on filter sources task [#1652]
+- Edit button in content section on radial object [#1670]
+
+### Changed
+- Drag button style on new taxon name [#1669]
+- Removed SimpleMDE lib from ruby assets and added to npm dependencies
+- Allow taxon name type relationships to be cited [#1667]
+
+### Fixed
+- BibTex html no longer escaped [#1657]
+- Some of the elements of the form are not accessible on overflow. [#1661]
+- Populate masculine, feminine and neuter on gender form [#1665]
+- Markdown render on Browse OTU [#1671]
+
+[#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
+[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
+[#1652]: https://github.com/SpeciesFileGroup/taxonworks/issues/1652
+[#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
+[#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
+[#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
+[#1667]: https://github.com/SpeciesFileGroup/taxonworks/issues/1667
+[#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
+[#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
+[#1671]: https://github.com/SpeciesFileGroup/taxonworks/issues/1671
+
 ## [0.12.15] - 2020-08-18
 
 ### Fixed
@@ -343,7 +373,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...development
+[0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
 [0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
 [0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
 [0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13

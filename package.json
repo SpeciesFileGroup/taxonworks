@@ -10,6 +10,7 @@
     "leaflet.pattern": "^0.1.0",
     "parse-dms": "0.0.3",
     "pdfjs-dist": "2.3.200",
+    "simplemde": "^1.11.2",
     "vue": "^2.6.11",
     "vue-shortkey": "^3.1.7",
     "vue-tippy": "^4.5.1",

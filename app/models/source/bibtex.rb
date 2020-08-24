@@ -363,6 +363,8 @@ class Source::Bibtex < Source
     with: URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
 
+  validate :italics_are_paired, unless: -> { title.blank? }
+
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
@@ -811,6 +813,12 @@ class Source::Bibtex < Source
   end
 
   protected
+
+  def italics_are_paired
+    l = title.scan('<i>')&.count
+    r = title.scan('</i>')&.count
+    errors.add(:title, 'italic markup is not paired') unless l == r
+  end
 
   # @param [String] type either `author` or `editor`
   # @return [String]
