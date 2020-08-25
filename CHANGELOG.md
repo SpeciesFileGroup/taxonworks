@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Replace SimpleMDE for EasyMDE
+- Sort alphabetically bibliography style list on filter source
 
 ## [0.12.16] - 2020-08-24
 
