@@ -103,7 +103,7 @@ class InteractiveKey
 
     #main_logic
     @remaining = remaining_taxa
-    @eliminated ###
+    @eliminated = eliminated_taxa
     @used_descriptors ###
     @useful_descriptors ####
     @not_useful_descriptors ####
@@ -187,7 +187,8 @@ class InteractiveKey
         h[r.id][:object_at_rank] = r
       end
       h[r.id][:errors] = 0
-      h[r.id][:status] = 'remaining'
+      h[r.id][:error_descriptors] = {}
+      h[r.id][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
     end
     h
   end
@@ -204,25 +205,30 @@ class InteractiveKey
       h[d.id][:states_ids] = [] if d.type == 'Descriptor::Qualitative' # array of used state_ids
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
-      h[d.id][:observations] = []
+      h[d.id][:observations] = [] # all observation for a particular
+      h[d.id][:observation_hash] = [] ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
     @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
       if h[o.descriptor_id]
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
-        h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil?
-        h[o.descriptor_id][:observations][otu_collection_object] += [o]
+        h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
+        h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
         h[o.descriptor_id][:state_ids] += [o.character_state_id.to_s] if o.character_state_id
         h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && o.character_state_id < h[o.descriptor_id][:min]
         h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && o.character_state_id > h[o.descriptor_id][:max]
         h[o.descriptor_id][:min] = o.sample_min if o.sample_min && o.sample_min < h[o.descriptor_id][:min]
         h[o.descriptor_id][:max] = o.sample_max if o.sample_max && o.sample_max > h[o.descriptor_id][:max]
+        h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
+        h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.character_state_id.to_s] if o.character_state_id
+        h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.continuous_value.to_s] if o.continuous_value
+        h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.presence.to_s] unless o.presence.nil?
       end
     end
     h
   end
 
-  # returns {123: ['1', '3'], 125: ['3', '5'], 135: ['2']}
+  # returns {123: ['1', '3'], 125: ['3', '5'], 135: ['2'], 136: ['true'], 140: ['5-10']}
   def selected_descriptors_hash_initiate
     # "123:1|3||125:3|5||135:2"
     h = {}
@@ -235,30 +241,67 @@ class InteractiveKey
   end
 
   def remaining_taxa
-#    @error_tolerance = error_tolerance
-#    @eliminate_unknown = eliminate_unknown
+#    @error_tolerance  - integer
+#    @eliminate_unknown  'true' or 'false'
+#    @descriptors_hash
 
+    h = {}
     @row_hash.each do |r_key, r_value|
       @selected_descriptors_hash.each do |d_key, d_value|
         otu_collection_object = r_value[:object].otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
-        if @eliminate_unknown && @descriptors_hash[d_key][:observations][otu_collection_object].nil?
+        if @eliminate_unknown && @descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           r_value[:errors] += 1
-        elsif @descriptors_hash[d_key][:observations][otu_collection_object].nil?
+          r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = []
+        elsif @descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           #character not scored but no error
         else
           case @descriptors_hash[d_key][:descriptor].type
             when 'Descriptor::Continuous'
+              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
             when 'Descriptor::PresenceAbsence'
-            when 'Descriptor::Qualitative'
-            when 'Descriptor::Sample'
+              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+          when 'Descriptor::Qualitative'
+              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+          when 'Descriptor::Sample'
+              p = false
+              a = d_value.split('-')
+              d_min = a[0]
+              d_max = a[1].nil? ? a[0] : a[1]
+              @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
+                p = true if o.sample_min <= d_min.to_i || o.sample_max >= d_max.to_i
+              end
+              r_value[:errors] += 1 if p = false
+              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           end
-
         end
-
+      end
+      if r_value[:errors] > @error_tolerance
+        r_value[:status] = 'eliminated'
+      else
+        h[r_value[:object_at_rank]] = true if h[r_value[:object_at_rank]].nil?
       end
     end
+    return h
   end
 
+  def eliminated_taxa
+    h = {}
+    @row_hash.each do |r_key, r_value|
+      if r_value[:status] == 'eliminated' && @ramaining[r_value[:object_at_rank]].nil?
+        if h[r_value[:object_at_rank]].nil?
+          h[r_value[:object_at_rank]] = {}
+          h[r_value[:object_at_rank]][:error_descriptors] = {}
+        end
+        r_value[:error_descriptors].each do |e, o|
+          h[r_value[:object_at_rank]][:error_descriptors][e] = o if h[r_value[:object_at_rank]][:error_descriptors][e].nil?
+        end
+      end
+    end
+    return h
+  end
 
   def observations
     # id
