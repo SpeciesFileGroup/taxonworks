@@ -11,8 +11,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DOMPurify package to sanitize html
 
 ### Changed
+- Changed CoLDP download to use Catalog::Nomenclature as name source
 - Replace SimpleMDE for EasyMDE
 - Sort alphabetically bibliography style list on filter source
+
+#### Fixed
+- Pending confirmation: Include original combinations in CoLDP [#1204] 
+- Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
 
 ## [0.12.16] - 2020-08-24
 
