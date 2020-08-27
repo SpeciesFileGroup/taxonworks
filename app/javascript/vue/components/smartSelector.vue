@@ -235,8 +235,9 @@ export default {
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
-        this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
+        this.addCustomElements()
+        this.options = Object.keys(this.lists)
 
         if (this.firstTime) {
           this.view = SelectFirst(this.lists, this.options)
@@ -250,7 +251,7 @@ export default {
           }
         }
         this.options = this.options.concat(this.addTabs)
-        this.addCustomElements()
+        this.options = OrderSmart(this.options)
       })
     },
     addCustomElements () {
@@ -258,7 +259,11 @@ export default {
       if (keys.length) {
         keys.forEach(key => {
           if (this.lists[key]) {
-            this.lists[keys] = getUnique(this.lists[keys].concat(this.customList[key]), 'id')
+            this.$set(this.lists, key, getUnique(this.lists[key].concat(this.customList[key]), 'id'))
+          } else {
+            this.$set(this.lists, key, this.customList[key])
+            this.options.push(key)
+            this.options = OrderSmart(this.options)
           }
         })
       }
