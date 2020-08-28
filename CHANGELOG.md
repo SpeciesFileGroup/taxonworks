@@ -16,6 +16,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace SimpleMDE for EasyMDE
 - Sort alphabetically bibliography style list on filter source
 
+### Fixed
+- Docker: Fixed path typo on clean up command
+
 [#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
 
 ## [0.12.16] - 2020-08-24

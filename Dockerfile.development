@@ -6,7 +6,7 @@ ARG BUNDLER_WORKERS=1
 RUN apt-get update && \
     apt-get install -y curl software-properties-common apt-transport-https && \
     apt clean && \
-    rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
@@ -28,7 +28,7 @@ RUN apt-get update && \
                        zip \
                        nodejs && \
                        apt clean && \
-                       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+                       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Firefox (for headless feature tests)
 RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
