@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - DOMPurify package to sanitize html
 - List all Keyword and Topics in smart selector on filter source [#1675]
+- Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
 
 ### Changed
 - Replace SimpleMDE for EasyMDE

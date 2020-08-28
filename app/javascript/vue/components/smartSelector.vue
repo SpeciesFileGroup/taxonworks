@@ -213,6 +213,9 @@ export default {
         this.addCustomElements()
       },
       deep: true
+    },
+    model (newVal) {
+      this.refresh()
     }
   },
   mounted () {
