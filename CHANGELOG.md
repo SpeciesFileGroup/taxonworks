@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Model methods and attribute to change Source Verbatim to Bibtex [#1673]
 - DOMPurify package to sanitize html
 - List all Keyword and Topics in smart selector on filter source [#1675]
 - Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
@@ -23,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
 - Docker: Fixed path typo on clean up command
 
+
+[#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
 [#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
 [#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
 [#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204

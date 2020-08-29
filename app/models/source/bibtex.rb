@@ -365,6 +365,8 @@ class Source::Bibtex < Source
 
   validate :italics_are_paired, unless: -> { title.blank? }
 
+  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
+
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
@@ -813,6 +815,18 @@ class Source::Bibtex < Source
   end
 
   protected
+
+  def validate_year_suffix
+    a = get_author
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+      else
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+      end
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
+    end
+  end
 
   def italics_are_paired
     l = title.scan('<i>')&.count

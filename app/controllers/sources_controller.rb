@@ -283,6 +283,7 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
+      :convert_to_bibtex,
       roles_attributes: [
         :id,
         :_destroy,
