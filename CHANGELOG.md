@@ -13,12 +13,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
 
 ### Changed
+- Changed CoLDP download to use Catalog::Nomenclature as name source
 - Replace SimpleMDE for EasyMDE
 - Sort alphabetically bibliography style list on filter source
 
-### Fixed
+#### Fixed
+- Pending confirmation: Include original combinations in CoLDP [#1204] 
+- Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
 - Docker: Fixed path typo on clean up command
 
+[#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
+[#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
 [#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
 
 ## [0.12.16] - 2020-08-24
