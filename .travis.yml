@@ -11,11 +11,11 @@ env:
     - COVERALLS_PARALLEL=true
 jobs:
   allow_failures:
+  - env: TEST_WORKER=0
   - env: TEST_WORKER=1
   - env: TEST_WORKER=2
   - env: TEST_WORKER=3
   - env: TEST_WORKER=4
-  - env: TEST_WORKER=5
 
   include:
     - &test-stage
