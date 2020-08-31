@@ -51,6 +51,13 @@
             Save
           </button>
           <button
+            v-if="source.type === 'Source::Verbatim' && source.id"
+            class="button normal-input button-submit button-size margin-small-right"
+            type="button"
+            @click="convert">
+            To BibTeX
+          </button>
+          <button
             :disabled="!source.id"
             v-shortkey="[getMacKey(), 'c']"
             @shortkey="cloneSource"
@@ -212,6 +219,9 @@ export default {
     },
     cloneSource () {
       this.$store.dispatch(ActionNames.CloneSource)
+    },
+    convert () {
+      this.$store.dispatch(ActionNames.ConvertToBibtex)
     },
     getMacKey: GetMacKey
   }

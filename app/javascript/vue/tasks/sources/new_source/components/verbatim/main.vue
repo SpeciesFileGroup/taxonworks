@@ -4,12 +4,6 @@
     <div class="field">
       <textarea v-model="verbatim">
       </textarea>
-      <button
-        class="button normal-input button-submit"
-        type="button"
-        @click="convert">
-        Convert to BibTex source
-      </button>
     </div>
   </div>
 </template>
@@ -18,10 +12,12 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { ActionNames } from '../../store/actions/actions'
 
 export default {
   computed: {
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
+    },
     verbatim: {
       get () {
         return this.$store.getters[GetterNames.GetVerbatim]
@@ -29,11 +25,6 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetVerbatim, value)
       }
-    }
-  },
-  methods: {
-    convert () {
-      this.$store.dispatch(ActionNames.ConvertToBibtex)
     }
   }
 }
