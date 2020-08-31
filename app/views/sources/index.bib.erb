@@ -1,1 +1,5 @@
-<%= ::TaxonWorks::Vendor::BibtexRuby.bibliography(@sources).to_s -%>
+<% if params[:style_id] -%>
+<%= ::TaxonWorks::Vendor::BibtexRuby.styled(@sources, params[:style_id]).join("\n\n").html_safe -%>
+<% else %>
+<%= ::TaxonWorks::Vendor::BibtexRuby.bibliography(@sources).to_s.html_safe -%>
+<% end %>

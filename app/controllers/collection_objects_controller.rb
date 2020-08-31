@@ -375,6 +375,7 @@ class CollectionObjectsController < ApplicationController
       :on_loan,
       :partial_overlap_dates,
       :radius,
+      :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,

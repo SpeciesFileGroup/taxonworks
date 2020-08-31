@@ -53,7 +53,7 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
-    @source = new_source 
+    @source = new_source
     respond_to do |format|
       if @source&.save
         format.html { redirect_to url_for(@source.metamorphosize),
@@ -78,6 +78,12 @@ class SourcesController < ApplicationController
       .select('citations.project_id, citations.citation_object_type')
       .distinct
       .pluck(:citation_object_type).sort
+  end
+
+
+  # GET /sources/csl_types.json
+  def csl_types
+    render json:  TaxonWorks::Vendor::BibtexRuby::CSL_STYLES
   end
 
   def parse
@@ -198,10 +204,15 @@ class SourcesController < ApplicationController
   end
 
   # GET /sources/generate.json?<filter params>
-  def generate 
+  def generate
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
-    @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
-    render '/downloads/show' 
+    @download = ::Export::Bibtex.download(
+      sources,
+      request.url,
+      (params[:is_public] == 'true' ? true : false),
+      params[:style_id]
+    )
+    render '/downloads/show.json'
   end
 
   private
@@ -234,7 +245,7 @@ class SourcesController < ApplicationController
       :per,
       :project_id,
       :query_term,
-      :recent, 
+      :recent,
       :roles,
       :source_type,
       :tags,
@@ -270,7 +281,7 @@ class SourcesController < ApplicationController
       :publisher, :school, :series, :title, :type, :volume, :doi,
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
       roles_attributes: [
         :id,
         :_destroy,

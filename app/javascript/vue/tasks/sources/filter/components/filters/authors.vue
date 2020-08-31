@@ -33,6 +33,7 @@
     <display-list
       :list="authors"
       label="object_tag"
+      :delete-warning="false"
       @deleteIndex="removeAuthor"/>
   </div>
 </template>

@@ -45,17 +45,20 @@
         :otu="otu" />
       <div class="separate-top separate-bottom"></div>
       <draggable
+        v-if="taxonName"
         class="container"
         handle=".handle"
         v-model="preferences.sections">
-        <component
-          class="separate-bottom full_width"
-          v-for="component in preferences.sections"
-          :key="component"
-          :title="componentNames[component].title"
-          :status="componentNames[component].status"
-          :otu="otu"
-          :is="component"/>
+        <template v-for="component in preferences.sections">
+          <component
+            v-if="showForRanks(componentNames[component].rankGroup)"
+            class="separate-bottom full_width"
+            :key="component"
+            :title="componentNames[component].title"
+            :status="componentNames[component].status"
+            :otu="otu"
+            :is="component"/>
+        </template>
       </draggable>
     </template>
     <search-otu
@@ -78,6 +81,7 @@ import NomenclatureHistory from './components/NomenclatureHistory'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
+import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import Descendants from './components/descendants'
 import Autocomplete from 'components/autocomplete'
@@ -90,6 +94,7 @@ import { GetOtu, GetOtus, GetNavigationOtu, UpdateUserPreferences } from './requ
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
+import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 
 export default {
   components: {
@@ -109,7 +114,8 @@ export default {
     Autocomplete,
     Draggable,
     Descendants,
-    SelectOtu
+    SelectOtu,
+    TypeSection
   },
   computed: {
     preferences: {
@@ -122,6 +128,9 @@ export default {
     },
     menu () {
       return this.preferences.sections.map(name => this.componentNames[name].title)
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data () {
@@ -188,6 +197,9 @@ export default {
         this.preferences.layout = response.preferences
         this.componentsOrder = response.preferences.layout[this.keyStorage]
       })
+    },
+    showForRanks (rankGroup) {
+      return rankGroup ? ShowForThisGroup(rankGroup, this.taxonName) : true
     }
   }
 }

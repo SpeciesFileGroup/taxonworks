@@ -175,15 +175,11 @@ module Queries
         )
 
         e = c[:id].not_eq(nil)
-   
-        if author_ids_or 
-          f = c[:person_id].eq_any(author_ids)
-        else
-          f = c[:person_id].eq_all(author_ids)
-        end
+        f = c[:person_id].eq_any(author_ids)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
         b = b.as('z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))

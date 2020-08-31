@@ -1,120 +1,25 @@
 require 'fileutils'
 
-### rake tw:project_import:access_odonata:import_all data_directory=/Users/proceps/src/sf/import/odonata/TXT/ no_transaction=true
-### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/odonata/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
-# ./bin/webpack-dev-server
-
-
+### rake tw:project_import:odonata:import_all_odonata_index data_directory=/Users/proceps/src/sf/import/odonata/odonata_new/TXT no_transaction=true
 
 namespace :tw do
   namespace :project_import do
-    namespace :access_odonata do
-
-      @import_name = 'odonata'
+    namespace :odonata do
 
       # A utility class to index data.
-      class ImportedDataOdonata
-        attr_accessor :keywords, :publications_index, :taxon_index
+      class ImportedData
+        attr_accessor :taxon_index, :user_index, :genus_id, :parent_id, :species_id
+
         def initialize()
-          @keywords = {}
-          @publications_index = {}
-          @taxon_index = {}
+          @taxonno_index = {}                 #TaxonNo -> Taxon.id
+          @user_index = {}
+          @genus_id = {}
+          @species_id = {}
+          @parent_id = {}
         end
       end
 
-      task import_all: [:data_directory, :environment] do |t|
-
-        @ranks = {
-            0 => Ranks.lookup(:iczn, :subspecies),
-            1 => Ranks.lookup(:iczn, :species),
-            2 => Ranks.lookup(:iczn, :genus),
-            3 => Ranks.lookup(:iczn, :subfamily),
-            4 => Ranks.lookup(:iczn, :family),
-            5 => Ranks.lookup(:iczn, :superfamily),
-            6 => Ranks.lookup(:iczn, :suborder),
-            7 => Ranks.lookup(:iczn, :order)
-        }.freeze
-
-        @relationship_classes = {
-            0 => '', ### valid
-            1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Objective or ::Subjective
-            2 => '', ### Original combination
-            3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
-            4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
-            5 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym', ## Preocupied
-            6 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
-            7 => '', ###common name
-            8 => '', ##### 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
-            9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-            11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
-            12 => '', #### nomen dubium
-            13 => '', #### nomen nudum
-            14 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName',
-            15 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName', #### nomen novum; not used
-            16 => '', #### unnamed => OTU
-            17 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym', #### new synonym; not used
-            18 => '', ### type designation => relationship source.
-            19 => '', ### neotype designation => atribute
-            20 => '', ### lectotype designation => atribute
-            21 => '', ### new status; not used
-            22 => 'TaxonNameRelationship::Iczn::Invalidating', ### not binomial
-            23 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
-            24 => 'TaxonNameRelationship::Iczn::Invalidating', ### not available
-            25 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction', #### justified emendation
-            26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',
-            27 => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
-            28 => 'TaxonNameRelationship::Iczn::Invalidating', ### invalid
-            29 => 'TaxonNameRelationship::Iczn::Invalidating', ### infrasubspecific
-            30 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::ForgottenHomonym',
-
-            'type species' => 'TaxonNameRelationship::Typification::Genus',
-            'absolute tautonymy' => 'TaxonNameRelationship::Typification::Genus::Tautonomy::Absolute',
-            'monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
-            'original designation' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalDesignation',
-            'subsequent designation' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation',
-            'original monotypy' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
-            'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
-            'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
-            'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
-            'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
-            'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Objective replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
-            'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
-            'Suppressed name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
-            'Unavailable name: pre-Linnean' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
-            'Objective replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
-            'Hybrid' => '',
-            'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
-            'Manuscript name' => '',
-            'Nomen nudum' => '',
-            'Nomen nudum: no description' => '',
-            'Nomen nudum: No type fixation after 1930' => '',
-            'Unavailable name: Infrasubspecific name' => '',
-            'Suppressed name: ICZN official index of rejected and invalid works' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
-            'Valid Name' => '',
-            'Original_Genus' => 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
-            'OrigSubgen' => 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus',
-            'Original_Species' => 'TaxonNameRelationship::OriginalCombination::OriginalSpecies',
-            'Original_Subspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalSubspecies',
-            'Original_Infrasubspecies' => 'TaxonNameRelationship::OriginalCombination::OriginalVariety',
-            'Incertae sedis' => 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
-        }.freeze
-
-        @classification_classes = {
-            0 => '', ### valid
-            12 => 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium',
-            13 => 'TaxonNameClassification::Iczn::Unavailable::NomenNudum',
-            22 => 'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-            #           24 => 'TaxonNameClassification::Iczn::Unavailable',
-            28 => 'TaxonNameClassification::Iczn::Available::Invalid',
-            29 => 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific', ### infrasubspecific
-        }.freeze
-
+      task import_all_odonata_index: [:data_directory, :environment] do |t|
         if ENV['no_transaction']
           puts 'Importing without a transaction (data will be left in the database).'
           main_build_loop_odonata
@@ -129,549 +34,287 @@ namespace :tw do
           end
 
         end
-
       end
 
       def main_build_loop_odonata
-        print "\nStart time: #{Time.now}\n"
+        puts Rainbow("\nStart time: #{Time.now}\n").yellow
 
-        @import = Import.find_or_create_by(name: @import_name)
-        @import.metadata ||= {}
-        @data =  ImportedDataOdonata.new
-        puts @args
+        @data =  ImportedData.new
+
+        puts Rainbow(@args).gray
+
         Utilities::Files.lines_per_file(Dir["#{@args[:data_directory]}/**/*.txt"])
 
         handle_projects_and_users_odonata
+        handle_list_of_higher_taxa_odonata
+        handle_list_of_species_odonata
+        soft_validations_odonata
 
-        raise 'Current.project_id or Current.user_id not set.'  if Current.project_id.nil? || Current.user_id.nil?
-
-        handle_controlled_vocabulary_odonata
-        handle_references_odonata
-        handle_taxonomy_odonata
-        handle_taxon_name_relationships_odonata
-        handle_common_names_odonata
-        handle_distribution_odonata
-
-        #soft_validations_odonata
-        print "\n\n !! Success. End time: #{Time.now} \n\n"
+        puts Rainbow("\n\n !! Success. End time: #{Time.now} \n\n").yellow
       end
 
       def handle_projects_and_users_odonata
+        $user_id, $project_id = nil, nil
+
         print "\nHandling projects and users "
-        email = 'arboridia@gmail.com'
-        project_name = 'Odonata'
-        user_name = 'Odonata Import'
-        Current.user_id, Current.project_id = nil, nil
-        project1 = Project.where(name: project_name).first
-        project_name = project_name + ' ' + Time.now.to_s  unless project1.nil?
+        email = 'jabbott1@ua.edu'
+        user_name = 'John Abbott'
 
-        if @import.metadata['project_and_users']
-          print "from database.\n"
-          project = Project.where(name: project_name).first
-          user = User.where(email: email).first
-          Current.project_id = project.id
-          Current.user_id = user.id
-        else
-          print "as newly parsed.\n"
+        project_name = 'Odonata' +  Time.now.to_s
 
-          user = User.where(email: email)
-          if user.empty?
-            pwd = rand(36**10).to_s(36)
-            user = User.create(email: email, password: pwd, password_confirmation: pwd, name: user_name, self_created: true)
-          else
-            user = user.first
-          end
-          Current.user_id = user.id
+        user = User.where(email: email).first
+        user ||= User.create!(email: email, password: '3242341aas', password_confirmation: '3242341aas', name: user_name, self_created: true, is_flagged_for_password_reset: true)
+        Current.user_id = user.id
 
-          project = nil
+        # Always start with a new project
+        project = Project.create!(name: project_name)
+        Current.project_id = project.id
 
-          if project.nil?
-            project = Project.create(name: project_name)
-          end
+        raise Rainbow('Current.project_id or Current.user_id not set.').red if Current.project_id.nil? || Current.user_id.nil?
 
-          Current.project_Id = project.id
-          
-          pm = ProjectMember.create(user: user, project: project, is_project_administrator: true)
+        pm = ProjectMember.create!(user: user, project: project, is_project_administrator: true)
 
-          @import.metadata['project_and_users'] = true
-        end
+        @root = project.root_taxon_name
 
-        @root = Protonym.find_or_create_by(name: 'Root', rank_class: 'NomenclaturalRank', project_id: Current.project_id)
-        #@data.keywords['odonata_imported'] = Keyword.find_or_create_by(name: 'odonata_imported', definition: 'Imported from odonata database.')
+        u = User.where(email: 'arboridia@gmail.com').first
+        pm = ProjectMember.create!(user: u, project: project, is_project_administrator: true)
+
       end
 
-      def handle_controlled_vocabulary_odonata
-        print "\nHandling CV \n"
-
-        @data.keywords.merge!(
-          'questionable' => Keyword.find_or_create_by(name: 'OriginalMonotypy genus is questionable', definition: 'Original genus is questionable', project_id: Current.project_id),
-          'ref_id' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_ref_ID', short_name: 'ref_ID'),
-          'accession_number' => Namespace.find_or_create_by(institution: 'Odonata', name: 'Odonata_accession_number', short_name: 'accession_number'),
-          'Key' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_taxon_ID', short_name: 'taxon_ID'),
-          'Synonym' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_synonym_ID', short_name: 'synonym_ID'),
-          'CN' => Namespace.find_or_create_by(institution: 'Odonota', name: 'Odonata_common_name_ID', short_name: 'common_name_ID'),
-        )
-      end
-
-      def handle_references_odonata
-
-        # id
-        # Abstract
-        # Accession_Number
+      def handle_list_of_higher_taxa_odonata
+        # Genus
+        # Genus_ID
+        # Rank
         # Author
-        # year1
-        # Title
-        # Secondary_Title
-        # vol
-        # num
-        # Citation
-        # File_Attachments
-        # Place_Published
-        # Publisher
-        # Reference_Notes
-        # url
+        # Common
+        ## creation date
+        ## First_author
+        ## Full_name
+        ## modification date
+        # notes
+        # Taxonomic_status : 'unavailable', 'subsequent misspelling'
+        # Tribe
+        ## Type species
+        ## Type_reason
+        # validity : 'Valid Name', 'Needs correction', 'Junior synonym', 'Invalid name'
+        # Year
 
-        path = @args[:data_directory] + 'references.txt'
-        print "\nHandling references\n"
+        path = @args[:data_directory] + '/' + 'HigherTaxa.txt'
+        print "\nHandling higher taxa\n"
         raise "file #{path} not found" if not File.exists?(path)
+
         file = CSV.foreach(path, col_sep: "\t", headers: true)
+        ['Kingdom', 'Phylum', 'Subphylum', 'Class', 'Order', 'Suborder', 'Family', 'Genus'].each do |rank|
+          puts "\n !! Rank: #{rank} \n"
+          file.each_with_index do |row, i|
+            print "\r#{i}"
+            next if row['Rank'] != rank
 
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i}"
-          journal, serial_id, volume, pages = parse_bibliography_odonata(row['Citation'], row['Secondary_Title'])
-          taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
-          note = row['Notes']
-          author = row['Author'].to_s.gsub('., ', '.|').split('|').compact.join(' and ')
-          if !row['vol'].blank? && !row['num'].blank?
-            volume = row['vol'].to_s + '(' + row['num'].to_s + ')'
-          elsif !row['vol'].blank?
-            volume = row['vol']
-          else
-            volume = nil
-          end
-          year = row['year1'] == '0' ? nil : row['year1']
-          source = Source::Bibtex.find_or_create_by( author: author,
-                                                     year: year,
-                                                     title: row['Title'],
-                                                     journal: row['Secondary_Title'],
-                                                     serial_id: serial_id,
-                                                     pages: pages,
-                                                     volume: volume,
-                                                     bibtex_type: 'article',
-                                                     abstract: row['Abstract'],
-                                                     publisher: row['Publisher'],
-                                                     organization: row['Place_Published'],
-                                                     url: row['url']
-          )
-
-          # id
-          # Accession_Number
-          source.notes.new(text: note) unless note.blank?
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'citation', value: row['Citation']) unless row['Citation'].blank?
-          source.data_attributes.new(type: 'ImportAttribute', import_predicate: 'file_attachments', value: row['File_Attachments']) unless row['File_Attachments'].blank?
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['ref_id'], identifier: row['id']) unless row['id'].blank?
-          source.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['accession_number'], identifier: row['Accession_Number']) unless row['Accession_Number'].blank?
-
-          begin
-            source.save!
-            @data.publications_index[row['id']] = source.id
-            source.project_sources.create!
-          rescue ActiveRecord::RecordInvalid
-            puts "\nDuplicate record: #{row}\n"
+            p = Protonym.new(name: row['Genus'],
+                             parent_id: @data.parent_id[row['Tribe']],
+                             rank_class: Ranks.lookup(:iczn, row['Rank'].downcase),
+                             verbatim_author: row['Author'],
+                             year_of_publication: row['Year'],
+                             also_create_otu: true)
+            p.parent_id = @root.id if p.parent_id.nil?
+            p.save
+            unless p.id.nil?
+              @data.parent_id[row['Genus']] = p.id
+              @data.genus_id[row['Genus_ID']] = p.id
+              CommonName.create!(otu: p.otus.first, name: row['Common']) unless row['Common'].blank?
+              p.notes.create(text: row['notes']) unless row['notes'].blank?
+              p.data_attributes.create(import_predicate: 'Taxonomic_status', value: row['Taxonomic_status'], type: 'ImportAttribute') unless row['Taxonomic_status'].blank?
+              p.data_attributes.create(import_predicate: 'Validity', value: row['validity'], type: 'ImportAttribute') unless row['validity'].blank?
+              p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable') if row['validity'] == 'unavailable'
+            end
           end
         end
 
-        puts "\nResolved #{@data.publications_index.keys.count} publications\n"
+        puts "\nResolved #{@data.genus_id.keys.count} genera\n"
 
       end
 
-      def parse_bibliography_odonata(bibl, j)
-        return nil, nil, nil, nil if bibl.blank?
-
-        matchdata = bibl.match(/(^.+)\s+(\d+\(.+\)|\d+)(:|\(|\)) *(\d+-\d+|\d+–\d+|\d+)\.*\s*(.*$)/)
-        return bibl, nil, nil, nil if matchdata.nil?
-
-        serial_id = Serial.where(name: j).limit(1).pluck(:id).first
-        serial_id ||= Serial.with_any_value_for(:name, j).limit(1).pluck(:id).first
-        journal = matchdata[4].blank? ? matchdata[1] : bibl
-        volume = matchdata[2]
-        pages = matchdata[4]
-        return journal, serial_id, volume, pages
-      end
-
-      def handle_taxonomy_odonata
-
-        # id
-        # parent_id
+      def handle_list_of_species_odonata
         # Author
-        # OriginalGenus
-        # TaxaName
-        # TaxaNotes
-        # year1
-        # rank
-        # Type
+        ## Genus_Species
+        # Genus
+        # Species
+        # Species_ID
+        # Genus_ID
+        ## Up::Tribe
+        # Genus_orig
+        ## Junior_synonyms
+        # Senior_ID
+        ## Senior_Junior
+        ## Subgenus
+        # Subspecies
+        # Taxonomic_status : 'nomen oblitum', 'nomen oblitum?', 'nomen nudum', 'lapsus', 'doubtful species', 'doubtful'
+        ## validity
+        ## Junior_synonym::Full_name
+        # Year
+        ## Junior_synonym::mark_junior
+        ## Senior_synonym::Full_name
+        ## Up::Higher_taxa Up::Up2
+        # Common
+        ## Up::Up3
+        ## A_Y
+        # Coden
+        ## creation date
+        # Distribution
+        ## First_author found
+        ## Full_name_NA
+        ## New_gen
+        # Region
+        ## searchname
+        # Species notes
+        ## Species_ID_storage
+        ## temporary mark
+        # Type depository
+        # Type locality
+        # Type_kind : 'holotype', 'Holotype'
+        # Type_stage : 'male', 'Adult', 'adult'
+        ## PrimaryRef::complete_reference
+        # Variety : 'var. ...', nothing, 'race? ...', 'race [?] ...', 'race ...', 'form ...'
+        ## ID
+        ## Reflink::Citation_ID
 
-        path = @args[:data_directory] + 'taxa.txt'
-        print "\nHandling taxonomy\n"
+        stage = {
+            'Adult' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Number of adult specimens.', project_id: Current.project_id),
+            'adult' => BiocurationClass.find_or_create_by(name: 'Adult', definition: 'Number of adult specimens.', project_id: Current.project_id),
+            'Males' => BiocurationClass.find_or_create_by(name: 'Male', definition: 'Number of male specimens.', project_id: Current.project_id)}
+
+
+        path = @args[:data_directory] + '/' + 'Species.txt'
+        print "\nHandling species\n"
         raise "file #{path} not found" if not File.exists?(path)
+
         file = CSV.foreach(path, col_sep: "\t", headers: true)
+        ['species', 'subspecies', 'variety'].each do |rank|
+          puts "\n !! Rank: #{rank} \n"
+          file.each_with_index do |row, i|
+            print "\r#{i}"
 
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i}"
-          #next if i < 2825
-          #byebug
-          parent = @root if row['parent_id'] == '0
-'
-            name = row['TaxaName']
-            parent = row['parent_id'] == '0' ? @root : find_taxon_odonata(row['parent_id'])
+            next if rank == 'species' && (row['Species'].blank? || !row['Subspecies'].blank? || !row['Variety'].blank?)
+            next if rank == 'subspecies' && (row['Species'].blank? || row['Subspecies'].blank? || !row['Variety'].blank?)
+            next if rank == 'variety' && (row['Species'].blank? || row['Variety'].blank?)
 
-            byebug if parent.nil?
-            rank = @ranks[row['rank'].to_i]
-            byebug if rank.blank?
-            year = row['year1'] unless row['year1'] == '0'
-
-            taxon = Protonym.new( name: name,
-                                  parent: parent,
-                                  year_of_publication: year,
-                                  verbatim_author: row['Author'],
-                                  rank_class: rank,
-                                  also_create_otu: true
-            )
-
-            taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Key'], identifier: row['id'])
-            taxon.notes.new(text: row['TaxaNotes']) unless row['TaxaNotes'].blank?
-
-          if !row['OriginalGenus'].blank?
-            og = find_original_genus_odonata(row['OriginalGenus'])
-            taxon.original_genus = og unless og.nil?
-            taxon.original_species = taxon unless og.nil?
-          end
-
-            begin
-              taxon.save!
-              @data.taxon_index[row['id']] = taxon.id
-
-            rescue ActiveRecord::RecordInvalid
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Family/ && row['Status'] != '0' && !taxon.errors.messages[:name].blank?
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name name must be lower case')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Species/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NotLatin') if taxon.rank_string =~ /Genus/ && row['Status'] != '0' && taxon.errors.full_messages.include?('Name Name must be latinized, no digits or spaces allowed')
-
-              if taxon.valid?
-                taxon.save!
-                @data.taxon_index[row['id']] = taxon.id
-              else
-                print "\n#{row['id']}         #{row['Name']}"
-                print "\n#{taxon.errors.full_messages}\n"
-                #byebug
+            case rank
+            when 'species'
+              name = row['Species']
+              parent_id = @data.genus_id[row['Genus_ID']]
+              parent_id = @data.parent_id[row['Genus']] if parent_id.nil?
+              if parent_id.nil?
+                p = Protonym.create(name: row['Genus'], parent_id: @root.id, rank_class: Ranks.lookup(:iczn, 'genus'))
+                @data.parent_id[row['Genus']] = p.id unless p.id.nil?
               end
+              rank_cl = Ranks.lookup(:iczn, 'species')
+            when 'subspecies'
+              name = row['Subspecies']
+              parent_id = @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s]
+              rank_cl = Ranks.lookup(:iczn, 'subspecies')
+            when 'variety'
+              name = row['Variety'].gsub('var. ', '').gsub('race? ', '').gsub('race [?] ', '').gsub('race ', '').gsub('form ', '')
+              parent_id = @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s + '_' + row['Subspecies'].to_s]
+              parent_id = @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s] if row['Subspecies'].blank?
+              rank_cl = Ranks.lookup(:iczn, 'subspecies')
             end
-        end
-      end
+            parent_id = @root.id if parent_id.nil?
 
-      def handle_common_names_odonata
-
-        # comm_name
-        # taxonID
-        # CommonName
-        # Notes
-
-        path = @args[:data_directory] + 'common_names.txt'
-        print "\nHandling common names\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
-        lng = Language.find_by_alpha_3_bibliographic('eng')
-
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i}"
-          taxon = find_otu_odonata(row['taxonID'])
-          unless taxon.nil?
-            c = CommonName.create!(otu: taxon, name: row['CommonName'], language: lng)
-            c.identifiers.create(type: 'Identifier::Local::Import', namespace: @data.keywords['CN'], identifier: row['comm_name']) unless row['comm_name'].blank?
-            c.notes.create(text: row['Notes']) unless row['Notes'].blank?
-          end
-        end
-      end
-
-      def handle_taxon_name_relationships_odonata
-        path = @args[:data_directory] + 'synonyms.txt'
-        print "\nHandling taxon name synonyms\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
-
-        # syn_id
-        # taxon_id
-        # Synonym
-
-        #result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: 'Arboridia (Bus) aus Ivanon, 1975', project_id: 1, code: :iczn)
-        #result.genus
-        #result.subgenus
-        #result.species
-        #result.subspecies
-        #result.variety
-        #result.author
-        #result.year
-        #result.finest_rank
-        # result.parseable
-
-        # result.protonym_result[:genus].first
-
-
-
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i} (Synonyms)"
-          #next if i<1737
-          next if row['Synonym'].blank?
-          matchdata = row['Synonym'].to_s.gsub('race?', '').gsub('race', '').gsub(' forma ', ' ').match(/(Syn|syn|syn.|\s*)\.*\s*\?*([\w\s.,'’?&öüéäöñá-]*)(\s+[\(|\[][\w\s.?,\)\(;&ü\]\[]*[\)|\]][\w\s,]*$|$)/)
-          print "\n#{row['Synonym']}\n" if matchdata.blank?
-
-          string = matchdata[0]
-          name = matchdata[2].gsub('?', '')
-          status = matchdata[3]
-
-          result = TaxonWorks::Vendor::Biodiversity::Result.new(query_string: name, project_id: 1, code: :iczn)
-
-          if result.parseable
-            print "\n#{row['Synonym']} match is blank\n" if matchdata.blank? || name.blank?
-            print "\n#{row['Synonym']} genus is blank\n" if result.genus.blank?
-            print "\n#{row['Synonym']} species is blank\n" if result.species.blank?
-            next if result.species.blank?
-            print "\n#{row['Synonym']} author is blank\n" if result.author.blank?
-            print "\n#{row['Synonym']} subspecies and variety both present\n" if !result.subspecies.blank? && !result.variety.blank?
-            print "\n#{row['Synonym']} name is blank\n" if name.blank?
-
-            valid_taxon = find_taxon_odonata(row['taxon_id'])
-            print "\n#{row['Synonym']} valid taxon not found\n" if valid_taxon.nil?
-            next if valid_taxon.nil?
-           species, subspecies, variety = nil, nil, nil
-            case result.finest_rank
-              when :genus
-                name1 = result.genus
-              when :species
-                name1 = result.species
-              when :subspecies
-                name1 = result.subspecies
-              when :variety
-                name1 = result.variety
-              when :form
-                name1 = result.form
-            end
-            genus_name = result.genus
-            species_name = result.species
-            subspecies_name = result.subspecies
-            variety_name = result.variety
-            form_name = result.form
-            taxon = Protonym.create( name: name1, parent_id: valid_taxon.parent_id, year_of_publication: result.year, verbatim_author: result.author, rank_class: valid_taxon.rank_class)
-            genus = find_original_genus_odonata(result.genus)
-            species = nil
-            if !variety_name.blank? || !subspecies_name.blank? || !form_name.blank?
-              list_of_species = result.protonym_result[:genus]
-              list_of_species.each do |t|
-                species = t if t.cached.include?(result.genus)
-              end
-            end
-            species = taxon if species.nil? && !species_name.blank?
-            variety = variety_name.blank? ? nil : taxon
-            form = form_name.blank? ? nil : taxon
-            subspecies = subspecies_name.blank? ? nil : taxon
-            taxon.original_genus = genus unless genus.nil?
-            taxon.original_species = species unless species.nil?
-            taxon.original_subspecies = subspecies unless subspecies.nil?
-            taxon.original_variety = variety unless variety.nil?
-            taxon.original_form = form unless form.nil?
-            taxon.identifiers.new(type: 'Identifier::Local::Import', namespace: @data.keywords['Synonym'], identifier: row['syn_id']) unless row['syn_id'].blank?
-            taxon.data_attributes.new(type: 'ImportAttribute', import_predicate: 'synonym_string', value: row['Synonym']) unless row['Synonym'].blank?
-            if status.include?('nomen nudum')
-              taxon.taxon_name_classifications.new(type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-            end
-            begin
-              taxon.save!
-            rescue ActiveRecord::RecordInvalid
-              byebug
-            end
-            if status.include?('lapsus')
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
-            elsif status.include?('nec ') || status.include?('nomen nudum')
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating')
+            p = Protonym.create(name: name,
+                             parent_id: parent_id,
+                             rank_class: rank_cl,
+                             verbatim_author: row['Author'],
+                             year_of_publication: row['Year'],
+                             also_create_otu: true)
+            if p.id.nil?
+              puts "\n !! Species_ID #{row['Species_ID']} not exported \n"
             else
-              tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: valid_taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+              @data.parent_id[[row['Genus'], row['Species'], row['Subspecies'] ].compact.join('_')] = p.id unless rank == 'variety'
+              @data.species_id[row['Species_ID']] = p.id
+              CommonName.create!(otu: p.otus.first, name: row['Common']) unless row['Common'].blank?
+              p.notes.create(text: row['Species notes']) unless row['Species notes'].blank?
+              p.data_attributes.create(import_predicate: 'Coden', value: row['Coden'], type: 'ImportAttribute') unless row['Coden'].blank?
+              p.data_attributes.create(import_predicate: 'Distribution', value: row['Distribution'], type: 'ImportAttribute') unless row['Distribution'].blank?
+              p.data_attributes.create(import_predicate: 'Region', value: row['Region'], type: 'ImportAttribute') unless row['Region'].blank?
+              p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum') if row['Taxonomic_status'] == 'nomen nudum'
+              p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium') if row['Taxonomic_status'] == 'doubtful species' || row['Taxonomic_status'] == 'doubtful'
+              original_genus_id = @data.parent_id[row['Genus_orig']]
+              if original_genus_id.nil? && row['Genus_orig']
+                par = Protonym.create(name: row['Genus_orig'], parent_id: @root.id, rank_class: Ranks.lookup(:iczn, 'genus'))
+                @data.parent_id[row['Genus_orig']] = par.id unless par.id.nil?
+                original_genus_id = par.id
+              end
+              p.original_genus = Protonym.find(original_genus_id) unless original_genus_id.nil?
+              case rank
+              when 'species'
+                p.original_species = p
+              when 'subspecies'
+                p.original_subspecies = p
+                p.original_species = Protonym.find(@data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s]) if @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s]
+              when 'variety'
+                if row['Variety'].to_s.include?('form ')
+                  p.original_form = p
+                else
+                  p.original_variety = p
+                  p.taxon_name_classifications.create(type: 'TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific') if row['Variety'].to_s.include?('race ')
+                end
+                p.original_species = Protonym.find(@data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s]) if @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s]
+                p.original_subspecies = Protonym.find(@data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s + '_' + row['Subspecies'].to_s]) if @data.parent_id[row['Genus'].to_s + '_' + row['Species'].to_s + '_' + row['Subspecies'].to_s]
+              end
+              p.save
+
+              unless row['Type_kind'].blank?
+                o = CollectionObject::BiologicalCollectionObject.create(
+                    total: 1,
+                    buffered_collecting_event: row['Type locality'],
+                    buffered_determinations: nil,
+                    buffered_other_labels: 'Type depository: ' + row['Type depository'].to_s,
+                    collecting_event: nil)
+                BiocurationClassification.create(biocuration_class: stage[row['Type_stage']], biological_collection_object: o) unless row['Type_stage'].blank?
+                tm = TypeMaterial.create(protonym_id: p.id, collection_object: o, type_type: 'holotype' )
+              end
             end
-
-          else
-            print "\n#{row['Synonym']} not parseable\n" if matchdata.blank?
-          end
-
-        end
-      end
-
-
-      def handle_distribution_odonata
-
-        # id
-        # taxon_id
-        # Questionable
-        # IdTD
-
-        path = @args[:data_directory] + 'distribution.txt'
-        print "\nHandling distribution\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
-        conf = ConfidenceLevel.find_or_create_by(name: 'Questionable', definition: 'Asserted Distribution is Questionable', project_id: Current.project_id).id,
-            source = Source::Verbatim.find_or_create_by!(verbatim: 'Odonata database')
-        i = 0
-        file.each do |row|
-          i += 1
-          print "\r#{i}"
-          otu = find_otu_odonata(row['taxon_id'])
-          country = row['IdTD']
-          ga = GeographicArea.find(country)
-
-          if !otu.nil? && !source.nil? && !ga.nil?
-            ad = AssertedDistribution.find_or_create_by(
-                otu: otu,
-                geographic_area: ga,
-                project_id: Current.project_id)
-            c = ad.citations.new(source_id: source.id, project_id: Current.project_id)
-            ad.save
-            byebug if ad.id.nil?
-            ad.confidences.create(confidence_level_id: conf) if row['Questionable'] = '?'
           end
         end
-      end
 
-      def handle_countries_odonata
-        #Key6
-        # Count
-        # Country
-        # LongCentr
-        # LatCentr
-        # CountryCode
-        # Realm
-        # TW_name
-        # TW_id
-        # used
-        path = @args[:data_directory] + 'countries.txt'
-        print "\nHandling list of countries\n"
-        raise "file #{path} not found" if not File.exists?(path)
-        file = CSV.foreach(path, col_sep: "\t", headers: true)
-
+        puts "\n !! Synonyms \n"
         file.each_with_index do |row, i|
           print "\r#{i}"
-          @data.countries[row['Key6']] = row
-        end
-      end
-
-      def add_identifiers_odonata(objects, row)
-        return nil if row['ID'].blank?
-        ns = 'INHS'
-        i = row['ID']
-        @data.namespaces.each_key do |p|
-          if i.include?(p)
-            ns = p
-            i = i.gsub(p, '')
+          next if row['Senior_ID'].blank?
+          # Taxonomic_status : 'nomen oblitum', 'nomen oblitum?', 'nomen nudum', 'lapsus', 'doubtful species', 'doubtful'
+          t = 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+          t = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName' if row['Taxonomic_status'] == 'nomen oblitum'
+          t = 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling' if row['Taxonomic_status'] == 'lapsus'
+          t = 'TaxonNameRelationship::Iczn::Invalidating' if row['Taxonomic_status'] == 'nomen nudum'
+          tr = TaxonNameRelationship.create(subject_taxon_name_id: @data.species_id[row['Species_ID']], object_taxon_name_id: @data.species_id[row['Senior_ID']], type: t)
+          if tr.id.nil?
+            puts "\n !! Species_ID #{row['Species_ID']} synonymy was not added \n"
           end
         end
-        identifier = Identifier::Local::CatalogNumber.new(namespace: @data.namespaces[ns], identifier: i)
+        puts "\nResolved #{@data.species_id.keys.count} species\n"
 
-        if objects.count > 1 # Identifier on container.
-
-          c = Container.containerize(objects, 'Container::Pin'.constantize )
-          c.save
-          c.identifiers << identifier if identifier
-          c.save
-
-        elsif objects.count == 1 # Identifer on object
-          objects.first.identifiers << identifier if identifier
-          objects.first.save
-        else
-          raise 'No objects in container.'
-        end
-      end
-
-      def find_taxon_id_odonata(key)
-        @data.taxon_index[key.to_s] || Identifier.where(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).limit(1).pluck(:identifier_object_id).first
-      end
-
-      def find_taxon_odonata(key)
-        Identifier.find_by(cached: 'taxon_ID ' + key.to_s, identifier_object_type: 'TaxonName', project_id: Current.project_id).try(:identifier_object)
-      end
-
-      def find_original_genus_odonata(genus)
-        if genus.to_i > 0
-          g = find_taxon_odonata(genus)
-          return g unless g.nil?
-        end
-
-        g = Protonym.find_by(name: genus, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', project_id: Current.project_id)
-        if g.nil?
-          o = Protonym.find_by(name: 'Odonata', rank_class: 'NomenclaturalRank::Iczn::HigherClassificationGroup::Order', project_id: Current.project_id)
-          g = Protonym.create!(name: genus.gsub('?', ''), parent: o, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
-          g.tags.create(keyword: @data.keywords['questionable']) if genus.include?('?')
-        end
-        return g unless g.id.nil?
-        return nil
-      end
-
-      def find_otu_odonata(key)
-        otu = nil
-
-        r = Identifier.find_by(cached: 'taxon_ID ' + key.to_s, project_id: Current.project_id)
-        return nil if r.nil?
-        if r.identifier_object_type == 'TaxonName'
-          r.identifier_object.otus.first
-        elsif r.identifier_object_type == 'Otu'
-          r.identifier_object
-        else
-          raise
-        end
-
-        # otu
-      end
-
-      def find_publication_id_odonata(key3)
-        @data.publications_index[key3.to_s] || Identifier.where(cached: 'Odonata_ref_ID' + key3.to_s).limit(1).pluck(:identifier_object_id).first
-      end
-
-      def find_publication_odonata(key3)
-        @data.publications_index[key3.to_s] || Identifier.where(cached: 'Odonata_ref_ID ' + key3.to_s).limit(1).first
       end
 
       def soft_validations_odonata
+        @data = nil
+        GC.start
         fixed = 0
         print "\nApply soft validation fixes to taxa 1st pass \n"
         i = 0
-        TaxonName.where(project_id: Current.project_id).find_each do |t|
+        TaxonName.where(project_id: Current.project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
           t.fix_soft_validations
           t.soft_validations.soft_validations.each do |f|
-#            byebug if fixed == 0 && f.fixed?
+            #            byebug if fixed == 0 && f.fixed?
             fixed += 1  if f.fixed?
           end
         end
         print "\nApply soft validation fixes to relationships \n"
         i = 0
-        TaxonNameRelationship.where(project_id: Current.project_id).find_each do |t|
-          i += 1
-          print "\r#{i}    Fixes applied: #{fixed}"
-          t.soft_validate
-          t.fix_soft_validations
-          t.soft_validations.soft_validations.each do |f|
-            fixed += 1  if f.fixed?
-          end
-        end
-        print "\nApply soft validation fixes to taxa 2nd pass \n"
-        i = 0
-        TaxonName.where(project_id: Current.project_id).find_each do |t|
+        GC.start
+        TaxonNameRelationship.where(project_id: Current.project_id).each do |t|
           i += 1
           print "\r#{i}    Fixes applied: #{fixed}"
           t.soft_validate
@@ -682,6 +325,8 @@ namespace :tw do
         end
       end
 
+
     end
   end
 end
+

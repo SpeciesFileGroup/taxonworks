@@ -7,6 +7,79 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.12.16] - 2020-08-24
+
+### Added
+- Highlight metadata that is not in this project in uniquify people task [#1648]
+- Locks buttons on grid digitizer task [#1599]
+- Option to export styled bibliography on filter sources task [#1652]
+- Edit button in content section on radial object [#1670]
+
+### Changed
+- Drag button style on new taxon name [#1669]
+- Removed SimpleMDE lib from ruby assets and added to npm dependencies
+- Allow taxon name type relationships to be cited [#1667]
+
+### Fixed
+- BibTex html no longer escaped [#1657]
+- Some of the elements of the form are not accessible on overflow. [#1661]
+- Populate masculine, feminine and neuter on gender form [#1665]
+- Markdown render on Browse OTU [#1671]
+
+[#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
+[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
+[#1652]: https://github.com/SpeciesFileGroup/taxonworks/issues/1652
+[#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
+[#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
+[#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
+[#1667]: https://github.com/SpeciesFileGroup/taxonworks/issues/1667
+[#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
+[#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
+[#1671]: https://github.com/SpeciesFileGroup/taxonworks/issues/1671
+
+## [0.12.15] - 2020-08-18
+
+### Fixed
+- Sqed hook initiated with String, not Class [#1654]
+
+[#1654]: https://github.com/SpeciesFileGroup/taxonworks/issues/1654
+
+## [0.12.14] - 2020-08-17
+
+### Added
+- Help tips in comprehensive specimen digitization task
+- Help tips in new source task
+- Type section in Browse OTUs task [#1615]
+- Automatically filter sections by taxon rank in Browse OTUs task
+- Rank string in browse nomenclature
+- Pinboard navigator (Ctrl/Alt + G) [#1647]
+- Filter by repository in filter collection objects [#1650]
+- Hotkey for add element to pinboard (Ctrl/Alt + P)
+
+### Fixed
+- Collectors order in comprehensive specimen digitization
+- Losses data of etymology form after set a gender
+- Autocomplete component not encoding query params properly
+- Random RGeo deserialization errors [#1553]
+
+### Changed
+- New combination redirect to the valid name [#1639]
+- Rename comprehensive specimen digitization task card
+- Updated chartkick gem [#1646]
+- Improved verbatim date and geographic coordinates recognition
+- Improved soft validation messages for coordinated species-group
+
+[#1553]: https://github.com/SpeciesFileGroup/taxonworks/issues/1553
+[#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
+[#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
+[#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
+[#1647]: https://github.com/SpeciesFileGroup/taxonworks/issues/1647
+[#1650]: https://github.com/SpeciesFileGroup/taxonworks/issues/1650
+
+## [0.12.13] - 2020-08-04
+
 ### Added
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
@@ -25,6 +98,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lep staged 2 layout for staged images [#1635]
 
 ### Changed
+- Use amazing_print instead of awesome_print gem
 - Cleanup and add spec basis for nomenclature tabular stats queries  
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
@@ -34,6 +108,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Original citation-related UI text
 - Moved taxon name input search to right column in new taxon name
 - Persons autosave in new taxon name
+- Updated elliptic node package. [#1632]
 
 ### Fixed
 - Flip object to subject label on type section in new taxon name task
@@ -45,6 +120,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Manage synonyms includes combinations [#1628]
 - Recent and per params in source filter and controller
 - Missing ZIP dependency for docker images
+- Attempting to return geographic areas in OTU smart selector on certain conditions
 
 [#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
 [#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
@@ -58,6 +134,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
 [#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
 [#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+[#1632]: https://github.com/SpeciesFileGroup/taxonworks/pull/1632
 [#1635]: https://github.com/SpeciesFileGroup/taxonworks/issues/1635
 
 ## [0.12.12] - 2020-07-22
@@ -296,7 +373,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...development
+[0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
+[0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
+[0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
+[0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13
 [0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
 [0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10

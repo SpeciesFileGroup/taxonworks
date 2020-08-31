@@ -7,6 +7,7 @@ import getUserId from './getUserId'
 import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
 import getLoadState from './getLoadState'
+import getTaxonName from './getTaxonName'
 
 const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
@@ -17,7 +18,8 @@ const GetterNames = {
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
   GetCurrentOtu: 'getCurrentOtu',
-  getLoadState: 'getLoadState'
+  GetLoadState: 'getLoadState',
+  GetTaxonName: 'getTaxonName'
 }
 
 const GetterFunctions = {
@@ -29,7 +31,8 @@ const GetterFunctions = {
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
-  [GetterNames.GetLoadState]: getLoadState
+  [GetterNames.GetLoadState]: getLoadState,
+  [GetterNames.GetTaxonName]: getTaxonName
 }
 
 export {
