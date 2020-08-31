@@ -9,7 +9,6 @@
             v-model="sourceType"
             :value="type.value"
             name="source-type"
-            :disabled="source.id"
             type="radio">
           {{ type.label }}
         </label>
