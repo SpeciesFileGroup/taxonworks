@@ -78,8 +78,7 @@ jobs:
     - <<: *test-stage
       env:
         - TEST_WORKER=4
-    - stage: deliver
-      language: minimal
+    - language: minimal
       services:
         - docker
       install:
