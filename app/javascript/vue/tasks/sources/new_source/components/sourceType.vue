@@ -9,6 +9,7 @@
             v-model="sourceType"
             :value="type.value"
             name="source-type"
+            :disabled="source.id && (!type.available || !type.available.includes(source.type))"
             type="radio">
           {{ type.label }}
         </label>
@@ -57,7 +58,8 @@ export default {
       types: [
         {
           label: 'BibTeX',
-          value: 'Source::Bibtex'
+          value: 'Source::Bibtex',
+          available: ['Source::Verbatim']
         },
         {
           label: 'Verbatim',
