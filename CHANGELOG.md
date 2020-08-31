@@ -7,7 +7,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- DOMPurify package to sanitize html
+- List all Keyword and Topics in smart selector on filter source [#1675]
+- Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
+
+### Changed
+- Replace SimpleMDE for EasyMDE
+- Sort alphabetically bibliography style list on filter source
+
+### Fixed
+- Docker: Fixed path typo on clean up command
+
+[#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
 
 ## [0.12.16] - 2020-08-24
 

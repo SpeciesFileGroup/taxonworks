@@ -114,7 +114,7 @@ export default {
       this.showModal = true
       this.isLoading = true
       GetBibtexStyle().then(response => {
-        this.bibtexStyle = response.body
+        this.bibtexStyle = Object.fromEntries(Object.entries(response.body).sort())
         this.isLoading = false
       })
     },
