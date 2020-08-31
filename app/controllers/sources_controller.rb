@@ -107,7 +107,6 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        @source.reload
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
