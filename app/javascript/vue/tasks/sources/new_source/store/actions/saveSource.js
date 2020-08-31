@@ -24,7 +24,7 @@ export default ({ state, commit }) => {
   function setSource (source) {
     const authors = source.author_roles
     const editors = source.editor_roles
-    const people = [].concat(authors, editors)
+    const people = [].concat(authors, editors).filter(item => item)
     source.roles_attributes = people
 
     commit(MutationNames.SetSource, source)
