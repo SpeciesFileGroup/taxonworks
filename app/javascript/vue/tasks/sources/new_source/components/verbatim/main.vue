@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
     <h2>Verbatim</h2>
-    <div class="field"> 
+    <div class="field">
       <textarea v-model="verbatim">
       </textarea>
       <button

@@ -11,7 +11,7 @@ export default ({ state, commit }) => {
         setSource(response.body)
         TW.workbench.alert.create('Source was successfully converted.', 'notice')
       } else {
-        TW.workbench.alert.create('Source needs to be convert manually', 'error')
+        TW.workbench.alert.create('Source needs to be converted manually', 'error')
       }
     }, () => {
       state.settings.saving = false
