@@ -3,6 +3,7 @@ branches:
   only:
     - master
     - development
+    - staged-imports
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
@@ -28,7 +29,7 @@ jobs:
       bundler_args: --without development production
       addons:
         postgresql: "10"
-        firefox: "latest"
+        firefox: "79.0"
         apt:
           packages:
             - imagemagick
@@ -71,12 +72,10 @@ jobs:
       env:
         - TEST_WORKER=4
     - stage: deliver
-      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal
       services:
         - docker
       install:
-        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse HEAD | cut -c1-9)
         - cd .travis
         - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
@@ -90,8 +89,8 @@ jobs:
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
           [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
           docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
-          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
-          docker push sfgrp/taxonworks:$DOCKER_TAG
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:staged-imports && \
+          docker push sfgrp/taxonworks:staged-imports
 notifications:
   email:
     recipients:
