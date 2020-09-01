@@ -56,9 +56,9 @@ const GetCODWCA = (id) => {
   return ajaxCall('get', `/collection_objects/${id}/dwc`)
 }
 
-const CreateTags = (keywordId, ids) => {
+const CreateTags = (keywordId, ids, type) => {
   return ajaxCall('post', `/tags/batch_create`, { 
-    object_type: 'CollectionObject',
+    object_type: type,
     keyword_id: keywordId,
     object_ids: ids
   })

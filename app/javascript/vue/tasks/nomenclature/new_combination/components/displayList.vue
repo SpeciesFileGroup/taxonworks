@@ -73,7 +73,6 @@ export default {
   padding-right: 4px;
 }
 .table-entrys-list {
-  overflow-y: scroll;
   padding: 0px;
   position: relative;
 
