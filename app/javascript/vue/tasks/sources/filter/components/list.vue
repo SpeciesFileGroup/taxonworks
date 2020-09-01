@@ -6,7 +6,9 @@
       <thead>
         <tr>
           <th>
-            <tag-all :ids="ids"/>
+            <tag-all
+              type="Source"
+              :ids="ids"/>
           </th>
           <th
             class="capitalize"
