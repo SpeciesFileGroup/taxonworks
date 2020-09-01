@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed CoLDP download to use Catalog::Nomenclature as name source
 - Replace SimpleMDE for EasyMDE
 - Sort alphabetically bibliography style list on filter source
+- Removed limit of download bibtex on filter source [#1683]
 
 #### Fixed
 - Pending confirmation: Include original combinations in CoLDP [#1204] 
@@ -33,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
 [#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
 [#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
+[#1683]: https://github.com/SpeciesFileGroup/taxonworks/issues/1683
+
 
 ## [0.12.16] - 2020-08-24
 
