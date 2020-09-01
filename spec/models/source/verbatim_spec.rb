@@ -55,6 +55,15 @@ describe Source::Verbatim, type: :model, group: :sources do
   end
 
   context 'bibtex' do
+    specify 'update with conversion sets cached' do
+      t = 'My new text'
+      verbatim_source.update!(verbatim: "My text")
+      verbatim_source.update!(type: 'Source::Bibtex', bibtex_type: 'article', title: t)
+      a = verbatim_source.becomes(verbatim_source.type.safe_constantize)
+      a.reload
+      expect(a.cached).to match(t)
+    end
+
     specify '#generate_bibtex for a non-resolvable reference returns false' do
       verbatim_source.update(verbatim: citation)
 
@@ -75,7 +84,7 @@ describe Source::Verbatim, type: :model, group: :sources do
         end
       end
 
-      specify '#to_bibtex' do
+      specify '#to_bibtex 1' do
         VCR.use_cassette('verbatim_source_is_resolvable') do
           expect(verbatim_source.send(:to_bibtex)).to be_truthy
           expect(verbatim_source.type).to eq('Source::Bibtex')

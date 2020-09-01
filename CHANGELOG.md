@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New button to (attempt to) convert verbatim sources to Bibtex via Crossref
 - Model methods and attribute to change Source Verbatim to Bibtex [#1673]
 - DOMPurify package to sanitize html
 - List all Keyword and Topics in smart selector on filter source [#1675]

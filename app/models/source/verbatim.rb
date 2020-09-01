@@ -23,9 +23,10 @@ class Source::Verbatim < Source
   attr_accessor :convert_to_bibtex
 
   before_validation :to_bibtex, if: -> { convert_to_bibtex }
-
   before_validation :switch_type, if: -> { persisted? && (type != 'Source::Verbatim') }
- 
+
+  after_save :reset_cached, if: -> { type != 'Source::Verbatim' }
+
   validates_presence_of :verbatim, if: -> { type == 'Source::Verbatim' }
   validate :only_verbatim_is_populated, if: -> { type == 'Source::Verbatim' }
 
@@ -70,6 +71,10 @@ class Source::Verbatim < Source
   end
 
   protected
+
+  def reset_cached
+    Source.find(id).send(:set_cached)
+  end
 
   def to_bibtex(user_id = nil)
     user_id = updated_by_id if user_id.nil?

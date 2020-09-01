@@ -107,7 +107,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
+        # We go through this dance to handle changing types from verbatim to other
         @source = @source.becomes!(@source.type.safe_constantize)
+        @source.reload # necessary to reload the cached value.
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
