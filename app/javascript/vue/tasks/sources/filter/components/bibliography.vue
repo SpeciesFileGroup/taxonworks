@@ -81,6 +81,10 @@ export default {
     params: {
       type: Object,
       default: undefined
+    },
+    pagination: {
+      type: Object,
+      default: undefined
     }
   },
   data () {
@@ -124,7 +128,7 @@ export default {
     generateLinks () {
       return new Promise((resolve, reject) => {
         this.isLoading = true
-        GetBibliography({ params: Object.assign({}, this.params, { is_public: true, style_id: this.styleId }) }).then(response => {
+        GetBibliography({ params: Object.assign({}, this.params, { is_public: true, style_id: this.styleId, per: this.pagination.total }) }).then(response => {
           this.links = response.body
           this.isLoading = false
         })
