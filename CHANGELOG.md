@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
 - Docker: Fixed path typo on clean up command
 - Tag button on filter source [#1692]
+- Overflow in taxon names list in new taxon name [#1688]
 
 
 [#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
 [#1683]: https://github.com/SpeciesFileGroup/taxonworks/issues/1683
+[#1688]: https://github.com/SpeciesFileGroup/taxonworks/issues/1688
 [#1692]: https://github.com/SpeciesFileGroup/taxonworks/issues/1692
 
 
