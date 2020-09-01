@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Successfull source destroy message 
 - Pending - Definition field to BiologicalRelationship model and views [#1672]
 - New button to (attempt to) convert verbatim sources to Bibtex via Crossref
 - Model methods and attribute to change Source Verbatim to Bibtex [#1673]
@@ -16,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
 
 ### Changed
+- Unified can_destroy/edit methods
 - Improved Source autocomplete with metadata/markup [#1681]
 - Changed CoLDP download to use Catalog::Nomenclature as name source
 - Replace SimpleMDE for EasyMDE
@@ -23,11 +25,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed limit of download bibtex on filter source [#1683]
 
 #### Fixed
+- Non admins not able to destroy shared data [#1098]
 - Pending confirmation: Include original combinations in CoLDP [#1204] 
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
 - Docker: Fixed path typo on clean up command
 
-
+[#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098 
 [#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
 [#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
