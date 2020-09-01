@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DOMPurify package to sanitize html
 - List all Keyword and Topics in smart selector on filter source [#1675]
 - Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
+- Definition field on composer biological relationship task [#1672]
 
 ### Changed
 - Improved Source autocomplete with metadata/markup [#1681]
@@ -33,8 +34,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
 [#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
 [#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
 [#1683]: https://github.com/SpeciesFileGroup/taxonworks/issues/1683
+
 
 
 ## [0.12.16] - 2020-08-24
