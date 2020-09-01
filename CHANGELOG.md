@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Pending - Definition field to BiologicalRelationship model and views [#1672]
 - New button to (attempt to) convert verbatim sources to Bibtex via Crossref
 - Model methods and attribute to change Source Verbatim to Bibtex [#1673]
 - DOMPurify package to sanitize html
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Docker: Fixed path typo on clean up command
 
 
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
 [#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
 [#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
