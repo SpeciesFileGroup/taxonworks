@@ -94,19 +94,25 @@ module Shared::IsData
     return true if user.is_administrator?
 
     p = user.projects.pluck(:id)
-    [self.class.reflect_on_all_associations(:has_one),
-     self.class.reflect_on_all_associations(:has_many)].each do |a|
-      a.each do |r|
-        if r.klass.column_names.include?('project_id')
-          # If this has any related data in another project, we can't destroy it
-          if !send(r.name).nil?
-            return false if send(r.name).where.not(project_id: p).count(:all) > 0
-          end
+    self.class.reflect_on_all_associations(:has_many).each do |r|
+      if r.klass.column_names.include?('project_id')
+        # If this has any related data in another project, we can't destroy it
+        #    if !send(r.name).nil?
+        return false if send(r.name).where.not(project_id: p).count(:all) > 0
+        #     end
+      end
+    end
+
+    self.class.reflect_on_all_associations(:has_one).each do |r|
+      if is_community? # *this* object is community, others we don't care about
+        if o = t.send(r.name)
+          return false if o.respond_to(:project_id) && !p.include?(o.project)
         end
       end
     end
     true
   end
+
 
   def is_editable?(user)
     user = User.find(user) if !user.kind_of?(User)
