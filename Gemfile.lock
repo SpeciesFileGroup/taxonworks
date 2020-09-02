@@ -9,11 +9,10 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/biodiversity.git
-  revision: 29d3768fa2c2209d7410848d36c216caddadcf09
+  revision: 555d1706f3603f4945b14009e2e0f6f3b57d5c6c
   branch: ipc-mode
   specs:
     biodiversity (4.1.0)
-      ffi (~> 1.11)
 
 GIT
   remote: https://github.com/james2m/seedbank
