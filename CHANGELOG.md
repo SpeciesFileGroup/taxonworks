@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.12.17] - 2020-02-02
+
 ### Added
 - Successfull source destroy message 
 - Pending - Definition field to BiologicalRelationship model and views [#1672]
@@ -38,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098 
 [#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
+[#1674]: https://github.com/SpeciesFileGroup/taxonworks/issues/1674
 [#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
 [#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
 [#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
@@ -48,8 +53,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1688]: https://github.com/SpeciesFileGroup/taxonworks/issues/1688
 [#1692]: https://github.com/SpeciesFileGroup/taxonworks/issues/1692
 [#1696]: https://github.com/SpeciesFileGroup/taxonworks/issues/1696
-
-
 
 ## [0.12.16] - 2020-08-24
 
@@ -415,7 +418,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...development
+[0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
 [0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
 [0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
