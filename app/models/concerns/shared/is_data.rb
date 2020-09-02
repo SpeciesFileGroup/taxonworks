@@ -99,7 +99,9 @@ module Shared::IsData
       a.each do |r|
         if r.klass.column_names.include?('project_id')
           # If this has any related data in another project, we can't destroy it
-          return false if send(r.name).where.not(project_id: p).count(:all) > 0
+          if !send(r.name).nil?
+            return false if send(r.name).where.not(project_id: p).count(:all) > 0
+          end
         end
       end
     end
