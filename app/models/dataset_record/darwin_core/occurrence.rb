@@ -7,10 +7,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        fields_mapping = get_fields_mapping
         parse_details = metadata.dig("parse_results", "details").first
 
-        names = DWC_CLASSIFICATION_TERMS.map { |t| [t, data_fields[fields_mapping[t]]&.dig("value")] }
+        names = DWC_CLASSIFICATION_TERMS.map { |t| [t, get_field_value(t)] }
 
         names << ["genus", parse_details.dig("genus", "value")]
         names << ["subgenus", parse_details.dig("infragenericEpithet", "value")]
@@ -19,7 +18,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         names.reject! { |v| v[1].nil? }
 
-        rank = data_fields[fields_mapping["taxonRank"]]&.dig("value")
+        rank = get_field_value("taxonRank")
 
         names.last[0] = rank unless rank.blank?
 
@@ -28,27 +27,55 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         names.map! do |name|
           { rank_class: Ranks.lookup(:iczn, name[0]), name: name[1] }
         end
-        names.last.merge!({ verbatim_author: data_fields[fields_mapping["scientificNameAuthorship"]]&.dig("value") })
+        names.last.merge!({ verbatim_author: get_field_value("scientificNameAuthorship") })
 
         parent = project.root_taxon_name
-        names.detect do |name|
-          parent = Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent }))
-          !parent.persisted?
+        names.each do |name|
+          parent = Protonym.create_with(also_create_otu: true).find_or_create_by!(name.merge({ parent: parent }))
         end
 
-        if parent.persisted?
-          self.metadata["imported_objects"] = { taxon_name: { id: parent.id } }
-          self.status = "Imported"
-        else
-          self.status = "Errored"
-          self.metadata["error_data"] = {
-            messages: parent.errors.messages
-          }
-        end
+        otu = parent.otus.first # TODO: Might require select-and-confirm functionality
 
+        specimen = Specimen.create!({
+          total: get_field_value("individualCount") || 1
+        })
+
+        specimen.taxon_determinations.create!({
+          otu: otu,
+          year_made: get_field_value("dateIdentified")
+        })
+
+        ### Create collecting event
+        end_date = Date.ordinal(get_field_value("year").to_i, get_field_value("endDayOfYear").to_i)
+
+        #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
+        CollectingEvent.create!({
+          verbatim_date: get_field_value("verbatimEventDate"),
+          start_date_year: get_field_value("year"),
+          start_date_month: get_field_value("month"),
+          start_date_day: get_field_value("day"),
+          end_date_year: end_date.year,
+          end_date_month: end_date.month,
+          end_date_day: end_date.day,
+          collection_objects: [specimen],
+          with_verbatim_data_georeference: true,
+          verbatim_latitude: get_field_value("decimalLatitude"),
+          verbatim_longitude: get_field_value("decimalLongitude"),
+          verbatim_datum: get_field_value("geodeticDatum"),
+          verbatim_locality: get_field_value("locality")
+        })
+
+        self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
+        self.status = "Imported"
         save!
       end
+    rescue ActiveRecord::RecordInvalid => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = {
+        messages: invalid.record.errors.messages
+      }
     rescue StandardError => e
+      raise
       self.status = "Failed"
       self.metadata["error_data"] = {
         exception: {
@@ -56,6 +83,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
           backtrace: e.backtrace
         }
       }
+    ensure
       save!
     end
 
@@ -65,7 +93,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
   private
 
   def get_fields_mapping
-    import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
+    @fields_mapping ||= import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
+  end
+
+  def get_field_value(field_name)
+    data_fields[get_fields_mapping[field_name]]&.dig("value")
   end
 
 end
