@@ -8,8 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ## Fixed
+
+- Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
+[#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 
 ## [0.12.17] - 2020-02-02
