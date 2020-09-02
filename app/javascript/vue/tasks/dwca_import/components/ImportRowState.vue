@@ -93,6 +93,7 @@ export default {
   data () {
     return {
       urlTask: {
+        collection_object: (id) => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
         taxon_name: (id) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
       },
       showModal: false,
