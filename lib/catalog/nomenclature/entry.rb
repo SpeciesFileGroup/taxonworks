@@ -120,12 +120,13 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
 
   # @return [Array of TaxonName]
   #   a summary of all names referenced in this entry 
+  #
   def all_names
     n = [ object ]
     items.each do |i|
       n.push item_names(i)
     end
-    n.flatten.uniq.sort_by!(&:cached)
+    n = n.flatten.uniq.sort_by!(&:cached)
     n
   end
 

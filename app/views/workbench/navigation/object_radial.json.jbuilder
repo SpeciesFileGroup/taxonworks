@@ -45,6 +45,9 @@ if @data
   if @data['new']
     json.new send("#{@data['new']}_path")
   end
+
+  json.destroy @object.is_destroyable?(sessions_current_user)
+
 end
 
 json.partial! '/pinboard_items/pinned', object: @object

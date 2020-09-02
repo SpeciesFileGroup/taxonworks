@@ -1,21 +1,18 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateSource, UpdateSource, LoadSoftValidation } from '../../request/resources'
+import { UpdateSource, LoadSoftValidation } from '../../request/resources'
 
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
   state.settings.saving = true
-  if(state.source.id) {
-    UpdateSource(state.source).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully updated.', 'notice')
-    }, () => {
-      state.settings.saving = false
-    })
-  } else {
-    CreateSource(state.source).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully created.', 'notice')
+  if (state.source.id) {
+    UpdateSource({ id: state.source.id, convert_to_bibtex: true }).then(response => {
+      if (response.body.type === 'Source::Bibtex') {
+        setSource(response.body)
+        TW.workbench.alert.create('Source was successfully converted.', 'notice')
+      } else {
+        TW.workbench.alert.create('Source needs to be converted manually', 'error')
+      }
     }, () => {
       state.settings.saving = false
     })
@@ -24,7 +21,7 @@ export default ({ state, commit }) => {
   function setSource (source) {
     const authors = source.author_roles
     const editors = source.editor_roles
-    const people = [].concat(authors, editors).filter(item => item)
+    const people = [].concat(authors, editors)
     source.roles_attributes = people
 
     commit(MutationNames.SetSource, source)

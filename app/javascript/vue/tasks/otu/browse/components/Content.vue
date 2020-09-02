@@ -23,7 +23,8 @@
 import { GetContent } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
-import SimpleMDE from 'simplemde'
+import EasyMDE from 'easymde'
+import DOMPurify from 'dompurify'
 
 export default {
   mixins: [extendSection],
@@ -54,8 +55,8 @@ export default {
   },
   methods: {
     markdownToHtml (text) {
-      const markdown = new SimpleMDE()
-      return markdown.options.previewRender(text)
+      const markdown = new EasyMDE()
+      return DOMPurify.sanitize(markdown.options.previewRender(text))
     }
   }
 }

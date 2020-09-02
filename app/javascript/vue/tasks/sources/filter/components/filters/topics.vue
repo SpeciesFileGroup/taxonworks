@@ -10,11 +10,13 @@
         klass="Topic"
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
         get-url="/controlled_vocabulary_terms/"
+        :custom-list="allTopics"
         @selected="addTopic"/>
     </fieldset>
     <display-list
       :list="topics"
       label="object_tag"
+      :delete-warning="false"
       @deleteIndex="removeTopic"/>
   </div>
 </template>
@@ -25,6 +27,7 @@ import SmartSelector from 'components/smartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetKeyword } from '../../request/resources'
+import ajaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -49,7 +52,8 @@ export default {
   },
   data () {
     return {
-      topics: []
+      topics: [],
+      allTopics: undefined
     }
   },
   watch: {
@@ -67,6 +71,7 @@ export default {
   },
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
+    this.loadTags('Topic')
     if (urlParams.topic_ids) {
       urlParams.topic_ids.forEach(id => {
         GetKeyword(id).then(response => {
@@ -83,6 +88,11 @@ export default {
     },
     removeTopic (index) {
       this.topics.splice(index, 1)
+    },
+    loadTags (type) {
+      ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
+        this.allTopics = { all: response.body }
+      })
     }
   }
 }

@@ -107,7 +107,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        @source.reload
+        # We go through this dance to handle changing types from verbatim to other
+        @source = @source.becomes!(@source.type.safe_constantize)
+        @source.reload # necessary to reload the cached value.
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
@@ -122,20 +124,21 @@ class SourcesController < ApplicationController
   def destroy
     if @source.destroy
       respond_to do |format|
-        format.html { redirect_to sources_url }
+        format.html { redirect_to sources_url, notice: "Destroyed source #{@source.cached}" }
         format.json { head :no_content }
       end
     else
       respond_to do |format|
-        format.html { render action: :show, notice: 'failed to destroy the source' }
+        format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def autocomplete
+    @term = params.require(:term) 
     @sources = Queries::Source::Autocomplete.new(
-      params.require(:term),
+      @term,
       autocomplete_params
     ).autocomplete
   end
@@ -282,6 +285,7 @@ class SourcesController < ApplicationController
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
       :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
+      :convert_to_bibtex,
       roles_attributes: [
         :id,
         :_destroy,
