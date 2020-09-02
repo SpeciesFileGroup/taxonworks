@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Spinner for when converting verbatim to bibtex [#1710]
+
 ## Fixed
 - Cleaned up deprecated biological associations graph autcomplete [#1707]
 - Colliding `namespace` method for identifiers breaks identifiers list [#1702]
@@ -18,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
+[#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 
 ## [0.12.17] - 2020-02-02
 
@@ -40,7 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed limit of download bibtex on filter source [#1683]
 - Disable/enable destroy button from metadata on radial navigator [#1696]
 
-#### Fixed
+### Fixed
 - Non admins not able to destroy shared data [#1098]
 - Pending confirmation: Include original combinations in CoLDP [#1204] 
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
