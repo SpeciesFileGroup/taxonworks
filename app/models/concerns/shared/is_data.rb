@@ -122,7 +122,7 @@ module Shared::IsData
   end
 
   def is_in_users_projects?(user)
-    user.projects.where(id: created_by_id).any?
+    user.projects.pluck(:id).include?(project_id)
   end
 
   # @return [Boolean]
