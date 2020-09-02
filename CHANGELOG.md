@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+## Fixed
+- Restored Show -> edit link [#1699]
+
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 
 ## [0.12.17] - 2020-02-02
 
