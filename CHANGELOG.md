@@ -11,12 +11,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Spinner for when converting verbatim to bibtex [#1710]
 
 ## Fixed
+- Better response for failed collecting event cloning [#1705]
 - Cleaned up deprecated biological associations graph autcomplete [#1707]
 - Colliding `namespace` method for identifiers breaks identifiers list [#1702]
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
-
+[#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
 [#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703

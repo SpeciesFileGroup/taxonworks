@@ -1075,7 +1075,8 @@ class CollectingEvent < ApplicationRecord
     cache_geographic_names[:state]
   end
 
-  # @return [CollectingEvent instance]
+  # @return [CollectingEvent]
+  #   the instance may not be valid!
   def clone
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
@@ -1092,11 +1093,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    begin
-      a.save!
-    rescue ActiveRecord::RecordInvalid
-      return false
-    end
+    a.save
     a
   end
 
