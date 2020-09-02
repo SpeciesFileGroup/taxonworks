@@ -124,12 +124,12 @@ class SourcesController < ApplicationController
   def destroy
     if @source.destroy
       respond_to do |format|
-        format.html { redirect_to sources_url }
+        format.html { redirect_to sources_url, notice: "Destroyed source #{@source.cached}" }
         format.json { head :no_content }
       end
     else
       respond_to do |format|
-        format.html { render action: :show, notice: 'failed to destroy the source' }
+        format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
