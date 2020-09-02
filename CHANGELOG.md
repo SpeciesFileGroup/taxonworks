@@ -9,9 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## Fixed
 
+
+- Colliding `namespace` method for identifiers breaks identifiers list [#1702]
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
+
+[#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 
