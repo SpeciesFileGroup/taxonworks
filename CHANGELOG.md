@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Replace SimpleMDE for EasyMDE
 - Sort alphabetically bibliography style list on filter source
 - Removed limit of download bibtex on filter source [#1683]
+- Disable/enable destroy button from metadata on radial navigator [#1696]
 
 #### Fixed
 - Non admins not able to destroy shared data [#1098]
@@ -46,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1687]: https://github.com/SpeciesFileGroup/taxonworks/issues/1687
 [#1688]: https://github.com/SpeciesFileGroup/taxonworks/issues/1688
 [#1692]: https://github.com/SpeciesFileGroup/taxonworks/issues/1692
+[#1696]: https://github.com/SpeciesFileGroup/taxonworks/issues/1696
 
 
 
