@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Spinner for when converting verbatim to bibtex [#1710]
 
+### Changed
+- Methods that write to cached should not fire callbacks, potential for [#1701]
+
 ## Fixed
 - Better response for failed collecting event cloning [#1705]
 - Cleaned up deprecated biological associations graph autcomplete [#1707]
@@ -17,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
+[#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
 [#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
