@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added `rake tw:maintenance:otus:missplaced_references` [#1439]
 - Spinner for when converting verbatim to bibtex [#1710]
 
 ### Changed
@@ -22,6 +23,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
+
+[#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
