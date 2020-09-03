@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Methods that write to cached should not fire callbacks, potential for [#1701]
+- Using custom geckodriver-helper for Firefox 80 support
 
 ## Fixed
 - Serial multiple updates did not update bibtex author field [#1709]

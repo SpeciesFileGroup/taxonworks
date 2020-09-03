@@ -28,7 +28,7 @@ jobs:
       bundler_args: --without development production
       addons:
         postgresql: "10"
-        firefox: "79.0"
+        firefox: "latest"
         apt:
           packages:
             - imagemagick

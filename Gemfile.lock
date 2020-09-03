@@ -8,6 +8,13 @@ GIT
       with_advisory_lock (>= 4.0.0)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/geckodriver-helper.git
+  revision: 8cb32dde4b152250ad053aab7432b151d11dddf9
+  specs:
+    geckodriver-helper (0.27.0)
+      archive-zip (~> 0.7)
+
+GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
@@ -177,8 +184,6 @@ GEM
     ffi-geos (2.1.0)
       ffi (>= 1.0.0)
     formatador (0.2.5)
-    geckodriver-helper (0.24.0)
-      archive-zip (~> 0.7)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     gnfinder (0.11.0)
@@ -584,7 +589,7 @@ DEPENDENCIES
   factory_bot_rails (~> 5.1, >= 5.1.1)
   faker (~> 2.10)
   ffi-geos (~> 2.1.0)
-  geckodriver-helper (~> 0.24.0)
+  geckodriver-helper!
   gnfinder (~> 0.11.0)
   google-protobuf (~> 3.12.0.rc.1)
   gpx (~> 1.0.0)
