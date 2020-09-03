@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 
 ## Fixed
+- Serial multiple updates did not update bibtex author field [#1709]
 - Fix (likely) for pinboard items failing to remove [#1690]
 - Better response for failed collecting event cloning [#1705]
 - Cleaned up deprecated biological associations graph autcomplete [#1707]
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 
+[#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
