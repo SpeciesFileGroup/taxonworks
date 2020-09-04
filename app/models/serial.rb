@@ -170,10 +170,7 @@ class Serial < ApplicationRecord
     h = {
       recent: (
         Serial.where('"serials"."id" IN (?)', r.first(10) ).order(:name).to_a +
-        Serial.recently_created
-        .where(created_by_id: user_id)
-        .distinct
-        .limit(5).to_a).uniq.sort{|a,b| a.name <=> b.name},
+            Serial.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
       pinboard: Serial.pinned_by(user_id).pinned_in_project(project_id).to_a
     }
 
