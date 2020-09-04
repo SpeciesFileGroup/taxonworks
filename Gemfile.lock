@@ -8,6 +8,13 @@ GIT
       with_advisory_lock (>= 4.0.0)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/biodiversity.git
+  revision: 555d1706f3603f4945b14009e2e0f6f3b57d5c6c
+  branch: ipc-mode
+  specs:
+    biodiversity (4.1.0)
+
+GIT
   remote: https://github.com/james2m/seedbank
   revision: 58d19b0c5c2afd139b3d395f2a516dd399eef57b
   specs:
@@ -102,8 +109,6 @@ GEM
     bindex (0.8.1)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    biodiversity (4.1.0)
-      ffi (~> 1.11)
     brakeman (4.8.2)
     builder (3.2.4)
     byebug (11.1.3)
@@ -564,7 +569,7 @@ DEPENDENCIES
   better_errors (~> 2.4)
   bibtex-ruby (~> 5.1.1)
   binding_of_caller
-  biodiversity (~> 4.0, >= 4.0.3)
+  biodiversity!
   brakeman (~> 4.6, >= 4.6.1)
   bundler (~> 2.0)
   byebug (~> 11.1)
