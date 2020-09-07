@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Added `rake tw:maintenance:otus:missplaced_references` [#1439]
 - Spinner for when converting verbatim to bibtex [#1710]
+- Set OTU in determination when otu_id param is present on comprehensive task
+- "Create georeference from verbatim" button in Parsed column on comprehensive task
+- Sortable order for Type material, Biological association and Determinations on comprehensive task
 
 ### Changed
 - Methods that write to cached should not fire callbacks, potential for [#1701]
