@@ -16,7 +16,7 @@
       class="button normal-input button-submit"
       :disabled="!collectingEvent.id"
       @click="$refs.georeference.createVerbatimShape()">
-      Create georeference from verbatim coordinates
+      Create georeference from verbatim
     </button>
     <template v-if="verbatimGeoreferenceAlreadyCreated">
       <span>Lat: {{ georeferenceVerbatimLatitude }}, Long: {{ georeferenceVerbatimLongitude }}<span v-if="georeferenceVerbatimRadiusError">, Radius error: {{ georeferenceVerbatimRadiusError }}</span></span>

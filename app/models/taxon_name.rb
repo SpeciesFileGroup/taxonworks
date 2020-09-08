@@ -1106,10 +1106,6 @@ class TaxonName < ApplicationRecord
 
     obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-    unless misapplication.empty? || obj.author_string.blank?
-      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
-    end
-
     if SPECIES_RANK_NAMES_ICZN.include?(taxon.rank_string)
       if p
         ay = '(' + ay + ')' unless ay.empty?
@@ -1124,6 +1120,10 @@ class TaxonName < ApplicationRecord
           ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
       end
+    end
+
+    unless misapplication.empty? || obj.author_string.blank?
+      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
     end
 
     ay.blank? ? nil : ay
