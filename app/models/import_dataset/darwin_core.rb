@@ -24,9 +24,15 @@ class ImportDataset::DarwinCore < ImportDataset
           core_type = CHECKLIST_ROW_TYPE
         end
       else
-        core_type = ::DarwinCore.new(params[:source].tempfile.path).core.data[:attributes][:rowType]
+        dwc = ::DarwinCore.new(params[:source].tempfile.path)
+        core_type = dwc.core.data[:attributes][:rowType]
+
+        ### Check all files are readable
+        [dwc.core, *dwc.extensions].each do |table|
+          table.read { |data, errors| raise RuntimeError("Errors found when reading data") unless errors.empty? }
+        end
       end
-    rescue RuntimeError => e
+    rescue Errno::ENOENT, RuntimeError => e # TODO: dwc-archive gem should probably detect missing (or wrongly mapped) files and raise its own exception
       return Unknown.new(params.merge({error_message: "#{e.message}"}))
     end
 
@@ -80,7 +86,8 @@ class ImportDataset::DarwinCore < ImportDataset
 
       dwc.extensions.each do |extension|
         type = extension.properties[:rowType]
-        records[:extensions][type], headers[:extensions][type] = get_dwc_records(extension)
+        records[:extensions][type] = get_dwc_records(extension)
+        headers[:extensions][type] = get_dwc_headers(extension)
       end
     elsif ["text/plain"].include? source.content_type
       records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil).map { |r| r.to_h }
