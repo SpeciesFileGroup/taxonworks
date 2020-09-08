@@ -79,7 +79,7 @@ export default {
   methods: {
     loadDataset (id) {
       this.$store.dispatch(ActionNames.LoadDataset, id).then(() => {
-        this.$store.dispatch(ActionNames.LoadDatasetRecords, {})
+        this.$store.dispatch(ActionNames.LoadDatasetRecords)
       })
     },
     checkScroll () {

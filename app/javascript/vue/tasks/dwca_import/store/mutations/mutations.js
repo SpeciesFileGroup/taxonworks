@@ -4,6 +4,7 @@ import setPagination from './setPagination'
 import setParamsFilter from './setParamsFilter'
 import setDatasetRecords from './setDatasetRecords'
 import setRow from './setRow'
+import setDatasetPage from './setDatasetPage'
 
 const MutationNames = {
   SetDataset: 'setDataset',
@@ -11,6 +12,7 @@ const MutationNames = {
   SetParamsFilter: 'setParamsFilter',
   SetSelectedRowIds: 'setSelectedRowIds',
   SetDatasetRecords: 'setDatasetRecords',
+  SetDatasetPage: 'setDatasetPage',
   SetRow: 'setRow'
 }
 
@@ -20,6 +22,7 @@ const MutationFunctions = {
   [MutationNames.SetParamsFilter]: setParamsFilter,
   [MutationNames.SetSelectedRowIds]: setSelectedRowIds,
   [MutationNames.SetDatasetRecords]: setDatasetRecords,
+  [MutationNames.SetDatasetPage]: setDatasetPage,
   [MutationNames.SetRow]: setRow
 }
 

@@ -2,6 +2,7 @@
   <td
     v-if="!editing"
     v-html="text"
+    style="overflow: ellipsis; height: 40px"
     @click="setEdit(true)"/>
   <td v-else>
     <input

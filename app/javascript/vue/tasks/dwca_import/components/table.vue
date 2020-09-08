@@ -1,33 +1,33 @@
 <template>
   <div>
-    <table class="position-relative">
-      <thead>
-        <tr>
-          <th
-            class="position-sticky">
-            Selected
-          </th>
-          <status-filter
-            class="position-sticky margin-medium-left"
-            v-model="params.status"/>
-          <column-filter
-            v-for="(item, index) in datasetHeaders"
-            :key="index"
-            :title="item"
-            :disabled="disabled"
-            class="position-sticky margin-medium-left"
-            v-model="params.filter[index]"
-            :field="index"/>
-        </tr>
-      </thead>
-      <tbody>
+    <virtual-scroller
+      :pages="datasetRecords"
+      :item-height="43"
+      @currentPages="loadPage">
+      <template slot="header">
+        <th
+          class="position-sticky">
+          Selected
+        </th>
+        <status-filter
+          class="position-sticky margin-medium-left"
+          v-model="params.status"/>
+        <column-filter
+          v-for="(item, index) in datasetHeaders"
+          :key="index"
+          :title="item"
+          :disabled="disabled"
+          class="position-sticky margin-medium-left"
+          v-model="params.filter[index]"
+          :field="index"/>
+      </template>
+      <template v-slot="{ item }">
         <row-component
-          v-for="(row, index) in datasetRecords"
           class="contextMenuCells"
-          :class="{ 'even': (index % 2 == 0) }"
-          :row="row"/>
-      </tbody>
-    </table>
+          :class="{ 'even': (item.index % 2 == 0) }"
+          :row="item.row"/>
+      </template>
+    </virtual-scroller>
   </div>
 </template>
 
@@ -36,6 +36,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import VirtualScroller from './VirtualScroller.vue'
 
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
@@ -43,6 +44,7 @@ import StatusFilter from './StatusFilter'
 
 export default {
   components: {
+    VirtualScroller,
     RowComponent,
     ColumnFilter,
     StatusFilter
@@ -81,13 +83,21 @@ export default {
       },
       deep: true
     }
+  },
+  methods: {
+    loadPage (pages) {
+      pages.forEach(page => {
+        this.$store.dispatch(ActionNames.LoadDatasetRecords, page)
+      })
+    }
   }
 }
 </script>
 
 <style scoped>
   th {
-    top: 0
+    top: 0;
+    z-index: 2
   }
 
   .show-import-process {

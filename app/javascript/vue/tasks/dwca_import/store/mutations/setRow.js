@@ -1,5 +1,5 @@
 import Vue from 'vue'
 
-export default (state, { index, row }) => {
-  Vue.set(state.datasetRecords, index, row)
+export default (state, { pageIndex, rowIndex, row }) => {
+  Vue.set(state.datasetRecords[pageIndex], rowIndex, row)
 }

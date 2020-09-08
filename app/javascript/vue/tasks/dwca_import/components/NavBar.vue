@@ -8,7 +8,7 @@
     }">
     <div class="flex-separate middle">
       <div class="half_width">
-        <span v-if="pagination">{{ datasetRecords.length }} of {{ pagination.total }} records.</span>
+        <span v-if="pagination">{{ pagination.total }} records.</span>
       </div>
       <div class="full_width">
         <progress-bar class="full_width" :progress="dataset.progress"/>

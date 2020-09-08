@@ -11,7 +11,8 @@ export default ({ state, getters, commit, dispatch }) => {
       ImportRows(state.dataset.id).then(response => {
         if (response.body.results.length) {
           response.body.results.forEach(row => {
-            const payload = { index: getters[GetterNames.GetRowPositionById](row.id), row: row }
+            const position = getters[GetterNames.GetRowPositionById](row.id)
+            const payload = { pageIndex: position.pageIndex, rowIndex: position.rowIndex, row: row }
             commit(MutationNames.SetRow, payload)
           })
           delete response.body.results
