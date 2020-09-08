@@ -18,6 +18,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         names.reject! { |v| v[1].nil? }
 
+        raise DarwinCore::InvalidData.new({ "Taxon name": ["Unable to find or create a taxon name with supplied data"] })
+
         rank = get_field_value("taxonRank")
 
         names.last[0] = rank unless rank.blank?
@@ -73,6 +75,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         self.status = "Imported"
         save!
       end
+    rescue DarwinCore::InvalidData => invalid
+      self.status = "Errored"
+      self.metadata["error_data"] = { messages: invalid.error_data }
     rescue ActiveRecord::RecordInvalid => invalid
       self.status = "Errored"
       self.metadata["error_data"] = {
