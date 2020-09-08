@@ -18,7 +18,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         names.reject! { |v| v[1].nil? }
 
-        raise DarwinCore::InvalidData.new({ "Taxon name": ["Unable to find or create a taxon name with supplied data"] })
+        raise DarwinCore::InvalidData.new({ "Taxon name": ["Unable to find or create a taxon name with supplied data"] }) if names.empty?
 
         rank = get_field_value("taxonRank")
 
