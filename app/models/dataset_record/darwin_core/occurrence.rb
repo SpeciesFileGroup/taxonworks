@@ -50,7 +50,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
 
         ### Create collecting event
-        end_date = Date.ordinal(get_field_value("year").to_i, get_field_value("endDayOfYear").to_i)
+        #end_date = Date.ordinal(get_field_value("year").to_i, get_field_value("endDayOfYear").to_i)
 
         #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
         CollectingEvent.create!({
@@ -58,9 +58,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
           start_date_year: get_field_value("year"),
           start_date_month: get_field_value("month"),
           start_date_day: get_field_value("day"),
-          end_date_year: end_date.year,
-          end_date_month: end_date.month,
-          end_date_day: end_date.day,
+          #end_date_year: end_date.year,
+          #end_date_month: end_date.month,
+          #end_date_day: end_date.day,
           collection_objects: [specimen],
           with_verbatim_data_georeference: true,
           verbatim_latitude: get_field_value("decimalLatitude"),
@@ -102,7 +102,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
   end
 
   def get_field_value(field_name)
-    data_fields[get_fields_mapping[field_name]]&.dig("value")
+    index = get_fields_mapping[field_name]
+    data_fields[index]&.dig("value") if index
   end
 
   def parse_identifiedBy
