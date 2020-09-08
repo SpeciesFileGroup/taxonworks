@@ -104,8 +104,8 @@ class InteractiveKey
     #main_logic
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
+    @useful_descriptors = useful_descriptors
     @used_descriptors ###
-    @useful_descriptors ####
     @not_useful_descriptors ####
 
     @row_hash = nil
@@ -170,25 +170,26 @@ class InteractiveKey
     end
   end
 
-  ## row_hash: {row.id: {:object,           ### (collection_object or OTU)
+  ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
   ##                     :object_at_rank,   ### (converted to OTU or TN)
   ##                     :errors,           ### (calculated number of errors)
   ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
     h = {}
     rows_with_filter.each do |r|
-      h[r.id] = {}
-      h[r.id][:object] = r
+      otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
+      h[otu_collection_object] = {}
+      h[otu_collection_object][:object] = r
       if @identified_to_rank == 'otu'
-        h[r.id][:object_at_rank] = r.current_otu || r
+        h[otu_collection_object][:object_at_rank] = r.current_otu || r
       elsif @identified_to_rank
-        h[r.id][:object_at_rank] = r.current_taxon_name.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        h[otu_collection_object][:object_at_rank] = r.current_taxon_name.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
       else
-        h[r.id][:object_at_rank] = r
+        h[otu_collection_object][:object_at_rank] = r
       end
-      h[r.id][:errors] = 0
-      h[r.id][:error_descriptors] = {}
-      h[r.id][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
+      h[otu_collection_object][:errors] = 0
+      h[otu_collection_object][:error_descriptors] = {}
+      h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
     end
     h
   end
@@ -202,11 +203,13 @@ class InteractiveKey
     descriptors_with_keywords.each do |d|
       h[d.id] = {}
       h[d.id][:descriptor] = d
-      h[d.id][:states_ids] = [] if d.type == 'Descriptor::Qualitative' # array of used state_ids
+      h[d.id][:weight_index] = 0
+      h[d.id][:state_ids] = {} if d.type == 'Descriptor::Qualitative' # hash of used state_ids
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
       h[d.id][:observations] = [] # all observation for a particular
       h[d.id][:observation_hash] = [] ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
+      h[d.id][:status] = 'useful' ### 'used', 'useful', 'useless'
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
     @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
@@ -214,7 +217,6 @@ class InteractiveKey
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
         h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
-        h[o.descriptor_id][:state_ids] += [o.character_state_id.to_s] if o.character_state_id
         h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && o.character_state_id < h[o.descriptor_id][:min]
         h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && o.character_state_id > h[o.descriptor_id][:max]
         h[o.descriptor_id][:min] = o.sample_min if o.sample_min && o.sample_min < h[o.descriptor_id][:min]
@@ -236,6 +238,7 @@ class InteractiveKey
     a.each do |i|
       d = i.split(':')
       h[d[0]].to_i = d[1].split('|')
+      @descriptors_hash[h[d[0]].to_i][:status] = 'used'
     end
     h
   end
@@ -301,6 +304,59 @@ class InteractiveKey
       end
     end
     return h
+  end
+
+  def useful_descriptors
+    list_of_remaining_taxa = {}
+    @row_hash.each do |r_key, r_value|
+      if r_value[:status] != 'eliminated' && d_value[:status] != 'used'
+        list_of_remaining_taxa[r_value[:object_at_rank] ] = true
+      end
+    end
+    number_of_taxa = list_of_remaining_taxa.count
+
+    @descriptors_hash.each do |d_key, d_value|
+      d_value[:observations].each do |otu_key, otu_value|
+        otu_collection_object = otu_key
+        if @row_hash[otu_collection_object][:status] != 'eliminated'
+          otu_value.each do |o|
+            if o.character_state_id
+              d_key[:state_ids][o.character_state_id.to_s] = {} if d_key[:state_ids][o.character_state_id.to_s].nil?
+              d_key[:state_ids][o.character_state_id.to_s][:rows] = {} if d_key[:state_ids][o.character_state_id.to_s][:rows].nil? ## rows which this state identifies
+              d_key[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_key[:state_ids][o.character_state_id.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
+            end
+            unless o.presence.nil?
+              d_key[:state_ids][o.presence.to_s] = {} if d_key[:state_ids][o.presence.to_s].nil?
+              d_key[:state_ids][o.presence.to_s][:rows] = {} if d_key[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
+              d_key[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_key[:state_ids][o.presence.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
+            end
+
+          end
+        end
+
+      end
+
+
+      @row_hash.each do |r_key, r_value|
+        if r_value[:status] != 'eliminated' && d_value[:status] != 'used'
+
+
+
+          # not numeric
+          #          weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
+
+          # numeric for each measurement for a particular species
+          #                               i = max - min ; if 0 then (numMax - numMin) / 10
+          #                               sum of all i
+          #                               if numMax = numMin then numMax = numMax + 0.00001
+          #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
+
+
+                                                                                                                                                          end
+      end
+    end
   end
 
   def observations
