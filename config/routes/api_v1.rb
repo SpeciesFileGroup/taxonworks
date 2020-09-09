@@ -43,6 +43,10 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
+      get '/collection_objects', to: '/identifiers#api_index'
+      get '/collection_objects/:id', to: '/identifiers#api_show'
+      get '/collection_objects/autocomplete', to: '/identifiers#autocomplete'
+
       # get '/identifiers', to: '/identifiers#api_index'
       # get '/identifiers/:id', to: '/identifiers#api_show'
       # get '/identifiers/autocomplete', to: '/identifiers#autocomplete'

@@ -23,9 +23,21 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # GET /api/v1/collection_objects
+  def api_index
+    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/collection_objects/api/index.json.jbuilder'
+  end
+
+  # GET /api/v1/collection_objects/:id
+  def api_show
+    @collection_objects = CollectionObject.find(params[:id])
+    render '/collection_objects/show.json.jbuilder'
+  end
+
   def biocuration_classifications
     @biocuration_classifications = @collection_object.biocuration_classifications
-   render '/biocuration_classifications/index' 
+   render '/biocuration_classifications/index'
   end
 
   # DEPRECATED
@@ -38,8 +50,8 @@ class CollectionObjectsController < ApplicationController
   # Render DWC fields *only*
   def dwc_index
     objects = filtered_collection_objects.includes(:dwc_occurrence).all
-    assign_pagination(objects) 
-      
+    assign_pagination(objects)
+
     @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
@@ -52,9 +64,9 @@ class CollectionObjectsController < ApplicationController
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
         # get does not rebuild
-        o.set_dwc_occurrence 
+        o.set_dwc_occurrence
       else
-        o.get_dwc_occurrence 
+        o.get_dwc_occurrence
       end
     end
     render json: o.dwc_occurrence_attribute_values
@@ -68,16 +80,16 @@ class CollectionObjectsController < ApplicationController
 
       if params[:rebuild] == 'true'
         # get does not rebuild
-        o.set_dwc_occurrence 
+        o.set_dwc_occurrence
       else
-        o.get_dwc_occurrence 
+        o.get_dwc_occurrence
       end
     end
     render json: o.dwc_occurrence_attributes
   end
 
   # Intent is DWC fields + quick summary fields for reports
-  # !! As currently implemented rebuilds DWC all 
+  # !! As currently implemented rebuilds DWC all
   def report
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
@@ -190,10 +202,10 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects =
-      Queries::CollectionObject::Autocomplete.new(
-        params[:term],
-        project_id: sessions_current_project_id
-    ).autocomplete
+        Queries::CollectionObject::Autocomplete.new(
+            params[:term],
+            project_id: sessions_current_project_id
+        ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -356,7 +368,7 @@ class CollectionObjectsController < ApplicationController
     a = params.permit(
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :ancestor_id, 
+      :ancestor_id,
       :collection_object_type,
       :current_determinations,
       :depicted,
@@ -393,7 +405,7 @@ class CollectionObjectsController < ApplicationController
       geographic_area_ids: [],
       biocuration_class_ids: [],
       biological_relationship_ids: []
-      
+
       #  collecting_event: {
       #   :recent,
       #   keyword_ids: []
@@ -402,7 +414,7 @@ class CollectionObjectsController < ApplicationController
 
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
-  end 
+  end
 
 end
 
