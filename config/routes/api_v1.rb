@@ -19,6 +19,11 @@ namespace :api, defaults: {format: :json} do
       get '/people', to: '/people#api_index'
       get '/people/:id', to: '/people#api_show'
       get '/people/autocomplete', to: '/people#autocomplete'
+
+      get '/collection_objects', to: '/collection_objects#api_index'
+      get '/collection_objects/:id', to: '/collection_objects#api_show'
+      get '/collection_objects/autocomplete', to: '/collection_objects#autocomplete'
+
     end
 
     # authenticated by project token
@@ -42,10 +47,6 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
-
-      get '/collection_objects', to: '/identifiers#api_index'
-      get '/collection_objects/:id', to: '/identifiers#api_show'
-      get '/collection_objects/autocomplete', to: '/identifiers#autocomplete'
 
       # get '/identifiers', to: '/identifiers#api_index'
       # get '/identifiers/:id', to: '/identifiers#api_show'
