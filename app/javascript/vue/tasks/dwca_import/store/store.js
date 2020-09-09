@@ -14,6 +14,7 @@ function makeInitialState () {
       isProcessing: false
     },
     paramsFilter: {
+      per: 50,
       filter: {},
       status: []
     },
