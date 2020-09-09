@@ -39,7 +39,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         otu = parent.otus.first # TODO: Might require select-and-confirm functionality
 
         specimen = Specimen.create!({
-          total: get_field_value("individualCount") || 1
+          total: get_field_value("individualCount") || 1,
+          no_dwc_occurrence: true
         })
 
         determiners = parse_identifiedBy.map! { |n| Person.find_by(n) || Person::Unvetted.create!(n) }
@@ -73,7 +74,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
-        save!
+
+        DwcOccurrenceUpsertJob.perform_later(specimen)
       end
     rescue DarwinCore::InvalidData => invalid
       self.status = "Errored"
