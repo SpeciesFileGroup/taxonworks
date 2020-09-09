@@ -50,7 +50,6 @@ export default {
   },
   watch: {
     pages (newVal) {
-      this.visiblePages = [0]
       this.handleScroll()
     }
   },
@@ -71,7 +70,7 @@ export default {
         if (currentPages.every(item => this.visiblePages.includes(item))) return
         this.visiblePages = currentPages
         this.$emit('currentPages', currentPages)
-      }, 100)
+      }, 200)
     }
   },
   destroyed () {
