@@ -25,12 +25,7 @@
         </tr>
       </template>
     </tbody>
-    <tfoot>
-      <tr>
-        <td>Pages</td>
-        <td>{{pages.length}}</td>
-      </tr>
-    </tfoot>
+    <slot name="footer"/>
   </table>
 </template>
 
