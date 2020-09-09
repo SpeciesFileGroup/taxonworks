@@ -69,7 +69,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
           verbatim_latitude: get_field_value("decimalLatitude"),
           verbatim_longitude: get_field_value("decimalLongitude"),
           verbatim_datum: get_field_value("geodeticDatum"),
-          verbatim_locality: get_field_value("locality")
+          verbatim_locality: get_field_value("locality"),
+          no_dwc_occurrence: true
         })
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
