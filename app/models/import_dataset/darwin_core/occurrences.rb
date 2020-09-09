@@ -80,29 +80,3 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   end
 
 end
-
-
-  def get_records(source)
-    records = { core: [], extensions: {} }
-    headers = { core: [], extensions: {} }
-
-    if ["application/zip", "application/octet-stream"].include? source.content_type
-      dwc = ::DarwinCore.new(source.path)
-
-      headers[:core] = get_dwc_headers(dwc.core)
-      records[:core] = get_dwc_records(dwc.core)
-
-      dwc.extensions.each do |extension|
-        type = extension.properties[:rowType]
-        records[:extensions][type] = get_dwc_records(extension)
-        headers[:extensions][type] = get_dwc_headers(extension)
-      end
-    elsif ["text/plain"].include? source.content_type
-      records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil).map { |r| r.to_h }
-      headers[:core] = records[:core].first.to_h.keys
-    else
-      raise "Unsupported input format"
-    end
-
-    return records, headers
-  end
