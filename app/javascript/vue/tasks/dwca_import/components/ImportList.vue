@@ -7,8 +7,9 @@
         :key="item.id"
         class="panel content margin-medium-right margin-medium-bottom cursor-pointer import-card"
         @click="$emit('onSelect', item.id)">
-        <h3><b>{{ item.description }}</b></h3>
+        <h2><b>{{ item.description }}</b></h2>
         <span>DwC-A {{ item.type.split('::').pop() }}</span>
+        <span>Status: <b>{{ item.status }}</b></span>
         <hr class="line full_width">
         <progress-bar
           class="full_width"
