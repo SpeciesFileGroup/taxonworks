@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/biodiversity.git
-  revision: 555d1706f3603f4945b14009e2e0f6f3b57d5c6c
+  revision: 77406b3cf9b40cc08aacb2d5aeecf5997f19abde
   branch: ipc-mode
   specs:
     biodiversity (4.1.0)
