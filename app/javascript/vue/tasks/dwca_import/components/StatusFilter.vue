@@ -7,8 +7,8 @@
           class="button"
           :disabled="disabled"
           :class="{
-            'button-data': applied,
-            'button-default': !applied
+            'button-data': applied.length,
+            'button-default': !applied.length
           }"
           @click="show = !show"
         >
@@ -23,16 +23,16 @@
       <ul class="no_bullets">
         <li
           class="horizontal-left-content"
-          v-for="filter in options"
-          :key="filter"
+          v-for="option in options"
+          :key="option"
         >
           <label>
             <input
               type="checkbox"
-              :value="filter"
-              v-model="filters"
+              :value="option"
+              v-model="filter"
             >
-            {{ filter }}
+            {{ option }}
           </label>
         </li>
       </ul>
@@ -43,8 +43,10 @@
 <script>
 
 import FilterStatus from '../const/importColors'
+import ColumnMixin from './shared/columnMixin.js'
 
 export default {
+  mixins: [ColumnMixin],
   props: {
     value: {
       type: Array,
@@ -55,23 +57,9 @@ export default {
       default: false
     }
   },
-  computed: {
-    filters: {
-      get () {
-        return this.value
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
-    },
-    applied () {
-      return this.value.length
-    }
-  },
   data () {
     return {
-      options: Object.keys(FilterStatus),
-      show: false
+      options: Object.keys(FilterStatus)
     }
   }
 }

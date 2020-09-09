@@ -122,18 +122,12 @@ export default {
   #vue-task-dwca-import-new {
     .column-filter {
       .filter-container {
-        display: none;
         min-width: 200px;
         left:0;
         position: absolute;
       }
       .vue-autocomplete-input {
         width: 200px;
-      }
-    }
-    .column-filter:hover {
-      .filter-container {
-        display: flex;
       }
     }
   }

@@ -1,5 +1,6 @@
 <template>
-  <th class="column-filter">
+  <th
+    class="column-filter">
     <div class="flex-separate middle">
       <span>{{ title }}</span>
       <div
@@ -20,7 +21,6 @@
       </div>
     </div>
     <div
-      @mouseleave="show = false"
       v-if="show && !disabled"
       class="panel content filter-container"
     >
@@ -60,8 +60,10 @@
 
 import Autocomplete from 'components/autocomplete'
 import { GetterNames } from '../store/getters/getters'
+import ColumnMixin from './shared/columnMixin.js'
 
 export default {
+  mixins: [ColumnMixin],
   components: {
     Autocomplete
   },
@@ -84,17 +86,6 @@ export default {
     }
   },
   computed: {
-    filter: {
-      get () {
-        return this.value
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
-    },
-    applied () {
-      return this.value
-    },
     importId () {
       return this.$store.getters[GetterNames.GetDataset].id
     }
