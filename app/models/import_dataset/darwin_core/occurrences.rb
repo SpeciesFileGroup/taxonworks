@@ -58,14 +58,6 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   end
 
   # @return [Hash]
-  # @param [Integer] max
-  #   Maximum amount of records to import.
-  # Returns the updated dataset records by the import process.
-  def import(max)
-    dataset_records.where(status: "Ready").limit(max).map { |r| r.import }
-  end
-
-  # @return [Hash]
   # Returns a hash with the record counts grouped by status
   def progress
     core_records.group(:status).count

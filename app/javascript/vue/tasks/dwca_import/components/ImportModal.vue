@@ -33,7 +33,7 @@
           type="button"
           class="button normal-input button-default margin-medium-top"
           @click="stopImport">
-          Cancel
+          Stop import
         </button>
         <button
           v-else

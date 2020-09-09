@@ -47,11 +47,20 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   # @return [Hash]
-  # @param [Integer] max
-  #   Maximum amount of records to import.
-  # Returns the updated dataset records by the import process.
-  def import(max)
-    dataset_records.where(status: "Ready").limit(max).map { |r| r.import }
+  # @param [Integer] max_time
+  #   Maximum time to wait before import is interrupted.
+  # Returns the updated dataset records that were processed in the allotted time.
+  def import(max_time)
+    start_time = Time.now
+    imported = []
+
+    dataset_records.where(status: "Ready").order(:id).find_each do |record|
+      break if 1000.0*(Time.now - start_time).abs > max_time
+
+      imported << record.import
+    end
+
+    imported
   end
 
   # @return [Hash]
