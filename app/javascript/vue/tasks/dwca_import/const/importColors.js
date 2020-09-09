@@ -1,7 +1,7 @@
 export default {
   Imported: 'blue',
   Ready: 'green',
-  NotReady: 'gray',
+  NotReady: 'black',
   Errored: 'red',
   Failed: 'orange',
   Unsupported: 'brown'

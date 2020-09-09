@@ -15,7 +15,7 @@
           class="full_width"
           :progress="item.progress"/>
         <progress-list
-          class="no_bullets"
+          :table-mode="true"
           :progress="item.progress"/>
       </div>
     </div>

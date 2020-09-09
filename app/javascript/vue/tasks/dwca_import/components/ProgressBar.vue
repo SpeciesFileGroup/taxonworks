@@ -1,5 +1,10 @@
 <template>
-  <div class="progress-bar horizontal-left-content">
+  <div
+    class="progress-bar horizontal-left-content"
+    :style="{
+      backgroundColor: 'gray',
+      height: '10px'
+    }">
     <div
       v-for="(value, key) in colors"
       :key="key"
