@@ -42,7 +42,7 @@
 
 <script>
 
-import FilterStatus from '../const/filterStatus'
+import FilterStatus from '../const/importColors'
 
 export default {
   props: {
@@ -70,7 +70,7 @@ export default {
   },
   data () {
     return {
-      options: FilterStatus(),
+      options: Object.keys(FilterStatus),
       show: false
     }
   }

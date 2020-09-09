@@ -3,5 +3,6 @@ export default {
   Ready: 'green',
   NotReady: 'gray',
   Errored: 'red',
+  Failed: 'orange',
   Unsupported: 'brown'
 }

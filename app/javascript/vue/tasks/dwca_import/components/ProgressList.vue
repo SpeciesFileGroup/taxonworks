@@ -2,9 +2,9 @@
   <ul class="no_bullets">
     <li
       class="flex-separate"
-      v-for="(value, property) in progress"
+      v-for="(color, property) in colors"
       :key="property">
-      <span>{{ property }}: <b :class="colors[property]">{{ value }}</b></span>
+      <span>{{ property }}: <b :style="{ color: color }">{{ showTotal(progress[property]) }}</b></span>
     </li>
   </ul>
 </template>
@@ -23,6 +23,11 @@ export default {
   data () {
     return {
       colors: ImportColors
+    }
+  },
+  methods: {
+    showTotal (count = 0) {
+      return count
     }
   }
 }

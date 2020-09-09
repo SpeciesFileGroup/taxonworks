@@ -1,12 +1,12 @@
 <template>
   <div class="progress-bar horizontal-left-content">
     <div
-      v-for="(value, key) in progress"
+      v-for="(value, key) in colors"
       :key="key"
       :style="{
-        backgroundColor: colors[key],
+        backgroundColor: value,
         height: '10px',
-        width: `${getPorcent(value)}%`
+        width: `${getPorcent(key)}%`
       }"/>
   </div>
 </template>
@@ -33,8 +33,8 @@ export default {
     }
   },
   methods: {
-    getPorcent (count) {
-      return count ? count * 100 / this.totalCount : 0
+    getPorcent (key) {
+      return this.progress[key] ? this.progress[key] * 100 / this.totalCount : 0
     }
   }
 }

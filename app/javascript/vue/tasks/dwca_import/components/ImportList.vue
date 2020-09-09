@@ -1,7 +1,7 @@
 <template>
   <div v-if="imports.length">
     <h2>Created imports</h2>
-    <div class="horizontal-left-content">
+    <div class="flex-wrap-row">
       <div
         v-for="item in imports"
         :key="item.id"
