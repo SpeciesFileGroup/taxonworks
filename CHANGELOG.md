@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set OTU in determination when otu_id param is present on comprehensive task
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
 - Sortable order for Type material, Biological association and Determinations on comprehensive task
+- User facet on Filter nomenclature task [#1720]
 
 ### Changed
 - Methods that write to cached should not fire callbacks, potential for [#1701]
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
+[#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 
 ## [0.12.17] - 2020-02-02
 
