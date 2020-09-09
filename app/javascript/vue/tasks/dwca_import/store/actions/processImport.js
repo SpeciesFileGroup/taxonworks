@@ -12,8 +12,10 @@ export default ({ state, getters, commit, dispatch }) => {
         if (response.body.results.length) {
           response.body.results.forEach(row => {
             const position = getters[GetterNames.GetRowPositionById](row.id)
-            const payload = { pageIndex: position.pageIndex, rowIndex: position.rowIndex, row: row }
-            commit(MutationNames.SetRow, payload)
+            if (position) {
+              const payload = { pageIndex: position.pageIndex, rowIndex: position.rowIndex, row: row }
+              commit(MutationNames.SetRow, payload)
+            }
           })
           delete response.body.results
           commit(MutationNames.SetDataset, response.body)
