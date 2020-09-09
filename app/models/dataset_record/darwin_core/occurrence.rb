@@ -39,8 +39,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         otu = parent.otus.first # TODO: Might require select-and-confirm functionality
 
         specimen = Specimen.create!({
-          total: get_field_value("individualCount") || 1,
-          no_dwc_occurrence: true
+          total: get_field_value("individualCount") || 1
         })
 
         determiners = parse_identifiedBy.map! { |n| Person.find_by(n) || Person::Unvetted.create!(n) }
