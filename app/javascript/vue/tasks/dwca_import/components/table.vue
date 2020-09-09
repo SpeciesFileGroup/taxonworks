@@ -65,7 +65,8 @@ export default {
       }
     },
     datasetHeaders () {
-      return this.$store.getters[GetterNames.GetDataset].metadata.core_headers
+      const metadata = this.$store.getters[GetterNames.GetDataset].metadata
+      return metadata ? metadata.core_headers : []
     },
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]

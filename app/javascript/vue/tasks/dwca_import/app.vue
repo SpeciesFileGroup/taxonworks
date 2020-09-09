@@ -8,7 +8,9 @@
     <template v-if="dataset.id">
       <div class="position-relative">
         <navbar-component/>
+        <request-import/>
         <table-component
+          v-if="!disableStatus.includes(dataset.status)"
           :disabled="isProcessing"/>
         <div style="height: 60px"/>
       </div>
@@ -30,6 +32,8 @@ import { ImportRows } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
+import RequestImport from './components/RequestImport'
+import { disableStatus } from './const/datasetStatus'
 
 import SpinnerComponent from 'components/spinner'
 
@@ -39,7 +43,8 @@ export default {
     ImportList,
     TableComponent,
     SpinnerComponent,
-    NavbarComponent
+    NavbarComponent,
+    RequestImport
   },
   computed: {
     datasetRecords: {
@@ -65,7 +70,8 @@ export default {
   data () {
     return {
       isLoading: false,
-      isProcessing: false
+      isProcessing: false,
+      disableStatus: Object.keys(disableStatus)
     }
   },
   mounted () {

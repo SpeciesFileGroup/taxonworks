@@ -34,6 +34,7 @@
 
 import Dropzone from 'components/dropzone'
 import SpinnerComponent from 'components/spinner'
+import { capitalize } from 'helpers/strings'
 
 export default {
   components: {
@@ -76,8 +77,16 @@ export default {
       this.isUploading = false
     },
     error (file, error, xhr) {
-      TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
+      console.log(error)
+      if (typeof error === 'string') {
+        TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
+      } else {
+        TW.workbench.alert.create(Object.keys(error).map(key => {
+          return `<span data-icon="warning">${key}:</span> <ul><li>${Array.isArray(error[key]) ? error[key].map(line => capitalize(line)).join('</li><li>') : error[key]}</li></ul>`
+        }).join(''), 'error')
+      }
       this.isUploading = false
+      this.$refs.dwcDropzone.dropzone.removeFile(file)
     }
   }
 }

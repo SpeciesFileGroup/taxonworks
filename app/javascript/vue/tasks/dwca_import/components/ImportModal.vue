@@ -2,6 +2,7 @@
   <div>
     <button
       @click="setModalView(true)"
+      :disabled="disableStatus.includes(dataset.status)"
       class="button normal-input button-default">
       Import
     </button>
@@ -56,6 +57,7 @@ import ProgressList from './ProgressList'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import { disableStatus } from '../const/datasetStatus'
 
 export default {
   components: {
@@ -79,7 +81,8 @@ export default {
   },
   data () {
     return {
-      showModal: false
+      showModal: false,
+      disableStatus: Object.keys(disableStatus)
     }
   },
   methods: {
