@@ -1087,7 +1087,7 @@ class TaxonName < ApplicationRecord
     end
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
-    if !mobj.blank?
+    unless mobj.blank?
       a = [mobj.try(:author_string)]
       y = [mobj.try(:year_integer)]
     else
@@ -1121,13 +1121,18 @@ class TaxonName < ApplicationRecord
           cg = ancestor_at_rank('genus')
         end
         unless og.nil? || cg.nil?
-          ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
+          ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
-        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
       end
     end
 
     ay.blank? ? nil : ay
+  end
+
+  def normalized_genus
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+    tn = misspelling.empty? ? self : misspelling.first.object_taxon_name
+    return tn.lowest_rank_coordinated_taxon
   end
 
   # @return [String, nil]

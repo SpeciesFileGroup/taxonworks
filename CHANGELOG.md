@@ -7,7 +7,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Spinner for when converting verbatim to bibtex [#1710]
+
+### Changed
+- Methods that write to cached should not fire callbacks, potential for [#1701]
+- Using custom geckodriver-helper for Firefox 80 support
+
+## Fixed
+- Serial multiple updates did not update bibtex author field [#1709]
+- Fix (likely) for pinboard items failing to remove [#1690]
+- Better response for failed collecting event cloning [#1705]
+- Cleaned up deprecated biological associations graph autcomplete [#1707]
+- Colliding `namespace` method for identifiers breaks identifiers list [#1702]
+- Graceful failed serial destroy response [#1703]
+- Restored Show -> edit link [#1699]
+
+
+[#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
+[#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
+[#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
+[#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
+[#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
+[#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
+[#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
+[#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 
 ## [0.12.17] - 2020-02-02
 
@@ -30,7 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed limit of download bibtex on filter source [#1683]
 - Disable/enable destroy button from metadata on radial navigator [#1696]
 
-#### Fixed
+### Fixed
 - Non admins not able to destroy shared data [#1098]
 - Pending confirmation: Include original combinations in CoLDP [#1204] 
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
