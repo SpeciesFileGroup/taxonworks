@@ -1,14 +1,13 @@
 import { ImportRows } from '../../request/resources'
-import { ActionNames } from './actions'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
 
-export default ({ state, getters, commit, dispatch }) => {
+export default ({ state, getters, commit }) => {
   state.settings.isProcessing = true
 
   function processImport () {
     if (state.settings.isProcessing) {
-      ImportRows(state.dataset.id).then(response => {
+      ImportRows(state.dataset.id, { filter: state.paramsFilter.filter }).then(response => {
         if (response.body.results.length) {
           response.body.results.forEach(row => {
             const position = getters[GetterNames.GetRowPositionById](row.id)

@@ -77,7 +77,6 @@ export default {
       this.isUploading = false
     },
     error (file, error, xhr) {
-      console.log(error)
       if (typeof error === 'string') {
         TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
       } else {
