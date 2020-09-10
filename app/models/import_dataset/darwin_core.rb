@@ -51,9 +51,22 @@ class ImportDataset::DarwinCore < ImportDataset
   #   Maximum time to spend processing records.
   # @param [Integer] max_records
   #   Maximum number of records to be processed.
+  # @param [Array] retry_failed
+  #   Also looks up for failed records when importing (default is looking for records with Status=Ready)
+  # @param [Hash] filters
+  #   (Column-index, value) pairs of filters to apply when searching for records to import (default none)
   # Returns the updated dataset records.
-  def import(max_time, max_records)
-    records = dataset_records.where(status: "Ready").order(:id).limit(max_records).all
+  def import(max_time, max_records, retry_failed = false, filters = nil)
+    raise NotImplementedError("Retrying failed records is not implemented") if retry_failed # Requires extra logic and posible new indicies to avoid being stuck processing always the same records
+    status = ["Ready"]
+    status << ["Failed"] if retry_failed
+
+    records = dataset_records.where(status: status).order(:id).limit(max_records)
+    filters&.each do |k, v|
+      records = records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
+    end
+
+    records = records.all
     start_time = Time.now
     imported = []
 

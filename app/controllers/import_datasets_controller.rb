@@ -17,7 +17,7 @@ class ImportDatasetsController < ApplicationController
 
   # GET /import_datasets/1/import.json
   def import
-    @results = @import_dataset.import(5000, 100)
+    @results = @import_dataset.import(5000, 100, false, params[:filter])
   end
 
   # GET /import_datasets/new
