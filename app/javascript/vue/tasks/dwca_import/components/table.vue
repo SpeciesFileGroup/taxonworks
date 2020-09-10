@@ -3,6 +3,7 @@
     <virtual-scroller
       :pages="datasetRecords"
       :item-height="43"
+      :pagination="pagination"
       @currentPages="loadPage">
       <template slot="header">
         <th
@@ -70,6 +71,9 @@ export default {
     },
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]
+    },
+    pagination () {
+      return this.$store.getters[GetterNames.GetPagination]
     }
   },
   data () {
@@ -80,6 +84,7 @@ export default {
   watch: {
     params: {
       handler () {
+        this.$store.commit(MutationNames.SetDatasetRecords, [])
         this.$store.dispatch(ActionNames.LoadDatasetRecords)
       },
       deep: true

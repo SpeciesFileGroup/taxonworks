@@ -7,18 +7,18 @@
       </tr>
     </thead>
     <tbody
-      v-for="(page, index) in pages"
+      v-for="pageNumber in pagination.totalPages"
       ref="pages"
-      :key="index">
-      <template v-if="page.downloaded && visiblePages.includes(index)">
-        <template v-for="(row, rIndex) in page.rows">
+      :key="pageNumber">
+      <template v-if="pages[pageNumber] && visiblePages.includes(pageNumber)">
+        <template v-for="(row, rIndex) in pages[pageNumber].rows">
           <slot :item="{ row: row, index: rIndex}"/>
         </template>
       </template>
       <template v-else>
         <tr
           class="empty-body"
-          :style="{ height: itemHeight * page.count + 'px'}">
+          :style="{ height: itemHeight * pagination.perPage + 'px'}">
           <td
             colspan="100"
             class="full_width"></td>
@@ -40,6 +40,10 @@ export default {
     itemHeight: {
       type: Number,
       default: 40
+    },
+    pagination: {
+      type: Object,
+      default: undefined
     }
   },
   data () {
@@ -64,7 +68,7 @@ export default {
         this.$refs.pages.forEach(function (page, i) {
           const rect = page.getBoundingClientRect()
           if (rect.top - window.innerHeight < 0 && rect.bottom >= 0) {
-            currentPages.push(i)
+            currentPages.push(i + 1)
           }
         })
         if (currentPages.every(item => this.visiblePages.includes(item))) return
