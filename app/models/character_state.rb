@@ -25,7 +25,7 @@ class CharacterState < ApplicationRecord
 
   acts_as_list scope: [:descriptor_id]
 
-  ALTERNATE_VALUES_FOR = [:name, :label].freeze
+  ALTERNATE_VALUES_FOR = [:name, :label, :description_name, :key_name].freeze
 
   belongs_to :descriptor, inverse_of: :character_states, class_name: 'Descriptor::Qualitative'
   has_many :observations, inverse_of: :character_state, dependent: :restrict_with_error
@@ -42,6 +42,30 @@ class CharacterState < ApplicationRecord
 
   def descriptor_kind
     errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'
+  end
+
+  ## retrunrs string, name of the character_state in a particular language
+  # target: :key, :description, nil
+  def target_name(target, language_id)
+    n = self.name
+    a = nil
+    case target
+    when :key
+      n = self.key_name.nil? ? n : self.key_name
+    when :description
+      n = self.description_name.nil? ? n : self.description_name
+    end
+    unless language_id.nil?
+      case target
+      when :key
+        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'key_name').first
+      when :description
+        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'description_name').first
+      end
+      a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'name').first if a.nil?
+      n = a.value unless a.nil?
+    end
+    return n
   end
 
 end

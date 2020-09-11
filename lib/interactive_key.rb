@@ -209,7 +209,7 @@ class InteractiveKey
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
       h[d.id][:observations] = [] # all observation for a particular
       h[d.id][:observation_hash] = [] ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
-      h[d.id][:status] = 'useful' ### 'used', 'useful', 'useless'
+      h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
     @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
@@ -308,12 +308,14 @@ class InteractiveKey
 
   def useful_descriptors
     list_of_remaining_taxa = {}
+    language = @language_id.blank? ? nil : @language_id.to_i
     @row_hash.each do |r_key, r_value|
       if r_value[:status] != 'eliminated' && d_value[:status] != 'used'
         list_of_remaining_taxa[r_value[:object_at_rank] ] = true
       end
     end
     number_of_taxa = list_of_remaining_taxa.count
+    array = []
 
     @descriptors_hash.each do |d_key, d_value|
       d_value[:observations].each do |otu_key, otu_value|
@@ -321,41 +323,119 @@ class InteractiveKey
         if @row_hash[otu_collection_object][:status] != 'eliminated'
           otu_value.each do |o|
             if o.character_state_id
-              d_key[:state_ids][o.character_state_id.to_s] = {} if d_key[:state_ids][o.character_state_id.to_s].nil?
-              d_key[:state_ids][o.character_state_id.to_s][:rows] = {} if d_key[:state_ids][o.character_state_id.to_s][:rows].nil? ## rows which this state identifies
-              d_key[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
-              d_key[:state_ids][o.character_state_id.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
+              d_value[:state_ids][o.character_state_id.to_s] = {} if d_value[:state_ids][o.character_state_id.to_s].nil?
+              d_value[:state_ids][o.character_state_id.to_s][:rows] = {} if d_value[:state_ids][o.character_state_id.to_s][:rows].nil? ## rows which this state identifies
+              d_value[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_value[:state_ids][o.character_state_id.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
             end
             unless o.presence.nil?
-              d_key[:state_ids][o.presence.to_s] = {} if d_key[:state_ids][o.presence.to_s].nil?
-              d_key[:state_ids][o.presence.to_s][:rows] = {} if d_key[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
-              d_key[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
-              d_key[:state_ids][o.presence.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
+              d_value[:state_ids][o.presence.to_s] = {} if d_value[:state_ids][o.presence.to_s].nil?
+              d_value[:state_ids][o.presence.to_s][:rows] = {} if d_value[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
+              d_value[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_value[:state_ids][o.presence.to_s][:status] = 'useful' ## 'used', 'useful', 'useless'
             end
-
+            unless o.continuous_value.nil?
+              d_value[:state_ids][o.id] = true
+            end
+            unless o.sample_min.nil?
+              d_value[:state_ids][o.id] = {o_min: o.sample_min, o_max: o.sample_max}
+            end
           end
         end
-
       end
 
+      descriptor = {}
+      descriptor[:id] = d_key
+      descriptor[:type] = d_value[:descriptor].type
+      descriptor[:name] = d_value[:descriptor].target_name(:key, language)
+      descriptor[:weight] = d_value[:descriptor].weight
+      descriptor[:position] = d_value[:descriptor].position
+      descriptor[:usefulness] = 0
 
-      @row_hash.each do |r_key, r_value|
-        if r_value[:status] != 'eliminated' && d_value[:status] != 'used'
-
-
-
-          # not numeric
+      sum = 0
+      case d_value[:descriptor].type
+      when 'Descriptor::Qualitative'
+        number_of_states = d_value[:state_ids].count
+        descriptor[:states] = []
+        d_value[:state_ids].each do |s_key, s_value|
+          c = CharacterState.find(s_key.to_i)
+          state = {}
+          state[:id] = c.id
+          state[:type] = c.type
+          state[:name] = c.target_name(:key, language)
+          state[:position] = c.position
+          state[:number_of_objects] = s_value[:rows].count
+          state[:status] = 'usefull'
+          n = s_value[:rows].count
+          if n == number_of_taxa || n == 0
+            s_value[:status] = 'useless'
+            state[:status] = 'useless'
+          else
+            d_value[:status] = 'useful'
+          end
           #          weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
+          s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
+          descriptor[:states] += [state]
+        end
+        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
+        descriptor[:states].sort_by!{|i| i.position}
+      when 'Descriptor::Continuous'
+        descriptor[:default_unit] = d_value[:descriptor].default_unit
+        descriptor[:min] = d_value[:min]
+        descriptor[:max] = d_value[:max]
+        number_of_measurements = d_value[:state_ids].count
+        s = (s_value[:o_min] - (s_value[:o_min] / 10))  / (d_value[:max] - d_value[:min])
+        descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa))
+      when 'Descriptor::Sample'
+        descriptor[:default_unit] = d_value[:descriptor].default_unit
+        descriptor[:min] = d_value[:min]
+        descriptor[:max] = d_value[:max]
+        number_of_measurements = d_value[:state_ids].count
+        s = 0
+        #                               i = max - min ; if 0 then (numMax - numMin / 10)
+        #                               sum of all i
+        #                               if numMax = numMin then numMax = numMax + 0.00001
+        #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
+        d_value[:state_ids].each do |s_key, s_value|
+          if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
+            s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
+          else
+            s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] - d_value[:min])
+          end
+        end
+        descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa))
 
-          # numeric for each measurement for a particular species
-          #                               i = max - min ; if 0 then (numMax - numMin) / 10
-          #                               sum of all i
-          #                               if numMax = numMin then numMax = numMax + 0.00001
-          #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
-
-
-                                                                                                                                                          end
+      when 'Descriptor::PresenceAbsence'
+        number_of_states = 2
+        descriptor[:states] = []
+        d_value[:state_ids].each do |s_key, s_value|
+          c = CharacterState.find(s_key.to_i)
+          state = {}
+          state[:id] = c.id
+          state[:type] = c.type
+          state[:name] = s_key
+          state[:number_of_objects] = s_value[:rows].count
+          state[:status] = 'usefull'
+          n = s_value[:rows].count
+          if n == number_of_taxa || n == 0
+            s_value[:status] = 'useless'
+            state[:status] = 'useless'
+          else
+            d_value[:status] = 'useful'
+          end
+          s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
+          descriptor[:states] += [state]
+        end
+        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
+        descriptor[:states].sort_by!{|i| -i.name}
       end
+
+
+
+
+
+
+
     end
   end
 

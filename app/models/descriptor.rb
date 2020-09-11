@@ -22,7 +22,7 @@ class Descriptor < ApplicationRecord
 
   acts_as_list scope: [:project_id]
 
-  ALTERNATE_VALUES_FOR = [:name, :short_name].freeze
+  ALTERNATE_VALUES_FOR = [:name, :short_name, :description_name, :key_name].freeze
 
   validates_presence_of :name, :type
   validate :type_is_subclassed
@@ -39,6 +39,30 @@ class Descriptor < ApplicationRecord
 
   def self.human_name
     self.name.demodulize.humanize
+  end
+
+  ## retrunrs string, name of the descriptor in a particular language
+  # target: :key, :description, nil
+  def target_name(target, language_id)
+    n = self.name
+    a = nil
+    case target
+    when :key
+      n = self.key_name.nil? ? n : self.key_name
+    when :description
+      n = self.description_name.nil? ? n : self.description_name
+    end
+    unless language_id.nil?
+      case target
+      when :key
+        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'key_name').first
+      when :description
+        a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'description_name').first
+      end
+      a = AlternateValue::Translation.where(alternate_value_object: self, language_id: language_id, alternate_value_object_attribute: 'name').first if a.nil?
+      n = a.value unless a.nil?
+    end
+    return n
   end
 
   def qualitative?
