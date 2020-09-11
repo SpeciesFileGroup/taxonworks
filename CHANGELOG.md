@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
 - Enable search button after pick a collecting event date on Filter collection objects task [#1728]
+- Misppeling collecting_event_ids parameter [#1729]
 
 
 [#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
