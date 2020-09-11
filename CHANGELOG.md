@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Colliding `namespace` method for identifiers breaks identifiers list [#1702]
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
+- Enable search button after pick a collecting event date on Filter collection objects task [#1728]
 
 
 [#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
