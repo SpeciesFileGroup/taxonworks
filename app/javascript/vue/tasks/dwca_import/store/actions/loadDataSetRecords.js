@@ -13,7 +13,7 @@ export default ({ state, commit }, page) => {
     commit(MutationNames.SetPagination, GetPagination(response))
 
     if (page === undefined) {
-      page = 0
+      page = 1
       commit(MutationNames.SetDatasetRecords, createEmptyPages(state.pagination))
     }
     commit(MutationNames.SetDatasetPage, {

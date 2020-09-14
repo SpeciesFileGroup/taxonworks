@@ -12,7 +12,6 @@
         <table-component
           v-if="!disableStatus.includes(dataset.status)"
           :disabled="isProcessing"/>
-        <div style="height: 60px"/>
       </div>
     </template>
     <template v-else>

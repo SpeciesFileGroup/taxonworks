@@ -1,86 +1,104 @@
 <template>
-  <table
-    style="white-space: nowrap;">
-    <thead>
-      <tr>
-        <slot name="header"/>
-      </tr>
-    </thead>
-    <tbody
-      v-for="(page, index) in pages"
-      ref="pages"
-      :key="index">
-      <template v-if="page.downloaded && visiblePages.includes(index)">
-        <template v-for="(row, rIndex) in page.rows">
-          <slot :item="{ row: row, index: rIndex}"/>
-        </template>
-      </template>
-      <template v-else>
-        <tr
-          class="empty-body"
-          :style="{ height: itemHeight * page.count + 'px'}">
-          <td
-            colspan="100"
-            class="full_width"></td>
-        </tr>
-      </template>
-    </tbody>
-    <slot name="footer"/>
-  </table>
+  <div class="vscroll-holder">
+    <div
+      class="vscroll-spacer"
+      :style="{
+        opacity: 0,
+        clear: 'both',
+        height: topHeight + 'px'
+      }"
+    />
+    <slot :items="visibleItems"/>
+    <div
+      class="vscroll-spacer"
+      :style="{
+        opacity: 0,
+        clear: 'both',
+        height: bottomHeight + 'px'
+      }"
+    />
+  </div>
 </template>
 
 <script>
-
 export default {
+  name: 'VirtualScroll',
   props: {
-    pages: {
+    items: {
       type: Array,
       required: true
     },
     itemHeight: {
       type: Number,
-      default: 40
+      required: true
     }
   },
   data () {
     return {
-      visiblePages: [0],
-      timeout: undefined
+      topHeight: 0,
+      bottomHeight: 0,
+      visibleItems: [],
+      updateDelay: undefined
     }
   },
   watch: {
-    pages (newVal) {
-      this.handleScroll()
+    items: {
+      handler (newVal) {
+        this.checkScrollPosition()
+      }
     }
   },
   mounted () {
-    window.addEventListener('scroll', this.handleScroll)
+    window.vscroll = this
+    this._checkScrollPosition = this.checkScrollPosition.bind(this)
+    this.checkScrollPosition()
+    this.$el.addEventListener('scroll', this._checkScrollPosition)
+    this.$el.addEventListener('wheel', this._checkScrollPosition)
+  },
+  beforeDestroy () {
+    this.$el.removeEventListener('scroll', this._checkScrollPosition)
+    this.$el.removeEventListener('wheel', this._checkScrollPosition)
   },
   methods: {
-    handleScroll () {
-      clearTimeout(this.timeout)
-      this.timeout = setTimeout(() => {
-        const currentPages = []
-        this.$refs.pages.forEach(function (page, i) {
-          const rect = page.getBoundingClientRect()
-          if (rect.top - window.innerHeight < 0 && rect.bottom >= 0) {
-            currentPages.push(i)
-          }
-        })
-        if (currentPages.every(item => this.visiblePages.includes(item))) return
-        this.visiblePages = currentPages
-        this.$emit('currentPages', currentPages)
-      }, 200)
+    checkScrollPosition (e = {}) {
+      var el = this.$el
+
+      if (
+        (el.scrollTop === 0 && e.deltaY < 0) ||
+        (Math.abs(el.scrollTop - (el.scrollHeight - el.clientHeight)) <= 1 &&
+          e.deltaY > 0)
+      ) {
+        e.preventDefault()
+      }
+
+      this.updateWindow(e)
+    },
+
+    updateWindow (e) {
+      var visibleItemsCount = Math.ceil(
+        this.$el.clientHeight / this.itemHeight
+      )
+      var totalScrollHeight = this.items.length * this.itemHeight
+
+      var scrollTop = this.$el.scrollTop
+      var offset = 5
+      var firstVisibleIndex = Math.floor(scrollTop / this.itemHeight)
+      var lastVisibleIndex = firstVisibleIndex + visibleItemsCount
+      var firstCutIndex = Math.max(firstVisibleIndex - offset, 0)
+      var lastCutIndex = lastVisibleIndex + offset
+
+      this.visibleItems = this.items.slice(firstCutIndex, lastCutIndex)
+
+      this.topHeight = firstCutIndex * this.itemHeight
+      this.bottomHeight =
+        totalScrollHeight -
+        this.visibleItems.length * this.itemHeight -
+        this.topHeight
+      clearTimeout(this.updateDelay)
+      this.updateDelay = setTimeout(() => {
+        this.$emit('update', { startIndex: firstVisibleIndex, endIndex: lastVisibleIndex })
+      }, 100)
     }
-  },
-  destroyed () {
-    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>
-<style lang="scss">
-  .empty-body {
-    background: linear-gradient(transparent,transparent 20%,hsla(0,0%,50.2%,0.03) 0,hsla(0,0%,50.2%,0.08) 50%,hsla(0,0%,50.2%,0.03) 80%,transparent 0,transparent);
-    background-size:100% 40px
-  }
-</style>

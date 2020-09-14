@@ -1,16 +1,21 @@
 <template>
   <td
     v-if="!editing"
-    v-html="text"
     style="overflow: ellipsis; height: 40px"
-    @click="setEdit(true)"/>
+    @click="setEdit(true)">
+    <div
+      v-html="text"
+      style="overflow: ellipsis; height: 40px"/>
+  </td>
   <td v-else>
+    <div style="overflow: ellipsis; height: 40px">
     <input
       ref="inputtext"
       @blur="setEdit(false)"
       @keypress.enter="setEdit(false)"
       v-model="text"
       type="text">
+    </div>
   </td>
 </template>
 

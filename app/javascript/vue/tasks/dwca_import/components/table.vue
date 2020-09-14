@@ -1,31 +1,48 @@
 <template>
   <div>
     <virtual-scroller
-      :pages="datasetRecords"
-      :item-height="43"
-      @currentPages="loadPage">
-      <template slot="header">
-        <th
-          class="position-sticky">
-          Selected
-        </th>
-        <status-filter
-          class="position-sticky margin-medium-left"
-          v-model="params.status"/>
-        <column-filter
-          v-for="(item, index) in datasetHeaders"
-          :key="index"
-          :title="item"
-          :disabled="disabled"
-          class="position-sticky margin-medium-left"
-          v-model="params.filter[index]"
-          :field="index"/>
-      </template>
-      <template v-slot="{ item }">
-        <row-component
-          class="contextMenuCells"
-          :class="{ 'even': (item.index % 2 == 0) }"
-          :row="item.row"/>
+      :items="list"
+      :item-height="40"
+      class="vscroll"
+      @update="getPages">
+      <template slot-scope="{ items }">
+        <table class="table">
+          <thead>
+            <tr>
+              <th
+                class="position-sticky">
+                Selected
+              </th>
+              <status-filter
+                class="position-sticky margin-medium-left"
+                v-model="params.status"/>
+              <column-filter
+                v-for="(item, index) in datasetHeaders"
+                :key="index"
+                :title="item"
+                :disabled="disabled"
+                class="position-sticky margin-medium-left"
+                v-model="params.filter[index]"
+                :field="index"/>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="(item, index) in items">
+              <row-component
+                v-if="item"
+                :key="index"
+                class="contextMenuCells"
+                :class="{ 'even': (index % 2 == 0) }"
+                :row="item"/>
+              <tr
+                v-else
+                class="row-empty"
+                :key="index">
+                <td colspan="100"/>
+              </tr>
+            </template>
+          </tbody>
+        </table>
       </template>
     </virtual-scroller>
   </div>
@@ -70,6 +87,9 @@ export default {
     },
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]
+    },
+    list () {
+      return [].concat(...this.datasetRecords.map(page => page.rows ? page.rows : new Array(page.count)).slice(1))
     }
   },
   data () {
@@ -90,6 +110,10 @@ export default {
       pages.forEach(page => {
         this.$store.dispatch(ActionNames.LoadDatasetRecords, page)
       })
+    },
+    getPages (indexes) {
+      const pages = [Math.floor(indexes.startIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
+      this.loadPage(pages)
     }
   }
 }
@@ -109,5 +133,14 @@ export default {
     z-index: 201;
     left: 50%;
     transform: translate(-50%);
+  }
+  .vscroll {
+    height: calc(100vh - 250px);
+    overflow: auto;
+    overflow-anchor: none;
+  }
+  .row-empty {
+    background: linear-gradient(transparent,transparent 20%,hsla(0,0%,50.2%,0.03) 0,hsla(0,0%,50.2%,0.08) 50%,hsla(0,0%,50.2%,0.03) 80%,transparent 0,transparent);
+    background-size:100% 40px
   }
 </style>
