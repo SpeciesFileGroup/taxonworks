@@ -1,20 +1,21 @@
 <template>
   <td
     v-if="!editing"
-    style="overflow: ellipsis; height: 40px"
+    style="height: 40px"
     @click="setEdit(true)">
     <div
       v-html="text"
-      style="overflow: ellipsis; height: 40px"/>
+      class="dwc-table-cell"/>
   </td>
   <td v-else>
-    <div style="overflow: ellipsis; height: 40px">
-    <input
-      ref="inputtext"
-      @blur="setEdit(false)"
-      @keypress.enter="setEdit(false)"
-      v-model="text"
-      type="text">
+    <div class="dwc-table-cell">
+      <input
+        ref="inputtext"
+        class="full_width"
+        @blur="setEdit(false)"
+        @keypress.enter="setEdit(false)"
+        v-model="text"
+        type="text">
     </div>
   </td>
 </template>
@@ -69,3 +70,15 @@ export default {
   }
 }
 </script>
+<style scoped>
+
+.dwc-table-cell {
+  display: table-cell;
+  height: 40px;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: middle
+}
+</style>
