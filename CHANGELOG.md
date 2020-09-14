@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
 - Sortable order for Type material, Biological association and Determinations on comprehensive task
 - User facet on Filter nomenclature task [#1720]
+- Pagination on Filter noemnclature task [#1724]
 
 ### Changed
 - Methods that write to cached should not fire callbacks, potential for [#1701]
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
+[#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
 
 ## [0.12.17] - 2020-02-02
 
