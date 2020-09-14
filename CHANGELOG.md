@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Using custom geckodriver-helper for Firefox 80 support
 
 ## Fixed
+- Destroy pdf pages before create new ones [#1680]
 - Serial multiple updates did not update bibtex author field [#1709]
 - Fix (likely) for pinboard items failing to remove [#1690]
 - Better response for failed collecting event cloning [#1705]
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
+[#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
