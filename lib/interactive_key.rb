@@ -55,13 +55,16 @@ class InteractiveKey
   attr_accessor :rows_with_filter
 
   #return the list of descriptors with selections
-  attr_accessor :used_descriptors
+  #  attr_accessor :used_descriptors
 
   #return the list of useful descriptors
-  attr_accessor :useful_descriptors
+  #  attr_accessor :useful_descriptors
 
   #return the list of descriptors not useful for identification
-  attr_accessor :not_useful_descriptors
+  #  attr_accessor :not_useful_descriptors
+
+  #return the list of descriptors and thair states
+  attr_accessor :list_of_descriptors
 
   #list of remaining rows
   attr_accessor :remaining
@@ -104,9 +107,11 @@ class InteractiveKey
     #main_logic
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
-    @useful_descriptors = useful_descriptors
-    @used_descriptors ###
-    @not_useful_descriptors ####
+
+    @list_of_descriptors = useful_descriptors
+    #    @useful_descriptors = useful_descriptors
+    #    @used_descriptors ###
+    #    @not_useful_descriptors ####
 
     @row_hash = nil
     @descriptors_hash = nil
@@ -315,9 +320,10 @@ class InteractiveKey
       end
     end
     number_of_taxa = list_of_remaining_taxa.count
-    array = []
+    array_of_descriptors = []
 
     @descriptors_hash.each do |d_key, d_value|
+      taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == 'false'
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
         if @row_hash[otu_collection_object][:status] != 'eliminated'
@@ -340,9 +346,12 @@ class InteractiveKey
             unless o.sample_min.nil?
               d_value[:state_ids][o.id] = {o_min: o.sample_min, o_max: o.sample_max}
             end
+            taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false
           end
         end
       end
+
+      number_of_taxa_with_unknown_character_states = taxa_with_unknown_character_states.select{|key, value| value == true}.count
 
       descriptor = {}
       descriptor[:id] = d_key
@@ -351,6 +360,7 @@ class InteractiveKey
       descriptor[:weight] = d_value[:descriptor].weight
       descriptor[:position] = d_value[:descriptor].position
       descriptor[:usefulness] = 0
+      descriptor[:status] = d_value[:status] == 'used' ? 'used' : 'useless'
 
       sum = 0
       case d_value[:descriptor].type
@@ -364,7 +374,7 @@ class InteractiveKey
           state[:type] = c.type
           state[:name] = c.target_name(:key, language)
           state[:position] = c.position
-          state[:number_of_objects] = s_value[:rows].count
+          state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = 'usefull'
           n = s_value[:rows].count
           if n == number_of_taxa || n == 0
@@ -372,6 +382,7 @@ class InteractiveKey
             state[:status] = 'useless'
           else
             d_value[:status] = 'useful'
+            descriptor[:status] = 'useful'
           end
           #          weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
           s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
@@ -414,7 +425,7 @@ class InteractiveKey
           state[:id] = c.id
           state[:type] = c.type
           state[:name] = s_key
-          state[:number_of_objects] = s_value[:rows].count
+          state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = 'usefull'
           n = s_value[:rows].count
           if n == number_of_taxa || n == 0
@@ -430,13 +441,18 @@ class InteractiveKey
         descriptor[:states].sort_by!{|i| -i.name}
       end
 
-
-
-
-
-
-
+      array_of_descriptors += [descriptor]
     end
+
+    case @sorting
+    when 'ordered'
+      array_of_descriptors.sort_by!{|i| i[:position]}
+    when 'weighed'
+      array_of_descriptors.sort_by!{|i| [-i[:weight], i[:usefulness]] }
+    when 'optimized'
+      array_of_descriptors.sort_by!{|i| i[:usefulness]}
+    end
+
   end
 
   def observations
