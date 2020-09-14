@@ -7,6 +7,7 @@
       ref="table"
       @update="getPages">
       <template slot-scope="{ items }">
+        <spinner-component v-if="isLoading"/>
         <table
           class="table">
           <thead>
@@ -56,6 +57,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import VirtualScroller from './VirtualScroller.vue'
+import SpinnerComponent from 'components/spinner'
 
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
@@ -66,7 +68,8 @@ export default {
     VirtualScroller,
     RowComponent,
     ColumnFilter,
-    StatusFilter
+    StatusFilter,
+    SpinnerComponent
   },
   props: {
     disabled: {
@@ -96,14 +99,17 @@ export default {
   },
   data () {
     return {
-      isProcessing: false
+      isLoading: false
     }
   },
   watch: {
     params: {
       handler () {
         this.$refs.table.$el.scrollTop = 0
-        this.$store.dispatch(ActionNames.LoadDatasetRecords)
+        this.isLoading = true
+        this.$store.dispatch(ActionNames.LoadDatasetRecords).then(() => {
+          this.isLoading = false
+        })
       },
       deep: true
     }
