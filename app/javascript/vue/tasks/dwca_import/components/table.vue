@@ -4,9 +4,11 @@
       :items="list"
       :item-height="40"
       class="vscroll"
+      ref="table"
       @update="getPages">
       <template slot-scope="{ items }">
-        <table class="table">
+        <table
+          class="table">
           <thead>
             <tr>
               <th
@@ -100,6 +102,7 @@ export default {
   watch: {
     params: {
       handler () {
+        this.$refs.table.$el.scrollTop = 0
         this.$store.dispatch(ActionNames.LoadDatasetRecords)
       },
       deep: true

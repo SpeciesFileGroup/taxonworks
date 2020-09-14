@@ -49,7 +49,6 @@ export default {
     }
   },
   mounted () {
-    window.vscroll = this
     this._checkScrollPosition = this.checkScrollPosition.bind(this)
     this.checkScrollPosition()
     this.$el.addEventListener('scroll', this._checkScrollPosition)
