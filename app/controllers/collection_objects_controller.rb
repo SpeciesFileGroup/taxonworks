@@ -32,7 +32,7 @@ class CollectionObjectsController < ApplicationController
   # GET /api/v1/collection_objects/:id
   def api_show
     @collection_objects = CollectionObject.find(params[:id])
-    render '/collection_objects/show.json.jbuilder'
+    render '/collection_objects/api/show.json.jbuilder'
   end
 
   def biocuration_classifications

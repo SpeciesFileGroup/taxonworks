@@ -31,7 +31,7 @@ class SourcesController < ApplicationController
   # GET /api/v1/sources/:id
   def api_show
     @source = Source.find(params[:id])
-    render '/sources/show.json.jbuilder'
+    render '/sources/api/show.json.jbuilder'
   end
 
   def list
