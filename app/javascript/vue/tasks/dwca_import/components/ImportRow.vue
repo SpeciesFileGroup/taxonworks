@@ -1,14 +1,12 @@
 <template>
-  <td>
-    <button
-      v-if="showButton"
-      type="button"
-      :disabled="isProcessing"
-      class="button normal-input button-submit"
-      @click="importRow">
-      {{ enableStatus[row.status] }}
-    </button>
-  </td>
+  <button
+    v-if="showButton"
+    type="button"
+    :disabled="isProcessing"
+    class="button normal-input button-submit"
+    @click="importRow">
+    {{ enableStatus[row.status] }}
+  </button>
 </template>
 
 <script>

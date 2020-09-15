@@ -3,13 +3,13 @@
     <virtual-scroller
       :items="list"
       :item-height="43"
-      class="vscroll"
+      class="dwca-vscroll"
       ref="table"
       @update="getPages">
       <template slot-scope="{ items }">
         <spinner-component v-if="isLoading"/>
         <table
-          class="table">
+          class="dwca-table">
           <thead>
             <tr>
               <th
@@ -129,10 +129,16 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
+.dwca-vscroll {
+  height: calc(100vh - 230px);
+  overflow: auto;
+  overflow-anchor: none;
+}
+.dwca-table {
   th {
     top: 0;
-    z-index: 2
+    z-index: 2;
   }
 
   .show-import-process {
@@ -144,13 +150,18 @@ export default {
     left: 50%;
     transform: translate(-50%);
   }
-  .vscroll {
-    height: calc(100vh - 230px);
-    overflow: auto;
-    overflow-anchor: none;
-  }
   .row-empty {
     background: linear-gradient(transparent,transparent 20%,hsla(0,0%,50.2%,0.03) 0,hsla(0,0%,50.2%,0.08) 50%,hsla(0,0%,50.2%,0.03) 80%,transparent 0,transparent);
     background-size:100% 40px
   }
+  .dwc-table-cell {
+    display: table-cell;
+    height: 40px;
+    max-width: 200px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: middle
+  }
+}
 </style>

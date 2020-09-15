@@ -1,7 +1,13 @@
 <template>
   <tr>
-    <import-row
-      :row="row"/>
+    <td>
+      <browse-button
+        v-if="isImported"
+        :row="row"/>
+      <import-row
+        v-else
+        :row="row"/>
+    </td>
     <import-row-state :row="row"/>
     <cell-component
       v-for="(data_field, index) in row.data_fields"
@@ -17,6 +23,7 @@
 import ImportRowState from './ImportRowState'
 import CellComponent from './Cell'
 import ImportRow from './ImportRow'
+import BrowseButton from './BrowseButton'
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -25,7 +32,8 @@ export default {
   components: {
     CellComponent,
     ImportRowState,
-    ImportRow
+    ImportRow,
+    BrowseButton
   },
   props: {
     row: {
@@ -42,8 +50,8 @@ export default {
         this.$store.commit(MutationNames.SetSelectedRowIds, value)
       }
     },
-    isReady () {
-      return this.row.status === 'Ready'
+    isImported () {
+      return this.row.status === 'Imported'
     }
   },
   methods: {

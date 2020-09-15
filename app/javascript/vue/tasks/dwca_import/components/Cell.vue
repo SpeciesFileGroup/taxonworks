@@ -70,15 +70,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-
-.dwc-table-cell {
-  display: table-cell;
-  height: 40px;
-  max-width: 200px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  vertical-align: middle
-}
-</style>
