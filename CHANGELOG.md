@@ -8,6 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Descriptor object radial paths
+- Many specs related to dynamic observation matrix items
+- Improvements to Descriptor autocomplete labels [#1727]
 - Added `rake tw:maintenance:otus:missplaced_references` [#1439]
 - Spinner for when converting verbatim to bibtex [#1710]
 - Set OTU in determination when otu_id param is present on comprehensive task
@@ -17,10 +20,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination on Filter noemnclature task [#1724]
 
 ### Changed
+- Data migration updating all `type` column values for matrix row/column items
+- Tweaked JSON attribute response for matrix rows and columns very slightly
+- Updated observation item types to properly nest them, inc. all downstream changes (Factories, etc.)
+- Unfied matrix hooks in various places
+- Updated some matrix related routes to point to tasks 
+- Updated respec `matrix` tag to `observation_matrix`
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
 
 ## Fixed
+- Character state order not correct in Nexus format [#1574]
+- Not able to destroy matrix rows or matrices [#1520], [#1123]
+- Dynamic observeratoin matrix items not properly scoped/behaving [#1125]
 - Destroy pdf pages before create new ones [#1680]
 - Serial multiple updates did not update bibtex author field [#1709]
 - Fix (likely) for pinboard items failing to remove [#1690]
@@ -33,6 +45,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misppeling collecting_event_ids parameter [#1729]
 
 
+[#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
+[#1574]: https://github.com/SpeciesFileGroup/taxonworks/issues/1574
+[#1520]: https://github.com/SpeciesFileGroup/taxonworks/issues/1520
+[#1123]: https://github.com/SpeciesFileGroup/taxonworks/issues/1123
+[#1125]: https://github.com/SpeciesFileGroup/taxonworks/issues/1125
 [#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680

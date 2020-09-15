@@ -42,20 +42,25 @@
           <li>
             <a href="/tasks/accessions/comprehensive/index">New collection object</a>
           </li>
-          <li>
-            <pin-component
-              v-if="matrix.id"
-              :object-id="matrix.id"
-              :type="matrix.base_class"
-              section="ObservationMatrices"
-            />
-          </li>
-          <li>
-            <radial-annotator
-              v-if="matrix.id"
-              type="annotations"
-              :global-id="matrix.global_id"/>
-          </li>
+          <template v-if="matrix.id">
+            <li>
+              <pin-component
+                :object-id="matrix.id"
+                :type="matrix.base_class"
+                section="ObservationMatrices"
+              />
+            </li>
+            <li>
+              <radial-navigation
+                type="annotations"
+                :global-id="matrix.global_id"/>
+            </li>
+            <li>
+              <radial-annotator
+                type="annotations"
+                :global-id="matrix.global_id"/>
+            </li>
+          </template>
         </ul>
       </div>
     </div>
@@ -91,6 +96,7 @@ import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import PinComponent from 'components/pin.vue'
 import SpinnerComponent from 'components/spinner'
+import RadialNavigation from 'components/radials/navigation/radial'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -108,7 +114,8 @@ export default {
     columnDynamic,
     RadialAnnotator,
     PinComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    RadialNavigation
   },
   computed: {
     matrix () {

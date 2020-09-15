@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrix, type: :model, group: :matrix do
+RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
 
   let!(:om) { FactoryBot.create(:valid_observation_matrix) }
 
@@ -80,19 +80,19 @@ RSpec.describe ObservationMatrix, type: :model, group: :matrix do
   let!(:o28) { Observation.create!(collection_object: row_object5, descriptor: descriptor6, sample_min: 0.1, sample_max: 0.3, sample_n: 5, sample_median: 5, sample_units: 'mm') }  
 
   # Add rows
-  let!(:om_row_item1) { ObservationMatrixRowItem::SingleOtu.create!(observation_matrix: om, otu: row_object1) }
-  let!(:om_row_item2) { ObservationMatrixRowItem::SingleOtu.create!(observation_matrix: om, otu: row_object2) }
-  let!(:om_row_item3) { ObservationMatrixRowItem::SingleOtu.create!(observation_matrix: om, otu: row_object3) }
-  let!(:om_row_item4) { ObservationMatrixRowItem::SingleCollectionObject.create!(observation_matrix: om, collection_object: row_object4) }
-  let!(:om_row_item5) { ObservationMatrixRowItem::SingleCollectionObject.create!(observation_matrix: om, collection_object: row_object5) }
+  let!(:om_row_item1) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: om, otu: row_object1) }
+  let!(:om_row_item2) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: om, otu: row_object2) }
+  let!(:om_row_item3) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: om, otu: row_object3) }
+  let!(:om_row_item4) { ObservationMatrixRowItem::Single::CollectionObject.create!(observation_matrix: om, collection_object: row_object4) }
+  let!(:om_row_item5) { ObservationMatrixRowItem::Single::CollectionObject.create!(observation_matrix: om, collection_object: row_object5) }
 
   # Add columns
-  let!(:om_column_item1) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor1) } 
-  let!(:om_column_item2) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor2) } 
-  let!(:om_column_item3) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor3) } 
-  let!(:om_column_item4) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor4) } 
-  let!(:om_column_item5) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor5) } 
-  let!(:om_column_item6) { ObservationMatrixColumnItem::SingleDescriptor.create!(observation_matrix: om, descriptor: descriptor6) } 
+  let!(:om_column_item1) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor1) } 
+  let!(:om_column_item2) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor2) } 
+  let!(:om_column_item3) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor3) } 
+  let!(:om_column_item4) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor4) } 
+  let!(:om_column_item5) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor5) } 
+  let!(:om_column_item6) { ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: descriptor6) } 
 
   specify '#qualitative_descriptors' do
     expect(om.qualitative_descriptors).to contain_exactly(descriptor1, descriptor2, descriptor3)

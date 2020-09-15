@@ -1,6 +1,6 @@
-class ObservationMatrixRowItem::SingleOtu < ObservationMatrixRowItem
-
-  belongs_to :otu
+class ObservationMatrixRowItem::Single::Otu < ObservationMatrixRowItem::Single
+ 
+  belongs_to :otu, inverse_of: :observation_matrix_row_items, class_name: '::Otu'
 
   validates_presence_of :otu
   validates_uniqueness_of :otu_id, scope: [:observation_matrix_id]
@@ -10,7 +10,7 @@ class ObservationMatrixRowItem::SingleOtu < ObservationMatrixRowItem
   end
 
   def otus
-    [self.otu]
+    [otu].compact
   end
 
   def matrix_row_item_object

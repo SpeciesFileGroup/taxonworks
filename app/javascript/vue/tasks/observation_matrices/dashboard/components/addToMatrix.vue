@@ -86,7 +86,7 @@ export default {
         return {
           observation_matrix_id: this.matrixId,
           otu_id: id,
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         }
       })
 

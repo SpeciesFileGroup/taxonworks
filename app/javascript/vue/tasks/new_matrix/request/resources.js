@@ -23,8 +23,8 @@ const GetMatrixObservationRows = function (id, params = undefined) {
 const GetMatrixObservationRowsDynamic = function (id) {
   return new Promise((resolve, reject) => {
     let promises = []
-    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaggedRowItem`))
-    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::TaxonNameRowItem`))
+    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::Dynamic::Tag`))
+    promises.push(ajaxCall('get',`/observation_matrices/${id}/observation_matrix_row_items.json?type=ObservationMatrixRowItem::Dynamic::TaxonName`))
 
     Promise.all(promises).then((response) => {
       return resolve(response[0].body.concat(response[1].body))
@@ -37,7 +37,7 @@ const GetMatrixObservationColumns = function(id, params) {
 }
 
 const GetMatrixObservationColumnsDynamic = function(id) {
-  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_column_items.json?type=ObservationMatrixColumnItem::TaggedDescriptor`)
+  return ajaxCall('get',`/observation_matrices/${id}/observation_matrix_column_items.json?type=ObservationMatrixColumnItem::Dynamic::Tag`)
 }
 
 const GetMatrixColumnMetadata = function() {
