@@ -34,12 +34,11 @@ class ObservationMatrixRow < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  # TODO: RESTORE
-  # acts_as_list scope: [:observation_matrix_id, :project_id]
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
   belongs_to :otu, inverse_of: :observation_matrix_rows
   belongs_to :collection_object, inverse_of: :observation_matrix_rows
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
 
   attr_accessor :row_object_global_id
 
