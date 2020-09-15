@@ -6,7 +6,7 @@
       :disabled="isProcessing"
       class="button normal-input button-submit"
       @click="importRow">
-      {{ isProcessing ? 'Importing' : 'Import' }}
+      Import
     </button>
   </td>
 </template>
