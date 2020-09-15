@@ -104,6 +104,7 @@ import SpinnerComponent from 'components/spinner'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { GetMatrixObservationColumns, CreateColumnItem, GetObservationMatrices } from '../../request/resources'
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
@@ -169,7 +170,7 @@ export default {
           observation_matrix_id: this.matrixId,
           descriptor_id: item.descriptor_id,
           position: item.position + index,
-          type: 'ObservationMatrixColumnItem::SingleDescriptor'
+          type: ObservationTypes.Column.Descriptor
         }
       })
 

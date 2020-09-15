@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRowItem::SingleCollectionObject, type: :model, group: :observation_matrix do
-  let(:observation_matrix_row_item) { ObservationMatrixRowItem::SingleCollectionObject.new }
+RSpec.describe ObservationMatrixRowItem::Single::CollectionObject, type: :model, group: :observation_matrix do
+  let(:observation_matrix_row_item) { ObservationMatrixRowItem::Single::CollectionObject.new }
 
   context 'validation' do
     before { observation_matrix_row_item.valid? }
@@ -16,8 +16,8 @@ RSpec.describe ObservationMatrixRowItem::SingleCollectionObject, type: :model, g
       expect(observation_matrix_row_item.errors.include?(:collection_object)).to be_truthy
     end
 
-    specify 'type is "MatrixRowItem::SingleCollectionObject"' do
-      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::SingleCollectionObject')
+    specify 'type is "MatrixRowItem::Single::CollectionObject"' do
+      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::Single::CollectionObject')
     end
 
     context 'other possible subclass attributes are nil' do
@@ -61,12 +61,10 @@ RSpec.describe ObservationMatrixRowItem::SingleCollectionObject, type: :model, g
           observation_matrix_row_item.destroy
           expect(ObservationMatrixRow.count).to eq 0
         end
-
-
       end
 
       specify 'collection_object can only be added once to observation_matrix_row_item' do
-        expect(ObservationMatrixRowItem::SingleCollectionObject.new(observation_matrix: observation_matrix, collection_object: collection_object).valid?).to be_falsey
+        expect(ObservationMatrixRowItem::Single::CollectionObject.new(observation_matrix: observation_matrix, collection_object: collection_object).valid?).to be_falsey
       end
     end
   end

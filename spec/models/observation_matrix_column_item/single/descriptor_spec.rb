@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, group: :matrix  do
-  let(:observation_matrix_column_item) { ObservationMatrixColumnItem::SingleDescriptor.new }
+RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, group: :observation_matrix  do
+  let(:observation_matrix_column_item) { ObservationMatrixColumnItem::Single::Descriptor.new }
   let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
   let(:descriptor) { FactoryBot.create(:valid_descriptor) }
 
@@ -18,29 +18,22 @@ RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, grou
       expect(observation_matrix_column_item.errors.include?(:descriptor)).to be_truthy
     end
 
-    specify 'type is "ObservationMatrixColumnItem::SingleDescriptor"' do
-      expect(observation_matrix_column_item.type).to eq('ObservationMatrixColumnItem::SingleDescriptor')
-    end
-
     context 'other possible subclass attributes are nil' do
       specify 'keyword_id' do
         observation_matrix_column_item.controlled_vocabulary_term_id =  FactoryBot.create(:valid_keyword).id 
         observation_matrix_column_item.valid?
         expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy 
       end
-      # ... other checks are possible as addition subclasses created      
     end
 
     context 'with a observation_matrix_column_item saved' do
-
-      before {
+      before do
         observation_matrix_column_item.descriptor = descriptor
         observation_matrix_column_item.observation_matrix = observation_matrix
         observation_matrix_column_item.save!
-      }
+      end
 
       context 'adding a item syncronizes observation_matrix columns' do
-
         specify 'saving a record adds descriptor observation_matrix_columns' do
           expect(ObservationMatrixColumn.first.descriptor.metamorphosize).to eq(descriptor)
         end
@@ -60,7 +53,7 @@ RSpec.describe ObservationMatrixColumnItem::SingleDescriptor, type: :model, grou
       end
 
       specify 'descriptor can only be added once to observation_matrix_column_item' do
-        expect(ObservationMatrixColumnItem::SingleDescriptor.new(observation_matrix: observation_matrix, descriptor: descriptor).valid?).to be_falsey
+        expect(ObservationMatrixColumnItem::Single::Descriptor.new(observation_matrix: observation_matrix, descriptor: descriptor).valid?).to be_falsey
       end
 
     end

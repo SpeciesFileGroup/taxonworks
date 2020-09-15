@@ -126,6 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
+  
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
@@ -134,6 +135,7 @@ class TaxonName < ApplicationRecord
     self.module_parent
   end
 
+  # Must be before various of these includes, in particular MatrixHooks
   has_closure_tree
 
   include Housekeeping
@@ -150,6 +152,13 @@ class TaxonName < ApplicationRecord
   include SoftValidation
   include Shared::IsData
   include TaxonName::OtuSyncronization
+  
+  include Shared::MatrixHooks::Member
+  include Shared::MatrixHooks::Dynamic
+
+  include TaxonName::MatrixHooks
+
+  attr_accessor :foo
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -210,6 +219,10 @@ class TaxonName < ApplicationRecord
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
 
+  has_many :observation_matrix_row_items, inverse_of: :taxon_name, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :destroy
+  has_many :observation_matrices, through: :observation_matrix_row_items
+
+
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'})
@@ -258,10 +271,10 @@ class TaxonName < ApplicationRecord
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     scoping do
-      a = TaxonName.self_and_ancestors_of(taxon_name)
-      b = TaxonName.descendants_of(taxon_name)
-      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-    end
+    a = TaxonName.self_and_ancestors_of(taxon_name)
+    b = TaxonName.descendants_of(taxon_name)
+    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+  end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -1227,6 +1240,21 @@ class TaxonName < ApplicationRecord
     h
   end
 
+  # See Shared::MatrixHooks
+  # @return [{"matrix_row_item": matrix_column_item, "object": object}, false]
+  # the hash corresponding to the keyword used in this tag if it exists
+  # !! Assumes it can only be in one matrix, this is wrong !!
+  def matrix_row_item
+    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id: project_id).limit(1)
+
+    if mri.any?
+      return { matrix_row_item: mri.first, object: taxon_name }
+    else
+      return false
+    end
+  end
+
+
   protected
 
   def check_for_children
@@ -1346,8 +1374,8 @@ class TaxonName < ApplicationRecord
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
           matchdata = self.source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
           if citMinP && citMaxP && matchdata
-            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
             minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
             unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
               soft_validations.add(:base, 'Original citation could be out of the source page range')

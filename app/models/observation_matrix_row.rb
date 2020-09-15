@@ -1,3 +1,31 @@
+# A ObservationMatrixRow is a row in an Observation matrix representing an Otu or a CollectionObject
+#
+# @!attribute observation_matrix_id 
+#   @return [Integer] 
+#     id of the matrix the row is in 
+# 
+# @!attribute otu_id 
+#   @return [Integer, nil]
+#     id of the OTU or nil
+#
+# @!attribute collection_object_id
+#   @return [Integer, nil] id of the collecton_object or nil
+#
+# @!attribute reference_count
+#   Indicates the total number of times this row is referened via some row_item
+#   @return [Integer]  
+#
+# @!attribute cached_observation_matrix_row_item_id
+#   @return [Integer] if the column item is derived from a ::Single::<FOO> subclass, the id of that instance
+#
+# @!attribute name 
+#   @return [String, nil]  
+#     TEMPORARY value. Allows for a temporary generated/custom name for the row, useful for example when generating labels for phylogenetic trees.
+#     This value is NOT persisted and NOT intended for provenance purposes, it is strictly utilitarian.  Consider using custom OTUs to track provenance.
+#
+# @!attribute position
+#   @return [Integer] from acts as list 
+#
 class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -6,7 +34,8 @@ class ObservationMatrixRow < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
-  acts_as_list scope: [:observation_matrix_id, :project_id]
+  # TODO: RESTORE
+  # acts_as_list scope: [:observation_matrix_id, :project_id]
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
   belongs_to :otu, inverse_of: :observation_matrix_rows

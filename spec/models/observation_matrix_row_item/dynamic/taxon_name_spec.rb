@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRowItem::TaxonNameRowItem, type: :model, group: :observation_matrix do
-  let(:observation_matrix_row_item) { ObservationMatrixRowItem::TaxonNameRowItem.new }
+RSpec.describe ObservationMatrixRowItem::Dynamic::TaxonName, type: :model, group: :observation_matrix do
+  let(:observation_matrix_row_item) { ObservationMatrixRowItem::Dynamic::TaxonName.new }
 
   context 'validation' do
     before { observation_matrix_row_item.valid? }
@@ -17,7 +17,7 @@ RSpec.describe ObservationMatrixRowItem::TaxonNameRowItem, type: :model, group: 
     end
 
     specify 'type is MatrixRowItem::TaxonNameRowItem' do
-      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::TaxonNameRowItem')
+      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::Dynamic::TaxonName')
     end
 
     context 'other possible subclass attributes are nil' do
@@ -44,7 +44,7 @@ RSpec.describe ObservationMatrixRowItem::TaxonNameRowItem, type: :model, group: 
 
       let!(:o1) { Otu.create(taxon_name: t1) }
 
-      before{
+      before {
         observation_matrix_row_item.taxon_name = t1 
         observation_matrix_row_item.observation_matrix = observation_matrix
         observation_matrix_row_item.save!
@@ -79,10 +79,32 @@ RSpec.describe ObservationMatrixRowItem::TaxonNameRowItem, type: :model, group: 
           observation_matrix_row_item.destroy 
           expect(ObservationMatrixRow.count).to eq 0
         end
+
+        context 'added in multiple matrices' do
+          let!(:om1) { FactoryBot.create(:valid_observation_matrix, name: 'something different') }
+          let!(:omri) { ObservationMatrixRowItem::Dynamic::TaxonName.create(taxon_name: t1, observation_matrix: om1) }
+
+          specify 'saving a record adds otus observation_matrix_rows' do
+            expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly(o1, o1)
+          end
+
+          specify 'updating an OTU to be out of scope removes from matrix' do
+            o1.update!(name: 'new name', taxon_name_id: nil)
+            expect(ObservationMatrixRow.all.map(&:otu)).to contain_exactly()
+          end
+
+          # This is not required because taxon names can not be
+          # destroyed when linked to OTUs
+          # specify 'destroying mri object updated multiple matrices - 1' do
+          #   t1.destroy!
+          #   expect(ObservationMatrixRow.all.size).to eq(0)
+          # end
+    
+        end
       end
 
       context 'overlapping single item' do
-        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::SingleOtu.create!(observation_matrix: observation_matrix, otu: o1) }
+        let!(:other_observation_matrix_row_item) { ObservationMatrixRowItem::Single::Otu.create!(observation_matrix: observation_matrix, otu: o1) }
         let(:observation_matrix_row) { ObservationMatrixRow.where(observation_matrix: observation_matrix, otu: o1).first} 
 
         specify 'count is incremented' do

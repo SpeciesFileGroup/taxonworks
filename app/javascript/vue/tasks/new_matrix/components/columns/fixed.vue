@@ -15,6 +15,7 @@
         :batch-type="view"
         :matrix-id="matrix.id"
         :list="lists[view]"
+        type="descriptor"
         @close="view = undefined"/>
     </div>
   </div>

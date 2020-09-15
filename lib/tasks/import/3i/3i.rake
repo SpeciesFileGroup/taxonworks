@@ -1025,6 +1025,7 @@ namespace :tw do
             end
             unless row['KeyN'].blank?
               row['KeyN'].gsub(' ', '').split(',').each do |kn|
+                # CLASS NAME HAS NOW CHANGED
                 a = ObservationMatrixRowItem::SingleOtu.create(observation_matrix_id: @data.keyn[kn], otu_id: taxon.otus.first.id)
                 byebug if a.id.nil?
               end
