@@ -1,12 +1,12 @@
 <template>
   <td>
     <button
-      v-if="!alreadyImported"
+      v-if="showButton"
       type="button"
       :disabled="isProcessing"
       class="button normal-input button-submit"
       @click="importRow">
-      Import
+      {{ enableStatus[row.status] }}
     </button>
   </td>
 </template>
@@ -23,12 +23,16 @@ export default {
     }
   },
   computed: {
-    alreadyImported () {
-      return this.row.status === 'Imported'
+    showButton () {
+      return Object.keys(this.enableStatus).includes(this.row.status)
     }
   },
   data () {
     return {
+      enableStatus: {
+        Ready: 'Import',
+        Errored: 'Retry'
+      },
       isProcessing: false
     }
   },

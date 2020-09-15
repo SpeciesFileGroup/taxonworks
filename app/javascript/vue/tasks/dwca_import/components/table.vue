@@ -14,7 +14,7 @@
             <tr>
               <th
                 class="position-sticky">
-                Selected
+                Options
               </th>
               <status-filter
                 class="position-sticky margin-medium-left"
