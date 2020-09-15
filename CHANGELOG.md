@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
 - Many specs related to dynamic observation matrix items
 - Improvements to Descriptor autocomplete labels [#1727]
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination on Filter noemnclature task [#1724]
 
 ### Changed
+- Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
 - Data migration updating all `type` column values for matrix row/column items
 - Tweaked JSON attribute response for matrix rows and columns very slightly
 - Updated observation item types to properly nest them, inc. all downstream changes (Factories, etc.)
@@ -30,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Using custom geckodriver-helper for Firefox 80 support
 
 ## Fixed
+- Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
 - Character state order not correct in Nexus format [#1574]
 - Not able to destroy matrix rows or matrices [#1520], [#1123]
 - Dynamic observeratoin matrix items not properly scoped/behaving [#1125]
@@ -44,7 +47,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Enable search button after pick a collecting event date on Filter collection objects task [#1728]
 - Misppeling collecting_event_ids parameter [#1729]
 
-
+[#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
+[#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
 [#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
 [#1574]: https://github.com/SpeciesFileGroup/taxonworks/issues/1574
 [#1520]: https://github.com/SpeciesFileGroup/taxonworks/issues/1520
