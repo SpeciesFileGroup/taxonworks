@@ -17,7 +17,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
     begin
       if params[:source].content_type == "text/plain"
-        headers = CSV.read(params[:source].tempfile.path, headers: true, col_sep: "\t", quote_char: nil).headers
+        headers = CSV.read(params[:source].tempfile.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
         if headers.include? "occurrenceID"
           core_type = OCCURRENCES_ROW_TYPE
         elsif headers.include? "taxonID"
