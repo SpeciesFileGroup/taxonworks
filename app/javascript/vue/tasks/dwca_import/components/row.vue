@@ -1,12 +1,7 @@
 <template>
   <tr>
-    <td>
-      <input
-        v-model="selectedIds"
-        :disabled="!isReady"
-        :value="row.id"
-        type="checkbox">
-    </td>
+    <import-row
+      :row="row"/>
     <import-row-state :row="row"/>
     <cell-component
       v-for="(data_field, index) in row.data_fields"
@@ -21,6 +16,7 @@
 
 import ImportRowState from './ImportRowState'
 import CellComponent from './Cell'
+import ImportRow from './ImportRow'
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -28,7 +24,8 @@ import { MutationNames } from '../store/mutations/mutations'
 export default {
   components: {
     CellComponent,
-    ImportRowState
+    ImportRowState,
+    ImportRow
   },
   props: {
     row: {

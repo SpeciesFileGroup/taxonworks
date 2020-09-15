@@ -1,4 +1,5 @@
 const ActionNames = {
+  ImportRow: 'importRow',
   LoadDataset: 'loadDataset',
   LoadDatasetRecords: 'loadDatasetRecords',
   UpdateRow: 'updateRow',
