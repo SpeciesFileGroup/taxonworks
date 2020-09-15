@@ -6,7 +6,8 @@ import GetPagination from 'helpers/getPagination'
 
 export default ({ state, commit }, page) => {
   return new Promise((resolve, reject) => {
-    if (page !== undefined && state.datasetRecords[page] && (state.datasetRecords[page].downloaded || state.datasetRecords.rows)) return resolve()
+    const pagePosition = page === undefined ? undefined : page === 0 ? 1 : page - 1
+    if (page !== undefined && state.datasetRecords[pagePosition] && (state.datasetRecords[pagePosition].downloaded || state.datasetRecords.rows)) return resolve()
     state.isLoading = true
     GetDatasetRecords(state.dataset.id, {
       params: Object.assign({}, { page: page }, state.paramsFilter), paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
@@ -17,6 +18,7 @@ export default ({ state, commit }, page) => {
         page = 1
         commit(MutationNames.SetDatasetRecords, createEmptyPages(state.pagination))
       }
+      page = page - 1
       commit(MutationNames.SetDatasetPage, {
         pageNumber: page,
         page: {
