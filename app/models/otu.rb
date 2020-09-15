@@ -69,7 +69,7 @@ class Otu < ApplicationRecord
 
   has_many :content_topics, through: :contents, source: :topic
 
-  has_many :observation_matrix_row_items, inverse_of: :taxon_name, dependent: :destroy, class_name: 'ObservationMatrixRowItem::Single::Otu'
+  has_many :observation_matrix_row_items, inverse_of: :otu, dependent: :destroy, class_name: 'ObservationMatrixRowItem::Single::Otu'
   has_many :observation_matrices, through: :observation_matrix_row_items
 
   has_many :observations, inverse_of: :otu, dependent: :restrict_with_error
