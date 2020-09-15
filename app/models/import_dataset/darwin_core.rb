@@ -56,7 +56,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # @param [Hash] filters
   #   (Column-index, value) pairs of filters to apply when searching for records to import (default none)
   # Returns the updated dataset records.
-  def import(max_time, max_records, retry_failed = false, filters = nil)
+  def import(max_time, max_records, retry_failed = false, filters = nil, record_id = nil)
     raise NotImplementedError("Retrying failed records is not implemented") if retry_failed # Requires extra logic and posible new indicies to avoid being stuck processing always the same records
     status = ["Ready"]
     status << ["Failed"] if retry_failed
@@ -65,6 +65,8 @@ class ImportDataset::DarwinCore < ImportDataset
     filters&.each do |k, v|
       records = records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
     end
+
+    records = dataset_records.where(id: record_id) if record_id
 
     records = records.all
     start_time = Time.now

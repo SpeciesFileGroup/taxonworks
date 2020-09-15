@@ -15,9 +15,9 @@ class ImportDatasetsController < ApplicationController
   def show
   end
 
-  # GET /import_datasets/1/import.json
+  # POST /import_datasets/1/import.json
   def import
-    @results = @import_dataset.import(5000, 100, false, params[:filter])
+    @results = @import_dataset.import(5000, 100, false, params[:filter], params[:record_id])
   end
 
   # GET /import_datasets/new
