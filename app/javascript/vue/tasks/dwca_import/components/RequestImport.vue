@@ -46,6 +46,8 @@ export default {
       this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id).then(response => {
         if (!this.datasetReady) {
           this.countdown(this.reloadTime)
+        } else {
+          this.$store.dispatch(ActionNames.LoadDatasetRecords)
         }
       })
     },
