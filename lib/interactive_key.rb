@@ -113,8 +113,36 @@ class InteractiveKey
     #    @used_descriptors ###
     #    @not_useful_descriptors ####
 
-    @row_hash = nil
-    @descriptors_hash = nil
+        @row_hash = nil
+        @descriptors_hash = nil
+
+  end
+
+  def self.interactive_key_hash
+    {
+        observation_matrix_id: @observation_matrix_id,
+        project_id: @project_id,
+=begin
+        observation_matrix: @observation_matrix,
+        descriptor_available_languages: @descriptor_available_languages,
+        language_id: @language_id,
+        language_to_use: @language_to_use,
+        keyword_ids: @keyword_ids,
+        descriptor_available_keywords: @descriptor_available_keywords,
+        descriptors_with_filter: @descriptors_with_filter,
+        row_filter: @row_filter,
+        rows_with_filter: @rows_with_filter,
+        sorting: @sorting,
+        error_tolerance: @error_tolerance,
+        eliminate_unknown: @eliminate_unknown,
+        identified_to_rank: @identified_to_rank,
+        selected_descriptors: @selected_descriptors,
+        selected_descriptors_hash: @selected_descriptors_hash,
+        remaining: @remaining,
+        eliminated: @eliminated,
+        list_of_descriptors: @list_of_descriptors
+=end
+    }
   end
 
   def observation_matrix
@@ -122,7 +150,7 @@ class InteractiveKey
   end
 
   def descriptors
-    if @sorting = 'weighted'
+    if @sorting == 'weighted'
       observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order('descriptors.weight DESC, descriptors.position')
     else
       observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order(:position)
@@ -164,14 +192,15 @@ class InteractiveKey
 
   def rows
     observation_matrix.reorder_rows(by = 'nomenclature')
-#    ObservationMatrixRow.where(observation_matrix_id: @observation_matrix_id)
   end
 
   def rows_with_filter
     if @row_item_filter
       rows
     else
-      rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|'))
+      #TODO does not works
+      rows
+      #      rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|'))
     end
   end
 
@@ -239,7 +268,7 @@ class InteractiveKey
   def selected_descriptors_hash_initiate
     # "123:1|3||125:3|5||135:2"
     h = {}
-    a = @selected_descriptors.split('||')
+    a = @selected_descriptors.to_s.split('||')
     a.each do |i|
       d = i.split(':')
       h[d[0]].to_i = d[1].split('|')
@@ -281,7 +310,7 @@ class InteractiveKey
               @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
                 p = true if o.sample_min <= d_min.to_i || o.sample_max >= d_max.to_i
               end
-              r_value[:errors] += 1 if p = false
+              r_value[:errors] += 1 if p == false
               r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           end
         end
