@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
 - Sortable order for Type material, Biological association and Determinations on comprehensive task
 - User facet on Filter nomenclature task [#1720]
+- Pagination on Filter noemnclature task [#1724]
 
 ### Changed
 - Data migration updating all `type` column values for matrix row/column items
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Character state order not correct in Nexus format [#1574]
 - Not able to destroy matrix rows or matrices [#1520], [#1123]
 - Dynamic observeratoin matrix items not properly scoped/behaving [#1125]
+- Destroy pdf pages before create new ones [#1680]
 - Serial multiple updates did not update bibtex author field [#1709]
 - Fix (likely) for pinboard items failing to remove [#1690]
 - Better response for failed collecting event cloning [#1705]
@@ -39,6 +41,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Colliding `namespace` method for identifiers breaks identifiers list [#1702]
 - Graceful failed serial destroy response [#1703]
 - Restored Show -> edit link [#1699]
+- Enable search button after pick a collecting event date on Filter collection objects task [#1728]
+- Misppeling collecting_event_ids parameter [#1729]
 
 
 [#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
@@ -46,9 +50,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1520]: https://github.com/SpeciesFileGroup/taxonworks/issues/1520
 [#1123]: https://github.com/SpeciesFileGroup/taxonworks/issues/1123
 [#1125]: https://github.com/SpeciesFileGroup/taxonworks/issues/1125
-
 [#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
+[#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
@@ -58,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
+[#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
 
 ## [0.12.17] - 2020-02-02
 
