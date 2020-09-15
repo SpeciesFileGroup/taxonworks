@@ -121,7 +121,7 @@ export default {
       })
     },
     getPages (indexes) {
-      const pages = [Math.floor(indexes.startIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
+      const pages = [Math.floor(indexes.endIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
       this.loadPage(pages)
     }
   }
@@ -144,7 +144,7 @@ export default {
     transform: translate(-50%);
   }
   .vscroll {
-    height: calc(100vh - 250px);
+    height: calc(100vh - 230px);
     overflow: auto;
     overflow-anchor: none;
   }
