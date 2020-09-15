@@ -1,6 +1,7 @@
 const ActionNames = {
   UpdateSled: 'updateSled',
-  Nuke: 'nuke'
+  Nuke: 'nuke',
+  ResetStore: 'resetStore'
 }
 
 export default ActionNames

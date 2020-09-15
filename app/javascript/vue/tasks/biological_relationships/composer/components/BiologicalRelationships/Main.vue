@@ -14,7 +14,10 @@
           v-for="item in list"
           :key="item.id"
           @click="$emit('selected', item)">
-          <td>{{ item.name }}</td>
+          <td>
+            <span>{{ item.name }}</span><br>
+            <span class="margin-small-left subtle">{{item.definition }}</span>
+          </td>
           <td>{{ item.inverted_name }}</td>
         </tr>
       </tbody>

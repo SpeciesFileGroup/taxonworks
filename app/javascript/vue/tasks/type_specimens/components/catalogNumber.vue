@@ -28,7 +28,7 @@
             @input="checkIdentifier"
             v-model="identifier.identifier">
           <span
-            class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
+            class="margin-small-left">Namespace and identifier needs to be set to be saved.</span>
         </div>
         <span
           v-if="!namespace && identifier && identifier.length"

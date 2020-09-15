@@ -211,9 +211,6 @@ export default {
       padding-top: 1em;
       padding-bottom: 1em;
     }
-    .vue-autocomplete-input {
-      width: 300px;
-    }
     .taxonName-input,#error_explanation {
       width: 300px;
     }

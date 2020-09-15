@@ -99,6 +99,7 @@ class Project < ApplicationRecord
     }
   
   has_many :project_members, dependent: :restrict_with_error
+
   has_many :users, through: :project_members
   has_many :project_sources, dependent: :restrict_with_error
   has_many :sources, through: :project_sources
@@ -109,6 +110,16 @@ class Project < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name
+
+  def project_administrators
+    users.joins(:project_members).where(project_members: {is_project_administrator: true})
+  end
+
+  def is_editable?(user)
+    user = User.find(user) if !user.kind_of?(User)
+    return true if user.is_administrator? || project_administrators.include?(user)
+    false
+  end
 
   # !! This is not production ready.
   # @return [Boolean]

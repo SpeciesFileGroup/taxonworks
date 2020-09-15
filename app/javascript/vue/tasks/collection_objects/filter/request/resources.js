@@ -24,6 +24,10 @@ const GetNamespace = (id) => {
   return ajaxCall('get', `/namespaces/${id}.json`)
 }
 
+const GetRepository = (id) => {
+  return ajaxCall('get', `/repositories/${id}.json`)
+}
+
 const GetOtu = (id) => {
   return ajaxCall('get', `/otus/${id}.json`)
 }
@@ -52,9 +56,9 @@ const GetCODWCA = (id) => {
   return ajaxCall('get', `/collection_objects/${id}/dwc`)
 }
 
-const CreateTags = (keywordId, ids) => {
+const CreateTags = (keywordId, ids, type) => {
   return ajaxCall('post', `/tags/batch_create`, { 
-    object_type: 'CollectionObject',
+    object_type: type,
     keyword_id: keywordId,
     object_ids: ids
   })
@@ -74,5 +78,6 @@ export {
   GetOtu,
   GetNamespace,
   GetCollectingEvents,
-  GetKeyword
+  GetKeyword,
+  GetRepository
 }

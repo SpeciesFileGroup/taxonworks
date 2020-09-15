@@ -20,7 +20,7 @@
           <td><%= object_tag(identifier.identifier_object.metamorphosize) %></td>
           <td><%= identifier.cached %></td>
           <td><%= identifier_type_tag(identifier) %></td>
-          <td><%= namespace_from_identifier_tag(identifier) %></td>
+          <td><%= namespace_tag(identifier.namespace) %></td>
           <%= fancy_metadata_cells_tag(identifier) -%>
       <% end %>
   <% end %>

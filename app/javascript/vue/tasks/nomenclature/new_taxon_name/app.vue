@@ -242,6 +242,12 @@ export default {
     margin-top: 1em;
     max-width: 1240px;
 
+    .basic-information {
+      .vue-autocomplete-input {
+        width: 300px;
+      }
+    }
+
     .autocomplete-search-bar {
       input {
         width: 500px;

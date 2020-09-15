@@ -42,7 +42,6 @@
               ref="smartSelector"
               model="taxon_names"
               klass="TypeMaterial"
-              target="TypeMaterial"
               :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
               :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
               pin-section="TaxonNames"

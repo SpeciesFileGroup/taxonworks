@@ -58,10 +58,16 @@
       <span
         v-shortkey="[getOSKey(), 'e']"
         @shortkey="switchComprehensive()"/>
-      <ul class="context-menu no_bullets">
-        <li v-for="item in menu">
-          <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
-        </li>
+      <ul
+        v-if="taxonName"
+        class="context-menu no_bullets">
+        <template v-for="item in menu">
+          <li
+            :key="item"
+            v-show="showForRanks(item)">
+            <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
+          </li>
+        </template>
       </ul>
     </div>
   </div>
@@ -75,6 +81,9 @@ import QuickForms from 'components/radials/object/radial.vue'
 import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
 import getOSKey from 'helpers/getMacKey.js'
+import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import componentNames from '../const/componentNames.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -91,6 +100,11 @@ export default {
     menu: {
       type: Array,
       required: true
+    }
+  },
+  computed: {
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data () {
@@ -130,7 +144,11 @@ export default {
     switchComprehensive () {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },
-    getOSKey: getOSKey
+    getOSKey: getOSKey,
+    showForRanks (section) {
+      const rankGroup = Object.values(componentNames()).find(item => item.title === section).rankGroup
+      return rankGroup ? ShowForThisGroup(rankGroup, this.taxonName) : true
+    }
   }
 
 }

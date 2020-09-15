@@ -113,7 +113,6 @@ export default {
       tabs: Object.values(Tabs),
       config: {
         status: false,
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
         spellChecker: false
       }
     }

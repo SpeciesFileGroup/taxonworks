@@ -40,7 +40,6 @@ class ObservationMatrixColumnItemsController < ApplicationController
   # POST /observation_matrix_column_items.json
   def create
     @observation_matrix_column_item = ObservationMatrixColumnItem.new(observation_matrix_column_item_params)
-
     respond_to do |format|
       if @observation_matrix_column_item.save
         format.html { redirect_to url_for(@observation_matrix_column_item.metamorphosize),
@@ -71,11 +70,18 @@ class ObservationMatrixColumnItemsController < ApplicationController
   # DELETE /observation_matrix_column_items/1
   # DELETE /observation_matrix_column_items/1.json
   def destroy
-    @observation_matrix_column_item.destroy!
+    @observation_matrix_column_item.destroy
     respond_to do |format|
-      format.html { redirect_to observation_matrix_column_items_url,
-                    notice: 'Matrix column item was successfully destroyed.' }
-      format.json { head :no_content }
+
+      if @observation_matrix_column_item.destroyed?
+        format.html {
+          redirect_to observation_matrix_column_items_url,
+          notice: 'Matrix column item was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Observation matrix column item was not destroyed, ' + @observation_matrix_column_item.errors.full_messages.join('; '))}
+        format.json {render json: @observation_matrix_column_item.errors, status: :unprocessable_entity}
+      end
     end
   end
 

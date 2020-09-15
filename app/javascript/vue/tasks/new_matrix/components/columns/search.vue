@@ -6,7 +6,7 @@
           min="2"
           :clear-after="true"
           placeholder="Select a descriptor"
-          label="label"
+          label="label_html"
           @getItem="createColumnItem($event.id)"
           url="/descriptors/autocomplete"
           param="term"/>
@@ -16,10 +16,11 @@
 </template>
 <script>
 
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
@@ -41,7 +42,7 @@ export default {
       const data = {
         observation_matrix_id: this.matrix.id,
         descriptor_id: id,
-        type: 'ObservationMatrixColumnItem::SingleDescriptor'
+        type: ObservationTypes.Column.Descriptor
       }
       this.$store.dispatch(ActionNames.CreateColumnItem, data)
     }
