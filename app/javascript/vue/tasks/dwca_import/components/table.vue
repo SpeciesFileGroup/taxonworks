@@ -147,6 +147,7 @@ export default {
     height: calc(100vh - 230px);
     overflow: auto;
     overflow-anchor: none;
+    z-index: 500000;
   }
   .row-empty {
     background: linear-gradient(transparent,transparent 20%,hsla(0,0%,50.2%,0.03) 0,hsla(0,0%,50.2%,0.08) 50%,hsla(0,0%,50.2%,0.03) 80%,transparent 0,transparent);
