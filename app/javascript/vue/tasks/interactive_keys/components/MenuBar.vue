@@ -1,7 +1,17 @@
 <template>
   <nav-component>
     <div class="flex-separate">
-      <div>{{ observationMatrix.object_tag }}</div>
+      <div>
+        <span v-if="observationMatrix">{{ observationMatrix.object_tag }}</span>
+        <autocomplete
+          v-else
+          url="/observation_matrices/autocomplete"
+          param="term"
+          label="label_html"
+          placeholder="Search a observation matrix"
+          @getItem="loadMatrix"
+        />
+      </div>
       <div class="middle">
         <button
           v-for="layout in layouts"
@@ -25,12 +35,15 @@
 <script>
 
 import NavComponent from 'components/navBar'
+import Autocomplete from 'components/autocomplete'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
-    NavComponent
+    NavComponent,
+    Autocomplete
   },
   computed: {
     observationMatrix () {
@@ -53,6 +66,9 @@ export default {
   methods: {
     setLayout (layout) {
       this.settings.gridLayout = layout
+    },
+    loadMatrix (matrix) {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, matrix.id)
     }
   }
 }
