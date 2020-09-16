@@ -71,6 +71,8 @@ class ObservationMatrix < ApplicationRecord
     true
   end
 
+  #@return [Boolean]
+  #   reorders all rows and returns true or false
   def reorder_rows(by = 'reindex')
     case by
     when 'reindex'

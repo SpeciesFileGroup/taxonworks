@@ -81,12 +81,29 @@ class InteractiveKey
   #temporary hash of descriptors; used for calculation of useful and not useful characters and their states
   attr_accessor :descriptors_hash
 
+  def initialize(
+    observation_matrix_id: nil,
+    project_id: nil,
+    language_id: nil,
+    keyword_ids: nil,
+    row_filter: nil,
+    sorting: 'optimized',
+    error_tolerance: 0,
+    identified_to_rank: nil,
+    eliminate_unknown: nil,
+    selected_descriptors: nil)
 
-  def initialize(observation_matrix_id: nil, project_id: nil, language_id: nil, keyword_ids: nil, row_filter: nil, sorting: 'optimized', error_tolerance: 0, identified_to_rank: nil, eliminate_unknown: nil, selected_descriptors: nil)
-    raise if observation_matrix_id.blank? || project_id.blank?
+    # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
-    @observation_matrix = observation_matrix
+
+    # This is nothing?   
+    # @observation_matrix = observation_matrix
+
+    # Do you mean
+    @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id) 
+
+
     @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
     @language_to_use = language_to_use
@@ -113,15 +130,15 @@ class InteractiveKey
     #    @used_descriptors ###
     #    @not_useful_descriptors ####
 
-        @row_hash = nil
-        @descriptors_hash = nil
+    @row_hash = nil
+    @descriptors_hash = nil
 
   end
 
   def self.interactive_key_hash
     {
-        observation_matrix_id: @observation_matrix_id,
-        project_id: @project_id,
+      observation_matrix_id: @observation_matrix_id,
+      project_id: @project_id,
 =begin
         observation_matrix: @observation_matrix,
         descriptor_available_languages: @descriptor_available_languages,
@@ -160,8 +177,8 @@ class InteractiveKey
   def descriptor_available_languages
     descriptor_ids = descriptors.pluck(:id)
     languages = Language.joins(:alternate_value_translations)
-                    .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
-                    .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
+      .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
+      .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
     unless languages.empty?
       languages = Language.where(english_name: 'English').to_a + languages
     end
@@ -178,8 +195,8 @@ class InteractiveKey
   def descriptor_available_keywords
     descriptor_ids = descriptors.pluck(:id)
     tags = Keyword.joins(:tags)
-                    .where(tags: {tag_object_type: 'Descriptor'})
-                    .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
+      .where(tags: {tag_object_type: 'Descriptor'})
+      .where('tags.tag_object_id IN (?)', descriptor_ids ).order('name').distinct.to_a
   end
 
   def descriptors_with_keywords
@@ -190,10 +207,12 @@ class InteractiveKey
     end
   end
 
+  # This doesn't return rows, it re-orders them in *database*
   def rows
     observation_matrix.reorder_rows(by = 'nomenclature')
   end
 
+  # You have a parameter with this name that is set to true or false.
   def rows_with_filter
     if @row_item_filter
       rows
@@ -210,7 +229,9 @@ class InteractiveKey
   ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
     h = {}
-    rows_with_filter.each do |r|
+
+    observation_matrix.observation_matrix_rows.order(:position).each do |r|
+      # rows_with_filter.each do |r|
       otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
@@ -278,9 +299,9 @@ class InteractiveKey
   end
 
   def remaining_taxa
-#    @error_tolerance  - integer
-#    @eliminate_unknown  'true' or 'false'
-#    @descriptors_hash
+    #    @error_tolerance  - integer
+    #    @eliminate_unknown  'true' or 'false'
+    #    @descriptors_hash
 
     h = {}
     @row_hash.each do |r_key, r_value|
@@ -293,25 +314,25 @@ class InteractiveKey
           #character not scored but no error
         else
           case @descriptors_hash[d_key][:descriptor].type
-            when 'Descriptor::Continuous'
-              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
-              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
-            when 'Descriptor::PresenceAbsence'
-              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
-              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+          when 'Descriptor::Continuous'
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+          when 'Descriptor::PresenceAbsence'
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           when 'Descriptor::Qualitative'
-              r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
-              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           when 'Descriptor::Sample'
-              p = false
-              a = d_value.split('-')
-              d_min = a[0]
-              d_max = a[1].nil? ? a[0] : a[1]
-              @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
-                p = true if o.sample_min <= d_min.to_i || o.sample_max >= d_max.to_i
-              end
-              r_value[:errors] += 1 if p == false
-              r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
+            p = false
+            a = d_value.split('-')
+            d_min = a[0]
+            d_max = a[1].nil? ? a[0] : a[1]
+            @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
+              p = true if o.sample_min <= d_min.to_i || o.sample_max >= d_max.to_i
+            end
+            r_value[:errors] += 1 if p == false
+            r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           end
         end
       end
@@ -517,7 +538,7 @@ class InteractiveKey
                                  weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
 =end
 
-                                                                                                                                                    # rst = All characters ordered by Characters.Weight DESC, Characters.Char, State.State"
+  # rst = All characters ordered by Characters.Weight DESC, Characters.Char, State.State"
   # rst2 = List of all taxa from the key ordered by hiercode
   # filter = taxa with specic IDs
   # list of used states
@@ -531,42 +552,42 @@ end
 
 CharMax = 0
 Do Until rst.EOF
-	i = CStr(rst("Char"))
-	j = CStr(rst("State"))
-	r = replace(CStr(Request("a" & i)), " ", "")
-	r = replace(r, "aa", "a")
-	if (r = j and multistates = "") or (rst("Numeric") = True and r <> "" and isNumeric(left(r, inStr(r & "-", "-") - 1)) and isNumeric(right(r, len(r) - inStr(r, "-")))) then
-		charMax = charMax + 1
-		charUsed(charMax, 1) = i
-		charUsed(charMax, 2) = r
-		charUsed(charMax, 3) = CStr(request("n" & i))
-		if charUsed(charMax, 3) = "1" then
-			states = states & "-" & rst("Key2")
-		else
-			states = states & rst("Key2")
-		end if
-		if rst("Numeric") = True then
-			states = states & "-" & r & "b"
-		else
-			states = states & "b"
-		end if
-		where2 = where2 & " OR Char=" & i
-	elseif multistates = "1" and rst("Numeric") = False then
-		m = CStr(Request("m" & i))
-		if (inStr(m, "!") = 0 and inStr(m, "a" & j & "a") > 0) or (m = "" and r = j) or (inStr(m, "!") = 1 and ((inStr(m, "a" & j & "a") > 0 and inStr(m, "a" & r & "a") > 0) or (r = j and inStr(m, "a" & r & "a") = 0))) then
-			if charUsed(charMax, 1) <> i then charMax = charMax + 1
-			charUsed(charMax, 1) = i
-			charUsed(charMax, 2) = charUsed(charMax, 2) & "a" & j & "a"
-			charUsed(charMax, 3) = CStr(request("n" & i))
-			if charUsed(charMax, 3) = "1" then
-				states = states & "-" & rst("Key2") & "b"
-			else
-				states = states & rst("Key2") & "b"
-			end if
-			where2 = where2 & " OR Char=" & i
-		end if
-	end if
-	rst.moveNext
+  i = CStr(rst("Char"))
+  j = CStr(rst("State"))
+  r = replace(CStr(Request("a" & i)), " ", "")
+  r = replace(r, "aa", "a")
+  if (r = j and multistates = "") or (rst("Numeric") = True and r <> "" and isNumeric(left(r, inStr(r & "-", "-") - 1)) and isNumeric(right(r, len(r) - inStr(r, "-")))) then
+    charMax = charMax + 1
+    charUsed(charMax, 1) = i
+    charUsed(charMax, 2) = r
+    charUsed(charMax, 3) = CStr(request("n" & i))
+    if charUsed(charMax, 3) = "1" then
+      states = states & "-" & rst("Key2")
+    else
+      states = states & rst("Key2")
+    end if
+    if rst("Numeric") = True then
+      states = states & "-" & r & "b"
+    else
+      states = states & "b"
+    end if
+    where2 = where2 & " OR Char=" & i
+  elseif multistates = "1" and rst("Numeric") = False then
+    m = CStr(Request("m" & i))
+    if (inStr(m, "!") = 0 and inStr(m, "a" & j & "a") > 0) or (m = "" and r = j) or (inStr(m, "!") = 1 and ((inStr(m, "a" & j & "a") > 0 and inStr(m, "a" & r & "a") > 0) or (r = j and inStr(m, "a" & r & "a") = 0))) then
+      if charUsed(charMax, 1) <> i then charMax = charMax + 1
+      charUsed(charMax, 1) = i
+      charUsed(charMax, 2) = charUsed(charMax, 2) & "a" & j & "a"
+      charUsed(charMax, 3) = CStr(request("n" & i))
+      if charUsed(charMax, 3) = "1" then
+        states = states & "-" & rst("Key2") & "b"
+      else
+        states = states & rst("Key2") & "b"
+      end if
+      where2 = where2 & " OR Char=" & i
+    end if
+  end if
+  rst.moveNext
 Loop
 rst.MoveFirst
 if where2 & "" <> "" then where2 = "AND (" & right(where2, len(where2) - 4) & ") "
@@ -576,69 +597,69 @@ if where2 & "" <> "" then where2 = "AND (" & right(where2, len(where2) - 4) & ")
 if keyN <> "" then where1 = "AND ','&CharTableTotal.KeyN&',' Like '%," & keyN & ",%' AND ','&CharTableTotal.CharKeyN&',' Like '%," & keyN & ",%' "
 strSQL = "SELECT Morph, Char, State, Hiercode, Numeric, NumericFrom, NumericTo FROM CharTableTotal "
 if cat = "1" then
-	strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & where2 & "ORDER BY Morph, Weight DESC, Char, Hiercode, State"
+  strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & where2 & "ORDER BY Morph, Weight DESC, Char, Hiercode, State"
 else
-	strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & where2 & "ORDER BY Weight DESC, Char, Hiercode, State"
+  strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & where2 & "ORDER BY Weight DESC, Char, Hiercode, State"
 end if
 rst2.Open strSQL, Conn
 
 
 if rst2.eof then ' Datamatrix is empty
-	response.write "<p style='color: #FF0000'>The datamatrix is empty!</p>"
+  response.write "<p style='color: #FF0000'>The datamatrix is empty!</p>"
 else
 
 ' Mark the taxa in array taxa() which does not fit to criteria (count number of errors)
 
 for j = 1 to charMax
-	for i = 1 to taxaMax
-	  if taxa(i, 2) <> "-1" then
-	  	do until left(rst2("Hiercode"), len(taxa(i, 1))) = taxa(i, 1) and rst2("Char") & "" = charUsed(j, 1)
-			rst2.MoveNext
-		loop
-		if multistates = "1" and rst2("Numeric") = False then
-			if charUsed(j, 3) = "1" then ' character with not
-				do until inStr(charUsed(j, 2), rst2("State")) = 0 or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
-					rst2.MoveNext
-					if rst2.EOF then exit do
-				loop
-			else
-				do until inStr(charUsed(j, 2), rst2("State")) > 0 or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
-					rst2.MoveNext
-					if rst2.EOF then exit do
-				loop
-			end if
-		else
-			if charUsed(j, 3) = "1" then ' character with not
-				do until (rst2("Numeric") = True and (rst2("NumericFrom") > cDbl(right(charUsed(j, 2), len(charUsed(j, 2)) - inStr(charUsed(j, 2), "-"))) or rst2("NumericTo") < cDbl(left(charUsed(j, 2), inStr(charUsed(j, 2) & "-", "-")-1)))) or (charUsed(j, 2) <> rst2("State") & "" and rst2("Numeric") = False) or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
-					rst2.MoveNext
-					if rst2.EOF then exit do
-				loop
-			else
-				do until (rst2("Numeric") = True and rst2("NumericFrom") <= cDbl(right(charUsed(j, 2), len(charUsed(j, 2)) - inStr(charUsed(j, 2), "-"))) and rst2("NumericTo") >= cDbl(left(charUsed(j, 2), inStr(charUsed(j, 2) & "-", "-")-1))) or (charUsed(j, 2) = rst2("State") & "" and rst2("Numeric") = False) or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
-					rst2.MoveNext
-					if rst2.EOF then exit do
-				loop
-			end if
-		end if
-		if rst2.EOF then
-			taxa(i, 2) = taxa(i, 2) + 1
-		elseIf left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1) then
-			taxa(i, 2) = taxa(i, 2) + 1
-		end if
-	  end if
-	next
+  for i = 1 to taxaMax
+    if taxa(i, 2) <> "-1" then
+      do until left(rst2("Hiercode"), len(taxa(i, 1))) = taxa(i, 1) and rst2("Char") & "" = charUsed(j, 1)
+      rst2.MoveNext
+    loop
+    if multistates = "1" and rst2("Numeric") = False then
+      if charUsed(j, 3) = "1" then ' character with not
+        do until inStr(charUsed(j, 2), rst2("State")) = 0 or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
+          rst2.MoveNext
+          if rst2.EOF then exit do
+        loop
+      else
+        do until inStr(charUsed(j, 2), rst2("State")) > 0 or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
+          rst2.MoveNext
+          if rst2.EOF then exit do
+        loop
+      end if
+    else
+      if charUsed(j, 3) = "1" then ' character with not
+        do until (rst2("Numeric") = True and (rst2("NumericFrom") > cDbl(right(charUsed(j, 2), len(charUsed(j, 2)) - inStr(charUsed(j, 2), "-"))) or rst2("NumericTo") < cDbl(left(charUsed(j, 2), inStr(charUsed(j, 2) & "-", "-")-1)))) or (charUsed(j, 2) <> rst2("State") & "" and rst2("Numeric") = False) or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
+          rst2.MoveNext
+          if rst2.EOF then exit do
+        loop
+      else
+        do until (rst2("Numeric") = True and rst2("NumericFrom") <= cDbl(right(charUsed(j, 2), len(charUsed(j, 2)) - inStr(charUsed(j, 2), "-"))) and rst2("NumericTo") >= cDbl(left(charUsed(j, 2), inStr(charUsed(j, 2) & "-", "-")-1))) or (charUsed(j, 2) = rst2("State") & "" and rst2("Numeric") = False) or (rst2("State") & "" = "" and unknowns <> "1") or left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1)
+          rst2.MoveNext
+          if rst2.EOF then exit do
+        loop
+      end if
+    end if
+    if rst2.EOF then
+      taxa(i, 2) = taxa(i, 2) + 1
+    elseIf left(rst2("Hiercode"), len(taxa(i, 1))) <> taxa(i, 1) then
+      taxa(i, 2) = taxa(i, 2) + 1
+    end if
+    end if
+  next
 next
 
 ' Making query strings for lists of taxa
 
 for t = 1 to taxaMax
-	if CInt(taxa(t, 2)) <= tol and taxa(t, 2) <> "-1" then
-		queryStr1 = queryStr1 & taxa(t, 0) & "a" & taxa(t, 2) & "a"
-		if CInt(taxa(t, 2)) < tol then taxaRemTol = taxaRemTol + 1
-		taxaRem = taxaRem + 1
-	else
-		queryStr2 = queryStr2 & taxa(t, 0) & "a" & taxa(t, 2) & "a"
-	end if
+  if CInt(taxa(t, 2)) <= tol and taxa(t, 2) <> "-1" then
+    queryStr1 = queryStr1 & taxa(t, 0) & "a" & taxa(t, 2) & "a"
+    if CInt(taxa(t, 2)) < tol then taxaRemTol = taxaRemTol + 1
+    taxaRem = taxaRem + 1
+  else
+    queryStr2 = queryStr2 & taxa(t, 0) & "a" & taxa(t, 2) & "a"
+  end if
 next
 if len(queryStr1) > 0 then queryStr1 = states & left(queryStr1, len(queryStr1) - 1)
 if len(queryStr2) > 0 then queryStr2 = states & left(queryStr2, len(queryStr2) - 1)
@@ -647,11 +668,11 @@ if len(queryStr2) > 0 then queryStr2 = states & left(queryStr2, len(queryStr2) -
 
 rst2.Close
 strSQL = "SELECT Morph, Char, State, Hiercode, Numeric, NumericFrom, NumericTo " &_
-	"FROM CharTableTotal "
+  "FROM CharTableTotal "
 if cat = "1" then
-	strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & "ORDER BY Morph, Weight DESC, Char, State, Hiercode"
+  strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & "ORDER BY Morph, Weight DESC, Char, State, Hiercode"
 else
-	strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & "ORDER BY Weight DESC, Char, State, Hiercode"
+  strSQL = strSQL & replace(where, "Characters", "CharTableTotal") & where1 & "ORDER BY Weight DESC, Char, State, Hiercode"
 end if
 rst2.Open strSQL, Conn
 
@@ -662,270 +683,270 @@ t = 1
 m = ""
 j = rst("Char") & ""
 Do Until rst.EOF
-	if rank <> "" then
-		for i = 1 to taxaMax
-			taxa(i, 3) = "0"
-		next
-	end if
-	i = rst("Char") & ""
-	morphN = rst("Morph")
-	charName = charReplace(rst("Char" & lng))
+  if rank <> "" then
+    for i = 1 to taxaMax
+      taxa(i, 3) = "0"
+    next
+  end if
+  i = rst("Char") & ""
+  morphN = rst("Morph")
+  charName = charReplace(rst("Char" & lng))
 
-	descr = rst("Descr" & lng) & ""
+  descr = rst("Descr" & lng) & ""
 
-	if not rst2.eof then
-		Do Until rst2("Char") & "" = i
-			rst2.MoveNext
-			if rst2.EOF then exit do
-		Loop
-	end if
+  if not rst2.eof then
+    Do Until rst2("Char") & "" = i
+      rst2.MoveNext
+      if rst2.EOF then exit do
+    Loop
+  end if
 
-	if not rst2.eof then
-	  fig = 0
-	  weight = rst("Weight") & ""
-	  CharTemp1 = ""
-	  if weight <> "" then weight = ", I=" & weight
-	  usefull = 0
-	  stUnknown = 0
-	  stNum = 0
-	  stSum = 0
-	  numMin = 9999999
-	  numMax = -9999999
+  if not rst2.eof then
+    fig = 0
+    weight = rst("Weight") & ""
+    CharTemp1 = ""
+    if weight <> "" then weight = ", I=" & weight
+    usefull = 0
+    stUnknown = 0
+    stNum = 0
+    stSum = 0
+    numMin = 9999999
+    numMax = -9999999
 
-	  if rst("Numeric") = False then ' !!!!!!!!!!Not Numeric!!!!!!!!!
-	  	if multistates = "1" then
-	  		m = request("m" & i) & ""
-	  		if (inStr(m, "!") = 1 and inStr(m, "a" & Request("a" & i) & "a") > 0) or (m <> "" and inStr(m, "!") <> 1) then
-		  		m = Replace("<input type='hidden' name='m" & i & "' value='!" & Replace(m, "!", "") & "'>", "'!'", "''") & sp
-			else
-				m = "<input type='hidden' name='m" & i & "' value=''>" & sp
-			end if
-	  	end if
-		if charUsed(a, 1) & "" <> i then
-			CharTemp = "<li><b>" & charName & "</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & m & "not&nbsp;<input type=checkbox name='n" & i & "' value='1'>&nbsp;<select name='a" & i & "'>" & sp & "<option value='" & "' selected> </option>" & sp
-		else
-			CharTemp = "<li><b>" & charName & "</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & m & "not&nbsp;<input type=checkbox " & replace(charUsed(a,3), "1", "checked ") & "name='n" & i & "' value='1'>&nbsp;<select name='a" & i & "'>" & sp & "<option value='" & "'> </option>" & sp
-		end if
+    if rst("Numeric") = False then ' !!!!!!!!!!Not Numeric!!!!!!!!!
+      if multistates = "1" then
+        m = request("m" & i) & ""
+        if (inStr(m, "!") = 1 and inStr(m, "a" & Request("a" & i) & "a") > 0) or (m <> "" and inStr(m, "!") <> 1) then
+          m = Replace("<input type='hidden' name='m" & i & "' value='!" & Replace(m, "!", "") & "'>", "'!'", "''") & sp
+      else
+        m = "<input type='hidden' name='m" & i & "' value=''>" & sp
+      end if
+      end if
+    if charUsed(a, 1) & "" <> i then
+      CharTemp = "<li><b>" & charName & "</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & m & "not&nbsp;<input type=checkbox name='n" & i & "' value='1'>&nbsp;<select name='a" & i & "'>" & sp & "<option value='" & "' selected> </option>" & sp
+    else
+      CharTemp = "<li><b>" & charName & "</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & m & "not&nbsp;<input type=checkbox " & replace(charUsed(a,3), "1", "checked ") & "name='n" & i & "' value='1'>&nbsp;<select name='a" & i & "'>" & sp & "<option value='" & "'> </option>" & sp
+    end if
 
-		hc = 0
-		if not rst2.eof then
-			Do Until rst2("Char") & "" <> i or rst2("State") & "" <> ""
-				z = 0
-				Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
-					t = t + 1
-					if t > taxaMax then
-						t = 1
-						z = z + 1
-						if z > 1 then exit Do
-					end if
-				Loop
-				if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and z < 2 then
-					if rank <> "" then taxa(t, 3) = "1"
-					stUnknown = stUnknown + 1
-					hc = taxa(t, 1)
-				end if
-				rst2.MoveNext
-				if rst2.eof then exit do
-			Loop
-		end if
+    hc = 0
+    if not rst2.eof then
+      Do Until rst2("Char") & "" <> i or rst2("State") & "" <> ""
+        z = 0
+        Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
+          t = t + 1
+          if t > taxaMax then
+            t = 1
+            z = z + 1
+            if z > 1 then exit Do
+          end if
+        Loop
+        if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and z < 2 then
+          if rank <> "" then taxa(t, 3) = "1"
+          stUnknown = stUnknown + 1
+          hc = taxa(t, 1)
+        end if
+        rst2.MoveNext
+        if rst2.eof then exit do
+      Loop
+    end if
 
-		if unknowns = "1" then stUnknown = 0
-		Do until j <> i
-			stCount = stUnknown
-			if not rst2.EOF then
-				r = rst("State") & ""
-				hc = 0
-				Do Until rst2("Char") & "" <> i or rst2("State") & "" <> r
-					z = 0
-					Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
-						t = t + 1
-						if t > taxaMax then
-							t = 1
-							z = z + 1
-							if z > 1 then exit Do
-						end if
-					Loop
-					if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and taxa (t, 3) <> "1" and z < 2 then
-						stCount = stCount + 1
-						hc = taxa(t, 1)
-					end if
-					rst2.MoveNext
-					if rst2.EOF then Exit Do
-				Loop
-			end if
-			stCount = stCount + taxaRemTol
-			if stCount > 0 and stCount < taxaRem Then
-				stNum = stNum + 1
-				strCharArr(stNum, 0) = stCount
-			end if
+    if unknowns = "1" then stUnknown = 0
+    Do until j <> i
+      stCount = stUnknown
+      if not rst2.EOF then
+        r = rst("State") & ""
+        hc = 0
+        Do Until rst2("Char") & "" <> i or rst2("State") & "" <> r
+          z = 0
+          Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
+            t = t + 1
+            if t > taxaMax then
+              t = 1
+              z = z + 1
+              if z > 1 then exit Do
+            end if
+          Loop
+          if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and taxa (t, 3) <> "1" and z < 2 then
+            stCount = stCount + 1
+            hc = taxa(t, 1)
+          end if
+          rst2.MoveNext
+          if rst2.EOF then Exit Do
+        Loop
+      end if
+      stCount = stCount + taxaRemTol
+      if stCount > 0 and stCount < taxaRem Then
+        stNum = stNum + 1
+        strCharArr(stNum, 0) = stCount
+      end if
 
-			if charUsed(a, 1) = i and (inStr(charUsed(a, 2) , "a" & r & "a") = 1 or charUsed(a, 2) = r) then
-				CharTemp = CharTemp + "<option value='" & rst("State") & "' selected>&gt; " & charReplace(rst("State" & lng)) & "</option>" & sp
-			elseif charUsed(a, 1) = i and inStr(charUsed(a, 2) & "", "a" & r & "a") > 1 then
-				CharTemp = CharTemp + "<option value='" & rst("State") & "'>&gt; " & charReplace(rst("State" & lng)) & "</option>" & sp
-			elseIf charUsed(a, 1) = i and charUsed(a, 2) <> r then
-				CharTemp = CharTemp + "<option value='" & rst("State") & "'>" & charReplace(rst("State" & lng)) & "</option>" & sp
-			else
-				if stCount = 0 or stCount = taxaRem then
-					CharTemp = CharTemp + "<option value='" & rst("State") & "'>- " & charReplace(rst("State" & lng)) & " ("&stCount&") -</option>" & sp
-				else
-					CharTemp = CharTemp + "<option value='" & rst("State") & "'>" & charReplace(rst("State" & lng)) & " ("&stCount&")</option>" & sp
-					usefull = 1
-				end if
-				CharTemp1 = CharTemp1 & "&a" & rst("State") & "=" & stCount
-			end if
-			if rst("Fig") & "" <> "" then fig = 1
+      if charUsed(a, 1) = i and (inStr(charUsed(a, 2) , "a" & r & "a") = 1 or charUsed(a, 2) = r) then
+        CharTemp = CharTemp + "<option value='" & rst("State") & "' selected>&gt; " & charReplace(rst("State" & lng)) & "</option>" & sp
+      elseif charUsed(a, 1) = i and inStr(charUsed(a, 2) & "", "a" & r & "a") > 1 then
+        CharTemp = CharTemp + "<option value='" & rst("State") & "'>&gt; " & charReplace(rst("State" & lng)) & "</option>" & sp
+      elseIf charUsed(a, 1) = i and charUsed(a, 2) <> r then
+        CharTemp = CharTemp + "<option value='" & rst("State") & "'>" & charReplace(rst("State" & lng)) & "</option>" & sp
+      else
+        if stCount = 0 or stCount = taxaRem then
+          CharTemp = CharTemp + "<option value='" & rst("State") & "'>- " & charReplace(rst("State" & lng)) & " ("&stCount&") -</option>" & sp
+        else
+          CharTemp = CharTemp + "<option value='" & rst("State") & "'>" & charReplace(rst("State" & lng)) & " ("&stCount&")</option>" & sp
+          usefull = 1
+        end if
+        CharTemp1 = CharTemp1 & "&a" & rst("State") & "=" & stCount
+      end if
+      if rst("Fig") & "" <> "" then fig = 1
 
-			rst.MoveNext
-			if rst.EOF then
-				exit do
-			else
-				j = rst("Char") & ""
-			end if
-		Loop
-		CharTemp1 = CharTemp1 & "&b=" & taxaRem
-		CharTemp = CharTemp + "</select>" & sp & sp
-		If fig = 1 or descr <> "" or multistates = "1" then
-			opt = len(CharTemp) - len(replace(CharTemp, "option", ""))
-			if fig = 1 and multistates = "1" then opt = opt + 12
-			if opt > 90 and fig = 1 then
-				CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',800,600)""" & " Title='" & show & "'>" & charName & "</a><")
-			elseIf opt > 50 or (multistates = "1" and fig = 1) then
-				CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',640,480)""" & " Title='" & show & "'>" & charName & "</a><")
-			elseIf opt < 50 then
-				CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',640,300)""" & " Title='" & show & "'>" & charName & "</a><")
-			end if
-		end if
+      rst.MoveNext
+      if rst.EOF then
+        exit do
+      else
+        j = rst("Char") & ""
+      end if
+    Loop
+    CharTemp1 = CharTemp1 & "&b=" & taxaRem
+    CharTemp = CharTemp + "</select>" & sp & sp
+    If fig = 1 or descr <> "" or multistates = "1" then
+      opt = len(CharTemp) - len(replace(CharTemp, "option", ""))
+      if fig = 1 and multistates = "1" then opt = opt + 12
+      if opt > 90 and fig = 1 then
+        CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',800,600)""" & " Title='" & show & "'>" & charName & "</a><")
+      elseIf opt > 50 or (multistates = "1" and fig = 1) then
+        CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',640,480)""" & " Title='" & show & "'>" & charName & "</a><")
+      elseIf opt < 50 then
+        CharTemp = replace(CharTemp, ">" & charName & "<", "><a href=""" & "javascript:makeHelpWindow('" & i & CharTemp1 & "',640,300)""" & " Title='" & show & "'>" & charName & "</a><")
+      end if
+    end if
 
-	  else ' !!!!!!!Numeric!!!!!!!!
+    else ' !!!!!!!Numeric!!!!!!!!
 
-		if not rst2.eof then
-			hc = 0
-			Do Until rst2("Char") & "" <> i or rst2("State") & "" <> ""
-				z = 0
-				Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
-					t = t + 1
-					if t > taxaMax then
-						t = 1
-						z = z + 1
-						if z > 1 then exit do
-					end if
-				Loop
-				if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and z < 2 then
-					if rank <> "" then taxa(t, 3) = "1"
-					stUnknown = stUnknown + 1
-					hc = taxa(t, 1)
-				end if
-				rst2.MoveNext
-				if rst2.eof then exit do
-			Loop
-		end if
+    if not rst2.eof then
+      hc = 0
+      Do Until rst2("Char") & "" <> i or rst2("State") & "" <> ""
+        z = 0
+        Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
+          t = t + 1
+          if t > taxaMax then
+            t = 1
+            z = z + 1
+            if z > 1 then exit do
+          end if
+        Loop
+        if CInt(taxa(t, 2)) = tol and hc <> taxa(t, 1) and z < 2 then
+          if rank <> "" then taxa(t, 3) = "1"
+          stUnknown = stUnknown + 1
+          hc = taxa(t, 1)
+        end if
+        rst2.MoveNext
+        if rst2.eof then exit do
+      Loop
+    end if
 
-		usefull = 0
-		if not rst2.eof then
-			stCount = 0
-			hc = 0
-			do until rst2("Char") & "" <> i
-				z = 0
-				Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
-					t = t + 1
-					if t > taxaMax then
-						t = 1
-						z = z + 1
-						if z > 1 then exit Do
-					end if
-				Loop
-				if CInt(taxa(t, 2)) = tol and z < 2 then
-					if hc <> taxa(t, 1) and taxa(t, 3) <> "1" then
-						hc = taxa(t, 1)
-						stNum = stNum + 1
-						strCharArr(stNum, 0) = rst2("NumericTo")
-						strCharArr(stNum, 4) = rst2("NumericFrom")
-					end if
-					if strCharArr(stNum, 0) > rst2("NumericTo") then strCharArr(stNum, 0) = rst2("NumericTo")
-					if strCharArr(stNum, 4) < rst2("NumericFrom") then strCharArr(stNum, 4) = rst2("NumericFrom")
-					if numMin > rst2("NumericFrom") then
-						if numMin < 9999999 then usefull = 1
-						numMin = rst2("NumericFrom")
-					end if
-					if numMax < rst2("NumericTo") then
-						if numMax > -9999999 then usefull = 1
-						numMax = rst2("NumericTo")
-					end if
-					stCount = 1
-				end if
-				rst2.moveNext
-				if rst2.eof then exit do
-			loop
-		end if
-		if charUsed(a, 1) & "" <> i then
-			if numMin = 9999999 then
-				charTemp1 = ""
-			elseIf numMin = numMax then
-				charTemp1 = numMin & " "
-			else
-			CharTemp1 = numMin & "-" & numMax & " "
-			end if
-			CharTemp = "<li><b>" & charName & " [" & charTemp1 & charReplace(rst("State" & lng)) & "]</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & "not&nbsp;<input type=checkbox name='n" & i & "' value='1'>&nbsp;<input type='text' name='a" & i & "' value='' size='15'>" & sp
-		else
-			CharTemp = "<li><b>" & charName & " [" & charReplace(rst("State" & lng)) & "]</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & "not&nbsp;<input type=checkbox " & replace(charUsed(a,3), "1", "checked ") & "name='n" & i & "' value='1'>&nbsp;<input type='text' name='a" & i & "' value='" & charUsed(a, 2) & "' size='15'>" & sp
-		end if
-		If rst("fig") & "" <> "" or descr <> "" then
-			CharTemp = replace(CharTemp, ">" & charName & " [" & charTemp1 & charReplace(rst("State" & lng)) & "]<", "><a href=""" & "javascript:makeHelpWindow('" & i & "',640,280)""" & " Title='" & show & "'>" & charName & "</a> [" & charTemp1 & charReplace(rst("State" & lng)) & "]<")
-		end if
+    usefull = 0
+    if not rst2.eof then
+      stCount = 0
+      hc = 0
+      do until rst2("Char") & "" <> i
+        z = 0
+        Do Until left(rst2("Hiercode"), len(taxa(t, 1))) = taxa(t, 1)
+          t = t + 1
+          if t > taxaMax then
+            t = 1
+            z = z + 1
+            if z > 1 then exit Do
+          end if
+        Loop
+        if CInt(taxa(t, 2)) = tol and z < 2 then
+          if hc <> taxa(t, 1) and taxa(t, 3) <> "1" then
+            hc = taxa(t, 1)
+            stNum = stNum + 1
+            strCharArr(stNum, 0) = rst2("NumericTo")
+            strCharArr(stNum, 4) = rst2("NumericFrom")
+          end if
+          if strCharArr(stNum, 0) > rst2("NumericTo") then strCharArr(stNum, 0) = rst2("NumericTo")
+          if strCharArr(stNum, 4) < rst2("NumericFrom") then strCharArr(stNum, 4) = rst2("NumericFrom")
+          if numMin > rst2("NumericFrom") then
+            if numMin < 9999999 then usefull = 1
+            numMin = rst2("NumericFrom")
+          end if
+          if numMax < rst2("NumericTo") then
+            if numMax > -9999999 then usefull = 1
+            numMax = rst2("NumericTo")
+          end if
+          stCount = 1
+        end if
+        rst2.moveNext
+        if rst2.eof then exit do
+      loop
+    end if
+    if charUsed(a, 1) & "" <> i then
+      if numMin = 9999999 then
+        charTemp1 = ""
+      elseIf numMin = numMax then
+        charTemp1 = numMin & " "
+      else
+      CharTemp1 = numMin & "-" & numMax & " "
+      end if
+      CharTemp = "<li><b>" & charName & " [" & charTemp1 & charReplace(rst("State" & lng)) & "]</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & "not&nbsp;<input type=checkbox name='n" & i & "' value='1'>&nbsp;<input type='text' name='a" & i & "' value='' size='15'>" & sp
+    else
+      CharTemp = "<li><b>" & charName & " [" & charReplace(rst("State" & lng)) & "]</b> (" & UCase(rst("Type")) & weight & ")<br>" & sp & "not&nbsp;<input type=checkbox " & replace(charUsed(a,3), "1", "checked ") & "name='n" & i & "' value='1'>&nbsp;<input type='text' name='a" & i & "' value='" & charUsed(a, 2) & "' size='15'>" & sp
+    end if
+    If rst("fig") & "" <> "" or descr <> "" then
+      CharTemp = replace(CharTemp, ">" & charName & " [" & charTemp1 & charReplace(rst("State" & lng)) & "]<", "><a href=""" & "javascript:makeHelpWindow('" & i & "',640,280)""" & " Title='" & show & "'>" & charName & "</a> [" & charTemp1 & charReplace(rst("State" & lng)) & "]<")
+    end if
 
-		rst.MoveNext
-		if not rst.EOF then j = rst("Char") & ""
+    rst.MoveNext
+    if not rst.EOF then j = rst("Char") & ""
 
-	  end if ' !!!!!!!!!Numeric!!!!!!!!!!
-	end if
+    end if ' !!!!!!!!!Numeric!!!!!!!!!!
+  end if
 
-	if charUsed(a, 1) = i then
-		strChar2 = strChar2 + CharTemp
-		a = a + 1
-	ElseIf usefull = 0 then
-		strChar3 = strChar3 & CharTemp
-	Else
-		if taxaRem > 1 then
-			if cat = "1" and rst1("Morph") <> morphN then
-				Do until rst1("Morph") = morphN
-					rst1.moveNext
-				Loop
-				morph = 0
-			end if
-			if cat = "1" and rst1("Morph") = morphN and morph <> 1 then
-				l = Replace(rst1("Morph" & lng), " ", "&nbsp;")
-				strChar1 = strChar1 & "<br><br><a name='" & l & "'></a><span class='a'>" & l & "</span><br><br>" & sp & sp
-				link = link & "<a href='#" & l & "'>" & l & "</a>&nbsp;| " & sp
-				morph = 1
-			end if
-			if cat <> "1" then
-				if numMin = 9999999 then stMed = taxaRem / stNum else stMed = taxaRem
-				For i1 = 1 to stNum
-					if numMin = 9999999 then
-						stSum = stSum + ((stMed) - strCharArr(i1, 0)) ^ 2
-					else
-						strCharArr(i1, 0) = strCharArr(i1, 4) - strCharArr(i1, 0)
-						if strCharArr(i1, 0) = 0 then strCharArr(i1, 0) = (numMax - numMin) / 10
-						stSum = stSum + strCharArr(i1, 0)
-					end if
-				Next
-				strCharMax = strCharMax + 1
-				if numMax = numMin then numMax = numMax + 0.00001
-				if numMin = 9999999 then
-					strCharArr(strCharMax, 2) = stMed + Sqr(stSum)
-				else
-					strCharArr(strCharMax, 2) = stMed * (stSum / stNum / (numMax - numMin)) * (2 - stNum / taxaRem)
-				end if
-				strCharArr(strCharMax, 1) = CharTemp ' & strCharArr(strCharMax, 2) '!!!!!!!!!!!!!!!!
-				strCharArr(strCharMax, 3) = CLng("0" & replace(weight, ", I=", ""))
-			else
-				strChar1 = strChar1 & CharTemp
-			end if
-		else
-			strChar3 = strChar3 & CharTemp
-		End if
-	End if
+  if charUsed(a, 1) = i then
+    strChar2 = strChar2 + CharTemp
+    a = a + 1
+  ElseIf usefull = 0 then
+    strChar3 = strChar3 & CharTemp
+  Else
+    if taxaRem > 1 then
+      if cat = "1" and rst1("Morph") <> morphN then
+        Do until rst1("Morph") = morphN
+          rst1.moveNext
+        Loop
+        morph = 0
+      end if
+      if cat = "1" and rst1("Morph") = morphN and morph <> 1 then
+        l = Replace(rst1("Morph" & lng), " ", "&nbsp;")
+        strChar1 = strChar1 & "<br><br><a name='" & l & "'></a><span class='a'>" & l & "</span><br><br>" & sp & sp
+        link = link & "<a href='#" & l & "'>" & l & "</a>&nbsp;| " & sp
+        morph = 1
+      end if
+      if cat <> "1" then
+        if numMin = 9999999 then stMed = taxaRem / stNum else stMed = taxaRem
+        For i1 = 1 to stNum
+          if numMin = 9999999 then
+            stSum = stSum + ((stMed) - strCharArr(i1, 0)) ^ 2
+          else
+            strCharArr(i1, 0) = strCharArr(i1, 4) - strCharArr(i1, 0)
+            if strCharArr(i1, 0) = 0 then strCharArr(i1, 0) = (numMax - numMin) / 10
+            stSum = stSum + strCharArr(i1, 0)
+          end if
+        Next
+        strCharMax = strCharMax + 1
+        if numMax = numMin then numMax = numMax + 0.00001
+        if numMin = 9999999 then
+          strCharArr(strCharMax, 2) = stMed + Sqr(stSum)
+        else
+          strCharArr(strCharMax, 2) = stMed * (stSum / stNum / (numMax - numMin)) * (2 - stNum / taxaRem)
+        end if
+        strCharArr(strCharMax, 1) = CharTemp ' & strCharArr(strCharMax, 2) '!!!!!!!!!!!!!!!!
+        strCharArr(strCharMax, 3) = CLng("0" & replace(weight, ", I=", ""))
+      else
+        strChar1 = strChar1 & CharTemp
+      end if
+    else
+      strChar3 = strChar3 & CharTemp
+    End if
+  End if
 Loop
 
 ' Outputtin form
@@ -937,16 +958,16 @@ Loop
 window.onerror = null;
 
 if (window.parent.window.length != 4)
-	{ window.location = ""; }
+  { window.location = ""; }
 else {
 
 window.parent.window.frames['taxa1'].window.document.forms['mainform'].elements['taxa'].value='<% =queryStr1 %>';
 window.parent.window.frames['taxa1'].window.document.forms['mainform'].elements['lng'].value='<% =lng %>';
 window.parent.window.frames['taxa1'].window.document.forms['mainform'].submit();
 <% if tax = "1" then %>
-	window.parent.window.frames['taxa2'].window.document.forms['mainform'].elements['taxa'].value='<% =queryStr2 %>';
-	window.parent.window.frames['taxa2'].window.document.forms['mainform'].elements['lng'].value='<% =lng %>';
-	window.parent.window.frames['taxa2'].window.document.forms['mainform'].submit();
+  window.parent.window.frames['taxa2'].window.document.forms['mainform'].elements['taxa'].value='<% =queryStr2 %>';
+  window.parent.window.frames['taxa2'].window.document.forms['mainform'].elements['lng'].value='<% =lng %>';
+  window.parent.window.frames['taxa2'].window.document.forms['mainform'].submit();
 <% end if %>
 }
 window.onfocus = ppHide;
@@ -958,11 +979,11 @@ function makeHelpWindow(n,w,h)
 {
 if (navigator.appName == "Microsoft Internet Explorer")
 <%
-	Response.write "{ ww = window.open('charhelp.asp?key=" & key & "&lng=" & lng & "&m=" & multistates & "&keyN=" & keyN & "&ch=' + n,'_blank','scrollbars=" & scroll & ",resizable=no,width=' + w + ',height=' + h + ',top=' + (screen.availHeight - h) / 2 + ',left=' + (screen.availWidth - w) / 2 ); }"
+  Response.write "{ ww = window.open('charhelp.asp?key=" & key & "&lng=" & lng & "&m=" & multistates & "&keyN=" & keyN & "&ch=' + n,'_blank','scrollbars=" & scroll & ",resizable=no,width=' + w + ',height=' + h + ',top=' + (screen.availHeight - h) / 2 + ',left=' + (screen.availWidth - w) / 2 ); }"
 %>
 else
 <%
-	Response.write "{ ww = window.open('charhelp.asp?key=" & key & "&lng=" & lng & "&m=" & multistates & "&keyN=" & keyN & "&ch=' + n,'_blank','scrollbars=yes,resizable=yes,width=' + w + ',height=' + h + ',top=' + (screen.availHeight - h) / 2 + ',left=' + (screen.availWidth - w) / 2 ); }"
+  Response.write "{ ww = window.open('charhelp.asp?key=" & key & "&lng=" & lng & "&m=" & multistates & "&keyN=" & keyN & "&ch=' + n,'_blank','scrollbars=yes,resizable=yes,width=' + w + ',height=' + h + ',top=' + (screen.availHeight - h) / 2 + ',left=' + (screen.availWidth - w) / 2 ); }"
 %>
 }
 
@@ -975,7 +996,7 @@ function ppHide()
 <%
 
 if len(link) > 9 then
-	link = left(link, len(link)-9)
+  link = left(link, len(link)-9)
 end if %>
 
 <form method='POST' action='char.asp' name='mainform'>
