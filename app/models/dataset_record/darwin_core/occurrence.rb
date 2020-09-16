@@ -135,7 +135,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
       if res[:last_name].blank?
         res[:last_name] = res[:first_name]
-        res.delete(:first_name)
+        res[:first_name] = nil
       end
       res
     end
