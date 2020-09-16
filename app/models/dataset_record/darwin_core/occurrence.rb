@@ -123,14 +123,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
     value
   end
 
+  # NOTE: Sometimes an identifier happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
   def parse_identifiedBy
     DwcAgent.parse(get_field_value("identifiedBy")).map! do |name|
-      {
+      res = {
         last_name: [name.particle, name.family].compact!.join(" "),
         first_name: name.given,
         suffix: name.suffix,
         prefix: name.title || name.appellation
       }
+
+      if res[:last_name].blank?
+        res[:last_name] = res[:first_name]
+        res.delete(:first_name)
+      end
+      res
     end
   end
 
