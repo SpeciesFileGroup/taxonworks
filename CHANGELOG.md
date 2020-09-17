@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Many specs related to dynamic observation matrix items
 - Improvements to Descriptor autocomplete labels [#1727]
 - Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Pdf viewer button on Documentation and Source views [#1693]
 - Spinner for when converting verbatim to bibtex [#1710]
 - Set OTU in determination when otu_id param is present on comprehensive task
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
