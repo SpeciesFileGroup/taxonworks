@@ -33,7 +33,7 @@ namespace :tw do
           get_scrutinies = {} # key = ScrutinyID, value = FileID, Year, Comment
           logger.info 'Creating scrutinies hash...'
           path = @args[:data_directory] + 'tblScrutinies.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
           file.each_with_index do |row, i|
             get_scrutinies[row['ScrutinyID']] = {sf_file_id: row['FileID'], year: row['Year'], comment: row['Comment']}
           end
@@ -43,7 +43,7 @@ namespace :tw do
           get_tw_scrutiny_authors = {} # from tblScrutinyAuthors, key = ScrutinyID, value = PersonID, SeqNum
           logger.info 'Creating scrutiny_authors hash...'
           path = @args[:data_directory] + 'tblScrutinyAuthors.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
           file.each_with_index do |row, i|
             id = row['ScrutinyID']
             index = row['SeqNum'].to_i
@@ -66,7 +66,7 @@ namespace :tw do
           # finally process tblTaxonScrutinies
           # No error handling if there is no TW equiv taxon_name
           path = @args[:data_directory] + 'tblTaxonScrutinies.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
@@ -138,7 +138,7 @@ namespace :tw do
           # otu_not_found_array = []
 
           path = @args[:data_directory] + 'tblSupplTaxonInfo.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']

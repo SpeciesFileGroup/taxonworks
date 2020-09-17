@@ -21,7 +21,7 @@ namespace :tw do
           get_animalia_id = import.get('ProjectIDToAnimaliaID') # key = TW.Project.id, value TW.TaxonName.id where Name = 'Animalia', used when AboveID = 0
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           count_found = 0
           error_counter = 0
@@ -317,7 +317,7 @@ namespace :tw do
           # get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
           path = @args[:data_directory] + 'tblRelatedTaxa.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           count_found = 0
           error_counter = 0
@@ -419,7 +419,7 @@ namespace :tw do
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
 
           path = @args[:data_directory] + 'tblTypeGenera.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           count_found = 0
           error_counter = 0
@@ -499,7 +499,7 @@ namespace :tw do
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
 
           path = @args[:data_directory] + 'tblTypeSpecies.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           type_species_reason_hash = {'0' => 'TaxonNameRelationship::Typification::Genus', # unknown
                                       '1' => 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy',
@@ -751,7 +751,7 @@ namespace :tw do
           life_zone_map = {0 => 'marine', 1 => 'brackish', 2 => 'freshwater', 3 => 'terrestrial'} # must be bit position
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           error_counter = 0
           count_found = 0
@@ -1098,7 +1098,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'sfMakeOTUs.txt'
           # not a problem right now but eventually should change
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -1131,7 +1131,7 @@ namespace :tw do
 
           path = @args[:data_directory] + 'sfSynonymParents.txt'
           # not a problem right now but eventually should change
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -1198,7 +1198,7 @@ namespace :tw do
           get_tw_rank_string = {} # key = SF.RankID, value = TW.rank_string (Ranks.lookup(SF.Rank.Name))
 
           path = @args[:data_directory] + 'tblRanks.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             rank_id = row['RankID']
@@ -1241,7 +1241,7 @@ namespace :tw do
           get_sf_taxon_info = {} # key = SF.TaxonNameID, value = hash of SF.FileID, SF.RankID
 
           path = @args[:data_directory] + 'sfTaxaMiscInfo.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
 

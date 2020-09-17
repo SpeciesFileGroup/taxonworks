@@ -33,7 +33,7 @@ namespace :tw do
           ref_id_containing_id_hash = import.get('RefIDContainingHash')
 
           path = @args[:data_directory] + 'sfCites.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           count_found = 0
           error_counter = 0
@@ -332,7 +332,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           path = @args[:data_directory] + 'tblSpeciesNames.txt'
           print "\ntblSpeciesNames.txt\n"
           raise "file #{path} not found" if not File.exists?(path)
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # SpeciesNameID
           # FileID
@@ -350,7 +350,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           path = @args[:data_directory] + 'tblGenusNames.txt'
           print "\ntblGenusNames.txt\n"
           raise "file #{path} not found" if not File.exists?(path)
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # GenusNameID
           # FileID
@@ -368,7 +368,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           path = @args[:data_directory] + 'tblNomenclator.txt'
           print "\ntblNomenclator.txt\n"
           raise "file #{path} not found" if not File.exists?(path)
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # NomenclatorID
           # FileID
@@ -487,7 +487,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
             path = @args[:data_directory] + 'sfCites.txt'
             print "\nsfCites.txt Working on: #{rank_pass}\n"
             raise "file #{path} not found" if not File.exists?(path)
-            file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+            file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
             # TaxonNameID
             # SeqNum
@@ -1292,7 +1292,7 @@ SF.RefID #{sf_ref_id} = TW.source_id #{source_id}, SF.SeqNum #{row['SeqNum']}] (
           end # genus, subgenus, species, subspecies
 
           logger.info "Looking for citations not marked as done..."
-          CSV.foreach(@args[:data_directory] + 'sfCites.txt', col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8') do |row|
+          CSV.foreach(@args[:data_directory] + 'sfCites.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
             unless cites_id_done[row['TaxonNameID'].to_s + '_' + row['SeqNum'].to_s]
               logger.error "[#{row['FileID']}, #{row['TaxonNameID']}, #{row['SeqNum']}] not marked as done"
             end

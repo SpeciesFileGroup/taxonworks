@@ -89,7 +89,7 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'tblSpecimens.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           error_counter = 0
           saved_counter = 0
@@ -745,7 +745,7 @@ namespace :tw do
           get_sf_collect_event_metadata = {} # key = sf.CollectEventID, value = hash {collector name, date, etc.}
 
           path = @args[:data_directory] + 'tblLocalities.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             locality_id = row['LocalityID']
@@ -776,7 +776,7 @@ namespace :tw do
 
 
           path = @args[:data_directory] + 'tblCollectEvents.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             collect_event_id = row['CollectEventID']
@@ -813,7 +813,7 @@ namespace :tw do
           get_sf_ident_qualifier = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
 
           path = @args[:data_directory] + 'tblNomenclator.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
 
@@ -859,7 +859,7 @@ namespace :tw do
           get_sf_identification_metadata = {} # key = SF.SpecimenID, value = array of hashes [{SeqNum => s, relevant columns => etc}, {}]
 
           path = @args[:data_directory] + 'tblIdentifications.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             specimen_id = row['SpecimenID']
@@ -911,7 +911,7 @@ namespace :tw do
           get_sf_source_metadata = {} # key = SF.SourceID, value = hash (SourceID, FileID, RefID, Description)
 
           path = @args[:data_directory] + 'tblSources.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             sf_file_id = row['FileID']
@@ -940,7 +940,7 @@ namespace :tw do
           #previous_specimen_id = '0'
 
           path = @args[:data_directory] + 'tblSpecimenCounts.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             specimen_id = row['SpecimenID']
@@ -978,7 +978,7 @@ namespace :tw do
           get_biocuration_class_id = {} # key = SF.tblSpecimenCategories.SpmnCategoryID, value = TW.biocuration_class.id
 
           path = @args[:data_directory] + 'tblSpecimenCategories.txt' # had been sfSpecimenCategories but not different from the db table??
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             sf_file_id = row['FileID']
@@ -1012,7 +1012,7 @@ namespace :tw do
           count_found = 0
 
           path = @args[:data_directory] + 'sfDepoStrings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             depo_id = row['DepoID']
@@ -1025,7 +1025,7 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'sfTWDepoMappings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-8') # could not use 'UTF-16:UTF-8'; this is file via Access
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') # could not use 'UTF-16:UTF-8'; this is file via Access
 
           file.each_with_index do |row, i|
             sf_depo_id_array = row['SFDepoIDarray']
@@ -1100,7 +1100,7 @@ namespace :tw do
           }.freeze
 
           path = @args[:data_directory] + 'sfUniqueLocColEvents.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # FileID
           # Level1ID	Level2ID	Level3ID	Level4ID
@@ -1320,7 +1320,7 @@ namespace :tw do
           unique_rows = 0
 
           path = @args[:data_directory] + 'tblLocalities.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             all_rows += 1
@@ -1369,7 +1369,7 @@ namespace :tw do
           get_sf_geo_level4 = {} # key = unique_key (combined level3_id + level4_id), value = level3_id, level4_id, name, country_code (from tblGeoLevel4)
 
           path = @args[:data_directory] + 'sfGeoLevel4.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
 
@@ -1401,7 +1401,7 @@ namespace :tw do
           # logger.info '1. Getting new preferred specimen ids'
           #
           # path = @args[:data_directory] + 'sfAddPreservedSpecimens.txt'
-          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
           #
           # file.each do |row|
           #   get_new_preserved_specimen_id.push(row[0])
@@ -1413,7 +1413,7 @@ namespace :tw do
           count = 0
 
           path = @args[:data_directory] + 'sfSpecimenToUniqueIDs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             puts "SpecimenID = #{row['SpecimenID']}, count #{count += 1} \n"

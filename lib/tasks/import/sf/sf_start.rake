@@ -26,7 +26,7 @@ namespace :tw do
           ref_taxon_name_authors = {} # key = SF.RefID (contained ref), value = array of SF.Person.IDs (ordered); only contains ref in ref taxon_name_authors
 
           path = @args[:data_directory] + 'sfRefAuthorsOrdered.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           previous_ref_id = '0'
           person_error_counter = 0
@@ -136,7 +136,7 @@ namespace :tw do
           family_group_related_info = {} # key = SF.TaxonNameID, value = { FileID, RankID, Name (family group), FirstUseRefID, TypeGenusID, FirstFamGrpNameID, FamilyAuthorRefID }
 
           path = @args[:data_directory] + 'sfFamilyGroupRelatedInfo.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             puts "TaxonNameID = #{row['TaxonNameID']}"
@@ -166,8 +166,8 @@ namespace :tw do
           excluded_taxa = [] # list of taxa with AccessCode = 4, TaxonNameID = 0, those used for anatomy, known errors, bad ranks, assorted others
 
           path = @args[:data_directory] + 'sfExcludedTaxa.txt'
-          file = CSV.read(path, col_sep: "\r", headers: true, encoding: 'UTF-16:UTF-8')
-          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\r", headers: true, encoding: 'BOM|UTF-8')
+          # file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row|
             excluded_taxa.push(row['TaxonNameID'])
@@ -199,7 +199,7 @@ namespace :tw do
           #         b) Create hash of refs with containing refs NOTE: Only includes those with ContainingRefIDs > 0
           #         c) Create hash of SF.RefID to SF.PubID
           path = @args[:data_directory] + 'tblRefs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             next if skipped_file_ids.include? row['FileID'].to_i or get_tw_source_id[row['RefID']]
@@ -217,7 +217,7 @@ namespace :tw do
 
           # Part II: Create hash of RefID and FileID
           path = @args[:data_directory] + 'sfRefIDsByFileID.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             ref_file_id[row['RefID']] = row['FileID']
@@ -280,7 +280,7 @@ namespace :tw do
           source_not_found_error = 0
 
           path = @args[:data_directory] + 'tblRefs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           skipped_ref_ids = []
 
@@ -462,7 +462,7 @@ namespace :tw do
         #   get_contained_cite_aux_data = {} # key = SF.RefID, value = ContainingRefID, RefPages, Note, LinkID
         #
         #   path = @args[:data_directory] + 'sfContainedCiteAuxData.txt'
-        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
         #
         #   file.each do |row|
         #     ref_id = row['RefID']
@@ -496,7 +496,7 @@ namespace :tw do
           get_sf_pub_type_string = {} # key = SF.PubID, value = SF.PubType
 
           path = @args[:data_directory] + 'tblPubs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -534,7 +534,7 @@ namespace :tw do
           get_sf_booktitle_publisher_address = {} # key = SF.PubID, value = booktitle, publisher, and address from tblPubs
 
           path = @args[:data_directory] + 'tblPubs.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -566,7 +566,7 @@ namespace :tw do
           skipped_file_ids = import.get('SkippedFileIDs')
 
           path = @args[:data_directory] + 'tblFiles.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             file_id = row['FileID']
@@ -611,7 +611,7 @@ namespace :tw do
           get_sf_verbatim_ref = {} # key = SF.RefID, value = SF verbatim ref (table generated from a script)
 
           path = @args[:data_directory] + 'sfVerbatimRefs.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             # byebug
@@ -637,7 +637,7 @@ namespace :tw do
           get_sf_ref_link = {} # key = SF.RefID, value = SF ref link (table generated from a script)
 
           path = @args[:data_directory] + 'sfRefLinks.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each do |row|
             # byebug
@@ -663,7 +663,7 @@ namespace :tw do
         #   sf_no_ref_list = []
         #
         #   path = @args[:data_directory] + 'direct_from_sf/no_ref_list.txt'
-        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-8')
+        #   file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
         #
         #   file.each do |row|
         #     sf_no_ref_list.push(row[0])
@@ -745,7 +745,7 @@ namespace :tw do
           # # probably only writes to memory, to save in db, use <<
 
           path = @args[:data_directory] + 'tblPeople.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           # loop 1: Get preferred records only
 
@@ -881,7 +881,7 @@ namespace :tw do
           project_url = 'speciesfile.org'
 
           path = @args[:data_directory] + 'tblFileUsers.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -906,7 +906,7 @@ namespace :tw do
           path = @args[:data_directory] + 'tblAuthUsers.txt'
           logger.info "Creating users\n"
           raise "file #{path} not found" if not File.exists?(path)
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           error_counter = 0
           no_name_counter = 0

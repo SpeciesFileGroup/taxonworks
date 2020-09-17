@@ -82,7 +82,7 @@ namespace :tw do
           no_otu_count = 0
 
           path = @args[:data_directory] + 'tblImages.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           skipped_file_ids << 0
 
@@ -315,7 +315,7 @@ namespace :tw do
         #   get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
         #
         #   path = @args[:data_directory] + 'tblSpecimens.txt'
-        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+        #   file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
         #
         #   file.each do |row|
         #     next if skipped_file_ids.include? row['FileID'].to_i
@@ -372,7 +372,7 @@ namespace :tw do
           topic_map = {0 => 'general information', 1 => 'key', 2 => 'distribution map', 3 => 'specimen level information'}
 
           path = @args[:data_directory] + 'sfTaxonNameWebsiteLinks.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
@@ -426,7 +426,7 @@ namespace :tw do
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
 
           path = @args[:data_directory] + 'tblCommonNames.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             sf_taxon_name_id = row['TaxonNameID']
@@ -480,7 +480,7 @@ namespace :tw do
           error_count = 0
 
           path = @args[:data_directory] + 'tblLanguageList.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             sf_language_id = row['LanguageID']

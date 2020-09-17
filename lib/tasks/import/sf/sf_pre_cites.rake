@@ -20,7 +20,7 @@ namespace :tw do
           not_found = 0
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             taxon_name_id = row['TaxonNameID']
@@ -166,7 +166,7 @@ namespace :tw do
           count_found = 0
 
           path = @args[:data_directory] + 'sfNomenclatorStrings.txt'
-          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'UTF-16:UTF-8')
+          file = CSV.read(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
             next if skipped_file_ids.include? row['FileID'].to_i
