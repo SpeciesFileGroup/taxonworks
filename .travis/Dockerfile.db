@@ -1,4 +1,4 @@
-FROM mdillon/postgis:11-3.0
+FROM postgis/postgis:12-3.0
 
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 
