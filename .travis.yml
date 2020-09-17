@@ -33,8 +33,6 @@ jobs:
           packages:
             - imagemagick
             - tesseract-ocr
-            - libgeos-dev
-            - libproj-dev
             - postgresql-12-postgis-3
       env:
           - TEST_WORKER=0
@@ -45,7 +43,7 @@ jobs:
         - nvm use 10
         - echo "deb http://archive.ubuntu.com/ubuntu bionic main universe" >> /etc/apt/sources.list
         - sudo apt-get update
-        - sudo apt-get install -y -t bionic libproj-dev # rgeo-proj4 incompatibility workaround
+        - sudo apt-get install -y -t bionic libgeos-dev libproj-dev # rgeo-proj4 incompatibility workaround
       install:
         - npm install
         - gem install bundler
