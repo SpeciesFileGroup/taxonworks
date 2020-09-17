@@ -2,6 +2,8 @@ module Queries
   module TaxonName 
 
     # Summarize data across a nomenclatural hierarchy.
+    #
+    # Results are Arrays, not AR objects.
     #  
     # The approach is to use OVER/PARTITION build ranked list, then to summarize only those ranked data requested.
     # When we select without preserving all ranks, then the data are not sortable according to their overall neesting.
@@ -20,24 +22,26 @@ module Queries
 
       # @return [Array]
       #   like 'family', 'genus', 'species'
-      # ORDER IS IMPORTANT
+      # ORDER matters 
       attr_accessor :ranks
 
       # @return [Array]
       #   like 'family', 'genus', 'species'
-      # ORDER IS IMPORTANT
+      # ORDER MATTERS
       attr_accessor :rank_data
 
       # !! CAREFUL, too small limits will not properly nest all names !!
+      #   defaults to 1000
       attr_accessor :limit
 
       # @return [Boolean]
-      #   if true than also include combinations
+      #   if true than also include Combinations in counts
       attr_accessor :combinations
 
       # @return [Array of Strings]
       #  named sets of columns to include
       #  valid values are 
+      #    - nomenclatural_stats
       #    - observations
       attr_accessor :fieldsets
 
@@ -49,17 +53,21 @@ module Queries
 
       # @return [ the build query ] 
       attr_accessor :query
-      
-      attr_accessor :ancestor
+
       attr_accessor :data_fields
       attr_accessor :column_headers
       attr_accessor :rank_joins
       attr_accessor :rank_id_fields
 
-      # @param params [Params] 
-      #   a permitted via controller
-      def initialize(params)
-        super(nil, params)
+      # Internal
+      # 
+      # @return [Protonym, nil]
+      attr_accessor :ancestor
+
+      # @param params [Hash] 
+      #   keys are symbols
+      def initialize(params = {}) 
+        super(nil, project_id: params[:project_id]) # We don't actually use project_id here
 
         @ancestor_id = params[:ancestor_id]
         @combinations = (params[:combinations]&.downcase == 'true' ? true : false)
@@ -68,14 +76,22 @@ module Queries
         @rank_data = params[:rank_data] || [] 
         @validity = (params[:validity]&.downcase == 'true' ? true : false)
 
-        @ancestor = ::Protonym.where(project_id: project_id).find(ancestor_id)
-        @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached'] 
+        @column_headers = ['rank_over', 'otu_id', 'taxon_name_id', 'cached_valid_taxon_name_id', *ranks, 'cached', 'otu']
         @fieldsets = params[:fieldsets] || []
         @rank_id_fields = []
         @rank_joins = []
         @data_fields = []
 
         build_query
+      end
+
+      def ancestor
+        return nil unless ancestor_id
+        @ancestor ||= ::Protonym.find(ancestor_id) 
+      end
+
+      def limit
+        @limit ||= 1000
       end
 
       def table
@@ -92,13 +108,13 @@ module Queries
 
       def base_query
         q = table
-        h = hierarchy_table     
+        h = hierarchy_table
 
         # Scope all names in the result
         a = table[:id].eq(h[:descendant_id])
           .and(h[:ancestor_id].eq(ancestor_id) )
         a = a.and(table[:cached_valid_taxon_name_id].eq(table[:id])) if validity
-       
+
         # Start a query 
         q = q.join(h, Arel::Nodes::InnerJoin).on(a)
 
@@ -149,6 +165,7 @@ module Queries
           table[:cached_valid_taxon_name_id].as('cached_valid_taxon_name_id'),
           *name_fields.values,
           table[:cached].as('cached'),
+          otu_table[:name].as('otu_name'),
           *data_fields,
         ).from(table).where(w).distinct
 

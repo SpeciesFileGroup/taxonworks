@@ -39,6 +39,7 @@
 
 <script>
 import { TippyComponent } from 'vue-tippy'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -79,7 +80,7 @@ export default {
           annotated_global_entity: this.globalId
         }
       }
-      this.$http.post('/citations', citationItem).then(response => {
+      AjaxCall('post', '/citations', citationItem).then(response => {
         this.citationItem = response.body
         this.created = true
         TW.workbench.alert.create('Citation item was successfully created.', 'notice')
@@ -92,7 +93,7 @@ export default {
 				annotated_global_entity: this.globalId,
 				_destroy: true
 			}
-      this.$http.delete(`/citations/${this.citationItem.id}`, { citation: citation }).then(response => {
+      AjaxCall('delete', `/citations/${this.citationItem.id}`, { citation: citation }).then(response => {
         this.created = false
         TW.workbench.alert.create('Citation item was successfully destroyed.', 'notice')
       })

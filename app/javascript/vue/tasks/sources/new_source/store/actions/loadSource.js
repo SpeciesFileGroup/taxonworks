@@ -5,20 +5,21 @@ import setParam from 'helpers/setParam'
 
 export default ({ state, commit }, id) => {
   GetSource(id).then(response => {
-    commit(MutationNames.SetSource, response.body)
-    let authors = state.source.author_roles
-    let editors = state.source.editor_roles
-    let people = authors.concat(editors)
+    const source = response.body
+    const authors = source.author_roles
+    const editors = source.editor_roles
+    const people = [].concat(authors, editors).filter(item => item)
 
-    commit(MutationNames.SetRoles, people)
+    source.roles_attributes = people
+    commit(MutationNames.SetSource, source)
 
     LoadSoftValidation(response.body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
     })
 
     setParam('/tasks/sources/new_source', 'source_id', response.body.id)
-    console.log("se")
-    state.settings.lastSave = Date.now()
+    state.settings.lastSave = 0
+    state.settings.lastEdit = 0
   }, () => {
     TW.workbench.alert.create('No source was found with that ID.', 'alert')
     history.pushState(null, null, `/tasks/sources/new_source`)

@@ -41,6 +41,7 @@
 
   import SmartSelector from 'components/switch.vue'
   import Autocomplete from 'components/autocomplete.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -78,7 +79,7 @@
           }
         };
         this.sourceAlreadyTaken = false
-        this.$http.post(`/citations.json`, params).then(response => {
+        AjaxCall('post', `/citations.json`, params).then(response => {
           this.$emit('foundTaxon', response.body);
           this.$refs.autocomplete.cleanInput()
         })
@@ -98,7 +99,7 @@
       }
     },
     mounted: function() {
-      this.$http.get('/taxon_names/select_options').then(response => {
+      AjaxCall('get', '/taxon_names/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
         if(this.tabs.length) {

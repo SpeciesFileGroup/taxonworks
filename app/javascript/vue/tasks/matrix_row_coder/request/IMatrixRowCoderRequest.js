@@ -60,4 +60,8 @@ export default class IMatrixRowCoderRequest {
   getConfidenceLevels () {
     throw IllegalBaseClassCallError
   }
+
+  getUnits () {
+    throw IllegalBaseClassCallError
+  }
 }

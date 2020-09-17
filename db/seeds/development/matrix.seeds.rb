@@ -71,15 +71,15 @@ begin
     # is empty
 
     [d1, d2, d3, d4, d5].each do |d|
-      m.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: d)
+      m.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: d)
     end
 
     [r1, r2, r3].each do |r|
-      m.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: r)
+      m.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: r)
     end 
 
     [r4, r5].each do |r|
-      m.observation_matrix_row_items << ObservationMatrixRowItem::SingleCollectionObject.new(collection_object: r)
+      m.observation_matrix_row_items << ObservationMatrixRowItem::Single::CollectionObject.new(collection_object: r)
     end 
 
     puts Rainbow("in Project #{Current.project_id}").purple

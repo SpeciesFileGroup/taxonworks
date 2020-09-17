@@ -72,11 +72,16 @@ class ObservationMatrixRowItemsController < ApplicationController
   # DELETE /observation_matrix_row_items/1
   # DELETE /observation_matrix_row_items/1.json
   def destroy
-    @observation_matrix_row_item.destroy!
+    @observation_matrix_row_item.destroy
     respond_to do |format|
-      format.html { redirect_to observation_matrix_row_items_url,
-                    notice: 'Matrix row item was successfully destroyed.' }
-      format.json { head :no_content }
+      if @observation_matrix_row_item.destroyed?
+        format.html { redirect_to observation_matrix_row_items_url,
+                      notice: 'Matrix row item was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Observation matrix row item was not destroyed, ' + @observation_matrix_row_item.errors.full_messages.join('; '))}
+        format.json {render json: @observation_matrix_row_item.errors, status: :unprocessable_entity}
+      end
     end
   end
 

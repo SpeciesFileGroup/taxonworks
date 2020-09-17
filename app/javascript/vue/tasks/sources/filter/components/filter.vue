@@ -1,5 +1,5 @@
 <template>
-  <div class="panel filter-container">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
       <span
@@ -31,6 +31,7 @@
         title="In project"
         name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
+        param="in_project"
         v-model="params.source.in_project"
       />
       <title-component v-model="params.source"/>
@@ -38,36 +39,16 @@
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
       <tags-component v-model="params.source.keyword_ids"/>
+      <topics-component v-model="params.source.topic_ids"/>
       <identifier-component v-model="params.identifier"/>
       <citation-types-component v-model="params.source.citation_object_type"/>
       <users-component v-model="params.user"/>
       <with-component
-        title="Citations"
-        v-model="params.byRecordsWith.citations"
-      />
-      <with-component
-        title="DOI"
-        v-model="params.byRecordsWith.with_doi"
-      />
-      <with-component
-        title="Roles"
-        v-model="params.byRecordsWith.roles"
-      />
-      <with-component
-        title="Tags"
-        v-model="params.byRecordsWith.tags"
-      />
-      <with-component
-        title="Notes"
-        v-model="params.byRecordsWith.notes"
-      />
-      <with-component
-        title="Documents"
-        v-model="params.byRecordsWith.documents"
-      />
-      <with-component
-        title="Nomenclatural"
-        v-model="params.byRecordsWith.nomenclature"
+        v-for="(item, key) in params.byRecordsWith"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.byRecordsWith[key]"
       />
     </div>
   </div>
@@ -85,7 +66,9 @@ import IdentifierComponent from './filters/identifiers'
 import CitationTypesComponent from './filters/citationTypes'
 import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
+import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
 
@@ -100,7 +83,8 @@ export default {
     CitationTypesComponent,
     WithComponent,
     TypeComponent,
-    UsersComponent
+    UsersComponent,
+    TopicsComponent
   },
   computed: {
     getMacKey () {
@@ -120,11 +104,10 @@ export default {
     }
   },
   mounted () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const params = Object.fromEntries(urlParams)
+    const urlParams = URLParamsToJSON(location.href)
 
-    if (Object.keys(params).length) {
-      this.getSources(params)
+    if (Object.keys(urlParams).length) {
+      this.getSources(urlParams)
     }
   },
   methods: {
@@ -143,10 +126,12 @@ export default {
       this.$emit('newSearch')
       GetSources(params).then(response => {
         this.$emit('result', response.body)
-        this.$emit('urlRequest', response.url)
+        this.$emit('urlRequest', response.request.responseURL)
         this.$emit('pagination', response)
         this.$emit('params', params)
         this.searching = false
+        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
+        history.pushState(null, null, `/tasks/sources/filter?${urlParams.toString()}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
@@ -161,6 +146,7 @@ export default {
           page: 1
         },
         source: {
+          author_ids_or: undefined,
           query_term: undefined,
           author: undefined,
           exact_author: undefined,
@@ -174,6 +160,7 @@ export default {
           source_type: undefined,
           citation_object_type: [],
           keyword_ids: [],
+          topic_ids: [],
           users: []
         },
         byRecordsWith: {

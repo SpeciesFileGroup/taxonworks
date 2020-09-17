@@ -30,10 +30,12 @@ class DescriptorsController < ApplicationController
   # GET /descriptors/new
   def new
     @descriptor = Descriptor.new
+    redirect_to new_descriptor_task_path(), notice: 'Using task interface.'
   end
 
   # GET /descriptors/1/edit
   def edit
+    redirect_to new_descriptor_task_path(descriptor_id: @descriptor.id), notice: 'Editing in new interface.'
   end
 
   # POST /descriptors
@@ -43,7 +45,7 @@ class DescriptorsController < ApplicationController
     respond_to do |format|
       if @descriptor.save
         format.html { redirect_to url_for(@descriptor.metamorphosize),
-          notice: 'Descriptor was successfully created.' }
+                      notice: 'Descriptor was successfully created.' }
 
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
@@ -79,6 +81,7 @@ class DescriptorsController < ApplicationController
   end
 
   def autocomplete
+    @term = params[:term]
     @descriptors = Queries::Descriptor::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).all
   end
 

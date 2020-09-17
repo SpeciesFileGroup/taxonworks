@@ -27,6 +27,9 @@
               target="blank"
               :href="nomenclatureBySourceRoute(item.citations[0].source.id)"
               v-html="item.citations[0].citation_source_body"/>
+            <soft-validation
+              class="margin-small-left"
+              :global-id="item.global_id"/>
           </td>
         </template>
         <td>
@@ -44,9 +47,7 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @mouseover="emitHighlight(true, true, false)"
-            @mouseout="emitHighlight(false, false, false)"
-            @click="emitSourceOtu(item)">
+            @click="$emit('onSourceOtu', item)">
             Clone
           </button>
         </td>
@@ -54,9 +55,7 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @mouseover="emitHighlight(true, false, true)"
-            @mouseout="emitHighlight(false, false, false)"
-            @click="emitSourceGeo(item)">
+            @click="$emit('onSourceGeo', item)">
             Clone
           </button>
         </td>
@@ -64,9 +63,7 @@
           <button
             class="button normal-input button-default"
             type="button"
-            @mouseover="emitHighlight(false, true, true)"
-            @mouseout="emitHighlight(false, false, false)"
-            @click="emitRecord(item)">
+            @click="$emit('onOtuGeo', item)">
             Load
           </button>
         </td>
@@ -80,11 +77,13 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
 import { RouteNames } from 'routes/routes'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
     CitationCount,
-    RadialAnnotator
+    RadialAnnotator,
+    SoftValidation
   },
   props: {
     list: {
@@ -100,35 +99,6 @@ export default {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.$emit('remove', item)
       }
-    },
-    emitSourceOtu(item) {
-      let data = {
-        citation: item.citations[0],
-        otu: item.otu
-      }
-      this.$emit('onSourceOtu', data)
-    },
-    emitSourceGeo(item) {
-      let data = {
-        citation: item.citations[0],
-        geo: item.geographic_area
-      }
-      this.$emit('onSourceGeo', data)
-    },
-    emitRecord(item) {
-      let data = {
-        id: item.id,
-        otu: item.otu,
-        geo: item.geographic_area
-      }
-      this.$emit('onOtuGeo', data) 
-    },
-    emitHighlight(source, otu, geo) {
-      this.$emit('highlight', { 
-        source: source, 
-        otu: otu,
-        geo: geo
-      })
     }
   }
 

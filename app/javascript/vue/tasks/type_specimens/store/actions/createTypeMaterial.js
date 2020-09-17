@@ -13,19 +13,19 @@ export default function ({ dispatch, commit, state }) {
     }
     CreateTypeMaterial({ type_material: type_material }).then(response => {
       TW.workbench.alert.create('Type specimen was successfully created.', 'notice')
-      commit(MutationNames.AddTypeMaterial, response)
-      commit(MutationNames.SetTypeMaterial, response)
+      commit(MutationNames.AddTypeMaterial, response.body)
+      commit(MutationNames.SetTypeMaterial, response.body)
       commit(MutationNames.SetSaving, false)
       dispatch(ActionNames.SaveIdentifier)
-      LoadSoftvalidation(response.global_id).then(response => {
-        let validation = response.validations.soft_validations
+      LoadSoftvalidation(response.body.global_id).then(response => {
+        let validation = response.body.validations.soft_validations
         LoadSoftvalidation(state.type_material.collection_object.global_id).then(response => {
-          commit(MutationNames.SetSoftValidation, validation.concat(response.validations.soft_validations))
+          commit(MutationNames.SetSoftValidation, validation.concat(response.body.validations.soft_validations))
         })
       })
-      return resolve(response)
+      return resolve(response.body)
     })
   }, (response) => {
-    return rejected(response)
+    return rejected(response.body)
   })
 };

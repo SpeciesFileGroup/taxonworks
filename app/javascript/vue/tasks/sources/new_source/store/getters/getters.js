@@ -6,6 +6,10 @@ import getPreferences from './getPreferences'
 import getSettings from './getSettings'
 import getSoftValidation from './getSoftValidation'
 import getRoles from './getRoles'
+import getLastSave from './getLastSave'
+import getSerialId from './getSerialId'
+import getLanguageId from './getLanguageId'
+import getRoleAttributes from './getRoleAttributes'
 
 const GetterNames = {
   GetType: 'getType',
@@ -15,7 +19,11 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetSettings: 'getSettings',
   GetSoftValidation: 'getSoftValidation',
-  GetRoles: 'getRoles'
+  GetRoles: 'getRoles',
+  GetLastSave: 'getLastSave',
+  GetSerialId: 'getSerialId',
+  GetLanguageId: 'getLanguageId',
+  GetRoleAttributes: 'getRoleAttributes'
 }
 
 const GetterFunctions = {
@@ -26,7 +34,11 @@ const GetterFunctions = {
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetSoftValidation]: getSoftValidation,
-  [GetterNames.GetRoles]: getRoles
+  [GetterNames.GetRoles]: getRoles,
+  [GetterNames.GetLastSave]: getLastSave,
+  [GetterNames.GetSerialId]: getSerialId,
+  [GetterNames.GetLanguageId]: getLanguageId,
+  [GetterNames.GetRoleAttributes]: getRoleAttributes
 }
 
 export {

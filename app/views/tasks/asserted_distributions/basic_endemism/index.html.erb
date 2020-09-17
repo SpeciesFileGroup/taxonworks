@@ -50,7 +50,7 @@
       <%= content_tag(:td, object_tag(t.ancestor_at_rank(:genus))) -%>
       <%= content_tag(:td, taxon_name_browse_link(t)) -%>
       <%= content_tag(:td, !@data[t]) -%>
-      <%= content_tag(:td, link_to('map', index_browse_asserted_distributions_task_path(otu_id: t.otus.first.id) )) -%> <!--- HACK, not right as it's not inclusive enough ---!>
+      <%= content_tag(:td, link_to('map', index_browse_asserted_distributions_task_path(otu_id: t.otus.first.id) )) -%>
     </tr>
   <% end %>
 </table>

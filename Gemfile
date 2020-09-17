@@ -6,6 +6,9 @@ ruby '2.7.1'
 
 gem 'bundler', '~> 2.0'
 
+# TODO: Remove when solved without forcing
+gem 'google-protobuf', '~> 3.12.0.rc.1'
+
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'
@@ -18,7 +21,7 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 0.20.3'
-gem 'rubyzip', '~> 2.2.0'
+gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
@@ -44,7 +47,8 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', '~> 7.0'
+gem 'closure_tree', github: 'ClosureTree/closure_tree', ref: '15b253e' # '~> 7.0'
+
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
 gem 'paper_trail', '~> 10.3', '>= 10.3.1'
@@ -73,12 +77,12 @@ gem 'csl', '~> 1.5.0'
 gem 'bibtex-ruby', '~> 5.1.1'
 gem 'citeproc-ruby', '~> 1.1.10'
 gem 'csl-styles', '~> 1.0.1.8'
-gem 'serrano', '~> 0.5.2'
+gem 'serrano', '~> 0.6.0'
 # gem 'latex-decode', '~> 0.2.2'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.3'
+gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
@@ -90,13 +94,16 @@ gem 'rgb'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
-gem 'sqed', '0.5.8'
-gem 'dwc-archive', '~> 1.0.1'
+gem 'sqed', '0.6.0'
+gem 'dwc-archive', '~> 1.1.1'
 gem 'biodiversity', '~> 4.0', '>= 4.0.3'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
+# Global Names
+gem 'gnfinder', '~> 0.11.0'
+
 # Minor Utils/helpers
-gem 'awesome_print', '~> 1.8'
+gem 'amazing_print', '~> 1.2.1'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
@@ -116,7 +123,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.24.0'
+  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
   gem 'prawn', '~> 2.2.2'
 end
 

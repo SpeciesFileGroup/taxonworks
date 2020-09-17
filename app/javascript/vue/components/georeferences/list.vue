@@ -3,10 +3,11 @@
     <table class="vue-table">
       <thead>
         <tr>
-          <th>Georeference ID</th>
-          <th>Shape</th>
-          <th>Error radius</th>
-          <th>Type</th>
+          <th class="word-keep-all line-nowrap">Georeference ID</th>
+          <th class="word-keep-all">Shape</th>
+          <th class="word-keep-all">Coordinates</th>
+          <th class="word-keep-all line-nowrap">Error radius</th>
+          <th class="word-keep-all">Type</th>
           <th></th>
         </tr>
       </thead>
@@ -18,14 +19,14 @@
           :key="item.id"
           class="list-complete-item">
           <td>{{ item.id }}</td>
-          <td>{{ item.geo_json.geometry.type }}</td>
-          
-          <td>
-            <edit-in-place 
+          <td class="word-keep-all">{{ item.geo_json.geometry.type }}</td>
+          <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
+          <td class="line-nowrap">
+            <edit-in-place
               v-model="item.error_radius"
               @end="$emit('updateGeo', item)"/>
           </td>
-          <td>{{ item.type }}</td>
+          <td class="word-keep-all">{{ item.type }}</td>
           <td class="vue-table-options">
             <radial-annotator
               :global-id="item.global_id"/>
@@ -92,6 +93,9 @@ export default {
       } else {
         this.$emit('delete', item)
       }
+    },
+    getCoordinates (coordinates) {
+      return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
     }
   }
 }

@@ -1,4 +1,4 @@
-FROM locodelassembly/passenger-ruby27:latest AS base
+FROM phusion/passenger-ruby27:latest AS base
 ARG BUNDLER_WORKERS=1
 
 # From Phusion
@@ -20,14 +20,15 @@ RUN apt-get update && \
       postgresql-client-11 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-      pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
+      pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
       tesseract-ocr \
       cmake \
+      zip \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
 

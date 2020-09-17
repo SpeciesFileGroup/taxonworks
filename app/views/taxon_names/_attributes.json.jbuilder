@@ -1,5 +1,14 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
 
+if taxon_name.otus
+  json.otus do
+    json.array!(taxon_name.otus) do |otu|
+      json.id otu.id
+      json.name otu.name if otu.name
+    end
+  end
+end
+
 # TODO: move to shared
 if taxon_name.roles.any?
   json.taxon_name_author_roles do

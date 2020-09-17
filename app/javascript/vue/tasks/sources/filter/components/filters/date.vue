@@ -6,6 +6,7 @@
         <label>Start year</label>
         <input
           type="text"
+          class="full_width"
           :maxlength="4"
           v-model="source.year_start">
       </div>
@@ -14,6 +15,7 @@
         <input
           type="text"
           :maxlength="4"
+          class="full_width"
           v-model="source.year_end">
       </div>
     </div>
@@ -21,6 +23,8 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -51,6 +55,11 @@ export default {
       },
       deep: true
     }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.source.year_start = urlParams.year_start
+    this.source.year_end = urlParams.year_end
   },
   methods: {
     addAuthor (author) {

@@ -63,10 +63,11 @@
 </template>
 
 <script>
-import BibtexInput from "./components/bibtex_input"
-import TableBibtex from "./components/tableBibtex"
-import Spinner from "../../components/spinner.vue"
-import TableRecent from "./components/recentTable"
+import BibtexInput from './components/bibtex_input'
+import TableBibtex from './components/tableBibtex'
+import Spinner from '../../components/spinner.vue'
+import TableRecent from './components/recentTable'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -86,7 +87,7 @@ export default {
       let retVal = '';
       if(this.parsedBibtex.source) {
         if(this.parsedBibtex.source.id) {
-          retVal = "Created Source: " + this.parsedBibtex.source.id;
+          retVal = 'Created Source: ' + this.parsedBibtex.source.id;
         }
       }
       return retVal;
@@ -94,7 +95,7 @@ export default {
   },
   data() {
     return {
-      bibtexInput: "",
+      bibtexInput: '',
       isLoading: false,
       parsedBibtex: {},
       recentCreated: []
@@ -110,7 +111,7 @@ export default {
   },
   methods: {
     loadRecent() {
-      this.$http.get('/sources.json?recent=true&per=15').then(response => {
+      AjaxCall('get', '/sources.json?recent=true&per=15').then(response => {
         this.recentCreated = response.body
       })
     },
@@ -119,7 +120,7 @@ export default {
         bibtex_input: this.bibtexInput,
       }
       this.isLoading = true;
-      this.$http.get("/sources/parse.json", { params: params }).then(response => {
+      AjaxCall('get', '/sources/parse.json', { params: params }).then(response => {
         this.parsedBibtex = response.body; 
         this.unlockCreate = !response.body.hasOwnProperty('status');
         this.isLoading = false;
@@ -131,12 +132,12 @@ export default {
     },
     createSource() {
       this.isLoading = true;
-      this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
+      AjaxCall('post', '/sources.json', { bibtex_input: this.bibtexInput }).then(response => {
         this.parsedBibtex = {}
         this.recentCreated.unshift(response.body)
-        this.bibtexInput = ""
+        this.bibtexInput = ''
         this.isLoading = false;
-      });     
+      })
     }
   }
 }

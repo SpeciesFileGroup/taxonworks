@@ -51,6 +51,7 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   import Spinner from 'components/spinner'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -75,9 +76,9 @@
           keyword_ids: tag_ids
         };
         this.isLoading = true;
-        this.$http.get('/collecting_events.json', { params: params }).then(response => {
+        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.url)
+          this.$emit('jsonUrl', response.request.responseURL)
           if(this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList);
           }

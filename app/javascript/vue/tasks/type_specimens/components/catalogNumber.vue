@@ -1,26 +1,23 @@
 <template>
   <div>
-    <h3>Identifier</h3>
-    <div
-      class="flex-wrap-column middle align-start">
-      <fieldset>
-        <legend>Namespace</legend>
-        <smart-selector
-          class="margin-medium-top"
-          model="namespaces"
-          klass="Source"
-          pin-section="Namespaces"
-          pin-type="Namespace"
-          @selected="setNamespace"/>
-        <div
-          v-if="namespace"
-          class="horizontal-left-content">
-          <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
-          <span
-            @click="removeNamespace"
-            class="button circle-button btn-undo button-default"/>
-        </div>
-      </fieldset>
+    <h3>Catalog number</h3>
+    <fieldset>
+      <legend>Namespace</legend>
+      <smart-selector
+        class="margin-medium-top"
+        model="namespaces"
+        klass="Source"
+        pin-section="Namespaces"
+        pin-type="Namespace"
+        @selected="setNamespace"/>
+      <div
+        v-if="namespace"
+        class="horizontal-left-content">
+        <span>{{ namespace.short_name }}: {{ namespace.name }}</span>
+        <span
+          @click="removeNamespace"
+          class="button circle-button btn-undo button-default"/>
+      </div>
       <div class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
@@ -31,7 +28,7 @@
             @input="checkIdentifier"
             v-model="identifier.identifier">
           <span
-            class="margin-small-left">Namespace and identifier needs to be set to be save.</span>
+            class="margin-small-left">Namespace and identifier needs to be set to be saved.</span>
         </div>
         <span
           v-if="!namespace && identifier && identifier.length"
@@ -44,7 +41,7 @@
             v-html="existingIdentifier.identifier_object.object_tag"/>
         </template>
       </div>
-    </div>
+    </fieldset>
   </div>
 </template>
 
@@ -101,7 +98,7 @@ export default {
         if (newVal.namespace_id) {
           if (newVal.namespace_id !== oldVal.namespace_id) {
             GetNamespace(newVal.namespace_id).then(response => {
-              this.namespace = response
+              this.namespace = response.body
             })
           }
         } else {
@@ -121,7 +118,7 @@ export default {
       if (this.isIdentifierDataSet) {
         this.saveRequest = setTimeout(() => {
           CheckForExistingIdentifier(that.namespace.id, that.identifier.identifier).then(response => {
-            that.existingIdentifier = (response.length > 0 ? response[0] : false)
+            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : false)
           })
         }, this.delay)
       }

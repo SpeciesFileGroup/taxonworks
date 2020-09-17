@@ -127,6 +127,19 @@ class TaxonNamesController < ApplicationController
     render json: RANKS_JSON.to_json
   end
 
+  def predicted_rank
+    if params[:parent_id]
+      p = TaxonName.find_by(id: params[:parent_id])
+      if p.nil?
+        render json: {predicted_rank: ''}.to_json
+      else
+        render json: {predicted_rank: p.predicted_child_rank(params[:name]).to_s}.to_json
+      end
+    else
+      render json: {predicted_rank: ''}.to_json
+    end
+  end
+
   def random
     redirect_to browse_nomenclature_task_path(
       taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
@@ -272,6 +285,7 @@ class TaxonNamesController < ApplicationController
       :exact,
       :validity,
       :descendants,
+      :descendants_max_depth,
       :updated_since,
       :type_metadata,
       :citations,
@@ -280,6 +294,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_group, # !! different than autocomplete
       :nomenclature_code,
       :taxon_name_type,
+      :etymology,
       type: [],
       taxon_name_id: [],
       parent_id: [],

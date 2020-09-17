@@ -1,5 +1,5 @@
 <template>
-  <nav-bar>
+  <nav-bar class="position-relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
         <li
@@ -14,21 +14,34 @@
           </a>
         </li>
       </ul>
-      <form class="horizontal-center-content">
-        <transition name="fade">
-          <span
-            data-icon="warning"
-            title="You have unsaved changes."
-            class="medium-icon separate-right"
-            v-if="unsavedChanges"/>
-        </transition>
+      <div class="horizontal-center-content">
         <save-taxon-name
           v-if="taxon.id"
           class="normal-input button button-submit separate-right"/>
-        <clone-taxon-name class="separate-right"/>
+        <clone-taxon-name
+          v-help.section.navbar.clone
+          class="separate-right"/>
+        <button
+          type="button"
+          title="Create a child of this taxon name"
+          v-help.section.navbar.sisterIcon
+          @click="createNew(taxon.id)"
+          :disabled="!taxon.id"
+          class="button normal-input button-default btn-create-child button-new-icon margin-small-right"/>
+        <button
+          type="button"
+          @click="createNew(parentId)"
+          :disabled="!parentId"
+          title="Create a new taxon name with the same parent"
+          v-help.section.navbar.childIcon
+          class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"/>
         <create-new-button />
-      </form>
+      </div>
     </div>
+    <autosave
+      style="bottom: 0px; left: 0px;"
+      class="position-absolute full_width"
+      :disabled="!taxon.id || !isAutosaveActive"/>
   </nav-bar>
 </template>
 <script>
@@ -37,20 +50,23 @@ import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
 import NavBar from 'components/navBar'
+import Autosave from './autosave'
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from 'routes/routes'
 
 export default {
+  components: {
+    SaveTaxonName,
+    CreateNewButton,
+    CloneTaxonName,
+    NavBar,
+    Autosave
+  },
   props: {
     menu: {
       type: Object,
       required: true
     }
-  },
-  components: {
-    SaveTaxonName,
-    CreateNewButton,
-    CloneTaxonName,
-    NavBar
   },
   computed: {
     unsavedChanges () {
@@ -58,11 +74,32 @@ export default {
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    parent () {
+      return this.$store.getters[GetterNames.GetParent]
+    },
+    isAutosaveActive () {
+      return this.$store.getters[GetterNames.GetAutosave]
+    },
+    parentId () {
+      return this.parent && this.parent.hasOwnProperty('id') ? this.parent.id : undefined
     }
   },
   data () {
     return {
       activePosition: 0
+    }
+  },
+  methods: {
+    createNew (id) {
+      this.url = `${RouteNames.NewTaxonName}?parent_id=${id}`
+      if (this.unsavedChanges) {
+        if (window.confirm('You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.')) {
+          window.open(this.url, '_self')
+        }
+      } else {
+        window.open(this.url, '_self')
+      }
     }
   }
 }
@@ -70,9 +107,17 @@ export default {
 <style lang="scss" scoped>
 
   /deep/ button {
-    min-width: 100px;
+    min-width: 80px;
     width: 100%;
   }
+
+  .button-new-icon {
+    min-width: 28px;
+    max-width: 28px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
   .taxonname {
     font-weight: 300;
   }

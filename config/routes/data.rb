@@ -138,6 +138,7 @@ resources :collecting_events do
   collection do
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :parse_verbatim_label, defaults: {format: :json}
 
     post :preview_castor_batch_load
     post :create_castor_batch_load
@@ -452,6 +453,7 @@ resources :otus do
     get :timeline, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
+    get :coordinate, defaults: {format: :json}
   end
 
 end
@@ -582,6 +584,7 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
     get :citation_object_types, defaults: {format: :json}
+    get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
   end
 
@@ -634,6 +637,8 @@ resources :taxon_names do
     get :random
 
     get :rank_table, defaults: {format: :json}
+    get :predicted_rank, {format: :json}
+
   end
 
   member do

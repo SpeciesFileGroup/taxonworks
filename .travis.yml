@@ -3,7 +3,7 @@ branches:
   only:
     - master
     - development
-    - /v\d+\.\d+\.\d+/
+    - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
     - TEST_WORKERS=5

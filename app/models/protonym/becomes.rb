@@ -108,7 +108,7 @@ module Protonym::Becomes
         a_id = a.id
         a.destroy!
 
-        taxon_name_relationships.find_each do |r|
+        taxon_name_relationships.each do |r|
           next if r.object_taxon_name_id == r.subject_taxon_name_id
           next if r.id == a_id
           r.update_column(:subject_taxon_name_id, o.id)

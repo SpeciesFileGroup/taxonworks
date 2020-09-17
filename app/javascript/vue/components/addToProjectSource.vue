@@ -10,7 +10,7 @@
     v-else
     @click="remove"
     title="Remove from project"
-    class="button circle-button button-delete btn-add-to-project">
+    class="button circle-button button-delete btn-remove-from-project">
     Remove from project
   </span>
 </template>

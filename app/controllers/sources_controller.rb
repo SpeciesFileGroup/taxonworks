@@ -53,7 +53,7 @@ class SourcesController < ApplicationController
   # POST /sources
   # POST /sources.json
   def create
-    @source = new_source 
+    @source = new_source
     respond_to do |format|
       if @source&.save
         format.html { redirect_to url_for(@source.metamorphosize),
@@ -80,6 +80,12 @@ class SourcesController < ApplicationController
       .pluck(:citation_object_type).sort
   end
 
+
+  # GET /sources/csl_types.json
+  def csl_types
+    render json:  TaxonWorks::Vendor::BibtexRuby::CSL_STYLES
+  end
+
   def parse
     error_message = 'Unknown'
 
@@ -101,7 +107,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        @source.reload
+        # We go through this dance to handle changing types from verbatim to other
+        @source = @source.becomes!(@source.type.safe_constantize)
+        @source.reload # necessary to reload the cached value.
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
@@ -116,20 +124,21 @@ class SourcesController < ApplicationController
   def destroy
     if @source.destroy
       respond_to do |format|
-        format.html { redirect_to sources_url }
+        format.html { redirect_to sources_url, notice: "Destroyed source #{@source.cached}" }
         format.json { head :no_content }
       end
     else
       respond_to do |format|
-        format.html { render action: :show, notice: 'failed to destroy the source' }
+        format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def autocomplete
+    @term = params.require(:term) 
     @sources = Queries::Source::Autocomplete.new(
-      params.require(:term),
+      @term,
       autocomplete_params
     ).autocomplete
   end
@@ -198,10 +207,15 @@ class SourcesController < ApplicationController
   end
 
   # GET /sources/generate.json?<filter params>
-  def generate 
+  def generate
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
-    @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
-    render '/downloads/show' 
+    @download = ::Export::Bibtex.download(
+      sources,
+      request.url,
+      (params[:is_public] == 'true' ? true : false),
+      params[:style_id]
+    )
+    render '/downloads/show.json'
   end
 
   private
@@ -218,6 +232,7 @@ class SourcesController < ApplicationController
     params[:project_id] = sessions_current_project_id
     params.permit(
       :author,
+      :author_ids_or,
       :citations,
       :documents,
       :exact_author,
@@ -230,9 +245,10 @@ class SourcesController < ApplicationController
       :namespace_id,
       :nomenclature,
       :notes,
+      :per,
       :project_id,
       :query_term,
-      :recent, 
+      :recent,
       :roles,
       :source_type,
       :tags,
@@ -246,7 +262,8 @@ class SourcesController < ApplicationController
       :year_start,
       author_ids: [],
       citation_object_type: [],
-      keyword_ids: []
+      keyword_ids: [],
+      topic_ids: []
     )
   end
 
@@ -267,7 +284,8 @@ class SourcesController < ApplicationController
       :publisher, :school, :series, :title, :type, :volume, :doi,
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
+      :convert_to_bibtex,
       roles_attributes: [
         :id,
         :_destroy,

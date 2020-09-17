@@ -242,7 +242,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
-            expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
+            expect(@subspecies.get_author_and_year).to eq ('McAtee, 1900')
           end
 
           # What code is this supposed to catch?
@@ -593,16 +593,16 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         let(:project_id) { species.project_id }
 
         specify '.used_recently' do
-          expect(TaxonName.used_recently(project_id, user_id).count).to eq(6)
+          expect(TaxonName.used_recently(user_id, project_id).count).to eq(6)
         end
 
         # everything is recent
         specify '.used_recently_in_classifications' do
-          expect(TaxonName.used_recently_in_classifications(project_id, user_id).map(&:id)).to contain_exactly(species.id)
+          expect(TaxonName.used_recently_in_classifications(user_id, project_id).map(&:id)).to contain_exactly(species.id)
         end
 
         specify '.used_recently_in_relationships' do
-          expect(TaxonName.used_recently_in_relationships(project_id, user_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
+          expect(TaxonName.used_recently_in_relationships(user_id, project_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
         end
 
         specify '.select_optimized' do

@@ -50,9 +50,14 @@ class CollectingEventsController < ApplicationController
   # POST /collecting_events/1/clone.json
   def clone
     @collecting_event = @collecting_event.clone
-    respond_to do |format|
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
-      format.json { render :show }
+    if @collecting_event.persisted?
+      respond_to do |format|
+        format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
+        format.json { render :show }
+      end
+    else
+      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
+      format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
     end
   end
 
@@ -130,6 +135,17 @@ class CollectingEventsController < ApplicationController
     send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
               filename: "collecting_events_#{DateTime.now}.csv")
+  end
+
+  # parse verbatim label, return date and coordinates
+  def parse_verbatim_label
+    if params[:verbatim_label]
+      render json: {date: Utilities::Dates.date_regex_from_verbatim_label(params[:verbatim_label]),
+                    geo: Utilities::Geo.coordinates_regex_from_verbatim_label(params[:verbatim_label]),
+                    elevation: Utilities::Elevation.elevation_regex_from_verbatim_label(params[:verbatim_label]),
+                    collecting_method: Utilities::CollectingMethods.method_regex_from_verbatim_label(params[:verbatim_label]),
+                  }.to_json
+    end
   end
 
    # GET collecting_events/batch_load
@@ -268,9 +284,11 @@ class CollectingEventsController < ApplicationController
       :start_date, # used in date range
       :end_date,   # used in date range
       :partial_overlap_dates,
+      :spatial_geographic_areas,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
-      otu_ids: [],
+      geographic_area_ids: [],
+      otu_ids: []
     )
   end
 

@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -33,14 +36,14 @@ export default {
       }
     }
   },
-  data() {
+  data () {
     return {
       options: [
         {
           label: 'Any rank',
-          value: undefined 
+          value: undefined
         },
-        { 
+        {
           label: 'Higher',
           value: 'Higher'
         },
@@ -58,6 +61,10 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.optionValue = params.nomenclature_group
   }
 }
 </script>

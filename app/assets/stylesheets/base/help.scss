@@ -1,7 +1,7 @@
 .help-button {
   cursor: pointer;
   position: fixed;
-  z-index: 999;
+  z-index: 2102;
   top: calc(50vh + 130px);
   right: -27px;
   width: 55px;
@@ -66,11 +66,11 @@
   position: fixed;
   top: 0px;
   left: 0px;
-  z-index: 800;
+  z-index: 2100;
 }
 
 .help-tip {
-  z-index: 1000;
+  z-index: 2101;
   position: relative;
 }
 

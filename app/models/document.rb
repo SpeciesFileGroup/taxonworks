@@ -47,6 +47,8 @@ class Document < ApplicationRecord
 
   has_many :documentation, dependent: :destroy, inverse_of: :document
 
+  has_many :sources, through: :documentation, source_type: 'Source', source: 'documentation_object'
+
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
@@ -106,6 +108,10 @@ class Document < ApplicationRecord
   def initialize_start_page=(value)
     write_attribute(:page_map, get_page_map(value))
     @initialize_start_page = value 
+  end
+
+  def pdftotext
+    `pdftotext -layout #{document_file.path} -`  
   end
 
   protected

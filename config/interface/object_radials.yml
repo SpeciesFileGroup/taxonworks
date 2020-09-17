@@ -44,6 +44,16 @@ CollectingEvent:
     - comprehensive_collection_object_task
     - filter_collecting_events_task
   config: 
+  recent: true
+Descriptor:
+  tasks:
+    - observation_matrix_hub_task
+  new: new_descriptor_task
+  edit: new_descriptor_task
+Document:
+  tasks:
+    - gnfinder_task
+  config: 
     recent: true
 GeographicArea:
   tasks:
@@ -85,18 +95,20 @@ Source:
     - new_source_task
     - filter_sources_task   
     - nomenclature_by_source_task
+    - gnfinder_task
   new: new_source_task
   edit: new_source_task
   config:
     recent: true
 TaxonName:
   tasks:
-    - browse_nomenclature_task 
-    - new_taxon_name_task 
     - new_combination_task
     - edit_type_material_task
+    - comprehensive_collection_object_task
     - browse_otus_task
-    - index_stats_task 
+    - browse_nomenclature_task
+    - new_taxon_name_task
+    - index_stats_task
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task

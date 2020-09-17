@@ -8,12 +8,12 @@ export default ({ state, commit }) => {
     
     if (state.identifier.id) {
       UpdateIdentifier(identifier).then(response => {
-        commit(MutationNames.SetIdentifier, response)
+        commit(MutationNames.SetIdentifier, response.body)
         TW.workbench.alert.create('Identifier was successfully updated.', 'notice')
       })
     } else {
       CreateIdentifier(identifier).then(response => {
-        commit(MutationNames.SetIdentifier, response)
+        commit(MutationNames.SetIdentifier, response.body)
         TW.workbench.alert.create('Identifier was successfully created.', 'notice')
       })
     }

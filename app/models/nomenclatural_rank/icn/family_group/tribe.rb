@@ -12,7 +12,7 @@ class NomenclaturalRank::Icn::FamilyGroup::Tribe < NomenclaturalRank::Icn::Famil
   end
 
   def self.valid_name_ending
-    'eae'
+    nil
   end
 
   def self.valid_parents

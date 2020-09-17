@@ -10,7 +10,7 @@ module TopicsHelper
   end
 
   def topic_list_tag(topics)
-    content_tag(:span, topics.collect{|t| topic_tag(t)}.join('; '), class: 'topic_list')
+    content_tag(:span, topics.collect{|t| topic_tag(t)}.join('; ').html_safe, class: 'topic_list')
   end
 
 end

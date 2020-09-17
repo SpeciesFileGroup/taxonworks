@@ -9,7 +9,7 @@
         :value="item.type"
         @click="selectItem(item)"
         :disabled="((item.disabled || (findExist(item) != undefined)) || isForThisRank(item))"
-        class="button button-default normal-input">
+        class="button button-submit normal-input">
         {{ item[display] }}
       </button>
       <recursive-list

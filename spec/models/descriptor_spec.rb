@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Descriptor, type: :model, group: :matrix do
+RSpec.describe Descriptor, type: :model, group: :observation_matrix do
   let(:descriptor) { Descriptor.new }
 
   context 'validation' do

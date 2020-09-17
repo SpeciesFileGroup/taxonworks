@@ -1,95 +1,73 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const GetOtu = function (id) {
-  return ajaxCall('get', `/otus/${id}.json`)
-}
+const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
-const GetBiocurations = (id) => {
-  return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
-}
+const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
 
-const GetDepictions = function (model, id) {
-  return ajaxCall('get', `/${model}/${id}/depictions.json`)
-}
+const GetOtuAssertedDistribution = (data) => ajaxCall('get', '/asserted_distributions.json', { params: data })
 
-const GetNotes = function (id) {
-  return ajaxCall('get', `/otus/${id}/notes.json`)
-}
+const GetBiocurations = (id) => ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
 
-const GetTags = function (id) {
-  return ajaxCall('get', `/otus/${id}/tags.json`)
-}
+const GetDepictions = (model, id) => ajaxCall('get', `/${model}/${id}/depictions.json`)
 
-const GetCitations = function (model, id) {
-  return ajaxCall('get', `/${model}/${id}/citations.json`)
-}
+const GetNotes = (id) => ajaxCall('get', `/otus/${id}/notes.json`)
 
-const GetConfidences = function (id) {
-  return ajaxCall('get', `/otus/${id}/confidences.json`)
-}
+const GetTags = (id) => ajaxCall('get', `/otus/${id}/tags.json`)
 
-const GetGeoreferences = function (id) {
-  return ajaxCall('get', `/georeferences.json?collecting_event_id=${id}`)
-}
+const GetCitations = (model, id) => ajaxCall('get', `/${model}/${id}/citations.json`)
 
-const GetIdentifiers = function (id) {
-  return ajaxCall('get', `/otus/${id}/identifiers.json`)
-}
+const GetConfidences = (id) => ajaxCall('get', `/otus/${id}/confidences.json`)
 
-const GetDataAttributes = function (id) {
-  return ajaxCall('get', `/otus/${id}/data_attributes.json`)
-}
+const GetOtusCollectionObjects = (otusId) => ajaxCall('get', '/collection_objects.json', { params: { otu_ids: otusId, current_determinations: true } })
 
-const GetContent = function (id) {
-  return ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
-}
+const GetGeoreferences = (ids) => ajaxCall('get', '/georeferences.json', { params: { collecting_event_ids: ids } })
 
-const GetAssertedDistributions = function (id) {
-  return ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
-}
+const GetIdentifiers = (id) => ajaxCall('get', `/otus/${id}/identifiers.json`)
 
-const GetBiologicalAssociations = function (globalId) {
-  return ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
-}
+const GetDataAttributes = (id) => ajaxCall('get', `/otus/${id}/data_attributes.json`)
 
-const GetNavigationOtu = (id) => {
-  return ajaxCall('get', `/otus/${id}/navigation`)
-}
+const GetContent = (id) => ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
 
-const GetNomenclatureHistory = function (id) {
-  return ajaxCall('get', `/otus/${id}/timeline.json`)
-}
+const GetTaxonNames = (params) => ajaxCall('get', '/taxon_names.json', { params: params })
 
-const GetCommonNames = function(id) {
-  return ajaxCall('get', '/common_names.json', { params: { otu_id: id } })
-}
+const GetTaxonName = (id) => ajaxCall('get', `/taxon_names/${id}.json`)
 
-const GetCollectingEvents = function(ids) {
-  return ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
-}
+const GetOtus = (id) => ajaxCall('get', `/taxon_names/${id}/otus.json`,
+  {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
 
-const GetCollectionObjects = function(params) {
-  return ajaxCall('get', '/collection_objects/dwc_index', { params: params })
-}
+const GetAssertedDistributions = (id) => ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
 
-const GetCollectionObject = function(id) {
-  return ajaxCall('get', `/collection_objects/${id}.json`)
-}
+const GetBiologicalAssociations = (globalId) => ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
 
-const GetRepository = function(id) {
-  return ajaxCall('get', `/repositories/${id}.json`)
-}
+const GetNavigationOtu = (id) => ajaxCall('get', `/otus/${id}/navigation`)
 
-const GetBreadCrumbNavigation = (id) => {
-  return ajaxCall('get', `/otus/${id}/breadcrumbs`)
-}
+const GetNomenclatureHistory = (id) => ajaxCall('get', `/otus/${id}/timeline.json`)
 
-const GetTypeMaterials = (id) => {
-  return ajaxCall('get', `/type_materials.json?protonym_id=${id}`)
-}
+const GetCommonNames = (id) => ajaxCall('get', '/common_names.json', { params: { otu_id: id } })
+
+const GetCollectingEvents = (ids) => ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
+
+const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects/dwc_index', { params: params })
+
+const GetCollectionObject = (id) => ajaxCall('get', `/collection_objects/${id}.json`)
+
+const GetRepository = (id) => ajaxCall('get', `/repositories/${id}.json`)
+
+const GetBreadCrumbNavigation = (id) => ajaxCall('get', `/otus/${id}/breadcrumbs`)
+
+const GetTypeMaterials = (id) => ajaxCall('get', `/type_materials.json?protonym_id=${id}`)
+
+const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+
+const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
 
 export {
   GetOtu,
+  GetUserPreferences,
   GetDepictions,
   GetContent,
   GetAssertedDistributions,
@@ -110,5 +88,12 @@ export {
   GetRepository,
   GetTypeMaterials,
   GetCommonNames,
-  GetGeoreferences
+  GetOtus,
+  GetGeoreferences,
+  GetOtusCollectionObjects,
+  UpdateUserPreferences,
+  GetOtuAssertedDistribution,
+  GetTaxonNames,
+  GetTaxonName,
+  GetSoftValidation
 }

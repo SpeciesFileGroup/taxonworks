@@ -1,6 +1,7 @@
 <template>
   <modal-component
     @close="$emit('close', true)"
+    :containerStyle="{ 'overflow-y': 'scroll', 'max-height': '80vh' }"
     class="full_width">
     <h3 slot="header">Create a source from a verbatim citation or DOI</h3>
     <div slot="body">
@@ -50,6 +51,8 @@ import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import { MutationNames } from '../store/mutations/mutations'
 import ModalComponent from 'components/modal'
+import { GetSerialMatch } from '../request/resources'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -68,13 +71,19 @@ export default {
       this.searching = true
       AjaxCall('get', `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`).then(response => {
         if(response.body.title) {
+          response.body.roles_attributes = []
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
+          GetSerialMatch(response.body.journal).then(response => {
+            if (response.body.length) {
+              this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
+            }
+          })
           TW.workbench.alert.create('Found! (please check).', 'notice')
         }
         else {
           this.found = false
-          TW.workbench.alert.create('Nothing found.', 'error')
+          TW.workbench.alert.create('Nothing found or the source already exist.', 'error')
         }
         this.searching = false
       }, () => {

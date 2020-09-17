@@ -149,7 +149,6 @@ class Observation < ApplicationRecord
     errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
   end
 
-
   def convert_observation_object_global_id
     set_observation_object_id(GlobalID::Locator.locate(observation_object_global_id)) if observation_object_global_id 
   end

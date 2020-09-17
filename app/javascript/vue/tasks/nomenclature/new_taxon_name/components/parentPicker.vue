@@ -60,6 +60,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -113,7 +114,7 @@ export default {
     },
     parent(newVal) {
       if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-        this.$http.get(`/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
+        AjaxCall('get', `/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
           this.validParent = response.body
         })
       }
@@ -132,7 +133,7 @@ export default {
     },
     parentSelected(id, saveToo = false) {
       this.$store.commit(MutationNames.SetParentId, id)
-      this.$http.get(`/taxon_names/${id}.json`).then(response => {
+      AjaxCall('get', `/taxon_names/${id}.json`).then(response => {
         if (response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
           this.setParentRank(response.body)

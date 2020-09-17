@@ -19,21 +19,30 @@
             <a>{{ key }}</a>
             <ul class="panel dropdown no_bullets">
               <li>Parents</li>
-              <li v-for="otu in item"
-              :key="otu.id">
+              <li
+                v-for="otu in item"
+                :key="otu.id">
                 <a :href="`/tasks/otus/browse/${otu.id}`">{{ otu.object_label }}</a>
               </li>
             </ul>
           </div>
         </li>
-        <li 
+        <li
           class="breadcrumb_item current_breadcrumb_position"
           v-html="navigation.current_otu.object_label"/>
       </ul>
       <div class="horizontal-left-content middle">
-        <h1
+        <h2
+          v-shortkey="[getOSKey(), 't']"
+          @shortkey="switchNewTaxonName()"
           v-html="otu.object_tag"/>
-        <div class="horizontal-left-content">
+        <div
+          v-shortkey="[getOSKey(), 'b']"
+          @shortkey="switchBrowse()"
+          class="horizontal-left-content">
+          <browse-taxon
+            ref="browseTaxon"
+            :object-id="otu.taxon_name_id"/>
           <radial-annotator
             :global-id="otu.global_id"
             type="annotations"/>
@@ -43,10 +52,22 @@
           <quick-forms :global-id="otu.global_id"/>
         </div>
       </div>
-      <ul class="context-menu no_bullets">
-        <li v-for="item in menu">
-          <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
-        </li>
+      <span
+        v-shortkey="[getOSKey(), 'm']"
+        @shortkey="switchTypeMaterial()"/>
+      <span
+        v-shortkey="[getOSKey(), 'e']"
+        @shortkey="switchComprehensive()"/>
+      <ul
+        v-if="taxonName"
+        class="context-menu no_bullets">
+        <template v-for="item in menu">
+          <li
+            :key="item"
+            v-show="showForRanks(item)">
+            <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
+          </li>
+        </template>
       </ul>
     </div>
   </div>
@@ -57,25 +78,37 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import QuickForms from 'components/radials/object/radial.vue'
+import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
-import Autocomplete from 'components/autocomplete'
+import getOSKey from 'helpers/getMacKey.js'
+import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import componentNames from '../const/componentNames.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
     RadialAnnotator,
     RadialObject,
     QuickForms,
-    Autocomplete
+    BrowseTaxon
   },
   props: {
     otu: {
       type: Object,
       required: true
+    },
+    menu: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data () {
     return {
-      menu: ['Descendants', 'Timeline', 'Images', 'Common names', 'Asserted distributions', 'Content', 'Type specimens', 'Specimen records', 'Biological associations', 'Annotations', 'Collecting events'],
       navigation: undefined
     }
   },
@@ -89,9 +122,32 @@ export default {
       immediate: true
     }
   },
+  mounted () {
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type specimen', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
+  },
   methods: {
-    loadOtu(event) {
+    loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
+    },
+    switchBrowse () {
+      this.$refs.browseTaxon.redirect()
+    },
+    switchNewTaxonName () {
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    switchTypeMaterial () {
+      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    switchComprehensive () {
+      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
+    },
+    getOSKey: getOSKey,
+    showForRanks (section) {
+      const rankGroup = Object.values(componentNames()).find(item => item.title === section).rankGroup
+      return rankGroup ? ShowForThisGroup(rankGroup, this.taxonName) : true
     }
   }
 

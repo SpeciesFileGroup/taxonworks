@@ -21,6 +21,7 @@
 
   import OtuTableComponent from './tables/otu_table.vue'
   import Spinner from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -110,7 +111,7 @@
             }
           }
           chunkArray.forEach(item => {
-            promises.push(this.$http.get('/otus.json', { params: { [type]: item } }).then(response => {
+            promises.push(AjaxCall('get', '/otus.json', { params: { [type]: item } }).then(response => {
               response.body.forEach(this.addOtu)
             }))
           })

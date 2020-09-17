@@ -6,7 +6,7 @@ export default function ({ commit, state }, typeMaterial) {
     if(typeMaterial.hasOwnProperty('id')) {
       DestroyTypeMaterial(typeMaterial.id).then(response => {
         commit(MutationNames.RemoveTypeMaterial, typeMaterial.id)
-        resolve(response)
+        resolve(response.body)
       })
     }
   })

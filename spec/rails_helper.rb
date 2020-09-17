@@ -14,7 +14,7 @@ require File.expand_path('../../config/environment', __FILE__)
 ActiveRecord::Migration.check_pending!
 ActiveRecord::Migration.maintain_test_schema!
 
-require 'awesome_print'
+require 'amazing_print'
 require 'rspec/rails'
 require 'spec_helper'
 

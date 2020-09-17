@@ -19,6 +19,7 @@
 
   import SpinnerComponent from 'components/spinner.vue'
   import TableComponent from './tables/table.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -45,7 +46,7 @@
     methods: {
       getCites() {
         this.showSpinner = true
-        this.$http.get('/citations.json?citation_object_type=BiologicalAssociation&source_id=' + this.sourceID).then(response => {
+        AjaxCall('get', '/citations.json?citation_object_type=BiologicalAssociation&source_id=' + this.sourceID).then(response => {
           this.showSpinner = false
           this.biological_association_cites_list = response.body;
         })
