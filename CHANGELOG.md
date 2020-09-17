@@ -59,12 +59,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1693]: https://github.com/SpeciesFileGroup/taxonworks/issues/1693
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
 [#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
-[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
