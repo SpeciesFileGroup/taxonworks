@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated respec `matrix` tag to `observation_matrix`
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
+- Override browser shortcuts on task hotkeys [#1738]
 
 ## Fixed
 - Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
@@ -69,6 +70,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
+[#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
 
 ## [0.12.17] - 2020-02-02
 
