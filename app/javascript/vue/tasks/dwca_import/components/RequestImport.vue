@@ -32,7 +32,7 @@ export default {
   },
   data () {
     return {
-      reloadTime: 30,
+      reloadTime: 10,
       countdownProcess: undefined,
       remain: this.reloadTime,
       disableStatus: disableStatus
