@@ -26,10 +26,8 @@ jobs:
       rvm:
         - 2.7.1
       bundler_args: --without development production
-      services:
-        - postgresql
       addons:
-        postgresql: "11"
+        postgresql: "12"
         firefox: "latest"
         apt:
           packages:
@@ -37,17 +35,17 @@ jobs:
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
-      before_install:
-        - sudo apt-get update
-        - sudo apt-get --yes remove postgresql\*
-        - sudo apt-get install -y postgresql-11-postgis-3
-        - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
-        - sudo service postgresql restart 11
-        - nvm install 10
-        - nvm use 10
+            - postgresql-12-postgis-3.0
       env:
           - TEST_WORKER=0
-
+      services:
+        - postgresql
+      before_install:
+        - nvm install 10
+        - nvm use 10
+        - echo "deb http://archive.ubuntu.com/ubuntu bionic main universe" >> /etc/apt/sources.list
+        - sudo apt-get update
+        - sudo apt-get install -y -t bionic libproj-dev # rgeo-proj4 incompatibility workaround
       install:
         - npm install
         - gem install bundler
@@ -85,7 +83,6 @@ jobs:
         - export REVISION=$(git rev-parse HEAD | cut -c1-9)
         - cd .travis
         - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
-        - docker build https://github.com/postgis/docker-postgis.git#master:/11-3.0 -t mdillon/postgis:11-3.0
         - docker-compose build --parallel
         - docker-compose up -d --no-build
         - docker-compose logs
