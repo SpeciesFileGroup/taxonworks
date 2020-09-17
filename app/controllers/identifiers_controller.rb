@@ -20,7 +20,7 @@ class IdentifiersController < ApplicationController
 
   # GET /api/v1/identifiers
   def api_index
-    @identifiers = Queries::Identifier::Filter.new(identifier_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    @identifiers = Queries::Identifier::Filter.new(api_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
     render '/identifiers/api/index.json.jbuilder'
   end
 
@@ -120,6 +120,23 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
+  def api_params
+    params.permit(
+      :query_string,
+      :identifier,
+      :namespace_id,
+      :namespace_short_name,
+      :namespace_name,
+      :identifier_object_type,
+      :identifier_object_id,
+      :type,
+      :object_global_id,
+      identifier_object_ids: [],
+      identifier_object_types: [],
+    )
+  end
+
+  # TODO: confirm identifier is needed
   def identifier_params
     params.require(:identifier).permit(
       :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity
