@@ -19,16 +19,16 @@ class IdentifiersController < ApplicationController
   end
 
   # GET /api/v1/identifiers
-  # def api_index
-  #   @identifiers = Queries::Identifier::Filter.new(identifier_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-  #   render '/identifiers/index.json.jbuilder'#######/identifiers/api/index.json.jbuilder
-  # end
+  def api_index
+    @identifiers = Queries::Identifier::Filter.new(identifier_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/identifiers/api/index.json.jbuilder'
+  end
 
   # GET /api/v1/identifiers/:id
-  # def api_show
-  #   @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
-  #   render '/identifiers/show.json.jbuilder'#######/identifiers/api/show.json.jbuilder
-  # end
+  def api_show
+    @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/identifiers/api/show.json.jbuilder'
+  end
 
   # GET /identifers/1
   def show
