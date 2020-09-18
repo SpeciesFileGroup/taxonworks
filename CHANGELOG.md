@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Many specs related to dynamic observation matrix items
 - Improvements to Descriptor autocomplete labels [#1727]
 - Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Pdf viewer button on Documentation and Source views [#1693]
 - Spinner for when converting verbatim to bibtex [#1710]
 - Set OTU in determination when otu_id param is present on comprehensive task
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated respec `matrix` tag to `observation_matrix`
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
+- Override browser shortcuts on task hotkeys [#1738]
 
 ## Fixed
 - Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
@@ -58,15 +60,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1693]: https://github.com/SpeciesFileGroup/taxonworks/issues/1693
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
 [#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
-[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
+[#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
 
 ## [0.12.17] - 2020-02-02
 

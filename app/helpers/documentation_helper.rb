@@ -40,4 +40,8 @@ module DocumentationHelper
     object.documentation.where('documentation.project_id = ?', sessions_current_project_id).collect{ |o| documentation_download_link(o)}.join("&nbsp;|&nbsp;")&.html_safe
   end
 
+  def document_viewer_buttons(object)
+    object.documentation.where('documentation.project_id = ?', sessions_current_project_id).collect{ |o| document_viewer_button(o.document)}.join("&nbsp;|&nbsp;")&.html_safe
+  end
+
 end

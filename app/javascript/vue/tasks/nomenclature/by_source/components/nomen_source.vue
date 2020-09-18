@@ -28,6 +28,12 @@
         v-if="source.id"
         :object-id="source.id"
         :type="source.base_class"/>
+      <a
+        v-for="document in source.documents"
+        class="circle-button btn-download"
+        :download="document.document_file_file_name"
+        :title="document.document_file_file_name"
+        :href="document.document_file"></a>
     </span>
     <ul
       v-if="source && source.author_roles.length"

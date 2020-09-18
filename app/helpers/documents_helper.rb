@@ -10,6 +10,15 @@ module DocumentsHelper
     link_to(document_tag(document).html_safe, document)
   end
 
+  def document_viewer_button (document)
+    return nil if document.nil?
+    content_tag(:a,
+      '',
+      class: ['button-circle', 'pdf-button', 'button-default'],
+      title: document.document_file_file_name,
+      data: { pdfviewer: document.document_file.url() })
+  end
+
   def document_download(document)
     return nil if document.nil?
     link_to(
