@@ -4,6 +4,8 @@ const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
 const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
 
+const GetOtusCoordinate = (id) => ajaxCall('get', `/otus/${id}/coordinate`)
+
 const GetOtuAssertedDistribution = (data) => ajaxCall('get', '/asserted_distributions.json', { params: data })
 
 const GetBiocurations = (id) => ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
@@ -67,6 +69,7 @@ const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/valid
 
 export {
   GetOtu,
+  GetOtusCoordinate,
   GetUserPreferences,
   GetDepictions,
   GetContent,

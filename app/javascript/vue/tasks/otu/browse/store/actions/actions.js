@@ -6,6 +6,8 @@ import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
 import loadTaxonName from './loadTaxonName'
+import loadOtus from './loadOtus'
+import resetStore from './resetStore'
 
 const ActionFunctions = {
   [ActionNames.LoadInformation]: loadInformation,
@@ -14,7 +16,9 @@ const ActionFunctions = {
   [ActionNames.LoadPreferences]: loadPreferences,
   [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadDescendants]: loadDescendants,
-  [ActionNames.LoadTaxonName]: loadTaxonName
+  [ActionNames.LoadTaxonName]: loadTaxonName,
+  [ActionNames.LoadOtus]: loadOtus,
+  [ActionNames.ResetStore]: resetStore
 }
 
 export {

@@ -129,5 +129,6 @@ function newStore () {
 }
 
 export {
-  newStore
+  newStore,
+  makeInitialState
 }

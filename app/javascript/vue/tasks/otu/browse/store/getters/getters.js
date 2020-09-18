@@ -8,6 +8,7 @@ import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
 import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
+import getOtus from './getOtus'
 
 const GetterNames = {
   GetCollectionObjects: 'getCollectionObjects',
@@ -19,7 +20,8 @@ const GetterNames = {
   GetAssertedDistributions: 'getAssertedDistributions',
   GetCurrentOtu: 'getCurrentOtu',
   GetLoadState: 'getLoadState',
-  GetTaxonName: 'getTaxonName'
+  GetTaxonName: 'getTaxonName',
+  GetOtus: 'getOtus'
 }
 
 const GetterFunctions = {
@@ -32,7 +34,8 @@ const GetterFunctions = {
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
   [GetterNames.GetLoadState]: getLoadState,
-  [GetterNames.GetTaxonName]: getTaxonName
+  [GetterNames.GetTaxonName]: getTaxonName,
+  [GetterNames.GetOtus]: getOtus
 }
 
 export {

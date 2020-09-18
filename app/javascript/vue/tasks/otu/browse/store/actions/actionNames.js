@@ -5,7 +5,9 @@ const ActionNames = {
   LoadPreferences: 'loadPreferences',
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',
-  LoadTaxonName: 'loadTaxonName'
+  LoadTaxonName: 'loadTaxonName',
+  LoadOtus: 'loadOtus',
+  ResetStore: 'resetStore'
 }
 
 export default ActionNames
