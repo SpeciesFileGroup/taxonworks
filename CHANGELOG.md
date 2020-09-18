@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination on Filter noemnclature task [#1724]
 
 ### Changed
+- Preload all CSL styles via fixed constant, increasing boot speed [#1749]
 - Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
 - Data migration updating all `type` column values for matrix row/column items
 - Tweaked JSON attribute response for matrix rows and columns very slightly
@@ -52,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misppeling collecting_event_ids parameter [#1729]
 
 
+[#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
 [#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
 [#1747]: https://github.com/SpeciesFileGroup/taxonworks/issues/1747
 [#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
