@@ -78,12 +78,7 @@ jobs:
         - docker
       install:
         - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
-        - export REVISION=$(git rev-parse HEAD | cut -c1-9)
-        - cd .travis
-        - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
-        - docker-compose build --parallel
-        - docker-compose up -d --no-build
-        - docker-compose logs
+        - .travis/docker-test.sh
       script:
         - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
       after_success:

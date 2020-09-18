@@ -6,20 +6,23 @@ cd "$(dirname "$0")"
 
 docker build .. -t sfgrp/taxonworks --build-arg REVISION=$(git rev-parse --short HEAD) --build-arg BUNDLER_WORKERS=3
 
-# mdillon/postgis:11-3.0 not available at Docker Hub at this time so building ourselves here from official git repo
-docker build https://github.com/postgis/docker-postgis.git#master:/11-3.0 -t mdillon/postgis:11-3.0
+export REVISION=$(git rev-parse HEAD | cut -c1-9)
 
-export REVISION=$(git rev-parse --short HEAD)
+for ver in `echo 10 12`; do
+  export PG_VERSION=$ver
 
-docker-compose build --parallel
+  echo "Testing with Postgres $PG_VERSION"
 
-docker-compose up -d --no-build
+  docker-compose build --parallel
 
-docker-compose logs
+  docker-compose up -d --no-build
 
-docker-compose exec test bundle exec rspec -fd
+  docker-compose logs
 
-# Test redis is running
-docker-compose exec taxonworks redis-cli ping
+  docker-compose exec test bundle exec rspec -fd
 
-docker-compose down --volumes
+  # Test redis is running
+  docker-compose exec taxonworks redis-cli ping
+
+  docker-compose down --volumes
+done

@@ -37,7 +37,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: Dockerfile.db
+      dockerfile: "Dockerfile.postgres${PG_VERSION}"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-h", "db"]
       interval: 1s
