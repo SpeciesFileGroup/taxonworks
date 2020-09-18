@@ -105,6 +105,7 @@ function makeInitialState () {
     taxonName: undefined,
     currentOtu: undefined,
     assertedDistributions: [],
+    biologicalAssociations: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],

@@ -1,3 +1,4 @@
+import setBiologicalAssociations from './setBiologicalAssociations'
 import setCollectingEvents from './setCollectingEvents'
 import setCollectionObjects from './setCollectionObjects'
 import setGeoreferences from './setGeoreferences'
@@ -11,6 +12,7 @@ import setOtus from './setOtus'
 import setStore from './setStore'
 
 const MutationNames = {
+  SetBiologicalAssociations: 'setBiologicalAssociations',
   SetCollectingEvents: 'setCollectingEvents',
   SetCollectionObjects: 'setCollectionObjects',
   SetGeoreferences: 'setGeoreferences',
@@ -25,6 +27,7 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetCollectingEvents]: setCollectingEvents,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetGeoreferences]: setGeoreferences,

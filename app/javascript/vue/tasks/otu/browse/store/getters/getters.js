@@ -1,3 +1,4 @@
+import getBiologicalAssociations from './getBiologicalAssociations'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getDescendants from './getDescendants'
@@ -11,6 +12,7 @@ import getTaxonName from './getTaxonName'
 import getOtus from './getOtus'
 
 const GetterNames = {
+  GetBiologicalAssociations: 'getBiologicalAssociations',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetDescendants: 'getDescendants',
@@ -25,6 +27,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetDescendants]: getDescendants,
