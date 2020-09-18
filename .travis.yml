@@ -78,9 +78,10 @@ jobs:
         - docker
       install:
         - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
-        - .travis/docker-test.sh
+        - export REVISION=$(git rev-parse HEAD | cut -c1-9)
+        - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
       script:
-        - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
+        - .travis/docker-test.sh
       after_success:
         - |
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
