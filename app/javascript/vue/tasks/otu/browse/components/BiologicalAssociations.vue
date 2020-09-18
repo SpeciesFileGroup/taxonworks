@@ -3,42 +3,45 @@
     :status="status"
     :title="title">
     <a name="biological-associations"/>
-    <ul class="no_bullets">
-      <li v-for="biologicalAssociation in biologicalAssociations">
-        <a
-          :href="`/biological_associations/${biologicalAssociation.id}`"
-          v-html="biologicalAssociation.object_tag"/>
-      </li>
-    </ul>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Relationship</th>
+          <th>Object</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="biologicalAssociation in biologicalAssociations"
+          :key="biologicalAssociation.id">
+          <td v-html="biologicalAssociation.subject.object_tag"/>
+          <td v-html="biologicalAssociation.biological_relationship.object_tag"/>
+          <td v-html="biologicalAssociation.object.object_tag"/>
+          <td>
+            {{ biologicalAssociation.citations.map(citation => citation.citation_source_body).sort().join('; ') }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </section-panel>
 </template>
 
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import { GetBiologicalAssociations } from '../request/resources.js'
 import extendSection from './shared/extendSections'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   mixins: [extendSection],
   components: {
     SectionPanel
   },
-  data() {
-    return {
-      biologicalAssociations: []
-    }
-  },
-  watch: {
-    otu: {
-      handler (newVal) {
-        if(newVal) {
-          GetBiologicalAssociations(this.otu.global_id).then(response => {
-            this.biologicalAssociations = response.body
-          })
-        }
-      },
-      immediate: true
+  computed: {
+    biologicalAssociations () {
+      return this.$store.getters[GetterNames.GetBiologicalAssociations]
     }
   }
 }

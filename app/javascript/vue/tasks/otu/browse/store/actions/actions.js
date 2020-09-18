@@ -1,4 +1,5 @@
 import ActionNames from './actionNames'
+import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadInformation from './loadInformation'
 import loadCollectionObjects from './loadCollectionObjects'
 import loadCollectingEvents from './loadCollectingEvents'
@@ -10,6 +11,7 @@ import loadOtus from './loadOtus'
 import resetStore from './resetStore'
 
 const ActionFunctions = {
+  [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.LoadInformation]: loadInformation,
   [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
