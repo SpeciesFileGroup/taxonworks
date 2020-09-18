@@ -38,10 +38,21 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         otu = parent.otus.first # TODO: Might require select-and-confirm functionality
 
+        attributes = parse_record_level_class
+        attributes.deep_merge!(parse_occurrence_class)
+        attributes.deep_merge!(parse_event_class)
+
         specimen = Specimen.create!({
-          total: get_field_value("individualCount") || 1,
           no_dwc_occurrence: true
-        })
+        }.merge!(attributes[:specimen]))
+
+        if attributes[:catalog_number]
+          namespace = attributes.dig(:catalog_number, :namespace)
+          attributes.dig(:catalog_number, :identifier)&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name) if namespace
+          specimen.identifiers.create!({
+            type: Identifier::Local::CatalogNumber
+          }.merge!(attributes[:catalog_number]))
+        end
 
         determiners = parse_identifiedBy.map! { |n| Person.find_by(n) || Person::Unvetted.create!(n) }
 
@@ -104,7 +115,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
   def get_field_value(field_name)
     index = get_fields_mapping[field_name.to_s]
-    data_fields[index]&.dig("value") if index
+
+    value = data_fields[index]&.dig("value") if index
+    value&.strip!
+    value&.squeeze!(" ")
+
+    value unless value.blank?
   end
 
   def get_integer_field_value(field_name)
@@ -144,6 +160,130 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
   def set_hash_val(hsh, key, value)
     hsh[key] = value unless value.nil?
   end
+
+  def clear_empty_sub_hashes(hsh)
+    hsh.each do |key, value|
+      hsh.delete(key) if hsh[key].nil? || hsh[key] == {}
+    end
+    hsh
+  end
+
+  def parse_record_level_class
+    res = {
+      specimen: {},
+      catalog_number: {}
+    }
+    # type: [Check it is 'PhysicalObject']
+    type = get_field_value(:type) || 'PhysicalObject'
+    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PhysicalObject' or empty allowed"] }) if type != 'PhysicalObject'
+
+    # modified: [Not mapped]
+
+    # language: [Not mapped]
+
+    # license: [Not mapped. Possible with Attribution model? To which object(s)?]
+
+    # rightsHolder: [Not mapped. Same questions as license but using roles]
+
+    # accessRights: [Not mapped. Related to license]
+
+    # bibliographicCitation: [Not mapped]
+
+    # references: [Not mapped]
+
+    # institutionID: [Not mapped. Review]
+
+    # collectionID: [Not mapped. Review]
+
+    # datasetID: [Not mapped]
+
+    # institutionCode: [repository.acronym]
+    institution_code = get_field_value(:institutionCode)
+    if institution_code
+      repository = Repository.find_by(acronym: institution_code)
+      raise DarwinCore::InvalidData.new({ "institutionCode": ["Unknown #{institution_code} repository. If valid please register it."] }) unless repository
+      set_hash_val(res[:specimen], :repository, repository)
+    end
+
+    # collectionCode: [catalog_number.namespace]
+    collection_code = get_field_value(:collectionCode)
+    set_hash_val(res[:catalog_number], :namespace, Namespace.create_with({
+        name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
+        delimiter: '-'
+    }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
+
+    # datasetName: [Not mapped]
+
+    # ownerInstitutionCode: [Not mapped]
+
+    # basisOfRecord: [Check it is 'PreservedSpecimen']
+    basis = get_field_value(:basisOfRecord) || 'PreservedSpecimen'
+    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PreservedSpecimen' or empty allowed"] }) if basis != 'PreservedSpecimen'
+
+    # informationWithheld: [Not mapped]
+
+    # dataGeneralizations: [Not mapped]
+
+    # dynamicProperties: [Not mapped. Could be ImportAttribute?]
+
+    clear_empty_sub_hashes(res)
+  end
+
+  def parse_occurrence_class
+    res = {
+      catalog_number: {},
+      specimen: {}
+    }
+
+    # occurrenceID: [SHOULD BE MAPPED. Namespace perhaps should be something fixed and local to project or user-supplied if non-GUID (should be GUID!)]
+
+    # catalogNumber: [catalog_number.identifier]
+    set_hash_val(res[:catalog_number], :identifier, get_field_value(:catalogNumber))
+
+    # recordNumber: [Not mapped]
+
+    # recordedBy: [Not mapped. NOTE: Collector is included here, but not explicitly mentioned. Review]
+
+    # individualCount: [specimen.total]
+    set_hash_val(res[:specimen], :total, get_field_value(:individualCount) || 1)
+
+    # organismQuantity: [Not mapped. Check relation with invidivialCount]
+
+    # organismQuantityType: [Not mapped. Check relation with invidivialCount]
+
+    # sex: [Find or create by name inside Sex biocuration Group] TODO: Think of duplicates (with and without URI)
+    sex = get_field_value(:sex)
+    if sex
+      raise DarwinCore::InvalidData.new({ "sex": ["Only single-word controlled vocabulary supported at this time."] }) if sex =~ /\s/
+      group   = BiocurationGroup.with_project_id(Current.project_id).where('name ILIKE ?', 'sex').first
+      group ||= BiocurationGroup.create!(name: 'Sex', definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]')
+      # TODO: BiocurationGroup.biocuration_classes not returning AR relation
+      sex = group.biocuration_classes.detect { |c| c.name =~ /#{sex}/i }
+      unless sex
+        sex = BiocurationClass.create!(name: sex, definition: '#{sex} individual(s) [CREATED FROM DWC-A IMPORT]')
+        Tag.create!(keyword: group, tag_object: sex)
+      end
+
+      set_hash_val(res[:specimen], :biocuration_classifications, [sex])
+    end
+
+    # reproductiveCondition: [Not mapped]
+
+    # behavior: [Not mapped]
+
+    # establishmentMeans: [Not mapped]
+
+    # occurrenceStatus: [Not mapped]
+
+    # preparations: [Find or create by name. Might be best to raise exception if doesn't exist yet and request the user to create it. Review]
+    preparation = get_field_value(:preparations)
+    set_hash_val(res[:specimen], :preparation_type, PreparationType.create_with({
+      definition: "'#{preparation}' [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]"
+    }).find_or_create_by!(name: preparation)) if preparation
+
+    clear_empty_sub_hashes(res)
+  end
+
 
   def parse_event_class
     collecting_event = { }
