@@ -119,11 +119,7 @@ class Citation < ApplicationRecord
 
   def update_related_cached_values
     if citation_object_type == 'TaxonName'
-      t = citation_object
-      if t.id
-        taxon = TaxonName.find(t.id)
-        taxon.update_attribute(:cached_author_year, citation_object.get_author_and_year)
-      end
+      citation_object.update_column(:cached_author_year, citation_object.get_author_and_year)  if citation_object.persisted?
     end
     true
   end

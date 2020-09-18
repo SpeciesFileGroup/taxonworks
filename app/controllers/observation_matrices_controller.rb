@@ -28,7 +28,7 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/new
   def new
-    @observation_matrix = ObservationMatrix.new
+    redirect_to new_matrix_task_path, notice: 'Redirecting to new task.'
   end
 
   # GET /observation_matrices/1/edit

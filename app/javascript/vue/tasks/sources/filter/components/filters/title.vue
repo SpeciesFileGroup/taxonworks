@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Keywords</h2>
     <div class="field label-above">
       <label>Search text</label>
       <input

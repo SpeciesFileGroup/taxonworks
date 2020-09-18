@@ -8,14 +8,19 @@ export default function ({ commit, state }) {
     let collection_event = state.collection_event
     let identifier = state.collectingEventIdentifier
     commit(MutationNames.SetCollectionEventIdentifier, identifierCE())
-    if(identifier.namespace_id && identifier.identifier) {
+    if (identifier.namespace_id && identifier.identifier) {
       collection_event.identifiers_attributes = [identifier]
     }
-    if(JSON.stringify(CollectingEvent()) == JSON.stringify(collection_event)) {
+    if (JSON.stringify(CollectingEvent()) == JSON.stringify(collection_event)) {
       return resolve(true)
-    }
-    else {
-      if(collection_event.id) {
+    } else {
+      if (collection_event.units === 'ft') {
+        ['minimum_elevation', 'maximum_elevation', 'elevation_precision'].forEach(key => {
+          const elevationValue = Number(collection_event[key])
+          collection_event[key] = elevationValue > 0 ? elevationValue * 3.281 : undefined
+        })
+      }
+      if (collection_event.id) {
         UpdateCollectionEvent(collection_event).then(response => {
           commit(MutationNames.SetCollectionEvent, response.body)
           if(state.collection_event.hasOwnProperty('identifiers') && state.collection_event.identifiers.length) {

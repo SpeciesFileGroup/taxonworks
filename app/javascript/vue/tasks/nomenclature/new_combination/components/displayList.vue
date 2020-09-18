@@ -8,7 +8,7 @@
       :key="item.id"
       class="list-complete-item flex-separate middle">
       <a
-        :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
+        :href="`/tasks/nomenclature/browse?taxon_name_id=${item.cached_valid_taxon_name_id}`"
         target="_blank"
         class="list-item"
       >
@@ -73,7 +73,6 @@ export default {
   padding-right: 4px;
 }
 .table-entrys-list {
-  overflow-y: scroll;
   padding: 0px;
   position: relative;
 

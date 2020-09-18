@@ -8,6 +8,7 @@
           <th>
             <tag-all
               :ids="ids"
+              type="CollectionObject"
               class="separate-right"/>
           </th>
           <th>Collection object</th>

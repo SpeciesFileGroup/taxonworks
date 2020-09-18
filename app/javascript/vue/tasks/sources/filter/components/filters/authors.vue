@@ -23,10 +23,17 @@
           roles: ['SourceAuthor', 'SourceEditor']
         }"
         @selected="addAuthor"/>
+      <label>
+        <input
+          v-model="source.author_ids_or"
+          type="checkbox">
+        Any
+      </label>
     </fieldset>
     <display-list
       :list="authors"
       label="object_tag"
+      :delete-warning="false"
       @deleteIndex="removeAuthor"/>
   </div>
 </template>
@@ -84,6 +91,7 @@ export default {
     const params = URLParamsToJSON(location.href)
     this.source.author = params.author
     this.source.exact_author = params.exact_author
+    this.source.author_ids_or = params.author_ids_or
     if (params.author_ids) {
       params.author_ids.forEach(id => {
         GetPeople(id).then(response => {

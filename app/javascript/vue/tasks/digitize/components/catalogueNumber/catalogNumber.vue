@@ -48,7 +48,9 @@
           </template>
         </fieldset>
       </div>
-      <div class="separate-top">
+      <div
+        v-help.sections.collectionObject.identifier
+        class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
@@ -69,7 +71,7 @@
             v-if="namespace"
             class="separate-left"
             :show-message="checkValidation"
-            legend="Namespace and identifier needs to be set to be save."
+            legend="Namespace and identifier needs to be set to be saved."
           />
         </div>
         <span

@@ -51,6 +51,13 @@
             Save
           </button>
           <button
+            v-if="source.type === 'Source::Verbatim' && source.id"
+            class="button normal-input button-submit button-size margin-small-right"
+            type="button"
+            @click="convert">
+            To BibTeX
+          </button>
+          <button
             :disabled="!source.id"
             v-shortkey="[getMacKey(), 'c']"
             @shortkey="cloneSource"
@@ -60,6 +67,7 @@
             Clone
           </button>
           <button
+            v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
             type="button"
             @click="showModal = true">
@@ -102,6 +110,11 @@
     <bibtex-button
       v-if="showBibtex"
       @close="showBibtex = false"/>
+    <spinner-component
+      v-if="settings.isConverting"
+      :full-screen="true"
+      :logo-size="{ width: '100px', height: '100px'}"
+      legend="Converting verbatim to BiBTeX..."/>
   </div>
 </template>
 
@@ -109,6 +122,7 @@
 
 import SourceType from './components/sourceType'
 import RecentComponent from './components/recent'
+import SpinnerComponent from 'components/spinner'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -145,7 +159,8 @@ export default {
     BibtexButton,
     AddSource,
     NavBar,
-    RecentComponent
+    RecentComponent,
+    SpinnerComponent
   },
   computed: {
     section () {
@@ -211,6 +226,9 @@ export default {
     },
     cloneSource () {
       this.$store.dispatch(ActionNames.CloneSource)
+    },
+    convert () {
+      this.$store.dispatch(ActionNames.ConvertToBibtex)
     },
     getMacKey: GetMacKey
   }

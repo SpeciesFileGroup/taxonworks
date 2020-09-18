@@ -150,7 +150,8 @@ export default {
       shapes: {
         type: "FeatureCollection",
         features: []
-      }
+      },
+      creatingShape: false
     }
   },
   watch: {
@@ -256,7 +257,9 @@ export default {
         this.populateShapes()
       })
     },
-    createVerbatimShape() {
+    createVerbatimShape () {
+      if (this.verbatimGeoreferenceAlreadyCreated || this.creatingShape) return
+      this.creatingShape = true
       const shape = {
         type: 'Feature',
         properties: {},
@@ -279,8 +282,11 @@ export default {
         this.georeferences.push(response.body)
         this.populateShapes()
         this.$emit('created', response.body)
+        TW.workbench.alert.create('Georeference was successfully created.', 'notice')
+        this.creatingShape = false
       }, response => {
         this.showSpinner = false
+        this.creatingShape = false
         TW.workbench.alert.create(response.bodyText, 'error')
       })
     },

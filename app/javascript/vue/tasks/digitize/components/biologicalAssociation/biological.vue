@@ -10,6 +10,9 @@
         klass="CollectionObject"
         :add-tabs="['all']"
         pin-section="BiologicalRelationships"
+        :buttons="true"
+        :inline="true"
+        label="name"
         pin-type="BiologicalRelationship"
         @selected="setBiologicalAssociation"
       >

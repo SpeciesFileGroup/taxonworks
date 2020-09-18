@@ -37,6 +37,7 @@
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
+      <users-component v-model="params.user"/>
       <updated-component v-model="params.base.updated_since"/>
       <children-component v-model="params.base.leaves"/>
       <metadata-component v-model="params.base.type_metadata" />
@@ -68,6 +69,7 @@ import ChildrenComponent from './filters/children'
 import InRelationshipComponent from './filters/in_relationship'
 import TaxonNameTypeComponent from './filters/taxon_name_type'
 import EtymologyComponent from './filters/etymology'
+import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -94,14 +96,15 @@ export default {
     InRelationshipComponent,
     AuthorsComponent,
     TaxonNameTypeComponent,
-    EtymologyComponent
+    EtymologyComponent,
+    UsersComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base, this.params.user, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -131,6 +134,7 @@ export default {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.request.responseURL)
+        this.$emit('pagination', response)
         this.searching = false
         if (this.result.length === 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
@@ -166,6 +170,15 @@ export default {
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []
+        },
+        user: {
+          user_id: undefined,
+          user_target: undefined,
+          user_date_start: undefined
+        },
+        settings: {
+          per: 500,
+          page: 1
         }
       }
     },
@@ -182,6 +195,10 @@ export default {
         }
       })
       return object
+    },
+    loadPage (page) {
+      this.params.settings.page = page
+      this.searchForTaxonNames(this.parseParams)
     }
   }
 }

@@ -36,7 +36,10 @@ class Otu < ApplicationRecord
   include Shared::Observations 
   include Shared::BiologicalAssociations 
   include Shared::HasPapertrail
-  
+
+  include Shared::MatrixHooks::Member
+  include Otu::MatrixHooks
+
   include Shared::IsData
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
@@ -65,6 +68,10 @@ class Otu < ApplicationRecord
   has_many :georeferences, through: :collecting_events
 
   has_many :content_topics, through: :contents, source: :topic
+
+  has_many :observation_matrix_row_items, inverse_of: :otu, dependent: :destroy, class_name: 'ObservationMatrixRowItem::Single::Otu'
+  has_many :observation_matrix_rows, inverse_of: :collection_object
+  has_many :observation_matrices, through: :observation_matrix_rows
 
   has_many :observations, inverse_of: :otu, dependent: :restrict_with_error
   has_many :descriptors, through: :observations
@@ -299,13 +306,13 @@ class Otu < ApplicationRecord
 
     z = i.as('recent_t')
 
-    j = case used_on
+    case used_on
         when 'BiologicalAssociation' 
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+          j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
             z['biological_association_object_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
+          j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['otu_id'].eq(p['id'])))
         end
 
     Otu.joins(j).pluck(:id).uniq
@@ -331,7 +338,7 @@ class Otu < ApplicationRecord
           Otu.where('"otus"."id" IN (?)', r.first(4) ).to_a).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
       h[:recent] = Otu.where(project_id: project_id).order('updated_at DESC').limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
-      h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:quick] = Otu.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
 
     h

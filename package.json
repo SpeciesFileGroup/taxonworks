@@ -5,6 +5,8 @@
     "@rails/webpacker": "^5.1.1",
     "@sfgrp/sled": "^0.5.4",
     "axios": "^0.19.2",
+    "dompurify": "^2.0.12",
+    "easymde": "^2.11.0",
     "json2csv": "^5.0.1",
     "leaflet": "^1.6.0",
     "leaflet.pattern": "^0.1.0",

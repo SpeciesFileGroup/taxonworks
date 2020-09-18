@@ -8,7 +8,7 @@
         :header="['Dynamic rows', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
-        @delete="removeRow"
+        @delete="removeRow($event.id)"
         :edit="true"
         @order="updateRowsOrder"/>
       <pagination-component
@@ -19,11 +19,11 @@
         :list="rowsList"
         :matrix-id="matrixId"
         :header="['Rows (all)', '']"
-        :filter-remove="(item) => { return item.hasOwnProperty('cached_observation_matrix_row_item_id') && item.cached_observation_matrix_row_item_id }"
+        :filter-remove="(item) => item.cached_observation_matrix_row_item_id"
         :attributes="['observation_matrix_row_object_label']"
         :global-id-path="['observation_matrix_row_object_global_id']"
-        warning-message="You are trying to delete the OTU/collection object from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the scores on this OTU. Are you sure you want to proceed?"
-        @delete="removeRow"
+        warning-message="You are trying to delete the OTU/collection object row from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the observations on this OTU. Are you sure you want to proceed?"
+        @delete="removeRow($event.cached_observation_matrix_row_item_id)"
         :edit="true"
         :code="true"
         @order="updateRowsOrder"/>
@@ -41,7 +41,7 @@
         :header="['Dynamic column', '']"
         :attributes="['object_tag']"
         :global-id-path="['global_id']"
-        @delete="removeColumn"
+        @delete="removeColumn($event.id)"
         @order="updateColumnsOrder"/>
       <pagination-component
         v-if="fixedColumnPagination"
@@ -55,7 +55,8 @@
         :header="['Columns (all)', '']"
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
-        @delete="removeColumn"
+        :filter-remove="(item) => item.cached_observation_matrix_column_item_id"
+        @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
         @order="updateColumnsOrder"/>
       <pagination-component
         v-if="fixedColumnPagination"
@@ -106,11 +107,11 @@ export default {
     }
   },
   methods: {
-    removeColumn (column) {
-      this.$store.dispatch(ActionNames.RemoveColumn, column.id)
+    removeColumn (id) {
+      this.$store.dispatch(ActionNames.RemoveColumn, id)
     },
-    removeRow (row) {
-      this.$store.dispatch(ActionNames.RemoveRow, row.id)
+    removeRow (id) {
+      this.$store.dispatch(ActionNames.RemoveRow, id)
     },
     updateRowsOrder (ids) {
       SortRows(ids).then(() => {

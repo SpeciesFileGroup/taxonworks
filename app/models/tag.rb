@@ -30,13 +30,18 @@ class Tag < ApplicationRecord
   include Housekeeping
   include Shared::IsData
   include Shared::AttributeAnnotations
-  include Shared::MatrixHooks
+
+
+  include Shared::MatrixHooks::Dynamic # Must preceed Tag::MatrixHooks
+  include Tag::MatrixHooks # Must come after Shared::MatrixHooks::Dynamic 
+
+
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:tag_object)
   acts_as_list scope: [:tag_object_id, :tag_object_type, :keyword_id]
 
   belongs_to :keyword, inverse_of: :tags, validate: true
-  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display
+  belongs_to :controlled_vocabulary_term, foreign_key: :keyword_id, inverse_of: :tags # Not all tagged subclasses are Keyword based, use this object for display.
 
   validates :keyword, presence: true
   validate :keyword_is_allowed_on_object
@@ -62,30 +67,6 @@ class Tag < ApplicationRecord
   # The column name containing the attribute name being annotated
   def self.annotated_attribute_column
     :tag_object_attribute
-  end
-
-  # @return [{"matrix_column_item": matrix_column_item, "descriptor": descriptor}, false]
-  #   the hash corresponding to the keyword used in this tag if it exists
-  def matrix_column_item
-    mci = ObservationMatrixColumnItem::TaggedDescriptor.where(controlled_vocabulary_term_id: keyword_id).limit(1)
-
-    if mci.any?
-      return { matrix_column_item: mci.first, descriptor: tag_object }
-    else
-      return false
-    end
-  end
-
-  # @return [{"matrix_row_item": matrix_column_item, "object": object}, false]
-  # the hash corresponding to the keyword used in this tag if it exists
-  def matrix_row_item
-    mri = ObservationMatrixRowItem::TaggedRowItem.where(controlled_vocabulary_term_id: keyword_id).limit(1)
-
-    if mri.any?
-      return { matrix_row_item: mri.first, object: tag_object }
-    else
-      return false
-    end
   end
 
   def self.batch_create(keyword_id: nil, object_type: nil, user_id: nil, project_id: nil, object_ids: [])
