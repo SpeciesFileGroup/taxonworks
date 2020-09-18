@@ -34,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Override browser shortcuts on task hotkeys [#1738]
 
 ## Fixed
+- Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
+- Scope of dynamic taxon name row item [#1747]
 - Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
 - Character state order not correct in Nexus format [#1574]
 - Not able to destroy matrix rows or matrices [#1520], [#1123]
@@ -49,6 +51,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Enable search button after pick a collecting event date on Filter collection objects task [#1728]
 - Misppeling collecting_event_ids parameter [#1729]
 
+
+[#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
+[#1747]: https://github.com/SpeciesFileGroup/taxonworks/issues/1747
 [#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
 [#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
 [#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727

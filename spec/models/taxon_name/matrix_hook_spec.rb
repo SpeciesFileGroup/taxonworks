@@ -63,6 +63,24 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
     end
 
+    context 'add species' do
+      let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, taxon_name: genus1 )}
+      let!(:species2) { Protonym.create!(name: 'gus', parent: genus1, rank_class: Ranks.lookup(:iczn, :species)) }
+      let!(:otu2) { Otu.create!(taxon_name: species2) }
+
+      specify 'adding species to scope 1' do
+        expect(observation_matrix.observation_matrix_rows.count).to eq(2)
+      end
+
+      specify 'adding species to scope 2' do
+        expect(observation_matrix.observation_matrix_rows.map(&:otu)).to contain_exactly(otu, otu2)
+      end
+
+      specify 'otus can be destroyed' do
+        expect(otu2.destroy!).to be_truthy
+      end
+    end
+
     context 'dynamic' do
       let!(:species2) { Protonym.create!(name: 'gus', parent: genus2, rank_class: Ranks.lookup(:iczn, :species)) }
 
@@ -75,11 +93,6 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       specify '#in_scope_observation_matrix_row_items' do
         species2.parent_id = genus1.id
         expect(species2.in_scope_observation_matrix_row_items).to contain_exactly(d)
-      end
-
-      specify '#out_of_scope_observation_matrix_row_items' do
-        species2.parent_id = genus2.id
-        expect(species2.out_of_scope_observation_matrix_row_items).to contain_exactly()
       end
 
       specify '#dynamic_update_matrix_row_items' do
@@ -100,12 +113,12 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
         expect(d.otus).to contain_exactly(otu, otu2)
       end
 
-      specify 'd#row_objects' do
+      specify '#row_objects' do
         species2.update(parent: genus1)
         expect(d.row_objects).to contain_exactly(otu, otu2)
       end
 
-      specify 'd#row_objects 2' do
+      specify '#row_objects 2' do
         species2.update!(parent: species, rank_class: Ranks.lookup(:iczn, :subspecies))
         expect(d.row_objects).to contain_exactly(otu, otu2)
       end
@@ -138,6 +151,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
     end
   end
 
+  # TODO: move to tag matrix hook specs
   context 'tag alone' do
     let(:keyword) { FactoryBot.create(:valid_keyword) }
     let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, controlled_vocabulary_term: keyword )}
