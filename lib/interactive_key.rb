@@ -34,8 +34,6 @@ class InteractiveKey
   #optional attribute: descriptors and states selected during identification "123:1|3||125:3|5||135:2"
   attr_accessor :selected_descriptors
 
-
-
   #returns the list of Languages used as translations for descriptors
   attr_accessor :descriptor_available_languages
 
@@ -224,7 +222,6 @@ class InteractiveKey
   ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
     h = {}
-
 
     rows_with_filter.each do |r|
       otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
