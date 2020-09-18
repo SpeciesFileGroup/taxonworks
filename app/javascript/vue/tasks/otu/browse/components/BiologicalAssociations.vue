@@ -20,7 +20,7 @@
           <td v-html="biologicalAssociation.biological_relationship.object_tag"/>
           <td v-html="biologicalAssociation.object.object_tag"/>
           <td>
-            {{ biologicalAssociation.citations.map(citation => citation.citation_source_body).join('; ') }}
+            {{ biologicalAssociation.citations.map(citation => citation.citation_source_body).sort().join('; ') }}
           </td>
         </tr>
       </tbody>
