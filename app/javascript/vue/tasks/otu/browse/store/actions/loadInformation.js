@@ -1,13 +1,23 @@
 import ActionNames from './actionNames'
 
 export default ({ dispatch }, otus) => {
-  otus.forEach(otu => {
-    dispatch(ActionNames.LoadTaxonName, otu.taxon_name_id)
-    dispatch(ActionNames.LoadCollectionObjects, otu.id).then(() => {
-      dispatch(ActionNames.LoadCollectingEvents, [otu.id])
+  function loadOtuInformation (otu) {
+    const promises = []
+    return new Promise((resolve, reject) => {
+      promises.push(dispatch(ActionNames.LoadCollectionObjects, otu.id).then(() => {
+        dispatch(ActionNames.LoadCollectingEvents, [otu.id])
+      }))
+      promises.push(dispatch(ActionNames.LoadAssertedDistributions, otu.id))
+      Promise.all(promises).then(() => {
+        resolve()
+      })
     })
-    dispatch(ActionNames.LoadDescendants, otu)
-    dispatch(ActionNames.LoadAssertedDistributions, otu.id)
-  })
+  }
+  dispatch(ActionNames.LoadTaxonName, otus[0].taxon_name_id)
+  dispatch(ActionNames.LoadDescendants, otus[0])
   dispatch(ActionNames.LoadPreferences)
+
+  otus.forEach(async otu => {
+    await loadOtuInformation(otu)
+  })
 }
