@@ -38,12 +38,6 @@ class CharacterState < ApplicationRecord
 
   validate :descriptor_kind
 
-  protected
-
-  def descriptor_kind
-    errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'
-  end
-
   ## retrunrs string, name of the character_state in a particular language
   # target: :key, :description, nil
   def target_name(target, language_id)
@@ -68,4 +62,9 @@ class CharacterState < ApplicationRecord
     return n
   end
 
+  protected
+
+  def descriptor_kind
+    errors.add(:descriptor, 'must be Descriptor::Qualitative') if descriptor && descriptor.type != 'Descriptor::Qualitative'
+  end
 end

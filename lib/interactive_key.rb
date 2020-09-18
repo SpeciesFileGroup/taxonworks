@@ -111,7 +111,7 @@ class InteractiveKey
     @descriptor_available_keywords = descriptor_available_keywords
     @descriptors_with_filter = descriptors_with_keywords
     @row_filter = row_filter
-    @rows_with_filter = rows_with_filter
+    @rows_with_filter = get_rows_with_filter
     @sorting = sorting
     @error_tolerance = error_tolerance.to_i
     @eliminate_unknown = eliminate_unknown == 'true' ? true : false
@@ -139,26 +139,24 @@ class InteractiveKey
     {
       observation_matrix_id: @observation_matrix_id,
       project_id: @project_id,
-=begin
-        observation_matrix: @observation_matrix,
-        descriptor_available_languages: @descriptor_available_languages,
-        language_id: @language_id,
-        language_to_use: @language_to_use,
-        keyword_ids: @keyword_ids,
-        descriptor_available_keywords: @descriptor_available_keywords,
-        descriptors_with_filter: @descriptors_with_filter,
-        row_filter: @row_filter,
-        rows_with_filter: @rows_with_filter,
-        sorting: @sorting,
-        error_tolerance: @error_tolerance,
-        eliminate_unknown: @eliminate_unknown,
-        identified_to_rank: @identified_to_rank,
-        selected_descriptors: @selected_descriptors,
-        selected_descriptors_hash: @selected_descriptors_hash,
-        remaining: @remaining,
-        eliminated: @eliminated,
-        list_of_descriptors: @list_of_descriptors
-=end
+      observation_matrix: @observation_matrix,
+      descriptor_available_languages: @descriptor_available_languages,
+      language_id: @language_id,
+      language_to_use: @language_to_use,
+      keyword_ids: @keyword_ids,
+      descriptor_available_keywords: @descriptor_available_keywords,
+      descriptors_with_filter: @descriptors_with_filter,
+      row_filter: @row_filter,
+      rows_with_filter: @rows_with_filter,
+      sorting: @sorting,
+      error_tolerance: @error_tolerance,
+      eliminate_unknown: @eliminate_unknown,
+      identified_to_rank: @identified_to_rank,
+      selected_descriptors: @selected_descriptors,
+      selected_descriptors_hash: @selected_descriptors_hash,
+      remaining: @remaining,
+      eliminated: @eliminated,
+      list_of_descriptors: @list_of_descriptors
     }
   end
 
@@ -212,14 +210,11 @@ class InteractiveKey
     observation_matrix.reorder_rows(by = 'nomenclature')
   end
 
-  # You have a parameter with this name that is set to true or false.
-  def rows_with_filter
-    if @row_item_filter
-      rows
+  def get_rows_with_filter
+    if @row_filter.blank?
+      observation_matrix.observation_matrix_rows.order(:position)
     else
-      #TODO does not works
-      rows
-      #      rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|'))
+      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|')).order(:position)
     end
   end
 
@@ -230,8 +225,8 @@ class InteractiveKey
   def row_hash_initiate
     h = {}
 
-    observation_matrix.observation_matrix_rows.order(:position).each do |r|
-      # rows_with_filter.each do |r|
+
+    rows_with_filter.each do |r|
       otu_collection_object = r.otu_id.to_s + '|' + r.collection_object_id.to_s
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
@@ -262,8 +257,8 @@ class InteractiveKey
       h[d.id][:state_ids] = {} if d.type == 'Descriptor::Qualitative' # hash of used state_ids
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
-      h[d.id][:observations] = [] # all observation for a particular
-      h[d.id][:observation_hash] = [] ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
+      h[d.id][:observations] = {} # all observation for a particular
+      h[d.id][:observation_hash] = {} ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
       h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
@@ -365,7 +360,7 @@ class InteractiveKey
     list_of_remaining_taxa = {}
     language = @language_id.blank? ? nil : @language_id.to_i
     @row_hash.each do |r_key, r_value|
-      if r_value[:status] != 'eliminated' && d_value[:status] != 'used'
+      if r_value[:status] != 'eliminated' && r_value[:status] != 'used'
         list_of_remaining_taxa[r_value[:object_at_rank] ] = true
       end
     end
@@ -373,7 +368,7 @@ class InteractiveKey
     array_of_descriptors = []
 
     @descriptors_hash.each do |d_key, d_value|
-      taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == 'false'
+      taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
         if @row_hash[otu_collection_object][:status] != 'eliminated'
@@ -396,12 +391,12 @@ class InteractiveKey
             unless o.sample_min.nil?
               d_value[:state_ids][o.id] = {o_min: o.sample_min, o_max: o.sample_max}
             end
-            taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false
+            taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false if @eliminate_unknown == false
           end
         end
       end
-
-      number_of_taxa_with_unknown_character_states = taxa_with_unknown_character_states.select{|key, value| value == true}.count
+      number_of_taxa_with_unknown_character_states = 0
+      number_of_taxa_with_unknown_character_states = taxa_with_unknown_character_states.select{|key, value| value == true}.count if @eliminate_unknown == false
 
       descriptor = {}
       descriptor[:id] = d_key
@@ -417,11 +412,11 @@ class InteractiveKey
       when 'Descriptor::Qualitative'
         number_of_states = d_value[:state_ids].count
         descriptor[:states] = []
+        s = 0
         d_value[:state_ids].each do |s_key, s_value|
           c = CharacterState.find(s_key.to_i)
           state = {}
           state[:id] = c.id
-          state[:type] = c.type
           state[:name] = c.target_name(:key, language)
           state[:position] = c.position
           state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
@@ -439,7 +434,7 @@ class InteractiveKey
           descriptor[:states] += [state]
         end
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
-        descriptor[:states].sort_by!{|i| i.position}
+        descriptor[:states].sort_by!{|i| i[:position]}
       when 'Descriptor::Continuous'
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
@@ -484,7 +479,7 @@ class InteractiveKey
           else
             d_value[:status] = 'useful'
           end
-          s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
+          s = (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
         end
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
