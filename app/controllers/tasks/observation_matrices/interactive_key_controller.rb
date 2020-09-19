@@ -11,11 +11,6 @@ class Tasks::ObservationMatrices::InteractiveKeyController < ApplicationControll
     @key = InteractiveKey.new(key_params) 
   end
 
-# Vue store -> loading all data
-#       -> auto trigger events -> new requests
-
-
-
   protected
 
   #params[:observation_matrix_id, :project_id, :observation_matrix, :language_id, :keyword_ids, :row_filter,

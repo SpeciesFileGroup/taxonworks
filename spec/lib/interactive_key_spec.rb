@@ -14,43 +14,38 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
 
     let(:interactive_key) { InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id) }
 
-#    observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu1)
-#    observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu2)
-#    observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-#    observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
-
     specify 'observation_matrix' do
       expect(interactive_key.observation_matrix).to eq(observation_matrix)
     end
 
     specify 'descriptor_available_languages' do
       eng
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       a = AlternateValue.create(type: 'AlternateValue::Translation', value: 'zzz', alternate_value_object: descriptor1, alternate_value_object_attribute: 'name', language_id: rus.id)
       expect(interactive_key.descriptor_available_languages.count).to eq(2)
     end
 
     specify 'language_to_use' do
       eng
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       a = AlternateValue.create(type: 'AlternateValue::Translation', value: 'zzz', alternate_value_object: descriptor1, alternate_value_object_attribute: 'name', language_id: rus.id)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, language_id: rus.id)
       expect(interactive_key.language_to_use).to eq(rus)
     end
 
     specify 'descriptor_available_keywords' do
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       k = Keyword.create(name: 'zzz', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
       descriptor1.tags.create(keyword: k)
       expect(interactive_key.descriptor_available_keywords.count).to eq(1)
     end
 
     specify 'descriptor_weight' do
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
       expect(interactive_key.descriptors_with_filter.count).to eq(2)
       descriptor1.weight = 0
@@ -60,8 +55,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     end
 
     specify 'descriptors_with_keywords' do
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor1)
-      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::SingleDescriptor.new(descriptor: descriptor2)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       k1 = Keyword.create(name: 'zzz1', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzz')
       k2 = Keyword.create(name: 'zzz2', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzzz')
       t1 = descriptor1.tags.create(keyword: k1)
@@ -73,14 +68,85 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     end
 
     specify 'rows_with_filter' do
-      o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu1)
-      o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::SingleOtu.new(otu: otu2)
+      o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu1)
+      o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu2)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
       expect(interactive_key.rows_with_filter.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id.to_s + '|' + observation_matrix.observation_matrix_rows.last.id.to_s)
       expect(interactive_key.rows_with_filter.count).to eq(2)
     end
-
-
   end
+
+  context 'functionality test' do
+    before(:all) do
+      @observation_matrix =  ObservationMatrix.create!(name: 'Matrix')
+      @genus1 = FactoryBot.create(:relationship_genus, name: 'Aus')
+      @genus2 = FactoryBot.create(:relationship_genus, name: 'Bus')
+      @genus3 = FactoryBot.create(:relationship_genus, name: 'Cus')
+      @species1 = FactoryBot.create(:iczn_species, name: 'aa', parent: @genus1)
+      @species2 = FactoryBot.create(:iczn_species, name: 'aaa', parent: @genus1)
+      @species3 = FactoryBot.create(:iczn_species, name: 'aaaa', parent: @genus1)
+      @species4 = FactoryBot.create(:iczn_species, name: 'bb', parent: @genus2)
+      @species5 = FactoryBot.create(:iczn_species, name: 'bbb', parent: @genus2)
+      @species6 = FactoryBot.create(:iczn_species, name: 'bbbb', parent: @genus2)
+
+      @otu1 =  Otu.create!(taxon_name: @species1)
+      @otu2 =  Otu.create!(taxon_name: @species2)
+      @otu3 =  Otu.create!(taxon_name: @species3)
+      @otu4 =  Otu.create!(taxon_name: @species4)
+      @otu5 =  Otu.create!(taxon_name: @species5)
+      @otu6 =  Otu.create!(taxon_name: @species6)
+      @otu7 =  Otu.create!(taxon_name: @genus3)
+      @otu8 =  Otu.create!(name: 'a8')
+      @otu9 =  Otu.create!(name: 'b9')
+      @collection_object =  CollectionObject::BiologicalCollectionObject.create(total: 1, )
+      @taxon_determination =  TaxonDetermination.create(otu: @otu1, biological_collection_object: @collection_object)
+
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu1)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu2)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu3)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu4)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu5)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu6)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu7)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu8)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: @otu9)
+      @observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::CollectionObject.new(collection_object: @collection_object)
+
+      @descriptor1 =  Descriptor::Qualitative.create!(name: 'Descriptor 1')
+      @cs1 =  CharacterState.create!(name: 'State1', label: '0', descriptor: @descriptor1)
+      @cs2 =  CharacterState.create!(name: 'State2', label: '1', descriptor: @descriptor1)
+      @cs3 =  CharacterState.create!(name: 'State3', label: '2', descriptor: @descriptor1)
+      @descriptor2 =  Descriptor::Qualitative.create!(name: 'Descriptor 2')
+      @cs4 =  CharacterState.create!(name: 'State4', label: '0', descriptor: @descriptor2)
+      @cs5 =  CharacterState.create!(name: 'State5', label: '1', descriptor: @descriptor2)
+      @cs6 =  CharacterState.create!(name: 'State6', label: '2', descriptor: @descriptor2)
+      @descriptor3 =  Descriptor::Qualitative.create!(name: 'Descriptor 3')
+      @cs7 =  CharacterState.create!(name: 'State7', label: '0', descriptor: @descriptor3)
+      @cs8 =  CharacterState.create!(name: 'State8', label: '1', descriptor: @descriptor3)
+      @descriptor4 =  Descriptor::Qualitative.create!(name: 'Descriptor 4')
+      @cs9 =  CharacterState.create!(name: 'State9', label: '0', descriptor: @descriptor4)
+      @cs10 =  CharacterState.create!(name: 'State10', label: '1', descriptor: @descriptor4)
+      @descriptor5 =  Descriptor::Sample.create!(name: 'Descriptor 5')
+      @descriptor6 =  Descriptor::Continuous.create!(name: 'Descriptor 6')
+      @descriptor7 =  Descriptor::PresenceAbsence.create!(name: 'Descriptor 7')
+
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor1)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor2)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor3)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor4)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor5)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor6)
+      @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor7)
+
+
+      @interactive_key =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id, project_id: @observation_matrix.project_id)
+    end
+
+    specify 'valid matrix' do
+      expect(@interactive_key.remaining.count).to eq(10)
+      expect(@interactive_key.list_of_descriptors.count).to eq(7)
+    end
+  end
+
 end

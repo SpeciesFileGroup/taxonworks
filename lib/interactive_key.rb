@@ -99,8 +99,7 @@ class InteractiveKey
     # @observation_matrix = observation_matrix
 
     # Do you mean
-    @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id) 
-
+    @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
 
     @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
@@ -251,7 +250,7 @@ class InteractiveKey
       h[d.id] = {}
       h[d.id][:descriptor] = d
       h[d.id][:weight_index] = 0
-      h[d.id][:state_ids] = {} if d.type == 'Descriptor::Qualitative' # hash of used state_ids
+      h[d.id][:state_ids] = {}
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
       h[d.id][:observations] = {} # all observation for a particular
@@ -404,18 +403,18 @@ class InteractiveKey
       descriptor[:usefulness] = 0
       descriptor[:status] = d_value[:status] == 'used' ? 'used' : 'useless'
 
-      sum = 0
+      s = 0
       case d_value[:descriptor].type
       when 'Descriptor::Qualitative'
         number_of_states = d_value[:state_ids].count
         descriptor[:states] = []
-        s = 0
         d_value[:state_ids].each do |s_key, s_value|
           c = CharacterState.find(s_key.to_i)
           state = {}
           state[:id] = c.id
           state[:name] = c.target_name(:key, language)
           state[:position] = c.position
+          state[:label] = c.label
           state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = 'usefull'
           n = s_value[:rows].count
@@ -430,21 +429,20 @@ class InteractiveKey
           s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
         end
-        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
+        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
         descriptor[:states].sort_by!{|i| i[:position]}
       when 'Descriptor::Continuous'
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
         descriptor[:max] = d_value[:max]
         number_of_measurements = d_value[:state_ids].count
-        s = (s_value[:o_min] - (s_value[:o_min] / 10))  / (d_value[:max] - d_value[:min])
+        s = (d_value[:min] - (d_value[:min] / 10)) / (d_value[:max] - d_value[:min])
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa))
       when 'Descriptor::Sample'
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
         descriptor[:max] = d_value[:max]
         number_of_measurements = d_value[:state_ids].count
-        s = 0
         #                               i = max - min ; if 0 then (numMax - numMin / 10)
         #                               sum of all i
         #                               if numMax = numMin then numMax = numMax + 0.00001
@@ -479,7 +477,7 @@ class InteractiveKey
           s = (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
         end
-        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s)
+        descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
         descriptor[:states].sort_by!{|i| -i.name}
       end
 
