@@ -77,7 +77,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     end
   end
 
-  context 'functionality test' do
+  context 'interactive key functionality' do
     before(:all) do
       @observation_matrix =  ObservationMatrix.create!(name: 'Matrix')
       @genus1 = FactoryBot.create(:relationship_genus, name: 'Aus')
@@ -139,6 +139,91 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor6)
       @observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: @descriptor7)
 
+      # 0   2   0   1   1-2   1 true
+      # 1   1   1   0   2-3   2 false
+      # 2   0   0   1   1-3   3 true
+      # 0   2   -   -   3-4   4 false
+      # 1   1   0   1   2-4   1 true
+      # 2   0   1   0   1-2   2 false
+      # 0   2   0   1   1-3   3 true
+      # 1   1   1   0   2-3   4 false
+      # 1   0   0   1   1-2   1 true
+      # 0   2   1   0   1     2 false
+
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu1, character_state: @cs1)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu2, character_state: @cs2)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu3, character_state: @cs3)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu4, character_state: @cs1)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu5, character_state: @cs2)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu6, character_state: @cs3)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu7, character_state: @cs1)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu8, character_state: @cs2)
+      Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu9, character_state: @cs3)
+      Observation::Qualitative.create!(descriptor: @descriptor1, collection_object: @collection_object, character_state: @cs1)
+
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu1, character_state: @cs6)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu2, character_state: @cs5)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu3, character_state: @cs4)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu4, character_state: @cs6)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu5, character_state: @cs5)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu6, character_state: @cs4)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu7, character_state: @cs6)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu8, character_state: @cs5)
+      Observation::Qualitative.create!(descriptor: @descriptor2, otu: @otu9, character_state: @cs4)
+      Observation::Qualitative.create!(descriptor: @descriptor2, collection_object: @collection_object, character_state: @cs6)
+
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu1, character_state: @cs7)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu2, character_state: @cs8)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu3, character_state: @cs7)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu5, character_state: @cs7)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu6, character_state: @cs8)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu7, character_state: @cs7)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu8, character_state: @cs8)
+      Observation::Qualitative.create!(descriptor: @descriptor3, otu: @otu9, character_state: @cs7)
+      Observation::Qualitative.create!(descriptor: @descriptor3, collection_object: @collection_object, character_state: @cs8)
+
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu1, character_state: @cs10)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu2, character_state: @cs9)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu3, character_state: @cs10)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu5, character_state: @cs10)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu6, character_state: @cs9)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu7, character_state: @cs10)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu8, character_state: @cs9)
+      Observation::Qualitative.create!(descriptor: @descriptor4, otu: @otu9, character_state: @cs10)
+      Observation::Qualitative.create!(descriptor: @descriptor4, collection_object: @collection_object, character_state: @cs9)
+
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu1, sample_min: 1, sample_max: 2)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu2, sample_min: 2, sample_max: 3)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu3, sample_min: 1, sample_max: 3)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu4, sample_min: 3, sample_max: 4)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu5, sample_min: 2, sample_max: 4)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu6, sample_min: 1, sample_max: 2)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu7, sample_min: 1, sample_max: 3)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu8, sample_min: 2, sample_max: 3)
+      Observation::Sample.create!(descriptor: @descriptor5, otu: @otu9, sample_min: 1, sample_max: 2)
+      Observation::Sample.create!(descriptor: @descriptor5, collection_object: @collection_object, sample_min: 1)
+
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu1, continuous_value: 1)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu2, continuous_value: 2)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu3, continuous_value: 3)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu4, continuous_value: 4)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu5, continuous_value: 1)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu6, continuous_value: 2)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu7, continuous_value: 3)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu8, continuous_value: 4)
+      Observation::Continuous.create!(descriptor: @descriptor6, otu: @otu9, continuous_value: 1)
+      Observation::Continuous.create!(descriptor: @descriptor6, collection_object: @collection_object, continuous_value: 2)
+
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu1, presence: true)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu2, presence: false)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu3, presence: true)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu4, presence: false)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu5, presence: true)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu6, presence: false)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu7, presence: true)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu8, presence: false)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu9, presence: true)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, collection_object: @collection_object, presence: false)
 
       @interactive_key =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id, project_id: @observation_matrix.project_id)
     end

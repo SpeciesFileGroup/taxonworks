@@ -263,10 +263,10 @@ class InteractiveKey
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
         h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
-        h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && o.character_state_id < h[o.descriptor_id][:min]
-        h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && o.character_state_id > h[o.descriptor_id][:max]
-        h[o.descriptor_id][:min] = o.sample_min if o.sample_min && o.sample_min < h[o.descriptor_id][:min]
-        h[o.descriptor_id][:max] = o.sample_max if o.sample_max && o.sample_max > h[o.descriptor_id][:max]
+        h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:min] && o.continuous_value < h[o.descriptor_id][:min]
+        h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:max] && o.continuous_value > h[o.descriptor_id][:max]
+        h[o.descriptor_id][:min] = o.sample_min if o.sample_min && h[o.descriptor_id][:min] && o.sample_min < h[o.descriptor_id][:min]
+        h[o.descriptor_id][:max] = o.sample_max if o.sample_max && h[o.descriptor_id][:max] && o.sample_max > h[o.descriptor_id][:max]
         h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.character_state_id.to_s] if o.character_state_id
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.continuous_value.to_s] if o.continuous_value
@@ -449,9 +449,9 @@ class InteractiveKey
         #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
         d_value[:state_ids].each do |s_key, s_value|
           if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
-            s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
+            s += (s_value[:o_max] || s_value[:o_min] - s_value[:o_min]) / number_of_measurements / (d_value[:max] || d_value[:min] - d_value[:min])
           else
-            s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] - d_value[:min])
+            s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] || d_value[:min] - d_value[:min])
           end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa))
@@ -460,10 +460,7 @@ class InteractiveKey
         number_of_states = 2
         descriptor[:states] = []
         d_value[:state_ids].each do |s_key, s_value|
-          c = CharacterState.find(s_key.to_i)
           state = {}
-          state[:id] = c.id
-          state[:type] = c.type
           state[:name] = s_key
           state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = 'usefull'
@@ -478,7 +475,7 @@ class InteractiveKey
           descriptor[:states] += [state]
         end
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
-        descriptor[:states].sort_by!{|i| -i.name}
+        descriptor[:states].sort_by!{|i| -i[:name]}
       end
 
       array_of_descriptors += [descriptor]
