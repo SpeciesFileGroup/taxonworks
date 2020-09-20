@@ -18,11 +18,13 @@ services:
     stdin_open: true
     tty: true
   db:
-    image: mdillon/postgis:10
+    image: postgis/postgis:12-3.0
     ports: 
       - "0.0.0.0:15432:5432"
     volumes:
       - pg:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
   webpack:
     build: 
       context: .
