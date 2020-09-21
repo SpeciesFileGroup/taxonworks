@@ -8,13 +8,28 @@
       :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
       slot="title">Expand</a>
     <a name="asserted-distributions"/>
-    <ul class="no_bullets">
-      <li
-        v-for="assertedDistribution in assertedDistributions"
-        :key="assertedDistribution.id">
-        <span v-html="assertedDistribution.geographic_area.name"/>
-      </li>
-    </ul>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>type</th>
+          <th>Presence/absence</th>
+          <th>Shape</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="assertedDistribution in assertedDistributions"
+          :key="assertedDistribution.id">
+          <td>{{ assertedDistribution.geographic_area.name }}</td>
+          <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
+          <td>{{ assertedDistribution.is_absent ? 'Absent' : 'Present' }}</td>
+          <td>{{ assertedDistribution.geographic_area.geo_json ? 'Yes' : 'No' }}</td>
+          <td>{{ assertedDistribution.citations.map(citation => citation.citation_source_body).sort().join('; ') }}</td>
+        </tr>
+      </tbody>
+    </table>
   </section-panel>
 </template>
 
