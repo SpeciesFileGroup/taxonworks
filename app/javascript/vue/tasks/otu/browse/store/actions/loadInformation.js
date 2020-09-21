@@ -1,6 +1,6 @@
 import ActionNames from './actionNames'
 
-export default ({ dispatch }, otus) => {
+export default ({ dispatch, state }, otus) => {
   function loadOtuInformation (otu) {
     const promises = []
     return new Promise((resolve, reject) => {
@@ -19,7 +19,12 @@ export default ({ dispatch }, otus) => {
   dispatch(ActionNames.LoadDescendants, otus[0])
   dispatch(ActionNames.LoadPreferences)
 
-  otus.forEach(async otu => {
-    await loadOtuInformation(otu)
-  })
+  async function processArray(array) {
+    for (const item of array) {
+      await loadOtuInformation(item)
+    }
+    state.loadState.biologicalAssociations = false
+    state.loadState.assertedDistribution = false
+  }
+  processArray(otus)
 }

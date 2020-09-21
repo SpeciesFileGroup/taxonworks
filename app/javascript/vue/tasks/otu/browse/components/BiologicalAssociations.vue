@@ -2,6 +2,7 @@
   <section-panel
     :status="status"
     :title="title"
+    :spinner="loadState.biologicalAssociations"
     @menu="setModalView(true)">
     <a name="biological-associations"/>
     <table class="full_width">

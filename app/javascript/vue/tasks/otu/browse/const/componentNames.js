@@ -9,7 +9,7 @@ export default () => {
     ImageGallery: {
       title: 'Images',
       status: 'prototype',
-      rankGroup: ['SpeciesGroup']
+      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     CommonNames: {
       title: 'Common names',
@@ -23,12 +23,12 @@ export default () => {
     TypeSpecimens: {
       title: 'Type specimens',
       status: 'prototype',
-      rankGroup: ['SpeciesGroup']
+      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     CollectionObjects: {
       title: 'Specimen records',
       status: 'prototype',
-      rankGroup: ['SpeciesGroup']
+      rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     ContentComponent: {
       title: 'Content',

@@ -1,6 +1,7 @@
 <template>
   <section-panel
     :status="status"
+    :spinner="loadState.assertedDistribution"
     :title="title">
     <a
       v-if="currentOtu"
