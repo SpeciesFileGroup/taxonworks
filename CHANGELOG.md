@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Sortable order for Type material, Biological association and Determinations on comprehensive task
 - User facet on Filter nomenclature task [#1720]
 - Pagination on Filter noemnclature task [#1724]
+- Biological associations filter on Browse OTU
 
 ### Changed
 - Preload all CSL styles via fixed constant, increasing boot speed [#1749]
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
 - Override browser shortcuts on task hotkeys [#1738]
+- Biological associations section on Browse OTU
 
 ## Fixed
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
