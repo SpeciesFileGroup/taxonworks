@@ -2,7 +2,7 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="content"/>
+    <a name="type"/>
     <div class="separate-top">
       <p
         v-if="taxonNameType"
