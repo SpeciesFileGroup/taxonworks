@@ -42,12 +42,14 @@
           <div class="full_width margin-left-margin">
             <h4>Relations</h4>
             <filter-list
+              class="overflow-y-scroll"
               :list="relationList"
               v-model="relationsFilter"/>
           </div>
           <div class="full_width margin-left-margin">
             <h4>Otus</h4>
             <filter-list
+              class="overflow-y-scroll"
               :type="sourcesList.length > radioBelow ? 'checkbox' : 'radio'"
               :list="otusList"
               v-model="otusFilter"/>
@@ -56,6 +58,7 @@
         <div class="full_width margin-left-margin">
           <h4>Sources</h4>
           <filter-list
+            class="overflow-y-scroll"
             :type="sourcesList.length > radioBelow ? 'checkbox' : 'radio'"
             :list="sourcesList"
             v-model="sourcesFilter"/>

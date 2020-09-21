@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="max-height: 450px;">
     <ul class="no_bullets">
       <li
         v-for="item in list"
