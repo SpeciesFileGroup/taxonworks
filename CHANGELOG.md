@@ -410,7 +410,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 
 ### Fixed
-- Identifiers list was not rendering some Identifier Types
 - Recently used objects code on some models
 - Collection Object Filter task not filternig by type material type ([#1551])
 - Forms not being cleared when pressing `new` on Compose Biological Relationships task ([#1563])
