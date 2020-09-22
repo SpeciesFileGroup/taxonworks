@@ -223,7 +223,7 @@ class CollectingEvent < ApplicationRecord
   has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
+  has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
   has_many :otus, through: :collection_objects
@@ -543,7 +543,7 @@ class CollectingEvent < ApplicationRecord
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
@@ -994,7 +994,7 @@ class CollectingEvent < ApplicationRecord
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s).to_f
       delta_z = elev unless elev == 0.0 # Meh, BAD! must be nil
       retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
@@ -1075,7 +1075,8 @@ class CollectingEvent < ApplicationRecord
     cache_geographic_names[:state]
   end
 
-  # @return [CollectingEvent instance]
+  # @return [CollectingEvent]
+  #   the instance may not be valid!
   def clone
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
@@ -1092,11 +1093,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    begin
-      a.save!
-    rescue ActiveRecord::RecordInvalid
-      return false
-    end
+    a.save
     a
   end
 

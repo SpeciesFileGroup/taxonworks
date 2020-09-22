@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
+RSpec.describe ObservationMatrixRow, type: :model, group: :observation_matrix do
 
   let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
   let(:observation_matrix_row) {ObservationMatrixRow.new}

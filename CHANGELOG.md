@@ -7,7 +7,88 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- Handling for new unicode minutes, seconds symbols [#1526]
+- Descriptor object radial paths
+- Many specs related to dynamic observation matrix items
+- Improvements to Descriptor autocomplete labels [#1727]
+- Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Pdf viewer button on Documentation and Source views [#1693]
+- Spinner for when converting verbatim to bibtex [#1710]
+- Set OTU in determination when otu_id param is present on comprehensive task
+- "Create georeference from verbatim" button in Parsed column on comprehensive task
+- Sortable order for Type material, Biological association and Determinations on comprehensive task
+- User facet on Filter nomenclature task [#1720]
+- Pagination on Filter noemnclature task [#1724]
+- Biological associations filter on Browse OTU
+
+### Changed
+- AssertedDistribution filter `otu_id` and `geographic_area_id` can now also take array form, e.g. `otu_id[]=`
+- Preload all CSL styles via fixed constant, increasing boot speed [#1749]
+- Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
+- Data migration updating all `type` column values for matrix row/column items
+- Tweaked JSON attribute response for matrix rows and columns very slightly
+- Updated observation item types to properly nest them, inc. all downstream changes (Factories, etc.)
+- Unfied matrix hooks in various places
+- Updated some matrix related routes to point to tasks 
+- Updated respec `matrix` tag to `observation_matrix`
+- Methods that write to cached should not fire callbacks, potential for [#1701]
+- Using custom geckodriver-helper for Firefox 80 support
+- Override browser shortcuts on task hotkeys [#1738]
+- Biological associations section on Browse OTU
+- TW now supports Postgres 12 [#1305]
+- Replaced biodiversity with custom gem repo using IPC with gnparser processes
+- Updated gems
+- Character "΄" also accepted as minute specifier in coordinates parsing.
+
+## Fixed
+- Fixed LOW_PROBABILITY constant message
+- Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
+- Scope of dynamic taxon name row item [#1747]
+- Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
+- Character state order not correct in Nexus format [#1574]
+- Not able to destroy matrix rows or matrices [#1520], [#1123]
+- Dynamic observeratoin matrix items not properly scoped/behaving [#1125]
+- Destroy pdf pages before create new ones [#1680]
+- Serial multiple updates did not update bibtex author field [#1709]
+- Fix (likely) for pinboard items failing to remove [#1690]
+- Better response for failed collecting event cloning [#1705]
+- Cleaned up deprecated biological associations graph autcomplete [#1707]
+- Colliding `namespace` method for identifiers breaks identifiers list [#1702]
+- Graceful failed serial destroy response [#1703]
+- Restored Show -> edit link [#1699]
+- Enable search button after pick a collecting event date on Filter collection objects task [#1728]
+- Misppeling collecting_event_ids parameter [#1729]
+- Non-original combination authorship lacking parentheses [#1686]
+
+
+[#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
+[#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
+[#1747]: https://github.com/SpeciesFileGroup/taxonworks/issues/1747
+[#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
+[#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
+[#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
+[#1574]: https://github.com/SpeciesFileGroup/taxonworks/issues/1574
+[#1520]: https://github.com/SpeciesFileGroup/taxonworks/issues/1520
+[#1123]: https://github.com/SpeciesFileGroup/taxonworks/issues/1123
+[#1125]: https://github.com/SpeciesFileGroup/taxonworks/issues/1125
+[#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
+[#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
+[#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
+[#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1693]: https://github.com/SpeciesFileGroup/taxonworks/issues/1693
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
+[#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
+[#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
+[#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
+[#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
+[#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
+[#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
+[#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
+[#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
+[#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
+[#1686]: https://github.com/SpeciesFileGroup/taxonworks/issues/1686
+[#1305]: https://github.com/SpeciesFileGroup/taxonworks/pull/1305
 
 ## [0.12.17] - 2020-02-02
 
@@ -30,7 +111,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed limit of download bibtex on filter source [#1683]
 - Disable/enable destroy button from metadata on radial navigator [#1696]
 
-#### Fixed
+### Fixed
 - Non admins not able to destroy shared data [#1098]
 - Pending confirmation: Include original combinations in CoLDP [#1204] 
 - Pending confirmation: Include forma/variety properly in CoLDP [#1203] 

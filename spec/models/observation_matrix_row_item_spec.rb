@@ -1,19 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRowItem, type: :model, group: :matrix do
+RSpec.describe ObservationMatrixRowItem, type: :model, group: :observation_matrix do
   let(:observation_matrix_row_item) { ObservationMatrixRowItem.new }
   let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
-
-  context 'validation' do
-    before { observation_matrix_row_item.valid? }
-
-    specify 'observation_matrix is required' do
-      expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
-    end
-
-    specify 'type is required' do
-      expect(observation_matrix_row_item.errors.include?(:type)).to be_truthy
-    end
+  
+  specify 'observation_matrix is required' do
+    observation_matrix_row_item.valid?
+    expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
   end
 
   context 'subclass STI' do

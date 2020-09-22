@@ -169,7 +169,7 @@ export default {
             const data = {
               observation_matrix_id: this.selectedMatrix.id,
               otu_id: this.otuSelected,
-              type: 'ObservationMatrixRowItem::SingleOtu'
+              type: 'ObservationMatrixRowItem::Single::Otu'
             }
             CreateObservationMatrixRow(data).then(response => {
               GetObservationRow({ otu_id: this.otuSelected }).then(response => {

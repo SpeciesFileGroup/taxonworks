@@ -301,7 +301,7 @@ require 'namecase'
 #   `author` is automatically populated from `authors` if the latter is provided
 #   !! This is different behavious from TaxonName, where `verbatim_author` has priority over taxon_name_author (People) in rendering.
 #
-#   See also `cached_author_author_string` 
+#   See also `cached_author_string`
 #
 class Source::Bibtex < Source
 
@@ -722,9 +722,9 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    # Over-ride `author` and `editor` if there
-    b.author = compute_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
-    b.editor = compute_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
+    # Overiden by `author` and `editor` if present
+    b.author = get_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = get_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
@@ -736,7 +736,7 @@ class Source::Bibtex < Source
   def get_author
     a = authors.load
     if a.any?
-      compute_bibtex_names('author')
+      get_bibtex_names('author')
     else
       author.blank? ? nil : author
     end
@@ -800,7 +800,6 @@ class Source::Bibtex < Source
   #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
-
     if !authors.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
         return nil
@@ -840,8 +839,9 @@ class Source::Bibtex < Source
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
   #   This only references People, i.e. `authors` and `editors`.
   #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
-  def compute_bibtex_names(role_type)
-    send("#{role_type}_roles").collect{ |a| a.person.bibtex_name }.join(' and ')
+  def get_bibtex_names(role_type)
+    # so, we can not reload here
+    send("#{role_type}s").collect{ |a| a.bibtex_name}.join(' and ')
   end
 
   # @return [Ignored]
@@ -850,7 +850,7 @@ class Source::Bibtex < Source
       Person.transaction do
         authors_to_create.each do |shs|
           p = Person.create!(shs)
-          self.author_roles.build(person: p)
+          author_roles.build(person: p)
         end
       end
     rescue
@@ -864,8 +864,8 @@ class Source::Bibtex < Source
     if errors.empty?
       attributes_to_update = {}
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if authors.reload.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
+      attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
       if bibtex_type == 'book' && !pages.blank?
@@ -878,6 +878,7 @@ class Source::Bibtex < Source
       if stated_year && year && stated_year != year
         c = c + " [#{stated_year}]"
       end
+
       attributes_to_update.merge!(
         cached: c,
         cached_nomenclature_date: nomenclature_date,

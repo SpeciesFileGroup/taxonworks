@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observation_matrix do
-  let(:observation_matrix_row_item) { ObservationMatrixRowItem::SingleOtu.new }
+RSpec.describe ObservationMatrixRowItem::Single::Otu, type: :model, group: :observation_matrix do
+  let(:observation_matrix_row_item) { ObservationMatrixRowItem::Single::Otu.new }
 
   context 'validation' do
     before { observation_matrix_row_item.valid? }
@@ -16,8 +16,8 @@ RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observ
       expect(observation_matrix_row_item.errors.include?(:otu)).to be_truthy
     end
 
-    specify 'type is "ObservationMatrixRowItem::SingleOtu"' do
-      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::SingleOtu')
+    specify 'type is "ObservationMatrixRowItem::Single::Otu"' do
+      expect(observation_matrix_row_item.type).to eq('ObservationMatrixRowItem::Single::Otu')
     end
 
     context 'other possible subclass attributes are nil' do
@@ -64,7 +64,7 @@ RSpec.describe ObservationMatrixRowItem::SingleOtu, type: :model, group: :observ
       end
 
       specify 'otu can only be added once to observation_matrix_row_item' do
-        expect(ObservationMatrixRowItem::SingleOtu.new(observation_matrix: observation_matrix, otu: otu).valid?).to be_falsey
+        expect(ObservationMatrixRowItem::Single::Otu.new(observation_matrix: observation_matrix, otu: otu).valid?).to be_falsey
       end
     end
   end

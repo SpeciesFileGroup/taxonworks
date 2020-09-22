@@ -47,7 +47,8 @@
               v-if="buttons">
               <button
                 type="button"
-                class="button normal-input tag_button button-data"
+                class="button normal-input tag_button"
+                :class="buttonClass"
                 v-html="item[label]"
                 @click.prevent="sendObject(item)"/>
             </template>
@@ -107,6 +108,10 @@ export default {
     buttons: {
       type: Boolean,
       default: false
+    },
+    buttonClass: {
+      type: String,
+      default: 'button-data'
     },
     otuPicker: {
       type: Boolean,

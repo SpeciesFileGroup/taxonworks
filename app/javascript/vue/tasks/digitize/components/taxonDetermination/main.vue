@@ -280,9 +280,13 @@ export default {
     if (/^\d+$/.test(taxonId)) {
       GetOtus(taxonId).then(response => {
         if (response.body.length) {
+          if (response.body.length === 1) {
+            this.setOtu(response.body[0])
+          }
           this.smartList.quick = response.body
         } else {
           CreateOtu(taxonId).then(otu => {
+            this.setOtu(otu)
             this.smartList.quick.push(otu.body)
           })
         }

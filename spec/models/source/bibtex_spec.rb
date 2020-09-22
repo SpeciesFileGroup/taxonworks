@@ -25,11 +25,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
   context '#clone' do
     before do
-      bibtex.update(title: 'This is verbatim', bibtex_type: :article)
-    end
-
-    specify 'persists' do
-      expect(bibtex.clone.persisted?).to be_truthy
+      bibtex.update!(title: 'This is verbatim', bibtex_type: :article)
     end
 
     specify 'labeled' do
@@ -231,7 +227,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.journal = nil
           src.soft_validate()
           expect(src.soft_validations.messages).to include 'This article is missing a journal name.'
-          src.update(serial: serial1)
+          src.update!(serial: serial1)
           src.soft_validate(:sv_missing_required_bibtex_fields)
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
@@ -579,7 +575,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             specify 'multiple authors' do
               source_bibtex.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
-              source_bibtex.save
+              source_bibtex.save!
               expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
             end
@@ -594,9 +590,23 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             specify 'SourceAuthor role' do
               a = Person.parse_to_people('Dmitriev, D.A.').first
-              a.save
+              a.save!
               SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
               expect(source_bibtex.cached_author_string).to eq('Dmitriev')
+            end
+
+            specify 'multiple updates' do
+              a = Person.parse_to_people('Dmitriev, D.A.').first
+              b = Person.parse_to_people('Yoder, M.J.').first
+              a.save!
+              b.save!
+              source_bibtex.update!(roles_attributes: [{person_id: a.id, type: 'SourceAuthor'}])
+              expect(source_bibtex.cached_author_string).to eq('Dmitriev')
+              expect(source_bibtex.author).to eq('Dmitriev, D.A.')
+              source_bibtex.update!(roles_attributes: [{id: source_bibtex.roles.first.id}, {person_id: b.id, type: 'SourceAuthor'}])
+
+              expect(source_bibtex.reload.cached_author_string).to eq('Dmitriev & Yoder')
+              expect(source_bibtex.reload.author).to eq('Dmitriev, D.A. and Yoder, M.J.')
             end
           end
 
@@ -1233,7 +1243,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'creates new author role with existing person' do
         let(:params) { required_params.merge(one_author_params) }
         specify 'update adds role' do
-          expect(b.update(params)).to be_truthy
+          expect(b.update!(params)).to be_truthy
           expect(b.roles.reload.size).to eq(1)
         end
       end
@@ -1249,14 +1259,14 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context 'deletes existing author role' do
-        before { b.update(one_author_params) }
+        before { b.update!(one_author_params) }
         context 'verify existing person is not deleted' do
           let(:params) { {
             author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
           } }
           specify 'update destroys role' do
             expect(b.roles.reload.size).to eq(1)
-            expect(b.update(params)).to be_truthy
+            expect(b.update!(params)).to be_truthy
             expect(b.roles.reload.size).to eq(0)
           end
         end
@@ -1287,19 +1297,19 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context 'authors (roles) are rearranged according to specified position' do
-        before { b.update(three_author_params) }
+        before { b.update!(three_author_params) }
         let(:params) { {
           author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
         } }
+
         specify 'update updates position' do
-          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
-          b.update(params)
-          expect(b.authors.reload.collect { |a| a.last_name }).to eq(%w{Deux Trois Un})
-          expect(b.authors.count).to eq(3)
-          expect(b.authority_name).to eq('Deux, Trois & Un')
+          b.update!(params)
+          expect(b.reload.authority_name).to eq('Deux, Trois & Un')
+          expect(b.authors.collect{|a| a.last_name }).to eq(%w{Deux Trois Un})
         end
       end
+
     end
   end
 

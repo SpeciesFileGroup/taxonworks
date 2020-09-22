@@ -147,7 +147,7 @@ export default {
         let data = {
           observation_matrix_id: this.selectedMatrix.id,
           otu_id: this.otuId,
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         }
         CreateObservationMatrixRow(data).then(response => {
           this.loadMatrix(this.selectedMatrix).then(() => {
