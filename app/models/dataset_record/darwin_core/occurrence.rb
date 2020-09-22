@@ -128,9 +128,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
     unless value.blank?
       begin
-        value = Integer(value)
+        raise unless /^\s*(?<integer>[+-]?\d+)\s*$/ =~ value
+        value = integer.to_i
       rescue
-        raise DarwinCore::InvalidData.new({ field_name => ["'#{value} is not a valid integer value"] })
+        raise DarwinCore::InvalidData.new({ field_name => ["'#{value}' is not a valid integer value"] })
       end
     else
       value = nil
