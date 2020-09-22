@@ -42,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Character "΄" also accepted as minute specifier in coordinates parsing.
 
 ## Fixed
+- Fixed LOW_PROBABILITY constant message
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
 - Scope of dynamic taxon name row item [#1747]
 - Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
