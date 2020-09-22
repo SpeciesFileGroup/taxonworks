@@ -41,8 +41,6 @@ const GetOtus = (id) => ajaxCall('get', `/taxon_names/${id}/otus.json`,
     }
   })
 
-const GetAssertedDistributions = (id) => ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
-
 const GetBiologicalAssociations = (globalId) => ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
 
 const GetNavigationOtu = (id) => ajaxCall('get', `/otus/${id}/navigation`)
@@ -73,7 +71,6 @@ export {
   GetUserPreferences,
   GetDepictions,
   GetContent,
-  GetAssertedDistributions,
   GetBiologicalAssociations,
   GetNotes,
   GetTags,

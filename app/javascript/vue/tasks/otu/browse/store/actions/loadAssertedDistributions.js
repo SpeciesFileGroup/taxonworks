@@ -3,7 +3,7 @@ import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, otuId) => {
   return new Promise((resolve, reject) => {
-    GetOtuAssertedDistribution({ otu_id: otuId, geo_json: true }).then(response => {
+    GetOtuAssertedDistribution({ otu_id: state.otus.map(otu => otu.id), geo_json: true }).then(response => {
       commit(MutationNames.SetAssertedDistributions, state.assertedDistributions.concat(response.body).sort((a, b) => {
         const compareA = a.geographic_area.name
         const compareB = b.geographic_area.name
