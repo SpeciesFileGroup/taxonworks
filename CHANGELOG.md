@@ -36,6 +36,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Using custom geckodriver-helper for Firefox 80 support
 - Override browser shortcuts on task hotkeys [#1738]
 - Biological associations section on Browse OTU
+- TW now supports Postgres 12 [#1305]
+- Replaced biodiversity with custom gem repo using IPC with gnparser processes
+- Updated gems
 
 ## Fixed
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
@@ -81,6 +84,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
 [#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
+[#1305]: https://github.com/SpeciesFileGroup/taxonworks/pull/1305
 
 ## [0.12.17] - 2020-02-02
 
