@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.13.0] - 2020-09-22
+
 ### Added
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
@@ -500,7 +504,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...development
+[0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
 [0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
