@@ -21,7 +21,7 @@
           <td v-html="biologicalAssociation.subject.object_tag"/>
           <td v-html="biologicalAssociation.biological_relationship.object_tag"/>
           <td v-html="biologicalAssociation.object.object_tag"/>
-          <td v-html="biologicalAssociation.citations.map(citation => citation.citation_source_body).sort().join('; ')"/>
+          <td v-html="biologicalAssociation.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
         </tr>
       </tbody>
     </table>

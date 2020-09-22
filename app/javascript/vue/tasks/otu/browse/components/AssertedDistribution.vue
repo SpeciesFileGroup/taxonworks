@@ -26,7 +26,7 @@
           <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
           <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
-          <td v-html="assertedDistribution.citations.map(citation => citation.citation_source_body).sort().join('; ')"/>
+          <td v-html="assertedDistribution.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
         </tr>
       </tbody>
     </table>
