@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations filter on Browse OTU
 
 ### Changed
+- AssertedDistribution filter `otu_id` and `geographic_area_id` can now also take array form, e.g. `otu_id[]=`
 - Preload all CSL styles via fixed constant, increasing boot speed [#1749]
 - Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
 - Data migration updating all `type` column values for matrix row/column items
