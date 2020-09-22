@@ -25,7 +25,7 @@
           <td>{{ assertedDistribution.geographic_area.name }}</td>
           <td>{{ assertedDistribution.geographic_area.geographic_area_type.name }}</td>
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
-          <td>{{ assertedDistribution.geographic_area.geo_json ? 'Yes' : 'No' }}</td>
+          <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
           <td>{{ assertedDistribution.citations.map(citation => citation.citation_source_body).sort().join('; ') }}</td>
         </tr>
       </tbody>
