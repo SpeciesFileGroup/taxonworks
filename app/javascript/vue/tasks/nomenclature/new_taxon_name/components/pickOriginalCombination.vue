@@ -3,7 +3,7 @@
     anchor="original-combination"
     :warning="softValidation.length"
     v-help.section.originalCombination.container>
-    <h3 slot="header">Original combination and classification</h3>
+    <h3 slot="header">Original combination and rank</h3>
     <div
       slot="body"
       class="original-combination-picker">
