@@ -333,7 +333,7 @@ class InteractiveKey
         h[r_value[:object_at_rank]] = true if h[r_value[:object_at_rank]].nil?
       end
     end
-    return h
+    return h.keys
   end
 
   def eliminated_taxa
@@ -349,7 +349,7 @@ class InteractiveKey
         end
       end
     end
-    return h
+    return h.keys
   end
 
   def useful_descriptors
