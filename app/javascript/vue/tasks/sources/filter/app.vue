@@ -67,9 +67,13 @@
             <span class="separate-left separate-right">|</span>
             <csv-button :list="csvList"/>
             <span class="separate-left separate-right">|</span>
-            <bibliography-button :params="params"/>
+            <bibliography-button
+              :pagination="pagination"
+              :params="params"/>
             <span class="separate-left separate-right">|</span>
-            <bibtex-button :params="params"/>
+            <bibtex-button
+              :pagination="pagination"
+              :params="params"/>
           </div>
         </div>
         <div

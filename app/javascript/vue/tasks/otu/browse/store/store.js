@@ -14,7 +14,8 @@ function makeInitialState () {
       descendants: true,
       distribution: true,
       assertedDistribution: true,
-      collectionObjects: true
+      collectionObjects: true,
+      biologicalAssociations: true
     },
     preferences: {
       preferenceSchema: 20200807,
@@ -105,6 +106,7 @@ function makeInitialState () {
     taxonName: undefined,
     currentOtu: undefined,
     assertedDistributions: [],
+    biologicalAssociations: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
@@ -129,5 +131,6 @@ function newStore () {
 }
 
 export {
-  newStore
+  newStore,
+  makeInitialState
 }

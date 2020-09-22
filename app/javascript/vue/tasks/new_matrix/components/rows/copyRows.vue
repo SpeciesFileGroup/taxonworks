@@ -102,6 +102,7 @@ import getPagination from 'helpers/getPagination'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { GetMatrixObservationRows, GetObservationMatrices, CreateRowItem } from '../../request/resources'
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
@@ -121,10 +122,7 @@ export default {
   },
   data () {
     return {
-      types: {
-        Otu: 'ObservationMatrixRowItem::SingleOtu',
-        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject'
-      },
+      types: ObservationTypes.Row,
       isLoading: false,
       matrixSelected: undefined,
       rowsSelected: [],

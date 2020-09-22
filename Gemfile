@@ -96,8 +96,7 @@ gem 'rgb'
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1.1'
-gem 'dwc_agent', '~> 1.5'
-gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode'
+gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
@@ -124,7 +123,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.24.0'
+  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
   gem 'prawn', '~> 2.2.2'
 end
 

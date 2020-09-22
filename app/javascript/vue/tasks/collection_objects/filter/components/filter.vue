@@ -106,6 +106,7 @@ export default {
         !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
+        !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
         !Object.values(this.params.user).find(item => { return item !== undefined }) &&
         !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
         !Object.values(this.params.identifier).find(item => { return item !== undefined })

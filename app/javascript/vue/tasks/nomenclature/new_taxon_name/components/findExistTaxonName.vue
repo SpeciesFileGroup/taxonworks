@@ -167,8 +167,7 @@ export default {
     }
 
     li {
-      white-space: nowrap;
-      margin-bottom: 8px; 
+      margin-bottom: 8px;
     }
 
     li a {

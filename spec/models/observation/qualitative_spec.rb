@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Observation::Qualitative, type: :model, group: :matrix do
+RSpec.describe Observation::Qualitative, type: :model, group: :observation_matrix do
   let(:observation) { Observation::Qualitative.new }
   let(:descriptor) { FactoryBot.create(:valid_descriptor_qualitative) }
   let(:otu) { FactoryBot.create(:valid_otu) }

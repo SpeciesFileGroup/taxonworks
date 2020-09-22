@@ -95,7 +95,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute cached_original_combination_html
 #   @return [String]
-#    as cached_original_combination but with HTML 
+#    as cached_original_combination but with HTML
 #
 # @!attribute cached_secondary_homonym
 #   @return [String]
@@ -126,6 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
+  
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
@@ -134,6 +135,7 @@ class TaxonName < ApplicationRecord
     self.module_parent
   end
 
+  # Must be before various of these includes, in particular MatrixHooks
   has_closure_tree
 
   include Housekeeping
@@ -150,6 +152,13 @@ class TaxonName < ApplicationRecord
   include SoftValidation
   include Shared::IsData
   include TaxonName::OtuSyncronization
+  
+  include Shared::MatrixHooks::Member
+  include Shared::MatrixHooks::Dynamic
+
+  include TaxonName::MatrixHooks
+
+  attr_accessor :foo
 
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
@@ -161,6 +170,13 @@ class TaxonName < ApplicationRecord
   NOT_LATIN = Regexp.new(/[^a-zA-Z|\-]/).freeze # Dash is allowed?
 
   NO_CACHED_MESSAGE = 'REBUILD PROJECT TAXON NAME CACHE'.freeze
+
+  NOMEN_VALID = {
+    icn: 'http://purl.obolibrary.org/obo/NOMEN_0000383',
+    icnp: 'http://purl.obolibrary.org/obo/NOMEN_0000081',
+    icvcn: 'http://purl.obolibrary.org/obo/NOMEN_0000125',
+    iczn: 'http://purl.obolibrary.org/obo/NOMEN_0000224'
+  }
 
   delegate :nomenclatural_code, to: :rank_class, allow_nil: true
   delegate :rank_name, to: :rank_class, allow_nil: true
@@ -177,7 +193,7 @@ class TaxonName < ApplicationRecord
   # I think the intent is *before* save, i.e. the name will change
   # to a new cached value, so let's record the old one
   #  after_save :create_new_combination_if_absent
- 
+
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
 
@@ -195,13 +211,17 @@ class TaxonName < ApplicationRecord
     :validate_one_root_per_project
 
   validates_presence_of :type, message: 'is not specified'
-  
+
   validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
   # TODO: think of a different name, and test
   has_many :historical_taxon_names, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
+
+  has_many :observation_matrix_row_items, inverse_of: :taxon_name, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :delete_all
+  has_many :observation_matrices, through: :observation_matrix_row_items
+
 
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
   has_one :source_classified_as_relationship, -> {
@@ -251,10 +271,10 @@ class TaxonName < ApplicationRecord
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     scoping do
-      a = TaxonName.self_and_ancestors_of(taxon_name)
-      b = TaxonName.descendants_of(taxon_name)
-      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-    end
+    a = TaxonName.self_and_ancestors_of(taxon_name)
+    b = TaxonName.descendants_of(taxon_name)
+    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+  end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -383,15 +403,15 @@ class TaxonName < ApplicationRecord
 
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
-      ( SELECT *, rank() 
-           OVER ( 
-               PARTITION BY rank_class, parent_id 
+      ( SELECT *, rank()
+           OVER (
+               PARTITION BY rank_class, parent_id
                ORDER BY generations asc, name
             ) AS rn
-         FROM taxon_names 
+         FROM taxon_names
          INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
          WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
-         ) as taxon_names 
+         ) as taxon_names
     SQL
   end
 
@@ -405,7 +425,7 @@ class TaxonName < ApplicationRecord
     return self if include_self && (rank_class.to_s == r)
     ancestors.with_rank_class( r ).first
   end
- 
+
   # @return scope [TaxonName, nil] an ancestor at the specified rank
   # @params rank [symbol|string|
   #   like :species or 'genus'
@@ -555,7 +575,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @return [Array of Protonym]
-  #   all of the names this name has been in in combinations
+  #   All of the names this name has been in combination with
   def combination_list_all
     taxon_name_relationships.with_type_base('TaxonNameRelationship::Combination').collect {|r| r.object_taxon_name}.uniq
   end
@@ -630,7 +650,7 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   whether this name needs italics applied
   def is_italicized?
-    is_genus_or_species_rank? || kind_of?(Combination) || kind_of?(Hybrid) 
+    is_genus_or_species_rank? || kind_of?(Combination) || kind_of?(Hybrid)
   end
 
   def is_protonym?
@@ -754,7 +774,7 @@ class TaxonName < ApplicationRecord
   # def create_new_combination_if_absent
   # return true unless type == 'Protonym'
   # if !TaxonName.with_cached_html(cached_html).count == 0 (was intent to make this always fail?!)
-  #  
+  #
   #  if TaxonName.where(cached: cached, project_id: project_id).any?
   #    begin
   #      TaxonName.transaction do
@@ -802,7 +822,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached, n)
 
     # We can't use the in-memory cache approach for combination names, force reload each time
-    n = nil if is_combination? 
+    n = nil if is_combination?
 
     update_column(:cached_html, get_full_name_html(n))
 
@@ -810,7 +830,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this? 
+    set_cached_classified_as # why this?
     set_cached_author_year
   end
 
@@ -937,19 +957,19 @@ class TaxonName < ApplicationRecord
         data['genus'] = [nil, '[GENUS NOT SPECIFIED]']
       end
     end
-    
+
     if data['species'].nil? && (!data['subspecies'].nil? || !data['variety'].nil? || !data['subvariety'].nil? || !data['form'].nil? || !data['subform'].nil?)
       data['species'] = [nil, '[SPECIES NOT SPECIFIED]']
     end
-    
+
     if data['variety'].nil? && !data['subvariety'].nil?
       data['variety'] = [nil, '[VARIETY NOT SPECIFIED]']
     end
-    
+
     if data['form'].nil? && !data['subform'].nil?
       data['form'] = [nil, '[FORM NOT SPECIFIED]']
     end
-    
+
     data
   end
 
@@ -976,10 +996,10 @@ class TaxonName < ApplicationRecord
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
-  end 
-     
+  end
+
   def get_full_name_html(name = nil)
-    name = get_full_name if name.nil? 
+    name = get_full_name if name.nil?
     n = name
     # n = verbatim_name.blank? ? name : verbatim_name
     return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
@@ -1080,7 +1100,7 @@ class TaxonName < ApplicationRecord
     end
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
-    if !mobj.blank?
+    unless mobj.blank?
       a = [mobj.try(:author_string)]
       y = [mobj.try(:year_integer)]
     else
@@ -1099,10 +1119,6 @@ class TaxonName < ApplicationRecord
 
     obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-    unless misapplication.empty? || obj.author_string.blank?
-      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
-    end
-
     if SPECIES_RANK_NAMES_ICZN.include?(taxon.rank_string)
       if p
         ay = '(' + ay + ')' unless ay.empty?
@@ -1114,13 +1130,22 @@ class TaxonName < ApplicationRecord
           cg = ancestor_at_rank('genus')
         end
         unless og.nil? || cg.nil?
-          ay = '(' + ay + ')' unless ay.empty? if og.name != cg.name
+          ay = '(' + ay + ')' if !ay.empty? && og.normalized_genus.id != cg.normalized_genus.id
         end
-        #((self.original_genus.name != self.ancestor_at_rank('genus').name) && !self.original_genus.name.to_s.empty?)
       end
     end
 
+    unless misapplication.empty? || obj.author_string.blank?
+      ay += ' non ' + ([obj.author_string] + [obj.year_integer]).compact.join(', ')
+    end
+
     ay.blank? ? nil : ay
+  end
+
+  def normalized_genus
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+    tn = misspelling.empty? ? self : misspelling.first.object_taxon_name
+    return tn.lowest_rank_coordinated_taxon
   end
 
   # @return [String, nil]
@@ -1214,6 +1239,21 @@ class TaxonName < ApplicationRecord
     h[:quick] = (TaxonName.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq
     h
   end
+
+  # See Shared::MatrixHooks
+  # @return [{"matrix_row_item": matrix_column_item, "object": object}, false]
+  # the hash corresponding to the keyword used in this tag if it exists
+  # !! Assumes it can only be in one matrix, this is wrong !!
+  def matrix_row_item
+    mri = ObservationMatrixRowItem::TaxonNameRowItem.where(taxon_name_id: id, project_id: project_id).limit(1)
+
+    if mri.any?
+      return { matrix_row_item: mri.first, object: taxon_name }
+    else
+      return false
+    end
+  end
+
 
   protected
 
@@ -1334,8 +1374,8 @@ class TaxonName < ApplicationRecord
           citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
           matchdata = self.source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
           if citMinP && citMaxP && matchdata
-            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
             minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(self.source.bibtex_type)
             unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
               soft_validations.add(:base, 'Original citation could be out of the source page range')

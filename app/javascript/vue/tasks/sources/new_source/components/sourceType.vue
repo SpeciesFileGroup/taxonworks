@@ -9,7 +9,7 @@
             v-model="sourceType"
             :value="type.value"
             name="source-type"
-            :disabled="source.id"
+            :disabled="source.id && (!type.available || !type.available.includes(source.type))"
             type="radio">
           {{ type.label }}
         </label>
@@ -27,14 +27,20 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
+import NewSource from '../const/source.js'
 
 export default {
   components: {
     LockComponent
   },
   computed: {
-    source () {
-      return this.$store.getters[GetterNames.GetSource]
+    source: {
+      get () {
+        return this.$store.getters[GetterNames.GetSource]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSource, value)
+      }
     },
     sourceType: {
       get () {
@@ -53,12 +59,22 @@ export default {
       }
     }
   },
+  watch: {
+    sourceType (newVal) {
+      if (!this.source.id) {
+        const newSource = NewSource()
+        newSource.type = newVal
+        this.source = newSource
+      }
+    }
+  },
   data () {
     return {
       types: [
         {
           label: 'BibTeX',
-          value: 'Source::Bibtex'
+          value: 'Source::Bibtex',
+          available: ['Source::Verbatim']
         },
         {
           label: 'Verbatim',

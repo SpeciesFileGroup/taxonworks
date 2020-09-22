@@ -56,10 +56,11 @@ export default {
         toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview', {
           name: 'width-auto',
           action: (editor) => {
-            this.openCustomLinks()
+            // this.openCustomLinks()
           },
-          icon:'<span class="word-keep-all">Data links</span>',
-          title: 'Data links'
+          icon:'<span class="word-keep-all subtle">Data links</span>',
+          title: 'Data links',
+          disable: true
         }]
       }
       Object.assign(configs, this.configs)

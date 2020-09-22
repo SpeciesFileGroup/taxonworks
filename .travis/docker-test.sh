@@ -1,22 +1,28 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 
-#set -e
-#set -x
+set -e
+set -x
 
-docker build .. -t sfgrp/taxonworks --build-arg REVISION=$(git rev-parse --short HEAD) --build-arg BUNDLER_WORKERS=3
+export REVISION=$(git rev-parse HEAD | cut -c1-9)
 
-export REVISION=$(git rev-parse --short HEAD)
+docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
 
-docker-compose build --parallel
+for ver in `echo 10 12`; do
+  export PG_VERSION=$ver
 
-docker-compose up -d --no-build
+  echo "Testing with Postgres $PG_VERSION"
 
-docker-compose logs
+  docker-compose build --parallel
 
-docker-compose exec test bundle exec rspec -fd
+  docker-compose up -d --no-build
 
-# Test redis is running
-docker-compose exec taxonworks redis-cli ping
+  docker-compose logs
 
-docker-compose down --volumes
+  docker-compose exec test bundle exec rspec -fd
+
+  # Test redis is running
+  docker-compose exec taxonworks redis-cli ping
+
+  docker-compose down --volumes
+done

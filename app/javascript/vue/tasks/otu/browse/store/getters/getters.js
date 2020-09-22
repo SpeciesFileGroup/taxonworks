@@ -1,3 +1,4 @@
+import getBiologicalAssociations from './getBiologicalAssociations'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
 import getDescendants from './getDescendants'
@@ -8,8 +9,10 @@ import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
 import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
+import getOtus from './getOtus'
 
 const GetterNames = {
+  GetBiologicalAssociations: 'getBiologicalAssociations',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
   GetDescendants: 'getDescendants',
@@ -19,10 +22,12 @@ const GetterNames = {
   GetAssertedDistributions: 'getAssertedDistributions',
   GetCurrentOtu: 'getCurrentOtu',
   GetLoadState: 'getLoadState',
-  GetTaxonName: 'getTaxonName'
+  GetTaxonName: 'getTaxonName',
+  GetOtus: 'getOtus'
 }
 
 const GetterFunctions = {
+  [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetDescendants]: getDescendants,
@@ -32,7 +37,8 @@ const GetterFunctions = {
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
   [GetterNames.GetLoadState]: getLoadState,
-  [GetterNames.GetTaxonName]: getTaxonName
+  [GetterNames.GetTaxonName]: getTaxonName,
+  [GetterNames.GetOtus]: getOtus
 }
 
 export {

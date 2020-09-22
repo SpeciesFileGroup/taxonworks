@@ -67,6 +67,10 @@ export default {
     params: {
       type: Object,
       default: undefined
+    },
+    pagination: {
+      type: Object,
+      default: undefined
     }
   },
   data () {
@@ -98,7 +102,7 @@ export default {
       })
     },
     createDownloadLink () {
-      GetBibtex({ params: this.params, responseType: 'blob' }).then(({ body }) => {
+      GetBibtex({ params: Object.assign(this.params, { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
         const downloadUrl = window.URL.createObjectURL(new Blob([body]))
         const link = document.createElement('a')
         link.href = downloadUrl

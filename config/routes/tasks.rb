@@ -345,7 +345,6 @@ scope :tasks do
       get :index, as: 'index_dashboard_task'
     end
 
-
     scope :view, controller: 'tasks/observation_matrices/view' do
       get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end

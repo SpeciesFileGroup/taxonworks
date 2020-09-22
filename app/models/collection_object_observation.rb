@@ -26,7 +26,7 @@ class CollectionObjectObservation < ApplicationRecord
 
   ignore_whitespace_on(:data)
 
-  has_many :derived_collection_objects, inverse_of: :collection_object_observations
+  has_many :derived_collection_objects, inverse_of: :collection_object_observation
   has_many :collection_objects, through: :derived_collection_objects
 
   validates_presence_of :data

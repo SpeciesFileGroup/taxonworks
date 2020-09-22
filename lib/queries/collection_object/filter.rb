@@ -102,7 +102,7 @@ module Queries
 
         @recent = params[:recent].blank? ? false : true
 
-        @collecting_event_ids = params[:collecting_event_id].blank? ? [] : params[:collecting_event_id]
+        @collecting_event_ids = params[:collecting_event_ids] || []
 
         @otu_ids = params[:otu_ids] || []
         @is_type = params[:is_type] || []

@@ -20,7 +20,7 @@ class BiologicalAssociationsController < ApplicationController
       }
     end
   end
- 
+
   # GET /biological_associations/1
   # GET /biological_associations/1.json
   def show
@@ -88,13 +88,13 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   private
-  
+
   def filter_params
     params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
 
     # Shallow resource hack
     if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
-       params[:any_global_id] = c.to_global_id.to_s 
+      params[:any_global_id] = c.to_global_id.to_s
     end
     params
   end

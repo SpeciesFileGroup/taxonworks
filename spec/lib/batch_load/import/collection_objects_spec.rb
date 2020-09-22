@@ -39,7 +39,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                     project_id: project.id,
                                                     type:       'Identifier::' + row['collecting_event_identifier_type'],
                                                     identifier: row['collecting_event_identifier_identifier']}],
-          geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
+          geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error).to_f}|Unavailable"}]
           }
           )
 
@@ -71,7 +71,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                     project_id: project.id,
                                                     type:       'Identifier::' + row['collecting_event_identifier_type'],
                                                     identifier: row['collecting_event_identifier_identifier']}],
-          geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
+          geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error).to_f}|Unavailable"}]
           }
           )
           co.collecting_event = ce
@@ -161,7 +161,7 @@ describe BatchLoad::Import::CollectionObjects, type: :model do
                                                       project_id: project.id,
                                                       type:       'Identifier::' + row['collecting_event_identifier_type'],
                                                       identifier: row['collecting_event_identifier_identifier']}],
-            geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]
+            geo_locate_georeferences_attributes: [{iframe_response: "#{row['latitude']}|#{row['longitude']}|#{Utilities::Geo.distance_in_meters(error).to_f}|Unavailable"}]
                                        }
             )
             gr1 = Georeference::VerbatimData.create(collecting_event: ce)

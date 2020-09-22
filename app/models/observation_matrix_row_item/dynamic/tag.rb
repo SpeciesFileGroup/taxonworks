@@ -1,6 +1,6 @@
-class ObservationMatrixRowItem::TaggedRowItem < ObservationMatrixRowItem
+class ObservationMatrixRowItem::Dynamic::Tag < ObservationMatrixRowItem::Dynamic
 
-  belongs_to :controlled_vocabulary_term
+  belongs_to :controlled_vocabulary_term, inverse_of: :observation_matrix_column_items, class_name: '::ControlledVocabularyTerm'
 
   validates_presence_of :controlled_vocabulary_term_id
   validates_uniqueness_of :controlled_vocabulary_term_id, scope: [:observation_matrix_id]
@@ -19,10 +19,6 @@ class ObservationMatrixRowItem::TaggedRowItem < ObservationMatrixRowItem
 
   def matrix_row_item_object
     controlled_vocabulary_term 
-  end
-
-  def is_dynamic?
-    true
   end
 
 end
