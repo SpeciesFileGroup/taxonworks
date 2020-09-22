@@ -301,7 +301,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
     begin
       start_date = DateTime.iso8601(eventDate) if eventDate
     rescue Date::Error
-      raise DarwinCore::InvalidData.new({ "eventDate": ["Invalid date. Please make sure it conforms to ISO 8601"] })
+      raise DarwinCore::InvalidData.new(
+        { "eventDate":
+          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). Examples: 1972-05; 1983-10-25; 2020-09-22T15:30"]
+        }
+      )
     end
 
     year = get_integer_field_value(:year)
