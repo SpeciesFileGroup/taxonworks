@@ -8,6 +8,13 @@ GIT
       with_advisory_lock (>= 4.0.0)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/biodiversity.git
+  revision: 1c44d3d49c3a2cb4905f29c8dfac0beea6ff0a02
+  branch: ipc-mode-rc1
+  specs:
+    biodiversity (4.1.0)
+
+GIT
   remote: https://github.com/LocoDelAssembly/geckodriver-helper.git
   revision: 8cb32dde4b152250ad053aab7432b151d11dddf9
   specs:
@@ -109,8 +116,6 @@ GEM
     bindex (0.8.1)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    biodiversity (4.1.0)
-      ffi (~> 1.11)
     brakeman (4.8.2)
     builder (3.2.4)
     byebug (11.1.3)
@@ -566,7 +571,7 @@ DEPENDENCIES
   better_errors (~> 2.4)
   bibtex-ruby (~> 5.1.1)
   binding_of_caller
-  biodiversity (~> 4.0, >= 4.0.3)
+  biodiversity!
   brakeman (~> 4.6, >= 4.6.1)
   bundler (~> 2.0)
   byebug (~> 11.1)
