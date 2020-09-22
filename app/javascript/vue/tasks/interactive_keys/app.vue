@@ -6,7 +6,8 @@
       <div
         class="i3-grid full-height"
         :class="gridLayout">
-        <div class="descriptors-view grid-item content"></div>
+        <descriptors-view
+          class="descriptors-view grid-item content"/>
         <taxon-names-tree
           class="taxa-remaining grid-item content"
           title="Remaining Taxa"/>
@@ -20,12 +21,14 @@
 
 <script>
 import TaxonNamesTree from './components/TaxonNamesTree'
+import DescriptorsView from './components/DescriptorsView'
 import { ActionNames } from './store/actions/actions'
 import MenuBar from './components/MenuBar'
 import { GetterNames } from './store/getters/getters'
 
 export default {
   components: {
+    DescriptorsView,
     TaxonNamesTree,
     MenuBar
   },

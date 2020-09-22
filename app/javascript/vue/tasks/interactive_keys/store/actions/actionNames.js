@@ -1,6 +1,5 @@
 const ActionNames = {
-  LoadObservationMatrix: 'loadObservationMatrix',
-  LoadObservationMatrixDescriptors: 'loadObservationMatrixDescriptors'
+  LoadObservationMatrix: 'loadObservationMatrix'
 }
 
 export default ActionNames
