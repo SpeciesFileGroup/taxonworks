@@ -39,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TW now supports Postgres 12 [#1305]
 - Replaced biodiversity with custom gem repo using IPC with gnparser processes
 - Updated gems
+- Character "΄" also accepted as minute specifier in coordinates parsing.
 
 ## Fixed
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
@@ -57,6 +58,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Restored Show -> edit link [#1699]
 - Enable search button after pick a collecting event date on Filter collection objects task [#1728]
 - Misppeling collecting_event_ids parameter [#1729]
+- Non-original combination authorship lacking parentheses [#1686]
 
 
 [#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
@@ -84,6 +86,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
 [#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
+[#1686]: https://github.com/SpeciesFileGroup/taxonworks/issues/1686
 [#1305]: https://github.com/SpeciesFileGroup/taxonworks/pull/1305
 
 ## [0.12.17] - 2020-02-02
