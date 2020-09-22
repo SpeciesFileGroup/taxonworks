@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Biological associations section on Browse OTU
 - TW now supports Postgres 12 [#1305]
 - Replaced biodiversity with custom gem repo using IPC with gnparser processes
+- Updated gems
 
 ## Fixed
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
