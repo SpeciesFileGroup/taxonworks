@@ -7,7 +7,6 @@ export default ({ dispatch, state }, otus) => {
       promises.push(dispatch(ActionNames.LoadCollectionObjects, otu.id).then(() => {
         dispatch(ActionNames.LoadCollectingEvents, [otu.id])
       }))
-      promises.push(dispatch(ActionNames.LoadAssertedDistributions, otu.id))
       promises.push(dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id))
 
       Promise.all(promises).then(() => {
@@ -15,8 +14,9 @@ export default ({ dispatch, state }, otus) => {
       })
     })
   }
-  dispatch(ActionNames.LoadTaxonName, otus[0].taxon_name_id)
-  dispatch(ActionNames.LoadDescendants, otus[0])
+  dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+  dispatch(ActionNames.LoadDescendants, state.currentOtu)
+  dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
   dispatch(ActionNames.LoadPreferences)
 
   async function processArray(array) {
