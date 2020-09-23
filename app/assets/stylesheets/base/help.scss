@@ -76,7 +76,6 @@
 }
 
 .help-legend {
-  @include arrow-box-top(15px);
   border-radius: 2px;
   padding: $standard_padding*0.5;
   padding-left: $standard_padding;
@@ -89,6 +88,14 @@
   display: none;
   font-weight: 300;
   font-size: $font_small;
+}
+
+.tooltip-help-legend-left {
+  @include arrow-box-top(15px);
+}
+
+.tooltip-help-legend-right {
+  @include arrow-box-top-right(15px);
 }
 
 .help-button-description {
