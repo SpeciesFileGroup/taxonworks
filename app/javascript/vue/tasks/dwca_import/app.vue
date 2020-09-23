@@ -130,4 +130,8 @@ export default {
       }
     }
   }
+  .dwc-table-help {
+    color: #000000 !important;
+    font-weight: normal;
+  }
 </style>
