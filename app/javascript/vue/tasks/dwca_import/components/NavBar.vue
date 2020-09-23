@@ -16,14 +16,9 @@
       </div>
       <div class="horizontal-right-content half_width">
         <button
-          class="button normal-input button-default margin-small-right"
-          @click="selectAll">
-          Select all
-        </button>
-        <button
-          class="button normal-input button-default margin-small-right"
-          @click="unselectAll">
-          Unselect all
+          class="button normal-input button-submit margin-small-right"
+          @click="settings">
+          Settings
         </button>
         <import-modal/>
       </div>
@@ -59,11 +54,8 @@ export default {
     }
   },
   methods: {
-    selectAll () {
-      this.$store.commit(MutationNames.SetSelectedRowIds, this.datasetRecords.filter(row => row.status === 'Ready').map(row => row.id))
-    },
-    unselectAll () {
-      this.$store.commit(MutationNames.SetSelectedRowIds, [])
+    settings () {
+      alert('Coming soon')
     }
   }
 }
