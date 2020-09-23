@@ -259,13 +259,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
       group   = BiocurationGroup.with_project_id(Current.project_id).where('name ILIKE ?', 'sex').first
       group ||= BiocurationGroup.create!(name: 'Sex', definition: 'The sex of the individual(s) [CREATED FROM DWC-A IMPORT]')
       # TODO: BiocurationGroup.biocuration_classes not returning AR relation
-      sex = group.biocuration_classes.detect { |c| c.name =~ /#{sex}/i }
-      unless sex
-        sex = BiocurationClass.create!(name: sex, definition: '#{sex} individual(s) [CREATED FROM DWC-A IMPORT]')
-        Tag.create!(keyword: group, tag_object: sex)
+      sex_biocuration = group.biocuration_classes.detect { |c| c.name.casecmp(sex) == 0 }
+      unless sex_biocuration
+        sex_biocuration = BiocurationClass.create!(name: sex, definition: "#{sex} individual(s) [CREATED FROM DWC-A IMPORT]")
+        Tag.create!(keyword: group, tag_object: sex_biocuration)
+      else
+        sex = sex_biocuration
       end
 
-      set_hash_val(res[:specimen], :biocuration_classifications, [sex])
+      set_hash_val(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: sex_biocuration)])
     end
 
     # reproductiveCondition: [Not mapped]
