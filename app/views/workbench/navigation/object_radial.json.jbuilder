@@ -30,7 +30,7 @@ end
 if @data
   json.config @data['config']
 
-  if @data['config']['recent']
+  if @data.dig('config', 'recent')
     json.recent_url resource + '?recent=true'
   end
 
