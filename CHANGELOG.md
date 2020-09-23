@@ -8,7 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
-- Collecting event object radial metadata settings.
+- Collecting event object radial metadata settings
+- Webpack resolved_paths deprecation warning
 
 ## [0.13.0] - 2020-09-22
 
