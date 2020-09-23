@@ -13,6 +13,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.13.0] - 2020-09-22
 
+### Changed
+- Removed forced dependency on google-protobuf gem
+- Updated gems
+
 ### Added
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
