@@ -16,6 +16,7 @@ TW.workbench.help = TW.workbench.help || {};
 Object.assign(TW.workbench.help, {
 
 	init_helpSystem: function () {
+		var timeOut = undefined
 		firstClick = true;
 		helpLoaded = false,
 
@@ -135,13 +136,13 @@ Object.assign(TW.workbench.help, {
 	hideAllExcept: function (value) {
 		$('.help-bubble-tip').each(function (i) {
 			if ($(this).attr('data-bubble-id') != value) {
-				$(this).fadeOut(250);
+				$(this).addClass('help-bubble-tip-hidden');
 			}
 		})
 	},
 
 	showAll: function (className) {
-		$(className).fadeIn(250);
+		$(className).removeClass('help-bubble-tip-hidden');
 	},
 
 });
