@@ -18,9 +18,18 @@ class CollectingEventsController < ApplicationController
     end
   end
 
+  def api_index
+    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+    render 'collecting_events/api/index.json.jbuilder'
+  end
   # GET /collecting_events/1
   # GET /collecting_events/1.json
   def show
+  end
+
+  def api_show
+    @collecting_event = CollectingEvent.where(project_id: sessions_current_project_id).find(params[:id])
+    render 'collecting_events/api/show.json.jbuilder'
   end
 
   # GET /collecting_events/new

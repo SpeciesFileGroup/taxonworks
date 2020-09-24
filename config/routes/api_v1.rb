@@ -52,6 +52,10 @@ namespace :api, defaults: {format: :json} do
       get '/identifiers/:id', to: '/identifiers#api_show'
       get '/identifiers/autocomplete', to: '/identifiers#autocomplete'
 
+      get '/collecting_events', to: '/collecting_events#api_index'
+      get '/collecting_events/:id', to: '/collecting_events#api_show'
+      get '/collecting_events/autocomplete', to: '/collecting_events#autocomplete'
+
     end
 
     # Authenticate membership at the data controller level
