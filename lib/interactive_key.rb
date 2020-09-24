@@ -256,6 +256,7 @@ class InteractiveKey
       h[d.id][:observations] = {} # all observation for a particular
       h[d.id][:observation_hash] = {} ### state_ids, true/false for a particular descriptor/otu_id/catalog_id combination (for PresenceAbsence or Qualitative or Continuous)
       h[d.id][:status] = 'useless' ### 'used', 'useful', 'useless'
+      h[d.id][:status] = 'used' if @selected_descriptors_hash[d.id]
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
     @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
@@ -280,11 +281,11 @@ class InteractiveKey
   def selected_descriptors_hash_initiate
     # "123:1|3||125:3|5||135:2"
     h = {}
-    a = @selected_descriptors.to_s.split('||')
+    a = @selected_descriptors.include?('||') ? @selected_descriptors.to_s.split('||') : [@selected_descriptors]
     a.each do |i|
       d = i.split(':')
-      h[d[0]].to_i = d[1].split('|')
-      @descriptors_hash[h[d[0]].to_i][:status] = 'used'
+      h[d[0].to_i] = d[1].include?('|') ? d[1].split('|') : d[1]
+      #      @descriptors_hash[h[d[0].to_i]][:status] = 'used'
     end
     h
   end
@@ -306,13 +307,13 @@ class InteractiveKey
         else
           case @descriptors_hash[d_key][:descriptor].type
           when 'Descriptor::Continuous'
-            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & [d_value]).empty?
             r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           when 'Descriptor::PresenceAbsence'
-            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & [d_value]).empty?
             r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           when 'Descriptor::Qualitative'
-            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
+            r_value[:errors] += 1 if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & [d_value]).empty?
             r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = @descriptors_hash[d_key][:observations][otu_collection_object]
           when 'Descriptor::Sample'
             p = false
@@ -339,7 +340,7 @@ class InteractiveKey
   def eliminated_taxa
     h = {}
     @row_hash.each do |r_key, r_value|
-      if r_value[:status] == 'eliminated' && @ramaining[r_value[:object_at_rank]].nil?
+      if r_value[:status] == 'eliminated' && !@remaining.include?(r_value[:object_at_rank])
         if h[r_value[:object_at_rank]].nil?
           h[r_value[:object_at_rank]] = {}
           h[r_value[:object_at_rank]][:error_descriptors] = {}
