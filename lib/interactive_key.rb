@@ -281,6 +281,7 @@ class InteractiveKey
   def selected_descriptors_hash_initiate
     # "123:1|3||125:3|5||135:2"
     h = {}
+    return h if @selected_descriptors.blank?
     a = @selected_descriptors.include?('||') ? @selected_descriptors.to_s.split('||') : [@selected_descriptors]
     a.each do |i|
       d = i.split(':')
