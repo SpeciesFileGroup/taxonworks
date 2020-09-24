@@ -32,6 +32,10 @@ class CollectingEventsController < ApplicationController
     render 'collecting_events/api/show.json.jbuilder'
   end
 
+  def api_autocomplete
+
+  end
+
   # GET /collecting_events/new
   def new
     @collecting_event = CollectingEvent.new

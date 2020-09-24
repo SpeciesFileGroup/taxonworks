@@ -30,6 +30,10 @@ class IdentifiersController < ApplicationController
     render '/identifiers/api/show.json.jbuilder'
   end
 
+  def api_autocomplete
+
+  end
+
   # GET /identifers/1
   def show
   end
