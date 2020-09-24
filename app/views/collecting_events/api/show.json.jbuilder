@@ -1,1 +1,1 @@
-json.partial! 'api/attributes', collecting_event: @collecting_event
+json.partial! '/collecting_events/api/attributes', collecting_event: @collecting_event
