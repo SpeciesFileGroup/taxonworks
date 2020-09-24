@@ -1,13 +1,3 @@
-<template>
-  <div>
-    <label class="display-block">
-      {{ descriptor.name }}
-    </label>
-    <input type="text">
-  </div>
-</template>
-
-<script>
 export default {
   props: {
     descriptor: {
@@ -15,7 +5,7 @@ export default {
       required: true
     },
     value: {
-      type: Array,
+      type: Object,
       default: () => []
     }
   },
@@ -30,4 +20,3 @@ export default {
     }
   }
 }
-</script>

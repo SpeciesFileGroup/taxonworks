@@ -2,7 +2,7 @@
   <nav-component>
     <div class="flex-separate">
       <div>
-        <span v-if="observationMatrix">{{ observationMatrix.object_tag }}</span>
+        <span v-if="observationMatrix">{{ observationMatrix.observation_matrix.name }}</span>
         <autocomplete
           v-else
           url="/observation_matrices/autocomplete"
@@ -14,13 +14,10 @@
       </div>
       <div class="middle">
         <button
-          v-for="layout in layouts"
           type="button"
-          :key="layout"
-          :value="layout"
-          @click="setLayout(layout)"
+          @click="setLayout(settings.gridLayout)"
           class="button normal-input button-default margin-small-left"
-          :class="layout">
+          :class="layouts[settings.gridLayout]">
           <div class="i3-grid layout-mode-1 grid-icon">
             <div class="descriptors-view grid-item"/>
             <div class="taxa-remaining grid-item"/>
@@ -60,12 +57,15 @@ export default {
   },
   data () {
     return {
-      layouts: ['layout-mode-1 ', 'layout-mode-2']
+      layouts: {
+        'layout-mode-1': 'layout-mode-2',
+        'layout-mode-2': 'layout-mode-1'
+      }
     }
   },
   methods: {
     setLayout (layout) {
-      this.settings.gridLayout = layout
+      this.settings.gridLayout = this.layouts[layout]
     },
     loadMatrix (matrix) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, matrix.id)
@@ -73,6 +73,3 @@ export default {
   }
 }
 </script>
-
-<style>
-</style>

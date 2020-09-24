@@ -13,7 +13,8 @@ function makeInitialState () {
       gridLayout: 'layout-mode-1'
     },
     observationMatrix: undefined,
-    observationMatrixDescriptors: []
+    observationMatrixDescriptors: [],
+    descriptorsFilter: {}
   }
 }
 

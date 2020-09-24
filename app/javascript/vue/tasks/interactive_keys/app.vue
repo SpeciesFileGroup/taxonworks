@@ -10,10 +10,10 @@
           class="descriptors-view grid-item content"/>
         <taxon-names-tree
           class="taxa-remaining grid-item content"
-          title="Remaining Taxa"/>
+          title="Remaining"/>
         <taxon-names-tree
           class="taxa-eliminated grid-item content"
-          title="Elimitated Taxa"/>
+          title="Elimitated"/>
       </div>
     </div>
   </div>

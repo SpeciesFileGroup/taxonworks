@@ -2,12 +2,8 @@
   <div>
     <label class="display-block">{{ descriptor.name }}</label>
     <select v-model="selected[descriptor.id]">
-      <option
-        v-for="state in descriptor.states"
-        :value="state.id"
-        :key="state.id">
-        {{ state.name }}
-      </option>
+      <option :value="true">Present</option>
+      <option :value="false">Absent</option>
     </select>
   </div>
 </template>
