@@ -300,6 +300,7 @@ class InteractiveKey
     @row_hash.each do |r_key, r_value|
       @selected_descriptors_hash.each do |d_key, d_value|
         otu_collection_object = r_value[:object].otu_id.to_s + '|' + r_value[:object].collection_object_id.to_s
+        next if @descriptors_hash[d_key].blank?
         if @eliminate_unknown && @descriptors_hash[d_key][:observation_hash][otu_collection_object].nil?
           r_value[:errors] += 1
           r_value[:error_descriptors][@descriptors_hash[d_key][:descriptor]] = []
