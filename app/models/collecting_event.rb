@@ -286,6 +286,7 @@ class CollectingEvent < ApplicationRecord
     unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
+  soft_validate(:sv_verbatim_uncertainty_format)
 
   # @param [String]
   def verbatim_label=(value)
@@ -348,7 +349,7 @@ class CollectingEvent < ApplicationRecord
 
     # @param [ActionController::Parameters] params in the style Rails of 'params'
     # @return [Scope] of selected collecting_events
-    # TODO: deprecate for lib/queries/collecting_event
+    # TODO: deprecate for lib/queries/collecting_event/filter
     def filter_by(params)
       sql_string = ''
       unless params.blank? # not strictly necessary, but handy for debugging
@@ -399,7 +400,7 @@ class CollectingEvent < ApplicationRecord
   # @param [Integer] project_id
   # @param [Boolean] include_values true if to include records whicgh already have verbatim lat/longs
   # @return [Scope] of matching collecting events
-  #   TODO: deprecate
+  #   TODO: deprecate and move to filter 
   def similar_lat_longs(lat, long, project_id, piece = '', include_values = true)
     sql = '('
     sql += "verbatim_label LIKE '%#{::Utilities::Strings.escape_single_quote(lat)}%'" unless lat.blank?
@@ -416,6 +417,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Boolean]
+  #   test for minimal data 
   def has_data?
     CollectingEvent.data_attributes.each do |a|
       return true unless self.send(a).blank?
@@ -507,8 +509,8 @@ class CollectingEvent < ApplicationRecord
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
-      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation)
+      point = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
       nil
@@ -873,6 +875,18 @@ class CollectingEvent < ApplicationRecord
     [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
   end
 
+  # @return [Scalar (Int, Float, etc), nil]
+  def geolocate_uncertainty_in_meters
+    if !verbatim_geolocation_uncertainty.blank?
+      begin
+        a = verbatim_geolocation_uncertainty.to_unit  
+        return a.convert_to('m').scalar if (a =~ '1 m'.to_unit)
+      rescue ArgumentError
+      end
+    end
+    nil
+  end
+
   protected
 
   def cache_geographic_names(values = {}, tried = false)
@@ -941,5 +955,16 @@ class CollectingEvent < ApplicationRecord
     end
     soft_validations.add(:base, 'At least one label type, or field notes, should be provided.')
   end
+
+  def sv_verbatim_uncertainty_format
+    begin
+      if !verbatim_geolocation_uncertainty.blank? && verbatim_geolocation_uncertainty.to_unit
+        return true
+      end
+    rescue ArgumentError
+      soft_validations.add(:verbatim_geolocation_uncertainty, 'appears to be malformed, has no units?')
+    end
+  end
+
 
 end

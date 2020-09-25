@@ -2,8 +2,7 @@
 #
 class Georeference::Leaflet < Georeference
 
-
-    def dwc_georeference_attributes
+  def dwc_georeference_attributes
     h = { 
       footprintWKT: geographic_item.geo_object.to_s,
 
@@ -11,7 +10,7 @@ class Georeference::Leaflet < Georeference
       georeferenceRemarks: 'Created from a TaxonWorks interface that integrates Leaflet.',
       georeferenceProtocol: 'Shape "drawn" on a Leaflet map.',
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
-      georeferencedBy: created_by.name,
+      georeferencedBy: creator.name,
       georeferencedDate: created_at
     }
 

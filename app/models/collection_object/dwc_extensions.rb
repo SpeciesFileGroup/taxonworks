@@ -76,10 +76,10 @@ module CollectionObject::DwcExtensions
   def set_georeference_attributes
     case collecting_event&.dwc_georeference_source
     when :georeference 
-      preferred_georeference.dwc_georeference_attributes
+      collecting_event.preferred_georeference.dwc_georeference_attributes
     when :verbatim
       h = collecting_event.dwc_georeference_attributes
-     
+
       if a = collecting_event&.attribute_updater(:verbatim_latitude)
         h[:georeferencedBy] = User.find(a).name
       end
@@ -90,15 +90,15 @@ module CollectionObject::DwcExtensions
       h
 
     when :geographic_area
-     h = collecting_event.geographic_area.dwc_georeference_attributes
+      h = collecting_event.geographic_area.dwc_georeference_attributes
 
-     if a = collecting_event&.attribute_updater(:geographic_area_id)
-       h[:georeferencedBy] = User.find(a).name
-     end
+      if a = collecting_event&.attribute_updater(:geographic_area_id)
+        h[:georeferencedBy] = User.find(a).name
+      end
 
-     h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id) 
+      h[:georeferencedDate] = collecting_event&.attribute_updated(:geographic_area_id) 
 
-     h
+      h
     else 
       {}
     end 
@@ -366,7 +366,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_event_time
     a = collecting_event.try(:time_range)
-    a ? a.join('-') : nil
+    a ? a.compact.join('-') : nil
   end
 
   def dwc_event_date
@@ -404,7 +404,11 @@ module CollectionObject::DwcExtensions
   protected
 
   def set_taxonomy
-    if c = self.current_taxon_name
+    c = self.current_taxon_name
+    # If we have no name, see if there is a Type reference and use it as proxy
+    c ||= type_materials.primary.first&.protonym 
+
+    if c 
       @taxonomy = c.full_name_hash
       # Check for required 'Kingdom'
       if @taxonomy['kingdom'].blank?
@@ -433,4 +437,3 @@ module CollectionObject::DwcExtensions
   end
 
 end
-

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-describe Georeference, type: :model, group: [:geo, :shared_geo] do
+describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] do
   include_context 'stuff for complex geo tests'
   let(:georeference) { Georeference.new }
 

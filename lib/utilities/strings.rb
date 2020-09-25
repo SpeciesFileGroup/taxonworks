@@ -143,7 +143,5 @@ module Utilities::Strings
     !(string =~ /[^\d\s]/i) && !integers(string).empty?
   end
 
-
-
 end
 

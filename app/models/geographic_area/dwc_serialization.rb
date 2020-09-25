@@ -17,6 +17,7 @@ module GeographicArea::DwcSerialization
       footprintWKT: default_geographic_area_geographic_item.geographic_item.geo_object.to_s,
       footprintSRS: Gis::FACTORY.srid.to_s,
       # footprintSpatialFit
+
       georeferenceProtocol: 'Selected from a controlled Gazetteer.',
 
       georeferenceRemarks: 'Derived from a geographic area gazeteer.',

@@ -18,6 +18,7 @@ class Georeference::VerbatimData < Georeference
       # value from collecting_event is normalised to meters
       z1 = collecting_event.minimum_elevation
       z2 = collecting_event.maximum_elevation
+
       if z1.blank?
         # no valid elevation provided
         self.is_undefined_z = true
@@ -51,10 +52,9 @@ class Georeference::VerbatimData < Georeference
         test_grs = [GeographicItem.new(attributes)]
       end
 
+      self.error_radius = collecting_event.geolocate_uncertainty_in_meters
       self.geographic_item = test_grs.first
     end
-
-    # geographic_item
   end
 
 
@@ -67,7 +67,7 @@ class Georeference::VerbatimData < Georeference
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
 
-      coordinateUncertaintyInMeters: nil, # See #1770
+      coordinateUncertaintyInMeters: error_radius, # See #1770
 
       decimalLatitude: geographic_item.to_a.first,
       decimalLongitude: geographic_item.to_a.last,
@@ -80,7 +80,7 @@ class Georeference::VerbatimData < Georeference
       geodeticDatum: verbatim_datum,
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
 
-      georeferencedBy: created_by.name,
+      georeferencedBy: creator.name,
       georeferencedDate: created_at
     }
   end
