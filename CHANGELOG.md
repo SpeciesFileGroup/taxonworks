@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
+- Missing /otus/:otu_id/taxon_determinations route
 
 ## [0.13.0] - 2020-09-22
 
