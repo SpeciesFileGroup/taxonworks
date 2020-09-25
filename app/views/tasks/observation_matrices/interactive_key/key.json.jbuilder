@@ -29,7 +29,7 @@ json.remaining do
 end
 
 json.eliminated do
-  json.array!(@key.remaining) do |object|
+  json.array!(@key.eliminated) do |object|
     json.partial! '/shared/data/all/metadata', object: object
     json.merge! object.attributes
   end
