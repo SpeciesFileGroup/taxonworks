@@ -22,8 +22,8 @@ json.eliminated @key.eliminated
 json.list_of_descriptors @key.list_of_descriptors
 
 json.remaining do
-  json.array!(@key.remaining) do |otu|
-    json.extract! otu, :id, :name, :taxon_name_id, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
-    json.partial! '/shared/data/all/metadata', object: otu
+  json.array!(@key.remaining) do |object|
+    json.partial! '/shared/data/all/metadata', object: object
+    json.merge! object.attributes
   end
 end
