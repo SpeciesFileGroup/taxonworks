@@ -17,6 +17,13 @@ json.eliminate_unknown @key.eliminate_unknown
 json.identified_to_rank @key.identified_to_rank
 json.selected_descriptors@key.selected_descriptors
 json.selected_descriptors_hash @key.selected_descriptors_hash
-json.remaining @key.remaining
+# json.remaining @key.remaining
 json.eliminated @key.eliminated
 json.list_of_descriptors @key.list_of_descriptors
+
+json.remaining do
+  json.array!(@key.remaining) do |otu|
+    json.extract! otu, :id, :name, :taxon_name_id, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+    json.partial! '/shared/data/all/metadata', object: otu
+  end
+end
