@@ -210,8 +210,8 @@ new_asserted_distribution_from_map_task:
     - new
 report_dwc_task:
   hub: true
-  name: 'Report DWCA table'
-  description: 'Collection objects with calculated attributes that will ultimately be exported to DWCA.'
+  name: 'Report DwC-A table'
+  description: 'Collection objects with calculated attributes that will ultimately be exported to DwC-A.'
   status: prototype
   categories:
     - collection_object
@@ -260,7 +260,7 @@ dates_index_task:
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
 psu_import_task:
   hub: true
-  name: 'Import Penn State DWCA'
+  name: 'Import Penn State DwC-A'
   related:
     - collecting_events
     - collection_objects
@@ -268,7 +268,7 @@ psu_import_task:
     - collecting_event
     - collection_object
   status: prototype
-  description: 'Import a DWCA file from Penn State.'
+  description: 'Import a DwC-A file from Penn State.'
 overdue_loans_task:
   hub: true
   name: 'Overdue loans'
@@ -580,3 +580,11 @@ project_data_task:
   categories:
   status: prototype
   description: 'Quick stats and download options for the overall project.'
+dwc_dashboard_task:
+  hub: true
+  name: 'DwC Dashboard'
+  description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event

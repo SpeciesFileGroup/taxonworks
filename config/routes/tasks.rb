@@ -15,6 +15,13 @@ scope :tasks do
     end
   end
 
+  scope :dwc do
+    scope :dashboard, controller: 'tasks/dwc/dashboard' do
+      get '/', action: :index, as: 'dwc_dashboard_task'
+      get 'generate_download', as: 'generated_dwc_download_task'
+    end
+  end
+
   scope :exports do
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
