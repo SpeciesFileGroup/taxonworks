@@ -9,21 +9,30 @@
           param="term"
           label="label_html"
           placeholder="Search a observation matrix"
-          @getItem="loadMatrix"
+          @getItem="loadMatrix($event.id)"
         />
       </div>
-      <div class="middle">
+      <div class="horizontal-left-content">
         <button
+          v-if="observationMatrix"
           type="button"
-          @click="setLayout(settings.gridLayout)"
-          class="button normal-input button-default margin-small-left"
-          :class="layouts[settings.gridLayout]">
-          <div class="i3-grid layout-mode-1 grid-icon">
-            <div class="descriptors-view grid-item"/>
-            <div class="taxa-remaining grid-item"/>
-            <div class="taxa-eliminated grid-item"/>
-          </div>
+          class="button normal-input button-default"
+          @click="loadMatrix(observationMatrix.observation_matrix_id)">
+          Process
         </button>
+        <div class="middle">
+          <button
+            type="button"
+            @click="setLayout(settings.gridLayout)"
+            class="button normal-input button-default margin-small-left"
+            :class="layouts[settings.gridLayout]">
+            <div class="i3-grid layout-mode-1 grid-icon">
+              <div class="descriptors-view grid-item"/>
+              <div class="taxa-remaining grid-item"/>
+              <div class="taxa-eliminated grid-item"/>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   </nav-component>
@@ -67,8 +76,8 @@ export default {
     setLayout (layout) {
       this.settings.gridLayout = this.layouts[layout]
     },
-    loadMatrix (matrix) {
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, matrix.id)
+    loadMatrix (id) {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
     }
   }
 }
