@@ -67,6 +67,10 @@ export default {
     params: {
       type: Object,
       default: undefined
+    },
+    pagination: {
+      type: Object,
+      default: undefined
     }
   },
   data () {
@@ -92,22 +96,21 @@ export default {
     loadBibtex () {
       this.showModal = true
       this.isLoading = true
-      GetBibtex(this.params).then(response => {
+      GetBibtex({ params: this.params }).then(response => {
         this.bibtex = response.body
         this.isLoading = false
       })
     },
-    getParamString () {
-      return new URLSearchParams(this.params).toString()
-    },
     createDownloadLink () {
-      var a = window.document.createElement('a')
-      a.href = `/sources.bib?${this.getParamString()}`
-      a.download = 'sources.bib'
-
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
+      GetBibtex({ params: Object.assign(this.params, { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
+        const downloadUrl = window.URL.createObjectURL(new Blob([body]))
+        const link = document.createElement('a')
+        link.href = downloadUrl
+        link.setAttribute('download', 'sources.bib')
+        document.body.appendChild(link)
+        link.click()
+        link.remove()
+      })
     },
     generateLinks () {
       this.isLoading = true

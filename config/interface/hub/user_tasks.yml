@@ -65,7 +65,7 @@ otus_filter_task:
   description: 'Find OTUs by nomenclature, geography and author.'
 comprehensive_collection_object_task:
   hub: true
-  name: 'Comprehensive collection object form'
+  name: 'Comprehensive specimen digitization'
   related:
     - collection_objects
   categories:
@@ -479,7 +479,7 @@ collection_objects_filter_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 syncronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Syncronize nomenclature and OTUs'
+  name: 'Synchronize nomenclature and OTUs'
   related:
   categories:
     - nomenclature

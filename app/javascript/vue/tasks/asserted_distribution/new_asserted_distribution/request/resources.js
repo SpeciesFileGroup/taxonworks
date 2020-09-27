@@ -4,6 +4,8 @@ const CreateAssertedDistribution = (data) => {
   return ajaxCall('post', '/asserted_distributions.json', { asserted_distribution: data })
 }
 
+const GetAssertedDistribution = (params) => ajaxCall('get', '/asserted_distributions.json', { params: params })
+
 const GetGeographicArea = (id) => {
   return ajaxCall('get', `/geographic_areas/${id}.json`)
 }
@@ -32,6 +34,7 @@ export {
   GetSource,
   GetOtu,
   GetGeographicArea,
+  GetAssertedDistribution,
   CreateAssertedDistribution,
   RemoveAssertedDistribution,
   UpdateAssertedDistribution,

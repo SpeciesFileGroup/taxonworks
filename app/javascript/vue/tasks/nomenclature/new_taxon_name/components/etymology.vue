@@ -7,6 +7,7 @@
       slot="body"
       v-show="expanded">
       <markdown-editor
+        @blur="updateLastChange"
         class="edit-content"
         v-model="etymology"
         :configs="config"
@@ -33,7 +34,6 @@ export default {
       },
       set (text) {
         this.$store.commit(MutationNames.SetEtymology, text)
-        this.$store.commit(MutationNames.UpdateLastChange)
       }
     }
   },
@@ -42,9 +42,13 @@ export default {
       expanded: true,
       config: {
         status: false,
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
         spellChecker: false
       }
+    }
+  },
+  methods: {
+    updateLastChange () {
+      this.$store.commit(MutationNames.UpdateLastChange)
     }
   }
 }

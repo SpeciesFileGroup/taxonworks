@@ -14,9 +14,9 @@ describe TaxonNameRelationship::Combination, type: :model, group: [:nomenclature
     expect(TaxonNameRelationship::Combination::Genus.new.rank_name).to eq('genus')
   end
 
-  specify '.dijoint_classes' do
-    expect(TaxonNameRelationship::Combination::Genus.disjoint_classes).to include('TaxonNameClassification::Icn', 'TaxonNameClassification::Icn::EffectivelyPublished') # and many others
-  end
+#  specify '.dijoint_classes' do
+#    expect(TaxonNameRelationship::Combination::Genus.disjoint_classes).to include('TaxonNameClassification::Icn', 'TaxonNameClassification::Icn::EffectivelyPublished') # and many others
+#  end
 
   specify '#object_status' do
     expect(TaxonNameRelationship::Combination::Genus.new.object_status).to eq('genus in combination')

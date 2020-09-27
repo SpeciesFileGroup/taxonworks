@@ -29,6 +29,7 @@ export default function ({ commit, state, dispatch }, taxon) {
       if (!response.body.hasOwnProperty('taxon_name_author_roles')) {
         response.body.taxon_name_author_roles = []
       }
+      delete response.body.etymology
       response.body.roles_attributes = []
       commit(MutationNames.SetTaxon, response.body)
       commit(MutationNames.SetHardValidation, undefined)

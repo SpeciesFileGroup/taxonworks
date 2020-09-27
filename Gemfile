@@ -82,7 +82,7 @@ gem 'serrano', '~> 0.6.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.3'
+gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
@@ -94,16 +94,16 @@ gem 'rgb'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
-gem 'sqed', '0.5.8'
+gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1.1'
-gem 'biodiversity', '~> 4.0', '>= 4.0.3'
+gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
 gem 'gnfinder', '~> 0.11.0'
 
 # Minor Utils/helpers
-gem 'awesome_print', '~> 1.8'
+gem 'amazing_print', '~> 1.2.1'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
@@ -123,7 +123,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.24.0'
+  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
   gem 'prawn', '~> 2.2.2'
 end
 

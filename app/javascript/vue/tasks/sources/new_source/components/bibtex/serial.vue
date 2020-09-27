@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="horizontal-left-content full_width">
-      <fieldset class="full_width">
+      <fieldset
+        v-help.section.BibTeX.serial
+        class="full_width">
         <legend>Serial</legend>
         <div class="horizontal-left-content align-start">
           <smart-selector

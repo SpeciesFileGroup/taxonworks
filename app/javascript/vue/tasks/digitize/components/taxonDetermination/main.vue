@@ -280,9 +280,13 @@ export default {
     if (/^\d+$/.test(taxonId)) {
       GetOtus(taxonId).then(response => {
         if (response.body.length) {
+          if (response.body.length === 1) {
+            this.setOtu(response.body[0])
+          }
           this.smartList.quick = response.body
         } else {
           CreateOtu(taxonId).then(otu => {
+            this.setOtu(otu)
             this.smartList.quick.push(otu.body)
           })
         }
@@ -360,6 +364,9 @@ export default {
     label {
       display: block;
     }
+    li label {
+      display: inline;
+    }
     .date-fields {
       input {
         max-width: 80px;
@@ -369,6 +376,9 @@ export default {
       .vue-autocomplete-input {
         max-width: 150px;
       }
+    }
+    .otu_tag_taxon_name {
+      white-space: pre-wrap !important;
     }
   }
 </style>

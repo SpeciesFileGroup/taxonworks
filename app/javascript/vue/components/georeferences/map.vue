@@ -18,14 +18,6 @@ import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
-  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default
-})
-
 export default {
   props: {
     width: {
@@ -232,14 +224,6 @@ export default {
           removalMode: this.removalMode
         })
       }
-
-      this.mapObject.pm.enableDraw('Marker', { tooltips: this.tooltips })
-      this.mapObject.pm.enableDraw('Polygon', { tooltips: this.tooltips })
-      this.mapObject.pm.enableDraw('Circle', { tooltips: this.tooltips })
-      this.mapObject.pm.enableDraw('Line', { tooltips: this.tooltips })
-      this.mapObject.pm.enableDraw('Rectangle', { tooltips: this.tooltips })
-      this.mapObject.pm.enableDraw('Cut', { tooltips: this.tooltips })
-      this.mapObject.pm.toggleGlobalDragMode()
     },
     handleEvents () {
       const that = this

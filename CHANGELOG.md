@@ -9,6 +9,272 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.13.0] - 2020-09-22
+
+### Added
+- Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
+- Handling for new unicode minutes, seconds symbols [#1526]
+- Descriptor object radial paths
+- Many specs related to dynamic observation matrix items
+- Improvements to Descriptor autocomplete labels [#1727]
+- Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Pdf viewer button on Documentation and Source views [#1693]
+- Spinner for when converting verbatim to bibtex [#1710]
+- Set OTU in determination when otu_id param is present on comprehensive task
+- "Create georeference from verbatim" button in Parsed column on comprehensive task
+- Sortable order for Type material, Biological association and Determinations on comprehensive task
+- User facet on Filter nomenclature task [#1720]
+- Pagination on Filter noemnclature task [#1724]
+- Biological associations filter on Browse OTU
+
+### Changed
+- AssertedDistribution filter `otu_id` and `geographic_area_id` can now also take array form, e.g. `otu_id[]=`
+- Preload all CSL styles via fixed constant, increasing boot speed [#1749]
+- Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
+- Data migration updating all `type` column values for matrix row/column items
+- Tweaked JSON attribute response for matrix rows and columns very slightly
+- Updated observation item types to properly nest them, inc. all downstream changes (Factories, etc.)
+- Unfied matrix hooks in various places
+- Updated some matrix related routes to point to tasks 
+- Updated respec `matrix` tag to `observation_matrix`
+- Methods that write to cached should not fire callbacks, potential for [#1701]
+- Using custom geckodriver-helper for Firefox 80 support
+- Override browser shortcuts on task hotkeys [#1738]
+- Biological associations section on Browse OTU
+- TW now supports Postgres 12 [#1305]
+- Replaced biodiversity with custom gem repo using IPC with gnparser processes
+- Updated gems
+- Character "΄" also accepted as minute specifier in coordinates parsing.
+
+## Fixed
+- Fixed LOW_PROBABILITY constant message
+- Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
+- Scope of dynamic taxon name row item [#1747]
+- Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
+- Character state order not correct in Nexus format [#1574]
+- Not able to destroy matrix rows or matrices [#1520], [#1123]
+- Dynamic observeratoin matrix items not properly scoped/behaving [#1125]
+- Destroy pdf pages before create new ones [#1680]
+- Serial multiple updates did not update bibtex author field [#1709]
+- Fix (likely) for pinboard items failing to remove [#1690]
+- Better response for failed collecting event cloning [#1705]
+- Cleaned up deprecated biological associations graph autcomplete [#1707]
+- Colliding `namespace` method for identifiers breaks identifiers list [#1702]
+- Graceful failed serial destroy response [#1703]
+- Restored Show -> edit link [#1699]
+- Enable search button after pick a collecting event date on Filter collection objects task [#1728]
+- Misppeling collecting_event_ids parameter [#1729]
+- Non-original combination authorship lacking parentheses [#1686]
+
+[#1570]: https://github.com/SpeciesFileGroup/taxonworks/issues/1570
+[#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
+[#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
+[#1747]: https://github.com/SpeciesFileGroup/taxonworks/issues/1747
+[#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
+[#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
+[#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
+[#1574]: https://github.com/SpeciesFileGroup/taxonworks/issues/1574
+[#1520]: https://github.com/SpeciesFileGroup/taxonworks/issues/1520
+[#1123]: https://github.com/SpeciesFileGroup/taxonworks/issues/1123
+[#1125]: https://github.com/SpeciesFileGroup/taxonworks/issues/1125
+[#1439]: https://github.com/SpeciesFileGroup/taxonworks/issues/1439
+[#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
+[#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
+[#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1693]: https://github.com/SpeciesFileGroup/taxonworks/issues/1693
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
+[#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
+[#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
+[#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
+[#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
+[#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
+[#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
+[#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
+[#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
+[#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
+[#1686]: https://github.com/SpeciesFileGroup/taxonworks/issues/1686
+[#1305]: https://github.com/SpeciesFileGroup/taxonworks/pull/1305
+
+## [0.12.17] - 2020-02-02
+
+### Added
+- Successfull source destroy message 
+- Pending - Definition field to BiologicalRelationship model and views [#1672]
+- New button to (attempt to) convert verbatim sources to Bibtex via Crossref
+- Model methods and attribute to change Source Verbatim to Bibtex [#1673]
+- DOMPurify package to sanitize html
+- List all Keyword and Topics in smart selector on filter source [#1675]
+- Added data links tool in markdown editor (Ctrl/Alt-Shift-L) [#1674]
+- Definition field on composer biological relationship task [#1672]
+
+### Changed
+- Unified can_destroy/edit methods
+- Improved Source autocomplete with metadata/markup [#1681]
+- Changed CoLDP download to use Catalog::Nomenclature as name source
+- Replace SimpleMDE for EasyMDE
+- Sort alphabetically bibliography style list on filter source
+- Removed limit of download bibtex on filter source [#1683]
+- Disable/enable destroy button from metadata on radial navigator [#1696]
+
+### Fixed
+- Non admins not able to destroy shared data [#1098]
+- Pending confirmation: Include original combinations in CoLDP [#1204] 
+- Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
+- Docker: Fixed path typo on clean up command
+- Tag button on filter source [#1692]
+- Overflow in taxon names list in new taxon name [#1688]
+- Confidence button overlapped in new combination [#1687]
+
+[#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098 
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
+[#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
+[#1674]: https://github.com/SpeciesFileGroup/taxonworks/issues/1674
+[#1681]: https://github.com/SpeciesFileGroup/taxonworks/issues/1681
+[#1203]: https://github.com/SpeciesFileGroup/taxonworks/issues/1203
+[#1204]: https://github.com/SpeciesFileGroup/taxonworks/issues/1204
+[#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
+[#1675]: https://github.com/SpeciesFileGroup/taxonworks/issues/1675
+[#1683]: https://github.com/SpeciesFileGroup/taxonworks/issues/1683
+[#1687]: https://github.com/SpeciesFileGroup/taxonworks/issues/1687
+[#1688]: https://github.com/SpeciesFileGroup/taxonworks/issues/1688
+[#1692]: https://github.com/SpeciesFileGroup/taxonworks/issues/1692
+[#1696]: https://github.com/SpeciesFileGroup/taxonworks/issues/1696
+
+## [0.12.16] - 2020-08-24
+
+### Added
+- Highlight metadata that is not in this project in uniquify people task [#1648]
+- Locks buttons on grid digitizer task [#1599]
+- Option to export styled bibliography on filter sources task [#1652]
+- Edit button in content section on radial object [#1670]
+
+### Changed
+- Drag button style on new taxon name [#1669]
+- Removed SimpleMDE lib from ruby assets and added to npm dependencies
+- Allow taxon name type relationships to be cited [#1667]
+
+### Fixed
+- BibTex html no longer escaped [#1657]
+- Some of the elements of the form are not accessible on overflow. [#1661]
+- Populate masculine, feminine and neuter on gender form [#1665]
+- Markdown render on Browse OTU [#1671]
+
+[#1599]: https://github.com/SpeciesFileGroup/taxonworks/issues/1599
+[#1648]: https://github.com/SpeciesFileGroup/taxonworks/issues/1648
+[#1652]: https://github.com/SpeciesFileGroup/taxonworks/issues/1652
+[#1657]: https://github.com/SpeciesFileGroup/taxonworks/issues/1657
+[#1661]: https://github.com/SpeciesFileGroup/taxonworks/issues/1661
+[#1665]: https://github.com/SpeciesFileGroup/taxonworks/issues/1665
+[#1667]: https://github.com/SpeciesFileGroup/taxonworks/issues/1667
+[#1669]: https://github.com/SpeciesFileGroup/taxonworks/issues/1669
+[#1670]: https://github.com/SpeciesFileGroup/taxonworks/issues/1670
+[#1671]: https://github.com/SpeciesFileGroup/taxonworks/issues/1671
+
+## [0.12.15] - 2020-08-18
+
+### Fixed
+- Sqed hook initiated with String, not Class [#1654]
+
+[#1654]: https://github.com/SpeciesFileGroup/taxonworks/issues/1654
+
+## [0.12.14] - 2020-08-17
+
+### Added
+- Help tips in comprehensive specimen digitization task
+- Help tips in new source task
+- Type section in Browse OTUs task [#1615]
+- Automatically filter sections by taxon rank in Browse OTUs task
+- Rank string in browse nomenclature
+- Pinboard navigator (Ctrl/Alt + G) [#1647]
+- Filter by repository in filter collection objects [#1650]
+- Hotkey for add element to pinboard (Ctrl/Alt + P)
+
+### Fixed
+- Collectors order in comprehensive specimen digitization
+- Losses data of etymology form after set a gender
+- Autocomplete component not encoding query params properly
+- Random RGeo deserialization errors [#1553]
+
+### Changed
+- New combination redirect to the valid name [#1639]
+- Rename comprehensive specimen digitization task card
+- Updated chartkick gem [#1646]
+- Improved verbatim date and geographic coordinates recognition
+- Improved soft validation messages for coordinated species-group
+
+[#1553]: https://github.com/SpeciesFileGroup/taxonworks/issues/1553
+[#1615]: https://github.com/SpeciesFileGroup/taxonworks/issues/1615
+[#1639]: https://github.com/SpeciesFileGroup/taxonworks/issues/1639
+[#1646]: https://github.com/SpeciesFileGroup/taxonworks/pull/1646
+[#1647]: https://github.com/SpeciesFileGroup/taxonworks/issues/1647
+[#1650]: https://github.com/SpeciesFileGroup/taxonworks/issues/1650
+
+## [0.12.13] - 2020-08-04
+
+### Added
+- Delete confirmation for original combinations [#1618]
+- Delete confirmation for type specimens in new type specimen task
+- Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
+- Modal on duplicate original citations in radial annotator [#1576]
+- Soft validations component for citations in radial annotator and tasks [#1552]
+- Redirect to valid name in browse nomenclature [#446]
+- sessionStorage for browse nomenclature autocomplete [#446]
+- Observation matrices in radial object [#1527]
+- Comprehensive task to taxon name radial [#934]
+- Map on OTU radial in asserted distribution form [#856]
+- Pin objects from list in filter sources
+- Checkbox to make document public on list in radial annotator
+- Title legend for "make default" icon in pinboard slide
+- Checkbox to alternative between AND/OR filter for authors in filter sources
+- Lep staged 2 layout for staged images [#1635]
+
+### Changed
+- Use amazing_print instead of awesome_print gem
+- Cleanup and add spec basis for nomenclature tabular stats queries  
+- Improve/unify image modal [#1617]
+- Replace repository and source autocompletes for smart selectors in new type material task
+- Changed autosave behaviour in new asserted distribution task
+- Gender list order in new taxon name task
+- Page range soft validation message made less strict
+- Original citation-related UI text
+- Moved taxon name input search to right column in new taxon name
+- Persons autosave in new taxon name
+- Updated elliptic node package. [#1632]
+
+### Fixed
+- Flip object to subject label on type section in new taxon name task
+- Shapes are possible to drag even if this option is not set up
+- Columns size of georeference table [#1622]
+- Webpacker host and port bind on docker container
+- Wrong taxon name relationship soft validation message for genera
+- Modal confirmation its not displaying in manage synonyms section [#1627]
+- Manage synonyms includes combinations [#1628]
+- Recent and per params in source filter and controller
+- Missing ZIP dependency for docker images
+- Attempting to return geographic areas in OTU smart selector on certain conditions
+
+[#446]: https://github.com/SpeciesFileGroup/taxonworks/issues/446
+[#856]: https://github.com/SpeciesFileGroup/taxonworks/issues/856
+[#934]: https://github.com/SpeciesFileGroup/taxonworks/issues/934
+[#1329]: https://github.com/SpeciesFileGroup/taxonworks/issues/1329
+[#1527]: https://github.com/SpeciesFileGroup/taxonworks/issues/1527
+[#1552]: https://github.com/SpeciesFileGroup/taxonworks/issues/1552
+[#1576]: https://github.com/SpeciesFileGroup/taxonworks/issues/1576
+[#1617]: https://github.com/SpeciesFileGroup/taxonworks/issues/1617
+[#1618]: https://github.com/SpeciesFileGroup/taxonworks/issues/1618
+[#1622]: https://github.com/SpeciesFileGroup/taxonworks/issues/1622
+[#1627]: https://github.com/SpeciesFileGroup/taxonworks/issues/1627
+[#1628]: https://github.com/SpeciesFileGroup/taxonworks/issues/1628
+[#1632]: https://github.com/SpeciesFileGroup/taxonworks/pull/1632
+[#1635]: https://github.com/SpeciesFileGroup/taxonworks/issues/1635
+
+## [0.12.12] - 2020-07-22
+
+### Fixed
+- Seeing OTUs in Recent that do not belong to project [#1626]
+
+[#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1626
+
 ## [0.12.11] - 2020-07-14
 
 ### Changed
@@ -238,7 +504,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...development
+[0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
+[0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
+[0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
+[0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15
+[0.12.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.13...v0.12.14
+[0.12.13]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.12...v0.12.13
+[0.12.12]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.11...v0.12.12
 [0.12.11]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.10...v0.12.11
 [0.12.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.9...v0.12.10
 [0.12.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.8...v0.12.9

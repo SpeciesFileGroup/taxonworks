@@ -242,7 +242,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
-            expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
+            expect(@subspecies.get_author_and_year).to eq ('McAtee, 1900')
           end
 
           # What code is this supposed to catch?

@@ -1,6 +1,7 @@
 <template>
   <block-layout
     anchor="original-combination"
+    :warning="softValidation.length"
     v-help.section.originalCombination.container>
     <h3 slot="header">Original combination and classification</h3>
     <div
@@ -38,8 +39,9 @@
                 :value="item.name"
                 disabled>
               <span
-                class="handle"
-                data-icon="scroll-v"/>
+                class="handle button circle-button button-submit"
+                title="Press and hold to drag input"
+                data-icon="w_scroll-v"/>
             </div>
           </draggable>
         </div>
@@ -145,6 +147,9 @@ export default {
         }
         return exist
       }
+    },
+    softValidation () {
+      return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
     }
   },
   watch: {
@@ -172,17 +177,19 @@ export default {
       }]
     },
     removeAllCombinations: function () {
-      let that = this
-      let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-      let allDelete = []
-      for (var key in combinations) {
-        allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
-          return true
-        }))
+      if(window.confirm('Are you sure you want to remove all combinations?')) {
+        let that = this
+        let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
+        let allDelete = []
+        for (var key in combinations) {
+          allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
+            return true
+          }))
+        }
+        Promise.all(allDelete).then(function () {
+          that.saveTaxonName()
+        })
       }
-      Promise.all(allDelete).then(function () {
-        that.saveTaxonName()
-      })
     },
     addOriginalCombination: function () {
       var that = this
@@ -219,8 +226,8 @@ export default {
     width: 400px;
   }
   .handle {
-    width: 15px;
     background-position: center;
+    padding: 0px;
   }
 }
 </style>

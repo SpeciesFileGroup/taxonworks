@@ -1,17 +1,21 @@
 <template>
   <fieldset>
     <legend>Repository</legend>
-    <autocomplete
-      url="/repositories/autocomplete"
-      param="term"
-      placeholder="Search a repository"
-      label="label"
-      :clear-after="true"
-      @getItem="setRepository"/>
-    <p 
-      v-if="label"
+    <div class="horizontal-left-content align-start">
+      <smart-selector
+        model="repositories"
+        klass="CollectionObject"
+        pin-section="Repositories"
+        pin-type="Repository"
+        @selected="setRepository"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="lock.repository_id"/>
+    </div>
+    <p
+      v-if="repository"
       class="horizontal-left-content middle">
-      <span v-html="label"/>
+      <span v-html="repository.name"/>
       <span
         class="circle-button btn-undo button-default"
         @click="removeRepository"/>
@@ -23,34 +27,44 @@
 
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import Autocomplete from 'components/autocomplete'
+import { GetRepository } from '../../request/resource'
+import SmartSelector from 'components/smartSelector'
+import SharedComponent from '../shared/lock.js'
 
 export default {
+  mixins: [SharedComponent],
   components: {
-    Autocomplete
+    SmartSelector
   },
   computed: {
     collectionObject: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
-      set(newVal) {
+      set (value) {
         this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     }
   },
   data () {
     return {
-      label: undefined
+      repository: undefined
+    }
+  },
+  mounted () {
+    if (this.collectionObject.repository_id) {
+      GetRepository(this.collectionObject.repository_id).then(response => {
+        this.setRepository(response.body)
+      })
     }
   },
   methods: {
-    setRepository(repository) {
-      this.label = repository.label
+    setRepository (repository) {
+      this.repository = repository
       this.collectionObject.repository_id = repository.id
     },
     removeRepository () {
-      this.label = undefined
+      this.repository_id = undefined
       this.collectionObject.repository_id = undefined
     }
   }

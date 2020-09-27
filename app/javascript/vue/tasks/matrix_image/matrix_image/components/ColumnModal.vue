@@ -73,7 +73,7 @@ export default {
         let data = {
           observation_matrix_id: this.matrixId,
           descriptor_id: responseDescriptor.body.id,
-          type: 'ObservationMatrixColumnItem::SingleDescriptor'
+          type: 'ObservationMatrixColumnItem::Single::Descriptor'
         }
         CreateColumn(data).then(response => {
           response.body.descriptor = responseDescriptor.body

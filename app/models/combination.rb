@@ -52,7 +52,7 @@
 #   @return [String]
 #
 # @!attribute parent_id
-#   the parent is the parent of the highest ranked component protonym, it is automatically set i.e. it should never be assigned directly
+#   the parent is the *parent* of the highest ranked component Protonym, it is automatically set i.e. it should never be assigned directly
 #   @return [Integer]
 #
 class Combination < TaxonName

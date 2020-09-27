@@ -12,7 +12,7 @@
     <div class="horizontal-center-content full_width middle margin-small-top">
       <property-box
         v-model="subject"/>
-      <relationship-box 
+      <relationship-box
         :flip="flip"
         v-model="biological_relationship"/>
       <property-box
@@ -87,6 +87,7 @@ export default {
     setBiologicalRelationship(newVal) {
       this.biological_relationship.id = newVal.id
       this.biological_relationship.name = newVal.name
+      this.biological_relationship.definition = newVal.definition
       this.biological_relationship.inverted_name = newVal.inverted_name
       this.biological_relationship.is_transitive = newVal.is_transitive
       this.biological_relationship.is_reflexive = newVal.is_reflexive
@@ -96,7 +97,7 @@ export default {
     flipValues () {
       if (!this.biologicalRelationship.id) return
       const tmp = this.object
-      
+
       this.object = this.subject
       this.subject = tmp
       this.flip = !this.flip
@@ -133,7 +134,8 @@ export default {
         name: undefined,
         inverted_name: undefined,
         is_transitive: undefined,
-        is_reflexive: undefined
+        is_reflexive: undefined,
+        definition: undefined
       }
       this.object = []
       this.subject = []

@@ -82,7 +82,15 @@ export default {
         adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
         participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
       },
-      sortOrder: ['masculine', 'feminine', 'neuter']
+      sortOrder: [
+        'masculine',
+        'feminine',
+        'neuter',
+        'noun in apposition',
+        'noun in genitive case',
+        'adjective',
+        'participle'
+      ]
     }
   },
   mounted: function () {
@@ -182,8 +190,7 @@ export default {
       this.feminine = null
       this.neuter = null
     },
-    addEntry: function (item) {
-      const that = this
+    async addEntry (item) {
       const alreadyStored = this.searchExisting()
 
       this.saving = true
@@ -197,26 +204,19 @@ export default {
       taxon.neuter_name = null
 
       if (alreadyStored) {
-        that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
-          that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
-            that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
-                that.saving = false
-              })
-            })
-          })
-        })
-      } else {
-        that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
-          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-            setTimeout(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
-                that.saving = false
-              })
-            }, 1000)
-          })
-        })
+        await this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored)
       }
+
+      this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
+        this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
+          taxon.feminine_name = undefined
+          taxon.masculine_name = undefined
+          taxon.neuter_name = undefined
+          this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
+            this.saving = false
+          })
+        })
+      })
     },
     applicableRank: function (list, type) {
       const found = list.find(function (item) {

@@ -16,7 +16,7 @@
       <div
         v-shortkey="[getOSKey(), 't']"
         @shortkey="switchTaxonNameTask()"
-        class="flexbox horizontal-center-content align-start">
+        class="align-start">
         <div class="ccenter item separate-right">
           <name-section
             class="separate-bottom"
@@ -163,14 +163,6 @@ export default {
        visibility:hidden;
     }
 
-    .types_field {
-      input[type="text"], textarea {
-        width: 300px;
-      }
-      .vue-autocomplete-input {
-          width: 300px;
-      }
-    }
     hr {
         height: 1px;
         color: #f5f5f5;

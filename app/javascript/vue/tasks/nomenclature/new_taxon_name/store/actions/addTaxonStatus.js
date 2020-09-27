@@ -22,6 +22,7 @@ export default function ({ dispatch, commit, state }, status) {
         dispatch('loadSoftValidation', 'taxon_name')
         dispatch('loadSoftValidation', 'taxonStatusList')
         dispatch('loadSoftValidation', 'taxonRelationshipList')
+        dispatch('loadSoftValidation', 'original_combination')
         return resolve(response.body)
       }, response => {
         return reject(response.body)

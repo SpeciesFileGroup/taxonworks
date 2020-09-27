@@ -3,6 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -307,8 +308,12 @@ export default {
       return menu
     },
     addDefaultOptions () {
+      const filterOptions = this.filterOptions
+      if (!this.metadata.destroy) {
+        filterOptions.push(defaultOptions.Destroy)
+      }
       this.defaultSlices.forEach(slice => {
-        const founded = this.filterOptions.find(option => {
+        const founded = filterOptions.find(option => {
           return option.toLowerCase() == slice.label.toLowerCase()
         })
 

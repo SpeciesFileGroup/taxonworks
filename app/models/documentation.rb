@@ -44,12 +44,18 @@ class Documentation < ApplicationRecord
   belongs_to :documentation_object, polymorphic: true
   belongs_to :document, inverse_of: :documentation
 
+  after_destroy :destroy_document_if_last
+
   validates_presence_of :document
 
   accepts_nested_attributes_for :document
   accepts_nested_attributes_for :documentation_object
 
   protected
+
+  def destroy_document_if_last
+    document.destroy if Documentation.where(document: document).count == 0
+  end
 
   def catch_statement_invalid
     begin

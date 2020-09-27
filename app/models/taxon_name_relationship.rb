@@ -437,10 +437,13 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_disjoint_relationships
-    subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
-    subject_relationships.each  do |i|
-      if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-        soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+    tname = self.type_name
+    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Icvcn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+      subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
+      subject_relationships.each  do |i|
+        if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+          soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+        end
       end
     end
   end

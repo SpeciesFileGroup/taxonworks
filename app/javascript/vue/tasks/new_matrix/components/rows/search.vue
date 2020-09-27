@@ -30,10 +30,11 @@
 </template>
 <script>
 
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
@@ -50,10 +51,7 @@ export default {
         Otu: '/otus/autocomplete',
         CollectionObject: '/collection_objects/autocomplete',
       },
-      types: {
-        Otu: 'ObservationMatrixRowItem::SingleOtu',
-        CollectionObject: 'ObservationMatrixRowItem::SingleCollectionObject',
-      },
+      types: ObservationTypes.Row,
       type: 'Otu'
     }
   },
