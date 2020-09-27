@@ -371,7 +371,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
     set_hash_val(collecting_event, :end_date_day, day)
 
     # verbatimEventDate: verbatim_date
-    set_hash_val(collecting_event, :verbatimEventDate, get_field_value(:verbatim_date))
+    set_hash_val(collecting_event, :verbatim_date, get_field_value(:verbatimEventDate))
 
     # habitat: verbatim_habitat
     set_hash_val(collecting_event, :verbatim_habitat, get_field_value(:habitat))
