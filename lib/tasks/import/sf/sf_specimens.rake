@@ -65,6 +65,8 @@ namespace :tw do
           get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
           ids_asserted_distribution = {} # key = array[otu_id, geographic_area)id], value = asserted_distribution.id(.to_s)
 
+          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/)] }.to_h
+
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
           syntypes_range = {} # use ranged_lot_category for syntypes, paratypes and paralectotypes without individual counts
@@ -456,7 +458,17 @@ namespace :tw do
                   created_at: row['CreatedOn'],
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
+
+                  identifiers:[
+                    Identifier::Global.new(
+                      identifier: "http://#{get_project_website_name[project_id]}.speciesfile.org/Common/specimen/ShowSpecimen.aspx?" +
+                                  "SpecimenID=#{specimen_id}##{specimen_category_id}_#{count}",
+                      project_id: project_id,
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                    )
+                  ]
                 )
                 co_params.merge!({ total: count }) unless ranged_lot_category_id
 
@@ -633,14 +645,18 @@ namespace :tw do
                           project_id: project_id)})
                     end
 
-                    t = TaxonDetermination.create!(
-                        otu_id: otu_id,
-                        biological_collection_object_id: o.id,
-                        citations_attributes: citations_attributes,
-                        data_attributes_attributes: data_attributes_attributes,
-                        notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
-                        confidences_attributes: confidences_attributes,
-                        project_id: project_id)
+                    t = TaxonDetermination.find_or_initialize_by(
+                      otu_id: otu_id,
+                      biological_collection_object_id: o.id,
+                      project_id: project_id
+                    )
+                    t.assign_attributes(
+                      citations_attributes: citations_attributes,
+                      data_attributes_attributes: data_attributes_attributes,
+                      notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
+                      confidences_attributes: confidences_attributes
+                    )
+                    t.save!
                     t.move_to_bottom # so it's not the first record
 
 
@@ -686,6 +702,7 @@ namespace :tw do
                       type_material = TypeMaterial.create!(protonym_id: get_tw_taxon_name_id[identification['type_taxon_name_id']], # tw_taxon_name_id
                                            collection_object: o, # = collection_object/biological_collection_object
                                            type_type: type_kind,
+                                           citations_attributes: citations_attributes,
                                            project_id: project_id)
 
                       Confidence.create!(confidence_object: type_material,
@@ -884,12 +901,13 @@ namespace :tw do
             }
 
             if get_sf_identification_metadata[specimen_id] # this is the same SpecimenID as last row with another seqnum, add another identification record
-              get_sf_identification_metadata[specimen_id].push this_ident
+              get_sf_identification_metadata[specimen_id][this_ident[seqnum].to_i] = this_ident
 
             else # this is a new SpecimenID, start new identification
               get_sf_identification_metadata[specimen_id] = [this_ident]
             end
 
+            get_sf_identification_metadata[specimen_id].compact!
           end
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')

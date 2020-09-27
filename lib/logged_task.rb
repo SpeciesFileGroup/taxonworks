@@ -30,6 +30,7 @@ module LoggedTask
       rescue => exception
         logger.summary
         logger.error("Logged task #{task.name} failed.", exception.backtrace)
+        logger.error(exception.message)
         raise
       end
     end
