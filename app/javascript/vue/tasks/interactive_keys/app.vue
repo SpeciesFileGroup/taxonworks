@@ -8,19 +8,16 @@
         :class="gridLayout">
         <descriptors-view
           class="descriptors-view grid-item content"/>
-        <taxon-names-tree
-          class="taxa-remaining grid-item content"
-          title="Remaining"/>
-        <taxon-names-tree
-          class="taxa-eliminated grid-item content"
-          title="Elimitated"/>
+        <remaining-component class="taxa-remaining grid-item content"/>
+        <eliminated-component class="taxa-eliminated grid-item content"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import TaxonNamesTree from './components/TaxonNamesTree'
+import RemainingComponent from './components/Remaining'
+import EliminatedComponent from './components/Eliminated'
 import DescriptorsView from './components/DescriptorsView'
 import { ActionNames } from './store/actions/actions'
 import MenuBar from './components/MenuBar'
@@ -29,7 +26,8 @@ import { GetterNames } from './store/getters/getters'
 export default {
   components: {
     DescriptorsView,
-    TaxonNamesTree,
+    RemainingComponent,
+    EliminatedComponent,
     MenuBar
   },
   computed: {
