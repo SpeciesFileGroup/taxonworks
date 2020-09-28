@@ -65,7 +65,7 @@ namespace :tw do
           get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
           ids_asserted_distribution = {} # key = array[otu_id, geographic_area)id], value = asserted_distribution.id(.to_s)
 
-          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/)] }.to_h
+          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
           depo_namespace = Namespace.find_or_create_by(institution: 'Species File', name: 'SpecimenDepository', short_name: 'Depo')
 
