@@ -65,7 +65,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
           collection_objects: [specimen],
           verbatim_latitude: get_field_value("decimalLatitude"),
           verbatim_longitude: get_field_value("decimalLongitude"),
-          verbatim_geolocation_uncertainty: get_field_value("coordinateUncertaintyInMeters") + 'm',
+          verbatim_geolocation_uncertainty: get_field_value("coordinateUncertaintyInMeters")&.send(:+, 'm'),
           verbatim_datum: get_field_value("geodeticDatum"),
           verbatim_locality: get_field_value("locality"),
           no_dwc_occurrence: true
