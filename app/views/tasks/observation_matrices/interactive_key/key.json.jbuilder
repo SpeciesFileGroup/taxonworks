@@ -18,7 +18,7 @@ json.identified_to_rank @key.identified_to_rank
 json.selected_descriptors@key.selected_descriptors
 json.selected_descriptors_hash @key.selected_descriptors_hash
 # json.remaining @key.remaining
-#json.eliminated @key.eliminated
+# json.eliminated @key.eliminated
 json.list_of_descriptors @key.list_of_descriptors
 
 json.remaining do
