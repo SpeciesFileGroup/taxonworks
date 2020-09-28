@@ -18,7 +18,7 @@
           type="button"
           class="button normal-input button-default"
           @click="loadMatrix(observationMatrix.observation_matrix_id)">
-          Process
+          Proceed
         </button>
         <div class="middle">
           <button
