@@ -61,15 +61,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         })
 
         #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
-        CollectingEvent.create!({
+        collecting_event = CollectingEvent.create!({
           collection_objects: [specimen],
-          with_verbatim_data_georeference: true,
           verbatim_latitude: get_field_value("decimalLatitude"),
           verbatim_longitude: get_field_value("decimalLongitude"),
+          verbatim_geolocation_uncertainty: get_field_value("coordinateUncertaintyInMeters") + 'm',
           verbatim_datum: get_field_value("geodeticDatum"),
           verbatim_locality: get_field_value("locality"),
           no_dwc_occurrence: true
         }.merge!(attributes[:collecting_event]))
+
+        Georeference::VerbatimData.create!({
+          collecting_event: collecting_event,
+          error_radius: get_field_value("coordinateUncertaintyInMeters")
+        })
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
