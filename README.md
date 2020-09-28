@@ -24,7 +24,7 @@ TaxonWorks is open source and is presently available under the [University of Il
 
 ## Funding
 
-The foundation of TaxonWorks is funded by an endowment of the Species File Group. This project was funded in part by NSF-ABI-1356381.  Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation. 
+The foundation of TaxonWorks is funded by an endowment of the [Species File Group](21). This project was funded in part by NSF-ABI-1356381.  Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation. 
 
 [1]: https://travis-ci.org/SpeciesFileGroup/taxonworks.svg?branch=development
 [2]: https://travis-ci.org/SpeciesFileGroup/taxonworks
@@ -41,4 +41,5 @@ The foundation of TaxonWorks is funded by an endowment of the Species File Group
 [18]: https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License
 [19]: https://gitter.im/SpeciesFileGroup/taxonworks?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
 [20]: https://badges.gitter.im/SpeciesFileGroup/taxonworks.svg
+[21]: https://speciesfilegroup.org
 
