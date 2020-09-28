@@ -462,7 +462,7 @@ namespace :tw do
 
                   identifiers:[
                     Identifier::Global.new(
-                      identifier: "http://#{get_project_website_name[project_id]}.speciesfile.org/Common/specimen/ShowSpecimen.aspx?" +
+                      identifier: "http://#{get_project_website_name[project_id.to_i]}.speciesfile.org/Common/specimen/ShowSpecimen.aspx?" +
                                   "SpecimenID=#{specimen_id}##{specimen_category_id}_#{count}",
                       project_id: project_id,
                       created_by_id: get_tw_user_id[row['CreatedBy']],
@@ -596,7 +596,7 @@ namespace :tw do
                       if get_tw_source_id[sf_ref_id]
                         # source_id = get_tw_source_id[sf_ref_id]
                         # citations_attributes = Citation.create!(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
-                        citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id)
+                        citations_attributes.push(source_id: get_tw_source_id[sf_ref_id], project_id: project_id, is_original: true)
                       else # no TW source equiv, use verbatim as data_attribute
                         verbatim_sf_ref = {type: 'ImportAttribute',
                                            import_predicate: "verbatim_sf_ref_id_#{sf_ref_id}",
