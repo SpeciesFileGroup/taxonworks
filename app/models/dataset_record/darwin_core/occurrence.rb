@@ -54,17 +54,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
           }.merge!(attributes[:catalog_number]))
         end
 
-        determiners = parse_identifiedBy.map! { |n| Person.find_by(n) || Person::Unvetted.create!(n) }
-
         specimen.taxon_determinations.create!({
           otu: otu,
-          determiners: determiners,
+          determiners: parse_people("identifiedBy"),
           year_made: get_field_value("dateIdentified")
         })
-
-
-        ### Parse Event class fields
-        attributes = parse_event_class
 
         #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
         CollectingEvent.create!({
@@ -140,21 +134,22 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
     value
   end
 
-  # NOTE: Sometimes an identifier happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
-  def parse_identifiedBy
-    DwcAgent.parse(get_field_value("identifiedBy")).map! do |name|
-      res = {
+  # NOTE: Sometimes an identifier/collector happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
+  def parse_people(field_name)
+    DwcAgent.parse(get_field_value(field_name)).map! do |name|
+      attributes = {
         last_name: [name.particle, name.family].compact!.join(" "),
         first_name: name.given,
         suffix: name.suffix,
         prefix: name.title || name.appellation
       }
 
-      if res[:last_name].blank?
-        res[:last_name] = res[:first_name]
-        res[:first_name] = nil
+      if attributes[:last_name].blank?
+        attributes[:last_name] = attributes[:first_name]
+        attributes[:first_name] = nil
       end
-      res
+
+      Person.find_by(attributes) || Person::Unvetted.create!(attributes)
     end
   end
 
@@ -233,7 +228,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
   def parse_occurrence_class
     res = {
       catalog_number: {},
-      specimen: {}
+      specimen: {},
+      collecting_event: {}
     }
 
     # occurrenceID: [SHOULD BE MAPPED. Namespace perhaps should be something fixed and local to project or user-supplied if non-GUID (should be GUID!)]
@@ -243,7 +239,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
     # recordNumber: [Not mapped]
 
-    # recordedBy: [Not mapped. NOTE: Collector is included here, but not explicitly mentioned. Review]
+    # recordedBy: [collecting_event.collectors]
+    set_hash_val(res[:collecting_event], :collectors, parse_people(:recordedBy))
 
     # individualCount: [specimen.total]
     set_hash_val(res[:specimen], :total, get_field_value(:individualCount) || 1)
