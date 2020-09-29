@@ -11,10 +11,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
 
         names = DWC_CLASSIFICATION_TERMS.map { |t| [t, get_field_value(t)] }
 
-        names << ["genus", parse_details.dig("genus", "value")]
-        names << ["subgenus", parse_details.dig("infragenericEpithet", "value")]
-        names << ["species", parse_details.dig("specificEpithet", "value")]
-        names << ["subspecies", parse_details["infraspecificEpithets"]&.first&.dig("value")]
+        uninomial = parse_details.dig("uninomial")
+
+        unless uninomial
+          names << ["genus", parse_details.dig("genus", "value")]
+          names << ["subgenus", parse_details.dig("infragenericEpithet", "value")]
+          names << ["species", parse_details.dig("specificEpithet", "value")]
+          names << ["subspecies", parse_details["infraspecificEpithets"]&.first&.dig("value")]
+        else
+          names << ["genus", uninomial["parent"]] if uninomial["parent"]
+          names << [/subgen/ =~ uninomial["rank"] ? "subgenus" : nil, uninomial["value"]]
+        end
 
         names.reject! { |v| v[1].nil? }
 
