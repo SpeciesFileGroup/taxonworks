@@ -3,6 +3,7 @@ const ActionNames = {
   LoadInformation: 'loadInformation',
   LoadCollectionObjects: 'loadCollectionObjects',
   LoadCollectingEvents: 'loadCollectingEvents',
+  LoadDepictions: 'loadDepictions',
   LoadPreferences: 'loadPreferences',
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',

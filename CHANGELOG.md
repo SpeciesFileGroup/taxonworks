@@ -12,6 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Webpack resolved_paths deprecation warning
 - Missing /otus/:otu_id/taxon_determinations route
 
+### Changed
+
+- Load Images for coordinate OTUs [#1787]
+
+[#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+
 ## [0.13.0] - 2020-09-22
 
 ### Changed

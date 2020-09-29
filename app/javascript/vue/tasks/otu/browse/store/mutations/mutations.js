@@ -10,11 +10,13 @@ import setLoadState from './setLoadState'
 import setTaxonName from './setTaxonName'
 import setOtus from './setOtus'
 import setStore from './setStore'
+import setDepictions from './setDepictions'
 
 const MutationNames = {
   SetBiologicalAssociations: 'setBiologicalAssociations',
   SetCollectingEvents: 'setCollectingEvents',
   SetCollectionObjects: 'setCollectionObjects',
+  SetDepictions: 'setDepictions',
   SetGeoreferences: 'setGeoreferences',
   SetPreferences: 'setPreferences',
   SetAssertedDistributions: 'setAssertedDistributions',
@@ -30,6 +32,7 @@ const MutationFunctions = {
   [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetCollectingEvents]: setCollectingEvents,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
+  [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetPreferences]: setPreferences,
   [MutationNames.SetAssertedDistributions]: setAssertedDistributions,
