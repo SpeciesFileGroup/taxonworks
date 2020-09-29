@@ -10,7 +10,8 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     settings: {
-      gridLayout: 'layout-mode-1'
+      gridLayout: 'layout-mode-1',
+      isLoading: false
     },
     observationMatrix: undefined,
     observationMatrixDescriptors: [],

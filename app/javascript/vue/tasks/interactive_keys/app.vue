@@ -1,6 +1,10 @@
 <template>
   <div id="vue-interactive-keys">
-    <h1 class="task_header">Interactive key</h1>
+    <spinner-component
+      v-if="isLoading"
+      legend="Loading interactive key..."
+      full-screen />
+    <h1 class="task_header">Interactive key <span v-if="observationMatrix">| {{ observationMatrix.observation_matrix.name }}</span></h1>
     <menu-bar/>
     <div class="i3 full-height">
       <div
@@ -22,22 +26,25 @@ import DescriptorsView from './components/DescriptorsView'
 import { ActionNames } from './store/actions/actions'
 import MenuBar from './components/MenuBar'
 import { GetterNames } from './store/getters/getters'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
     DescriptorsView,
     RemainingComponent,
     EliminatedComponent,
+    SpinnerComponent,
     MenuBar
   },
   computed: {
     gridLayout () {
       return this.$store.getters[GetterNames.GetSettings].gridLayout
-    }
-  },
-  data () {
-    return {
-      observationMatrix: undefined
+    },
+    isLoading () {
+      return this.$store.getters[GetterNames.GetSettings].isLoading
+    },
+    observationMatrix () {
+      return this.$store.getters[GetterNames.GetObservationMatrix]
     }
   },
   mounted () {

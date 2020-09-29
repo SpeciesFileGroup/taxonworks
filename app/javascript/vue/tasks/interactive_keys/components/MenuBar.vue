@@ -2,13 +2,12 @@
   <nav-component>
     <div class="flex-separate">
       <div>
-        <span v-if="observationMatrix">{{ observationMatrix.observation_matrix.name }}</span>
         <autocomplete
-          v-else
           url="/observation_matrices/autocomplete"
           param="term"
           label="label_html"
           placeholder="Search a observation matrix"
+          clear-after
           @getItem="loadMatrix($event.id)"
         />
       </div>
@@ -42,6 +41,7 @@
 
 import NavComponent from 'components/navBar'
 import Autocomplete from 'components/autocomplete'
+import SetParam from 'helpers/setParam'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -77,6 +77,9 @@ export default {
       this.settings.gridLayout = this.layouts[layout]
     },
     loadMatrix (id) {
+      if (!this.observationMatrix || id !== this.observationMatrix.observation_matrix_id) {
+        SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', 24)
+      }
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
     }
   }
