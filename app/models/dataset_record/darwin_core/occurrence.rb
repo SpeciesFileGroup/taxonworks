@@ -81,7 +81,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
         Georeference::VerbatimData.create!({
           collecting_event: collecting_event,
           error_radius: get_field_value("coordinateUncertaintyInMeters")
-        })
+        }) if collecting_event.verbatim_latitude && collecting_event.verbatim_longitude
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
