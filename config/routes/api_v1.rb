@@ -20,10 +20,6 @@ namespace :api, defaults: {format: :json} do
       get '/people/:id', to: '/people#api_show'
       get '/people/autocomplete', to: '/people#autocomplete'
 
-      get '/collection_objects', to: '/collection_objects#api_index'
-      get '/collection_objects/:id', to: '/collection_objects#api_show'
-      get '/collection_objects/autocomplete', to: '/collection_objects#autocomplete'
-
     end
 
     # authenticated by project token
@@ -55,6 +51,14 @@ namespace :api, defaults: {format: :json} do
       get '/collecting_events', to: '/collecting_events#api_index'
       get '/collecting_events/:id', to: '/collecting_events#api_show'
       get '/collecting_events/autocomplete', to: '/collecting_events#autocomplete'
+
+      get '/collection_objects', to: '/collection_objects#api_index'
+      get '/collection_objects/:id', to: '/collection_objects#api_show'
+      get '/collection_objects/autocomplete', to: '/collection_objects#autocomplete'
+
+      get '/biological_associations', to: '/biological_associations#api_index'
+      get '/biological_associations/:id', to: '/biological_associations#api_show'
+      get '/biological_associations/autocomplete', to: '/biological_associations#autocomplete'
 
     end
 

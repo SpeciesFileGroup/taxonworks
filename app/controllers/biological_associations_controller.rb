@@ -20,10 +20,23 @@ class BiologicalAssociationsController < ApplicationController
       }
     end
   end
- 
+
+  def api_index
+    @biological_associations = Queries::BiologicalAssociation::Filter
+                                   .new(filter_params)
+                                   .all
+                                   .where(project_id: sessions_current_project_id)
+                                   .page(params[:page] || 1).per(params[:per] || 500)
+    render 'biological_associations/api/index.json.jbuilder'
+  end
+
   # GET /biological_associations/1
   # GET /biological_associations/1.json
   def show
+  end
+
+  def api_show
+
   end
 
   # GET /biological_associations/new
@@ -88,13 +101,13 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   private
-  
+
   def filter_params
     params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
 
     # Shallow resource hack
     if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
-       params[:any_global_id] = c.to_global_id.to_s 
+       params[:any_global_id] = c.to_global_id.to_s
     end
     params
   end
@@ -105,7 +118,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def biological_association_params
     params.require(:biological_association).permit(
-      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, 
+      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type,
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,
