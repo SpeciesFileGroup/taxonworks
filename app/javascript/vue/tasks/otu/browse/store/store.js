@@ -113,6 +113,7 @@ function makeInitialState () {
     georeferences: [],
     typeMaterials: [],
     depictions: [],
+    commonNames: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],
