@@ -12,6 +12,12 @@
         />
       </div>
       <div class="horizontal-left-content">
+        <button 
+          type="button"
+          class="button normal-input button-default"
+          @click="resetView">
+          Reset
+        </button>
         <button
           v-if="observationMatrix"
           type="button"
@@ -81,6 +87,10 @@ export default {
         SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', 24)
       }
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
+    },
+    resetView () {
+      this.$store.commit(MutationNames.SetDescriptorsFilter, {})
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
     }
   }
 }

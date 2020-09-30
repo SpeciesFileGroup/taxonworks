@@ -1,7 +1,7 @@
 <template>
   <div>
     <template v-if="descriptorsUsed.length">
-      <h3>Used Characters</h3>
+      <h3>Used Descriptors</h3>
       <ol>
         <li
           v-for="descriptor in descriptorsUsed"
@@ -14,7 +14,7 @@
       </ol>
     </template>
     <template v-if="descriptorsUseful.length">
-      <h3>Characters Useful for Identification</h3>
+      <h3>Descriptors Useful for Identification</h3>
       <ol>
         <li
           v-for="descriptor in descriptorsUseful"
@@ -27,7 +27,7 @@
       </ol>
     </template>
     <template v-if="descriptorsUseless.length">
-      <h3>Characters no longer relevant for identification</h3>
+      <h3>Descriptors no longer relevant for identification</h3>
       <ol>
         <li
           v-for="descriptor in descriptorsUseless"
@@ -46,6 +46,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 import ContinuousDescriptor from './Descriptors/Continuous'
 import SampleDescriptor from './Descriptors/Sample'
@@ -79,6 +80,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetDescriptorsFilter, value)
       }
+    }
+  },
+  watch: {
+    filter: {
+      handler (newVal) {
+        this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
+      },
+      deep: true
     }
   },
   methods: {

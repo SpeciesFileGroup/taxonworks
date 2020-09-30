@@ -1,5 +1,8 @@
+import loadUpdatedRemaining from "./loadUpdatedRemaining"
+
 const ActionNames = {
-  LoadObservationMatrix: 'loadObservationMatrix'
+  LoadObservationMatrix: 'loadObservationMatrix',
+  LoadUpdatedRemaining: 'loadUpdatedRemaining'
 }
 
 export default ActionNames
