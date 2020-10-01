@@ -7,15 +7,21 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Filter nomenclature option for including ancestors [#1791] 
+
 ### Fixed
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
 - Missing /otus/:otu_id/taxon_determinations route
 
 ### Changed
-
+- CoLDP references are full cached values, not partially passed
+- Combination nomenclatural code inference drawn from members, not parent
+- Some nomenclature rank related simbols moved to constants
 - Load Images for coordinate OTUs [#1787]
 
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 
 ## [0.13.0] - 2020-09-22
@@ -23,9 +29,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Removed forced dependency on google-protobuf gem
 - Updated gems
-
-### Added
-- Filter nomenclature option for including ancestors [#1791] 
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
@@ -80,7 +83,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misppeling collecting_event_ids parameter [#1729]
 - Non-original combination authorship lacking parentheses [#1686]
 
-[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1570]: https://github.com/SpeciesFileGroup/taxonworks/issues/1570
 [#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
 [#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
