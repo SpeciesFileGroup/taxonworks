@@ -22,7 +22,7 @@ class Observation < ApplicationRecord
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
 
-  after_initialize :convert_observation_object_global_id
+  before_validation :convert_observation_object_global_id
   before_validation :set_type_from_descriptor
 
   validates_presence_of :descriptor_id, :type
@@ -43,12 +43,9 @@ class Observation < ApplicationRecord
 
   def self.in_observation_matrix(observation_matrix_id)
     om = ObservationMatrix.find(observation_matrix_id)
-    d_ids = om.descriptors.pluck(:id).freeze
-    o_ids = om.otus.pluck(:id).freeze
-    c_ids = om.collection_objects.pluck(:id).freeze
 
-    where(:descriptor_id => d_ids, :otu_id => o_ids).or(
-    where(:descriptor_id => d_ids, :collection_object_id => c_ids))
+    where(descriptor: om.descriptors, otu: om.otus).or(
+    where(descriptor: om.descriptors, collection_object: om.collection_objects))
   end
 
   # @params row_object_global_ids [Array of global_id instances (not string)

@@ -230,8 +230,12 @@ class InteractiveKey
       h[d.id][:status] = 'used' if @selected_descriptors_hash[d.id]
     end
     t = "'Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Qualitative', 'Observation::Sample'"
-    Observation.in_observation_matrix(@observation_matrix_id).where('"observations"."type" IN (' + t + ')').each do |o|
-      #    @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
+    #    attrs = %w(otu_id collection_object_id descriptor_id character_state_id continuous_value sample_min sample_max presence)
+    #Observation.in_observation_matrix(@observation_matrix_id).where('"observations"."type" IN (' + t + ')').pluck(*attrs).map { |p| attrs.zip(p).to_h }.each do |o|
+
+      #      Observation.in_observation_matrix(1).pluck(:descriptor_id, :character_state_id).map { |descriptor_id, character_state_id| { descriptor_id: descriptor_id, character_state_id: character_state_id } }
+
+    @observation_matrix.observations.where('"observations"."type" IN (' + t + ')').each do |o|
       if h[o.descriptor_id]
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
