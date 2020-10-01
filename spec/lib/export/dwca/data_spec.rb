@@ -1,19 +1,19 @@
 require 'rails_helper'
-require 'dwca/packer'
+require 'export/dwca/data'
 
-describe Dwca::Packer::Data, type: :model do 
+describe Export::Dwca::Data, type: :model do 
   let(:scope) { DwcOccurrence.all }
 
   specify 'initializing without a scope raises' do
-    expect {Dwca::Packer::Data.new(nil)}.to raise_error ArgumentError 
+    expect {Export::Dwca::Data.new(nil)}.to raise_error ArgumentError 
   end
 
   specify 'initializing with a DwcOccurrence scope succeeds' do
-    expect(Dwca::Packer::Data.new(scope)).to be_truthy
+    expect(Export::Dwca::Data.new(scope)).to be_truthy
   end
 
    context 'when initialized with a scope' do
-    let(:data) { Dwca::Packer::Data.new(scope) }
+    let(:data) { Export::Dwca::Data.new(scope) }
 
     specify '#csv returns csv String' do
       expect(data.csv).to be_kind_of( String ) 
@@ -37,19 +37,19 @@ describe Dwca::Packer::Data, type: :model do
       context 'various scopes' do
         specify 'with .where clauses' do
           s = scope.where('id > 1')
-          d = Dwca::Packer::Data.new(s)
+          d = Export::Dwca::Data.new(s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
 
         specify 'with .order clauses' do
           s = scope.order(:basisOfRecord)
-          d = Dwca::Packer::Data.new(s)
+          d = Export::Dwca::Data.new(s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
 
         specify 'with .join clauses' do
           s = scope.collection_objects_join
-          d = Dwca::Packer::Data.new(s)
+          d = Export::Dwca::Data.new(s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
       end

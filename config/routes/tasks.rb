@@ -18,7 +18,7 @@ scope :tasks do
   scope :dwc do
     scope :dashboard, controller: 'tasks/dwc/dashboard' do
       get '/', action: :index, as: 'dwc_dashboard_task'
-      get 'generate_download', as: 'generated_dwc_download_task'
+      get 'generate_download', as: 'generate_dwc_download_task'
     end
   end
 

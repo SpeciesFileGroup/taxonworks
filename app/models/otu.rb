@@ -36,7 +36,9 @@ class Otu < ApplicationRecord
   include Shared::Observations 
   include Shared::BiologicalAssociations 
   include Shared::HasPapertrail
-  
+
+  include Otu::DwcExtensions
+
   include Shared::IsData
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
@@ -219,27 +221,9 @@ class Otu < ApplicationRecord
     Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
   end
 
-  # Hernán - this is extremely hacky, I'd like to
-  # map core keys to procs, use yield:, use cached values,
-  # add logic for has_many handling (e.g. identifiers) etc.
-  # ultmately, each key maps to a proc that returns a value
-  #
-  # deprecated for new approach in CollectionObject, AssertedDistribution
-  def dwca_core
-    core = Dwca::GbifProfile::CoreTaxon.new
-
-    core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
-    core.nomenclaturalStatus      = (taxon_name.classification_invalid_or_unavailable? ? nil : 'available') # needs tweaking
-    core.scientificName           = taxon_name.cached
-    core.scientificNameAuthorship = taxon_name.cached_author_year
-    core.scientificNameID         = taxon_name.identifiers.first.identifier
-    core.taxonRank                = taxon_name.rank
-    core.namePublishedIn          = taxon_name.source.cached
-    core
-  end
 
   # TODO: Deprecate for helper method, HTML does not belong here
+  #   used in ColDP download name, and elsewhere
   def otu_name
     if !name.blank?
       name

@@ -25,7 +25,7 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
     # If failing remove begin/ensure/end to report Raised errors
     # TODO: integrate with Download
     begin
-      data = Dwca::Packer::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id))
+      data = ::Export::Dwca::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id).all)
       send_data(data.getzip, type: 'application/zip', filename: data.filename)
     ensure
       data.cleanup

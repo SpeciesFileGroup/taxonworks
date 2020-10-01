@@ -1,4 +1,3 @@
-
 # A Darwin Core Record for the Occurence core.  Field generated from Ruby dwc-meta, which references
 # the same spec that is used in the IPT, and the Dwc Assistant.  Each record
 # references a specific CollectionObject or AssertedDistribution.
@@ -46,6 +45,20 @@ class DwcOccurrence < ApplicationRecord
 
   belongs_to :dwc_occurrence_object, polymorphic: true
 
+  # @return Scope
+  def self.empty_fields(project_id)
+    empty_in_all_projects = ::DwcOccurrence.connection.execute("select attname
+    from pg_stats
+    where tablename = 'dwc_occurrences'
+    and most_common_vals is null
+    and most_common_freqs is null
+    and histogram_bounds is null
+    and correlation is null
+    and null_frac = 1;").pluck('attname')
+
+    empty_in_all_projects - target_columns
+  end
+
   def self.collection_objects_join
     a = arel_table
     b = ::CollectionObject.arel_table 
@@ -60,9 +73,14 @@ class DwcOccurrence < ApplicationRecord
   validates :dwc_occurrence_object, presence: true
   validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
 
+
+  def self.target_columns
+    ['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+  end
+
   # @return [Scope]
   def self.computed_columns
-    select(['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys)
+    select(target_columns)
   end
 
   def basis

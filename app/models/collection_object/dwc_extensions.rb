@@ -60,6 +60,15 @@ module CollectionObject::DwcExtensions
     georeferencedBy: :dwc_georeferenced_by,
     georeferencedDate: :dwc_georeferenced_date,
     verbatimSRS: :dwc_verbatim_srs,
+
+    # -- Core taxon? -- 
+    # nomenclaturalCode 
+    # scientificName
+    # taxonmicStatus NOT DONE
+    # scientificNameAuthorship
+    # scientificNameID  NOT DONE
+    # taxonRank
+    # namePublishedIn NOT DONE
   }.freeze
 
   included do

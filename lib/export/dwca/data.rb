@@ -1,6 +1,6 @@
 require 'zip'
 
-module Dwca::Packer
+module Export::Dwca
 
   # Wrapper to build DWCA zipfiles for a specific project.
   # See tasks/accesssions/report/dwc_controller.rb for use.
@@ -9,7 +9,7 @@ module Dwca::Packer
   #
   # Usage:
   #  begin
-  #   data = Dwca::Packer::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
+  #   data = Dwca::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
   #  ensure
   #   data.cleanup
   #  end
@@ -24,7 +24,7 @@ module Dwca::Packer
     def initialize(record_scope)
       raise ArgumentError, 'must pass a scope' if !record_scope.kind_of?( ActiveRecord::Relation )
       @scope = record_scope
-      @total = scope.count('*')
+      @total = scope.count # ('*')
     end
 
     # @return [CSV]
@@ -32,14 +32,14 @@ module Dwca::Packer
     def csv
       Export::Download.generate_csv(
         scope.computed_columns,
-        trim_columns: true,
-        trim_rows: true,
+        trim_columns: false,
+        trim_rows: false,
         header_converters: [:dwc_headers]
       )
     end
 
     # @return [Array]
-    #   use the temporarily written, and refined, CSV file to read of the existing headers
+    #   use the temporarily written, and refined, CSV file to read off the existing headers
     def csv_headers
       return [] if no_records?
       d = CSV.open(data, headers: true, col_sep: "\t")
