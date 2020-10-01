@@ -453,6 +453,10 @@ class InteractiveKey
         number_of_measurements = d_value[:state_ids].count
         s = (d_value[:min] - (d_value[:min] / 10)) / (d_value[:max] - d_value[:min])
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
+        if descriptor[:status] != 'used' && descriptor[:min] != descriptor[:max]
+          d_value[:status] = 'useful'
+          descriptor[:status] = 'useful'
+        end
       when 'Descriptor::Sample'
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
@@ -468,9 +472,12 @@ class InteractiveKey
           else
             s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] || d_value[:min] - d_value[:min])
           end
+          if descriptor[:status] != 'used' && (s_value[:o_min] != d_value[:min] || (!s_value[:o_max].blank? && s_value[:o_max] != d_value[:max]))
+            d_value[:status] = 'useful'
+            descriptor[:status] = 'useful'
+          end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
-
       when 'Descriptor::PresenceAbsence'
         number_of_states = 2
         descriptor[:states] = []
