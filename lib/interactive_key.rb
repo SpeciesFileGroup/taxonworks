@@ -10,6 +10,9 @@ class InteractiveKey
   #returns ObservationMatrix object
   attr_accessor :observation_matrix
 
+  #returns ObservationMatrix citation
+  attr_accessor :observation_matrix_citation
+
   #optional attribute to display the characters in a particular language
   attr_accessor :language_id
 
@@ -100,7 +103,7 @@ class InteractiveKey
 
     # Do you mean
     @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
-
+    @observation_matrix_citation = @observation_matrix.source
     @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
     @language_to_use = language_to_use

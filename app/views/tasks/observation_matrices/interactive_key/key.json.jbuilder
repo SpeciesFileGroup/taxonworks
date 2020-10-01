@@ -3,6 +3,7 @@
 json.observation_matrix_id @key.observation_matrix_id
 json.project_id @key.project_id
 json.observation_matrix @key.observation_matrix
+json.observation_matrix_citation @key.observation_matrix_citation
 json.descriptor_available_languages @key.descriptor_available_languages
 json.language_id @key.language_id
 json.language_to_use @key.language_to_use
