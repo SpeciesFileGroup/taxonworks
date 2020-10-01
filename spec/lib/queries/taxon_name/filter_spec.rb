@@ -197,7 +197,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.taxon_name_id = [genus.id]
     query.ancestors = true
     query.descendants = true
-    expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, species.id)
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
   end
 
   specify '#taxon_name_id[] 4' do
