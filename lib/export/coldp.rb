@@ -35,7 +35,8 @@ module Export
       otus = otus(otu_id)
       ref_csv = CSV.new('temp_ref_csv', col_sep: "\t")
 
-      ref_csv << %w{ID citation	author year source details doi}
+      # Pending handling of both BibTeX and Verbatim
+      ref_csv << %w{ID citation	doi} # author year source details
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
