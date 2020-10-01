@@ -14,7 +14,8 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     update!(metadata: {
       core_headers: headers[:core],
       extensions_headers: headers[:extensions],
-      nomenclature_code: "ICZN"
+      nomenclature_code: "ICZN",
+      catalog_numbers_namespaces: []
     })
 
     parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
@@ -33,9 +34,20 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       record[:invalid] = "scientificName could not be parsed" if not parse_results[:details]
     end
 
+    catalog_numbers_namespaces = Set[]
+
     core_records.each do |record|
       dwc_occurrence = DatasetRecord::DarwinCore::Occurrence.new(import_dataset: self)
       dwc_occurrence.initialize_data_fields(record[:src_data].map { |k, v| v })
+
+      catalog_numbers_namespaces << [
+        [
+          dwc_occurrence.get_field_value(:institutionCode),
+          dwc_occurrence.get_field_value(:collectionCode)
+        ],
+        nil # User will select namespace through UI. TODO: Should we attempt guessing here?
+      ]
+
       dwc_occurrence.status = !record[:invalid] ? "Ready" : "NotReady"
       dwc_occurrence.status = "Unsupported" unless "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0
       record.delete(:src_data)
@@ -55,6 +67,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       end
     end
 
+    update!(metadata: self.metadata.merge!(catalog_numbers_namespaces: catalog_numbers_namespaces))
   end
 
   # @return [Hash]
@@ -79,4 +92,9 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     end
   end
 
+  def update_catalog_number_namespace(institution_code, collection_code, namespace_id)
+    mapping = self.metadata["catalog_numbers_namespaces"].detect { |m| m[0] == [institution_code, collection_code] }
+    mapping[1] = namespace_id
+    save!
+  end
 end

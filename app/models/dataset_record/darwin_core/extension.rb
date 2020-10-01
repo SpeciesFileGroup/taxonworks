@@ -1,3 +1,3 @@
-class DatasetRecord::DarwinCore::Extension < DatasetRecord
+class DatasetRecord::DarwinCore::Extension < DatasetRecord::DarwinCore
 
 end

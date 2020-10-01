@@ -1,4 +1,4 @@
-class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
+class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
 
@@ -114,20 +114,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord
   end
 
   private
-
-  def get_fields_mapping
-    @fields_mapping ||= import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
-  end
-
-  def get_field_value(field_name)
-    index = get_fields_mapping[field_name.to_s]
-
-    value = data_fields[index]&.dig("value") if index
-    value&.strip!
-    value&.squeeze!(" ")
-
-    value unless value.blank?
-  end
 
   def get_integer_field_value(field_name)
     value = get_field_value(field_name)
