@@ -17,6 +17,9 @@ module Queries
       # @return author [String, nil]
       attr_accessor :author 
 
+      # @return ids [Array of Integer, nil]
+      attr_accessor :ids 
+
       # @return [Boolean, nil]
       # @params exact_author ['true', 'false', nil]
       attr_accessor :exact_author 
@@ -92,6 +95,7 @@ module Queries
 
         @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
 
+        @ids = params[:ids] || []
         @topic_ids = params[:topic_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
@@ -155,6 +159,10 @@ module Queries
         else # only start
           table[:year].eq(year_start)
         end
+      end
+
+      def source_ids_facet
+        ids.empty? ? nil : table[:id].eq_any(ids)
       end
 
       def author_ids_facet
@@ -324,10 +332,11 @@ module Queries
 
         clauses += [
           cached,
+          source_ids_facet,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet,
+          year_facet
         ].compact
 
         return nil if clauses.empty?

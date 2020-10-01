@@ -7,9 +7,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Collecting event object radial metadata settings
+- Webpack resolved_paths deprecation warning
+- Missing /otus/:otu_id/taxon_determinations route
+
+### Changed
+
+- Load Images for coordinate OTUs [#1787]
+
+[#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 
 ## [0.13.0] - 2020-09-22
+
+### Changed
+- Removed forced dependency on google-protobuf gem
+- Updated gems
 
 ### Added
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]

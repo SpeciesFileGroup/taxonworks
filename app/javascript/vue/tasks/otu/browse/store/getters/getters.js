@@ -1,6 +1,8 @@
 import getBiologicalAssociations from './getBiologicalAssociations'
 import getCollectingEvents from './getCollectingEvents'
 import getCollectionObjects from './getCollectionObjects'
+import getCommonNames from './getCommonNames'
+import getDepictions from './getDepictions'
 import getDescendants from './getDescendants'
 import getGeoreferences from './getGeoreferences'
 import getPreferences from './getPreferences'
@@ -15,6 +17,8 @@ const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
   GetCollectionObjects: 'getCollectionObjects',
   GetCollectingEvents: 'getCollectingEvents',
+  GetCommonNames: 'getCommonNames',
+  GetDepictions: 'getDepictions',
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
   GetPreferences: 'getPreferences',
@@ -30,6 +34,8 @@ const GetterFunctions = {
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
   [GetterNames.GetCollectingEvents]: getCollectingEvents,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
+  [GetterNames.GetCommonNames]: getCommonNames,
+  [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDescendants]: getDescendants,
   [GetterNames.GetGeoreferences]: getGeoreferences,
   [GetterNames.GetPreferences]: getPreferences,
