@@ -85,6 +85,10 @@ export default {
     pagination: {
       type: Object,
       default: undefined
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -128,7 +132,7 @@ export default {
     generateLinks () {
       return new Promise((resolve, reject) => {
         this.isLoading = true
-        GetBibliography({ params: Object.assign({}, this.params, { is_public: true, style_id: this.styleId, per: this.pagination.total }) }).then(response => {
+        GetBibliography({ params: Object.assign({}, (this.selectedList.length ? { ids: this.selectedList } : this.params), { is_public: true, style_id: this.styleId, per: this.pagination.total }) }).then(response => {
           this.links = response.body
           this.isLoading = false
         })
@@ -137,7 +141,7 @@ export default {
     loadBibliography () {
       return new Promise((resolve, reject) => {
         this.isLoading = true
-        GetBibtex({ params: Object.assign({}, this.params, { is_public: true, style_id: this.styleId }) }).then(response => {
+        GetBibtex({ params: Object.assign({}, (this.selectedList.length ? { ids: this.selectedList } : this.params), { is_public: true, style_id: this.styleId }) }).then(response => {
           this.links = undefined
           this.bibtex = response.body
           this.isLoading = false

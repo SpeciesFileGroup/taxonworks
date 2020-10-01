@@ -8,6 +8,8 @@ export default ({ dispatch, state }, otus) => {
         dispatch(ActionNames.LoadCollectingEvents, [otu.id])
       }))
       promises.push(dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id))
+      promises.push(dispatch(ActionNames.LoadDepictions, otu.id))
+      promises.push(dispatch(ActionNames.LoadCommonNames, otu.id))
 
       Promise.all(promises).then(() => {
         resolve()

@@ -2,22 +2,33 @@
   <section-panel
     :status="status"
     :title="title">
-    <list-component
-      v-if="dataAttributes.length"
-      title="Data attributes"
-      :list="dataAttributes"/>
-    <list-component
-      v-if="identifiers.length"
-      title="Identifiers"
-      :list="identifiers"/>
-    <list-component
-      v-if="notes.length"
-      title="Notes"
-      :list="notes"/>
-    <list-component
-      v-if="tags.length"
-      title="Tags"
-      :list="tags"/>
+    <template v-for="(item, key) in annotations">
+      <div
+        v-if="existAnnotations(item)"
+        :key="key">
+        <h4 v-html="otus.find(otu => otu.id == key).object_tag"/>
+        <list-component
+          class="margin-medium-left"
+          v-if="item.dataAttributes.length"
+          title="Data attributes"
+          :list="item.dataAttributes"/>
+        <list-component
+          class="margin-medium-left"
+          v-if="item.identifiers.length"
+          title="Identifiers"
+          :list="item.identifiers"/>
+        <list-component
+          class="margin-medium-left"
+          v-if="item.notes.length"
+          title="Notes"
+          :list="item.notes"/>
+        <list-component
+          class="margin-medium-left"
+          v-if="item.tags.length"
+          title="Tags"
+          :list="item.tags"/>
+      </div>
+    </template>
   </section-panel>
 </template>
 
@@ -27,6 +38,7 @@ import SectionPanel from './shared/sectionPanel'
 import ListComponent from './shared/list'
 import extendSection from './shared/extendSections'
 import { GetIdentifiers, GetNotes, GetTags, GetDataAttributes } from '../request/resources.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   mixins: [extendSection],
@@ -34,33 +46,58 @@ export default {
     ListComponent,
     SectionPanel
   },
-  data() {
+  computed: {
+    otus () {
+      return this.$store.getters[GetterNames.GetOtus]
+    }
+  },
+  data () {
     return {
       identifiers: [],
       notes: [],
       dataAttributes: [],
-      tags: []
+      tags: [],
+      annotations: {}
     }
   },
   watch: {
-    otu: {
-      handler(newVal) {
-        if(newVal) {
-          GetIdentifiers(this.otu.id).then(response => {
-            this.identifiers = response.body
-          })
-          GetTags(this.otu.id).then(response => {
-            this.tags = response.body
-          })
-          GetNotes(this.otu.id).then(response => {
-            this.notes = response.body
-          })
-          GetDataAttributes(this.otu.id).then(response => {
-            this.dataAttributes = response.body
-          })
+    otus: {
+      handler (newVal) {
+        const that = this
+        async function processArray(array) {
+          for (const item of array) {
+            that.$set(that.annotations, item.id, await that.loadAnnotations(item.id))
+          }
         }
+        processArray(newVal)
       },
       immediate: true
+    }
+  },
+  methods: {
+    async loadAnnotations (id) {
+      return new Promise((resolve, reject) => {
+        const promises = []
+        const annotations = {}
+        promises.push(GetIdentifiers(id).then(response => {
+          annotations.identifiers = response.body
+        }))
+        promises.push(GetTags(id).then(response => {
+          annotations.tags = response.body
+        }))
+        promises.push(GetNotes(id).then(response => {
+          annotations.notes = response.body
+        }))
+        promises.push(GetDataAttributes(id).then(response => {
+          annotations.dataAttributes = response.body
+        }))
+        Promise.all(promises).then(() => {
+          resolve(annotations)
+        })
+      })
+    },
+    existAnnotations (annotations) {
+      return Object.values(annotations).some(annotation => annotation.length)
     }
   }
 }

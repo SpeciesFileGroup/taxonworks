@@ -112,6 +112,8 @@ function makeInitialState () {
     otus: [],
     georeferences: [],
     typeMaterials: [],
+    depictions: [],
+    commonNames: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

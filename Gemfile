@@ -6,9 +6,6 @@ ruby '2.7.1'
 
 gem 'bundler', '~> 2.0'
 
-# TODO: Remove when solved without forcing
-gem 'google-protobuf', '~> 3.12.0.rc.1'
-
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'

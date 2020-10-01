@@ -1,12 +1,14 @@
 <template>
-  <ul class="no_bullets">
+  <div>
     <h4><b>{{ title }}</b></h4>
-    <li
-      v-for="item in list"
-      :key="item.id">
-      <span v-html="item.object_tag"/>
-    </li>
-  </ul>
+    <ul>
+      <li
+        v-for="item in list"
+        :key="item.id">
+        <span v-html="item.object_tag"/>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
