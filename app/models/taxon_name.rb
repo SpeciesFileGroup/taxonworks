@@ -421,9 +421,14 @@ class TaxonName < ApplicationRecord
   # @param include_self [Boolean]
   #   if true then self will also be returned
   def ancestor_at_rank(rank, include_self = false)
-    r = Ranks.lookup( is_combination? ? parent.nomenclatural_code : nomenclatural_code, rank)
-    return self if include_self && (rank_class.to_s == r)
-    ancestors.with_rank_class( r ).first
+    if target_code = (is_combination? ? combination_taxon_names.first.nomenclatural_code : nomenclatural_code)
+      r = Ranks.lookup(target_code, rank)
+      return self if include_self && (rank_class.to_s == r)
+      ancestors.with_rank_class( r ).first
+    else
+      # Root has no nomenclature code
+      return nil
+    end
   end
 
   # @return scope [TaxonName, nil] an ancestor at the specified rank
