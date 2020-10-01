@@ -17,22 +17,20 @@ json.eliminate_unknown @key.eliminate_unknown
 json.identified_to_rank @key.identified_to_rank
 json.selected_descriptors@key.selected_descriptors
 json.selected_descriptors_hash @key.selected_descriptors_hash
-json.remaining @key.remaining
-json.eliminated @key.eliminated
 json.list_of_descriptors @key.list_of_descriptors
 
-=begin
-json.remaining do
-  json.array!(@key.remaining) do |object|
-    json.partial! '/shared/data/all/metadata', object: object
-    json.merge! object.attributes
+json.remaining (@key.remaining) do |r|
+  json.extract! r, :errors, :error_descriptors
+  json.object do
+    json.partial! '/shared/data/all/metadata', object: r[:object]
+    json.merge! r[:object].attributes
   end
 end
 
-json.eliminated do
-  json.array!(@key.eliminated) do |object|
-    json.partial! '/shared/data/all/metadata', object: object
-    json.merge! object.attributes
+json.eliminated (@key.eliminated) do |e|
+  json.extract! e, :errors, :error_descriptors
+  json.object do
+    json.partial! '/shared/data/all/metadata', object: e[:object]
+    json.merge! e[:object].attributes
   end
 end
-=end
