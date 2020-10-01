@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Filter nomenclature option for including ancestors [#1791] 
+- Added ancestors facet on filter nomenclature [#1791]
 
 ### Fixed
 - Collecting event object radial metadata settings
@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+
 
 ## [0.13.0] - 2020-09-22
 

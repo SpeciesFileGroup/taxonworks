@@ -945,7 +945,7 @@ class TaxonName < ApplicationRecord
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+        if ['genus', 'subgenus', 'superspecies', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -995,9 +995,9 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
     elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
     elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
-    elements.push ['(', d['supersuperspecies'], ')'] if rank_name == 'supersuperspecies'
-    elements.push ['(', d['superspecies'], ')'] if rank_name == 'superspecies'
-    elements.push ['(', d['subsuperspecies'], ')'] if rank_name == 'subsuperspecies'
+    elements.push [d['supersuperspecies']] if rank_name == 'supersuperspecies'
+    elements.push [d['superspecies']] if rank_name == 'superspecies'
+    elements.push [d['subsuperspecies']] if rank_name == 'subsuperspecies'
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
