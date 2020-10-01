@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.13.0] - 2020-09-22
 
 ### Added
+- Filter nomenclature option for including ancestors [#1791] 
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Misppeling collecting_event_ids parameter [#1729]
 - Non-original combination authorship lacking parentheses [#1686]
 
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1570]: https://github.com/SpeciesFileGroup/taxonworks/issues/1570
 [#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
 [#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
