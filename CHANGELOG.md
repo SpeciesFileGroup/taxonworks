@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Added ancestors facet on filter nomenclature [#1791]
+
 ### Fixed
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
@@ -17,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Load Images for coordinate OTUs [#1787]
 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791
 
 ## [0.13.0] - 2020-09-22
 
