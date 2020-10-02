@@ -807,12 +807,18 @@ namespace :tw do
             if life_zones == 0
               life_zone_text = 'not specified'
             else
-              life_zone_text = "[#{Utilities::Numbers.get_bits(life_zones).collect { |i| life_zone_map[i] }.compact.join(', ')}]"
+              life_zone_text = Utilities::Numbers.get_bits(life_zones).collect { |i| life_zone_map[i] }.compact.join(', ')
             end
-            ecology_text = "* Life zone #{life_zone_text}"
+            ecology_text = "* Life zone [#{life_zone_text}]"
             ecology_text += ": #{row['Ecology']}" unless row['Ecology'].blank?
 
-            # For distribution
+            life_zone_predicate = Predicate.create_with(
+              name: 'Life zone', definition: 'Catalogue of Life lifeZone term'
+            ).find_or_create_by!(
+              project_id: project_id, uri: 'https://api.catalogue.life/datapackage#Taxon.lifezone'
+            )
+
+           # For distribution
             distribution = row['Distribution']
             distribution_text = ''
             if distribution.present?
@@ -887,6 +893,17 @@ namespace :tw do
                     otu_id: otu.id,
                     project_id: project_id,
                     text: ecology_text)
+
+                InternalAttribute.create!(
+                  predicate: life_zone_predicate,
+                  attribute_subject: otu,
+                  value: life_zone_text,
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
 
                 # distribution text for otu only
                 logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
@@ -1011,6 +1028,18 @@ namespace :tw do
                     otu_id: otu_id,
                     project_id: project_id,
                     text: ecology_text)
+
+                InternalAttribute.create!(
+                  predicate: life_zone_predicate,
+                  attribute_subject_id: otu_id,
+                  attribute_subject_type: 'Otu',
+                  value: life_zone_text,
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                )
 
                 # distribution
 
