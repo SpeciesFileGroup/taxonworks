@@ -818,6 +818,12 @@ namespace :tw do
               project_id: project_id, uri: 'https://api.catalogue.life/datapackage#Taxon.lifezone'
             )
 
+            extinct_predicate = Predicate.create_with(
+              name: 'Extinct', definition: 'Catalogue of Life extinct term'
+            ).find_or_create_by!(
+              project_id: project_id, uri: 'https://api.catalogue.life/datapackage#Taxon.extinct'
+            )
+
            # For distribution
             distribution = row['Distribution']
             distribution_text = ''
@@ -903,7 +909,18 @@ namespace :tw do
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                )
+                ) unless life_zones == 0
+
+                InternalAttribute.create!(
+                  predicate: extinct_predicate,
+                  attribute_subject: otu,
+                  value: row['Extinct'],
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                ) unless row['NameStatus'] == '7' # Value ignored per docs: http://help.speciesfile.org/index.php/Taxa
 
                 # distribution text for otu only
                 logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
@@ -1039,7 +1056,19 @@ namespace :tw do
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                )
+                ) unless life_zones == 0
+
+                InternalAttribute.create!(
+                  predicate: extinct_predicate,
+                  attribute_subject_id: otu_id,
+                  attribute_subject_type: 'Otu',
+                  value: row['Extinct'],
+                  project_id: project_id,
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                ) unless row['NameStatus'] == '7' # Value ignored per docs: http://help.speciesfile.org/index.php/Taxa
 
                 # distribution
 
