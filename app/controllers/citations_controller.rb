@@ -21,6 +21,18 @@ class CitationsController < ApplicationController
     end
   end
 
+  def api_index
+    @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
+                     .order(:source_id, :pages)
+                     .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+    @verbose_object = params[:verbose_object]
+    render '/citations/api/index.json.jbuilder'
+  end
+
+  def api_show
+    @citation = Citation.find(params[:id])
+    render '/citations/api/show.json.jbuilder'
+  end
   def new
     @citation = Citation.new(citation_params)
   end
