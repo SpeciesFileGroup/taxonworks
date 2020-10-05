@@ -20,7 +20,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
 
   # POST
   def update_catalog_number_namespace
-    ImportDataset::DarwinCore::Occurrences.find(params[:id]).update_catalog_number_namespace(params[:institutionCode], params[:collectionCode], params[:namespace_id])
+    ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id]).update_catalog_number_namespace(params[:institutionCode], params[:collectionCode], params[:namespace_id])
   end
 
 private

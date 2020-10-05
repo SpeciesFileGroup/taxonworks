@@ -15,11 +15,7 @@
         <progress-list class="context-menu" :progress="dataset.progress"/>
       </div>
       <div class="horizontal-right-content half_width">
-        <button
-          class="button normal-input button-submit margin-small-right"
-          @click="settings">
-          Settings
-        </button>
+        <settings-component/>
         <import-modal/>
       </div>
     </div>
@@ -34,13 +30,15 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
+import SettingsComponent from './settings/Settings'
 
 export default {
   components: {
     NavbarComponent,
     ImportModal,
     ProgressBar,
-    ProgressList
+    ProgressList,
+    SettingsComponent
   },
   computed: {
     pagination () {
@@ -51,11 +49,6 @@ export default {
     },
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]
-    }
-  },
-  methods: {
-    settings () {
-      alert('Coming soon')
     }
   }
 }

@@ -138,7 +138,7 @@ export default {
 .dwca-table {
   th {
     top: 0;
-    z-index: 5000;
+    z-index: 2101;
   }
 
   .show-import-process {

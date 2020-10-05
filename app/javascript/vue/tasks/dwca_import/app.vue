@@ -130,6 +130,9 @@ export default {
       }
     }
   }
+  .modal-mask {
+    z-index: 2102;
+  }
   .dwc-table-help {
     color: #000000 !important;
     font-weight: normal;
