@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Identifier to rank</label>
+    <label>Identified to rank</label>
     <select v-model="filters.identified_to_rank">
       <option
         v-for="(rank, index) in ranks"
