@@ -5,26 +5,14 @@
     <td
       v-if="!namespace"
       class="full_width">
-      <div
-        v-if="edit"
-        class="flex-separate middle">
-        <autocomplete
-          class="full_width"
-          placeholder="Search a namespace..."
-          autofocus
-          url="/namespaces/autocomplete"
-          param="term"
-          label="label"
-          @getItem="setNamespace"/>
-      </div>
-      <div
-        v-else
-        class="flex-separate middle">
-        <span>{{ namespaceLabel }}</span>
-        <span
-          class="button circle-button btn-edit"
-          @click="edit = !edit"/>
-      </div>
+      <autocomplete
+        class="full_width"
+        placeholder="Search a namespace..."
+        autofocus
+        url="/namespaces/autocomplete"
+        param="term"
+        label="label"
+        @getItem="setNamespace"/>
     </td>
     <td v-else>
       <div

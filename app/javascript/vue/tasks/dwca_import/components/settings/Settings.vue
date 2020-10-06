@@ -73,6 +73,13 @@ export default {
       showModal: false
     }
   },
+  watch: {
+    showModal (newVal) {
+      if (!newVal) {
+        this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
+      }
+    }
+  },
   methods: {
     setModalView (value) {
       this.showModal = value
