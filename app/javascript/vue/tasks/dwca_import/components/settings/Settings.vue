@@ -18,7 +18,7 @@
             <tr>
               <th>institutionCode</th>
               <th>collectionCode</th>
-              <th>namespace_id</th>
+              <th>Namespace</th>
             </tr>
           </thead>
           <tbody>
