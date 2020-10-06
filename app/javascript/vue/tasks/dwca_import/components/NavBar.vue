@@ -15,7 +15,7 @@
         <progress-list class="context-menu" :progress="dataset.progress"/>
       </div>
       <div class="horizontal-right-content half_width">
-        <settings-component/>
+        <settings-component class="margin-small-right"/>
         <import-modal/>
       </div>
     </div>

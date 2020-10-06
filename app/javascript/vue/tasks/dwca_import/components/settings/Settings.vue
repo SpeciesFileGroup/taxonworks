@@ -32,8 +32,6 @@
           </tbody>
         </table>
       </div>
-      <template slot="footer">
-      </template>
     </modal-component>
   </div>
 </template>
@@ -76,7 +74,7 @@ export default {
   watch: {
     showModal (newVal) {
       if (!newVal) {
-        this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
+        this.reloadDataset()
       }
     }
   },
@@ -85,7 +83,8 @@ export default {
       this.showModal = value
     },
     reloadDataset () {
-
+      this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
+      this.$store.dispatch(ActionNames.LoadDatasetRecords)
     }
   }
 }
