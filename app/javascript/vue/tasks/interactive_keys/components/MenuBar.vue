@@ -12,9 +12,13 @@
         />
       </div>
       <div class="horizontal-left-content">
-        <button 
+        <identifier-rank class="margin-small-right"/>
+        <sorting-component/>
+      </div>
+      <div class="horizontal-left-content">
+        <button
           type="button"
-          class="button normal-input button-default"
+          class="button normal-input button-default margin-small-right"
           @click="resetView">
           Reset
         </button>
@@ -48,6 +52,8 @@
 import NavComponent from 'components/navBar'
 import Autocomplete from 'components/autocomplete'
 import SetParam from 'helpers/setParam'
+import SortingComponent from './Filters/Sorting.vue'
+import IdentifierRank from './Filters/IdentifierRank'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -55,7 +61,9 @@ import { ActionNames } from '../store/actions/actions'
 export default {
   components: {
     NavComponent,
-    Autocomplete
+    Autocomplete,
+    IdentifierRank,
+    SortingComponent
   },
   computed: {
     observationMatrix () {

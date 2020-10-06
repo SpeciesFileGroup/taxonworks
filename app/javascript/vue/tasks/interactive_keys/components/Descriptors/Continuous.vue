@@ -1,32 +1,36 @@
 <template>
   <div>
     <label class="display-block">
-      {{ descriptor.name }}
+      {{ descriptor.name }} ({{ descriptor.min }}-{{ descriptor.max }} {{ descriptor.default_unit }})
     </label>
-    <input type="text">
+    <input type="number">
   </div>
 </template>
 
 <script>
+
+import ExtendDescriptor from './shared'
+
 export default {
-  props: {
-    descriptor: {
-      type: Object,
-      required: true
-    },
-    value: {
-      type: Array,
-      default: () => []
+  mixins: [ExtendDescriptor],
+  data () {
+    return {
+      fieldValue: undefined
     }
   },
-  computed: {
-    selected: {
-      get () {
-        return this.value
+  watch: {
+    value: {
+      handler (newVal) {
+        if (newVal[this.descriptor.id] !== this.fieldValue) {
+          this.fieldValue = newVal[this.descriptor.id]
+        }
       },
-      set (value) {
-        this.$emit('input', value)
-      }
+      deep: true
+    }
+  },
+  methods: {
+    setValue () {
+      this.selected[this.descriptor.id] = this.fieldValue
     }
   }
 }
