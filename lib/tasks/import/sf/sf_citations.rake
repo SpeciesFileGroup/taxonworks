@@ -1335,7 +1335,7 @@ namespace :tw do
             end # genus, subgenus, species, subspecies
 
             [cites_id_done, missing_cites, new_name_status]
-          end.inject([{}, {}, {}]) do |accum, vars|
+          end.inject([{}, [], {}]) do |accum, vars|
             accum[0].merge!(vars[0])
             accum[1].concat(vars[1])
 
