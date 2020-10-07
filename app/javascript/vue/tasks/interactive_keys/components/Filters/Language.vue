@@ -1,7 +1,7 @@
 <template>
   <div>
     <label>Language</label>
-    <select v-model="filters.error_tolerance">
+    <select v-model="filters.language_id">
       <option :value="undefined"/>
       <option
         v-for="language in observationMatrix.descriptor_available_languages"
