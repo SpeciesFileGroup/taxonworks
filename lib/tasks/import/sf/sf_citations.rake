@@ -1340,8 +1340,8 @@ namespace :tw do
             accum[1].concat(vars[1])
 
             vars[2].each do |key, value|
-              accum[3][key] ||= 0
-              accum[3][key] += value
+              accum[2][key] ||= 0
+              accum[2][key] += value
             end
 
             accum
