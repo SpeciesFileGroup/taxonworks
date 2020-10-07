@@ -171,7 +171,7 @@ class InteractiveKey
 
   def descriptors_with_keywords
     if @keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|') )
+      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
     else
       descriptors
     end
