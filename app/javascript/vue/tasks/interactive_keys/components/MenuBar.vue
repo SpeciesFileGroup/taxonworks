@@ -1,16 +1,14 @@
 <template>
   <nav-component>
-    <div class="flex-separate">
-      <div>
-        <autocomplete
-          url="/observation_matrices/autocomplete"
-          param="term"
-          label="label_html"
-          placeholder="Search a observation matrix"
-          clear-after
-          @getItem="loadMatrix($event.id)"
-        />
-      </div>
+    <div class="flex-separate middle">
+      <autocomplete
+        url="/observation_matrices/autocomplete"
+        param="term"
+        label="label_html"
+        placeholder="Search a observation matrix"
+        clear-after
+        @getItem="loadMatrix($event.id)"
+      />
       <ul class="context-menu">
         <li class="align-start">
           <eliminate-unknowns />
