@@ -13,19 +13,22 @@
       </div>
       <ul class="context-menu">
         <li>
-          <eliminate-unknowns class="margin-small-right"/>
+          <eliminate-unknowns />
         </li>
         <li>
-          <error-tolerance class="margin-small-right"/>
+          <error-tolerance />
         </li>
         <li>
-          <identifier-rank class="margin-small-right"/>
+          <identifier-rank />
         </li>
         <li>
-          <language-component class="margin-small-right"/>
+          <language-component />
         </li>
         <li>
-          <sorting-component/>
+          <sorting-component />
+        </li>
+        <li>
+          <keywords-component />
         </li>
       </ul>
       <div class="horizontal-left-content">
@@ -70,6 +73,7 @@ import IdentifierRank from './Filters/IdentifierRank'
 import ErrorTolerance from './Filters/ErrorTolerance'
 import LanguageComponent from './Filters/Language'
 import EliminateUnknowns from './Filters/EliminateUnknowns'
+import KeywordsComponent from './Filters/Keywords'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -81,6 +85,7 @@ export default {
     IdentifierRank,
     EliminateUnknowns,
     ErrorTolerance,
+    KeywordsComponent,
     LanguageComponent,
     SortingComponent
   },

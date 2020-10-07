@@ -21,7 +21,8 @@ function makeInitialState () {
       identified_to_rank: undefined,
       sorting: undefined,
       language_id: undefined,
-      eliminate_unknown: undefined
+      eliminate_unknown: undefined,
+      keyword_ids: []
     }
   }
 }
