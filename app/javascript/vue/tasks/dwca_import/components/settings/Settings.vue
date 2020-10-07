@@ -13,6 +13,7 @@
       }">
       <h3 slot="header">Settings</h3>
       <div slot="body">
+        <h3>Catalog number namespace mapping</h3>
         <table class="full_width">
           <thead>
             <tr>
@@ -73,8 +74,8 @@ export default {
   },
   watch: {
     showModal (newVal) {
-      if (!newVal) {
-        this.reloadDataset()
+      if (newVal) {
+        this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
       }
     }
   },
