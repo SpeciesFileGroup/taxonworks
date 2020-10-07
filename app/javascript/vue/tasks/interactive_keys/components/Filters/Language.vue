@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Error tolerance</label>
+    <label>Language</label>
     <select v-model="filters.error_tolerance">
       <option :value="undefined"/>
       <option
