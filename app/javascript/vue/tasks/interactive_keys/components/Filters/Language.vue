@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Language</label>
+    <label class="display-block">Language</label>
     <select v-model="filters.language_id">
       <option :value="undefined"/>
       <option
@@ -37,6 +37,5 @@ export default {
       values: [0, 1, 2]
     }
   },
-  
 }
 </script>

@@ -3,7 +3,10 @@
     <label class="display-block">
       {{ descriptor.name }} ({{ descriptor.min }}-{{ descriptor.max }} {{ descriptor.default_unit }})
     </label>
-    <input type="number">
+    <input
+      v-model="fieldValue"
+      @blur="setValue"
+      type="number">
   </div>
 </template>
 
@@ -30,7 +33,7 @@ export default {
   },
   methods: {
     setValue () {
-      this.selected[this.descriptor.id] = this.fieldValue
+      this.$set(this.selected, this.descriptor.id, this.fieldValue)
     }
   }
 }

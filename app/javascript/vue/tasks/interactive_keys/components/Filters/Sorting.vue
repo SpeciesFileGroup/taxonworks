@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Sorting</label>
+    <label class="display-block">Sorting</label>
     <select v-model="filters.sorting">
       <option
         v-for="(rank, index) in ranks"

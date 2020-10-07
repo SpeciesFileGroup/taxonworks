@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     setValue () {
-      this.selected[this.descriptor.id] = this.fieldValue
+      this.$set(this.selected, this.descriptor.id, this.fieldValue)
     }
   }
 }

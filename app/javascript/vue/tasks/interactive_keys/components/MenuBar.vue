@@ -12,7 +12,7 @@
         />
       </div>
       <ul class="context-menu">
-        <li>
+        <li class="align-start">
           <eliminate-unknowns />
         </li>
         <li>
