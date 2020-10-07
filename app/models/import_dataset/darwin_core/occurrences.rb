@@ -28,12 +28,6 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       }
     end
 
-    core_records.each do |record|
-      parse_results = record[:parse_results]
-
-      record[:invalid] = "scientificName could not be parsed" if not parse_results[:details]
-    end
-
     catalog_numbers_namespaces = Set[]
 
     core_records.each do |record|
@@ -48,14 +42,21 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
         nil # User will select namespace through UI. TODO: Should we attempt guessing here?
       ]
 
-      dwc_occurrence.status = !record[:invalid] ? "Ready" : "NotReady"
-      dwc_occurrence.status = "Unsupported" unless "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0
+      if "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0
+        if dwc_occurrence.get_field_value(:catalogNumber).blank?
+          dwc_occurrence.status = "Ready"
+        else
+          dwc_occurrence.status = "NotReady"
+          record["error_data"] = { messages: { catalogNumber: ["Record cannot be imported until namespace is set."] } }
+        end
+      else
+        dwc_occurrence.status = "Unsupported"
+      end
       record.delete(:src_data)
       dwc_occurrence.metadata = record
 
       dwc_occurrence.save!
     end
-
     records[:extensions].each do |extension_type, records|
       records.each do |record|
         dwc_extension = DatasetRecord::DarwinCore::Extension.new(import_dataset: self)
@@ -92,9 +93,44 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     end
   end
 
+  def get_catalog_number_namespace(institution_code, collection_code)
+    get_catalog_number_namespace_mapping(institution_code, collection_code)&.at(1)
+  end
+
   def update_catalog_number_namespace(institution_code, collection_code, namespace_id)
-    mapping = self.metadata["catalog_numbers_namespaces"].detect { |m| m[0] == [institution_code, collection_code] }
-    mapping[1] = namespace_id
+    transaction do
+      mapping = get_catalog_number_namespace_mapping(institution_code, collection_code)
+      mapping[1] = namespace_id
+      ready = namespace_id.to_i > 0
+      save!
+
+      fields_mapping = self.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
+
+      query = ready ? dataset_records.where(status: 'NotReady') : dataset_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
+      query.where(
+        "data_fields -> :institution_code_field ->> 'value' = :institution_code AND data_fields -> :collection_code_field ->> 'value' = :collection_code",
+        {
+          institution_code_field: fields_mapping["institutionCode"], institution_code: institution_code,
+          collection_code_field: fields_mapping["collectionCode"], collection_code: collection_code
+        }
+      ).update_all(ready ?
+        "status = 'Ready', metadata = metadata - 'error_data'" :
+        "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set.\"] } }')"
+      )
+    end
+  end
+
+  def add_catalog_number_namespace(institution_code, collection_code, namespace_id = nil)
+    unless get_catalog_number_namespace_mapping(institution_code, collection_code)
+      self.metadata["catalog_numbers_namespaces"] << [[institution_code, collection_code], namespace_id]
+    end
     save!
   end
+
+  private
+
+  def get_catalog_number_namespace_mapping(institution_code, collection_code)
+    self.metadata["catalog_numbers_namespaces"]&.detect { |m| m[0] == [institution_code, collection_code] }
+  end
+
 end

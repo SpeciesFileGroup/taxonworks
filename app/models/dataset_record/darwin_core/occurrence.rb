@@ -115,6 +115,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   private
 
+  def term_value_changed(name, value)
+    if ['institutionCode', 'collectionCode', 'catalogNumber'].include?(name) and self.status != 'Imported'
+      ready = get_field_value('catalogNumber').blank?
+      ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
+
+      self.metadata.delete("error_data")
+      if ready
+        self.status = 'Ready'
+      else
+        self.status = 'NotReady'
+        self.metadata["error_data"] = { messages: { catalogNumber: ["Record cannot be imported until namespace is set."] } }
+        self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
+      end
+
+      self.save!
+    end
+  end
+
   def get_integer_field_value(field_name)
     value = get_field_value(field_name)
 
@@ -191,7 +209,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # datasetID: [Not mapped]
 
-    # institutionCode: [repository.acronym]
+    # institutionCode: [repository.acronym] # TODO: Use mappings like with namespaces here as well? (Although probably attempt guessing)
     institution_code = get_field_value(:institutionCode)
     if institution_code
       repository = Repository.find_by(acronym: institution_code)
@@ -200,11 +218,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     # collectionCode: [catalog_number.namespace]
-    collection_code = get_field_value(:collectionCode)
-    set_hash_val(res[:catalog_number], :namespace, Namespace.create_with({
-        name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
-        delimiter: '-'
-    }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
+        # collection_code = get_field_value(:collectionCode)
+        # set_hash_val(res[:catalog_number], :namespace, Namespace.create_with({
+        #     name: "#{institution_code}-#{collection_code} [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]",
+        #     delimiter: '-'
+        # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
+    namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
+    set_hash_val(res[:catalog_number], :namespace, Namespace.find(namespace_id)) if namespace_id
 
     # datasetName: [Not mapped]
 

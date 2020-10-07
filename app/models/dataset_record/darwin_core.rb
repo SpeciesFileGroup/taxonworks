@@ -22,6 +22,14 @@ class DatasetRecord::DarwinCore < DatasetRecord
 
   private
 
+  # Re-implemented method from DatasetRecord
+  def data_field_changed(index, value)
+    term_value_changed(get_fields_mapping[index], value)
+  end
+
+  # Subclasses may re-implement to react to value changes
+  def term_value_changed(name, value); end
+
   def get_fields_mapping
     @fields_mapping ||= import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
   end
