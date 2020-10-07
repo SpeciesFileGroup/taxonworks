@@ -1,7 +1,7 @@
 <template>
   <tr>
-    <td>{{ row.institutionCode }}</td>
-    <td>{{ row.collectionCode }}</td>
+    <td v-html="displayData(row.institutionCode)"/>
+    <td v-html="displayData(row.collectionCode)"/>
     <td
       v-if="!namespace"
       class="full_width">
@@ -83,6 +83,9 @@ export default {
       UpdateCatalogueNumber(data).then(() => {
         this.namespace = undefined
       })
+    },
+    displayData (data) {
+      return data || '<i>(blank/undefined)</i>'
     }
   }
 }
