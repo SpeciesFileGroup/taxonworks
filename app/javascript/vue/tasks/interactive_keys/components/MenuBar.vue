@@ -11,12 +11,23 @@
           @getItem="loadMatrix($event.id)"
         />
       </div>
-      <div class="horizontal-left-content">
-        <error-tolerance class="margin-small-right"/>
-        <identifier-rank class="margin-small-right"/>
-        <language-component class="margin-small-right"/>
-        <sorting-component/>
-      </div>
+      <ul class="context-menu">
+        <li>
+          <eliminate-unknowns class="margin-small-right"/>
+        </li>
+        <li>
+          <error-tolerance class="margin-small-right"/>
+        </li>
+        <li>
+          <identifier-rank class="margin-small-right"/>
+        </li>
+        <li>
+          <language-component class="margin-small-right"/>
+        </li>
+        <li>
+          <sorting-component/>
+        </li>
+      </ul>
       <div class="horizontal-left-content">
         <button
           type="button"
@@ -58,6 +69,7 @@ import SortingComponent from './Filters/Sorting.vue'
 import IdentifierRank from './Filters/IdentifierRank'
 import ErrorTolerance from './Filters/ErrorTolerance'
 import LanguageComponent from './Filters/Language'
+import EliminateUnknowns from './Filters/EliminateUnknowns'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -67,6 +79,7 @@ export default {
     NavComponent,
     Autocomplete,
     IdentifierRank,
+    EliminateUnknowns,
     ErrorTolerance,
     LanguageComponent,
     SortingComponent

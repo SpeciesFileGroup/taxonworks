@@ -20,7 +20,8 @@ function makeInitialState () {
       error_tolerance: undefined,
       identified_to_rank: undefined,
       sorting: undefined,
-      language_id: undefined
+      language_id: undefined,
+      eliminate_unknown: undefined
     }
   }
 }
