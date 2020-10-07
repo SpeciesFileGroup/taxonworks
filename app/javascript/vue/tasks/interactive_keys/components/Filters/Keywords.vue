@@ -24,6 +24,14 @@
           </li>
         </ul>
       </div>
+      <div slot="footer">
+        <button
+          type="button"
+          class="button normal-input button-default"
+          @click="applyChanges">
+          Apply
+        </button>
+      </div>
     </modal-component>
   </div>
 </template>
@@ -33,6 +41,7 @@
 import ModalComponent from 'components/modal'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { ActionNames } from '../../store/actions/actions'
 
 export default {
   components: {
@@ -59,6 +68,11 @@ export default {
   methods: {
     setModalView (value) {
       this.showModal = value
+    },
+    applyChanges () {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id).then(() => {
+        this.setModalView(false)
+      })
     }
   }
 }
