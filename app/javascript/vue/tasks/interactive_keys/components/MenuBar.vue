@@ -12,7 +12,9 @@
         />
       </div>
       <div class="horizontal-left-content">
+        <error-tolerance class="margin-small-right"/>
         <identifier-rank class="margin-small-right"/>
+        <language-component class="margin-small-right"/>
         <sorting-component/>
       </div>
       <div class="horizontal-left-content">
@@ -54,6 +56,8 @@ import Autocomplete from 'components/autocomplete'
 import SetParam from 'helpers/setParam'
 import SortingComponent from './Filters/Sorting.vue'
 import IdentifierRank from './Filters/IdentifierRank'
+import ErrorTolerance from './Filters/ErrorTolerance'
+import LanguageComponent from './Filters/Language'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -63,6 +67,8 @@ export default {
     NavComponent,
     Autocomplete,
     IdentifierRank,
+    ErrorTolerance,
+    LanguageComponent,
     SortingComponent
   },
   computed: {

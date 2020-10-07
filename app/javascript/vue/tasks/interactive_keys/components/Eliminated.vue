@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Eliminated</h2>
+    <h2>Eliminated ({{ eliminated.length }})</h2>
     <ul>
       <li
         v-for="item in eliminated"

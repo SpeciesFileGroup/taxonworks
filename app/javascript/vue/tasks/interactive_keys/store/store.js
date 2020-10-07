@@ -17,8 +17,10 @@ function makeInitialState () {
     observationMatrixDescriptors: [],
     descriptorsFilter: {},
     filters: {
+      error_tolerance: undefined,
       identified_to_rank: undefined,
-      sorting: undefined
+      sorting: undefined,
+      language_id: undefined
     }
   }
 }

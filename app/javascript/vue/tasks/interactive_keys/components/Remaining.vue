@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Remaining</h2>
+    <h2>Remaining ({{ remaining.length }})</h2>
     <ul>
       <li
         v-for="item in remaining"
