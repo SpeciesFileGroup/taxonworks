@@ -245,8 +245,8 @@ class InteractiveKey
         h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
         h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:min] && o.continuous_value < h[o.descriptor_id][:min]
         h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:max] && o.continuous_value > h[o.descriptor_id][:max]
-        h[o.descriptor_id][:min] = o.sample_min if o.sample_min && h[o.descriptor_id][:min] && o.sample_min < h[o.descriptor_id][:min]
-        h[o.descriptor_id][:max] = o.sample_max if o.sample_max && h[o.descriptor_id][:max] && o.sample_max > h[o.descriptor_id][:max]
+        h[o.descriptor_id][:min] = o.sample_min.to_f if o.sample_min && h[o.descriptor_id][:min] && o.sample_min.to_f < h[o.descriptor_id][:min]
+        h[o.descriptor_id][:max] = o.sample_max.to_f if o.sample_max && h[o.descriptor_id][:max] && o.sample_max.to_f > h[o.descriptor_id][:max]
         h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.character_state_id.to_s] if o.character_state_id
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.continuous_value.to_s] if o.continuous_value
@@ -310,11 +310,13 @@ class InteractiveKey
             end
           when 'Descriptor::Sample'
             p = false
-            a = d_value.split('-')
-            d_min = a[0]
-            d_max = a[1].nil? ? a[0] : a[1]
+            a = d_value.first.split('-')
+            d_min = a[0].to_f
+            d_max = a[1].nil? ? d_min : a[1].to_f
             @descriptors_hash[d_key][:observations][otu_collection_object].each do |o|
-              p = true if o.sample_min <= d_min.to_i || o.sample_max >= d_max.to_i
+              s_min = o.sample_min.to_f
+              s_max = o.sample_max.nil? ? s_min : o.sample_max.to_f
+              p = true if (d_min >= s_min && d_min <= s_max) || (d_max >= s_min && d_max <= s_max) || (d_min <= s_min && d_max >= s_max)
             end
             if p == false
               r_value[:errors] += 1
@@ -400,7 +402,7 @@ class InteractiveKey
               d_value[:state_ids][o.id] = true
             end
             unless o.sample_min.nil?
-              d_value[:state_ids][o.id] = {o_min: o.sample_min, o_max: o.sample_max}
+              d_value[:state_ids][o.id] = {o_min: o.sample_min.to_f, o_max: o.sample_max.to_f}
             end
             taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false if @eliminate_unknown == false
           end

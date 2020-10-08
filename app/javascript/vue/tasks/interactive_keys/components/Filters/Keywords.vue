@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label class="display-block">Descriptors filter</label>
+    <label class="display-block">Descriptor filter</label>
     <button
       class="button normal-input button-default"
       @click="setModalView(true)">
