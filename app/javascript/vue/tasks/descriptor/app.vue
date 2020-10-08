@@ -237,7 +237,7 @@ export default {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
-        type: 'ObservationMatrixColumnItem::Single::Decriptor'
+        type: 'ObservationMatrixColumnItem::Single::Descriptor'
       }
       CreateObservationMatrixColumn(data).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
