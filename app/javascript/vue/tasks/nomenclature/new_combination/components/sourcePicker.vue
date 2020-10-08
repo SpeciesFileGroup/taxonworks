@@ -25,7 +25,7 @@
           ref="smartSelector"
           pin-section="Sources"
           pin-type="Source"
-          @select="setSource"
+          @selected="setSource"
           v-model="source">
           <div slot="footer">
             <span

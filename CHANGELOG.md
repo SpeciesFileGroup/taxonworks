@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Webpack resolved_paths deprecation warning
 - Missing /otus/:otu_id/taxon_determinations route
 - tw:db:restore task not picking up database host settings
+- Create citation on new combination without pages
 
 ### Changed
 - CoLDP references are full cached values, not partially passed
