@@ -11,7 +11,9 @@ function makeInitialState () {
   return {
     settings: {
       gridLayout: 'layout-mode-1',
-      isLoading: false
+      isLoading: false,
+      isRefreshing: false,
+      refreshOnlyTaxa: true
     },
     observationMatrix: undefined,
     observationMatrixDescriptors: [],

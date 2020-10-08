@@ -10,7 +10,10 @@
         @getItem="loadMatrix($event.id)"
       />
       <ul class="context-menu">
-        <li class="align-start">
+        <li>
+          <refresh-component />
+        </li>
+        <li>
           <eliminate-unknowns />
         </li>
         <li>
@@ -30,6 +33,19 @@
         </li>
       </ul>
       <div class="horizontal-left-content">
+        <div class="middle margin-small-right">
+          <button
+            type="button"
+            @click="setLayout(settings.gridLayout)"
+            class="button normal-input button-default margin-small-left"
+            :class="layouts[settings.gridLayout]">
+            <div class="i3-grid layout-mode-1 grid-icon">
+              <div class="descriptors-view grid-item"/>
+              <div class="taxa-remaining grid-item"/>
+              <div class="taxa-eliminated grid-item"/>
+            </div>
+          </button>
+        </div>
         <button
           type="button"
           class="button normal-input button-default margin-small-right"
@@ -43,19 +59,6 @@
           @click="loadMatrix(observationMatrix.observation_matrix_id)">
           Proceed
         </button>
-        <div class="middle">
-          <button
-            type="button"
-            @click="setLayout(settings.gridLayout)"
-            class="button normal-input button-default margin-small-left"
-            :class="layouts[settings.gridLayout]">
-            <div class="i3-grid layout-mode-1 grid-icon">
-              <div class="descriptors-view grid-item"/>
-              <div class="taxa-remaining grid-item"/>
-              <div class="taxa-eliminated grid-item"/>
-            </div>
-          </button>
-        </div>
       </div>
     </div>
   </nav-component>
@@ -71,6 +74,7 @@ import IdentifierRank from './Filters/IdentifierRank'
 import ErrorTolerance from './Filters/ErrorTolerance'
 import LanguageComponent from './Filters/Language'
 import EliminateUnknowns from './Filters/EliminateUnknowns'
+import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -85,7 +89,8 @@ export default {
     ErrorTolerance,
     KeywordsComponent,
     LanguageComponent,
-    SortingComponent
+    SortingComponent,
+    RefreshComponent
   },
   computed: {
     observationMatrix () {

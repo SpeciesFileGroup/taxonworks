@@ -61,6 +61,9 @@ export default {
     PresenceAbsenceDescriptor
   },
   computed: {
+    observationMatrix () {
+      return this.$store.getters[GetterNames.GetObservationMatrix]
+    },
     descriptors () {
       return this.$store.getters[GetterNames.GetObservationMatrix] ? this.$store.getters[GetterNames.GetObservationMatrix].list_of_descriptors : []
     },
@@ -80,12 +83,19 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetDescriptorsFilter, value)
       }
+    },
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
     }
   },
   watch: {
     filter: {
       handler (newVal) {
-        this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
+        if (this.settings.refreshOnlyTaxa) {
+          this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
+        } else {
+          this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+        }
       },
       deep: true
     }

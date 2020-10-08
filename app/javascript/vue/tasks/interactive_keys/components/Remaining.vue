@@ -1,5 +1,8 @@
 <template>
   <div>
+    <spinner-component
+      v-if="isLoading"
+      legend="Loading..." />
     <h2>Remaining ({{ remaining.length }})</h2>
     <ul>
       <li

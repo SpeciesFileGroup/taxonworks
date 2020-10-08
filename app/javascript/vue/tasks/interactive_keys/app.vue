@@ -1,12 +1,25 @@
 <template>
   <div id="vue-interactive-keys">
-    <spinner-component
-      v-if="isLoading"
-      legend="Loading interactive key..."
-      full-screen />
-    <h1 class="task_header">Interactive key <span v-if="observationMatrix">| {{ observationMatrix.observation_matrix.name }}</span></h1>
+    <div class="horizontal-left-content">
+      <h1 class="task_header">Interactive key <span v-if="observationMatrix">| {{ observationMatrix.observation_matrix.name }}</span></h1>
+      <div
+        class="horizontal-left-content middle margin-small-left"
+        v-if="observationMatrix">
+        <span
+          v-if="observationMatrix.observation_matrix_citation"
+          :title="observationMatrix.observation_matrix_citation.cached">
+          {{ observationMatrix.observation_matrix_citation.author }}, {{ observationMatrix.observation_matrix_citation.year }}
+        </span>
+        <radial-annotator :global-id="observationMatrix.observation_matrix.global_id"/>
+        <radial-navigation :global-id="observationMatrix.observation_matrix.global_id"/>
+      </div>
+    </div>
+
     <menu-bar/>
     <div class="i3 full-height">
+      <spinner-component
+        v-if="isLoading"
+        legend="Loading interactive key..." />
       <div
         class="i3-grid full-height"
         :class="gridLayout">
@@ -20,6 +33,8 @@
 </template>
 
 <script>
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialNavigation from 'components/radials/navigation/radial'
 import RemainingComponent from './components/Remaining'
 import EliminatedComponent from './components/Eliminated'
 import DescriptorsView from './components/DescriptorsView'
@@ -34,7 +49,9 @@ export default {
     RemainingComponent,
     EliminatedComponent,
     SpinnerComponent,
-    MenuBar
+    MenuBar,
+    RadialNavigation,
+    RadialAnnotator
   },
   computed: {
     gridLayout () {

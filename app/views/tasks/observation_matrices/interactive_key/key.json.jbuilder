@@ -2,7 +2,6 @@
 
 json.observation_matrix_id @key.observation_matrix_id
 json.project_id @key.project_id
-json.observation_matrix @key.observation_matrix
 json.observation_matrix_citation @key.observation_matrix_citation
 json.descriptor_available_languages @key.descriptor_available_languages
 json.language_id @key.language_id
@@ -19,6 +18,11 @@ json.identified_to_rank @key.identified_to_rank
 json.selected_descriptors@key.selected_descriptors
 json.selected_descriptors_hash @key.selected_descriptors_hash
 json.list_of_descriptors @key.list_of_descriptors
+
+json.observation_matrix do
+  json.partial! '/shared/data/all/metadata', object: @key.observation_matrix
+  json.merge! @key.observation_matrix.attributes
+end
 
 json.remaining (@key.remaining) do |r|
   json.extract! r, :errors, :error_descriptors
