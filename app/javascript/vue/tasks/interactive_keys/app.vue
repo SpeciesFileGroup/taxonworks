@@ -42,6 +42,7 @@ import { ActionNames } from './store/actions/actions'
 import MenuBar from './components/MenuBar'
 import { GetterNames } from './store/getters/getters'
 import SpinnerComponent from 'components/spinner'
+import { MutationNames } from './store/mutations/mutations'
 
 export default {
   components: {
@@ -62,6 +63,19 @@ export default {
     },
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    }
+  },
+  data () {
+    return {
+      countToRefreshMode: 250
     }
   },
   mounted () {
@@ -69,7 +83,9 @@ export default {
     const matrixId = urlParams.get('observation_matrix_id')
 
     if (/^\d+$/.test(matrixId)) {
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId)
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId).then(() => {
+        this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length <= this.countToRefreshMode
+      })
     }
   }
 }

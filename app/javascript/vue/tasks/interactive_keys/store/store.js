@@ -13,7 +13,7 @@ function makeInitialState () {
       gridLayout: 'layout-mode-1',
       isLoading: false,
       isRefreshing: false,
-      refreshOnlyTaxa: true
+      refreshOnlyTaxa: false
     },
     observationMatrix: undefined,
     observationMatrixDescriptors: [],

@@ -84,6 +84,9 @@ export default {
         this.$store.commit(MutationNames.SetDescriptorsFilter, value)
       }
     },
+    filters () {
+      return this.$store.getters[GetterNames.GetParamsFilter]
+    },
     settings () {
       return this.$store.getters[GetterNames.GetSettings]
     }
@@ -91,11 +94,13 @@ export default {
   watch: {
     filter: {
       handler (newVal) {
-        if (this.settings.refreshOnlyTaxa) {
-          this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
-        } else {
-          this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
-        }
+        this.refreshKey()
+      },
+      deep: true
+    },
+    filters: {
+      handler (newVal) {
+        this.refreshKey()
       },
       deep: true
     }
@@ -103,6 +108,13 @@ export default {
   methods: {
     componentName (type) {
       return `${type.split('::').pop()}Descriptor`
+    },
+    refreshKey () {
+      if (this.settings.refreshOnlyTaxa) {
+        this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
+      } else {
+        this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+      }
     }
   }
 }
