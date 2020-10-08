@@ -100,7 +100,7 @@ export default {
     },
     filters: {
       handler (newVal) {
-        this.refreshKey()
+        this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
       },
       deep: true
     }
