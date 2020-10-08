@@ -19,13 +19,13 @@
         <li>
           <identifier-rank />
         </li>
-        <li>
+        <li v-if="observationMatrix && observationMatrix.descriptor_available_languages && observationMatrix.descriptor_available_languages.length">
           <language-component />
         </li>
         <li>
           <sorting-component />
         </li>
-        <li>
+        <li v-if="observationMatrix && observationMatrix.descriptor_available_keywords && observationMatrix.descriptor_available_keywords.length">
           <keywords-component />
         </li>
       </ul>
