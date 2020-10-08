@@ -8,7 +8,7 @@
         <span
           v-if="observationMatrix.observation_matrix_citation"
           :title="observationMatrix.observation_matrix_citation.cached">
-          {{ observationMatrix.observation_matrix_citation.author }}, {{ observationMatrix.observation_matrix_citation.year }}
+          {{ observationMatrix.observation_matrix_citation.cached_author_string }}, {{ observationMatrix.observation_matrix_citation.year }}
         </span>
         <radial-annotator :global-id="observationMatrix.observation_matrix.global_id"/>
         <radial-navigation :global-id="observationMatrix.observation_matrix.global_id"/>
