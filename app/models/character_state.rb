@@ -12,7 +12,6 @@ class CharacterState < ApplicationRecord
 
   include Housekeeping
   include Shared::Depictions
-  include Shared::IsData
   include Shared::Notes
   include Shared::Identifiers
   include Shared::Tags
@@ -21,6 +20,8 @@ class CharacterState < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::AlternateValues
+  include Shared::IsData
+
   include SoftValidation
 
   acts_as_list scope: [:descriptor_id]
