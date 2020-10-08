@@ -419,6 +419,8 @@ class InteractiveKey
       descriptor[:position] = d_value[:descriptor].position
       descriptor[:usefulness] = 0
       descriptor[:status] = d_value[:status] == 'used' ? 'used' : 'useless'
+      descriptor[:description] = d_value[:descriptor].description
+      descriptor[:depiction_ids] = d_value[:descriptor].depictions.order(:position).pluck(:id)
 
       s = 0
       case d_value[:descriptor].type
@@ -445,6 +447,8 @@ class InteractiveKey
             d_value[:status] = 'useful'
             descriptor[:status] = 'useful'
           end
+          state[:depiction_ids] = c.depictions.order(:position).pluck(:id)
+
           #          weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
           s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2
           descriptor[:states] += [state]
