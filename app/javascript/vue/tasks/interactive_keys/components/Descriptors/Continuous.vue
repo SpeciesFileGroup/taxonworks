@@ -6,7 +6,7 @@
     <input
       v-model="fieldValue"
       @blur="setValue"
-      type="number">
+      type="text">
   </div>
 </template>
 
@@ -28,7 +28,8 @@ export default {
           this.fieldValue = newVal[this.descriptor.id]
         }
       },
-      deep: true
+      deep: true,
+      immediate: true
     }
   },
   methods: {
