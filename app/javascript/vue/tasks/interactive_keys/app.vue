@@ -7,7 +7,7 @@
         v-if="observationMatrix">
         <span
           v-if="observationMatrix.observation_matrix_citation"
-          :title="observationMatrix.observation_matrix_citation.cached">
+          :title="parseString(observationMatrix.observation_matrix_citation.cached)">
           {{ observationMatrix.observation_matrix_citation.cached_author_string }}, {{ observationMatrix.observation_matrix_citation.year }}
         </span>
         <radial-annotator :global-id="observationMatrix.observation_matrix.global_id"/>
@@ -86,6 +86,11 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId).then(() => {
         this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length <= this.countToRefreshMode
       })
+    }
+  },
+  methods: {
+    parseString (string) {
+      return string.replace(/<\/?[^>]+(>|$)/g, '')
     }
   }
 }
