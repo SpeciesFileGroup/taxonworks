@@ -488,10 +488,13 @@ namespace :tw do
 
           synonym_taxa = {}
           CSV.foreach(@args[:data_directory] + 'tblTaxa.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8').each do |row|
-            synonym_taxa[row['TaxonNameID']] = true if row['NameStatus'] == '7'
+            synonym_taxa[row['TaxonNameID']] = {
+              rank: row['RankID'].to_i
+            } if row['NameStatus'] == '7' and ["10", "5"].include?(row['RankID']) # TODO:  Allow RankID 20 and 18 when fully thought through
           end
 
           # Runs in parallel only if PARALLEL_PROCESSOR_COUNT is explicitely set (screen output is suboptimal and logger summary won't work properly)
+          logger.info "sfCites.txt processing begins..."
           cites_id_done, missing_cites, new_name_status = Parallel.map(file_ids, in_processes: ENV['PARALLEL_PROCESSOR_COUNT'].to_i || 0) do |file_id|
             ['', 'genus', 'subgenus', 'species', 'subspecies', 'infrasubspecies', 'synonym'].each do |rank_pass|
    #           ['species',  'synonym'].each do |rank_pass|
@@ -573,14 +576,14 @@ namespace :tw do
 
                 nomenclator_id = row['NomenclatorID']
 
-                a = []
-                a += [nomenclator_ids[nomenclator_id.to_i]['genus'][0]] if nomenclator_ids[nomenclator_id.to_i]['genus']
-                a += [nomenclator_ids[nomenclator_id.to_i]['subgenus'][0]] if nomenclator_ids[nomenclator_id.to_i]['subgenus']
-                a += [nomenclator_ids[nomenclator_id.to_i]['species'][0]] if nomenclator_ids[nomenclator_id.to_i]['species']
-                a += [nomenclator_ids[nomenclator_id.to_i]['subspecies'][0]] if nomenclator_ids[nomenclator_id.to_i]['subspecies']
-                a += [nomenclator_ids[nomenclator_id.to_i]['infrasubspecies'][0]] if nomenclator_ids[nomenclator_id.to_i]['infrasubspecies']
-                a.compact!
-                nomenclator_string = a.join('_')
+                nomenclator_components = {}
+                nomenclator_components[:genus] = nomenclator_ids[nomenclator_id.to_i].dig('genus', 0)
+                nomenclator_components[:subgenus] = nomenclator_ids[nomenclator_id.to_i].dig('subgenus', 0)
+                nomenclator_components[:species] = nomenclator_ids[nomenclator_id.to_i].dig('species', 0)
+                nomenclator_components[:subspecies] = nomenclator_ids[nomenclator_id.to_i].dig('subspecies', 0)
+                nomenclator_components[:infrasubspecies] = nomenclator_ids[nomenclator_id.to_i].dig('infrasubspecies', 0)
+
+                nomenclator_string = nomenclator_components.values.compact.join('_') # TODO: Even earlier code didn't consider incomplete nomenclators. Is it a problem?
                 nomenclator_is_synonym = (
                   row['NewNameStatusID'] == '3' ||
                   ['synonym', 'syn.', 'syn', 'syn.nov.', 'syn. nov.'].include?(row['Note'].squish.downcase) ||
@@ -590,17 +593,19 @@ namespace :tw do
 
                 # Assume synonym when stem compare of taxon against nomenclator doesn't match (AKA "virtual syn. note")
                 if !nomenclator_is_synonym && synonym_taxa[row['TaxonNameID']]
-                  taxon_name_stem = Biodiversity::Parser.parse(TaxonName.find(taxon_name_id).cached).dig(:canonicalName, :stem)
-                  nomenclator_stem = Biodiversity::Parser.parse(a.join(' ')).dig(:canonicalName, :stem)
+                  taxon_name_stem = Biodiversity::Parser.parse(TaxonName.find(taxon_name_id).cached).dig(:canonicalName, :stem)&.split(" ")&.last
+                  nomenclator_stem = Biodiversity::Parser.parse(nomenclator_components.values.join(' ')).dig(:canonicalName, :stem)&.split(" ")&.last
 
-                  nomenclator_is_synonym = taxon_name_stem && nomenclator_stem && (taxon_name_stem != nomenclator_stem)
+                  nomenclator_is_synonym = taxon_name_stem && nomenclator_stem && (taxon_name_stem != nomenclator_stem) &&
+                    nomenclator_components[:genus] && nomenclator_components[:species] &&
+                    [*0..2, *6..12, 22].include?(row['NewNameStatusID'].to_i)
 
                   logger.warn(
                     "VIRTUAL_NOTE[rank_pass='#{rank_pass}']: FileID=#{row['FileID']}, TaxonNameID=#{row['TaxonNameID']}, SeqNum=#{row['SeqNum']}, " +
                     "taxon_name_stem=#{taxon_name_stem}, nomenclator_stem=#{nomenclator_stem}",
                     {
-                      taxon_name: [TaxonName.find(taxon_name_id).cached, taxon_name_stem],
-                      nomenclator: [a.join(' '), nomenclator_stem]
+                      taxon_name: [synonym_taxa.dig(row['TaxonNameID'], :rank), TaxonName.find(taxon_name_id).cached, taxon_name_stem],
+                      nomenclator: [row['NewNameStatusID'], nomenclator_components, nomenclator_stem]
                     }
                   ) if nomenclator_is_synonym
                 end
