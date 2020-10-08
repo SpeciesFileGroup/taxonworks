@@ -1,6 +1,6 @@
 <template>
   <div id="vue-interactive-keys">
-    <div class="horizontal-left-content">
+    <div class="flex-separate">
       <h1 class="task_header">Interactive key <span v-if="observationMatrix">| {{ observationMatrix.observation_matrix.name }}</span></h1>
       <div
         class="horizontal-left-content middle margin-small-left"
