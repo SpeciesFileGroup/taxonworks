@@ -44,7 +44,6 @@ export default {
       return this.selected[this.descriptor.id] ? Array.isArray(this.selected[this.descriptor.id]) ? this.selected[this.descriptor.id].includes(character.id) : this.selected[this.descriptor.id] === character.id : false
     },
     setValue (event) {
-      console.log(event.target.value)
       this.selected[this.descriptor.id] = Number(event.target.value)
     }
   }

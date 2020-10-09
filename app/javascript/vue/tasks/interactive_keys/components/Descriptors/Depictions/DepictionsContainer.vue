@@ -1,15 +1,30 @@
 <template>
   <modal-component
-    @close="$emit('close')"
-    :containerStyle="{ width: '700px' }">
+    @close="closeAndSave"
+    :containerStyle="{ 
+      width: '700px',
+      'maxHeight': '90vh',
+      overflow: 'scroll' }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
+      <div
+        class="horizontal-center-content">
+        <div
+          v-for="depiction in depictions"
+          :key="depiction.id">
+          <img
+            :src="depiction.image.alternatives.medium.image_file_url"
+            style="max-height: 150px;"/>
+          <p>{{ depiction.caption }}</p>
+        </div>
+      </div>
+      <hr>
       <div
         class="wrapper">
         <character-state
           v-for="(character, index) in descriptor.states"
           :key="index"
-          v-model="selected[descriptor.id]"
+          v-model="selected"
           :character-state="character"
         />
       </div>
@@ -21,8 +36,7 @@
 
 import ModalComponent from 'components/modal'
 import CharacterState from './Character'
-import { GetCharacterStateDepictions } from '../../../request/resources.js'
-import ExtendDescriptor from '../shared.js'
+import { GetDescriptorDepictions } from '../../../request/resources.js'
 
 export default {
   components: {
@@ -40,7 +54,7 @@ export default {
     }
   },
   computed: {
-    selected: {
+    filter: {
       get () {
         return this.value
       },
@@ -49,11 +63,24 @@ export default {
       }
     }
   },
-  mounted () {
-    console.log(this.descriptor.states.chunk(3))
+  data () {
+    return {
+      depictions: [],
+      selected: []
+    }
+  },
+  created () {
+    const data = this.value[this.descriptor.id]
+    this.selected = data ? Array.isArray(data) ? data.slice(0) : [data] : []
+    GetDescriptorDepictions(this.descriptor.id).then(response => {
+      this.depictions = response.body
+    })
   },
   methods: {
-
+    closeAndSave () {
+      this.filter[this.descriptor.id] = this.selected
+      this.$emit('close')
+    }
   }
 }
 </script>

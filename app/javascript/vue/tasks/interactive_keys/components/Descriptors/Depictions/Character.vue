@@ -1,6 +1,6 @@
 <template>
-  <div class="panel padding-small">
-    <label>
+  <div class="padding-small align-end">
+    <label class="flex-separate  flex-wrap-column">
       <div
         v-for="depiction in depictions"
         :key="depiction.id">
@@ -8,11 +8,13 @@
           class="full_width"
           :src="depiction.image.alternatives.medium.image_file_url"/>
       </div>
-      <input
-        type="checkbox"
-        :value="characterState.id"
-        v-model="selected">
-      {{ characterState.name }}
+      <label>
+        <input
+          type="checkbox"
+          :value="characterState.id"
+          v-model="selected">
+        {{ characterState.name }}
+      </label>
     </label>
   </div>
 </template>
@@ -47,7 +49,7 @@ export default {
       depictions: []
     }
   },
-  mounted () {
+  created () {
     this.loadDepictions()
   },
   methods: {
