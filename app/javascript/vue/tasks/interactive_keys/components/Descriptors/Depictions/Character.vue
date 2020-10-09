@@ -1,9 +1,19 @@
 <template>
-  <div>
-    {{ characterState.name }}
-    <input
-      type="checkbox"
-      :value="characterState.id">
+  <div class="panel padding-small">
+    <label>
+      <div
+        v-for="depiction in depictions"
+        :key="depiction.id">
+        <img
+          class="full_width"
+          :src="depiction.image.alternatives.medium.image_file_url"/>
+      </div>
+      <input
+        type="checkbox"
+        :value="characterState.id"
+        v-model="selected">
+      {{ characterState.name }}
+    </label>
   </div>
 </template>
 
@@ -18,14 +28,14 @@ export default {
       required: true
     },
     value: {
-      type: Array,
-      required: true
+      type: [Array, String],
+      default: undefined
     }
   },
   computed: {
     selected: {
       get () {
-        return this.selected
+        return this.value ? Array.isArray(this.value) ? this.value : [this.value] : []
       },
       set (value) {
         this.$emit('input', value)
@@ -36,6 +46,9 @@ export default {
     return {
       depictions: []
     }
+  },
+  mounted () {
+    this.loadDepictions()
   },
   methods: {
     loadDepictions () {

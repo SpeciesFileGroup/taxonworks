@@ -2,19 +2,21 @@
   <div>
     <a
       @click="setModalView(true)"
-      class="display-block">{{ descriptor.name }}</a>
-    <select v-model="selected[descriptor.id]">
+      class="display-block cursor-pointer">{{ descriptor.name }}</a>
+    <select @change="setValue">
       <option :value="undefined"/>
       <option
         v-for="state in descriptor.states"
         :value="state.id"
+        :selected="selectedOption(state)"
         :key="state.id">
-        {{ state.name }} ({{ state.number_of_objects }})
+        <span v-if="selectedOption(state)">></span> {{ state.name }} ({{ state.number_of_objects }})
       </option>
     </select>
     <depictions-container
       v-if="openModal"
       @close="setModalView(false)"
+      v-model="selected"
       :descriptor="descriptor"/>
   </div>
 </template>
@@ -37,6 +39,13 @@ export default {
   methods: {
     setModalView (value) {
       this.openModal = value
+    },
+    selectedOption (character) {
+      return this.selected[this.descriptor.id] ? Array.isArray(this.selected[this.descriptor.id]) ? this.selected[this.descriptor.id].includes(character.id) : this.selected[this.descriptor.id] === character.id : false
+    },
+    setValue (event) {
+      console.log(event.target.value)
+      this.selected[this.descriptor.id] = Number(event.target.value)
     }
   }
 }
