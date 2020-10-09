@@ -5,7 +5,7 @@
         v-if="row.errors"
         class="cursor-pointer"
         @click="showModal = true">({{ row.errors }})</a>
-      <span v-html="row.object.object_tag"/>
+      <a :href="getLink(row.object)" v-html="displayLabel(row.object)"/>
     </span>
     <modal-component
       @close="showModal = false"
@@ -29,6 +29,8 @@
 <script>
 
 import ModalComponent from 'components/modal'
+import RanksList from '../const/ranks'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -43,6 +45,19 @@ export default {
   data () {
     return {
       showModal: false
+    }
+  },
+  computed: {
+    filters () {
+      return this.$store.getters[GetterNames.GetParamsFilter]
+    }
+  },
+  methods: {
+    displayLabel (obj) {
+      return this.filters.identified_to_rank ? obj[RanksList[this.filters.identified_to_rank].label] : obj.object_tag
+    },
+    getLink (obj) {
+      return this.filters.identified_to_rank ? RanksList[this.filters.identified_to_rank].link(obj.id) : undefined
     }
   }
 }
