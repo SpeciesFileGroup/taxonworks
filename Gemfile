@@ -23,6 +23,8 @@ gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
 gem 'rmagick', '~> 4.0'
+gem 'roo', '~> 2.8', '>= 2.8.3'
+gem 'roo-xls', '~> 1.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'

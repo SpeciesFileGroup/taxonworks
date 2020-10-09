@@ -16,20 +16,26 @@ class ImportDataset::DarwinCore < ImportDataset
     return Unknown.new unless params[:source]
 
     begin
-      if params[:source].content_type == "text/plain"
-        headers = CSV.read(params[:source].tempfile.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
-        if headers.include? "occurrenceID"
-          core_type = OCCURRENCES_ROW_TYPE
-        elsif headers.include? "taxonID"
-          core_type = CHECKLIST_ROW_TYPE
-        end
-      else
+      path = params[:source].tempfile.path
+      if path =~ /\.zip\z/i
         dwc = ::DarwinCore.new(params[:source].tempfile.path)
         core_type = dwc.core.data[:attributes][:rowType]
 
         ### Check all files are readable
         [dwc.core, *dwc.extensions].each do |table|
           table.read { |data, errors| raise RuntimeError("Errors found when reading data") unless errors.empty? }
+        end
+      else
+        if path =~ /\.(xlsx?|ods)\z/i
+          headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true).headers
+        else
+          headers = CSV.read(path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
+        end
+
+        if headers.include? "occurrenceID"
+          core_type = OCCURRENCES_ROW_TYPE
+        elsif headers.include? "taxonID"
+          core_type = CHECKLIST_ROW_TYPE
         end
       end
     rescue Errno::ENOENT, RuntimeError => e # TODO: dwc-archive gem should probably detect missing (or wrongly mapped) files and raise its own exception
@@ -105,7 +111,7 @@ class ImportDataset::DarwinCore < ImportDataset
     records = { core: [], extensions: {} }
     headers = { core: [], extensions: {} }
 
-    if ["application/zip", "application/octet-stream"].include? source.content_type
+    if source.path =~ /\.zip\z/i
       dwc = ::DarwinCore.new(source.path)
 
       headers[:core] = get_dwc_headers(dwc.core)
@@ -116,8 +122,13 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type] = get_dwc_records(extension)
         headers[:extensions][type] = get_dwc_headers(extension)
       end
-    elsif ["text/plain"].include? source.content_type
-      records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil).map { |r| r.to_h }
+    elsif source.path =~ /\.(txt|xlsx?|ods)\z/i
+      if source.path =~ /\.(txt)\z/i
+        records[:core] = CSV.read(source.path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8')
+      else
+        records[:core] = CSV.parse(Roo::Spreadsheet.open(source.path).to_csv, headers: true)
+      end
+      records[:core] = records[:core].map { |r| r.to_h }
       headers[:core] = records[:core].first.to_h.keys
     else
       raise "Unsupported input format"

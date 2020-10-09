@@ -300,6 +300,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }).find_or_create_by!(name: preparation)) if preparation
 
     clear_empty_sub_hashes(res)
+
+    # disposition: [Not mapped]
+
+    # associatedMedia: [Not mapped]
+
+    # associatedReferences: [Not mapped]
+
+    # associatedSequences: [Not mapped]
+
+    # associatedTaxa: [Not mapped]
+
+    # otherCatalogNumbers: [Not mapped]
+
+    # occurrenceRemarks: [Not mapped]
   end
 
 

@@ -60,7 +60,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop import file here',
-        acceptedFiles: '.txt,.zip'
+        acceptedFiles: '.zip,.txt,.xls,.xlsx,.ods'
       },
     }
   },

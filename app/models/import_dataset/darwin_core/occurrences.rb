@@ -79,10 +79,15 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
   def check_field_set
     if source.staged?
-      if ["application/zip", "application/octet-stream"].include? source.content_type
+
+      if source.staged_path =~ /\.zip\z/i
         headers = get_dwc_headers(::DarwinCore.new(source.staged_path).core)
       else
-        headers = CSV.read(source.staged_path, col_sep: "\t", quote_char: nil).first
+        if source.staged_path =~ /\.(xlsx?|ods)\z/i
+          headers = CSV.parse(Roo::Spreadsheet.open(source.staged_path).to_csv, headers: true).headers
+        else
+          headers = CSV.read(source.staged_path, headers: true, col_sep: "\t", quote_char: nil, encoding: 'bom|utf-8').headers
+        end
       end
 
       missing_headers = MINIMUM_FIELD_SET - headers

@@ -44,7 +44,7 @@ class ImportDataset < ApplicationRecord
   validates :description, uniqueness: { scope: :project }, presence: true
 
   validates_attachment :source, presence: true,
-    content_type: { content_type: ["text/plain", "application/zip", "application/octet-stream"] },
+    file_name: { matches: [/\.txt\z/, /\.xlsx?\z/, /\.ods\z/, /\.zip\z/] },
     size: { greater_than: 1.bytes }
 
   # Stages all records from source file into DB. Implementors must not assume it will be called only once.
