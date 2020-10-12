@@ -7,13 +7,13 @@
       overflow: 'scroll' }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
+      <p>{{ descriptor.description }}</p>
       <button
         type="button"
         class="button normal-input button-default"
         @click="closeAndSave">
         Apply
       </button>
-      <p>{{ descriptor.description }}</p>
       <div
         class="horizontal-center-content">
         <div
