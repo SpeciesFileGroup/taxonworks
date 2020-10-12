@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing /otus/:otu_id/taxon_determinations route
 - tw:db:restore task not picking up database host settings
 - Create citation on new combination without pages
+- Param descriptor id on new descriptor task [#1798]
 
 ### Changed
 - CoLDP references are full cached values, not partially passed
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
 
 
 ## [0.13.0] - 2020-09-22

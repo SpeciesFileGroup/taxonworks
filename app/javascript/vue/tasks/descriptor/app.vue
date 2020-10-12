@@ -165,22 +165,14 @@ export default {
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
-    const descriptorId = urlParams.get('descriptor_id')
+    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
 
     if (/^\d+$/.test(matrixId)) {
       this.loadMatrix(matrixId)
     }
 
     if (/^\d+$/.test(descriptorId)) {
-      this.loading = true
-      LoadDescriptor(descriptorId).then(response => {
-        this.descriptor = response.body
-        this.loading = false
-        this.setParameters()
-      }, () => {
-        this.loading = false
-        this.setParameters()
-      })
+      this.loadDescriptor(descriptorId)
     }
   },
   methods: {
@@ -244,6 +236,17 @@ export default {
         if (redirect) {
           window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
         }
+      })
+    },
+    loadDescriptor (descriptorId) {
+      this.loading = true
+      LoadDescriptor(descriptorId).then(response => {
+        this.descriptor = response.body
+        this.loading = false
+        this.setParameters()
+      }, () => {
+        this.loading = false
+        this.setParameters()
       })
     },
     loadMatrix (id) {
