@@ -1,6 +1,7 @@
 <template>
   <modal-component
-    @close="closeModal">
+    @close="closeModal"
+    :containerStyle="{ 'min-width': '300px', 'max-width': '400px' }">
     <h3 slot="header">Destroy record</h3>
     <div slot="body">
       <p>This will destroy the record. Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
