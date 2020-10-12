@@ -475,15 +475,17 @@ class InteractiveKey
         #                               sum of all i
         #                               if numMax = numMin then numMax = numMax + 0.00001
         #                               weight = rem_taxa * (sum of i / number of measuments for taxon / (numMax - numMin) ) * (2 - number of measuments for taxon / rem_taxa)
-        d_value[:state_ids].each do |s_key, s_value|
-          if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
-            s += (s_value[:o_max] || s_value[:o_min] - s_value[:o_min]) / number_of_measurements / (d_value[:max] || d_value[:min] - d_value[:min])
-          else
-            s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] || d_value[:min] - d_value[:min])
-          end
-          if descriptor[:status] != 'used' && (s_value[:o_min] != d_value[:min] || (!s_value[:o_max].blank? && s_value[:o_max] != d_value[:max]))
-            d_value[:status] = 'useful'
-            descriptor[:status] = 'useful'
+        if d_value[:max] != d_value[:min]
+          d_value[:state_ids].each do |s_key, s_value|
+            if s_value[:o_min] == s_value[:o_max] || s_value[:o_max].blank?
+              s += (s_value[:o_max] - s_value[:o_min]) / number_of_measurements / (d_value[:max] - d_value[:min])
+            else
+              s += (s_value[:o_min] - (s_value[:o_min] / 10)) / number_of_measurements / (d_value[:max] - d_value[:min])
+            end
+            if descriptor[:status] != 'used' && (s_value[:o_min] != d_value[:min] || (!s_value[:o_max].blank? && s_value[:o_max] != d_value[:max]))
+              d_value[:status] = 'useful'
+              descriptor[:status] = 'useful'
+            end
           end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
