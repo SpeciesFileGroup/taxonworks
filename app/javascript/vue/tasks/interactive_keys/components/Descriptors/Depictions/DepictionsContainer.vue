@@ -7,6 +7,12 @@
       overflow: 'scroll' }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
+      <button
+        type="button"
+        class="button normal-input button-default"
+        @click="closeAndSave">
+        Apply
+      </button>
       <div
         class="horizontal-center-content">
         <div
@@ -27,6 +33,14 @@
           v-model="selected"
           :character-state="character"
         />
+      </div>
+      <div slot="footer">
+        <button
+          type="button"
+          class="button normal-input button-default"
+          @click="closeAndSave">
+          Apply
+        </button>
       </div>
     </div>
   </modal-component>

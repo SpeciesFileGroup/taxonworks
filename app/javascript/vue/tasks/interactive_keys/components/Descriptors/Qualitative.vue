@@ -1,8 +1,10 @@
 <template>
   <div>
-    <a
-      @click="setModalView(true)"
-      class="display-block cursor-pointer">{{ descriptor.name }}</a>
+    <div class="display-block">
+      <a
+        @click="setModalView(true)"
+        class=" cursor-pointer">{{ descriptor.name }}</a>
+    </div>
     <select @change="setValue(Number($event.target.value))">
       <option :value="undefined"/>
       <option
