@@ -119,8 +119,9 @@ export default {
     },
     loadMatrix (id) {
       if (!this.observationMatrix || id !== this.observationMatrix.observation_matrix_id) {
-        SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', 24)
+        SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
       }
+      this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
     },
     resetView () {

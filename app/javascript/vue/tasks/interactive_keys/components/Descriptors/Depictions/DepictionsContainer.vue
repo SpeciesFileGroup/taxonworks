@@ -80,19 +80,23 @@ export default {
   data () {
     return {
       depictions: [],
-      selected: []
+      selected: [],
+      copy: []
     }
   },
   created () {
     const data = this.value[this.descriptor.id]
     this.selected = data ? Array.isArray(data) ? data.slice(0) : [data] : []
+    this.copy = this.selected.slice()
     GetDescriptorDepictions(this.descriptor.id).then(response => {
       this.depictions = response.body
     })
   },
   methods: {
     closeAndSave () {
-      this.$emit('update', this.selected)
+      if (JSON.stringify(this.copy) !== JSON.stringify(this.selected)) {
+        this.$emit('update', this.selected)
+      }
       this.$emit('close')
     }
   }
