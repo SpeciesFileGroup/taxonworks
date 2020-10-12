@@ -7,7 +7,6 @@
       overflow: 'scroll' }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
-      <p>{{ descriptor.description }}</p>
       <button
         type="button"
         class="button normal-input button-default"
@@ -26,6 +25,7 @@
         </div>
       </div>
       <hr>
+      <h3 class="horizontal-center-content">{{ descriptor.description }}</h3>
       <div
         class="wrapper">
         <character-state
