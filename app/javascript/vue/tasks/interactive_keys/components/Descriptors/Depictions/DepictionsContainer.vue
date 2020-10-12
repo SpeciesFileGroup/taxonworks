@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     closeAndSave () {
-      this.filter[this.descriptor.id] = this.selected
+      this.$emit('update', this.selected)
       this.$emit('close')
     }
   }
