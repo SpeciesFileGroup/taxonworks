@@ -13,6 +13,7 @@
         @click="closeAndSave">
         Apply
       </button>
+      <p>{{ descriptor.description }}</p>
       <div
         class="horizontal-center-content">
         <div
