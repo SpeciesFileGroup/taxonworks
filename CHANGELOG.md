@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Combination nomenclatural code inference drawn from members, not parent
 - Some nomenclature rank related simbols moved to constants
 - Load Images for coordinate OTUs [#1787]
+- Extended New Image task upload timeout from 30 seconds to 10 minutes
 
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
