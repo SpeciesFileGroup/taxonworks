@@ -18,6 +18,12 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(interactive_key.observation_matrix).to eq(observation_matrix)
     end
 
+    specify 'observation_matrix_citation' do
+      source = FactoryBot.create(:valid_source)
+      observation_matrix.source = source
+      expect(interactive_key.observation_matrix_citation.id).to eq(source.id)
+    end
+
     specify 'descriptor_available_languages' do
       eng
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
@@ -47,11 +53,11 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
       observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor2)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
-      expect(interactive_key.descriptors_with_filter.count).to eq(2)
+      expect(interactive_key.list_of_descriptors.count).to eq(2)
       descriptor1.weight = 0
       descriptor1.save
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
-      expect(interactive_key.descriptors_with_filter.count).to eq(1)
+      expect(interactive_key.list_of_descriptors.count).to eq(1)
     end
 
     specify 'descriptors_with_keywords' do
@@ -62,18 +68,18 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       t1 = descriptor1.tags.create(keyword: k1)
       t2 = descriptor2.tags.create(keyword: k2)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id)
-      expect(interactive_key.descriptors_with_filter.count).to eq(1)
+      expect(interactive_key.list_of_descriptors.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id.to_s + '|' + t2.id.to_s)
-      expect(interactive_key.descriptors_with_filter.count).to eq(2)
+      expect(interactive_key.list_of_descriptors.count).to eq(2)
     end
 
     specify 'rows_with_filter' do
       o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu1)
       o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu2)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
-      expect(interactive_key.rows_with_filter.count).to eq(1)
+      expect(interactive_key.remaining.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id.to_s + '|' + observation_matrix.observation_matrix_rows.last.id.to_s)
-      expect(interactive_key.rows_with_filter.count).to eq(2)
+      expect(interactive_key.remaining.count).to eq(2)
     end
   end
 
@@ -148,7 +154,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       # 0   2   0   1   1-3   3 true
       # 1   1   1   0   2-3   4 false
       # 1   0   0   1   1-2   1 true
-      # 0   2   1   0   1     2 false
+      # 0   2   1   0   1     2 true
 
       Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu1, character_state: @cs1)
       Observation::Qualitative.create!(descriptor: @descriptor1, otu: @otu2, character_state: @cs2)
@@ -223,15 +229,161 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu7, presence: true)
       Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu8, presence: false)
       Observation::PresenceAbsence.create!(descriptor: @descriptor7, otu: @otu9, presence: true)
-      Observation::PresenceAbsence.create!(descriptor: @descriptor7, collection_object: @collection_object, presence: false)
-
-      @interactive_key =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id, project_id: @observation_matrix.project_id)
+      Observation::PresenceAbsence.create!(descriptor: @descriptor7, collection_object: @collection_object, presence: true)
     end
 
     specify 'valid matrix' do
-      expect(@interactive_key.remaining.count).to eq(10)
-      expect(@interactive_key.list_of_descriptors.count).to eq(7)
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id)
+      expect(ik.remaining.count).to eq(10)
+      expect(ik.eliminated.count).to eq(0)
+      expect(ik.list_of_descriptors.count).to eq(7)
     end
+
+    specify 'indentified_to_rank: otu' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               identified_to_rank: 'otu')
+      expect(ik.remaining.count).to eq(9)
+    end
+
+    specify 'indentified_to_rank: species' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               identified_to_rank: 'species')
+      expect(ik.remaining.count).to eq(9)
+    end
+
+    specify 'indentified_to_rank: genus' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               identified_to_rank: 'genus')
+      expect(ik.remaining.count).to eq(5)
+    end
+
+    specify 'selected_descriptors 1.1' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor1.id.to_s + ':' + @cs1.id.to_s)
+      expect(ik.remaining.count).to eq(4)
+      expect(ik.eliminated.count).to eq(6)
+    end
+
+    specify 'selected_descriptors 1.1 & 1.2' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor1.id.to_s + ':' + @cs1.id.to_s + '|' + @cs2.id.to_s)
+      expect(ik.remaining.count).to eq(7)
+      expect(ik.eliminated.count).to eq(3)
+    end
+
+    specify 'selected_descriptors 1.1 & 1.2 & 2.5' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor1.id.to_s + ':' + @cs1.id.to_s + '|' + @cs2.id.to_s + '||' + @descriptor2.id.to_s + ':' + @cs5.id.to_s)
+      expect(ik.remaining.count).to eq(3)
+      expect(ik.eliminated.count).to eq(7)
+    end
+
+    specify 'selected_descriptors 1.1 & 1.2 & 2.5 + error_tolerance = 1' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor1.id.to_s + ':' + @cs1.id.to_s + '|' + @cs2.id.to_s + '||' + @descriptor2.id.to_s + ':' + @cs5.id.to_s,
+                               error_tolerance: 1)
+      expect(ik.remaining.count).to eq(7)
+      expect(ik.eliminated.count).to eq(3)
+    end
+
+    specify 'selected_descriptors 1.1 & 1.2 & 2.5 + error_tolerance = 2' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor1.id.to_s + ':' + @cs1.id.to_s + '|' + @cs2.id.to_s + '||' + @descriptor2.id.to_s + ':' + @cs5.id.to_s,
+                               error_tolerance: 2)
+      expect(ik.remaining.count).to eq(10)
+      expect(ik.eliminated.count).to eq(0)
+    end
+
+    specify 'selected_descriptors 3.8' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor3.id.to_s + ':' + @cs8.id.to_s)
+      expect(ik.remaining.count).to eq(5)
+      expect(ik.eliminated.count).to eq(5)
+    end
+
+    specify 'selected_descriptors 3.8 + eliminate_unknown' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor3.id.to_s + ':' + @cs8.id.to_s,
+                               eliminate_unknown: 'true')
+      expect(ik.remaining.count).to eq(4)
+      expect(ik.eliminated.count).to eq(6)
+    end
+
+    specify 'selected_descriptors 5:3' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor5.id.to_s + ':3')
+      expect(ik.remaining.count).to eq(6)
+      expect(ik.eliminated.count).to eq(4)
+    end
+
+    specify 'selected_descriptors 5:2-3' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor5.id.to_s + ':2-3')
+      expect(ik.remaining.count).to eq(9)
+      expect(ik.eliminated.count).to eq(1)
+    end
+
+    specify 'selected_descriptors 5:0.5-2' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor5.id.to_s + ':0.5-2')
+      expect(ik.remaining.count).to eq(9)
+      expect(ik.eliminated.count).to eq(1)
+    end
+
+    specify 'selected_descriptors 5:3-5' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor5.id.to_s + ':3-5')
+      expect(ik.remaining.count).to eq(6)
+      expect(ik.eliminated.count).to eq(4)
+    end
+
+    specify 'selected_descriptors 5:0-7' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor5.id.to_s + ':0-7')
+      expect(ik.remaining.count).to eq(10)
+      expect(ik.eliminated.count).to eq(0)
+    end
+
+    specify 'selected_descriptors 6:2' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor6.id.to_s + ':2')
+      expect(ik.remaining.count).to eq(3)
+      expect(ik.eliminated.count).to eq(7)
+    end
+
+    specify 'selected_descriptors 7:true' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor7.id.to_s + ':true')
+      expect(ik.remaining.count).to eq(6)
+      expect(ik.eliminated.count).to eq(4)
+    end
+
+    specify 'selected_descriptors 7:false' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               selected_descriptors: @descriptor7.id.to_s + ':false')
+      expect(ik.remaining.count).to eq(4)
+      expect(ik.eliminated.count).to eq(6)
+    end
+
   end
 
 end

@@ -39,6 +39,8 @@ class Descriptor < ApplicationRecord
 
   soft_validate(:sv_short_name_is_short)
 
+  scope :not_weight_zero, -> {where('NOT "descriptors"."weight" = 0 OR "descriptors"."weight" IS NULL') }
+
   def self.human_name
     self.name.demodulize.humanize
   end

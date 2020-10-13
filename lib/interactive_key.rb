@@ -1,85 +1,136 @@
 # Contains methods used to build an interactive key
 class InteractiveKey
 
-  # required attribude to build the key
+  ##### FILTER PARAMETERS #####
+
+  # @!observation_matrix_id
+  #   @return [String]
+  # Required attribude to build the key
   attr_accessor :observation_matrix_id
 
-  #required attribute to build the key
+  # @!project_id
+  #   @return [String]
+  # Required attribute to build the key
   attr_accessor :project_id
 
-  #returns ObservationMatrix object
-  attr_accessor :observation_matrix
-
-  #returns ObservationMatrix citation
-  attr_accessor :observation_matrix_citation
-
-  #optional attribute to display the characters in a particular language
+  # @!language_id
+  #   @return [String or null]
+  # Optional attribute to display the descriptors and character_states in a particular language (when translations are available)
   attr_accessor :language_id
 
-  #optional attribute to provide a list of tagIDs to limit the set of characters "1|5|15"
+  # @!keyword_ids
+  #   @return [String or null]
+  # Optional attribute to provide a list of tagIDs to limit the set of descriptors to those taged: "keyword_ids=1|5|15"
   attr_accessor :keyword_ids
 
-  #optional attribute to provide a list of rowIDs to limit the set "1|5|10"
+  # @!row_filter
+  #   @return [String or null]
+  # Optional attribute to provide a list of rowIDs to limit the set "row_filter=1|5|10"
   attr_accessor :row_filter
 
-  #optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized', a default
+  # @!sorting
+  #   @return [String or null]
+  # Optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized'. Optimized is a default if nothing is provided
   attr_accessor :sorting
 
-  #optional attribute to eliminate taxa with not scored descriptors: 'false' - default or 'true'
+  # @!eliminate_unknown
+  #   @return [Boolean or null]
+  # Optional attribute to eliminate taxa with no scores on a used descriptor: 'false' - default or 'true'
+  # If true, the rows without scores will be eliminated
   attr_accessor :eliminate_unknown
 
-  #optional attribute number of allowed erros during identification
+  # @!error_tolerance
+  #   @return [Integer or null]
+  # Optional attribute. Number of allowed errors during identification
   attr_accessor :error_tolerance
 
-  #limit identification to a particular nomenclatural rank 'genus', 'species', 'otu'
+  # @!identified_to_rank
+  #   @return [String or null]
+  # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
-  #optional attribute: descriptors and states selected during identification "123:1|3||125:3|5||135:2"
+  # @!selected_descriptors
+  #   @return [String or null]
+  # Optional attribute: descriptors and states selected during identification "123:1|3||125:3|5||135:2||140:3-5"
+  # Each used descriptor is separated by '||'.
+  # States or values are separated from descriptors with ':'.
+  # Multiple selected character_states for one descriptor are separated by '|'.
+  # Sample states can use numerical ranges
   attr_accessor :selected_descriptors
 
-  #returns the list of Languages used as translations for descriptors
+  ##### RETURNED DATA ######
+
+  # @!observation_matrix
+  #   @return [Object]
+  # Returns observation_matrix as an object
+  attr_accessor :observation_matrix
+
+  # @!observation_matrix_citation
+  #   @return [Object]
+  # Returns observation_matrix_citation as an object
+  attr_accessor :observation_matrix_citation
+
+  # @!descriptor_available_languages
+  #   @return [Array of Objects or null]
+  # Returns the list of available Languages used as translations for descriptors and character_states (in translations are available)
   attr_accessor :descriptor_available_languages
 
-  #returns the list of all descriptors for this matrix
+  # @!descriptors
+  #   @return [null]
+  # Temporary attribute. Used for validation.
   attr_accessor :descriptors
 
-  #returns the list of all Tags used with the descriptors
+  # @!descriptor_available_keywords
+  #   @return [Array of Objects or null]
+  # Returns the list of all Tags used with the descriptors. Descriptors could be filtered by tag_id
   attr_accessor :descriptor_available_keywords
 
-  #the validated Language object to display descriptors in a particular language
+  # @!language_to_use
+  #   @return [Object or null]
+  # Returns Language as an object if the language_id was provided (used to display descriptors in a particular language)
   attr_accessor :language_to_use
 
-  #list of descriptors reduced by keyword_ids
+  # @!descriptors_with_filter
+  #   @return [null]
+  # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
-  #list of rows to be included into the matrix
+  # @!rows_with_filter
+  #   @return [null]
+  # Temporary attribute. Used for validation. list of rows to be included into the matrix
   attr_accessor :rows_with_filter
 
-  #return the list of descriptors with selections
-  #  attr_accessor :used_descriptors
-
-  #return the list of useful descriptors
-  #  attr_accessor :useful_descriptors
-
-  #return the list of descriptors not useful for identification
-  #  attr_accessor :not_useful_descriptors
-
-  #return the list of descriptors and thair states
+  # @!list_of_descriptors
+  #   @return [Array]
+  # Return the list of descriptors and their states. Translated (if needed) and Sorted
+  # Each descriptor has an attribute :status, which could be 'used', 'useful', 'useless' for further identification
   attr_accessor :list_of_descriptors
 
-  #list of remaining rows
+  # @!remaining
+  #   @return [Array]
+  # Returns the list of objects not eliminated by previously used descriptors.
+  # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :remaining
 
-  #list of eliminated rows
+  # @!eliminated
+  #   @return [Array]
+  # Returns the list of objects eliminated by previously used descriptors.
+  # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :eliminated
 
-  #hash of used descriptors and their states
+  # @!selected_descriptors_hash
+  #   @return [Hash]
+  # selected_descriptors String is converted into Hash
   attr_accessor :selected_descriptors_hash
 
-  #temporary hash of rows; used for calculation of remaining and eliminated rows
+  # @!row_hash
+  #   @return [null]
+  # Temporary hash of rows; used for calculation of remaining and eliminated rows
   attr_accessor :row_hash
 
-  #temporary hash of descriptors; used for calculation of useful and not useful characters and their states
+  # @!descriptors_hash
+  #   @return [null]
+  #temporary hash of descriptors; used for calculation of useful and not useful descriptors and their states
   attr_accessor :descriptors_hash
 
   def initialize(
@@ -138,9 +189,9 @@ class InteractiveKey
 
   def descriptors
     if @sorting == 'weighted'
-      observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order('descriptors.weight DESC, descriptors.position')
+      observation_matrix.descriptors.not_weight_zero.order('descriptors.weight DESC, descriptors.position')
     else
-      observation_matrix.descriptors.where('NOT descriptors.weight = 0 OR descriptors.weight IS NULL').order(:position)
+      observation_matrix.descriptors.not_weight_zero.order(:position)
     end
   end
 
@@ -203,7 +254,7 @@ class InteractiveKey
       if @identified_to_rank == 'otu'
         h[otu_collection_object][:object_at_rank] = r.current_otu || r
       elsif @identified_to_rank
-        h[otu_collection_object][:object_at_rank] = r.current_taxon_name.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
       else
         h[otu_collection_object][:object_at_rank] = r
       end
@@ -249,7 +300,7 @@ class InteractiveKey
         h[o.descriptor_id][:max] = o.sample_max.to_f if o.sample_max && h[o.descriptor_id][:max] && o.sample_max.to_f > h[o.descriptor_id][:max]
         h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.character_state_id.to_s] if o.character_state_id
-        h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.continuous_value.to_s] if o.continuous_value
+        h[o.descriptor_id][:observation_hash][otu_collection_object] += ["%g" % o.continuous_value] if o.continuous_value
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.presence.to_s] unless o.presence.nil?
       end
     end
@@ -265,7 +316,6 @@ class InteractiveKey
     a.each do |i|
       d = i.split(':')
       h[d[0].to_i] = d[1].include?('|') ? d[1].split('|') : [d[1]]
-      #      @descriptors_hash[h[d[0].to_i]][:status] = 'used'
     end
     h
   end
@@ -293,7 +343,7 @@ class InteractiveKey
           when 'Descriptor::Continuous'
             if (@descriptors_hash[d_key][:observation_hash][otu_collection_object] & d_value).empty?
               r_value[:errors] += 1
-              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| o.continuous_value}.join(' OR ')
+              str = d_name + @descriptors_hash[d_key][:observations][otu_collection_object].collect{|o| "%g" % o.continuous_value}.join(' OR ')
               r_value[:error_descriptors] += [str]
             end
           when 'Descriptor::PresenceAbsence'
@@ -526,27 +576,6 @@ class InteractiveKey
     end
 
   end
-
-  #  def observations
-    # id
-    # descriptor_id
-    # otu_id
-    # collection_object_id
-    # character_state_id
-    # continuous_value
-    # continuous_unit
-    # sample_min
-    # sample_max
-    # sample_unit
-    # presence
-    # description
-    # cached
-    # cached_column_label
-    # cached_row_label
-    # description
-    # type
-    ### types: Qualitative(char_states); Presence absence; Quantitative (single measurement); Sample (min, max); Free text
-  #  end
 
 end
 
