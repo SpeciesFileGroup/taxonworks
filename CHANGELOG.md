@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - tw:db:restore task not picking up database host settings
 - Create citation on new combination without pages
 - Param descriptor id on new descriptor task [#1798]
+- Filter by user on filter nomenclature [#1780]
 
 ### Changed
 - CoLDP references are full cached values, not partially passed
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Load Images for coordinate OTUs [#1787]
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 
+[#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
