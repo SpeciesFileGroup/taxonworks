@@ -21,7 +21,7 @@ class ObservationsController < ApplicationController
   end
 
   def api_index
-    @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+    @observations = Queries::Observation::Filter.new(api_params).all.with_project_id(sessions_current_project_id)
     render '/observations/api/index.json.jbuilder'
   end
 
@@ -138,4 +138,9 @@ class ObservationsController < ApplicationController
   def filter_params
     params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
   end
+
+  def api_params 
+    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
+  end
+
 end
