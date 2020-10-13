@@ -64,6 +64,14 @@ namespace :api, defaults: {format: :json} do
       get '/citations/:id', to: '/citations#api_show'
       get '/citations/autocomplete', to: '/citations#autocomplete'
 
+      get '/asserted_distributions', to: '/asserted_distributions#api_index'
+      get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
+      get '/asserted_distributions/autocomplete', to: '/asserted_distributions#autocomplete'
+
+      get '/observations', to: '/observations#api_index'
+      get '/observations/:id', to: '/observations#api_show'
+      get '/observations/autocomplete', to: '/_observations#autocomplete'
+
     end
 
     # Authenticate membership at the data controller level

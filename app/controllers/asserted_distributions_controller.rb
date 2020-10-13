@@ -23,6 +23,20 @@ class AssertedDistributionsController < ApplicationController
     end
   end
 
+  def api_index
+    @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params)
+                                  .all
+                                  .where(project_id: sessions_current_project_id)
+                                  .page(params[:page])
+                                  .per(params[:per] || 25)
+    render '/asserted_distributions/api/index.json.jbuilder'
+  end
+
+  def api_show
+    @asserted_distribution = AssertedDistribution.find(params[:id])
+    render '/asserted_distributions/api/show.json.jbuilder'
+  end
+
   # GET /asserted_distributions/1
   # GET /asserted_distributions/1.json
   def show

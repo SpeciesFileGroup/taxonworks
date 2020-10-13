@@ -20,6 +20,15 @@ class ObservationsController < ApplicationController
     end
   end
 
+  def api_index
+    @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+    render '/observations/api/index.json.jbuilder'
+  end
+
+  def api_show
+    @observation = Observation.find(params[:id])
+    render '/observations/api/show.json.jbuilder'
+  end
   # GET /observations/1
   # GET /observations/1.json
   def show
@@ -111,10 +120,10 @@ class ObservationsController < ApplicationController
       :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
       :presence,
       :description,
-      :type, 
+      :type,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
-        :id, 
+        :id,
         :_destroy,
         :depiction_object_id, :depiction_object_type,
         :annotated_global_entity, :caption,
