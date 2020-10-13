@@ -25,8 +25,8 @@
           <p>{{ depiction.caption }}</p>
         </div>
       </div>
-      <hr>
       <h3 class="horizontal-center-content">{{ descriptor.description }}</h3>
+      <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
       <div
         class="wrapper">
         <character-state
