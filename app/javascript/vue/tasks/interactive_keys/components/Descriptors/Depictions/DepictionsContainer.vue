@@ -19,13 +19,19 @@
         <div
           v-for="depiction in depictions"
           :key="depiction.id">
-          <img
-            :src="depiction.image.alternatives.medium.image_file_url"
-            style="max-height: 150px;"/>
-          <p>{{ depiction.caption }}</p>
+          <div>
+            <img
+              :src="depiction.image.alternatives.medium.image_file_url"
+              style="max-height: 150px;"/>
+          </div>
+          <span v-if="depiction.caption">{{ depiction.caption }}</span>
         </div>
       </div>
-      <h3 class="horizontal-center-content">{{ descriptor.description }}</h3>
+      <h3
+        v-if="descriptor.description"
+        class="horizontal-center-content">
+        {{ descriptor.description }}
+      </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
       <div
         class="wrapper">
@@ -111,7 +117,6 @@ export default {
   display: grid;
   grid-template-columns: repeat( 3, minmax(33.33%, 1fr) );
   grid-gap: 10px;
-  grid-auto-rows: minmax(100px, auto);
 }
 
 </style>
