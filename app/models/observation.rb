@@ -22,7 +22,8 @@ class Observation < ApplicationRecord
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
 
-  after_initialize :convert_observation_object_global_id
+  before_validation :convert_observation_object_global_id
+
   before_validation :set_type_from_descriptor
 
   validates_presence_of :descriptor_id, :type

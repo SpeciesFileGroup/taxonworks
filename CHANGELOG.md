@@ -7,24 +7,35 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Added ancestors facet on filter nomenclature [#1791]
+- TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+
 ### Fixed
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
 - Missing /otus/:otu_id/taxon_determinations route
+- tw:db:restore task not picking up database host settings
+- Create citation on new combination without pages
+- Param descriptor id on new descriptor task [#1798]
 
 ### Changed
-
+- CoLDP references are full cached values, not partially passed
+- Combination nomenclatural code inference drawn from members, not parent
+- Some nomenclature rank related simbols moved to constants
 - Load Images for coordinate OTUs [#1787]
+- Extended New Image task upload timeout from 30 seconds to 10 minutes
 
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+
 
 ## [0.13.0] - 2020-09-22
 
 ### Changed
 - Removed forced dependency on google-protobuf gem
 - Updated gems
-
-### Added
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths

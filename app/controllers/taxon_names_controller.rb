@@ -284,6 +284,7 @@ class TaxonNamesController < ApplicationController
       :leaves,
       :exact,
       :validity,
+      :ancestors,
       :descendants,
       :descendants_max_depth,
       :updated_since,

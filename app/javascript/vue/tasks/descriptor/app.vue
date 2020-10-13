@@ -165,22 +165,14 @@ export default {
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
-    const descriptorId = urlParams.get('descriptor_id')
+    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
 
     if (/^\d+$/.test(matrixId)) {
       this.loadMatrix(matrixId)
     }
 
     if (/^\d+$/.test(descriptorId)) {
-      this.loading = true
-      LoadDescriptor(descriptorId).then(response => {
-        this.descriptor = response.body
-        this.loading = false
-        this.setParameters()
-      }, () => {
-        this.loading = false
-        this.setParameters()
-      })
+      this.loadDescriptor(descriptorId)
     }
   },
   methods: {
@@ -237,13 +229,24 @@ export default {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
-        type: 'ObservationMatrixColumnItem::Single::Decriptor'
+        type: 'ObservationMatrixColumnItem::Single::Descriptor'
       }
       CreateObservationMatrixColumn(data).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
         if (redirect) {
           window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
         }
+      })
+    },
+    loadDescriptor (descriptorId) {
+      this.loading = true
+      LoadDescriptor(descriptorId).then(response => {
+        this.descriptor = response.body
+        this.loading = false
+        this.setParameters()
+      }, () => {
+        this.loading = false
+        this.setParameters()
       })
     },
     loadMatrix (id) {

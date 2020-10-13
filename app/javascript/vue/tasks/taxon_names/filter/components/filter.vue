@@ -27,7 +27,7 @@
       <precision-component v-model="params.base.exact" />
       <scope-component v-model="params.base.taxon_name_id"/>
       <related-component
-        v-model="params.base.descendants"
+        v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
 
       <rank-component v-model="params.base.nomenclature_group"/>
@@ -104,7 +104,7 @@ export default {
       return GetMacKey()
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base, this.params.user, this.params.settings)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -170,6 +170,10 @@ export default {
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []
+        },
+        includes: {
+          descendants: undefined,
+          ancestors: undefined
         },
         user: {
           user_id: undefined,
