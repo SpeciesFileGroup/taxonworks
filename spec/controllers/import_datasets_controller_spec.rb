@@ -24,16 +24,18 @@ require 'rails_helper'
 # `rails-controller-testing` gem.
 
 RSpec.describe ImportDatasetsController, type: :controller do
-
+  before(:each) {
+    sign_in
+  }
   # This should return the minimal set of attributes required to create a valid
   # ImportDataset. As you add validations to ImportDataset, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) {
-    skip("Add a hash of attributes valid for your model")
+    { source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/dwca_occurrences.txt'), 'text/plain'), description: 'Testing' }
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    { description: 'T' }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -43,7 +45,7 @@ RSpec.describe ImportDatasetsController, type: :controller do
 
   describe "GET #index" do
     it "returns a success response" do
-      ImportDataset.create! valid_attributes
+      ImportDataset::DarwinCore::Occurrences.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(response).to be_successful
     end
@@ -51,7 +53,7 @@ RSpec.describe ImportDatasetsController, type: :controller do
 
   describe "GET #show" do
     it "returns a success response" do
-      import_dataset = ImportDataset.create! valid_attributes
+      import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
       get :show, params: {id: import_dataset.to_param}, session: valid_session
       expect(response).to be_successful
     end
@@ -66,7 +68,7 @@ RSpec.describe ImportDatasetsController, type: :controller do
 
   describe "GET #edit" do
     it "returns a success response" do
-      import_dataset = ImportDataset.create! valid_attributes
+      import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
       get :edit, params: {id: import_dataset.to_param}, session: valid_session
       expect(response).to be_successful
     end
@@ -82,7 +84,7 @@ RSpec.describe ImportDatasetsController, type: :controller do
 
       it "redirects to the created import_dataset" do
         post :create, params: {import_dataset: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(ImportDataset.last)
+        expect(response).to redirect_to(ImportDataset.last.becomes(ImportDataset))
       end
     end
 
@@ -97,26 +99,26 @@ RSpec.describe ImportDatasetsController, type: :controller do
   describe "PUT #update" do
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        { description: 'Re-testing' }
       }
 
       it "updates the requested import_dataset" do
-        import_dataset = ImportDataset.create! valid_attributes
+        import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
         put :update, params: {id: import_dataset.to_param, import_dataset: new_attributes}, session: valid_session
         import_dataset.reload
-        skip("Add assertions for updated state")
+        expect(import_dataset.description).to eq "Re-testing"
       end
 
       it "redirects to the import_dataset" do
-        import_dataset = ImportDataset.create! valid_attributes
+        import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
         put :update, params: {id: import_dataset.to_param, import_dataset: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(import_dataset)
+        expect(response).to redirect_to(import_dataset.becomes(ImportDataset))
       end
     end
 
     context "with invalid params" do
       it "returns a success response (i.e. to display the 'edit' template)" do
-        import_dataset = ImportDataset.create! valid_attributes
+        import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
         put :update, params: {id: import_dataset.to_param, import_dataset: invalid_attributes}, session: valid_session
         expect(response).to be_successful
       end
@@ -125,14 +127,14 @@ RSpec.describe ImportDatasetsController, type: :controller do
 
   describe "DELETE #destroy" do
     it "destroys the requested import_dataset" do
-      import_dataset = ImportDataset.create! valid_attributes
+      import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
       expect {
         delete :destroy, params: {id: import_dataset.to_param}, session: valid_session
       }.to change(ImportDataset, :count).by(-1)
     end
 
     it "redirects to the import_datasets list" do
-      import_dataset = ImportDataset.create! valid_attributes
+      import_dataset = ImportDataset::DarwinCore::Occurrences.create! valid_attributes
       delete :destroy, params: {id: import_dataset.to_param}, session: valid_session
       expect(response).to redirect_to(import_datasets_url)
     end

@@ -41,7 +41,7 @@ class ImportDataset < ApplicationRecord
 
   validates :type, presence: true
   validates :status, presence: true
-  validates :description, uniqueness: { scope: :project }, presence: true
+  validates :description, uniqueness: { scope: :project }, presence: true, length: { minimum: 2 }
 
   validates_attachment :source, presence: true,
     file_name: { matches: [/\.txt\z/, /\.xlsx?\z/, /\.ods\z/, /\.zip\z/] },

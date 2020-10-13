@@ -24,7 +24,9 @@ require 'rails_helper'
 # `rails-controller-testing` gem.
 
 RSpec.describe DatasetRecordsController, type: :controller do
-
+  before(:each) {
+    sign_in
+  }
   # This should return the minimal set of attributes required to create a valid
   # DatasetRecord. As you add validations to DatasetRecord, be sure to
   # adjust the attributes here as well.
@@ -36,6 +38,13 @@ RSpec.describe DatasetRecordsController, type: :controller do
     skip("Add a hash of attributes invalid for your model")
   }
 
+  let(:import_dataset) {
+    ImportDataset::DarwinCore::Occurrences.create!(
+      source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/dwca_occurrences.txt'), 'text/plain'),
+      description: 'Testing'
+    ).tap { |i| i.stage }
+  }
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # DatasetRecordsController. Be sure to keep this updated too.
@@ -43,36 +52,19 @@ RSpec.describe DatasetRecordsController, type: :controller do
 
   describe "GET #index" do
     it "returns a success response" do
-      DatasetRecord.create! valid_attributes
-      get :index, params: {}, session: valid_session
+      get :index, params: {import_dataset_id: import_dataset.to_param, format: 'json'}, session: valid_session
       expect(response).to be_successful
     end
   end
 
   describe "GET #show" do
     it "returns a success response" do
-      dataset_record = DatasetRecord.create! valid_attributes
-      get :show, params: {id: dataset_record.to_param}, session: valid_session
+      get :show, params: {import_dataset_id: import_dataset.to_param, id: import_dataset.dataset_records.first.to_param, format: 'json'}, session: valid_session
       expect(response).to be_successful
     end
   end
 
-  describe "GET #new" do
-    it "returns a success response" do
-      get :new, params: {}, session: valid_session
-      expect(response).to be_successful
-    end
-  end
-
-  describe "GET #edit" do
-    it "returns a success response" do
-      dataset_record = DatasetRecord.create! valid_attributes
-      get :edit, params: {id: dataset_record.to_param}, session: valid_session
-      expect(response).to be_successful
-    end
-  end
-
-  describe "POST #create" do
+  xdescribe "POST #create" do # TODO: Might be useful to add new rows.
     context "with valid params" do
       it "creates a new DatasetRecord" do
         expect {
@@ -95,26 +87,21 @@ RSpec.describe DatasetRecordsController, type: :controller do
   end
 
   describe "PUT #update" do
+    let(:dataset_record) { import_dataset.dataset_records.first }
+
     context "with valid params" do
       let(:new_attributes) {
-        skip("Add a hash of attributes valid for your model")
+        {0 => "test"}.to_json
       }
 
       it "updates the requested dataset_record" do
-        dataset_record = DatasetRecord.create! valid_attributes
-        put :update, params: {id: dataset_record.to_param, dataset_record: new_attributes}, session: valid_session
+        put :update, params: {import_dataset_id: dataset_record.import_dataset.to_param, id: dataset_record.to_param, data_fields: new_attributes, format: 'json'}, session: valid_session
         dataset_record.reload
-        skip("Add assertions for updated state")
-      end
-
-      it "redirects to the dataset_record" do
-        dataset_record = DatasetRecord.create! valid_attributes
-        put :update, params: {id: dataset_record.to_param, dataset_record: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(dataset_record)
+        expect(dataset_record.data_fields.first["value"]).to eq "test"
       end
     end
 
-    context "with invalid params" do
+    xcontext "with invalid params" do # TODO: Check if invalid params are possible
       it "returns a success response (i.e. to display the 'edit' template)" do
         dataset_record = DatasetRecord.create! valid_attributes
         put :update, params: {id: dataset_record.to_param, dataset_record: invalid_attributes}, session: valid_session
@@ -123,7 +110,7 @@ RSpec.describe DatasetRecordsController, type: :controller do
     end
   end
 
-  describe "DELETE #destroy" do
+  xdescribe "DELETE #destroy" do # TODO: Might be useful to delete rows.
     it "destroys the requested dataset_record" do
       dataset_record = DatasetRecord.create! valid_attributes
       expect {

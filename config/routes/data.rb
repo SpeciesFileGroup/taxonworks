@@ -308,7 +308,7 @@ resources :import_datasets do
   member do
     post 'import'
   end
-  resources :dataset_records do
+  resources :dataset_records, only: [:index, :create, :show, :update, :destroy] do
     collection do
       get 'autocomplete_data_fields'
     end

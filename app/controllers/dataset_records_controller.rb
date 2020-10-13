@@ -1,7 +1,7 @@
 class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_dataset_record, only: [:show, :edit, :update, :destroy]
+  before_action :set_dataset_record, only: [:show, :update, :destroy]
   after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
 
   # GET /dataset_records
@@ -20,15 +20,6 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records/1
   # GET /dataset_records/1.json
   def show
-  end
-
-  # GET /dataset_records/new
-  def new
-    @dataset_record = DatasetRecord.new
-  end
-
-  # GET /dataset_records/1/edit
-  def edit
   end
 
   # POST /dataset_records
@@ -55,10 +46,8 @@ class DatasetRecordsController < ApplicationController
       JSON.parse(params[:data_fields]).each { |index, value| @dataset_record.set_data_field(index.to_i, value) }
 
       if @dataset_record.save
-        format.html { redirect_to @dataset_record, notice: 'Dataset record was successfully updated.' }
         format.json { render :show, status: :ok }
       else
-        format.html { render :edit }
         format.json { render json: @dataset_record.errors, status: :unprocessable_entity }
       end
     end
@@ -89,7 +78,7 @@ class DatasetRecordsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_dataset_record
-      @dataset_record = DatasetRecord.find(params[:id])
+      @dataset_record = DatasetRecord.with_project_id(sessions_current_project_id).where(import_dataset_id: params[:import_dataset_id]).find(params[:id])
     end
 
     # Only allow a list of trusted parameters through.
