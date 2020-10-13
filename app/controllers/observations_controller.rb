@@ -26,9 +26,10 @@ class ObservationsController < ApplicationController
   end
 
   def api_show
-    @observation = Observation.find(params[:id])
+    @observation = Observation.where(project_id: sessions_current_project_id).find(params[:id])
     render '/observations/api/show.json.jbuilder'
   end
+
   # GET /observations/1
   # GET /observations/1.json
   def show
@@ -140,7 +141,7 @@ class ObservationsController < ApplicationController
   end
 
   def api_params 
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
+    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id).to_h
   end
 
 end

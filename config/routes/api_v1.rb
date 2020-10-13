@@ -1,5 +1,4 @@
 namespace :api, defaults: {format: :json} do
-
   namespace :v1 do
 
     # authentication free
@@ -19,7 +18,6 @@ namespace :api, defaults: {format: :json} do
       get '/people', to: '/people#api_index'
       get '/people/:id', to: '/people#api_show'
       get '/people/autocomplete', to: '/people#autocomplete'
-
     end
 
     # authenticated by project token
@@ -70,8 +68,6 @@ namespace :api, defaults: {format: :json} do
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
-      get '/observations/autocomplete', to: '/_observations#autocomplete'
-
     end
 
     # Authenticate membership at the data controller level
