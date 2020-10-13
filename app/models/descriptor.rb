@@ -11,7 +11,6 @@ class Descriptor < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
@@ -19,6 +18,7 @@ class Descriptor < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::Depictions
+  include Shared::IsData
 
   include SoftValidation
 
