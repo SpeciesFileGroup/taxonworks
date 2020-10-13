@@ -13,6 +13,7 @@
         @click="closeAndSave">
         Apply
       </button>
+      <hr>
       <div
         class="horizontal-center-content">
         <div
@@ -36,6 +37,7 @@
         />
       </div>
       <div slot="footer">
+      <hr>
         <button
           type="button"
           class="button normal-input button-default"
