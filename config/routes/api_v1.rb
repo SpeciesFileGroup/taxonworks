@@ -43,28 +43,28 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/identifiers', to: '/identifiers#api_index'
+      get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'
-      get '/identifiers/autocomplete', to: '/identifiers#autocomplete'
 
       get '/collecting_events', to: '/collecting_events#api_index'
+      get '/collecting_events/autocomplete', to: '/collecting_events#api_autocomplete'
       get '/collecting_events/:id', to: '/collecting_events#api_show'
-      get '/collecting_events/autocomplete', to: '/collecting_events#autocomplete'
 
       get '/collection_objects', to: '/collection_objects#api_index'
+      get '/collection_objects/autocomplete', to: '/collection_objects#api_autocomplete'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
-      get '/collection_objects/autocomplete', to: '/collection_objects#autocomplete'
 
       get '/biological_associations', to: '/biological_associations#api_index'
+      get '/biological_associations/autocomplete', to: '/biological_associations#api_autocomplete'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
-      get '/biological_associations/autocomplete', to: '/biological_associations#autocomplete'
 
       get '/citations', to: '/citations#api_index'
-      get '/citations/:id', to: '/citations#api_show'
       get '/citations/autocomplete', to: '/citations#autocomplete'
+      get '/citations/:id', to: '/citations#api_show'
 
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
-      get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
       get '/asserted_distributions/autocomplete', to: '/asserted_distributions#autocomplete'
+      get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'

@@ -23,17 +23,7 @@ class IdentifiersController < ApplicationController
     @identifiers = Queries::Identifier::Filter.new(api_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
     render '/identifiers/api/index.json.jbuilder'
   end
-
-  # GET /api/v1/identifiers/:id
-  def api_show
-    @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/identifiers/api/show.json.jbuilder'
-  end
-
-  def api_autocomplete
-
-  end
-
+ 
   # GET /identifers/1
   def show
   end
@@ -104,9 +94,21 @@ class IdentifiersController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-
     @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
   end
+
+  # GET /api/v1/identifiers/:id
+  def api_show
+    @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/identifiers/api/v1/show'
+  end
+
+  def api_autocomplete
+    render json: {} and return if params[:term].blank?
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    render '/identifiers/api/v1/autocomplete'
+  end
+
 
   # GET /identifiers/download
   def download
