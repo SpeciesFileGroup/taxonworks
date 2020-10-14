@@ -295,10 +295,6 @@ class InteractiveKey
         otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
         h[o.descriptor_id][:observations][otu_collection_object] = [] if h[o.descriptor_id][:observations][otu_collection_object].nil? #??????
         h[o.descriptor_id][:observations][otu_collection_object] += [o]                                                                #??????
-        h[o.descriptor_id][:min] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:min] && o.continuous_value < h[o.descriptor_id][:min]
-        h[o.descriptor_id][:max] = o.continuous_value if o.continuous_value && h[o.descriptor_id][:max] && o.continuous_value > h[o.descriptor_id][:max]
-        h[o.descriptor_id][:min] = o.sample_min.to_f if o.sample_min && h[o.descriptor_id][:min] && o.sample_min.to_f < h[o.descriptor_id][:min]
-        h[o.descriptor_id][:max] = o.sample_max.to_f if o.sample_max && h[o.descriptor_id][:max] && o.sample_max.to_f > h[o.descriptor_id][:max]
         h[o.descriptor_id][:observation_hash][otu_collection_object] = [] if h[o.descriptor_id][:observation_hash][otu_collection_object].nil?
         h[o.descriptor_id][:observation_hash][otu_collection_object] += [o.character_state_id.to_s] if o.character_state_id
         h[o.descriptor_id][:observation_hash][otu_collection_object] += ["%g" % o.continuous_value] if o.continuous_value
@@ -451,11 +447,23 @@ class InteractiveKey
             end
             unless o.continuous_value.nil?
               d_value[:state_ids][o.id] = true
-              d_value[:count] +=1 if @row_hash[otu_collection_object][:status] != 'eliminated'
+              if @row_hash[otu_collection_object][:status] != 'eliminated'
+                d_value[:count] +=1
+                d_value[:min] = o.continuous_value if d_value[:min] > o.continuous_value
+                d_value[:max] = o.continuous_value if d_value[:max] < o.continuous_value
+              end
             end
             unless o.sample_min.nil?
               d_value[:state_ids][o.id] = {o_min: o.sample_min.to_f, o_max: o.sample_max.to_f}
-              d_value[:count] +=1 if @row_hash[otu_collection_object][:status] != 'eliminated'
+              if @row_hash[otu_collection_object][:status] != 'eliminated'
+                d_value[:count] +=1
+                d_value[:min] = o.sample_min if d_value[:min] > o.sample_min
+                if o.sample_max
+                  d_value[:max] = o.sample_max if d_value[:max] < o.sample_max
+                else
+                  d_value[:max] = o.sample_min if d_value[:max] < o.sample_min
+                end
+              end
             end
             taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false if @eliminate_unknown == false
           end
@@ -489,7 +497,6 @@ class InteractiveKey
           state[:label] = c.label
           state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = s_value[:status] == 'used' ? 'used' : 'useful'
-          #          state[:name] = '✓ ' + state[:name] if state[:status] == 'used'
           n = s_value[:rows].count
           if descriptor[:status] == 'used'
             #do nothing
@@ -551,7 +558,6 @@ class InteractiveKey
           state[:name] = s_key
           state[:number_of_objects] = s_value[:rows].count + number_of_taxa_with_unknown_character_states
           state[:status] = s_value[:status] == 'used' ? 'used' : 'useful'
-          #          state[:name] = '✓ ' + state[:name] if state[:status] == 'used'
           n = s_value[:rows].count
           if descriptor[:status] == 'used'
             #do nothing
