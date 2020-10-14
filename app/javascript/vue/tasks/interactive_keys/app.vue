@@ -84,7 +84,8 @@ export default {
 
     if (/^\d+$/.test(matrixId)) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId).then(() => {
-        this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length <= this.countToRefreshMode
+        console.log(this.observationMatrix.remaining.length)
+        this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length >= this.countToRefreshMode
       })
     }
   },
