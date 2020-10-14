@@ -276,6 +276,7 @@ class InteractiveKey
       h[d.id][:descriptor] = d
       h[d.id][:weight_index] = 0
       h[d.id][:state_ids] = {}
+      h[d.id][:count] = 0
       h[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       h[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
       h[d.id][:observations] = {} # all observation for a particular
@@ -450,9 +451,11 @@ class InteractiveKey
             end
             unless o.continuous_value.nil?
               d_value[:state_ids][o.id] = true
+              d_value[:count] +=1 if @row_hash[otu_collection_object][:status] != 'eliminated'
             end
             unless o.sample_min.nil?
               d_value[:state_ids][o.id] = {o_min: o.sample_min.to_f, o_max: o.sample_max.to_f}
+              d_value[:count] +=1 if @row_hash[otu_collection_object][:status] != 'eliminated'
             end
             taxa_with_unknown_character_states[ @row_hash[otu_collection_object][:object_at_rank] ] = false if @eliminate_unknown == false
           end
@@ -509,7 +512,7 @@ class InteractiveKey
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
         descriptor[:max] = d_value[:max]
-        number_of_measurements = d_value[:state_ids].count
+        number_of_measurements = d_value[:count]
         s = (d_value[:min] - (d_value[:min] / 10)) / (d_value[:max] - d_value[:min])
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
         if descriptor[:status] != 'used' && descriptor[:min] != descriptor[:max]
@@ -520,7 +523,7 @@ class InteractiveKey
         descriptor[:default_unit] = d_value[:descriptor].default_unit
         descriptor[:min] = d_value[:min]
         descriptor[:max] = d_value[:max]
-        number_of_measurements = d_value[:state_ids].count
+        number_of_measurements = d_value[:count]
         #                               i = max - min ; if 0 then (numMax - numMin / 10)
         #                               sum of all i
         #                               if numMax = numMin then numMax = numMax + 0.00001
@@ -539,9 +542,6 @@ class InteractiveKey
           end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
-        descriptor[:number_of_taxa] = number_of_taxa
-        descriptor[:s] = s
-        descriptor[:number_of_measurements] = number_of_measurements
 
       when 'Descriptor::PresenceAbsence'
         number_of_states = 2
