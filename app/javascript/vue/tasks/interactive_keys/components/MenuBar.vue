@@ -56,7 +56,7 @@
           v-if="observationMatrix"
           type="button"
           class="button normal-input button-default"
-          @click="loadMatrix(observationMatrix.observation_matrix_id)">
+          @click="proceed(observationMatrix.observation_matrix_id)">
           Proceed
         </button>
       </div>
@@ -122,6 +122,9 @@ export default {
         SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
       }
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
+    },
+    proceed (id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
     },
     resetView () {

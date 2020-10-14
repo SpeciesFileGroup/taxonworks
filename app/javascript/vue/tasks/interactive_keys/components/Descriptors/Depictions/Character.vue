@@ -13,7 +13,7 @@
           type="checkbox"
           :value="characterState.id"
           v-model="selected">
-        {{ characterState.name }}
+        {{ characterState.name }} ({{ characterState.number_of_objects }})
       </label>
     </label>
   </div>
