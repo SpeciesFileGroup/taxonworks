@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label class="display-block">Sorting</label>
+    <label class="display-block">Descriptor sorting</label>
     <select v-model="filters.sorting">
       <option
         v-for="(rank, index) in ranks"
@@ -29,7 +29,7 @@ export default {
   },
   data () {
     return {
-      ranks: ['', 'ordered', 'weighted', 'optimized']
+      ranks: [undefined, 'ordered', 'weighted', 'optimized']
     }
   }
 }

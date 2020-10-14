@@ -57,7 +57,7 @@
           type="button"
           class="button normal-input button-default"
           @click="proceed(observationMatrix.observation_matrix_id)">
-          Proceed
+          Refresh
         </button>
       </div>
     </div>
