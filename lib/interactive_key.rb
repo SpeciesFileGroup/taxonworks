@@ -574,7 +574,7 @@ class InteractiveKey
     when 'ordered'
       array_of_descriptors.sort_by!{|i| i[:position]}
     when 'weighted'
-      array_of_descriptors.sort_by!{|i| [i[:weight].to_i*-1, i[:usefulness]] }
+      array_of_descriptors.sort_by!{|i| [-i[:weight].to_i, i[:usefulness]] }
     when 'optimized'
       array_of_descriptors.sort_by!{|i| i[:usefulness]}
     end
