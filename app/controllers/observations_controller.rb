@@ -137,7 +137,7 @@ class ObservationsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id)
+    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id, :token, :project_token, :format, :authenticate_user_or_project)
   end
 
   def api_params 
