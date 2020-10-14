@@ -240,6 +240,27 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(ik.list_of_descriptors.count).to eq(7)
     end
 
+    specify 'sorting: ordered' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               sorting: 'ordered')
+      expect(ik.list_of_descriptors.count).to eq(7)
+    end
+
+    specify 'sorting: weighted' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               sorting: 'weighted')
+      expect(ik.list_of_descriptors.count).to eq(7)
+    end
+
+    specify 'sorting: optimized' do
+      ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
+                               project_id: @observation_matrix.project_id,
+                               sorting: 'optimized')
+      expect(ik.list_of_descriptors.count).to eq(7)
+    end
+
     specify 'indentified_to_rank: otu' do
       ik =  InteractiveKey.new(observation_matrix_id: @observation_matrix.id,
                                project_id: @observation_matrix.project_id,

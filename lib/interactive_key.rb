@@ -139,7 +139,7 @@ class InteractiveKey
     language_id: nil,
     keyword_ids: nil,
     row_filter: nil,
-    sorting: 'optimized',
+    sorting: 'weighted',
     error_tolerance: 0,
     identified_to_rank: nil,
     eliminate_unknown: nil,
@@ -573,8 +573,8 @@ class InteractiveKey
     case @sorting
     when 'ordered'
       array_of_descriptors.sort_by!{|i| i[:position]}
-    when 'weighed'
-      array_of_descriptors.sort_by!{|i| [-i[:weight], i[:usefulness]] }
+    when 'weighted'
+      array_of_descriptors.sort_by!{|i| [i[:weight].to_i*-1, i[:usefulness]] }
     when 'optimized'
       array_of_descriptors.sort_by!{|i| i[:usefulness]}
     end
