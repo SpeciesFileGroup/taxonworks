@@ -56,11 +56,9 @@ namespace :api, defaults: {format: :json} do
 
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
-      get '/biological_associations/autocomplete', to: '/biological_associations#autocomplete'
 
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
-      get '/citations/autocomplete', to: '/citations#autocomplete'
 
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
