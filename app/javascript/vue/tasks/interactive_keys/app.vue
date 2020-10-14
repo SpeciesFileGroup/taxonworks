@@ -86,6 +86,7 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId).then(() => {
         this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length >= this.countToRefreshMode
       })
+      document.querySelector('.descriptors-view div').scrollIntoView(0)
     }
   },
   methods: {

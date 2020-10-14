@@ -123,13 +123,16 @@ export default {
       }
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
+      document.querySelector('.descriptors-view div').scrollIntoView(0)
     },
     proceed (id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
+      document.querySelector('.descriptors-view div').scrollIntoView(0)
     },
     resetView () {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+      document.querySelector('.descriptors-view div').scrollIntoView(0)
     }
   }
 }

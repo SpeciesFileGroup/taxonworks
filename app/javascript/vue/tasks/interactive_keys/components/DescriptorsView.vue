@@ -114,6 +114,7 @@ export default {
         this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
       } else {
         this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+        document.querySelector('.descriptors-view div').scrollIntoView(0)
       }
     }
   }

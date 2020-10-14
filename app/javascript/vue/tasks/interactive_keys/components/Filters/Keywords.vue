@@ -74,6 +74,7 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id).then(() => {
         this.setModalView(false)
       })
+      document.querySelector('.descriptors-view div').scrollIntoView(0)
     }
   }
 }
