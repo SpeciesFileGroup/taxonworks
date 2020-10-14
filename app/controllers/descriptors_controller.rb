@@ -146,8 +146,8 @@ class DescriptorsController < ApplicationController
   def descriptor_params
     params.require(:descriptor).permit(
       :name, :short_name, :key_name, :description_name,
-      :description, :position, :type, :gene_attribute_logic, :default_unit,
-      character_states_attributes: [:id, :descriptor_id, :_destroy, :label, :name, :position, :description_name, :key_name, :weight],
+      :description, :position, :type, :gene_attribute_logic, :default_unit, :weight,
+      character_states_attributes: [:id, :descriptor_id, :_destroy, :label, :name, :position, :description_name, :key_name],
       gene_attributes_attributes: [:id, :_destroy, :sequence_id, :sequence_relationship_type, :controlled_vocabulary_term_id, :position ]
     )
   end

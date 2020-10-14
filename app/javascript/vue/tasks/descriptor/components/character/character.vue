@@ -33,13 +33,6 @@
               v-model="characterState.key_name"
             >
           </div>
-          <div>
-            <label>Weight</label><br>
-            <input
-              type="number"
-              v-model="characterState.weight"
-            >
-          </div>
         </template>
       </div>
       <div class="field separate-left">
@@ -163,7 +156,6 @@ export default {
       return {
         label: undefined,
         name: undefined,
-        weight: undefined,
         description_name: undefined,
         key_name: undefined,
         id: undefined
