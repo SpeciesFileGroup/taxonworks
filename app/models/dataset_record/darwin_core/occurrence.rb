@@ -7,7 +7,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        parse_details = metadata.dig("parse_results", "details").first
+        parse_details = metadata.dig("parse_results", "details")&.first
+
+        raise DarwinCore::InvalidData.new({ "scientificName": ["Unable to parse scientific name. Please make sure it is correctly spelled."] }) unless parse_details
 
         names = DWC_CLASSIFICATION_TERMS.map { |t| [t, get_field_value(t)] }
 
@@ -129,6 +131,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         self.import_dataset.add_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
       end
 
+      self.save!
+    elsif name == 'scientificName'
+      self.metadata['parse_results'] = Biodiversity::Parser.parse(value || "" )
       self.save!
     end
   end
