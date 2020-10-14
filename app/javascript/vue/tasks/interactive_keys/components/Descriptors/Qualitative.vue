@@ -12,7 +12,7 @@
         :value="state.id"
         :selected="selectedOption(state)"
         :key="state.id">
-        <span v-if="selectedOption(state)">></span> {{ state.name }} ({{ state.number_of_objects }})
+        <span v-if="selectedOption(state)">></span> <span v-if="state.status === 'useless'">-</span> {{ state.name }} ({{ state.number_of_objects }})
       </option>
     </select>
     <depictions-container

@@ -8,7 +8,7 @@
           class="full_width"
           :src="depiction.image.alternatives.medium.image_file_url"/>
       </div>
-      <label>
+      <label :class="{ subtle: characterState.status === 'useless' }">
         <input
           type="checkbox"
           :value="characterState.id"
