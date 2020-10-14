@@ -431,7 +431,7 @@ class InteractiveKey
             if o.character_state_id
               d_value[:state_ids][o.character_state_id.to_s] = {} if d_value[:state_ids][o.character_state_id.to_s].nil?
               d_value[:state_ids][o.character_state_id.to_s][:rows] = {} if d_value[:state_ids][o.character_state_id.to_s][:rows].nil? ## rows which this state identifies
-              d_value[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_value[:state_ids][o.character_state_id.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true if @row_hash[otu_collection_object][:status] != 'eliminated'
               if @selected_descriptors_hash[d_key] && @selected_descriptors_hash[d_key].include?(o.character_state_id.to_s)
                 d_value[:state_ids][o.character_state_id.to_s][:status] = 'used' ## 'used', 'useful', 'useless'
               else
@@ -441,7 +441,7 @@ class InteractiveKey
             unless o.presence.nil?
               d_value[:state_ids][o.presence.to_s] = {} if d_value[:state_ids][o.presence.to_s].nil?
               d_value[:state_ids][o.presence.to_s][:rows] = {} if d_value[:state_ids][o.presence.to_s][:rows].nil? ## rows which this state identifies
-              d_value[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true
+              d_value[:state_ids][o.presence.to_s][:rows][ @row_hash[otu_collection_object][:object_at_rank] ] = true if @row_hash[otu_collection_object][:status] != 'eliminated'
               if @selected_descriptors_hash[d_key] && @selected_descriptors_hash[d_key].include?(o.presence.to_s)
                 d_value[:state_ids][o.presence.to_s][:status] = 'used' ## 'used', 'useful', 'useless'
               else
@@ -539,6 +539,10 @@ class InteractiveKey
           end
         end
         descriptor[:usefulness] = number_of_taxa * s * (2 - (number_of_measurements / number_of_taxa)) if number_of_taxa > 0
+        descriptor[:number_of_taxa] = number_of_taxa
+        descriptor[:s] = s
+        descriptor[:number_of_measurements] = number_of_measurements
+
       when 'Descriptor::PresenceAbsence'
         number_of_states = 2
         descriptor[:states] = []
