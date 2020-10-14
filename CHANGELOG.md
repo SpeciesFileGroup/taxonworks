@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New interactive key task developed in the interactive_key branch [#1810] 
 - Added new model for matrix based interactive keys which produce JSON 
     for the interactive key task [#1810]
+- Added `weight` field to descriptor
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
 - Many specs related to dynamic observation matrix items
