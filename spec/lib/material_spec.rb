@@ -1,15 +1,7 @@
 require 'rails_helper'
 require 'material'
 
-describe 'Material' do
-
-  before(:all) {
-    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
-  }
-
-  after(:all) {
-    ProjectsAndUsers.clean_slate
-  }
+describe 'Material', type: :model do
 
   context '#create_quick_verbatim' do
     before(:each) {

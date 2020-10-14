@@ -3,10 +3,14 @@
 # * They must never be set in feature specs 
 module ProjectsAndUsers
 
-  def self.clean_slate 
-    ProjectMember.delete_all
-    Project.delete_all 
+  def self.clean_slate
+    Project.all.each { |p| p.nuke }
+    Source.delete_all
     User.delete_all
+
+    ### Required due to PK resets keeping hierarchy data causes constraints fails due to duplication
+    [TaxonName, GeographicArea, ContainerItem].each { |m| m.rebuild! }
+
     Current.user_id = nil
     Current.project_id = nil
   end
