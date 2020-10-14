@@ -23,16 +23,9 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  # GET /api/v1/collection_objects
-  def api_index
-    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/collection_objects/api/index.json.jbuilder'
-  end
-
-  # GET /api/v1/collection_objects/:id
-  def api_show
-    @collection_objects = CollectionObject.find(params[:id])
-    render '/collection_objects/api/show.json.jbuilder'
+  # GET /collection_objects/1
+  # GET /collection_objects/1.json
+  def show
   end
 
   def biocuration_classifications
@@ -94,11 +87,6 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
-  # GET /collection_objects/1
-  # GET /collection_objects/1.json
-  def show
-  end
-
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
@@ -121,6 +109,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/by_identifier/ABCD
+  # TODO: remove for filter
   def by_identifier
     @identifier = params.require(:identifier)
     @request_project_id = sessions_current_project_id
@@ -202,10 +191,10 @@ class CollectionObjectsController < ApplicationController
 
   def autocomplete
     @collection_objects =
-        Queries::CollectionObject::Autocomplete.new(
-            params[:term],
-            project_id: sessions_current_project_id
-        ).autocomplete
+      Queries::CollectionObject::Autocomplete.new(
+        params[:term],
+        project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -303,6 +292,31 @@ class CollectionObjectsController < ApplicationController
 
   def select_options
     @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
+  def autocomplete
+    @collection_objects = Queries::CollectionObject::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id
+    ).autocomplete
+  end
+
+  # GET /api/v1/collection_objects
+  def api_index
+    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    render '/collection_objects/api/v1/index.json.jbuilder'
+  end
+
+  # GET /api/v1/collection_objects/:id
+  def api_show
+    @collection_object = CollectionObject.find(params[:id])
+    render '/collection_objects/api/v1/show.json.jbuilder'
+  end
+
+  def api_autocomplete
+    render json: {} and return if params[:term].blank?
+    @collection_objects = Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    render '/collection_objects/api/v1/autocomplete'
   end
 
   private

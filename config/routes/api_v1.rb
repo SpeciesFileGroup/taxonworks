@@ -12,12 +12,12 @@ namespace :api, defaults: {format: :json} do
       get '/user_authenticated', to: 'base#index'
 
       get '/sources', to: '/sources#api_index'
-      get '/sources/:id', to: '/sources#api_show'
       get '/sources/autocomplete', to: '/sources#autocomplete'
+      get '/sources/:id', to: '/sources#api_show'
 
       get '/people', to: '/people#api_index'
-      get '/people/:id', to: '/people#api_show'
       get '/people/autocomplete', to: '/people#autocomplete'
+      get '/people/:id', to: '/people#api_show'
     end
 
     # authenticated by project token
@@ -55,18 +55,18 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/:id', to: '/collection_objects#api_show'
 
       get '/biological_associations', to: '/biological_associations#api_index'
-      get '/biological_associations/autocomplete', to: '/biological_associations#api_autocomplete'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
 
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
-      get '/asserted_distributions/autocomplete', to: '/asserted_distributions#autocomplete'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
+
+      # get '/controlled_vocabulary_terms'
     end
 
     # Authenticate membership at the data controller level

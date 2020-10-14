@@ -18,22 +18,9 @@ class CollectingEventsController < ApplicationController
     end
   end
 
-  def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
-    render 'collecting_events/api/index.json.jbuilder'
-  end
   # GET /collecting_events/1
   # GET /collecting_events/1.json
   def show
-  end
-
-  def api_show
-    @collecting_event = CollectingEvent.where(project_id: sessions_current_project_id).find(params[:id])
-    render 'collecting_events/api/show.json.jbuilder'
-  end
-
-  def api_autocomplete
-
   end
 
   # GET /collecting_events/new
@@ -130,7 +117,7 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
- # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
+  # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
     term = params[:term]
@@ -152,11 +139,11 @@ class CollectingEventsController < ApplicationController
                     geo: Utilities::Geo.coordinates_regex_from_verbatim_label(params[:verbatim_label]),
                     elevation: Utilities::Elevation.elevation_regex_from_verbatim_label(params[:verbatim_label]),
                     collecting_method: Utilities::CollectingMethods.method_regex_from_verbatim_label(params[:verbatim_label]),
-                  }.to_json
+      }.to_json
     end
   end
 
-   # GET collecting_events/batch_load
+  # GET collecting_events/batch_load
   def batch_load
   end
 
@@ -244,6 +231,22 @@ class CollectingEventsController < ApplicationController
     @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
+  def api_index
+    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+    render 'collecting_events/api/v1/index'
+  end
+
+  def api_show
+    @collecting_event = CollectingEvent.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/collecting_events/api/v1/show'
+  end
+
+  def api_autocomplete
+    render json: {} and return if params[:term].blank?
+    @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    render '/collecting_events/api/v1/autocomplete'
+  end
+
   private
 
   def set_collecting_event
@@ -265,21 +268,22 @@ class CollectingEventsController < ApplicationController
       :verbatim_elevation,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-      identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+    identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
+    data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
   end
 
   def batch_params
-    params.permit(:ce_namespace,
-                  :ce_geographic_area_id,
-                  :file,
-                  :import_level).merge(user_id: sessions_current_user_id,
-                                       project_id: sessions_current_project_id).to_h.symbolize_keys
+    params.permit(
+      :ce_namespace,
+      :ce_geographic_area_id,
+      :file,
+      :import_level).merge(
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id).to_h.symbolize_keys
   end
 
   def filter_params
-    # TODO: unify for use in CO
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,
