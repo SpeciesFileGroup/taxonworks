@@ -426,6 +426,7 @@ resources :otus do
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
 

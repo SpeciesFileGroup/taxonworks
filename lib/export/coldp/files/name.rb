@@ -93,6 +93,8 @@ module Export::Coldp::Files::Name
 
       otu.taxon_name.self_and_descendants.each do |name|
 
+        # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
+
         if name.is_valid?
           data = ::Catalog::Nomenclature::Entry.new(name)
           data.names.each do |t|

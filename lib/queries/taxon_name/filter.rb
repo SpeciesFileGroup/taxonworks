@@ -54,6 +54,11 @@ module Queries
       #   Ignored when descentants is false/unspecified
       attr_accessor :descendants_max_depth
 
+      # @param ancestors [Boolean]
+      # ['true' or 'false'] on initialize
+      #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
+      attr_accessor :ancestors
+
       # @param taxon_name_relationship [Array]
       #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
       # Each entry must have a 'type'
@@ -102,7 +107,8 @@ module Queries
       attr_accessor :type_metadata 
 
       # @return [Array, nil]
-      #   &nomenclature_group=<Higher|Family|Genus|Species>>
+      # &nomenclature_group=< Higher|Family|Genus|Species  >
+      #  string matches `nomenclature_class`
       attr_accessor :nomenclature_group
 
       # @return [Array, nil]
@@ -128,6 +134,7 @@ module Queries
         @citations = params[:citations]
         @descendants = (params[:descendants]&.downcase == 'true' ? true : false) if !params[:descendants].nil?
         @descendants_max_depth = params[:descendants_max_depth]
+        @ancestors = (params[:ancestors]&.downcase == 'true' ? true : false) if !params[:ancestors].nil?
         @exact = (params[:exact]&.downcase == 'true' ? true : false) if !params[:exact].nil?
         @leaves = (params[:leaves]&.downcase == 'true' ? true : false) if !params[:leaves].nil?
         @name = params[:name]
@@ -182,7 +189,7 @@ module Queries
       #   match only names that are a descendant of some taxon_name_id 
       # A merge facet.
       def descendant_facet
-        return nil if taxon_name_id.empty? || descendants == false
+        return nil if taxon_name_id.empty? || !(descendants == true)
 
         descendants_subquery = ::TaxonNameHierarchy.where(
           ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
@@ -194,6 +201,20 @@ module Queries
         end
 
         ::TaxonName.where(descendants_subquery.arel.exists)
+      end
+
+      # @return Scope
+      #   match only names that are a ancestor of some taxon_name_id
+      # A merge facet.
+      def ancestor_facet
+        return nil if taxon_name_id.empty? || !(ancestors == true)
+
+       ancestors_subquery = ::TaxonNameHierarchy.where(
+         ::TaxonNameHierarchy.arel_table[:ancestor_id].eq(::TaxonName.arel_table[:id]).and(
+           ::TaxonNameHierarchy.arel_table[:descendant_id].in(taxon_name_id))
+       )
+
+        ::TaxonName.where(ancestors_subquery.arel.exists)
       end
 
       # @return Scope
@@ -348,7 +369,7 @@ module Queries
       end
 
       def taxon_name_id_facet
-        return nil if taxon_name_id.empty? || descendants
+        return nil if taxon_name_id.empty? || descendants || ancestors
         table[:id].eq_any(taxon_name_id)
       end
 
@@ -383,6 +404,7 @@ module Queries
           taxon_name_relationship_type_facet,
           leaves_facet,
           descendant_facet,
+          ancestor_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,
           type_metadata_facet,

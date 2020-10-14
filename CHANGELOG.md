@@ -10,21 +10,54 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - New interactive key task developed in the interactive_key branch [#1810] 
 - Added new model for matrix based interactive keys which produce JSON 
-    for the interactive key task [#1810]
+for the interactive key task [#1810]
 - Added `weight` field to descriptor
+- Added ancestors facet on filter nomenclature [#1791]
+- TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+
+### Fixed
+- Collecting event object radial metadata settings
+- Webpack resolved_paths deprecation warning
+- Missing /otus/:otu_id/taxon_determinations route
+- tw:db:restore task not picking up database host settings
+- Create citation on new combination without pages
+- Param descriptor id on new descriptor task [#1798]
+
+### Changed
+- CoLDP references are full cached values, not partially passed
+- Combination nomenclatural code inference drawn from members, not parent
+- Some nomenclature rank related simbols moved to constants
+- Load Images for coordinate OTUs [#1787]
+- Extended New Image task upload timeout from 30 seconds to 10 minutes
+
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
+[#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+
+
+## [0.13.0] - 2020-09-22
+
+### Changed
+- Removed forced dependency on google-protobuf gem
+- Updated gems
+- Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
 - Many specs related to dynamic observation matrix items
 - Improvements to Descriptor autocomplete labels [#1727]
 - Added `rake tw:maintenance:otus:missplaced_references` [#1439]
+- Pdf viewer button on Documentation and Source views [#1693]
 - Spinner for when converting verbatim to bibtex [#1710]
 - Set OTU in determination when otu_id param is present on comprehensive task
 - "Create georeference from verbatim" button in Parsed column on comprehensive task
 - Sortable order for Type material, Biological association and Determinations on comprehensive task
 - User facet on Filter nomenclature task [#1720]
 - Pagination on Filter noemnclature task [#1724]
+- Biological associations filter on Browse OTU
 
 ### Changed
+- AssertedDistribution filter `otu_id` and `geographic_area_id` can now also take array form, e.g. `otu_id[]=`
+- Preload all CSL styles via fixed constant, increasing boot speed [#1749]
 - Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
 - Data migration updating all `type` column values for matrix row/column items
 - Tweaked JSON attribute response for matrix rows and columns very slightly
@@ -34,8 +67,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated respec `matrix` tag to `observation_matrix`
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
+- Override browser shortcuts on task hotkeys [#1738]
+- Biological associations section on Browse OTU
+- TW now supports Postgres 12 [#1305]
+- Replaced biodiversity with custom gem repo using IPC with gnparser processes
+- Updated gems
+- Character "΄" also accepted as minute specifier in coordinates parsing.
 
 ## Fixed
+- Fixed LOW_PROBABILITY constant message
+- Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
+- Scope of dynamic taxon name row item [#1747]
 - Processing of values (in distance_in_meters) to limit significant digits of results of unit conversions. Decimal degrees not affected at this time. [#1512]
 - Character state order not correct in Nexus format [#1574]
 - Not able to destroy matrix rows or matrices [#1520], [#1123]
@@ -50,7 +92,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Restored Show -> edit link [#1699]
 - Enable search button after pick a collecting event date on Filter collection objects task [#1728]
 - Misppeling collecting_event_ids parameter [#1729]
+- Non-original combination authorship lacking parentheses [#1686]
 
+[#1570]: https://github.com/SpeciesFileGroup/taxonworks/issues/1570
+[#1749]: https://github.com/SpeciesFileGroup/taxonworks/issues/1749
+[#1159]: https://github.com/SpeciesFileGroup/taxonworks/issues/1159
+[#1747]: https://github.com/SpeciesFileGroup/taxonworks/issues/1747
 [#1512]: https://github.com/SpeciesFileGroup/taxonworks/issues/1512
 [#1526]: https://github.com/SpeciesFileGroup/taxonworks/issues/1526
 [#1727]: https://github.com/SpeciesFileGroup/taxonworks/issues/1727
@@ -62,15 +109,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1709]: https://github.com/SpeciesFileGroup/taxonworks/issues/1709
 [#1680]: https://github.com/SpeciesFileGroup/taxonworks/issues/1680
 [#1690]: https://github.com/SpeciesFileGroup/taxonworks/issues/1690
+[#1693]: https://github.com/SpeciesFileGroup/taxonworks/issues/1693
+[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1701]: https://github.com/SpeciesFileGroup/taxonworks/issues/1701
 [#1705]: https://github.com/SpeciesFileGroup/taxonworks/issues/1705
 [#1707]: https://github.com/SpeciesFileGroup/taxonworks/issues/1707
 [#1702]: https://github.com/SpeciesFileGroup/taxonworks/issues/1702
 [#1703]: https://github.com/SpeciesFileGroup/taxonworks/issues/1703
-[#1699]: https://github.com/SpeciesFileGroup/taxonworks/issues/1699
 [#1710]: https://github.com/SpeciesFileGroup/taxonworks/issues/1710
 [#1720]: https://github.com/SpeciesFileGroup/taxonworks/issues/1720
 [#1724]: https://github.com/SpeciesFileGroup/taxonworks/issues/1724
+[#1738]: https://github.com/SpeciesFileGroup/taxonworks/issues/1738
+[#1686]: https://github.com/SpeciesFileGroup/taxonworks/issues/1686
+[#1305]: https://github.com/SpeciesFileGroup/taxonworks/pull/1305
 
 ## [0.12.17] - 2020-02-02
 
@@ -481,7 +532,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...development
+[0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16
 [0.12.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.14...v0.12.15

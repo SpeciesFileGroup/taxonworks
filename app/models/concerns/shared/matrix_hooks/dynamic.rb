@@ -38,7 +38,6 @@ module Shared
         []
       end
 
-
       def in_scope_observation_matrix_column_items
         []
       end

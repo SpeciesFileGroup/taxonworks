@@ -746,7 +746,7 @@ class Source::Bibtex < Source
   def namecase_bibtex_entry(bibtex_entry)
     bibtex_entry.parse_names
     bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first)if n.first
+      n.first = NameCase(n.first) if n.first
       n.last = NameCase(n.last) if n.last
       n.prefix = NameCase(n.prefix) if n.prefix
       n.suffix = NameCase(n.suffix) if n.suffix

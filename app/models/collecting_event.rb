@@ -223,7 +223,7 @@ class CollectingEvent < ApplicationRecord
   has_many :georeferences, dependent: :destroy
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
+  has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
   has_many :otus, through: :collection_objects

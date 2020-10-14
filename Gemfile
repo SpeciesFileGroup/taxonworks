@@ -6,9 +6,6 @@ ruby '2.7.1'
 
 gem 'bundler', '~> 2.0'
 
-# TODO: Remove when solved without forcing
-gem 'google-protobuf', '~> 3.12.0.rc.1'
-
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
 gem 'pg', '~> 1.1'
@@ -96,7 +93,7 @@ gem 'rgb'
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1.1'
-gem 'biodiversity', '~> 4.0', '>= 4.0.3'
+gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names

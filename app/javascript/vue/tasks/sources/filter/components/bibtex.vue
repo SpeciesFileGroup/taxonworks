@@ -71,6 +71,10 @@ export default {
     pagination: {
       type: Object,
       default: undefined
+    },
+    selectedList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
@@ -96,13 +100,13 @@ export default {
     loadBibtex () {
       this.showModal = true
       this.isLoading = true
-      GetBibtex({ params: this.params }).then(response => {
+      GetBibtex({ params: this.selectedList.length ? { ids: this.selectedList } : this.params }).then(response => {
         this.bibtex = response.body
         this.isLoading = false
       })
     },
     createDownloadLink () {
-      GetBibtex({ params: Object.assign(this.params, { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
+      GetBibtex({ params: Object.assign((this.selectedList.length ? { ids: this.selectedList } : this.params), { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
         const downloadUrl = window.URL.createObjectURL(new Blob([body]))
         const link = document.createElement('a')
         link.href = downloadUrl
@@ -114,7 +118,7 @@ export default {
     },
     generateLinks () {
       this.isLoading = true
-      GetGenerateLinks(Object.assign({}, this.params, { is_public: true })).then(response => {
+      GetGenerateLinks(Object.assign({}, (this.selectedList.length ? { ids: this.selectedList } : this.params), { is_public: true })).then(response => {
         this.links = response.body
         this.isLoading = false
       })

@@ -38,5 +38,3 @@ module Vendor
 
 end
 
-require_relative 'gnfinder/name'
-require_relative 'gnfinder/result'

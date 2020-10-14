@@ -68,10 +68,12 @@
             <csv-button :list="csvList"/>
             <span class="separate-left separate-right">|</span>
             <bibliography-button
+              :selected-list="ids"
               :pagination="pagination"
               :params="params"/>
             <span class="separate-left separate-right">|</span>
             <bibtex-button
+              :selected-list="ids"
               :pagination="pagination"
               :params="params"/>
           </div>

@@ -83,7 +83,7 @@ class SourcesController < ApplicationController
 
   # GET /sources/csl_types.json
   def csl_types
-    render json:  TaxonWorks::Vendor::BibtexRuby::CSL_STYLES
+    render json: ::CSL_STYLES
   end
 
   def parse
@@ -262,6 +262,7 @@ class SourcesController < ApplicationController
       :year_start,
       author_ids: [],
       citation_object_type: [],
+      ids: [],
       keyword_ids: [],
       topic_ids: []
     )

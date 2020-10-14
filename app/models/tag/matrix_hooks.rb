@@ -9,7 +9,7 @@ module Tag::MatrixHooks
       end
     end
 
-    after_destroy :purge_from_matrices, if: -> { %w{Descriptor Otu CollectionObject}.include? tag_object_type }
+    after_destroy :purge_from_matrices, if: -> { %w{Descriptor Otu CollectionObject}.include? tag_object_type } # was cleanup_matrices
 
   end
 

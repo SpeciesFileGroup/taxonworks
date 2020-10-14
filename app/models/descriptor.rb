@@ -18,6 +18,7 @@ class Descriptor < ApplicationRecord
   include Shared::AlternateValues
   include Shared::Confidences
   include Shared::Documentation
+  include Shared::Depictions
   include Shared::IsData
 
   include SoftValidation
@@ -45,8 +46,9 @@ class Descriptor < ApplicationRecord
     self.name.demodulize.humanize
   end
 
-  ## retrunrs string, name of the descriptor in a particular language
-  # target: :key, :description, nil
+  # @return [String] name of the descriptor in a particular language
+  # @params target [Symbol] one of :key, :description, nil
+  # TODO: This should be a helper method, not a model method
   def target_name(target, language_id)
     n = self.name
     a = nil
