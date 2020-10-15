@@ -426,6 +426,7 @@ resources :otus do
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
 
@@ -584,6 +585,7 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
     get :citation_object_types, defaults: {format: :json}
+    get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
   end
 

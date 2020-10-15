@@ -80,6 +80,12 @@ class SourcesController < ApplicationController
       .pluck(:citation_object_type).sort
   end
 
+
+  # GET /sources/csl_types.json
+  def csl_types
+    render json: ::CSL_STYLES
+  end
+
   def parse
     error_message = 'Unknown'
 
@@ -101,7 +107,9 @@ class SourcesController < ApplicationController
   def update
     respond_to do |format|
       if @source.update(source_params)
-        @source.reload
+        # We go through this dance to handle changing types from verbatim to other
+        @source = @source.becomes!(@source.type.safe_constantize)
+        @source.reload # necessary to reload the cached value.
         format.html { redirect_to url_for(@source.metamorphosize), notice: 'Source was successfully updated.' }
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
@@ -116,20 +124,21 @@ class SourcesController < ApplicationController
   def destroy
     if @source.destroy
       respond_to do |format|
-        format.html { redirect_to sources_url }
+        format.html { redirect_to sources_url, notice: "Destroyed source #{@source.cached}" }
         format.json { head :no_content }
       end
     else
       respond_to do |format|
-        format.html { render action: :show, notice: 'failed to destroy the source' }
+        format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
         format.json { render json: @source.errors, status: :unprocessable_entity }
       end
     end
   end
 
   def autocomplete
+    @term = params.require(:term) 
     @sources = Queries::Source::Autocomplete.new(
-      params.require(:term),
+      @term,
       autocomplete_params
     ).autocomplete
   end
@@ -200,8 +209,13 @@ class SourcesController < ApplicationController
   # GET /sources/generate.json?<filter params>
   def generate
     sources = Queries::Source::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 2000)
-    @download = ::Export::Bibtex.download(sources, request.url, is_public: (params[:is_public] == 'true' ? true : false))
-    render '/downloads/show'
+    @download = ::Export::Bibtex.download(
+      sources,
+      request.url,
+      (params[:is_public] == 'true' ? true : false),
+      params[:style_id]
+    )
+    render '/downloads/show.json'
   end
 
   # GET /api/v1/sources
@@ -259,6 +273,7 @@ class SourcesController < ApplicationController
       :year_start,
       author_ids: [],
       citation_object_type: [],
+      ids: [],
       keyword_ids: [],
       topic_ids: []
     )
@@ -320,7 +335,8 @@ class SourcesController < ApplicationController
       :publisher, :school, :series, :title, :type, :volume, :doi,
       :abstract, :copyright, :language, :stated_year, :verbatim,
       :bibtex_type, :day, :year, :isbn, :issn, :verbatim_contents,
-      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type,
+      :verbatim_keywords, :language_id, :translator, :year_suffix, :url, :type, :style_id,
+      :convert_to_bibtex,
       roles_attributes: [
         :id,
         :_destroy,

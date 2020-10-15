@@ -30,7 +30,7 @@ end
 if @data
   json.config @data['config']
 
-  if @data['config']['recent']
+  if @data.dig('config', 'recent')
     json.recent_url resource + '?recent=true'
   end
 
@@ -45,6 +45,9 @@ if @data
   if @data['new']
     json.new send("#{@data['new']}_path")
   end
+
+  json.destroy @object.is_destroyable?(sessions_current_user)
+
 end
 
 json.partial! '/pinboard_items/pinned', object: @object

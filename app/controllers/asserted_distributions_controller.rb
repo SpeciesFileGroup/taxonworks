@@ -173,7 +173,7 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :geographic_area_id, :recent)
+    params.permit(:otu_id, :geographic_area_id, :recent, otu_id: [], geographic_area_id: [])
   end
 
   def api_params

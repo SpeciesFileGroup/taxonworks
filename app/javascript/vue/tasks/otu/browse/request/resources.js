@@ -4,6 +4,8 @@ const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
 const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
 
+const GetOtusCoordinate = (id) => ajaxCall('get', `/otus/${id}/coordinate`)
+
 const GetOtuAssertedDistribution = (data) => ajaxCall('get', '/asserted_distributions.json', { params: data })
 
 const GetBiocurations = (id) => ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${id}`)
@@ -39,8 +41,6 @@ const GetOtus = (id) => ajaxCall('get', `/taxon_names/${id}/otus.json`,
     }
   })
 
-const GetAssertedDistributions = (id) => ajaxCall('get', `/asserted_distributions.json?otu_id=${id}`)
-
 const GetBiologicalAssociations = (globalId) => ajaxCall('get', `/biological_associations.json?any_global_id=${globalId}`)
 
 const GetNavigationOtu = (id) => ajaxCall('get', `/otus/${id}/navigation`)
@@ -67,10 +67,10 @@ const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/valid
 
 export {
   GetOtu,
+  GetOtusCoordinate,
   GetUserPreferences,
   GetDepictions,
   GetContent,
-  GetAssertedDistributions,
   GetBiologicalAssociations,
   GetNotes,
   GetTags,

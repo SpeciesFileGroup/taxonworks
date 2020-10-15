@@ -19,8 +19,9 @@ module Export
     FILETYPES = %w{Description Name Synonym VernacularName}.freeze
 
     # @return [Scope]
-    #   should return the full set of Otus (= Taxa in CoLDP) that are to
-    #   be sent.
+    #   Should return the full set of Otus (= Taxa in CoLDP) that are to be sent.
+    #   
+    #
     # TODO: include options for validity, sets of tags, etc. 
     # At present otus are a mix of valid and invalid
     def self.otus(otu_id)
@@ -34,14 +35,13 @@ module Export
       otus = otus(otu_id)
       ref_csv = CSV.new('temp_ref_csv', col_sep: "\t")
 
-      ref_csv << %w{ID citation	author year source details doi}
+      # Pending handling of both BibTeX and Verbatim
+      ref_csv << %w{ID citation	doi} # author year source details
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
 
       Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
-        # Synonym doesn't have source
-        # Name uses different params
         (FILETYPES - ['Name']).each do |ft| 
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, ref_csv) }
@@ -54,7 +54,7 @@ module Export
         zipfile.get_output_stream('References.csv') { |f| f.write ref_csv.string }
         ref_csv.close
       end
-      
+
       zip_file_path
     end 
 
@@ -80,7 +80,7 @@ module Export
         request: request,
         expires: 2.days.from_now
       )
-      
+
       ColdpCreateDownloadJob.perform_later(otu, download)
 
       download
@@ -89,16 +89,37 @@ module Export
     # TODO - perhaps a utilities file --
 
     # @return [Boolean]
+    #   true if no parens in cached_author_year
+    #   false if parens in cached_author_year
     def self.original_field(taxon_name)
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end
 
-    # TaxonWorks does not keep a seperate ID for ICZN names 
-    #   that differ from their original combination.  Ultimately
-    #   if it moves to use a Combination::Original method then
-    #   we can use those IDs. The present rendering is a hack.
-    def self.current_taxon_name_id(taxon_name)
-      taxon_name.id.to_s + '/current'
+    # There are suite of issues with TaxonWorks model
+    # all tied to the fact that we do not treat original combinations (lower case)
+    # as Combinations (model).  All these problems go away if/when we remodel the original Combination.
+    # These problems include:
+    #     * inablity to site historical usages of the protonym that are properly latinized (e.g. var or f. names as subspecies)
+    #     * providing unique IDs for form/var names
+    # @param taxon_name [an invalid Protonym]
+    def self.reified_id(taxon_name)
+      if taxon_name.original_combination_relationships.any?
+        taxon_name.id.to_s + '/' + Digest::MD5.hexdigest(taxon_name.cached_original_combination)
+      else
+        # there is no need to MD5 the name, as it hasn't been potentially altered by original combination assertions 
+        taxon_name.id.to_s
+      end
+    end
+
+    # @param taxon_name [a valid Protonym or a Combination]
+    def self.basionym_id(taxon_name)
+      if taxon_name.type == 'Protonym'
+        taxon_name.id
+      elsif taxon_name.type == 'Combination'
+        taxon_name.protonyms.last.id 
+      else
+        nil # shouldn't be hit
+      end
     end
 
   end

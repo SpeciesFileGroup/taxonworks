@@ -17,7 +17,7 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 # TaxonWorks dependancies
 RUN apt-get update && \
       apt-get install -y locales software-properties-common \ 
-      postgresql-client-10 \
+      postgresql-client-12 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
@@ -28,7 +28,7 @@ RUN apt-get update && \
       nodejs \
       redis-server libhiredis-dev && \
       apt clean && \ 
-      rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN locale-gen en_US.UTF-8
 

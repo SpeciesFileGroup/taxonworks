@@ -38,9 +38,9 @@ describe Identifier::Global::Wikidata, type: :model, group: :identifiers do
     expect(id.errors.messages[:identifier]).to_not be_empty
   end
 
-  specify '#namespace' do
+  specify '#namespace_string' do
     id.identifier = 'P123'
-    expect(id.namespace).to eq('P')
+    expect(id.namespace_string).to eq('P')
   end
 
   specify '#uri 1' do

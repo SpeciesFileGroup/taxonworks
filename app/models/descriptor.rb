@@ -11,13 +11,15 @@ class Descriptor < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
   include Shared::Confidences
   include Shared::Documentation
+  include Shared::Depictions
+  include Shared::IsData
+
   include SoftValidation
 
   acts_as_list scope: [:project_id]
@@ -30,7 +32,7 @@ class Descriptor < ApplicationRecord
 
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
   has_many :otus, through: :observations, inverse_of: :descriptors
-  has_many :observation_matrix_column_items, inverse_of: :descriptor, dependent: :destroy
+  has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor'
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
   has_many :observation_matrices, through: :observation_matrix_columns
@@ -55,6 +57,7 @@ class Descriptor < ApplicationRecord
 
   protected
 
+  # TODO: get rid of this
   def type_is_subclassed
     if !DESCRIPTOR_TYPES[type]
       errors.add(:type, 'type must be a valid subclass')

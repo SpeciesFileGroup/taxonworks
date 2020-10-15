@@ -54,7 +54,7 @@
         <div id="viewer" class="pdfViewer">
           <template v-if="pdfdata">
             <pdf-viewer
-              :src="pdfdata" 
+              :src="pdfdata"
               v-for="i in numPages"
               :key="i"
               :id="i"
@@ -114,7 +114,8 @@ export default {
       textCopy: '',
       noTrigger: false,
       checkScroll: undefined,
-      documentUrl: undefined
+      documentUrl: undefined,
+      loadingPdf: false
     }
   },
   mounted() {
@@ -158,10 +159,12 @@ export default {
     },
     getPdf (url) {
       var self = this
-      
+
       self.documentUrl = url
       self.pdfdata = PdfViewer.createLoadingTask(url)
+      this.loadingPdf = true
       self.pdfdata.then(pdf => {
+        this.loadingPdf = false
         self.numPages = pdf.numPages
         document.querySelector('#pdfViewerContainer').onscroll = (event) => {
           changePage(event)
@@ -243,15 +246,20 @@ export default {
     },
     getSelectedText() {
       if (window.getSelection) {
-        return window.getSelection().toString();
+        return window.getSelection().toString()
       } else if (document.selection) {
-        return document.selection.createRange().text;
+        return document.selection.createRange().text
       }
-      return '';
+      return ''
     },
-    loadPDF(event) {
+    loadPDF (event) {
+      if (this.loadingPdf) return
       this.showPage = 1
-      this.getPdf(event.detail.url)
+      this.numPages = 0
+      this.pdfdata = undefined
+      this.$nextTick(() => {
+        this.getPdf(event.detail.url)
+      })
     }
   }
 }

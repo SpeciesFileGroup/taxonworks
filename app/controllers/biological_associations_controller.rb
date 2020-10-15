@@ -106,7 +106,7 @@ class BiologicalAssociationsController < ApplicationController
 
     # Shallow resource hack
     if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
-       params[:any_global_id] = c.to_global_id.to_s
+      params[:any_global_id] = c.to_global_id.to_s
     end
     params
   end
@@ -127,7 +127,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def biological_association_params
     params.require(:biological_association).permit(
-      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type,
+      :biological_relationship_id, :biological_association_subject_id, :biological_association_subject_type, 
       :biological_association_object_id, :biological_association_object_type,
       :subject_global_id,
       :object_global_id,

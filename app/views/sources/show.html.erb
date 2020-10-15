@@ -17,7 +17,10 @@
 
   <% if @source.documentation.where('documents.project_id = ?', sessions_current_project_id) -%>
     <h3> Documents </h3>
+    <div class="horizontal-left-content">
     <%= documentation_links(@source) -%>
+    <%= document_viewer_buttons(@source) %>
+    </div>
   <% end %>
 
   <% if source_in_other_project?(@source) -%>

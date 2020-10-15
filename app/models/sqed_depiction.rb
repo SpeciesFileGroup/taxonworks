@@ -66,7 +66,7 @@ class SqedDepiction < ApplicationRecord
   def extraction_metadata
     {
       boundary_color: boundary_color.to_sym,
-      boundary_finder: boundary_finder,
+      boundary_finder: boundary_finder&.constantize,
       has_border: has_border,
       layout: layout.to_sym,
       metadata_map: sqed_metadata_map

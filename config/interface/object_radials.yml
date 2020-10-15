@@ -45,6 +45,11 @@ CollectingEvent:
     - filter_collecting_events_task
   config: 
     recent: true
+Descriptor:
+  tasks:
+    - observation_matrix_hub_task
+  new: new_descriptor_task
+  edit: new_descriptor_task
 Document:
   tasks:
     - gnfinder_task

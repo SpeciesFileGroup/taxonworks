@@ -19,8 +19,16 @@ class Source::Verbatim < Source
                       :cached_nomenclature_date].freeze
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
-  validates_presence_of :verbatim
-  validate :only_verbatim_is_populated
+
+  attr_accessor :convert_to_bibtex
+
+  before_validation :to_bibtex, if: -> { convert_to_bibtex }
+  before_validation :switch_type, if: -> { persisted? && (type != 'Source::Verbatim') }
+
+  after_save :reset_cached, if: -> { type != 'Source::Verbatim' }
+
+  validates_presence_of :verbatim, if: -> { type == 'Source::Verbatim' }
+  validate :only_verbatim_is_populated, if: -> { type == 'Source::Verbatim' }
 
   # @return [Nil]
   def authority_name
@@ -63,6 +71,36 @@ class Source::Verbatim < Source
   end
 
   protected
+
+  def reset_cached
+    Source.find(id).send(:set_cached)
+  end
+
+  def to_bibtex(user_id = nil)
+    user_id = updated_by_id if user_id.nil?
+    if a = generate_bibtex
+      if a.valid?
+        b = a.attributes
+        %w{id created_at updated_at created_by_id updated_by_id}.each do |c|
+          b.delete(c)
+        end
+        b.merge(updated_at: Time.now, updated_by_id: user_id)
+        update_columns(b)
+        metamorphosize
+      end
+    else
+      false
+    end
+  end
+
+  def switch_type
+    if Source.new(attributes).valid?
+      update_column(:type, type)
+      metamorphosize
+    else
+      errors.add(:base, 'conversion has invalid attributes')
+    end
+  end
 
   # @return [Ignored]
   def set_cached

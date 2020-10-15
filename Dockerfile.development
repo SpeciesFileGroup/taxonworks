@@ -6,7 +6,7 @@ ARG BUNDLER_WORKERS=1
 RUN apt-get update && \
     apt-get install -y curl software-properties-common apt-transport-https && \
     apt clean && \
-    rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
@@ -17,7 +17,7 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 
 RUN apt-get update && \
     apt-get install -y locales \
-                       postgresql-client-10 \
+                       postgresql-client-12 \
                        git gcc build-essential \
                        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
                        pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
@@ -28,7 +28,7 @@ RUN apt-get update && \
                        zip \
                        nodejs && \
                        apt clean && \
-                       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+                       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Firefox (for headless feature tests)
 RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
