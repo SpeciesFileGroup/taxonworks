@@ -7,9 +7,9 @@ module Workbench::LayoutHelper
   end
 
   def taxonworks_version_tag
-    content_tag(:span) do
+    unless Settings.sandbox_mode?
       link_to("v#{Taxonworks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{Taxonworks::VERSION}", id: 'taxonworks_version')
-    end unless Settings.sandbox_mode?
+    end
   end
 
   def sandbox_details_tag
