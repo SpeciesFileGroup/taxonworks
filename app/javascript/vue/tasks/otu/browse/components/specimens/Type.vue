@@ -68,8 +68,6 @@ export default {
         if (newVal.length) {
           const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
           const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id ? newVal : [currentTaxon]
-          console.log(currentTaxon)
-          console.log(data)
 
           data.forEach(taxon => {
             GetCollectionObjects({ type_specimen_taxon_name_id: taxon.id }).then(response => {

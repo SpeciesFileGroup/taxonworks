@@ -11,6 +11,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Added ancestors facet on filter nomenclature [#1791]
 - TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+- Display coordinate type specimens [#1811]
+- Changed background color header for invalid names on Browse OTU
 
 ### Fixed
 - Collecting event object radial metadata settings
@@ -33,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+[#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
 
 
 ## [0.13.0] - 2020-09-22
