@@ -32,7 +32,9 @@ namespace :api, defaults: {format: :json} do
     end
 
     defaults authenticate_user_or_project: true do
-      get '/otus', to: '/otus#index'
+
+      get '/otus/:id', to: '/otus#api_show'
+      get '/otus', to: '/otus#api_index'
 
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'

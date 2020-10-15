@@ -13,7 +13,7 @@ json.global_id source.to_global_id.to_s
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
-if source.type == 'Source::Bibtex'
+if source.is_bibtex?
   json.author_year source.author_year
 
   #TODO move to shared

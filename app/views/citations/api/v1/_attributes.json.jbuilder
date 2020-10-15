@@ -1,8 +1,6 @@
 json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
   :created_by_id, :updated_by_id, :project_id
 
-# json.partial! '/shared/data/all/metadata', object: citation
-
 json.citation_object do
   json.id citation.citation_object_id
   json.type citation.citation_object_type
