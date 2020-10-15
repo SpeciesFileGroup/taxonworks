@@ -311,6 +311,7 @@ class SourcesController < ApplicationController
       :with_doi,
       :year_end,
       :year_start,
+      ids: [],
       author_ids: [],
       citation_object_type: [],
       keyword_ids: [],
