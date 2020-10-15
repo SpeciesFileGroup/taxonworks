@@ -107,7 +107,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     let(:otu9) { Otu.create!(name: 'b9') }
 
     let(:collection_object) { Specimen.create! }
-    let(:taxon_determination) { TaxonDetermination.create(otu: otu1, biological_collection_object: collection_object) }
+    let!(:taxon_determination) { TaxonDetermination.create(otu: otu1, biological_collection_object: collection_object) }
 
     let(:descriptor1) { Descriptor::Qualitative.create!(name: 'Descriptor 1') }
     let(:cs1) { CharacterState.create!(name: 'State1', label: '0', descriptor: descriptor1) }
@@ -152,7 +152,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
 
     # build the observations
 
-    # 0   2   0   1   1-2   1 true
+    # 01  2   0   1   1-2   1 true
     # 1   1   1   0   2-3   2 false
     # 2   0   0   1   1-3   3 true
     # 0   2   -   -   3-4   4 false
@@ -164,6 +164,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     # 0   2   1   0   1     2 true
 
     let!(:o1 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs1) }
+    let!(:o1a ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs2) }
     let!(:o2 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu2, character_state: cs2) }
     let!(:o3 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu3, character_state: cs3) }
     let!(:o4 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu4, character_state: cs1) }
@@ -302,6 +303,15 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         observation_matrix_id: observation_matrix.id,
         project_id: observation_matrix.project_id,
         selected_descriptors: descriptor1.id.to_s + ':' + cs1.id.to_s)
+      expect(ik.remaining.count).to eq(4)
+      expect(ik.eliminated.count).to eq(6)
+    end
+
+    specify 'selected_descriptors 1.2' do
+      ik =  InteractiveKey.new(
+          observation_matrix_id: observation_matrix.id,
+          project_id: observation_matrix.project_id,
+          selected_descriptors: descriptor1.id.to_s + ':' + cs2.id.to_s)
       expect(ik.remaining.count).to eq(4)
       expect(ik.eliminated.count).to eq(6)
     end
