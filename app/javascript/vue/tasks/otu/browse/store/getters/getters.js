@@ -11,6 +11,7 @@ import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
 import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
+import getTaxonNames from './getTaxonNames'
 import getOtus from './getOtus'
 
 const GetterNames = {
@@ -27,6 +28,7 @@ const GetterNames = {
   GetCurrentOtu: 'getCurrentOtu',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
+  GetTaxonNames: 'getTaxonNames',
   GetOtus: 'getOtus'
 }
 
@@ -44,6 +46,7 @@ const GetterFunctions = {
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
   [GetterNames.GetLoadState]: getLoadState,
   [GetterNames.GetTaxonName]: getTaxonName,
+  [GetterNames.GetTaxonNames]: getTaxonNames,
   [GetterNames.GetOtus]: getOtus
 }
 
