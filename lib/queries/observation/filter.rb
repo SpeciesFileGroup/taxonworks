@@ -4,31 +4,26 @@ module Queries
     # !! does not inherit from base query
     class Filter 
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
-
-      # Params specific to AlternateValue
       attr_accessor :observation_object_global_id, :otu_id, :collection_object_id, :descriptor_id, :character_state_id, :type
 
       def initialize(params)
         @otu_id = params[:otu_id]
-        @observation_object_global_id = params[:observation_object_global_id]
         @collection_object_id = params[:collection_object_id]
+        @observation_object_global_id = params[:observation_object_global_id]
         @descriptor_id = params[:descriptor_id]
-        @character_state_id = params[:character_state_id]
         @type = params[:type]
-       
-        @options = params 
+
+        @character_state_id = params[:character_state_id]
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
           matching_descriptor_id,
-          matching_observation_object_global_id
+          matching_otu_id,
+          matching_collection_object_id,
+          matching_observation_object_global_id,
+          matching_character_state_id
         ].compact
 
         a = clauses.shift
@@ -56,6 +51,21 @@ module Queries
             return nil
           end
         end
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_character_state_id
+        character_state_id.blank? ? nil : table[:character_state_id].eq(character_state_id) 
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_otu_id
+        otu_id.blank? ? nil : table[:otu_id].eq(otu_id) 
+      end
+
+      # @return [Arel::Node, nil]
+      def matching_collection_object_id
+        collection_object_id.blank? ? nil : table[:collection_object_id].eq(collection_object_id) 
       end
 
       # @return [Arel::Node, nil]
