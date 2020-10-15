@@ -72,13 +72,6 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     ObservationMatrixColumnItem
-     ObservationMatrixColumn
-     ObservationMatrixRowItem
-     ObservationMatrixRow
-     ObservationMatrix
-     Observation
-     Descriptor
      CollectionObject
      CollectingEvent
      RangedLotCategory
@@ -92,8 +85,15 @@ class Project < ApplicationRecord
      OriginRelationship
      Sequence
      SequenceRelationship
+     Observation
      Extract
      GeneAttribute
+     ObservationMatrixColumnItem
+     ObservationMatrixColumn
+     ObservationMatrixRowItem
+     ObservationMatrixRow
+     ObservationMatrix
+     Descriptor
      ProjectMember
      Download
     }
