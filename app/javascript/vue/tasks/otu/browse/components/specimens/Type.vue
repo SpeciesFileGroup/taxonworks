@@ -34,6 +34,12 @@ export default {
     SectionPanel,
     TypeInformation
   },
+  props: {
+    otu: {
+      type: Object,
+      required: true
+    }
+  },
   computed: {
     typeMaterialList () {
       const output = this.types.reduce((acc, v) => {
@@ -45,6 +51,9 @@ export default {
     },
     taxonNames () {
       return this.$store.getters[GetterNames.GetTaxonNames]
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data () {
@@ -57,7 +66,12 @@ export default {
     taxonNames: {
       handler (newVal) {
         if (newVal.length) {
-          newVal.forEach(taxon => {
+          const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
+          const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id ? newVal : [currentTaxon]
+          console.log(currentTaxon)
+          console.log(data)
+
+          data.forEach(taxon => {
             GetCollectionObjects({ type_specimen_taxon_name_id: taxon.id }).then(response => {
               this.collectionObjects = this.collectionObjects.concat(response.body.data.map((item, index) => this.createObject(response.body, index)))
               GetTypeMaterials(taxon.id).then(response => {
