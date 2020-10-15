@@ -60,7 +60,7 @@ export default {
           newVal.forEach(taxon => {
             GetCollectionObjects({ type_specimen_taxon_name_id: taxon.id }).then(response => {
               this.collectionObjects = this.collectionObjects.concat(response.body.data.map((item, index) => this.createObject(response.body, index)))
-              GetTypeMaterials(newVal.id).then(response => {
+              GetTypeMaterials(taxon.id).then(response => {
                 this.types = this.types.concat(response.body)
               })
             })
