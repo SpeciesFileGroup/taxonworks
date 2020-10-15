@@ -232,7 +232,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
     render 'collecting_events/api/v1/index'
   end
 

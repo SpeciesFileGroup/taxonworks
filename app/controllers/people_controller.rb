@@ -136,7 +136,7 @@ class PeopleController < ApplicationController
 
   # GET /api/v1/people
   def api_index
-    @people = Queries::Person::Filter.new(api_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    @people = Queries::Person::Filter.new(api_params).all.page(params[:page]).per(params[:per])
     render '/people/api/v1/index'
   end
 

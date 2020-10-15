@@ -1,13 +1,10 @@
 json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: taxon_name
 
-# TODO: move to shared
 if taxon_name.roles.any?
   json.taxon_name_author_roles do
     json.array! taxon_name.taxon_name_author_roles.each do |role|
       json.extract! role, :id, :position
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person
-      end
+      json.partial! '/people/api/v1/brief', person: role.person
     end
   end
 end

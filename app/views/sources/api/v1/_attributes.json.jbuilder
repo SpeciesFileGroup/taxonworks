@@ -16,23 +16,13 @@ json.project_source_id project_source_for_source(source)&.id
 if source.is_bibtex?
   json.author_year source.author_year
 
-  #TODO move to shared
   json.author_roles(source.author_roles) do |role|
     json.extract! role, :id, :position, :type
-    json.person do
-      json.id role.person.id
-      json.name role.person.cached
-      json.global_id role.person.to_global_id.to_s
-    end
+    json.partial! '/people/api/v1/brief', person: role.person
   end
 
-  #TODO move to shared
   json.editor_roles(source.editor_roles) do |role|
     json.extract! role, :id, :position, :type
-    json.person do
-      json.id role.person.id
-      json.name role.person.cached
-      json.global_id role.person.to_global_id.to_s
-    end
+    json.partial! '/people/api/v1/brief', person: role.person 
   end
 end

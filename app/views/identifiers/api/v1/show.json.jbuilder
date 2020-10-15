@@ -1,1 +1,1 @@
-json.partial! '/identifiers/api/attributes', identifier: @identifier
+json.partial! '/identifiers/api/v1/attributes', identifier: @identifier

@@ -1,7 +1,7 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
+  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
   after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /sources
@@ -206,13 +206,12 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources
   def api_index
-    @sources = Queries::Source::Filter.new(api_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
+    @sources = Queries::Source::Filter.new(api_params).all.page(params[:page]).per(params[:per])
     render '/sources/api/v1/index'
   end
 
   # GET /api/v1/sources/:id
   def api_show
-    @source = Source.find(params[:id])
     render '/sources/api/v1/show'
   end
 

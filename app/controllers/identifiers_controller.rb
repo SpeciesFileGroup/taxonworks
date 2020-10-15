@@ -17,12 +17,6 @@ class IdentifiersController < ApplicationController
       }
     end
   end
-
-  # GET /api/v1/identifiers
-  def api_index
-    @identifiers = Queries::Identifier::Filter.new(api_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/identifiers/api/index.json.jbuilder'
-  end
  
   # GET /identifers/1
   def show
@@ -95,6 +89,12 @@ class IdentifiersController < ApplicationController
   def autocomplete
     render json: {} and return if params[:term].blank?
     @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+  end
+
+  # GET /api/v1/identifiers
+  def api_index
+    @identifiers = Queries::Identifier::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    render '/identifiers/api/v1/index'
   end
 
   # GET /api/v1/identifiers/:id

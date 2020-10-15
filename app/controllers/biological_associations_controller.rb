@@ -32,11 +32,10 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def api_index
-    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params)
-      .all
+    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params).all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page] || 1)
-      .per(params[:per] || 500)
+      .page(params[:page])
+      .per(params[:per])
     render '/biological_associations/api/v1/index'
   end
 
