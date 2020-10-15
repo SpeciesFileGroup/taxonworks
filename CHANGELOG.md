@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Added ancestors facet on filter nomenclature [#1791]
 - TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
 
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by user on filter nomenclature [#1780]
 
 ### Changed
+- type_materials/:id.json includes `original_combination` string
 - CoLDP references are full cached values, not partially passed
 - Combination nomenclatural code inference drawn from members, not parent
 - Some nomenclature rank related simbols moved to constants
