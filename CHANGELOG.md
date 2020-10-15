@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
 - Display coordinate type specimens [#1811]
 - Changed background color header for invalid names on Browse OTU
+- Taxonworks version in header bar when not running in sandbox mode
 
 ### Fixed
 - Collecting event object radial metadata settings
