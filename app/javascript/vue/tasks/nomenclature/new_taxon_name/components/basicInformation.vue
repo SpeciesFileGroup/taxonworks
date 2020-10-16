@@ -63,12 +63,12 @@
       @close="showModal = false">
       <h3 slot="header">Non latinized name</h3>
       <div slot="body">
-        <p>Create this name and apply the non-latin status?</p>
+        <p>{{ taxon.id ? 'Update' : 'Create' }} this name and apply the non-latin status?</p>
         <button
           class="button normal-input button-submit"
           type="button"
           @click="createNonLatin">
-          Create
+          {{ taxon.id ? 'Update' : 'Create' }}
         </button>
       </div>
     </modal-component>
@@ -172,11 +172,21 @@ export default {
       let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
       let statusList = this.$store.getters[GetterNames.GetStatusList][code]
       let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
-      this.taxon.taxon_name_classifications_attributes = [{
-        type: statusType.type
-      }]
-
-      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
+      if (this.taxon.id) {
+        this.$store.dispatch(ActionNames.AddTaxonStatus, {
+          type: statusType.type,
+          name: statusType.name
+        }).then(() => {
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(() => {
+            this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
+          })
+        })
+      } else {
+        this.taxon.taxon_name_classifications_attributes = [{ type: statusType.type }]
+        this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon).then(() => {
+          this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
+        })
+      }
       this.showModal = false
     }
   }
