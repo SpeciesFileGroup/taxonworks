@@ -607,7 +607,11 @@ class TaxonName < ApplicationRecord
   #   !! DO NOT USE IN building cached !!
   #   See also app/helpers/taxon_names_helper
   def original_author_year
-    cached_author_year&.gsub(/^\(|\)$/, '')
+    if nomenclatural_code == :iczn
+      cached_author_year&.gsub(/^\(|\)$/, '')
+    else
+      cached_author_year
+    end
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
