@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_16_201132) do
+ActiveRecord::Schema.define(version: 2020_09_09_214219) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -800,8 +800,6 @@ ActiveRecord::Schema.define(version: 2020_09_16_201132) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "identifiedByID"
-    t.string "recordedByID"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -1879,9 +1877,7 @@ ActiveRecord::Schema.define(version: 2020_09_16_201132) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
-    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
-    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2223,7 +2219,6 @@ ActiveRecord::Schema.define(version: 2020_09_16_201132) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
-  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

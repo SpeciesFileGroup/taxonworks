@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxonworks version in header bar when not running in sandbox mode
 
 ### Fixed
+- Fixed radial navigator broken for some data [#1824]
 - Fixed IsData position [#1805]
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
@@ -47,6 +48,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 - Updated rgeo-proj4 gem
 
+
+[#1824]: https://github.com/SpeciesFileGroup/taxonworks/issues/1824
 [#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
 [#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
 [#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
