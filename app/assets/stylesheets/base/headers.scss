@@ -6,10 +6,6 @@
   background-color: $color-header;
   height: 50px;
 
-  a {
-    padding: $standard_padding;
-  }
-
   #taxonworks {
     .logo {
       width: 160px;
@@ -26,6 +22,7 @@
   #taxonworks_version {
     color: White;
     font-size: $font_small;
+    line-height: $font_small;
     text-decoration: none;
     padding: 0;
   }
@@ -35,7 +32,6 @@
     a {
       padding: 0px;
       color: #FFF;
-
     }
     li {
       padding-left: $standard_padding;
