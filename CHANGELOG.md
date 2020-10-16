@@ -8,6 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collecting Event API endpoints
+- Collection Object API endpoints
+- Biological Assertion API endpoints
+- Asserted Distribution API endpoints
+- New Otu API params
+- People filter API endpoints [#1509]
+- Identifier filter API endpoints [#1510]
+- Source filter API endpoints [#1511]
 - New Interactive Key task [#1810] 
 - New model for matrix based interactive keys which produce JSON for the Interactive Key task [#1810]
 - `weight` field to descriptor
@@ -27,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by user on filter nomenclature [#1780]
 
 ### Changed
+- Removed some attributes from api/v1 endpoints to simplify responses
 - type_materials/:id.json includes `original_combination` string
 - CoLDP references are full cached values, not partially passed
 - Combination nomenclatural code inference drawn from members, not parent
@@ -34,6 +43,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Load Images for coordinate OTUs [#1787]
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 
+[#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
+[#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
+[#1511]: https://github.com/SpeciesFileGroup/taxonworks/issues/1511
 [#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
