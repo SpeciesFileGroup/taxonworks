@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter by user on filter nomenclature [#1780]
 
 ### Changed
+- Additional date format added for date recognition RegEx
 - Removed some attributes from api/v1 endpoints to simplify responses
 - type_materials/:id.json includes `original_combination` string
 - CoLDP references are full cached values, not partially passed

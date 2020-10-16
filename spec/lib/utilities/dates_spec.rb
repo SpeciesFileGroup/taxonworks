@@ -224,6 +224,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, 27-VI-1946 - 1-VII-1947, text' => '27/6/1946/1/7/1947',
           'text, 5 27 1946 - 6 1 1947, text' => '27/5/1946/1/6/1947',
           'text, June 27 - July 1 1947, text' => '27/6/1947/1/7/1947',
+          'text, VII-30-VIII-17-2000, text' => '30/7/2000/17/8/2000',
           'text, 27 June - 1 July 1947, text' => '27/6/1947/1/7/1947',
           'text, 27 VI - 1 VII 1947, text' => '27/6/1947/1/7/1947',
           'text, 27-VI - 1-VII-1947, text' => '27/6/1947/1/7/1947',
