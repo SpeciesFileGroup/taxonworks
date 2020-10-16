@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxonworks version in header bar when not running in sandbox mode
 
 ### Fixed
+- Fixed IsData position [#1805]
 - Collecting event object radial metadata settings
 - Webpack resolved_paths deprecation warning
 - Missing /otus/:otu_id/taxon_determinations route
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Load Images for coordinate OTUs [#1787]
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 
+[#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
 [#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
 [#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
 [#1511]: https://github.com/SpeciesFileGroup/taxonworks/issues/1511

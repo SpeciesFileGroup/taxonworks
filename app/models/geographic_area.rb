@@ -50,10 +50,6 @@ class GeographicArea < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
   include Shared::IsApplicationData
-#  include Shared::DataAttributes
-#  include Shared::Tags
-#  include Shared::Identifiers
-#  include Shared::Notes
 
   # @return class
   #   this method calls Module#module_parent

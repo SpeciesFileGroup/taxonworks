@@ -39,10 +39,10 @@ class LoanItem < ApplicationRecord
   acts_as_list scope: :loan
 
   include Housekeeping
-  include Shared::IsData
   include Shared::DataAttributes
   include Shared::Notes
   include Shared::Tags
+  include Shared::IsData
 
   attr_accessor :date_returned_jquery
 

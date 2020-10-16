@@ -8,9 +8,9 @@ class Observation < ApplicationRecord
   include Shared::Depictions
   include Shared::Notes
   include Shared::Tags
-  include Shared::IsData
   include Shared::Depictions
   include Shared::Confidences
+  include Shared::IsData
 
   ignore_whitespace_on(:description)
 

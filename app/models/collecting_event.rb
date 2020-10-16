@@ -186,10 +186,10 @@ class CollectingEvent < ApplicationRecord
   include Shared::Tags
   include Shared::Depictions
   include Shared::Labels
-  include Shared::IsData
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
+  include Shared::IsData
   include SoftValidation
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)

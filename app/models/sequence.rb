@@ -28,12 +28,12 @@ class Sequence < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Notes
   include Shared::OriginRelationship
   include Shared::ProtocolRelationships
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::IsData
 
   is_origin_for 'Sequence'
 

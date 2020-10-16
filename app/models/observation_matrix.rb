@@ -4,10 +4,10 @@ class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::IsData
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]

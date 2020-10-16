@@ -12,10 +12,10 @@
 class PreparationType < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsData
   include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
+  include Shared::IsData
 
   has_many :collection_objects, dependent: :restrict_with_error
   validates_presence_of :name, :definition

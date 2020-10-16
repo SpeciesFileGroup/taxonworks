@@ -25,12 +25,11 @@
 #     A SKOS relationship that defines/describes the relationship between the concept identified by the URI and the concept defined in the definition.
 #
 class ControlledVocabularyTerm < ApplicationRecord
-
+  # ControlledVocabularyTerms are NOT taggable
   include Housekeeping
   include Shared::AlternateValues
   include Shared::HasPapertrail
   include Shared::IsData
-  # include Shared::Taggable <- NO!!
   include SoftValidation
 
   acts_as_list scope: [:project_id, :type]
