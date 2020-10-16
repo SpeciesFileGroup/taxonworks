@@ -45,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some nomenclature rank related simbols moved to constants
 - Load Images for coordinate OTUs [#1787]
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
+- Updated rgeo-proj4 gem
 
 [#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
 [#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
@@ -56,7 +57,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
 [#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
 [#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
-
 
 ## [0.13.0] - 2020-09-22
 

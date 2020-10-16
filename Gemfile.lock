@@ -395,7 +395,7 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
       rgeo (>= 1.0.0)
-    rgeo-proj4 (2.0.0)
+    rgeo-proj4 (2.0.1)
       rgeo (~> 2.0)
     rmagick (4.1.2)
     rspec (3.9.0)
