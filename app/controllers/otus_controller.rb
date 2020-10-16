@@ -255,7 +255,7 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    @otus = Queries::Otu::Filter.new(api_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
     render '/otus/api/v1/index'
   end
 

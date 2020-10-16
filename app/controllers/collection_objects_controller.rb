@@ -303,7 +303,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
+    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index.json.jbuilder'
   end
 
