@@ -71,6 +71,8 @@ class ObservationMatrix < ApplicationRecord
     true
   end
 
+  #@return [Boolean]
+  #   reorders all rows and returns true or false
   def reorder_rows(by = 'reindex')
     case by
     when 'reindex'
@@ -78,10 +80,10 @@ class ObservationMatrix < ApplicationRecord
         r.update_column(:position, i)
       end
     when 'nomenclature'
-      # TODO: probably not correct, a quick and dirty attempt
       objects = []
       observation_matrix_rows.each do |r|
-        objects.push [r, r.current_taxon_name.ancestor_ids]
+        objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s]
+        #objects.push [r, r.current_taxon_name.ancestor_ids] # TODO: probably not correct, a quick and dirty attempt
       end
 
       objects.sort!{|a, b| a[1] <=> b[1]} # add internal loop on name

@@ -188,7 +188,8 @@ export default {
         description: undefined,
         description_name: undefined,
         key_name: undefined,
-        short_name: undefined
+        short_name: undefined,
+        weight: undefined
       }
     },
     saveDescriptor (descriptor, redirect = true) {
