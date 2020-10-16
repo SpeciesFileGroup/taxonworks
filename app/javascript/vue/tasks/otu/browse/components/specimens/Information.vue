@@ -5,7 +5,7 @@
       class="inline cursor-pointer">
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.object_tag}]`"/> <span>{{ ceLabel }}</span>
+        class="expand-box button-default separate-right"/><span v-if="type" class="separate-right" v-html="`[${type.type_type} of ${type.original_combination}]`"/> <span>{{ ceLabel }}</span>
     </div>
     <div
       v-if="expand"
