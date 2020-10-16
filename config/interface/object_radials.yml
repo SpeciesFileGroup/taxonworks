@@ -44,7 +44,7 @@ CollectingEvent:
     - comprehensive_collection_object_task
     - filter_collecting_events_task
   config: 
-  recent: true
+    recent: true
 Descriptor:
   tasks:
     - observation_matrix_hub_task

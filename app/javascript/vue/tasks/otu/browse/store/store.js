@@ -104,6 +104,7 @@ function makeInitialState () {
       }
     },
     taxonName: undefined,
+    taxonNames: [],
     currentOtu: undefined,
     assertedDistributions: [],
     biologicalAssociations: [],
@@ -112,6 +113,8 @@ function makeInitialState () {
     otus: [],
     georeferences: [],
     typeMaterials: [],
+    depictions: [],
+    commonNames: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],

@@ -421,9 +421,14 @@ class TaxonName < ApplicationRecord
   # @param include_self [Boolean]
   #   if true then self will also be returned
   def ancestor_at_rank(rank, include_self = false)
-    r = Ranks.lookup( is_combination? ? parent.nomenclatural_code : nomenclatural_code, rank)
-    return self if include_self && (rank_class.to_s == r)
-    ancestors.with_rank_class( r ).first
+    if target_code = (is_combination? ? combination_taxon_names.first.nomenclatural_code : nomenclatural_code)
+      r = Ranks.lookup(target_code, rank)
+      return self if include_self && (rank_class.to_s == r)
+      ancestors.with_rank_class( r ).first
+    else
+      # Root has no nomenclature code
+      return nil
+    end
   end
 
   # @return scope [TaxonName, nil] an ancestor at the specified rank
@@ -602,7 +607,11 @@ class TaxonName < ApplicationRecord
   #   !! DO NOT USE IN building cached !!
   #   See also app/helpers/taxon_names_helper
   def original_author_year
-    cached_author_year&.gsub(/^\(|\)$/, '')
+    if nomenclatural_code == :iczn
+      cached_author_year&.gsub(/^\(|\)$/, '')
+    else
+      cached_author_year
+    end
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
@@ -940,7 +949,7 @@ class TaxonName < ApplicationRecord
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+        if ['genus', 'subgenus', 'superspecies', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -990,9 +999,9 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
     elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
     elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
-    elements.push ['(', d['supersuperspecies'], ')'] if rank_name == 'supersuperspecies'
-    elements.push ['(', d['superspecies'], ')'] if rank_name == 'superspecies'
-    elements.push ['(', d['subsuperspecies'], ')'] if rank_name == 'subsuperspecies'
+    elements.push [d['supersuperspecies']] if rank_name == 'supersuperspecies'
+    elements.push [d['superspecies']] if rank_name == 'superspecies'
+    elements.push [d['subsuperspecies']] if rank_name == 'subsuperspecies'
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements

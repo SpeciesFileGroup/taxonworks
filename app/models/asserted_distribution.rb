@@ -24,11 +24,11 @@ class AssertedDistribution < ApplicationRecord
   include Housekeeping
   include Shared::Notes
   include SoftValidation
-  include Shared::IsData
   include Shared::Tags
   include Shared::DataAttributes
   include Shared::Citations
   include Shared::Confidences
+  include Shared::IsData
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions

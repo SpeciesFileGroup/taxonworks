@@ -122,7 +122,13 @@ module Export::Coldp::Files::Taxon
         sources = o.sources
         source = o.source
 
-        parent_id = (root_otu_id == o.id ? nil : (o.parent_otu || nil)&.id )
+        # For OTUs with combinations we might have to change the parenthood?!
+        #
+        # !! When a name is a synonmy (combination), but that combination has no OTU
+        # !! then the parent of the name in the taxon table is nil
+        # !! Handle this edge case
+        
+        parent_id = (root_otu_id == o.id ? nil : o.parent_otu&.id )
 
         csv << [
           o.id,                                      # ID

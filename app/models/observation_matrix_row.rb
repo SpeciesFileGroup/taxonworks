@@ -30,9 +30,9 @@ class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
@@ -98,6 +98,15 @@ class ObservationMatrixRow < ApplicationRecord
       row_object.taxon_name
     when 'CollectionObject'
       row_object.current_taxon_name
+    end
+  end
+
+  def current_otu
+    case row_object_class_name
+    when 'Otu'
+      row_object
+    when 'CollectionObject'
+      row_object.current_otu
     end
   end
 

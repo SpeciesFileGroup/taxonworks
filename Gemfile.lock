@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/biodiversity.git
-  revision: 1c44d3d49c3a2cb4905f29c8dfac0beea6ff0a02
+  revision: 46d727e87610b9aad933250ecee002c83be8b2be
   branch: ipc-mode-rc1
   specs:
     biodiversity (4.1.0)
@@ -192,7 +192,7 @@ GEM
     gnfinder (0.11.0)
       grpc (~> 1.28)
       grpc-tools (~> 1.28)
-    google-protobuf (3.12.4)
+    google-protobuf (3.13.0)
     googleapis-common-protos-types (1.0.5)
       google-protobuf (~> 3.11)
     gpx (1.0.0)
@@ -200,8 +200,8 @@ GEM
       rake
     groupdate (4.3.0)
       activesupport (>= 5)
-    grpc (1.31.1)
-      google-protobuf (~> 3.12)
+    grpc (1.32.0)
+      google-protobuf (~> 3.13)
       googleapis-common-protos-types (~> 1.0)
     grpc-tools (1.32.0)
     guard (2.16.2)
@@ -395,7 +395,7 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
       rgeo (>= 1.0.0)
-    rgeo-proj4 (2.0.0)
+    rgeo-proj4 (2.0.1)
       rgeo (~> 2.0)
     rmagick (4.1.2)
     rspec (3.9.0)
@@ -424,7 +424,7 @@ GEM
       rspec-support (~> 3.9)
     rspec-support (3.9.3)
     rtesseract (3.1.2)
-    rubocop (0.91.0)
+    rubocop (0.91.1)
       parallel (~> 1.10)
       parser (>= 2.7.1.1)
       rainbow (>= 2.2.2, < 4.0)
@@ -592,7 +592,6 @@ DEPENDENCIES
   ffi-geos (~> 2.1.0)
   geckodriver-helper!
   gnfinder (~> 0.11.0)
-  google-protobuf (~> 3.12.0.rc.1)
   gpx (~> 1.0.0)
   groupdate (~> 4.2)
   guard-rspec (~> 4.7.3)

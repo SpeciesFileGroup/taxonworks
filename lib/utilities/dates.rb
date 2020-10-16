@@ -709,7 +709,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[4]
       date[:end_date_year] = matchdata1[6]
       # June 27 - July 1 1947
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/]?\s?(\d\d?)[\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–\s,\/]?\s?(\d\d?)\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–\s,\/]?\s?(\d\d?)[-–\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]

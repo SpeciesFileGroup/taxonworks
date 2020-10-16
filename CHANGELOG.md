@@ -9,9 +9,68 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
-## [0.13.0] - 2020-09-22
+## [0.14.0] - 2020-10-16
 
 ### Added
+- Collecting Event API endpoints
+- Collection Object API endpoints
+- Biological Assertion API endpoints
+- Asserted Distribution API endpoints
+- New Otu API params
+- People filter API endpoints [#1509]
+- Identifier filter API endpoints [#1510]
+- Source filter API endpoints [#1511]
+- New Interactive Key task [#1810] 
+- New model for matrix based interactive keys which produce JSON for the Interactive Key task [#1810]
+- `weight` field to descriptor
+- Ancestors facet on filter nomenclature [#1791]
+- TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+- Display coordinate type specimens [#1811]
+- Changed background color header for invalid names on Browse OTU
+- Taxonworks version in header bar when not running in sandbox mode
+
+### Fixed
+- Fixed radial navigator broken for some data [#1824]
+- Fixed IsData position [#1805]
+- Collecting event object radial metadata settings
+- Webpack resolved_paths deprecation warning
+- Missing /otus/:otu_id/taxon_determinations route
+- tw:db:restore task not picking up database host settings
+- Create citation on new combination without pages
+- Param descriptor id on new descriptor task [#1798]
+- Filter by user on filter nomenclature [#1780]
+- Optimized selector queries for Loan model
+
+### Changed
+- Fix original author string for Plant names
+- Additional date format added for date recognition RegEx
+- Removed some attributes from api/v1 endpoints to simplify responses
+- type_materials/:id.json includes `original_combination` string
+- CoLDP references are full cached values, not partially passed
+- Combination nomenclatural code inference drawn from members, not parent
+- Some nomenclature rank related simbols moved to constants
+- Load Images for coordinate OTUs [#1787]
+- Extended New Image task upload timeout from 30 seconds to 10 minutes
+- Updated rgeo-proj4 gem
+
+
+[#1824]: https://github.com/SpeciesFileGroup/taxonworks/issues/1824
+[#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
+[#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
+[#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
+[#1511]: https://github.com/SpeciesFileGroup/taxonworks/issues/1511
+[#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
+[#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+[#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
+[#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
+
+## [0.13.0] - 2020-09-22
+
+### Changed
+- Removed forced dependency on google-protobuf gem
+- Updated gems
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
@@ -504,7 +563,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...development
+[0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16

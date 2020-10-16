@@ -8,15 +8,13 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:t2) do
       Protonym.create!(name: 'Vlorf',
                        verbatim_author: 'Smith',
-                       rank_class: Ranks.lookup(:iczn,
-                                                :genus),
+                       rank_class: Ranks.lookup(:iczn, :genus),
                        parent: t1)
     end
     let!(:t3) do
       Protonym.create!(name: 'Glorf',
                        verbatim_author: 'Jones',
-                       rank_class: Ranks.lookup(:iczn,
-                                                :genus),
+                       rank_class: Ranks.lookup(:iczn, :genus),
                        parent: t1)
     end
 
@@ -52,6 +50,11 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let(:query) { Queries::Otu::Filter.new({}) }
 
     context 'query params' do
+      
+      specify '#name' do
+        query.name = otu1.name
+        expect(query.all).to contain_exactly(otu1)
+      end
 
       specify '#taxon_name_relationship_ids 1' do
         query.taxon_name_relationship_ids = [tnr1.id]

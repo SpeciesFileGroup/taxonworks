@@ -23,3 +23,73 @@
   position: relative;
   text-align: left;
 }
+
+#vue-interactive-keys {
+  height: calc(100vh - 220px);
+  max-height: calc(100vh - 220px);
+
+  .header-bar {
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid #CCCCCC;
+    background-color: white;
+  }
+
+  .i3-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    background-color: #CCCCCC;
+    grid-gap: 1px;
+  }
+  .grid-icon {
+    width: 20px;
+    height: 12px;
+    border: 2px solid transparent;
+    background-color: transparent;
+    grid-gap: 2px;
+  }
+  .grid-item {
+    background-color: white;
+    overflow: scroll;
+  }
+  
+  .layout-mode-1 {
+    .descriptors-view { 
+      grid-area: 1 / 1 / 2 / 3; 
+    }
+    .taxa-remaining { 
+      grid-area: 2 / 1 / 3 / 2; 
+    }
+    .taxa-eliminated { 
+      grid-area: 2 / 2 / 3 / 3;
+    }
+  }
+  
+  .layout-mode-2 {
+    .descriptors-view  { 
+      grid-area: 1 / 1 / 3 / 2; 
+    }
+    .taxa-remaining { 
+      grid-area: 1 / 2 / 2 / 3; 
+    }
+    .taxa-eliminated { 
+      grid-area: 2 / 2 / 3 / 3; 
+    }
+  }
+
+  .full-height {
+    height: 100%;
+  }
+
+  .mainfont { color: #004050;}
+  .red { color: #C00000; }
+  .redbold { color: #C00000; font-weight: bold; }
+
+  .i3 {
+    box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2);
+  }
+
+}

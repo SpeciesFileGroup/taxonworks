@@ -24,6 +24,30 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly(i2.id)
   end
 
+  specify '#object_global_id 1' do
+    query.object_global_id = o1.to_global_id.to_s
+    expect(query.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#object_global_id 2' do
+    query.object_global_id = o1.to_global_id.to_s
+    query.identifier_object_id = o1.id + 99 
+    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # no params make it, so everything is returned
+  end
+
+  specify '#missmatched_object_id?' do
+    query.object_global_id = o1.to_global_id.to_s
+    query.identifier_object_id = o1.id + 99 
+    expect(query.missmatched_object_id?).to be_truthy
+  end 
+
+  specify '#missmatch_with_global_object?' do
+    query.object_global_id = o1.to_global_id.to_s
+    query.identifier_object_id = o1.id + 99 
+    expect(query.missmatch_with_global_object?).to be_truthy
+  end 
+
+
   specify '#query_string' do
     query.query_string = 'Foo 345'
     expect(query.all.map(&:id)).to contain_exactly(i2.id)

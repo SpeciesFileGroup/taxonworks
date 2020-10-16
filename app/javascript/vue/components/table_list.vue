@@ -97,7 +97,7 @@
         default: false
       }
     },
-    mounted() {
+    created() {
       this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {

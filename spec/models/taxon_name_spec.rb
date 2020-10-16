@@ -88,6 +88,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
       end
+
+      specify 'ICN author' do
+        t = FactoryBot.create(:icn_kingdom, verbatim_author: '(Seub.) Lowden')
+        expect(t.original_author_year).to eq('(Seub.) Lowden')
+      end
     end
 
     specify '#descendants_of' do
