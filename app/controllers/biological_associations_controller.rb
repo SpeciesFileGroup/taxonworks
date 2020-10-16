@@ -26,6 +26,19 @@ class BiologicalAssociationsController < ApplicationController
   def show
   end
 
+  def api_show
+    @biological_association = BiologicalAssociation.find(params[:id])
+    render '/biological_associations/api/v1/show'
+  end
+
+  def api_index
+    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+    render '/biological_associations/api/v1/index'
+  end
+
   # GET /biological_associations/new
   def new
     @biological_association = BiologicalAssociation.new
@@ -43,7 +56,6 @@ class BiologicalAssociationsController < ApplicationController
   # POST /biological_associations.json
   def create
     @biological_association = BiologicalAssociation.new(biological_association_params)
-
     respond_to do |format|
       if @biological_association.save
         format.html { redirect_to @biological_association, notice: 'Biological association was successfully created.' }
@@ -90,6 +102,16 @@ class BiologicalAssociationsController < ApplicationController
   private
 
   def filter_params
+    params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
+
+    # Shallow resource hack
+    if !params[:collection_object_id].blank? && c = CollectionObject.where(project_id: sessions_current_project_id).find(params[:collection_object_id])
+      params[:any_global_id] = c.to_global_id.to_s
+    end
+    params
+  end
+
+  def api_params
     params.permit(:subject_global_id, :object_global_id, :any_global_id, :biological_relationship_id)
 
     # Shallow resource hack

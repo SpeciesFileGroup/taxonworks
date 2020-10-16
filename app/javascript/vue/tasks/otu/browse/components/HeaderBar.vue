@@ -1,6 +1,8 @@
 <template>
   <div class="panel separate-bottom">
-    <div class="content">
+    <div
+      class="content"
+      :class="{ 'feedback-warning': taxonName.id != taxonName.cached_valid_taxon_name_id }">
       <ul
         v-if="navigation"
         class="breadcrumb_list">

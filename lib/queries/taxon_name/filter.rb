@@ -5,6 +5,7 @@ module Queries
     class Filter < Queries::Query
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Users
 
       # @param name [String]
       #  Matches against cached.  See also exact.
@@ -156,6 +157,8 @@ module Queries
         
         # TODO: support here?
         @keyword_ids ||= []
+
+        set_user_dates(params)
       end
 
       # @return [Arel::Table]
@@ -405,6 +408,7 @@ module Queries
           leaves_facet,
           descendant_facet,
           ancestor_facet,
+          created_updated_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,
           type_metadata_facet,

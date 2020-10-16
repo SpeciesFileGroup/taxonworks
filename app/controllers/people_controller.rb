@@ -2,7 +2,7 @@ class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
   before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
-  after_action -> { set_pagination_headers(:people) }, only: [:index], if: :json_request? 
+  after_action -> { set_pagination_headers(:people) }, only: [:index, :api_index], if: :json_request?
 
   # GET /people
   # GET /people.json
@@ -14,7 +14,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
       }
     end
   end
@@ -50,7 +50,7 @@ class PeopleController < ApplicationController
   end
 
   def similar
-    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name) 
+    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name)
     render '/people/index'
   end
 
@@ -134,9 +134,25 @@ class PeopleController < ApplicationController
     render partial: '/people/picker_details', locals: {person: @person}
   end
 
+  # GET /api/v1/people
+  def api_index
+    @people = Queries::Person::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    render '/people/api/v1/index'
+  end
+
+  # GET /api/v1/people/:id
+  def api_show
+    @person = Person.find(params[:id])
+    render '/people/api/v1/show'
+  end
+
   private
 
   def filter_params
+    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
+  end
+
+  def api_params
     params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
   end
 

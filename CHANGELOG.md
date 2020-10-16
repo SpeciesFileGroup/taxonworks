@@ -8,12 +8,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- New interactive key task developed in the interactive_key branch [#1810] 
-- Added new model for matrix based interactive keys which produce JSON 
-for the interactive key task [#1810]
-- Added `weight` field to descriptor
-- Added ancestors facet on filter nomenclature [#1791]
+- New Interactive Key task [#1810] 
+- New model for matrix based interactive keys which produce JSON for the Interactive Key task [#1810]
+- `weight` field to descriptor
+- Ancestors facet on filter nomenclature [#1791]
 - TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+- Display coordinate type specimens [#1811]
+- Changed background color header for invalid names on Browse OTU
+- Taxonworks version in header bar when not running in sandbox mode
 
 ### Fixed
 - Collecting event object radial metadata settings
@@ -22,17 +24,22 @@ for the interactive key task [#1810]
 - tw:db:restore task not picking up database host settings
 - Create citation on new combination without pages
 - Param descriptor id on new descriptor task [#1798]
+- Filter by user on filter nomenclature [#1780]
 
 ### Changed
+- type_materials/:id.json includes `original_combination` string
 - CoLDP references are full cached values, not partially passed
 - Combination nomenclatural code inference drawn from members, not parent
 - Some nomenclature rank related simbols moved to constants
 - Load Images for coordinate OTUs [#1787]
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 
+[#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
 [#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+[#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
+[#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
 
 
 ## [0.13.0] - 2020-09-22

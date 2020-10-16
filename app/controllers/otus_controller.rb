@@ -1,8 +1,8 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate]
-  after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show]
+  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request? 
 
   # GET /otus
   # GET /otus.json
@@ -253,6 +253,18 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # GET /api/v1/otus
+  def api_index
+    @otus = Queries::Otu::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    render '/otus/api/v1/index'
+  end
+
+  # GET /api/v1/otu/:id
+  def api_show
+    @person = Otu.find(params[:id])
+    render '/otus/api/v1/show'
+  end
+
   private
 
   def set_otu
@@ -278,6 +290,17 @@ class OtusController < ApplicationController
 
   def filter_params
     params.permit(
+      :taxon_name_id, :otu_id,
+      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
+      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
+      asserted_distribution_ids: [],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+    )
+  end
+
+  def api_params
+    params.permit(
+      :name,
       :taxon_name_id, :otu_id,
       biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
       taxon_name_relationship_ids: [],taxon_name_classification_ids: [],

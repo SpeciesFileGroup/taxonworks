@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -16,19 +16,6 @@ class TaxonNamesController < ApplicationController
         @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
-  end
-
-  # GET /api/v1/taxon_names
-  def api_index
-    @taxon_names =
-      Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/taxon_names/api/index.json.jbuilder'
-  end
-
-  # GET /api/v1/taxon_names/:id
-  def api_show
-    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/taxon_names/api/show.json.jbuilder'
   end
 
   # GET /taxon_names/1
@@ -233,6 +220,17 @@ class TaxonNamesController < ApplicationController
     @data = NomenclatureCatalog.data_for(@taxon_name)
   end
 
+  # GET /api/v1/taxon_names
+  def api_index
+    @taxon_names = Queries::TaxonName::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    render '/taxon_names/api/v1/index'
+  end
+
+  # GET /api/v1/taxon_names/:id
+  def api_show
+    render '/taxon_names/api/v1/show'
+  end
+
   private
 
   def set_taxon_name
@@ -285,6 +283,38 @@ class TaxonNamesController < ApplicationController
       :exact,
       :validity,
       :ancestors,
+      :descendants,
+      :descendants_max_depth,
+      :updated_since,
+      :type_metadata,
+      :citations,
+      :otus,
+      :authors,
+      :nomenclature_group, # !! different than autocomplete
+      :nomenclature_code,
+      :taxon_name_type,
+      :etymology,
+      :user_id,
+      :user_target,
+      :user_date_start,
+      :user_date_end,
+      :per,
+      :page,
+      type: [],
+      taxon_name_id: [],
+      parent_id: [],
+      taxon_name_classification: [],
+      taxon_name_relationship_type: [],
+      taxon_name_relationship: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def api_params
+    params.permit(
+      :name, :author, :year,
+      :leaves,
+      :exact,
+      :validity,
       :descendants,
       :descendants_max_depth,
       :updated_since,

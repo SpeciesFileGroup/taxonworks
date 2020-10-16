@@ -104,6 +104,7 @@ function makeInitialState () {
       }
     },
     taxonName: undefined,
+    taxonNames: [],
     currentOtu: undefined,
     assertedDistributions: [],
     biologicalAssociations: [],
