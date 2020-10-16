@@ -35,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create citation on new combination without pages
 - Param descriptor id on new descriptor task [#1798]
 - Filter by user on filter nomenclature [#1780]
+- Optimized selector queries for Loan model
 
 ### Changed
 - Fix original author string for Plant names
