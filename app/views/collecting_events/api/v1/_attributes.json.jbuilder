@@ -25,18 +25,17 @@ json.extract! collecting_event, :id,
   :identifiers,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
-json.partial! '/shared/data/all/metadata', object: collecting_event 
+json.global_id collecting_event.to_global_id.to_s
 
-# TODO: shared code
 if collecting_event.roles.any?
   json.collector_roles do
     json.array! collecting_event.collector_roles.each do |role|
       json.extract! role, :id, :position, :type
-      json.person do
-        json.partial! '/people/base_attributes', person: role.person 
-      end
+      json.partial! '/people/api/v1/brief', person: role.person
     end
   end
 end 
+
+
 
 

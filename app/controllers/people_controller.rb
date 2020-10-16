@@ -1,7 +1,7 @@
 class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar, :api_show]
   after_action -> { set_pagination_headers(:people) }, only: [:index, :api_index], if: :json_request?
 
   # GET /people
@@ -136,13 +136,14 @@ class PeopleController < ApplicationController
 
   # GET /api/v1/people
   def api_index
-    @people = Queries::Person::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    @people = Queries::Person::Filter.new(api_params).all
+      .order('people.id')
+      .page(params[:page]).per(params[:per])
     render '/people/api/v1/index'
   end
 
   # GET /api/v1/people/:id
   def api_show
-    @person = Person.find(params[:id])
     render '/people/api/v1/show'
   end
 

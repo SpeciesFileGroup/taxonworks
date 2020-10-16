@@ -222,7 +222,10 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(api_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+    @taxon_names = Queries::TaxonName::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+      .page(params[:page]).per(params[:per])
     render '/taxon_names/api/v1/index'
   end
 

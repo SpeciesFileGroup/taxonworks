@@ -1,7 +1,7 @@
 class BiologicalAssociationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_biological_association, only: [:show, :edit, :update, :destroy]
+  before_action :set_biological_association, only: [:show, :edit, :update, :destroy, :api_show]
 
   # GET /biological_associations
   # GET /biological_associations.json
@@ -24,19 +24,6 @@ class BiologicalAssociationsController < ApplicationController
   # GET /biological_associations/1
   # GET /biological_associations/1.json
   def show
-  end
-
-  def api_show
-    @biological_association = BiologicalAssociation.find(params[:id])
-    render '/biological_associations/api/v1/show'
-  end
-
-  def api_index
-    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params).all
-      .where(project_id: sessions_current_project_id)
-      .page(params[:page])
-      .per(params[:per])
-    render '/biological_associations/api/v1/index'
   end
 
   # GET /biological_associations/new
@@ -97,6 +84,20 @@ class BiologicalAssociationsController < ApplicationController
     else
       redirect_to biological_association_path(params[:id])
     end
+  end
+
+
+  def api_show
+    render '/biological_associations/api/v1/show'
+  end
+
+  def api_index
+    @biological_associations = Queries::BiologicalAssociation::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('biological_associations.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/biological_associations/api/v1/index'
   end
 
   private

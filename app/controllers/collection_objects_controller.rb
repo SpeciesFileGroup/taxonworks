@@ -3,7 +3,8 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
+    :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
@@ -303,20 +304,29 @@ class CollectionObjectsController < ApplicationController
 
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = Queries::CollectionObject::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
-    render '/collection_objects/api/v1/index.json.jbuilder'
+    @collection_objects = Queries::CollectionObject::Filter.new(api_params).all.where(project_id: sessions_current_project_id)
+      .order('collection_objects.id')
+      .page(params[:page]).per(params[:per])
+    render '/collection_objects/api/v1/index'
   end
 
   # GET /api/v1/collection_objects/:id
   def api_show
-    @collection_object = CollectionObject.find(params[:id])
-    render '/collection_objects/api/v1/show.json.jbuilder'
+    render '/collection_objects/api/v1/show'
   end
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
     @collection_objects = Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
     render '/collection_objects/api/v1/autocomplete'
+  end
+
+  # GET /collection_objects/api/v1/123/dwc
+  def api_dwc
+    ActiveRecord::Base.connection_pool.with_connection do
+      @collection_object.get_dwc_occurrence
+      render json: @collection_object.dwc_occurrence_attributes
+    end
   end
 
   private
@@ -429,6 +439,59 @@ class CollectionObjectsController < ApplicationController
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
   end
+
+  def api_params
+    a = params.permit(
+      :recent,
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :ancestor_id,
+      :collection_object_type,
+      :current_determinations,
+      :depicted,
+      :end_date,
+      :geo_json,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :in_labels,
+      :in_verbatim_locality,
+      :loaned,
+      :md5_verbatim_label,
+      :namespace_id,
+      :never_loaned,
+      :on_loan,
+      :partial_overlap_dates,
+      :radius,
+      :repository_id,
+      :sled_image_id,
+      :spatial_geographic_areas,
+      :start_date,
+      :type_specimen_taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :wkt,
+      is_type: [],
+      otu_ids: [],
+      keyword_ids: [],
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      biocuration_class_ids: [],
+      biological_relationship_ids: []
+
+      #  collecting_event: {
+      #   :recent,
+      #   keyword_ids: []
+      # }
+    )
+
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
+  end
+
 
 end
 

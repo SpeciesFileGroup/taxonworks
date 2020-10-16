@@ -255,14 +255,21 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(api_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+    @otus = Queries::Otu::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('otus.id')
+      .page(params[:page]).per(params[:per])
     render '/otus/api/v1/index'
   end
 
-  # GET /api/v1/otu/:id
+  # GET /api/v1/otus/:id
   def api_show
-    @person = Otu.find(params[:id])
     render '/otus/api/v1/show'
+  end
+
+  def api_autocomplete
+    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    render '/otus/api/v1/autocomplete'
   end
 
   private

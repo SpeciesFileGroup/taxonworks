@@ -32,9 +32,9 @@ namespace :api, defaults: {format: :json} do
     end
 
     defaults authenticate_user_or_project: true do
-
+      get '/otus', to: '/otus#api_index'     
+      get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id', to: '/otus#api_show'
-      get '/otus', to: '/otus#api_index'
 
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'
@@ -54,7 +54,9 @@ namespace :api, defaults: {format: :json} do
 
       get '/collection_objects', to: '/collection_objects#api_index'
       get '/collection_objects/autocomplete', to: '/collection_objects#api_autocomplete'
+      get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
+      
 
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'

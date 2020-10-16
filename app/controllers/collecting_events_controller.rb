@@ -237,7 +237,10 @@ class CollectingEventsController < ApplicationController
   end
 
   def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+    @collecting_events = Queries::CollectingEvent::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('collecting_events.id')
+      .page(params[:page]).per(params[:per])
     render 'collecting_events/api/v1/index'
   end
 
@@ -289,6 +292,27 @@ class CollectingEventsController < ApplicationController
   end
 
   def filter_params
+    params.permit(
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :in_labels,
+      :md5_verbatim_label,
+      :in_verbatim_locality,
+      :recent,
+      :wkt,
+      :radius,
+      :geo_json,
+      :start_date, # used in date range
+      :end_date,   # used in date range
+      :partial_overlap_dates,
+      :spatial_geographic_areas,
+      keyword_ids: [],
+      spatial_geographic_area_ids: [],
+      geographic_area_ids: [],
+      otu_ids: []
+    )
+  end
+
+  def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :in_labels,

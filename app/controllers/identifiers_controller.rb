@@ -93,7 +93,8 @@ class IdentifiersController < ApplicationController
 
   # GET /api/v1/identifiers
   def api_index
-    @identifiers = Queries::Identifier::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    @identifiers = Queries::Identifier::Filter.new(api_params).all
+      .order('identifiers.id').page(params[:page]).per(params[:per])
     render '/identifiers/api/v1/index'
   end
 

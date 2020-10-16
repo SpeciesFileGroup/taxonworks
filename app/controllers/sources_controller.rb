@@ -220,7 +220,9 @@ class SourcesController < ApplicationController
 
   # GET /api/v1/sources
   def api_index
-    @sources = Queries::Source::Filter.new(api_params).all.page(params[:page]).per(params[:per])
+    @sources = Queries::Source::Filter.new(api_params).all
+      .order('sources.id')
+      .page(params[:page]).per(params[:per])
     render '/sources/api/v1/index'
   end
 

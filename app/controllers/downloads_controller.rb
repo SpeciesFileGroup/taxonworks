@@ -51,7 +51,8 @@ class DownloadsController < ApplicationController
   end
 
   def api_index
-    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id).page(params[:page]).per(params[:per])
+    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id)
+      .order('downloads.id').page(params[:page]).per(params[:per])
     render '/downloads/api/v1/index'
   end
 

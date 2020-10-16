@@ -1,7 +1,7 @@
 class AssertedDistributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy]
+  before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy, :api_show]
 
   # GET /asserted_distributions
   # GET /asserted_distributions.json
@@ -21,20 +21,6 @@ class AssertedDistributionsController < ApplicationController
           .per(params[:per] || 500)
       }
     end
-  end
-
-  def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
-      .all
-      .where(project_id: sessions_current_project_id)
-      .page(params[:page])
-      .per(params[:per] || 100)
-    render '/asserted_distributions/api/v1/index'
-  end
-
-  def api_show
-    @asserted_distribution = AssertedDistribution.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/asserted_distributions/api/v1/show'
   end
 
   # GET /asserted_distributions/1
@@ -147,6 +133,20 @@ class AssertedDistributionsController < ApplicationController
       flash[:alert] = 'File to batch upload must be supplied.'
     end
     render :batch_load
+  end
+
+  def api_index
+    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
+      .all
+      .where(project_id: sessions_current_project_id)
+      .order('asserted_distributions.id')
+      .page(params[:page])
+      .per(params[:per] || 100)
+    render '/asserted_distributions/api/v1/index'
+  end
+
+  def api_show
+    render '/asserted_distributions/api/v1/show'
   end
 
   private
