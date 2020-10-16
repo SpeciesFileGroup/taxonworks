@@ -83,9 +83,9 @@ module TaxonNamesHelper
   # @return [String]
   #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_string(taxon_name)
-    return nil if taxon_name.nil?
-    [ taxon_name_name_string(taxon_name),
-      history_author_year_tag(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
+    [ taxon_name.cached_original_combination,
+      taxon_name.cached_author_year
     ].compact.join(' ')
   end
 
