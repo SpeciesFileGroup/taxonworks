@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default margin-small-bottom"
       @click="setModelView(true)">
-      Row filter
+      Filter
     </button>
     <modal-component
       v-if="showModal"
@@ -15,7 +15,7 @@
           v-if="allSelected"
           type="button"
           class="button normal-input button-default margin-small-bottom"
-          @click="selectAll">
+          @click="unselectAll">
           Unselect all
         </button>
         <button
@@ -45,7 +45,7 @@
           type="button"
           class="button normal-input button-default"
           @click="closeAndApply">
-          Apply
+          Apply filter
         </button>
       </div>
     </modal-component>
@@ -103,6 +103,9 @@ export default {
     },
     selectAll () {
       this.rowFilter = this.remaining.map(item => item.object.id)
+    },
+    unselectAll () {
+      this.rowFilter = []
     },
     closeAndApply () {
       this.LoadObservationMatrix()
