@@ -9,9 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Add shape on asserted distribution list [#1828]
+- Row filter on Interactive keys task
 
 ### Fixed
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
+
+### Changed
+- Removed pages field on topic section
 
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
