@@ -274,6 +274,14 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(ik.list_of_descriptors.count).to eq(7)
     end
 
+    specify 'row_filter' do
+      ik = InteractiveKey.new(
+          observation_matrix_id: observation_matrix.id,
+          project_id: observation_matrix.project_id,
+          row_filter: r1.id.to_s + '|' + r2.id.to_s + '|' + r10.id.to_s)
+      expect(ik.remaining.count).to eq(3)
+    end
+
     specify 'indentified_to_rank: otu' do
       ik =  InteractiveKey.new(
         observation_matrix_id: observation_matrix.id,

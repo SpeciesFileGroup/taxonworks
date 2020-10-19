@@ -154,11 +154,6 @@ class InteractiveKey
     # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
-
-    # This is nothing?   
-    # @observation_matrix = observation_matrix
-
-    # Do you mean
     @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
     @observation_matrix_citation = @observation_matrix.source
     @descriptor_available_languages = descriptor_available_languages
@@ -177,12 +172,11 @@ class InteractiveKey
     @selected_descriptors_hash = selected_descriptors_hash_initiate
     @row_hash = row_hash_initiate
     @descriptors_hash = descriptors_hash_initiate
-    #main_logic
+    ###main_logic
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
-
     @list_of_descriptors = useful_descriptors
-
+    ###delete temporary data
     @row_hash = nil
     @descriptors_hash = nil
     @rows_with_filter = nil
@@ -387,7 +381,6 @@ class InteractiveKey
                errors: r_value[:errors],
                error_descriptors: r_value[:error_descriptors]
               }
-        #        h[r_value[:object_at_rank]] = true if h[r_value[:object_at_rank]].nil?
       end
     end
     return h.values
@@ -404,11 +397,6 @@ class InteractiveKey
              errors: r_value[:errors],
              error_descriptors: r_value[:error_descriptors]
             } if h[obj].nil?
-        #          h[r_value[:object_at_rank]] = {}
-        #         h[r_value[:object_at_rank]][:error_descriptors] = {}
-        # r_value[:error_descriptors].each do |e, o|
-        #  h[obj][:error_descriptors][e] = o if h[obj][:error_descriptors][e].nil?
-        # end
       end
     end
     return h.values
@@ -429,7 +417,7 @@ class InteractiveKey
       taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
-        if true # @row_hash[otu_collection_object][:status] != 'eliminated'
+        if @row_hash[otu_collection_object]
           otu_value.each do |o|
             if o.character_state_id
               d_value[:state_ids][o.character_state_id.to_s] = {} if d_value[:state_ids][o.character_state_id.to_s].nil?
