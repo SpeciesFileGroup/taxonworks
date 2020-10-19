@@ -28,7 +28,9 @@
       class="margin-medium-top margin-medium-bottom">
       <h3>Selected topics</h3>
       <ul class="no_bullets">
-        <li v-for="topic in topicsSelected">
+        <li
+          v-for="topic in topicsSelected"
+          :key="topic.id">
           <span v-html="topic.object_tag"/>
         </li>
       </ul>
@@ -61,7 +63,7 @@ export default {
     }
   },
   computed: {
-    validateFields() {
+    validateFields () {
       return this.topicsSelected.length
     }
   },
@@ -77,29 +79,11 @@ export default {
     })
   },
   methods: {
-    topicAlreadyCreated(topic) {
-      return this.citation.citation_topics.find(item => { return topic.id == item.topic_id })
-    },
-    sendTopic(topic) {
+    sendTopic (topic) {
       this.$emit('create', {
         id: this.citation.id,
         citation_topics_attributes: [{ topic_id: topic.id }]
       })
-    },
-    setViewWithTopics(listView) {
-      let keys = Object.keys(listView);
-      let that = this;
-
-      keys.some(function(key) {
-        if(listView[key].find(item => { return !that.topicAlreadyCreated(item) })) {
-          that.view = key
-          return true
-        }
-      })
-    },
-    addTopic(topic) {
-      if (this.topicsSelected.find(item => item.id === topic.id) || this.topicAlreadyCreated(topic)) return
-      this.topicsSelected.push(topic)
     }
   }
 }
