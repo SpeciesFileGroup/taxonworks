@@ -5,7 +5,7 @@
         <input
           v-model="settings.rowFilter"
           type="checkbox">
-        Filter rows
+        Filter
       </label>
     </template>
     <template v-if="descriptorsUsed.length">
