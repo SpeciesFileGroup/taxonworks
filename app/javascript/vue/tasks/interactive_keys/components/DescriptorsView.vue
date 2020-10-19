@@ -1,5 +1,13 @@
 <template>
   <div>
+    <template v-if="rowFilter.length">
+      <label>
+        <input
+          v-model="settings.rowFilter"
+          type="checkbox">
+        Filter rows
+      </label>
+    </template>
     <template v-if="descriptorsUsed.length">
       <h3>Used Descriptors</h3>
       <ol>
@@ -87,8 +95,19 @@ export default {
     filters () {
       return this.$store.getters[GetterNames.GetParamsFilter]
     },
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings)
+      }
+    },
+    rowFilter () {
+      return this.$store.getters[GetterNames.GetRowFilter]
+    },
+    settingRowFilter () {
+      return this.settings.rowFilter
     }
   },
   watch: {
@@ -100,9 +119,14 @@ export default {
     },
     filters: {
       handler (newVal) {
-        this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
+        this.loadMatrix()
       },
       deep: true
+    },
+    settingRowFilter: {
+      handler (newVal) {
+        this.loadMatrix()
+      }
     }
   },
   methods: {
@@ -116,6 +140,9 @@ export default {
         this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
         document.querySelector('.descriptors-view div').scrollIntoView(0)
       }
+    },
+    loadMatrix () {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
     }
   }
 }

@@ -13,11 +13,13 @@ function makeInitialState () {
       gridLayout: 'layout-mode-1',
       isLoading: false,
       isRefreshing: false,
-      refreshOnlyTaxa: false
+      refreshOnlyTaxa: false,
+      rowFilter: true
     },
     observationMatrix: undefined,
     observationMatrixDescriptors: [],
     descriptorsFilter: {},
+    row_filter: [],
     filters: {
       error_tolerance: undefined,
       identified_to_rank: undefined,
