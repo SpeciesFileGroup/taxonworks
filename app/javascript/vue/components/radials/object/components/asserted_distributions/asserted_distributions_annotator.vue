@@ -123,7 +123,8 @@ export default {
       editTitle: undefined,
       lockSource: false,
       lockGeo: false,
-      editCitation: undefined
+      editCitation: undefined,
+      urlList: `${this.url}/${this.type}.json?geo_json=true`
     }
   },
   mounted() {
