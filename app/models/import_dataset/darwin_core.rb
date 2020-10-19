@@ -6,6 +6,15 @@ class ImportDataset::DarwinCore < ImportDataset
   CHECKLIST_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Taxon"
   OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
 
+  def initialize(params)
+    super(params)
+
+    self.metadata = {
+      core_headers: [],
+      nomenclatural_code: nil,
+    }
+  end
+
   # @return [Checklist|Occurrences|Unknown]
   # @param [string] file_path
   #   Path to DwC-A file
