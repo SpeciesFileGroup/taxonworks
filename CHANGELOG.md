@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Wrong param attribute in topic smart selector on radial annotator
 
 ## [0.14.0] - 2020-10-16
 
