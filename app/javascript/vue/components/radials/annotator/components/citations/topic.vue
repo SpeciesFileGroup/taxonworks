@@ -6,7 +6,7 @@
       :autocomplete-params="{'type[]' : 'Topic'}"
       get-url="/controlled_vocabulary_terms/"
       model="topics"
-      klass="Topic"
+      :klass="objectType"
       pin-section="Topics"
       pin-type="Topic"
       target="Citation"
