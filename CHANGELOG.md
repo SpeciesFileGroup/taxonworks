@@ -7,8 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Add shape on asserted distribution list [#1828]
+
 ### Fixed
-- Wrong param attribute in topic smart selector on radial annotator
+- Wrong param attribute in topic smart selector on radial annotator [#1829]
+
+[#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
+[#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 
 ## [0.14.0] - 2020-10-16
 
@@ -41,7 +47,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Param descriptor id on new descriptor task [#1798]
 - Filter by user on filter nomenclature [#1780]
 - Optimized selector queries for Loan model
-- Add shape on asserted distribution list [#1828]
 
 ### Changed
 - Fix original author string for Plant names
@@ -67,7 +72,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
 [#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
 [#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
-[#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 
 ## [0.13.0] - 2020-09-22
 
