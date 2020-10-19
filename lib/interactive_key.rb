@@ -28,6 +28,11 @@ class InteractiveKey
   # Optional attribute to provide a list of rowIDs to limit the set "row_filter=1|5|10"
   attr_accessor :row_filter
 
+  # @!otu_filter
+  #   @return [String or null]
+  # Optional attribute to provide a list of rowIDs to limit the set "otu_filter=1|5|10"
+  attr_accessor :otu_filter
+
   # @!sorting
   #   @return [String or null]
   # Optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized'. Optimized is a default if nothing is provided
@@ -139,6 +144,7 @@ class InteractiveKey
     language_id: nil,
     keyword_ids: nil,
     row_filter: nil,
+    otu_filter: nil,
     sorting: 'weighted',
     error_tolerance: 0,
     identified_to_rank: nil,
@@ -234,10 +240,12 @@ class InteractiveKey
   end
 
   def get_rows_with_filter
-    if @row_filter.blank?
-      observation_matrix.observation_matrix_rows.order(:position)
-    else
+    if !@row_filter.blank?
       observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|')).order(:position)
+    elsif !@otu_filter.blank?
+      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.otu_id IN (?)', @otu_filter.to_s.split('|')).order(:position)
+    else
+      observation_matrix.observation_matrix_rows.order(:position)
     end
   end
 
@@ -375,6 +383,7 @@ class InteractiveKey
       elsif h[obj].nil?
           h[obj] =
               {object: r_value[:object_at_rank],
+               row_id: r_value[:object].id,
                errors: r_value[:errors],
                error_descriptors: r_value[:error_descriptors]
               }
@@ -391,6 +400,7 @@ class InteractiveKey
       if r_value[:status] == 'eliminated' && !@remaining.include?(r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s)
         h[obj] =
             {object: r_value[:object_at_rank],
+             row_id: r_value[:object].id,
              errors: r_value[:errors],
              error_descriptors: r_value[:error_descriptors]
             } if h[obj].nil?
@@ -569,6 +579,8 @@ class InteractiveKey
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
         descriptor[:states].sort_by!{|i| -i[:name]}
       end
+      descriptor[:min] = "%g" % descriptor[:min] if descriptor[:min]
+      descriptor[:max] = "%g" % descriptor[:max] if descriptor[:max]
       array_of_descriptors += [descriptor]
     end
 
