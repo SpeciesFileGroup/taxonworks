@@ -23,6 +23,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.14.0] - 2020-10-16
 
 ### Added
+- Added additional date recognition format for RegEx
+- Added OTU filter in the interactive key API
 - Collecting Event API endpoints
 - Collection Object API endpoints
 - Biological Assertion API endpoints
