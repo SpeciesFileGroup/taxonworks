@@ -8,7 +8,8 @@
     </button>
     <modal-component
       v-if="showModal"
-      @close="closeAndApply">
+      @close="closeAndApply"
+      :containerStyle="{ width: '500px' }">
       <h3 slot="header">Row filter</h3>
       <div slot="body">
         <button
