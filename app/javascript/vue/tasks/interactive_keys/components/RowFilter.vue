@@ -9,7 +9,11 @@
     <modal-component
       v-if="showModal"
       @close="closeAndApply"
-      :containerStyle="{ width: '500px' }">
+      :container-style="{
+        width: '500px',
+        overflow: 'scroll',
+        maxHeight: '80vh'
+      }">
       <h3 slot="header">Row filter</h3>
       <div slot="body">
         <button
