@@ -15,12 +15,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
 - Show repository on Browse OTU
+- Enable search after fill collecting event fields [#1833]
 
 ### Changed
 - Removed pages field on topic section
 
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
+[#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
 
 ## [0.14.0] - 2020-10-16
 
