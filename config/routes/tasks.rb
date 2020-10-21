@@ -64,9 +64,9 @@ scope :tasks do
   end
 
   scope :images do
-      scope :filter/, controller: 'tasks/images/filter/' do
-        get :index, as: 'index_filter/_task'
-      end
+    scope :filter, controller: 'tasks/images/filter' do
+      get '/', action: :index, as: 'filter_images_task'
+    end
 
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'index_new_image_task'
