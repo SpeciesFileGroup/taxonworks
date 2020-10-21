@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
+- Show repository on Browse OTU
 
 ### Changed
 - Removed pages field on topic section

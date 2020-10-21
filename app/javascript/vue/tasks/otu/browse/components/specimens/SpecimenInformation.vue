@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { GetCollectionObject } from '../../request/resources'
 
 import {
   GetBiocurations,
@@ -98,17 +99,21 @@ export default {
     }
   },
   mounted () {
-    GetBiocurations(this.specimen.collection_objects_id).then(response => {
-      this.biocurations = response.body
-    })
+    this.loadData()
   },
   methods: {
     loadData () {
+      GetCollectionObject(this.specimen.collection_objects_id).then(response => {
+        const repositoryId = response.body.repository_id
+        GetRepository(repositoryId).then(response => {
+          this.repository = response.body
+        })
+      })
+      GetBiocurations(this.specimen.collection_objects_id).then(response => {
+        this.biocurations = response.body
+      })
       GetDepictions('collection_objects', this.specimen.collection_objects_id).then(response => {
         this.depictions = response.body
-      })
-      GetRepository(this.collectionObject.repository_id).then(response => {
-        this.repository = response.body
       })
       GetCitations('collection_objects', this.specimen.collection_objects_id).then(response => {
         this.citations = response.body
