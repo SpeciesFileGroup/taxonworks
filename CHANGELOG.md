@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Add shape on asserted distribution list [#1828]
 - Row filter on Interactive keys task
+- Interactive keys and image matrix buttons on observation matrix dashboard
 
 ### Fixed
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
