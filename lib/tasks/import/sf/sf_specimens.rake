@@ -884,31 +884,24 @@ namespace :tw do
 
             logger.info "Working with SF.SpecimenID = '#{specimen_id}', SeqNum = '#{seqnum}' \n"
 
-            this_ident = {
-                seqnum: seqnum,
-                higher_taxon_name: row['HigherTaxonName'],
-                nomenclator_id: row['NomenclatorID'],
-                taxon_ident_note: row['TaxonIdentNote'],
-                type_kind_id: row['TypeKindID'],
-                topotype: row['Topotype'],
-                type_taxon_name_id: row['TypeTaxonNameID'],
-                ref_id: row['RefID'],
-                identifier_name: row['IdentifierName'],
-                year: row['Year'],
-                place_in_collection: row['PlaceInCollection'],
-                identification_mode_note: row['IdentificationModeNote'],
-                verbatim_label: row['VerbatimLabel']
+            (get_sf_identification_metadata[specimen_id] ||= [])[seqnum.to_i] = {
+              seqnum: seqnum,
+              higher_taxon_name: row['HigherTaxonName'],
+              nomenclator_id: row['NomenclatorID'],
+              taxon_ident_note: row['TaxonIdentNote'],
+              type_kind_id: row['TypeKindID'],
+              topotype: row['Topotype'],
+              type_taxon_name_id: row['TypeTaxonNameID'],
+              ref_id: row['RefID'],
+              identifier_name: row['IdentifierName'],
+              year: row['Year'],
+              place_in_collection: row['PlaceInCollection'],
+              identification_mode_note: row['IdentificationModeNote'],
+              verbatim_label: row['VerbatimLabel']
             }
-
-            if get_sf_identification_metadata[specimen_id] # this is the same SpecimenID as last row with another seqnum, add another identification record
-              get_sf_identification_metadata[specimen_id][this_ident[seqnum].to_i] = this_ident
-
-            else # this is a new SpecimenID, start new identification
-              get_sf_identification_metadata[specimen_id] = [this_ident]
-            end
-
-            get_sf_identification_metadata[specimen_id].compact!
           end
+
+          get_sf_identification_metadata.each { |k, v| v&.compact! }
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           import.set('SFIdentificationMetadata', get_sf_identification_metadata)
