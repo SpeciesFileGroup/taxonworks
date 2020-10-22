@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
 - Show repository on Browse OTU
 - Enable search after fill collecting event fields [#1833]
+- Missing geo_json param on geographic_area request [#1840]
 
 ### Changed
 - Exclude Roles from response from /api/v1/people by default
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
+[#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
 
 ## [0.14.0] - 2020-10-16
 
