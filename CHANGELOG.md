@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Increased `max_per_page` to 10000
 - Project factory names longer/more random(?)
 - Removed pages field on topic section
+- Improved verbatim date parsing
 
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
