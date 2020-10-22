@@ -29,11 +29,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Project factory names longer/more random(?)
 - Removed pages field on topic section
 - Improved verbatim date parsing
+- Georeference scope over geographic area scope [#1841]
 
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
 [#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
+[#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
 
 ## [0.14.0] - 2020-10-16
 
