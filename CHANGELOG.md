@@ -8,7 +8,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Add shape on asserted distribution list [#1828]
+- API - `type` to /roles/:id
+- API - `year` to /taxon_names
+- API - `include_roles` param to /people
+- API - `taxon_name_author_ids[]=`, `taxon_name_author_ids_or` params to /taxon_names
+- API - `collector_ids[]=`, `collector_ids_or` params to /collecting_events
+- Shape on asserted distribution list [#1828]
 - Row filter on Interactive keys task
 - Interactive keys and image matrix buttons on observation matrix dashboard
 
@@ -18,6 +23,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Enable search after fill collecting event fields [#1833]
 
 ### Changed
+- Exclude Roles from response from /api/v1/people by default
+- Increased `max_per_page` to 10000
+- Project factory names longer/more random(?)
 - Removed pages field on topic section
 
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
