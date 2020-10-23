@@ -16,6 +16,10 @@ const GetPeople = (id) => {
   return ajaxCall('get', `/people/${id}.json`)
 }
 
+const GetSerial = (id) => {
+  return ajaxCall('get', `/serials/${id}.json`)
+}
+
 const GetCitationTypes = () => {
   return ajaxCall('get', '/sources/citation_object_types.json')
 }
@@ -46,5 +50,6 @@ export {
   GetPeople,
   GetKeyword,
   GetBibtexStyle,
-  GetBibliography
+  GetBibliography,
+  GetSerial
 }
