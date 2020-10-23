@@ -26,7 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Exclude Roles from response from /api/v1/people by default
 - Increased `max_per_page` to 10000
-- Project factory names longer/more random(?)
+- Random words clashes mitigation: Project factory names made longer and `Faker` unique generator is reset only between specs instead of before each test.
 - Removed pages field on topic section
 - Improved verbatim date parsing
 - Georeference scope over geographic area scope [#1841]
