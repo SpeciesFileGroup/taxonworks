@@ -74,8 +74,8 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     specify 'rows_with_filter' do
       o1 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu1)
       o2 = observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single::Otu.new(otu: otu2)
-      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
-      expect(interactive_key.remaining.count).to eq(1)
+      #      interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id)
+      #      expect(interactive_key.remaining.count).to eq(1)
       interactive_key = InteractiveKey.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, row_filter: observation_matrix.observation_matrix_rows.first.id.to_s + '|' + observation_matrix.observation_matrix_rows.last.id.to_s)
       expect(interactive_key.remaining.count).to eq(2)
     end
@@ -272,6 +272,24 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
         project_id: observation_matrix.project_id,
         sorting: 'optimized')
       expect(ik.list_of_descriptors.count).to eq(7)
+    end
+
+    specify 'row_filter' do
+      ik = InteractiveKey.new(
+          observation_matrix_id: observation_matrix.id,
+          project_id: observation_matrix.project_id,
+          row_filter: r1.id.to_s + '|' + r2.id.to_s + '|' + r10.id.to_s)
+      expect(ik.remaining.count).to eq(3)
+      expect(ik.eliminated.count).to eq(7)
+    end
+
+    specify 'otu_filter' do
+      ik = InteractiveKey.new(
+          observation_matrix_id: observation_matrix.id,
+          project_id: observation_matrix.project_id,
+          otu_filter: otu1.id.to_s + '|' + otu2.id.to_s + '|' + otu3.id.to_s)
+      expect(ik.remaining.count).to eq(4)
+      expect(ik.eliminated.count).to eq(6)
     end
 
     specify 'indentified_to_rank: otu' do

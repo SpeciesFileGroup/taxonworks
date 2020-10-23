@@ -9,9 +9,43 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.14.1] - 2020-10-22
+
+### Added
+- API - `type` to /roles/:id
+- API - `year` to /taxon_names
+- API - `include_roles` param to /people
+- API - `taxon_name_author_ids[]=`, `taxon_name_author_ids_or` params to /taxon_names
+- API - `collector_ids[]=`, `collector_ids_or` params to /collecting_events
+- Shape on asserted distribution list [#1828]
+- Row filter on Interactive keys task
+- Interactive keys and image matrix buttons on observation matrix dashboard
+
+### Fixed
+- Wrong param attribute in topic smart selector on radial annotator [#1829]
+- Show repository on Browse OTU
+- Enable search after fill collecting event fields [#1833]
+- Missing geo_json param on geographic_area request [#1840]
+
+### Changed
+- Exclude Roles from response from /api/v1/people by default
+- Increased `max_per_page` to 10000
+- Random words clashes mitigation: Project factory names made longer and `Faker` unique generator is reset only between specs instead of before each test.
+- Removed pages field on topic section
+- Improved verbatim date parsing
+- Georeference scope over geographic area scope [#1841]
+
+[#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
+[#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
+[#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
+[#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
+[#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
+
 ## [0.14.0] - 2020-10-16
 
 ### Added
+- Added additional date recognition format for RegEx
+- Added OTU filter in the interactive key API
 - Collecting Event API endpoints
 - Collection Object API endpoints
 - Biological Assertion API endpoints
@@ -563,7 +597,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...development
+[0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17

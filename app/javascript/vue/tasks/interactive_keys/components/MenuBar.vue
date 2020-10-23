@@ -131,6 +131,7 @@ export default {
     },
     resetView () {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
+      this.$store.commit(MutationNames.SetRowFilter, [])
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
       document.querySelector('.descriptors-view div').scrollIntoView(0)
     }

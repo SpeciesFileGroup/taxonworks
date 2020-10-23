@@ -302,7 +302,7 @@ export default {
 
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds(), this.geographicArea.getBounds()))
+          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()))
         }
         else if (this.geographicArea.getLayers().length) {
           this.mapObject.fitBounds(this.geographicArea.getBounds())

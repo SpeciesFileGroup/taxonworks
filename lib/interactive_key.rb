@@ -28,6 +28,11 @@ class InteractiveKey
   # Optional attribute to provide a list of rowIDs to limit the set "row_filter=1|5|10"
   attr_accessor :row_filter
 
+  # @!otu_filter
+  #   @return [String or null]
+  # Optional attribute to provide a list of rowIDs to limit the set "otu_filter=1|5|10"
+  attr_accessor :otu_filter
+
   # @!sorting
   #   @return [String or null]
   # Optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized'. Optimized is a default if nothing is provided
@@ -100,6 +105,16 @@ class InteractiveKey
   # Temporary attribute. Used for validation. list of rows to be included into the matrix
   attr_accessor :rows_with_filter
 
+  # @!row_id_filter_array
+  #   @return [array]
+  # Array of row_ids in the @row_filter
+  attr_accessor :row_id_filter_array
+
+  # @!otu_id_filter_array
+  #   @return [array]
+  # Array of otu_ids in the @otu_filter
+  attr_accessor :otu_id_filter_array
+
   # @!list_of_descriptors
   #   @return [Array]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
@@ -139,6 +154,7 @@ class InteractiveKey
     language_id: nil,
     keyword_ids: nil,
     row_filter: nil,
+    otu_filter: nil,
     sorting: 'weighted',
     error_tolerance: 0,
     identified_to_rank: nil,
@@ -148,11 +164,6 @@ class InteractiveKey
     # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
-
-    # This is nothing?   
-    # @observation_matrix = observation_matrix
-
-    # Do you mean
     @observation_matrix = ObservationMatrix.where(project_id: project_id).find(observation_matrix_id)
     @observation_matrix_citation = @observation_matrix.source
     @descriptor_available_languages = descriptor_available_languages
@@ -162,6 +173,9 @@ class InteractiveKey
     @descriptor_available_keywords = descriptor_available_keywords
     @descriptors_with_filter = descriptors_with_keywords
     @row_filter = row_filter
+    @otu_filter = otu_filter
+    @row_id_filter_array = row_filter_array
+    @otu_id_filter_array = otu_filter_array
     @rows_with_filter = get_rows_with_filter
     @sorting = sorting
     @error_tolerance = error_tolerance.to_i
@@ -171,12 +185,11 @@ class InteractiveKey
     @selected_descriptors_hash = selected_descriptors_hash_initiate
     @row_hash = row_hash_initiate
     @descriptors_hash = descriptors_hash_initiate
-    #main_logic
+    ###main_logic
     @remaining = remaining_taxa
     @eliminated = eliminated_taxa
-
     @list_of_descriptors = useful_descriptors
-
+    ###delete temporary data
     @row_hash = nil
     @descriptors_hash = nil
     @rows_with_filter = nil
@@ -233,16 +246,28 @@ class InteractiveKey
     observation_matrix.reorder_rows(by = 'nomenclature')
   end
 
+  def row_filter_array
+    @row_filter.blank? ? nil : row_filter.to_s.split('|').map(&:to_i)
+  end
+
+  def otu_filter_array
+    @otu_filter.blank? ? nil : otu_filter.to_s.split('|').map(&:to_i)
+  end
+
   def get_rows_with_filter
-    if @row_filter.blank?
-      observation_matrix.observation_matrix_rows.order(:position)
-    else
-      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|')).order(:position)
-    end
+    #    if !@row_filter.blank?
+    #      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|')).order(:position)
+    #    elsif !@otu_filter.blank?
+    #      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.otu_id IN (?)', @otu_filter.to_s.split('|')).order(:position)
+    #    else
+          observation_matrix.observation_matrix_rows.order(:position)
+    #    end
   end
 
   ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
   ##                     :object_at_rank,   ### (converted to OTU or TN)
+  ##                     :row_id,
+  ##                     :otu_id,
   ##                     :errors,           ### (calculated number of errors)
   ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
@@ -258,6 +283,7 @@ class InteractiveKey
       else
         h[otu_collection_object][:object_at_rank] = r
       end
+      h[otu_collection_object][:otu_id] = r.otu_id ? r.otu_id : r.current_otu.id
       h[otu_collection_object][:errors] = 0
       h[otu_collection_object][:error_descriptors] = []
       h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
@@ -370,15 +396,23 @@ class InteractiveKey
         end
       end
       obj = r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s
-      if r_value[:errors] > @error_tolerance
+
+      if (@row_id_filter_array && !@row_id_filter_array.include?(r_value[:object].id)) ||
+            (@otu_id_filter_array && !@otu_id_filter_array.include?(r_value[:otu_id]))
+        r_value[:status] = 'eliminated'
+        r_value[:errors] = 'F'
+        r_value[:error_descriptors] = ['Filtered out']
+      end
+
+      if r_value[:errors] == 'F' || r_value[:errors] > @error_tolerance
         r_value[:status] = 'eliminated'
       elsif h[obj].nil?
           h[obj] =
               {object: r_value[:object_at_rank],
+               row_id: r_value[:object].id,
                errors: r_value[:errors],
                error_descriptors: r_value[:error_descriptors]
               }
-        #        h[r_value[:object_at_rank]] = true if h[r_value[:object_at_rank]].nil?
       end
     end
     return h.values
@@ -391,14 +425,10 @@ class InteractiveKey
       if r_value[:status] == 'eliminated' && !@remaining.include?(r_value[:object_at_rank].class.to_s + '|' + r_value[:object_at_rank].id.to_s)
         h[obj] =
             {object: r_value[:object_at_rank],
+             row_id: r_value[:object].id,
              errors: r_value[:errors],
              error_descriptors: r_value[:error_descriptors]
             } if h[obj].nil?
-        #          h[r_value[:object_at_rank]] = {}
-        #         h[r_value[:object_at_rank]][:error_descriptors] = {}
-        # r_value[:error_descriptors].each do |e, o|
-        #  h[obj][:error_descriptors][e] = o if h[obj][:error_descriptors][e].nil?
-        # end
       end
     end
     return h.values
@@ -408,7 +438,7 @@ class InteractiveKey
     list_of_remaining_taxa = {}
     language = @language_id.blank? ? nil : @language_id.to_i
     @row_hash.each do |r_key, r_value|
-      if r_value[:status] != 'eliminated' # ???? && r_value[:status] != 'used'
+      if r_value[:status] != 'eliminated'
         list_of_remaining_taxa[r_value[:object_at_rank] ] = true
       end
     end
@@ -419,7 +449,7 @@ class InteractiveKey
       taxa_with_unknown_character_states = list_of_remaining_taxa if @eliminate_unknown == false
       d_value[:observations].each do |otu_key, otu_value|
         otu_collection_object = otu_key
-        if true # @row_hash[otu_collection_object][:status] != 'eliminated'
+        if true #@row_hash[otu_collection_object]
           otu_value.each do |o|
             if o.character_state_id
               d_value[:state_ids][o.character_state_id.to_s] = {} if d_value[:state_ids][o.character_state_id.to_s].nil?
@@ -569,6 +599,8 @@ class InteractiveKey
         descriptor[:usefulness] = number_of_taxa / number_of_states + Math.sqrt(s) if number_of_states > 0
         descriptor[:states].sort_by!{|i| -i[:name]}
       end
+      descriptor[:min] = "%g" % descriptor[:min] if descriptor[:min]
+      descriptor[:max] = "%g" % descriptor[:max] if descriptor[:max]
       array_of_descriptors += [descriptor]
     end
 

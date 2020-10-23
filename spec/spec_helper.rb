@@ -120,6 +120,9 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:all) do
     Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 

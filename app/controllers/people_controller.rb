@@ -154,7 +154,7 @@ class PeopleController < ApplicationController
   end
 
   def api_params
-    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
+    params.permit(:last_name, :first_name, :last_name_starts_with, :include_roles, roles: [])
   end
 
   def autocomplete_params

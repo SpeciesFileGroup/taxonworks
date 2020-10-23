@@ -4,6 +4,7 @@ import getObservationMatrixDescriptors from './getObservationMatrixDescriptors'
 import getSettings from './getSettings'
 import getFilter from './getFilter'
 import getParamsFilter from './getParamsFilter'
+import getRowFilter from './getRowFilter'
 
 const GetterNames = {
   GetDescriptorsFilter: 'getDescriptorsFilter',
@@ -11,7 +12,8 @@ const GetterNames = {
   GetObservationMatrixDescriptors: 'getObservationMatrixDescriptors',
   GetSettings: 'getSettings',
   GetFilter: 'getFilter',
-  GetParamsFilter: 'getParamsFilter'
+  GetParamsFilter: 'getParamsFilter',
+  GetRowFilter: 'getRowFilter'
 }
 
 const GetterFunctions = {
@@ -20,7 +22,8 @@ const GetterFunctions = {
   [GetterNames.GetObservationMatrixDescriptors]: getObservationMatrixDescriptors,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetFilter]: getFilter,
-  [GetterNames.GetParamsFilter]: getParamsFilter
+  [GetterNames.GetParamsFilter]: getParamsFilter,
+  [GetterNames.GetRowFilter]: getRowFilter
 }
 
 export {

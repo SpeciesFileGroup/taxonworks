@@ -8,9 +8,12 @@ json.language_id @key.language_id
 json.language_to_use @key.language_to_use
 json.keyword_ids @key.keyword_ids
 json.descriptor_available_keywords @key.descriptor_available_keywords
-json.descriptors_with_filter @key.descriptors_with_filter
+#json.descriptors_with_filter @key.descriptors_with_filter
 json.row_filter @key.row_filter
-json.rows_with_filter @key.rows_with_filter
+json.row_id_filter_array @key.row_id_filter_array
+json.otu_filter @key.otu_filter
+json.otu_id_filter_array @key.otu_id_filter_array
+#json.rows_with_filter @key.rows_with_filter
 json.sorting @key.sorting
 json.error_tolerance @key.error_tolerance
 json.eliminate_unknown @key.eliminate_unknown

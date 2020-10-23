@@ -753,6 +753,17 @@ module Utilities::Dates
       date[:end_date_day]  = matchdata1[2]
       date[:end_date_month] = matchdata1[3]
       date[:end_date_year] = matchdata1[4]
+      #=begin
+      # 27-29 12 1947 #### watch for false positives
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–\+]\s?(\d\d?)[\s\.,\/]\s?(\d\d)\.?[\s\/,\.](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[1]
+      date[:start_date_month] = matchdata1[3]
+      date[:start_date_year] = matchdata1[4]
+      date[:end_date_day]  = matchdata1[2]
+      date[:end_date_month] = matchdata1[3]
+      date[:end_date_year] = matchdata1[4]
+      #=end
       # 12 27-29 1947
     elsif matchdata1 = text.match(/\W(\d\d)[\s\.,\/]\s?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.,]?[\s,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip

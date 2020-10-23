@@ -42,6 +42,9 @@ class ObservationMatrixRow < ApplicationRecord
 
   attr_accessor :row_object_global_id
 
+  #list of rows with otu_ids in format '1|3|5'
+  scope :with_otu_ids, -> (otu_ids) { where('(observation_matrix_rows.otu_id IN (?))', otu_ids.to_s.split('|').map(&:to_i)).order(:position) }
+
   def observation_matrix_columns
     ObservationMatrixColumn.where(observation_matrix_id: observation_matrix_id)
   end

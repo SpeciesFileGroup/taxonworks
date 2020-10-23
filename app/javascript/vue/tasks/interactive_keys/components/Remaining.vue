@@ -3,7 +3,10 @@
     <spinner-component
       v-if="isLoading"
       legend="Loading..." />
-    <h2>Remaining ({{ remaining.length }})</h2>
+    <div class="flex-separate middle">
+      <h2>Remaining ({{ remaining.length }})</h2>
+      <row-filter/>
+    </div>
     <ul>
       <li
         class="margin-small-bottom"
@@ -19,11 +22,13 @@
 
 import ExtendResult from './extendResult'
 import RowComponent from './Row'
+import RowFilter from './RowFilter'
 
 export default {
   mixins: [ExtendResult],
   components: {
-    RowComponent
+    RowComponent,
+    RowFilter
   },
   computed: {
     remaining () {
