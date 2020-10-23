@@ -12,9 +12,7 @@
           v-for="(co, index) in collectionObjects"
           v-if="index < max || showAll"
           :key="co.id">
-          <specimen-information
-            :otu="otu"
-            :specimen="co"/>
+          <collection-object-row :specimen="co"/>
         </li>
       </ul>
       <p v-if="collectionObjects.length > max">
@@ -36,7 +34,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import SpecimenInformation from './specimens/Information'
+import CollectionObjectRow from './specimens/CollectionObjectRow'
 import extendSection from './shared/extendSections'
 import { GetCollectionObjects } from '../request/resources'
 
@@ -44,7 +42,7 @@ export default {
   mixins: [extendSection],
   components: {
     SectionPanel,
-    SpecimenInformation
+    CollectionObjectRow
   },
   props: {
     otu: {
