@@ -86,7 +86,7 @@ module Queries
       # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] 
       attr_accessor :source_type
 
-      # @params author [Array of Integer, Person#id]
+      # @params author [Array of Integer, Serial#id]
       attr_accessor :serial_ids
 
       # @param [Hash] params
