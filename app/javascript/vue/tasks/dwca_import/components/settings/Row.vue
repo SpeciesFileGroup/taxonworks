@@ -3,25 +3,30 @@
     <td v-html="displayData(row.institutionCode)"/>
     <td v-html="displayData(row.collectionCode)"/>
     <td
-      v-if="!namespace"
       class="full_width">
-      <autocomplete
-        class="full_width"
-        placeholder="Search a namespace..."
-        autofocus
-        url="/namespaces/autocomplete"
-        param="term"
-        label="label"
-        @getItem="setNamespace"/>
-    </td>
-    <td v-else>
-      <div
-        class="flex-separate middle">
-        <span>{{ namespaceLabel }}</span>
-        <span
-          class="button circle-button btn-delete"
-          @click="removeNamespace"/>
-      </div>
+      <spinner-component
+        v-if="isSaving"
+        :logo-size="{ width: '20x', height: '20px' }"
+        :show-legend="false"/>
+      <template v-if="!namespace">
+        <autocomplete
+          class="full_width"
+          placeholder="Search a namespace..."
+          autofocus
+          url="/namespaces/autocomplete"
+          param="term"
+          label="label"
+          @getItem="setNamespace"/>
+      </template>
+      <template v-else>
+        <div
+          class="flex-separate middle">
+          <span>{{ namespaceLabel }}</span>
+          <span
+            class="button circle-button btn-delete"
+            @click="removeNamespace"/>
+        </div>
+      </template>
     </td>
   </tr>
 </template>
@@ -30,10 +35,12 @@
 
 import Autocomplete from 'components/autocomplete'
 import { GetNamespace, UpdateCatalogueNumber } from '../../request/resources.js'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    SpinnerComponent
   },
   computed: {
     namespaceLabel () {
@@ -52,7 +59,8 @@ export default {
   data () {
     return {
       namespace: undefined,
-      edit: false
+      edit: false,
+      isSaving: false
     }
   },
   created () {
@@ -65,13 +73,17 @@ export default {
   methods: {
     setNamespace (namespace) {
       this.namespace = namespace
+      this.isSaving = true
       const data = {
         import_dataset_id: this.datasetId,
         institutionCode: this.row.institutionCode,
         collectionCode: this.row.collectionCode,
         namespace_id: namespace.id
       }
-      UpdateCatalogueNumber(data)
+      UpdateCatalogueNumber(data).then((response) => {
+        this.isSaving = false
+        this.$emit('onUpdate', response.body)
+      })
     },
     removeNamespace () {
       const data = {
@@ -80,8 +92,11 @@ export default {
         collectionCode: this.row.collectionCode,
         namespace_id: null
       }
+      this.isSaving = true
       UpdateCatalogueNumber(data).then(() => {
+        this.isSaving = false
         this.namespace = undefined
+        this.$emit('onRemove')
       })
     },
     displayData (data) {

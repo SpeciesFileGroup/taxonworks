@@ -29,7 +29,8 @@
               :row="item"
               :dataset-id="dataset.id"
               :key="index"
-              @update="reloadDataset"/>
+              @onUpdate="updateChanges"
+              @onRemove="updateChanges"/>
           </tbody>
         </table>
       </div>
@@ -69,13 +70,19 @@ export default {
   },
   data () {
     return {
-      showModal: false
+      showModal: false,
+      needUpdate: false
     }
   },
   watch: {
     showModal (newVal) {
       if (newVal) {
+        this.needUpdate = false
         this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
+      } else {
+        if (this.needUpdate) {
+          this.reloadDataset()
+        }
       }
     }
   },
@@ -86,6 +93,9 @@ export default {
     reloadDataset () {
       this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
       this.$store.dispatch(ActionNames.LoadDatasetRecords)
+    },
+    updateChanges () {
+      this.needUpdate = true
     }
   }
 }
