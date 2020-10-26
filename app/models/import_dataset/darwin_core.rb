@@ -150,12 +150,9 @@ class ImportDataset::DarwinCore < ImportDataset
     headers = []
 
     headers[table.id[:index]] = "id"
-    # TODO: Think what to do about complex namespaces like "/std/Iptc4xmpExt/2008-02-29/" (currently returning the full URI as header)
-    table.fields.each do |field|
-      term = field[:term].match(/\/([^\/]+)\/terms\/([^\/]+)\/?$/)
-      #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
-      headers[field[:index]] = term ? term[2] : field[:term]
-    end
+    table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
+
+    get_dwc_default_values(table).each.with_index(headers.length) { |f, i| headers[i] = get_normalized_dwc_term(f) }
 
     headers
   end
@@ -167,10 +164,25 @@ class ImportDataset::DarwinCore < ImportDataset
     records = table.read.first.map do |row|
       record = {}
       row.each_with_index { |v, i| record[headers[i]] = v }
+      defaults = get_dwc_default_values(table)
+      defaults.each.with_index(headers.length - defaults.length) { |f, i| record[headers[i]] = f[:default] }
       record
     end
 
     return records
+  end
+
+  private
+
+  def get_dwc_default_values(table)
+    table.fields.select { |f| f.has_key? :default }
+  end
+
+  def get_normalized_dwc_term(field)
+    # TODO: Think what to do about complex namespaces like "/std/Iptc4xmpExt/2008-02-29/" (currently returning the full URI as header)
+    term = field[:term].match(/\/([^\/]+)\/terms\/([^\/]+)\/?$/)
+    #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
+    term ? term[2] : field[:term]
   end
 
 end
