@@ -22,7 +22,9 @@ function makeInitialState () {
     datasetRecords: [],
     selectedRowIds: [],
     table: undefined,
-    pagination: undefined
+    pagination: undefined,
+    maxRecordsPerVirtualPage: 250000,
+    currentPage: 1
   }
 }
 

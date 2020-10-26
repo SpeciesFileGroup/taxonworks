@@ -1,5 +1,6 @@
 <template>
   <div>
+    <virtual-pagination-component/>
     <virtual-scroller
       :items="list"
       :item-height="43"
@@ -63,6 +64,7 @@ import SpinnerComponent from 'components/spinner'
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
 import StatusFilter from './StatusFilter'
+import VirtualPaginationComponent from './VirtualPagination'
 
 export default {
   components: {
@@ -70,7 +72,8 @@ export default {
     RowComponent,
     ColumnFilter,
     StatusFilter,
-    SpinnerComponent
+    SpinnerComponent,
+    VirtualPaginationComponent
   },
   props: {
     disabled: {
@@ -96,6 +99,9 @@ export default {
     },
     list () {
       return [].concat(...this.datasetRecords.map(page => page.rows ? page.rows : new Array(page.count)))
+    },
+    currentVirtualPage () {
+      return this.$store.getters[GetterNames.GetCurrentVirtualPage]
     }
   },
   data () {
@@ -113,6 +119,9 @@ export default {
         })
       },
       deep: true
+    },
+    currentVirtualPage () {
+      this.$refs.table.$el.scrollTop = 0
     }
   },
   methods: {
@@ -131,7 +140,7 @@ export default {
 
 <style lang="scss">
 .dwca-vscroll {
-  height: calc(100vh - 230px);
+  height: calc(100vh - 250px);
   overflow: auto;
   overflow-anchor: none;
 }

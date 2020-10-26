@@ -5,6 +5,8 @@ import getParamsFilter from './getParamsFilter'
 import getSelectedRowIds from './getSelectedRowIds'
 import getRowPositionById from './getRowPositionById'
 import getSettings from './getSettings'
+import getVirtualPages from './getVirtualPages'
+import getCurrentVirtualPage from './getCurrentVirtualPage'
 
 const GetterNames = {
   GetDataset: 'getDataset',
@@ -13,7 +15,9 @@ const GetterNames = {
   GetSelectedRowIds: 'getSelectedRowIds',
   GetDatasetRecords: 'getDatasetRecords',
   GetRowPositionById: 'getRowPositionById',
-  GetSettings: 'getSettings'
+  GetSettings: 'getSettings',
+  GetVirtualPages: 'getVirtualPages',
+  GetCurrentVirtualPage: 'getCurrentVirtualPage'
 }
 
 const GetterFunctions = {
@@ -23,7 +27,9 @@ const GetterFunctions = {
   [GetterNames.GetSelectedRowIds]: getSelectedRowIds,
   [GetterNames.GetDatasetRecords]: getDatasetRecords,
   [GetterNames.GetRowPositionById]: getRowPositionById,
-  [GetterNames.GetSettings]: getSettings
+  [GetterNames.GetSettings]: getSettings,
+  [GetterNames.GetVirtualPages]: getVirtualPages,
+  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage
 }
 
 export {

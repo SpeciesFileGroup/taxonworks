@@ -1,3 +1,4 @@
+import setCurrentVirtualPage from './setCurrentVirtualPage'
 import setSelectedRowIds from './setSelectedRowIds'
 import setDataset from './setDataset'
 import setPagination from './setPagination'
@@ -7,6 +8,7 @@ import setRow from './setRow'
 import setDatasetPage from './setDatasetPage'
 
 const MutationNames = {
+  SetCurrentVirtualPage: 'setCurrentVirtualPage',
   SetDataset: 'setDataset',
   SetPagination: 'setPagination',
   SetParamsFilter: 'setParamsFilter',
@@ -17,6 +19,7 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
+  [MutationNames.SetCurrentVirtualPage]: setCurrentVirtualPage,
   [MutationNames.SetDataset]: setDataset,
   [MutationNames.SetPagination]: setPagination,
   [MutationNames.SetParamsFilter]: setParamsFilter,
