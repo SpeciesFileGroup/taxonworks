@@ -42,8 +42,14 @@ module Export::Coldp::Files::Name
 
   # Invalid Protonyms are rendered only as their original Combination 
   # @param t [An invalid Protonym]
+  #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv)
     e = t.original_combination_elements
+
+    infraspecific_epithet = [
+      e[:form], e[:variety], e[:subspecies]
+    ].compact&.first&.last
+
     csv << [
       ::Export::Coldp.reified_id(t),                                          # ID
       t.id,                                                                   # basionymID, always nil, this is the original
@@ -51,10 +57,10 @@ module Export::Coldp::Files::Name
       authorship_field(t, true),                                              # authorship
       t.rank,                                                                 # rank
       nil,                                                                    # uninomial
-      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.join(' '),            # genus
-      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.join(' '),      # subgenus
-      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.join(' '),        # species
-      (e[:subspecies] =~ /NOT SPECIFIED/) ? nil : e[:subspecies]&.join(' '),  # subspecies
+      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.last,                 # genus
+      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.last,           # subgenus (no parens)
+      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.last,             # species
+      infraspecific_epithet,                                                  # infraspecificEpithet
       nil,                                                                    # publishedInID   |
       nil,                                                                    # publishedInPage |-- Decisions is that these add to Synonym table
       nil,                                                                    # publishedInYear |
