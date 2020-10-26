@@ -100,6 +100,15 @@ module Export::Coldp::Files::Name
       otu.taxon_name.self_and_descendants.each do |name|
 
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
+        # Proposal is to exclude names of a specific ranks see taxon.rb
+        #
+        # Need the next highest valid parent not in this list!! 
+        # %w{
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+        # }
+        #
+        # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
 
         if name.is_valid?
           data = ::Catalog::Nomenclature::Entry.new(name)

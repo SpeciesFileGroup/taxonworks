@@ -26,6 +26,7 @@ module Export
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
+      
       a = o.taxon_name.self_and_descendants
       ::Otu.joins(:taxon_name).where(taxon_name: a)
     end
@@ -120,6 +121,7 @@ module Export
     end
 
     # @param taxon_name [a valid Protonym or a Combination]
+    #   see also exclusion of OTUs/Names based on Ranks not handled 
     def self.basionym_id(taxon_name)
       if taxon_name.type == 'Protonym'
         taxon_name.id
