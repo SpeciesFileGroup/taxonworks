@@ -109,7 +109,7 @@ module Export::Coldp::Files::Name
             original = Export::Coldp.original_field(t) # no parens
             higher = !(t.type == 'Combination') && !t.is_species_rank?
 
-            if higher || (t.is_valid? || t.type == 'Combination')
+            if higher || t.is_valid? || t.is_combination?
               csv << [
                 t.id,                                                          # ID
                 (original ? nil : ::Export::Coldp.basionym_id(t)),             # basionymID
@@ -130,11 +130,13 @@ module Export::Coldp::Files::Name
                 nil,                                                           # link (probably TW public or API)
                 remarks_field(t),                                              # remarks
               ]
+            end
 
-              Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv && source
-            else
+            if !higher && !t.is_combination?
               add_original_combination(t, csv)
             end
+
+            Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv && source
           end
         end
       end
