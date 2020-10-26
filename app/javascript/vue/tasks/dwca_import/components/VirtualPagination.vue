@@ -1,8 +1,13 @@
 <template>
-  <pagination-component
-    v-if="pagination"
-    @nextPage="loadPage"
-    :pagination="virtualPagination"/>
+  <div>
+    <pagination-component
+      v-if="pagination"
+      @nextPage="loadPage"
+      :pagination="virtualPagination"/>
+    <spinner-component
+      v-if="isLoading"
+      full-screen/>
+  </div>
 </template>
 
 <script>
@@ -11,10 +16,12 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import PaginationComponent from 'components/pagination'
+import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
-    PaginationComponent
+    PaginationComponent,
+    SpinnerComponent
   },
   computed: {
     virtualPages () {
@@ -45,10 +52,18 @@ export default {
       }
     }
   },
+  data () {
+    return {
+      isLoading: false
+    }
+  },
   methods: {
     loadPage (event) {
       this.currentVirtualPage = event.page
-      this.$store.dispatch(ActionNames.LoadDatasetRecords)
+      this.isLoading = true
+      this.$store.dispatch(ActionNames.LoadDatasetRecords).then(response => {
+        this.isLoading = false
+      })
     }
   }
 }
