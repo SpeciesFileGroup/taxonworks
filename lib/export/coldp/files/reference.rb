@@ -17,7 +17,7 @@ module Export::Coldp::Files::Reference
     
   def self.add_reference_rows(sources = [], reference_csv)
     sources.each do |s|
-      reference_csv << ref_row(s)   
+      reference_csv[s.id] = ref_row(s)   
     end 
   end
 
