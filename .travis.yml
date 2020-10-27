@@ -41,6 +41,7 @@ jobs:
       services:
         - postgresql
       before_install:
+        - export PGPORT=$(pg_lsclusters -h | grep '^12 main' | cut -f3 -d' ')
         - nvm install 10
         - nvm use 10
       install:
