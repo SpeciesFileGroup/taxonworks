@@ -6,7 +6,7 @@
       Settings
     </button>
     <modal-component
-      v-if="showModal"
+      v-show="showModal"
       @close="setModalView(false)"
       :container-style="{
         width: '700px'

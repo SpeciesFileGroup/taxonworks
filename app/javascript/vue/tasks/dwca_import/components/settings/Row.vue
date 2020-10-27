@@ -6,8 +6,8 @@
       class="full_width">
       <spinner-component
         v-if="isSaving"
-        :logo-size="{ width: '20x', height: '20px' }"
-        :show-legend="false"/>
+        full-screen
+        legend="Saving, please wait..."/>
       <template v-if="!namespace">
         <autocomplete
           class="full_width"
