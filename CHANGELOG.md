@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Taxon determination, citations and collecting event information in specimen record on browse OTU
 - Serial facet on filter sources
+- Pulse animation for radial annotator [#1822]
 
 #### Fixed
 - CVT view helper bug with predicates
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved verbatim date parsing
 - Georeference scope over geographic area scope [#1841]
 
+[#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
