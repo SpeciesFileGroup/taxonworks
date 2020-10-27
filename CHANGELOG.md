@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon determination, citations and collecting event information in specimen record on browse OTU
 - Serial facet on filter sources
 
+#### Fixed
+- CVT view helper bug with predicates
+
 ## [0.14.1] - 2020-10-22
 
 ### Added
