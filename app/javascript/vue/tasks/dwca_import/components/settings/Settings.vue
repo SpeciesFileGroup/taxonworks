@@ -9,7 +9,9 @@
       v-show="showModal"
       @close="setModalView(false)"
       :container-style="{
-        width: '700px'
+        width: '700px',
+        maxHeight: '80vh',
+        overflow: 'scroll'
       }">
       <h3 slot="header">Settings</h3>
       <div slot="body">
