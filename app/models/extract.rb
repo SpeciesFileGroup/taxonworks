@@ -35,10 +35,10 @@
 #
 class Extract < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::Identifiers
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
+  include Shared::IsData
 
   is_origin_for 'Sequence', 'Extract'
 

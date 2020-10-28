@@ -38,8 +38,7 @@ module Shared::AlternateValues
     # @param [:symbol] the column name/attribute
     # @param [String, Integer, etc] the value to look for
     # Use
-    #   Source.with_alternate_value_on(:title, 'f
-    #   oo')
+    #   Source.with_alternate_value_on(:title, 'foo')
     def with_alternate_value_on(a, b)
       joins(:alternate_values).where(alternate_values: {alternate_value_object_attribute: a, value: b})
     end

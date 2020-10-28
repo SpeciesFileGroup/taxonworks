@@ -42,8 +42,14 @@ module Export::Coldp::Files::Name
 
   # Invalid Protonyms are rendered only as their original Combination 
   # @param t [An invalid Protonym]
+  #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv)
     e = t.original_combination_elements
+
+    infraspecific_epithet = [
+      e[:form], e[:variety], e[:subspecies]
+    ].compact&.first&.last
+
     csv << [
       ::Export::Coldp.reified_id(t),                                          # ID
       t.id,                                                                   # basionymID, always nil, this is the original
@@ -51,10 +57,10 @@ module Export::Coldp::Files::Name
       authorship_field(t, true),                                              # authorship
       t.rank,                                                                 # rank
       nil,                                                                    # uninomial
-      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.join(' '),            # genus
-      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.join(' '),      # subgenus
-      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.join(' '),        # species
-      (e[:subspecies] =~ /NOT SPECIFIED/) ? nil : e[:subspecies]&.join(' '),  # subspecies
+      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.last,                 # genus
+      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.last,           # subgenus (no parens)
+      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.last,             # species
+      infraspecific_epithet,                                                  # infraspecificEpithet
       nil,                                                                    # publishedInID   |
       nil,                                                                    # publishedInPage |-- Decisions is that these add to Synonym table
       nil,                                                                    # publishedInYear |
@@ -94,6 +100,15 @@ module Export::Coldp::Files::Name
       otu.taxon_name.self_and_descendants.each do |name|
 
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
+        # Proposal is to exclude names of a specific ranks see taxon.rb
+        #
+        # Need the next highest valid parent not in this list!! 
+        # %w{
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+        # }
+        #
+        # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
 
         if name.is_valid?
           data = ::Catalog::Nomenclature::Entry.new(name)
@@ -103,7 +118,7 @@ module Export::Coldp::Files::Name
             original = Export::Coldp.original_field(t) # no parens
             higher = !(t.type == 'Combination') && !t.is_species_rank?
 
-            if higher || (t.is_valid? || t.type == 'Combination')
+            if higher || t.is_valid? || t.is_combination?
               csv << [
                 t.id,                                                          # ID
                 (original ? nil : ::Export::Coldp.basionym_id(t)),             # basionymID
@@ -124,11 +139,13 @@ module Export::Coldp::Files::Name
                 nil,                                                           # link (probably TW public or API)
                 remarks_field(t),                                              # remarks
               ]
+            end
 
-              Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv && source
-            else
+            if !higher && !t.is_combination?
               add_original_combination(t, csv)
             end
+
+            Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv && source
           end
         end
       end

@@ -2,6 +2,7 @@ json.extract! controlled_vocabulary_term, :id, :type, :name, :definition, :uri, 
 
 json.partial! '/shared/data/all/metadata', object: controlled_vocabulary_term
 
+# TODO, this too has to go, or be optional
 json.count case controlled_vocabulary_term.type  
 when 'Keyword'
   controlled_vocabulary_term.tags.count

@@ -19,10 +19,10 @@
 #
 class CollectionObjectObservation < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
   include Shared::Depictions
+  include Shared::IsData
 
   ignore_whitespace_on(:data)
 

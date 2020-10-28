@@ -30,9 +30,9 @@ class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
@@ -41,6 +41,9 @@ class ObservationMatrixRow < ApplicationRecord
   belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
 
   attr_accessor :row_object_global_id
+
+  #list of rows with otu_ids in format '1|3|5'
+  scope :with_otu_ids, -> (otu_ids) { where('(observation_matrix_rows.otu_id IN (?))', otu_ids.to_s.split('|').map(&:to_i)).order(:position) }
 
   def observation_matrix_columns
     ObservationMatrixColumn.where(observation_matrix_id: observation_matrix_id)
@@ -98,6 +101,15 @@ class ObservationMatrixRow < ApplicationRecord
       row_object.taxon_name
     when 'CollectionObject'
       row_object.current_taxon_name
+    end
+  end
+
+  def current_otu
+    case row_object_class_name
+    when 'Otu'
+      row_object
+    when 'CollectionObject'
+      row_object.current_otu
     end
   end
 

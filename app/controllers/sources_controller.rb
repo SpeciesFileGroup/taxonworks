@@ -1,8 +1,8 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone]
-  after_action -> { set_pagination_headers(:sources) }, only: [:index ], if: :json_request?
+  before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
+  after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /sources
   # GET /sources.json
@@ -218,6 +218,19 @@ class SourcesController < ApplicationController
     render '/downloads/show.json'
   end
 
+  # GET /api/v1/sources
+  def api_index
+    @sources = Queries::Source::Filter.new(api_params).all
+      .order('sources.id')
+      .page(params[:page]).per(params[:per])
+    render '/sources/api/v1/index'
+  end
+
+  # GET /api/v1/sources/:id
+  def api_show
+    render '/sources/api/v1/show'
+  end
+
   private
 
   def new_source
@@ -264,7 +277,49 @@ class SourcesController < ApplicationController
       citation_object_type: [],
       ids: [],
       keyword_ids: [],
-      topic_ids: []
+      topic_ids: [],
+      serial_ids: []
+    )
+  end
+
+  def api_params
+    params[:project_id] = sessions_current_project_id
+    params.permit(
+      :author,
+      :author_ids_or,
+      :citations,
+      # :documents,
+      :exact_author,
+      :exact_title,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :in_project,
+      :namespace_id,
+      :nomenclature,
+      :notes,
+      :per,
+      :project_id,
+      :query_term,
+      :recent,
+      :roles,
+      :source_type,
+      :tags,
+      :title,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :with_doi,
+      :year_end,
+      :year_start,
+      ids: [],
+      author_ids: [],
+      citation_object_type: [],
+      keyword_ids: [],
+      topic_ids: [],
+      serial_ids: []
     )
   end
 

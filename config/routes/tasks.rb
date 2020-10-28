@@ -365,6 +365,11 @@ scope :tasks do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
     end
+
+    scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
+      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      get '', action: :index, as: 'interactive_key_task'
+    end
   end
 
   scope :otus do

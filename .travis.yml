@@ -7,7 +7,7 @@ branches:
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
-    - TEST_WORKERS=5
+    - TEST_WORKERS=4
     - COVERALLS_PARALLEL=true
 jobs:
   allow_failures:
@@ -49,13 +49,13 @@ jobs:
       services:
         - postgresql
       before_install:
+        - export PGPORT=$(pg_lsclusters -h | grep '^12 main' | cut -f3 -d' ')
         - nvm install 10
         - nvm use 10
       install:
         - npm install
         - gem install bundler
         - bundle config --local build.sassc --disable-march-tune-native
-        - sudo bash -c 'echo -e "#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H\n$(cat /usr/include/proj_api.h)" > /usr/include/proj_api.h' # rgeo-proj4 incompatibility workaround
         - bundle install -j3 --without development production
       before_script:
         - echo ===[TEST_WORKER=$TEST_WORKER before_script $(date -u +%Y%m%d-%H%M%S)]===
@@ -76,9 +76,6 @@ jobs:
     - <<: *test-stage
       env:
         - TEST_WORKER=3
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=4
     - language: minimal
       services:
         - docker

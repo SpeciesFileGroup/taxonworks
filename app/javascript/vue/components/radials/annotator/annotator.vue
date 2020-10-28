@@ -55,7 +55,7 @@
         :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
         type="button"
         class="circle-button"
-        :class="[buttonClass]"
+        :class="[buttonClass, pulse ? 'pulse-blue' : '']"
         @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()">Radial annotator
       </span>
@@ -154,6 +154,10 @@ export default {
     type: {
       type: String,
       default: 'annotations'
+    },
+    pulse: {
+      type: Boolean,
+      default: false
     }
   },
   data: function () {

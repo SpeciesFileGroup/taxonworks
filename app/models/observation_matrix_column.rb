@@ -21,9 +21,9 @@
 #    
 class ObservationMatrixColumn < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 

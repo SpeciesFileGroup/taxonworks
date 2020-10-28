@@ -8,6 +8,7 @@ import setCurrentOtu from './setCurrentOtu'
 import setDescendants from './setDescendants'
 import setLoadState from './setLoadState'
 import setTaxonName from './setTaxonName'
+import setTaxonNames from './setTaxonNames'
 import setOtus from './setOtus'
 import setStore from './setStore'
 import setDepictions from './setDepictions'
@@ -26,6 +27,7 @@ const MutationNames = {
   SetDescendants: 'setDescendants',
   SetLoadState: 'setLoadState',
   SetTaxonName: 'setTaxonName',
+  SetTaxonNames: 'setTaxonNames',
   SetOtus: 'setOtus',
   SetStore: 'setStore'
 }
@@ -43,6 +45,7 @@ const MutationFunctions = {
   [MutationNames.SetDescendants]: setDescendants,
   [MutationNames.SetLoadState]: setLoadState,
   [MutationNames.SetTaxonName]: setTaxonName,
+  [MutationNames.SetTaxonNames]: setTaxonNames,
   [MutationNames.SetOtus]: setOtus,
   [MutationNames.SetStore]: setStore
 }
