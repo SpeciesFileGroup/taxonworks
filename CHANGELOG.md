@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon determination, citations and collecting event information in specimen record on browse OTU
 - Serial facet on filter sources
 - Pulse animation for radial annotator [#1822]
+- OTU column in asserted distribution on Browse OTU [#1846]
 
 ### Fixed
 - CVT view helper bug with predicates
