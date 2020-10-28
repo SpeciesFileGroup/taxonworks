@@ -12,8 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Serial facet on filter sources
 - Pulse animation for radial annotator [#1822]
 
-#### Fixed
+### Fixed
 - CVT view helper bug with predicates
+- Fixed database seeding bugs.
+
+### Changed
+- Running `rake db:seed` without `user_id`/`project_id` is now possible.
 
 ## [0.14.1] - 2020-10-22
 
