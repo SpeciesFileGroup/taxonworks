@@ -11,7 +11,7 @@ const RouteNames = {
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   NomenclatureStats: '/tasks/nomenclature/stats',
   TypeMaterial: '/tasks/type_material/edit_type_material',
-  InteractiveKeys: '/tasks/observation_matrices/interactive_key'
+  InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   DwcImport: '/tasks/dwca_import/index'
 }
 
