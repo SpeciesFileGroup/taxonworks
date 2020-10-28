@@ -13,8 +13,11 @@ export default ({ state, commit, getters }, page) => {
     const lastVirtualPage = virtualPagination[state.currentPage] ? virtualPagination[state.currentPage].to : undefined
     const loadPage = virtualPagination[state.currentPage] ? currentPageOnVirtualPage : pagePosition === 0 ? 1 : pagePosition
 
-    if ((page !== undefined && state.datasetRecords[pagePosition] && (state.datasetRecords[pagePosition].downloaded || state.datasetRecords.rows)) || (loadPage && loadPage > lastVirtualPage)) return resolve()
+    if ((page !== undefined && state.datasetRecords[pagePosition] && (state.datasetRecords[pagePosition].downloaded || state.datasetRecords.rows)) || (loadPage && loadPage > lastVirtualPage) || state.temporary.downloadingPages.includes(pagePosition)) return resolve()
+
     state.isLoading = true
+    state.temporary.downloadingPages.push(pagePosition)
+
     GetDatasetRecords(state.dataset.id, {
       params: Object.assign({}, { page: loadPage }, state.paramsFilter), paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' })
     }).then(response => {
@@ -33,6 +36,12 @@ export default ({ state, commit, getters }, page) => {
           rows: response.body
         }
       })
+
+      const index = state.temporary.downloadingPages.findIndex(num => num === pagePosition)
+      if (index > -1) {
+        state.temporary.downloadingPages.splice(index, 1)
+      }
+
       state.isLoading = false
       resolve(response)
     }, (error) => {

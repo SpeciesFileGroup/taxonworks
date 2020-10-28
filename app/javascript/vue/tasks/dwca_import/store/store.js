@@ -18,6 +18,9 @@ function makeInitialState () {
       filter: {},
       status: []
     },
+    temporary: {
+      downloadingPages: []
+    },
     dataset: {},
     datasetRecords: [],
     selectedRowIds: [],
