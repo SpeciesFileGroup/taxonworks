@@ -527,7 +527,7 @@ namespace :tw do
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
           author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
-          source = find_publication_3iCurculionidae(row['key3'])
+          source = find_publication_3iCurculionidae(row['Key3'])
           source = Source::Bibtex.find_or_create_by( author: author,
                                                      year: year,
                                                      year_suffix: year_suffix,
@@ -1974,7 +1974,7 @@ namespace :tw do
       end
 
       def find_publication_3iCurculionidae(key3)
-        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Curculionidae_Source_ID ' + key3.to_s).limit(1).first
+        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Curculionidae_Source_ID ' + key3.to_s).limit(1).first.identifier_object
       end
 
       def find_t_publication_id_3iCurculionidae(pk_reference)
