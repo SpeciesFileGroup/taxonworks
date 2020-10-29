@@ -527,7 +527,7 @@ namespace :tw do
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
           author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
-          source = find_publication_id_3iCurculionidae(row['key3'])
+          source = find_publication_3iCurculionidae(row['key3'])
           source = Source::Bibtex.find_or_create_by( author: author,
                                                      year: year,
                                                      year_suffix: year_suffix,
