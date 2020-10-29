@@ -159,7 +159,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_people(field_name)
     DwcAgent.parse(get_field_value(field_name)).map! do |name|
       attributes = {
-        last_name: [name.particle, name.family].compact!.join(" "),
+        last_name: [name.particle, name.family].compact.join(" "),
         first_name: name.given,
         suffix: name.suffix,
         prefix: name.title || name.appellation
