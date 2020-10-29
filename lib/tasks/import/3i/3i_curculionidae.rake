@@ -1974,7 +1974,7 @@ namespace :tw do
       end
 
       def find_publication_3iCurculionidae(key3)
-        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Curculionidae_Source_ID ' + key3.to_s).limit(1).first.identifier_object
+        @data.publications_index[key3.to_s] || Identifier.where(cached: '3i_Curculionidae_Source_ID ' + key3.to_s).limit(1).first&.identifier_object
       end
 
       def find_t_publication_id_3iCurculionidae(pk_reference)
