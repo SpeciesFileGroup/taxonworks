@@ -41,34 +41,35 @@ module Export::Coldp::Files::Name
   end
 
   # Invalid Protonyms are rendered only as their original Combination 
-  # @param t [An invalid Protonym]
+  # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv)
     e = t.original_combination_elements
+    
+    infraspecific_element = t.original_combination_infraspecific_element(e) 
+    rank = infraspecific_element ? infraspecific_element.first : t.rank
 
-    infraspecific_epithet = [
-      e[:form], e[:variety], e[:subspecies]
-    ].compact&.first&.last
+    id = ::Export::Coldp.reified_id(t)
 
     csv << [
-      ::Export::Coldp.reified_id(t),                                          # ID
-      t.id,                                                                   # basionymID, always nil, this is the original
-      t.cached_original_combination,                                          # scientificName
-      authorship_field(t, true),                                              # authorship
-      t.rank,                                                                 # rank
-      nil,                                                                    # uninomial
-      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.last,                 # genus
-      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.last,           # subgenus (no parens)
-      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.last,             # species
-      infraspecific_epithet,                                                  # infraspecificEpithet
-      nil,                                                                    # publishedInID   |
-      nil,                                                                    # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                                                    # publishedInYear |
-      true,                                                                   # original
-      code_field(t),                                                          # code
-      nil,                                                                    # status https://api.catalogue.life/vocab/nomStatus
-      nil,                                                                    # link (probably TW public or API)
-      remarks_field(t),                                                       # remarks
+      id,                                                                                # ID
+      id,                                                                                # basionymID, always nil, this is the original
+      t.cached_original_combination,                                                     # scientificName
+      authorship_field(t, true),                                                         # authorship
+      rank,                                                                              # rank
+      nil,                                                                               # uninomial
+      (e[:genus] =~ /NOT SPECIFIED/) ? nil : e[:genus]&.last,                            # genus
+      (e[:subgenus] =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.last&.gsub(/[\)\(]/, ''),  # subgenus (no parens) # TODO - optimize to not have to strip these
+      (e[:species] =~ /NOT SPECIFIED/) ? nil : e[:species]&.last,                        # species
+      infraspecific_element ? infraspecific_element.last : nil,                          # infraspecificEpithet
+      nil,                                                                               # publishedInID   |
+      nil,                                                                               # publishedInPage |-- Decisions is that these add to Synonym table
+      nil,                                                                               # publishedInYear |
+      true,                                                                              # original
+      code_field(t),                                                                     # code
+      nil,                                                                               # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                                               # link (probably TW public or API)
+      remarks_field(t),                                                                  # remarks
     ]
   end
 
@@ -115,33 +116,35 @@ module Export::Coldp::Files::Name
           data.names.each do |t|
             source = t.source
 
-            original = Export::Coldp.original_field(t) # no parens
+            original = Export::Coldp.original_field(t) # Protonym, no parens
             higher = !(t.type == 'Combination') && !t.is_species_rank?
+
+            elements = t.full_name_hash if !higher
 
             if higher || t.is_valid? || t.is_combination?
               csv << [
-                t.id,                                                          # ID
-                (original ? nil : ::Export::Coldp.basionym_id(t)),             # basionymID
-                t.cached,                                                      # scientificName
-                t.cached_author_year,                                          # authorship
-                t.rank,                                                        # rank
-                (higher ? t.cached : nil),                                     # uninomial
-                (higher ? nil : t.ancestor_at_rank('genus', true)&.name),      # genus and below - IIF species or lower
-                (higher ? nil : t.ancestor_at_rank('subgenus', true)&.name),   # infragenericEpithet
-                (higher ? nil : t.ancestor_at_rank('species', true)&.name),    # specificEpithet
-                (higher ? nil : t.ancestor_at_rank('subspecies', true)&.name), # infraspecificEpithet
-                source&.id,                                                    # publishedInID
-                source&.pages,                                                 # publishedInPage
-                t.year_of_publication,                                         # publishedInYear
-                original,                                                      # original
-                code_field(t),                                                 # code
-                nom_status_field(t),                                           # nomStatus
-                nil,                                                           # link (probably TW public or API)
-                remarks_field(t),                                              # remarks
+                t.id,                                               # ID
+                ::Export::Coldp.basionym_id(t),                     # basionymID
+                t.cached,                                           # scientificName
+                t.cached_author_year,                               # authorship
+                t.rank,                                             # rank
+                (higher ? t.cached : nil),                          # uninomial
+                (higher ? nil : elements['genus']&.last),           # genus and below - IIF species or lower
+                (higher ? nil : elements['subgenus']&.last),        # infragenericEpithet
+                (higher ? nil : elements['species']&.last),         # specificEpithet
+                (higher ? nil : elements['subspecies']&.last),      # infraspecificEpithet
+                source&.id,                                         # publishedInID
+                source&.pages,                                      # publishedInPage
+                t.year_of_publication,                              # publishedInYear
+                original,                                           # original
+                code_field(t),                                      # code
+                nom_status_field(t),                                # nomStatus
+                nil,                                                # link (probably TW public or API)
+                remarks_field(t),                                   # remarks
               ]
             end
 
-            if !higher && !t.is_combination?
+            if !higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)
               add_original_combination(t, csv)
             end
 

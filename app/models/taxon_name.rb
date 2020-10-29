@@ -909,13 +909,16 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [ [rank, prefix, name], ...] for genus and below
-  # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
+  # @return [ rank, prefix, name], ...] for genus and below
+  # @taxon_name.full_name_array # =>  
+  #   [ ["genus", [nil, "Aus"]], 
+  #     ["subgenus", [nil, "Aus"]],
+  #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
-    data   = []
+    data = []
     safe_self_and_ancestors.each do |i|
-      rank   = i.rank
+      rank = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)

@@ -474,6 +474,11 @@ class Protonym < TaxonName
     false
   end
 
+  # Same as is_original_name?!
+  def has_alternate_original?
+    cached != cached_original_combination
+  end
+
   def is_species_rank?
     SPECIES_RANK_NAMES.include?(rank_string)
   end
@@ -640,6 +645,13 @@ class Protonym < TaxonName
     s.blank? ? nil : s
   end
 
+  # 
+  # {
+  #  genus: ["", 'Aus' ],
+  #  ...
+  #  form: ['frm', 'aus']
+  # }
+  #
   def original_combination_elements
     elements = { }
     return elements if rank.blank?
@@ -691,6 +703,17 @@ class Protonym < TaxonName
     end
 
     elements
+  end
+
+  # @return [[rank_name, name], nil]
+  def original_combination_infraspecific_element(elements = nil)
+    elements ||= original_combination_elements
+
+    # TODO: consider plants/other codes?
+    [:form, :variety, :subspecies].each do |r|
+      return [r.to_s, original_combination_elements[r].last] if original_combination_elements[r]
+    end
+    nil 
   end
 
   # @return [String, nil]
@@ -795,7 +818,6 @@ class Protonym < TaxonName
   def nominotypical_sub_of?(protonym)
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
-
 
   protected
 

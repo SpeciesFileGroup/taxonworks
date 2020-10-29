@@ -39,7 +39,8 @@ module Export::Coldp::Files::Synonym
         data = ::Catalog::Nomenclature::Entry.new(name)
 
         data.names.each do |t|
-          reified = !(t.is_valid? || t.type == 'Combination')
+          # not valid, not a combioantion
+          reified = !(t.is_valid? || t.is_combination?)
 
           references = reference_id_field(o)
           csv << [

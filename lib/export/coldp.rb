@@ -113,7 +113,7 @@ module Export
     # @param taxon_name [an invalid Protonym]
     def self.reified_id(taxon_name)
       if taxon_name.original_combination_relationships.any?
-        taxon_name.id.to_s + '/' + Digest::MD5.hexdigest(taxon_name.cached_original_combination)
+        taxon_name.id.to_s + '-' + Digest::MD5.hexdigest(taxon_name.cached_original_combination)
       else
         # there is no need to MD5 the name, as it hasn't been potentially altered by original combination assertions
         taxon_name.id.to_s
@@ -124,13 +124,17 @@ module Export
     #   see also exclusion of OTUs/Names based on Ranks not handled 
     def self.basionym_id(taxon_name)
       if taxon_name.type == 'Protonym'
-        taxon_name.id
+        reified_id(taxon_name)
       elsif taxon_name.type == 'Combination'
-        taxon_name.protonyms.last.id
+        reified_id(taxon_name.protonyms.last) # taxon_name)
+        # taxon_name.protonyms.last.id
       else
         nil # shouldn't be hit
       end
     end
+
+    # Reification spec
+    # Duplicate Combination check -> is the Combination in question already represented int he current *classification* 
 
   end
 end
