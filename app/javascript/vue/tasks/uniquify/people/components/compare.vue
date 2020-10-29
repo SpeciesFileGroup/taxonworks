@@ -18,16 +18,28 @@
         <h2>Selected person</h2>
         <template v-if="selectedEmpty">
           <p>This person will remain.</p> 
-          <h3>{{ selected.cached }} 
-          <a target="_blank" :href="`/people/${selected.id}`">Show</a></h3>
+          <h3 class="horizontal-left-content">
+            <a
+              target="_blank"
+              :href="`/people/${selected.id}`">
+              {{ selected.cached }}
+            </a>
+            <radial-annotator :global-id="selected.global_id"/>
+          </h3>
         </template>
       </div>
       <div class="title-merge">
         <h2>Person to merge</h2>
         <template v-if="mergeEmpty">
           <p data-icon="warning">This person will be deleted.</p>
-          <h3>{{ merge.cached }}
-          <a target="_blank" :href="`/people/${merge.id}`">Show</a></h3>
+          <h3 class="horizontal-left-content">
+            <a
+              target="_blank"
+              :href="`/people/${merge.id}`">
+              {{ merge.cached }}
+            </a>
+            <radial-annotator :global-id="merge.global_id"/>
+          </h3>
         </template>
       </div>
     </div>
@@ -89,12 +101,14 @@
 import TableRoles from './tableRoles'
 import TableAnnotations from './tableAnnotations'
 import TablePersonRoles from './roles_table'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   components: {
     TablePersonRoles,
     TableAnnotations,
-    TableRoles
+    TableRoles,
+    RadialAnnotator
   },
   name: 'CompareComponent',
   props: {

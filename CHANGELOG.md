@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Serial facet on filter sources
 - Pulse animation for radial annotator [#1822]
 - OTU column in asserted distribution on Browse OTU [#1846]
+- Radial annotator on Uniquify people task
 
 ### Fixed
 - CVT view helper bug with predicates
@@ -21,6 +22,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
+
+[#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
+[#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
 
 ## [0.14.1] - 2020-10-22
 
@@ -48,7 +52,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved verbatim date parsing
 - Georeference scope over geographic area scope [#1841]
 
-[#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
