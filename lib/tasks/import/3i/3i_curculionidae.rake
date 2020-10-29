@@ -527,6 +527,7 @@ namespace :tw do
           taxonomy, distribution, illustration, typhlocybinae = nil, nil, nil, nil
           note = row['Notes']
           author = row['Author'].gsub('., ', '.|').split('|').compact.join(' and ')
+          source = find_publication_id_3iCurculionidae(row['key3'])
           source = Source::Bibtex.find_or_create_by( author: author,
                                                      year: year,
                                                      year_suffix: year_suffix,
@@ -537,7 +538,7 @@ namespace :tw do
                                                      volume: volume,
                                                      number: number,
                                                      bibtex_type: 'article'
-          )
+                                                  ) if source.nil?
           byebug if source.id.nil?
 
           #source.alternate_values.new(value: row['Author'], type: 'AlternateValue::Abbreviation', alternate_value_object_attribute: 'author') if !row['AuthorDrMetcalf'].blank? && row['AuthorDrMetcalf'] != row['Author']
