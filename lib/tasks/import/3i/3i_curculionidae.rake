@@ -280,11 +280,11 @@ namespace :tw do
         # handle_litauthors_3iCurculionidae
         handle_references_3iCurculionidae
         handle_taxonomy_3iCurculionidae
-        #handle_taxon_name_relationships_3iCurculionidae
-        #handle_citation_topics_3iCurculionidae
-        #handle_host_plant_name_dictionary_3iCurculionidae
-        #handle_host_plants_3iCurculionidae
-        #handle_distribution_3iCurculionidae
+        handle_taxon_name_relationships_3iCurculionidae
+        handle_citation_topics_3iCurculionidae
+        handle_host_plant_name_dictionary_3iCurculionidae
+        handle_host_plants_3iCurculionidae
+        handle_distribution_3iCurculionidae
         #handle_parasitoids_3iCurculionidae
         #handle_characters_3iCurculionidae
         #handle_state_3iCurculionidae
