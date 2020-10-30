@@ -5,6 +5,7 @@ namespace :tw do
 
       desc 'time rake tw:project_import:sf_import:run_all_import_tasks user_id=1 data_directory=~/src/onedb2tw/working/'
       LoggedTask.define run_all_import_tasks: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+        logger.info "Running revision #{TaxonworksNet.commit_sha}" if TaxonworksNet.commit_sha
 
           # # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
         tasks = [
@@ -130,9 +131,13 @@ namespace :tw do
 
           if checkpoint = checkpoints.get(task)
             raise logger.error "FATAL: Task #{task} has an incomplete run. Please restore DB to a clean state." unless checkpoint["end_time"]
-            logger.info "Task #{task} previously ran on #{checkpoint["start_time"]}, and finished on #{checkpoint["end_time"]}. Skipping..."
+            logger.info "Task #{task} previously ran on #{checkpoint["start_time"]} (rev #{checkpoint['REVISION'] || 'UNKNOWN'}), " +
+                        "and finished on #{checkpoint["end_time"]}. Skipping..."
           else
-            checkpoint = { "start_time" => DateTime.now.utc.to_s }
+            checkpoint = {
+              "start_time" => DateTime.now.utc.to_s,
+              "REVISION" => TaxonworksNet.commit_sha
+            }
             checkpoints.set(task, checkpoint)
 
             GC.start
