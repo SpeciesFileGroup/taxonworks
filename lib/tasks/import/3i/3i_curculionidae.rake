@@ -1401,7 +1401,6 @@ namespace :tw do
             Citation.find_or_create_by!(citation_object: ba, source_id: s, project_id: Current.project_id) unless s.blank?
           else
             print "\nRow #{row} is problematic\n"
-            byebug
           end
         end
       end
