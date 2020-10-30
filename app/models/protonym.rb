@@ -476,7 +476,7 @@ class Protonym < TaxonName
 
   # Same as is_original_name?!
   def has_alternate_original?
-    cached != cached_original_combination
+    cached_original_combination && (cached != cached_original_combination) ? true : false
   end
 
   def is_species_rank?

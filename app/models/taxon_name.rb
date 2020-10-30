@@ -1266,6 +1266,17 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [String]
+  #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
+  # Some observations:
+  #  - reified ids are only for original combinations (for which we have no ID)
+  #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
+  # mental note- consider combinatoin - is_current_placement?
+  def reified_id
+    target = (is_combination? ? finest_protonym : self)
+    return target.id.to_s unless target.has_alternate_original?
+    target.id.to_s + '-' + Digest::MD5.hexdigest(target.cached_original_combination) # missing spec to catch when chached original combination nil
+  end
 
   protected
 
