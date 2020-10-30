@@ -1731,9 +1731,9 @@ namespace :tw do
             c.start_date_day = c.end_date_day
             c.start_date_month = c.end_date_month
             c.start_date_year = c.end_date_year
-            c.start_end_day = nil
-            c.start_end_month = nil
-            c.start_end_year = nil
+            c.end_date_day = nil
+            c.end_date_month = nil
+            c.end_date_year = nil
             c.save
           end
           byebug if c.nil? || c.id.nil?
