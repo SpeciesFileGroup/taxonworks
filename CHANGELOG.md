@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- PENDING TEST - API - `sort` (with `classification`, `alphabetical` options) to `/taxon_names` [#1865]
 - Taxon determination, citations and collecting event information in specimen record on browse OTU
 - Serial facet on filter sources
 - Pulse animation for radial annotator [#1822]
@@ -23,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 
+
+[#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
 

@@ -330,6 +330,7 @@ class TaxonName < ApplicationRecord
 
   # @return Scope
   #   names that are not leaves
+  # TODO: belongs in lib/queries/filter.rb likely
   def self.not_leaves
     t = self.arel_table
     h = ::TaxonNameHierarchy.arel_table
@@ -401,6 +402,7 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # TODO: what is this:!? :)
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
       ( SELECT *, rank()
@@ -1262,7 +1264,6 @@ class TaxonName < ApplicationRecord
       return false
     end
   end
-
 
   protected
 
