@@ -247,6 +247,10 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
+  default_scope { order(case_rank_class_to_position) } # TODO: **REMOVE** it is used to force this scope on tests
+
+  scope :order_by_nomenclatural_rank, -> { order(case_rank_class_to_position) }
+
   scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
   scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
 
@@ -1574,6 +1578,13 @@ class TaxonName < ApplicationRecord
 
   def sv_hybrid_name_relationships
     true # see validation in Hybrid.rb
+  end
+
+  private
+
+  def self.case_rank_class_to_position
+    # DO NOT REMOVE .asc (.last does not change default ASC to DESC if removed)
+    @@case_rank_class_to_position ||= RANKS.each_with_index.inject(arel_table[:rank_class]) { |a, (r, i)| a = a.when(r).then(i) }.asc
   end
 
 end
