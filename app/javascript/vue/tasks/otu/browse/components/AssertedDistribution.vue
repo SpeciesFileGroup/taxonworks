@@ -3,6 +3,7 @@
     :status="status"
     :spinner="loadState.assertedDistribution"
     :title="title"
+    menu
     @menu="setModalView(true)">
     <a
       v-if="currentOtu"

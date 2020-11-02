@@ -20,8 +20,11 @@
           data-icon="w_scroll-v"
           class="option-box button-default cursor-pointer handle"
         />
-        <div
-          class="option-box button-default cursor-pointer"
+        <button
+          type="button"
+          class="option-box cursor-pointer"
+          :class="{ 'button-default': menu }"
+          :disabled="!menu"
           v-help.section.options.filter
           @click="$emit('menu')"
         >
@@ -30,7 +33,7 @@
             <div class="hamburger-menu-bar" />
             <div class="hamburger-menu-bar" />
           </div>
-        </div>
+        </button>
       </div>
     </div>
     <div class="content">
@@ -61,6 +64,10 @@ export default {
     anchor: {
       type: String,
       default: undefined
+    },
+    menu: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -80,6 +87,7 @@ export default {
     padding: 0px;
     background-position: center;
     background-size: 14px;
+    border: 0px;
   }
   .hamburger-menu {
     position: absolute;

@@ -3,6 +3,7 @@
     :spinner="isLoading"
     :status="status"
     :title="title"
+    menu
     @menu="showModal = true">
     <a name="descendants"/>
     <tree-view
