@@ -2,7 +2,6 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="images" />
     <div
       class="flex-wrap-row"
       v-if="figuresList.length"

@@ -67,7 +67,7 @@
           <li
             :key="item"
             v-show="showForRanks(item)">
-            <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
+            <a data-turbolinks="false" :href="`#${item}`">{{item}}</a>
           </li>
         </template>
       </ul>

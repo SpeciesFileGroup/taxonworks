@@ -9,7 +9,6 @@
       v-if="currentOtu"
       :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
       slot="title">Expand</a>
-    <a name="asserted-distributions"/>
     <table class="full_width">
       <thead>
         <tr>

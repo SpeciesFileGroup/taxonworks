@@ -1,15 +1,14 @@
 <template>
   <div class="panel basic-information">
     <spinner-component v-if="spinner" />
+    <a
+      :name="linkName"
+      class="anchor"
+    />
     <div
       v-help.section.status
       :class="{ [status]: status }"
       class="header flex-separate middle">
-      <a
-        v-if="anchor"
-        :name="anchor"
-        class="anchor"
-      />
       <div>
         <span class="section-title">{{ title }}</span>
         <slot name="title" />
@@ -48,6 +47,11 @@ export default {
   components: {
     SpinnerComponent
   },
+  computed: {
+    linkName () {
+      return this.name ? this.name : this.title
+    }
+  },
   props: {
     title: {
       type: String,
@@ -61,7 +65,7 @@ export default {
       type: String,
       default: 'unknown'
     },
-    anchor: {
+    name: {
       type: String,
       default: undefined
     },
