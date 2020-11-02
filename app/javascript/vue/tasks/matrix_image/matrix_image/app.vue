@@ -64,7 +64,7 @@
         label="label"
         placeholder="Search a row"
         :clear-after="true"
-        :params="{  observation_matrix_id: matrixId }"
+        :add-params="{ observation_matrix_id: matrixId }"
         @getItem="findRow($event.id, $event.position)"
       />
     </template>
