@@ -8,16 +8,25 @@ module Queries
     attr_accessor :selection_objects
     attr_accessor :descendants, :rank_class
     attr_accessor :author_ids, :and_or_select
+    attr_accessor :biological_associations
 
     attr_accessor :verbatim_author # was verbatim_author_string
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
       :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
+
+    # @params citations [String]
+    #  'without_citations' - names without citations
+    #  'without_origin_citation' - names without an origin citation
+    attr_accessor :citations
 
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
 
       @and_or_select = params[:and_or_select]
+
+      @biological_associations = params[:biological_associations]
+      @citations = params[:citations]
 
       @geographic_area_ids = params[:geographic_area_ids]
       @shape = params[:drawn_area_shape]
@@ -373,11 +382,34 @@ module Queries
       ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
     end
 
+    def citations_facet 
+      return nil if citations.nil?
+
+      citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::Otu.arel_table[:id]).and(
+        ::Citation.arel_table[:citation_object_type].eq('Otu'))
+
+      if citations == 'without_origin_citation'
+        citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
+      end
+
+      ::Otu.where.not(::Citation.where(citation_conditions).arel.exists)
+    end
+
+    def biological_associations_facet
+      return nil if biological_associations.nil?
+      #       subquery = ::BiologicalAssociation.where(::BiologicalAssociation.arel_table[:biological_association_subject_id].eq(::Otu.arel_table[:id]).and(
+      #  ::BiologicalAssociation.arel_table[:biological_association_object_type].eq('Otu'))
+      subquery = ::BiologicalAssociation.where(::BiologicalAssociation.arel_table[:biological_association_subject_id].eq(::Otu.arel_table[:id]).and(
+        ::BiologicalAssociation.arel_table[:biological_association_subject_type].eq('Otu'))
+    ).arel.exists
+      ::Otu.where(biological_associations ? subquery : subquery.not)
+    end
+
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
       clauses = [
         matching_taxon_name_ids,
-        matching_otu_ids,
+        matching_otu_ids
 
         # matching_verbatim_author
         # Queries::Annotator.annotator_params(options, ::Citation),
@@ -397,7 +429,9 @@ module Queries
         matching_biological_association_ids,
         matching_asserted_distribution_ids,
         matching_taxon_name_classification_ids,
-        matching_taxon_name_relationship_ids
+        matching_taxon_name_relationship_ids,
+        biological_associations_facet,
+        citations_facet
 
         # matching_verbatim_author
       ].compact

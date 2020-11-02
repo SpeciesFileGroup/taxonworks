@@ -278,9 +278,15 @@ class OtusController < ApplicationController
 
   def filter_params
     params.permit(
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
+      :citations,
+      :taxon_name_id,
+      :otu_id,
+      :biological_associations,
+      biological_association_ids: [],
+      taxon_name_ids: [],
+      otu_ids: [],
+      taxon_name_relationship_ids: [],
+      taxon_name_classification_ids: [],
       asserted_distribution_ids: [],
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
