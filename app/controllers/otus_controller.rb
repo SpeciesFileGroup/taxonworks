@@ -279,10 +279,14 @@ class OtusController < ApplicationController
   def filter_params
     params.permit(
       :asserted_distributions,
+      :biological_associations,
       :citations,
+      :contents,
+      :depictions,
       :taxon_name_id,
       :otu_id,
-      :biological_associations,
+      :taxon_determinations,
+      :observations,
       biological_association_ids: [],
       taxon_name_ids: [],
       otu_ids: [],

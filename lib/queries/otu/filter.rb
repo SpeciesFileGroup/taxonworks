@@ -10,6 +10,12 @@ module Queries
     attr_accessor :author_ids, :and_or_select
     attr_accessor :biological_associations
     attr_accessor :asserted_distributions
+    
+    attr_accessor :contents
+    attr_accessor :depictions
+
+    attr_accessor :taxon_determinations
+    attr_accessor :observations
 
     attr_accessor :verbatim_author # was verbatim_author_string
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
@@ -28,7 +34,11 @@ module Queries
 
       @asserted_distributions = (params[:asserted_distributions]&.downcase == 'true' ? true : false) if !params[:asserted_distributions].nil?
       @biological_associations = (params[:biological_associations]&.downcase == 'true' ? true : false) if !params[:biological_associations].nil?
+      @contents = (params[:contents]&.downcase == 'true' ? true : false) if !params[:contents].nil?
+      @depictions = (params[:depictions]&.downcase == 'true' ? true : false) if !params[:depictions].nil?
+      @taxon_determinations = (params[:taxon_determinations]&.downcase == 'true' ? true : false) if !params[:taxon_determinations].nil?
       @citations = params[:citations]
+      @observations = (params[:observations]&.downcase == 'true' ? true : false) if !params[:observations].nil?
 
       @geographic_area_ids = params[:geographic_area_ids]
       @shape = params[:drawn_area_shape]
@@ -413,6 +423,35 @@ module Queries
       ::Otu.where(asserted_distributions ? subquery : subquery.not)
     end
 
+    def determinations_facet
+      return nil if taxon_determinations.nil?
+
+      subquery = ::TaxonDetermination.where(::TaxonDetermination.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
+      ::Otu.where(taxon_determinations ? subquery : subquery.not)
+    end
+
+    def depictions_facet
+      return nil if depictions.nil?
+
+      subquery = ::Depiction.where(::Depiction.arel_table[:depiction_object_id].eq(::Otu.arel_table[:id]).and(
+        ::Depiction.arel_table[:depiction_object_type].eq('Otu'))).arel.exists
+      ::Otu.where(depictions ? subquery : subquery.not)
+    end
+
+    def observations_facet
+      return nil if observations.nil?
+
+      subquery = ::ObservationMatrixRow.where(::ObservationMatrixRow.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
+      ::Otu.where(observations ? subquery : subquery.not)
+    end
+
+    def contents_facet
+      return nil if contents.nil?
+
+      subquery = ::Content.where(::Content.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
+      ::Otu.where(contents ? subquery : subquery.not)
+    end
+
     # @return [ActiveRecord::Relation, nil]
     def and_clauses
       clauses = [
@@ -438,9 +477,13 @@ module Queries
         matching_asserted_distribution_ids,
         matching_taxon_name_classification_ids,
         matching_taxon_name_relationship_ids,
-        biological_associations_facet,
         asserted_distributions_facet,
-        citations_facet
+        biological_associations_facet,
+        citations_facet,
+        contents_facet,
+        depictions_facet,
+        determinations_facet,
+        observations_facet
 
         # matching_verbatim_author
       ].compact
