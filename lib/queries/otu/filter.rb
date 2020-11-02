@@ -9,6 +9,7 @@ module Queries
     attr_accessor :descendants, :rank_class
     attr_accessor :author_ids, :and_or_select
     attr_accessor :biological_associations
+    attr_accessor :asserted_distributions
 
     attr_accessor :verbatim_author # was verbatim_author_string
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
@@ -25,7 +26,8 @@ module Queries
 
       @and_or_select = params[:and_or_select]
 
-      @biological_associations = params[:biological_associations]
+      @asserted_distributions = (params[:asserted_distributions]&.downcase == 'true' ? true : false) if !params[:asserted_distributions].nil?
+      @biological_associations = (params[:biological_associations]&.downcase == 'true' ? true : false) if !params[:biological_associations].nil?
       @citations = params[:citations]
 
       @geographic_area_ids = params[:geographic_area_ids]
@@ -397,12 +399,18 @@ module Queries
 
     def biological_associations_facet
       return nil if biological_associations.nil?
-      #       subquery = ::BiologicalAssociation.where(::BiologicalAssociation.arel_table[:biological_association_subject_id].eq(::Otu.arel_table[:id]).and(
-      #  ::BiologicalAssociation.arel_table[:biological_association_object_type].eq('Otu'))
+
       subquery = ::BiologicalAssociation.where(::BiologicalAssociation.arel_table[:biological_association_subject_id].eq(::Otu.arel_table[:id]).and(
         ::BiologicalAssociation.arel_table[:biological_association_subject_type].eq('Otu'))
     ).arel.exists
       ::Otu.where(biological_associations ? subquery : subquery.not)
+    end
+
+    def asserted_distributions_facet
+      return nil if asserted_distributions.nil?
+
+      subquery = ::AssertedDistribution.where(::AssertedDistribution.arel_table[:otu_id].eq(::Otu.arel_table[:id])).arel.exists
+      ::Otu.where(asserted_distributions ? subquery : subquery.not)
     end
 
     # @return [ActiveRecord::Relation, nil]
@@ -431,6 +439,7 @@ module Queries
         matching_taxon_name_classification_ids,
         matching_taxon_name_relationship_ids,
         biological_associations_facet,
+        asserted_distributions_facet,
         citations_facet
 
         # matching_verbatim_author

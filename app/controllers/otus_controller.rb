@@ -278,6 +278,7 @@ class OtusController < ApplicationController
 
   def filter_params
     params.permit(
+      :asserted_distributions,
       :citations,
       :taxon_name_id,
       :otu_id,
