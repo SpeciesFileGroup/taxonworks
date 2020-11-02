@@ -1,13 +1,22 @@
 <template>
   <div
-    v-if="Object.keys(list).length"
+    v-if="list.length"
     class="full_width overflow-scroll">
     <table class="full_width">
       <thead>
-        <tr></tr>
+        <tr>
+          <th>Name</th>
+          <th></th>
+        </tr>
       </thead>
       <tbody>
-        <tr></tr>
+        <tr v-for="otu in list">
+          <td v-html="otu.object_tag"></td>
+          <td class="horizontal-right-content">
+            <radial-annotator :global-id="otu.global_id"/>
+            <radial-object :global-id="otu.global_id"/>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -15,11 +24,18 @@
 
 <script>
 
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialObject from 'components/radials/object/radial'
+
 export default {
+  components: {
+    RadialAnnotator,
+    RadialObject
+  },
   props: {
     list: {
-      type: Object,
-      default: undefined
+      type: Array,
+      default: () => []
     },
     value: {
       type: Array,

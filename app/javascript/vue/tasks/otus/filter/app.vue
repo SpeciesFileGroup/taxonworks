@@ -49,30 +49,6 @@
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width">
-        <div 
-          v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-left separate-bottom">
-          <div class="horizontal-left-content">
-            <csv-button
-              :url="urlRequest"
-              :options="{ fields: csvFields }"/>
-            <span class="separate-left separate-right">|</span>
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = coIds"
-              class="button normal-input button-default">
-              Select all
-            </button>
-          </div>
-        </div>
         <div
           class="flex-separate margin-medium-bottom"
           v-if="pagination">
@@ -82,8 +58,8 @@
             :pagination="pagination"/>
           <div class="horizontal-left-content">
             <span
-              v-if="list.data.length"
-              class="horizontal-left-content">{{ list.data.length }} records.
+              v-if="list.length"
+              class="horizontal-left-content">{{ list.length }} records.
             </span>
             <div class="margin-small-left">
               <select v-model="per">
@@ -115,7 +91,6 @@
 
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-import CsvButton from './components/csvDownload'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 
@@ -123,30 +98,22 @@ export default {
   components: {
     PaginationComponent,
     FilterComponent,
-    ListComponent,
-    CsvButton
+    ListComponent
   },
   computed: {
     csvFields () {
-      if (!Object.keys(this.list).length) return []
-      return this.list.column_headers.map((item, index) => {
-        return {
-          label: item,
-          value: (row, field) => row[index] || field.default,
-          default: ''
-        }
-      })
+      return undefined
     },
     coIds () {
       return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
     },
     recordsFound() {
-      return Object.keys(this.list).length && this.list.data.length
+      return this.list.length
     }
   },
   data () {
     return {
-      list: {},
+      list: [],
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
