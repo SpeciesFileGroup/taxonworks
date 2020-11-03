@@ -34,6 +34,7 @@
       </button>
       <geographic-areas v-model="params.geographic"/>
       <taxon-name-component v-model="params.base.taxon_name_ids"/>
+      <author-component v-model="params.author"/>
       <citations-component
         title="Citations"
         v-model="params.base.citations"/>
@@ -57,9 +58,11 @@ import TaxonNameComponent from './filters/TaxonName'
 import GeographicAreas from '../../../collection_objects/filter/components/filters/geographic'
 import CitationsComponent from '../../../taxon_names/filter/components/filters/citations'
 import WithComponent from '../../../observation_matrices/dashboard/components/filters/with'
+import AuthorComponent from './filters/authors.vue'
 
 export default {
   components: {
+    AuthorComponent,
     SpinnerComponent,
     GeographicAreas,
     TaxonNameComponent,
@@ -71,7 +74,7 @@ export default {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.base, this.params.with)
+      return Object.assign({}, this.params.settings, this.filterEmptyParams(this.params.author), this.params.base, this.params.with)
     },
     emptyParams () {
       if (!this.params) return
@@ -131,6 +134,10 @@ export default {
         settings: {
           per: 500,
           page: 1
+        },
+        author: {
+          author: undefined,
+          author_ids: []
         },
         base: {
           taxon_name_ids: [],
