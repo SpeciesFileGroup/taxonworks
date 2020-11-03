@@ -7,7 +7,5 @@ class CreateNomenclaturalRankOrders < ActiveRecord::Migration[6.0]
       t.index [:rank_class], unique: true
       t.index [:rank_class, :position] # Also :position so the index itself holds all the data needed for sorting
     end
-
-    NomenclaturalRankOrder.populate_db
   end
 end
