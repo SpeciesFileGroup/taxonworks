@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pulse animation for radial annotator [#1822]
 - OTU column in asserted distribution on Browse OTU [#1846]
 - Radial annotator on Uniquify people task
+- History title on Browse Nomenclature
 
 ### Fixed
 - CVT view helper bug with predicates
