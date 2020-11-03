@@ -635,13 +635,19 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               TaxonName.all.sort { |a, b| RANKS.index(a.rank_class) <=> RANKS.index(b.rank_class) }
             end
 
-            specify 'orders by rank placement' do
+            specify '.order_by_nomenclatural_rank sorts by rank placement' do
               expect(TaxonName.order_by_nomenclatural_rank).to eq(sorted_names)
+            end
+
+            specify '.order_by_nomenclatural_rank_using_case sorts by rank placement' do
               expect(TaxonName.order_by_nomenclatural_rank_using_case).to eq(sorted_names)
             end
 
-            specify 'order by rank placement can be reversed' do
+            specify '.order_by_nomenclatural_rank can be reversed' do
               expect(TaxonName.order_by_nomenclatural_rank.reverse_order).to eq(sorted_names.reverse)
+            end
+
+            specify '.order_by_nomenclatural_rank_using_case can be reversed' do
               expect(TaxonName.order_by_nomenclatural_rank_using_case.reverse_order).to eq(sorted_names.reverse)
             end
           end
