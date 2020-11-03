@@ -19,10 +19,13 @@ for ver in `echo 10 12`; do
 
   docker-compose logs
 
-  docker-compose exec test bundle exec rspec -fd
+  # Test nomenclatural_rank_orders is initialized
+  docker-compose exec taxonworks bundle exec rails r "raise 'FAILED' unless NomenclaturalRankOrder.order(:position).map { |r| r.rank_class } == RANKS"
 
   # Test redis is running
   docker-compose exec taxonworks redis-cli ping
+
+  docker-compose exec test bundle exec rspec -fd
 
   # Test deploy-time backup is restorable
   docker-compose exec taxonworks find /backup | grep dump || (echo "BACKUP AT STARTUP WAS NOT MADE!" && exit 1) # Check backup was made at startup

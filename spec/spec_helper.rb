@@ -110,6 +110,9 @@ RSpec.configure do |config|
     Faker::Config.random = Random.new(ENV['FAKER_SEED'].to_i) if ENV['FAKER_SEED']
     # Monitor Faker seed
     puts "Faker random seed: #{Faker::Config.random.seed}"
+
+    # Re-init NomenclaturalRankOrder in case ActiveRecord::Migration.maintain_test_schema! detected test schema is out of sync
+    NomenclaturalRankOrder.populate_db
   end
 
   config.after(:suite) do
