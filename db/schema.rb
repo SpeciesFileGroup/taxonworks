@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_09_214219) do
+ActiveRecord::Schema.define(version: 2020_11_02_204443) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1087,6 +1087,13 @@ ActiveRecord::Schema.define(version: 2020_09_09_214219) do
     t.string "delimiter"
     t.index ["created_by_id"], name: "index_namespaces_on_created_by_id"
     t.index ["updated_by_id"], name: "index_namespaces_on_updated_by_id"
+  end
+
+  create_table "nomenclatural_rank_orders", force: :cascade do |t|
+    t.string "rank_class", null: false
+    t.integer "position", null: false
+    t.index ["rank_class", "position"], name: "index_nomenclatural_rank_orders_on_rank_class_and_position"
+    t.index ["rank_class"], name: "index_nomenclatural_rank_orders_on_rank_class", unique: true
   end
 
   create_table "notes", id: :serial, force: :cascade do |t|

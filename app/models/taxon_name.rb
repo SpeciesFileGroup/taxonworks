@@ -247,9 +247,10 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  default_scope { order(case_rank_class_to_position) } # TODO: **REMOVE** it is used to force this scope on tests
+  has_one :nomenclatural_rank_class, class_name: 'NomenclaturalRankOrder', foreign_key: :rank_class, primary_key: :rank_class
 
-  scope :order_by_nomenclatural_rank, -> { order(case_rank_class_to_position) }
+  scope :order_by_nomenclatural_rank, -> { joins(:nomenclatural_rank_class).merge(NomenclaturalRankOrder.order(:position)) }
+  scope :order_by_nomenclatural_rank_using_case, -> { order(case_rank_class_to_position) }
 
   scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
   scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }

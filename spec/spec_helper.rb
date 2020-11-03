@@ -100,7 +100,7 @@ RSpec.configure do |config|
   #  config.profile_examples = 10
 
   config.before(:suite) do
-    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
+    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys nomenclatural_rank_orders))
 
     FileUtils.mkdir_p(Rails.configuration.x.test_tmp_file_dir) unless File.directory?(Rails.configuration.x.test_tmp_file_dir)
 
@@ -129,7 +129,7 @@ RSpec.configure do |config|
   # Capybara requires truncation strategy!!
   config.before(:each, js: true) do
     Capybara.current_driver  = Capybara.javascript_driver
-    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
+    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys nomenclatural_rank_orders)}
     Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
     FileUtils.rm_rf(Download.storage_path)
   end
