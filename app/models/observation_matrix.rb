@@ -82,7 +82,8 @@ class ObservationMatrix < ApplicationRecord
     when 'nomenclature'
       objects = []
       observation_matrix_rows.each do |r|
-        objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s]
+        objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order_by_nomenclatural_rank.pluck(:name).to_s]
+        #objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s]
         #objects.push [r, r.current_taxon_name.ancestor_ids] # TODO: probably not correct, a quick and dirty attempt
       end
 

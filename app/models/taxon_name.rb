@@ -263,7 +263,8 @@ class TaxonName < ApplicationRecord
     joins(:descendant_hierarchies)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
       .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id)
-      .order('taxon_name_hierarchies.generations DESC') # root is at index 0
+      .order_by_nomenclatural_rank
+    #.order('taxon_name_hierarchies.generations DESC') # root is at index 0
   }
 
   # LEAVE UNORDERED, if you want order:
