@@ -137,6 +137,7 @@ export default {
         },
         author: {
           author: undefined,
+          exact_author: undefined,
           author_ids: []
         },
         base: {

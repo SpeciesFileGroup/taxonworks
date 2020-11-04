@@ -10,6 +10,7 @@ module Queries
     attr_accessor :author_ids, :and_or_select
     attr_accessor :biological_associations
     attr_accessor :asserted_distributions
+    attr_accessor :exact_author
     
     attr_accessor :contents
     attr_accessor :depictions
@@ -17,7 +18,7 @@ module Queries
     attr_accessor :taxon_determinations
     attr_accessor :observations
 
-    attr_accessor :verbatim_author # was verbatim_author_string
+    attr_accessor :author # was verbatim_author_string
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
       :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
 
@@ -44,7 +45,8 @@ module Queries
       @shape = params[:drawn_area_shape]
       @selection_objects = params[:selection_objects] || ['CollectionObject', 'AssertedDistribution']
       @author_ids = params[:author_ids]
-      @verbatim_author = params[:verbatim_author]
+      @author = params[:author]
+      @exact_author = (params[:exact_author]&.downcase == 'true' ? true : false) if !params[:exact_author].nil?
 
       @rank_class = params[:rank_class]
       @descendants = params[:descendants]
@@ -114,7 +116,7 @@ module Queries
 
     # @return [Boolean]
     def verbatim_set?
-      !verbatim_author.blank?
+      !author.blank?
     end
 
     # @return [Boolean]
@@ -200,8 +202,13 @@ module Queries
     end
 
     # @return [Scope]
-    def verbatim_scope
-      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{verbatim_author}%")
+    def verbatim_author_facet
+      return nil if author.blank?
+      if exact_author
+        ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].eq(author.strip))
+      else 
+        ::Otu.joins(:taxon_name).where(::TaxonName.arel_table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%'))
+      end
     end
 
     # @return [Scope]
@@ -483,7 +490,8 @@ module Queries
         contents_facet,
         depictions_facet,
         determinations_facet,
-        observations_facet
+        observations_facet,
+        verbatim_author_facet
 
         # matching_verbatim_author
       ].compact
