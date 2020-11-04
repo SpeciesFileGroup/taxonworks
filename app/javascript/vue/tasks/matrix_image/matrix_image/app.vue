@@ -20,10 +20,11 @@
       <h1>Image matrix</h1>
       <ul class="context-menu">
         <li>
-          <autocomplete 
+          <autocomplete
             url="/observation_matrices/autocomplete"
             param="term"
             label="label_html"
+            clear-after
             placeholder="Select a matrix"
             @getItem="loadMatrix($event.id)"
           />
@@ -124,7 +125,8 @@ export default {
       showColumnModal: false,
       matrixId: undefined,
       pagination: {},
-      maxPerPage: 3
+      maxPerPage: 3,
+      otu_ids: undefined
     }
   },
   created() {
@@ -132,6 +134,10 @@ export default {
     const obsIdParam = urlParams.get('observation_matrix_id')
     const rowIdParam = urlParams.get('row_id')
     const rowPositionParam = urlParams.get('row_position')
+    const otuIdsParam = urlParams.get('otu_ids')
+    if (otuIdsParam) {
+      this.otu_ids = otuIdsParam
+    }
     if (/^\d+$/.test(obsIdParam)) {
       this.loadMatrix(obsIdParam, /^\d+$/.test(rowIdParam) ? rowIdParam : undefined, /^\d+$/.test(rowPositionParam) ? rowPositionParam : undefined)
     }
@@ -176,7 +182,7 @@ export default {
     },
     getRows (page) {
       return new Promise((resolve, reject) => {
-        GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page } }).then(response => {
+        GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page, otu_ids: this.otu_ids } }).then(response => {
           this.observationRows = response.body
           this.pagination = GetPagination(response)
           return resolve(response.body)
