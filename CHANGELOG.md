@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator on Uniquify people task
 - History title on Browse nomenclature
 - otu_ids param on Image matrix task
+- Open image matrix button on Interactive keys task
 
 ### Fixed
 - CVT view helper bug with predicates
