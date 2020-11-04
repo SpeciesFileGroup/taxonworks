@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
 - Autocomplete label for original combination on New taxon name task
+- Changed "n/a" to combination label on Browse nomenclature
 
 [#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
