@@ -126,7 +126,7 @@ namespace :tw do
           'citations:soft_validation_fixes'
         ]
 
-        tasks.push('media:create_otu_website_links') if ActiveModel::Type::Boolean.new.cast(ENV['IMPORT_IMAGES'])
+        tasks.push('media:images') if ActiveModel::Type::Boolean.new.cast(ENV['IMPORT_IMAGES'])
 
         tasks.each.with_index(1) do |task, index|
           checkpoints = Import.find_or_create_by(name: 'SpeciesFileData:checkpoints')
