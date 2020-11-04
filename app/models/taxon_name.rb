@@ -260,11 +260,11 @@ class TaxonName < ApplicationRecord
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
-    joins(:descendant_hierarchies)
-      .where(taxon_name_hierarchies: {descendant_id: taxon_name.id})
-      .where('taxon_name_hierarchies.ancestor_id != ?', taxon_name.id)
-      .order_by_nomenclatural_rank
-    #.order('taxon_name_hierarchies.generations DESC') # root is at index 0
+    joins(:descendant_hierarchies).merge(TaxonNameHierarchy
+      .where(descendant: taxon_name)
+      .where.not(ancestor: taxon_name)
+      .order(generations: :desc)
+    )
   }
 
   # LEAVE UNORDERED, if you want order:
