@@ -125,7 +125,7 @@ export default {
       showColumnModal: false,
       matrixId: undefined,
       pagination: {},
-      maxPerPage: 3,
+      maxPerPage: 10,
       otu_ids: undefined
     }
   },
