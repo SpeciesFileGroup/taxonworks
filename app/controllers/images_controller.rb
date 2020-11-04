@@ -6,8 +6,17 @@ class ImagesController < ApplicationController
   # GET /images
   # GET /images.json
   def index
-    @recent_objects = Image.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Image.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @images = Queries::Image::Filter.new(filter_params).all
+          .where(project_id: sessions_current_project_id)
+          .all.page(params[:page]).per(params[:per] || 50)
+      }
+    end
   end
 
   # GET /images/1
@@ -131,6 +140,32 @@ class ImagesController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(
+      :otu_id,
+      :collection_object_id,
+      :image_id,
+      :biocuration_class,
+      :sled_image_id,
+      :depiction,
+      :user_id, # user
+      :user_target,
+      :user_date_start,
+      :user_date_end,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      keyword_ids: [],
+      sled_image_id: [],
+      biocuration_class_id: [],
+      image_id: [],
+      collection_object_id: [],
+      otu_id: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
