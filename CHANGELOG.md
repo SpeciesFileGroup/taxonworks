@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
+- Autocomplete label for original combination on New taxon name task
 
 [#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
