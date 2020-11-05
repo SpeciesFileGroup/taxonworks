@@ -26,6 +26,10 @@
         @click="searchDepictions">
         Search
       </button>
+      <otus-component v-model="params.base.otu_id"/>
+      <biocurations-component v-model="params.base.biocuration_class_id"/>
+      <identifier-component v-model="params.identifier"/>
+      <tags-component v-model="params.base.keyword_ids"/>
       <users-component v-model="params.user"/>
     </div>
   </div>
@@ -36,14 +40,22 @@
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
+import TagsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
+import OtusComponent from './filters/otus.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
-import { GetDepictions } from '../request/resources.js'
+import { GetImages } from '../request/resources.js'
 
 export default {
   components: {
+    BiocurationsComponent,
+    IdentifierComponent,
     SpinnerComponent,
-    UsersComponent
+    UsersComponent,
+    OtusComponent,
+    TagsComponent
   },
   computed: {
     getMacKey () {
@@ -76,14 +88,14 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },
     getDepictions (params) {
       this.searching = true
       this.$emit('newSearch')
-      GetDepictions(params).then(response => {
+      GetImages(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('pagination', response)
@@ -103,6 +115,18 @@ export default {
         settings: {
           per: 500,
           page: 1
+        },
+        base: {
+          otu_id: [],
+          biocuration_class_id: [],
+          keyword_ids: []
+        },
+        identifier: {
+          identifier: undefined,
+          identifier_exact: undefined,
+          identifier_start: undefined,
+          identifier_end: undefined,
+          namespace_id: undefined
         },
         depictions: {},
         collectingEvent: {},

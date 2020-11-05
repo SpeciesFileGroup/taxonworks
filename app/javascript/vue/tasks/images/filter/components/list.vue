@@ -1,14 +1,26 @@
 <template>
-  <div>
+  <div class="panel flex-wrap-row">
+    <image-component
+      v-for="image in list"
+      class="margin-small"
+      :key="image.id"
+      :image="image"/>
   </div>
 </template>
 
 <script>
-export default {
 
+import ImageComponent from './image.vue'
+
+export default {
+  components: {
+    ImageComponent
+  },
+  props: {
+    list: {
+      type: Array,
+      required: true
+    }
+  }
 }
 </script>
-
-<style>
-
-</style>
