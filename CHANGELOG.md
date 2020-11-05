@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fixed display problem of OTUs without taxon name on Browse OTU
 - Edit asserted distribution on quick forms
 - Reference overflow on Browse nomenclature
+- Date requested filled automatically [#1872]
 
 ### Changed
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
+[#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
 
 ## [0.14.1] - 2020-10-22
 
