@@ -1,24 +1,24 @@
 <template>
   <div>
-    <h2>Otus</h2>
+    <h2>Collection objects</h2>
     <autocomplete
-      url="/otus/autocomplete"
+      url="/collection_objects/autocomplete"
       param="term"
       label="label_html"
-      placeholder="Search a OTU..."
+      placeholder="Search a collection object..."
       clear-after
-      @getItem="addOtu($event.id)"
+      @getItem="addCo($event.id)"
     />
     <div class="field separate-top">
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
-          v-for="(otu, index) in otusStore"
+          v-for="(otu, index) in coStore"
           :key="otu.id">
           <span v-html="otu.object_tag"/>
           <span
             class="btn-delete button-circle button-default"
-            @click="removeOtu(index)"/>
+            @click="removeCo(index)"/>
         </li>
       </ul>
     </div>
@@ -28,7 +28,7 @@
 <script>
 
 import Autocomplete from 'components/autocomplete'
-import { GetOtu } from '../../request/resources.js'
+import { GetCollectionObject } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -43,29 +43,29 @@ export default {
   },
   data () {
     return {
-      otusStore: []
+      coStore: []
     }
   },
   watch: {
-    otusStore (newVal) {
+    coStore (newVal) {
       this.$emit('input', newVal.map(otu => otu.id))
     }
   },
   created () {
     const params = URLParamsToJSON(location.href)
-    if (params.otu_id) {
-      params.otu_id.forEach(id => {
-        this.addOtu(id)
+    if (params.collection_object_id) {
+      params.collection_object_id.forEach(id => {
+        this.addCo(id)
       })
     }
   },
   methods: {
-    removeOtu (index) {
-      this.otusStore.splice(index, 1)
+    removeCo (index) {
+      this.coStore.splice(index, 1)
     },
-    addOtu (id) {
-      GetOtu(id).then(({ body }) => {
-        this.otusStore.push(body)
+    addCo (id) {
+      GetCollectionObject(id).then(({ body }) => {
+        this.coStore.push(body)
       })
     }
   }

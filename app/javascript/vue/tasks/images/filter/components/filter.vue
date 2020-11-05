@@ -27,6 +27,7 @@
         Search
       </button>
       <otus-component v-model="params.base.otu_id"/>
+      <collection-object-component v-model="params.base.collection_object_id"/>
       <biocurations-component v-model="params.base.biocuration_class_id"/>
       <identifier-component v-model="params.identifier"/>
       <tags-component v-model="params.base.keyword_ids"/>
@@ -43,7 +44,8 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/collection_objects/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
-import OtusComponent from './filters/otus.vue'
+import OtusComponent from './filters/otus'
+import CollectionObjectComponent from './filters/collectionObjects'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetImages } from '../request/resources.js'
@@ -51,6 +53,7 @@ import { GetImages } from '../request/resources.js'
 export default {
   components: {
     BiocurationsComponent,
+    CollectionObjectComponent,
     IdentifierComponent,
     SpinnerComponent,
     UsersComponent,
@@ -119,6 +122,7 @@ export default {
         base: {
           otu_id: [],
           biocuration_class_id: [],
+          collection_object_id: [],
           keyword_ids: []
         },
         identifier: {
