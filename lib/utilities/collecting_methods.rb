@@ -10,6 +10,7 @@ module Utilities::CollectingMethods
              'uv light trap' => 'UV light trap',
              'uv trap' => 'UV light trap',
              'uv light' => 'UV light',
+             'u.v. light' => 'UV light',
              'blacklight trap' => 'black light trap',
              'black light trap' => 'black light trap',
              'blacklight' => 'black light',
