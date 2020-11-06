@@ -38,6 +38,10 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
+# @!attribute pixels_to_centimeter 
+#   @return [Float, nil]
+#      used to generate scale bars on the fly 
+#
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
