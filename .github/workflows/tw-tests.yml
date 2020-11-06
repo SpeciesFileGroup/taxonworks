@@ -4,6 +4,10 @@ on: [push, pull_request]
 
 jobs:
   build:
+    env:
+      PGHOST: 127.0.0.1
+      PGUSER: postgres
+      RAILS_ENV: test
 
     runs-on: ubuntu-latest
 
@@ -27,33 +31,55 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         ruby-version: 2.7
+        
+    - name: Set up Ruby Bundler gems cache
+      uses: actions/cache@v2
+      with:
+        path: vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
 
     - name: Set up Node 10
       uses: actions/setup-node@v1
       with:
         node-version: '10'
 
+    - name: Set up Node packages cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+      
     - name: Install apt packages
       run: |
         sudo apt-get update
         sudo apt-get install -y imagemagick tesseract-ocr libgeos-dev libproj-dev
 
-    - name: Set up TaxonWorks
+    - name: Set up TaxonWorks config files
       run: |
         cp config/application_settings.yml.ci config/application_settings.yml
         cp config/secrets.yml.example config/secrets.yml
-        cp config/database.yml.ci config/database.yml    
-
-    - name: Build and test with Rake
-      env:
-        PGHOST: 127.0.0.1
-        PGUSER: postgres
-        RAILS_ENV: test
+        cp config/database.yml.ci config/database.yml
+    
+    - name: Install Ruby gems
       run: |
         gem install bundler
         bundle install --jobs 4 --retry 3
+
+    - name: Install Node packages
+      run: |
         npm install
+        
+    - name: Set up database
+      run: |
         bundle exec rails db:create
         bundle exec rails db:migrate
-        bundle exec rails assets:precompile
-        bundle exec rails spec
+        
+    - name: Precompile assets
+      run: bundle exec rails assets:precompile
+        
+    - name: Run tests
+      run: bundle exec rails spec
