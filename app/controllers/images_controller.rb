@@ -146,7 +146,7 @@ class ImagesController < ApplicationController
       :otu_id,
       :collection_object_id,
       :image_id,
-      :biocuration_class,
+      :biocuration_class_id,
       :sled_image_id,
       :depiction,
       :user_id, # user

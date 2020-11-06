@@ -16,7 +16,7 @@
           :key="keyword.id">
           <span v-html="keyword.object_tag"/>
           <span
-            class="btn-delete button-circle"
+            class="btn-delete button-circle button-default"
             @click="removeKeyword(index)"/>
         </li>
       </ul>

@@ -1,14 +1,16 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const GetDepictions = (params) => {
-  return ajaxCall('get', '/depictions.json', { params: params })
-}
+const GetCollectionObject = (id) => ajaxCall('get', `/collection_objects/${id}.json`)
 
-const GetUsers = () => {
-  return ajaxCall('get', '/project_members.json')
-}
+const GetImages = (params) => ajaxCall('get', '/images.json', { params: params })
+
+const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
+
+const GetUsers = () => ajaxCall('get', '/project_members.json')
 
 export {
-  GetDepictions,
-  GetUsers
+  GetCollectionObject,
+  GetImages,
+  GetUsers,
+  GetOtu
 }
