@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - History title on Browse nomenclature
 - otu_ids param on Image matrix task
 - Open image matrix button on Interactive keys task
+- Citations on image response
 
 ### Fixed
 - CVT view helper bug with predicates
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - No longer needed set user on User facet in filters
 - Autocomplete label for original combination on New taxon name task
 - Changed "n/a" to combination label on Browse nomenclature
+- Create original citation in image matrix task
 
 [#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
