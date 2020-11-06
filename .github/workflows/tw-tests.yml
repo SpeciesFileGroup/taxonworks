@@ -1,0 +1,57 @@
+name: TaxonWorks tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:12
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+    
+    - name: Set up Ruby 2.7
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+
+    - name: Set up Node 10
+      uses: actions/setup-node@v1
+      with:
+        node-version: '10'
+
+    - name: Install apt packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick tesseract-ocr libgeos-dev libproj-dev
+
+    - name: Set up TaxonWorks
+      run: |
+        cp config/application_settings.yml.ci config/application_settings.yml
+        cp config/secrets.yml.example config/secrets.yml
+        cp config/database.yml.ci config/database.yml    
+
+    - name: Build and test with Rake
+      env:
+        PGHOST: 127.0.0.1
+        PGUSER: postgres
+        RAILS_ENV: test
+      run: |
+        gem install bundler
+        bundle install --jobs 4 --retry 3
+        npm install
+        bundle exec rails db:create
+        bundle exec rails db:migrate
+        bundle exec rails assets:precompile
+        bundle exec rails spec
