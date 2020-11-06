@@ -16,8 +16,20 @@ json.identified_to_rank @key.identified_to_rank
 json.list_of_descriptors@key.list_of_descriptors
 json.depiction_matrix @key.depiction_matrix
 
+json.depiction_matrix (@key.depiction_matrix) do |d, v|
+  json.object do
+    json.partial! '/shared/data/all/metadata', object: v[:object]
+    json.merge! v[:object].attributes
+  end
+  json.extract! v, :row_id
+  json.depictions do
+    json.array! v[:depictions] do |arrDepictions|
+      json.array! arrDepictions, partial: '/depictions/attributes', as: :depiction
+    end
+  end
+end
+
 json.observation_matrix do
   json.partial! '/shared/data/all/metadata', object: @key.observation_matrix
   json.merge! @key.observation_matrix.attributes
 end
-
