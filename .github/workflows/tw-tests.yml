@@ -36,9 +36,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.os }}-gems-rev2-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
-          ${{ runner.os }}-gems-
+          ${{ runner.os }}-gems-rev2
 
     - name: Set up Node 10
       uses: actions/setup-node@v1
@@ -48,10 +48,12 @@ jobs:
     - name: Set up Node packages cache
       uses: actions/cache@v2
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        path: |
+          ~/.npm
+          **/node_modules
+        key: ${{ runner.os }}-node-rev2-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-
+          ${{ runner.os }}-node-rev2
       
     - name: Install apt packages
       run: |
@@ -83,4 +85,4 @@ jobs:
       run: bundle exec rails assets:precompile
         
     - name: Run tests
-      run: bundle exec rspec --color --tty
+      run: bundle exec rspec --color
