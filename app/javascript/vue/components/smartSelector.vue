@@ -35,38 +35,54 @@
           @getItem="getObject($event.id)"/>
       </div>
       <slot name="body"/>
-      <ul
-        v-if="view && view != 'search'"
-        class="no_bullets"
-        :class="{ 'flex-wrap-row': inline }">
-        <template v-for="item in lists[view]">
-          <li
-            v-if="filterItem(item)"
-            :key="item.id">
-            <template
-              v-if="buttons">
-              <button
-                type="button"
-                class="button normal-input tag_button"
-                :class="buttonClass"
-                v-html="item[label]"
-                @click.prevent="sendObject(item)"/>
-            </template>
-            <template
-              v-else>
-              <label class="cursor-pointer">
-                <input
-                  :name="name"
-                  @click="sendObject(item)"
-                  :value="item"
-                  :checked="selectedItem && item.id == selectedItem.id"
-                  type="radio">
-                <span v-html="item[label]"/>
-              </label>
-            </template>
-          </li>
-        </template>
-      </ul>
+      <template v-if="isImageModel">
+        <div class="flex-wrap-row">
+          <div
+            v-for="image in lists[view]"
+            :key="image.id"
+            class="thumbnail-container margin-small cursor-pointer"
+            @click="sendObject(image)">
+            <img
+              :width="image.alternatives.thumb.width"
+              :height="image.alternatives.thumb.height"
+              :src="image.alternatives.thumb.image_file_url">
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <ul
+          v-if="view && view != 'search'"
+          class="no_bullets"
+          :class="{ 'flex-wrap-row': inline }">
+          <template v-for="item in lists[view]">
+            <li
+              v-if="filterItem(item)"
+              :key="item.id">
+              <template
+                v-if="buttons">
+                <button
+                  type="button"
+                  class="button normal-input tag_button"
+                  :class="buttonClass"
+                  v-html="item[label]"
+                  @click.prevent="sendObject(item)"/>
+              </template>
+              <template
+                v-else>
+                <label class="cursor-pointer">
+                  <input
+                    :name="name"
+                    @click="sendObject(item)"
+                    :value="item"
+                    :checked="selectedItem && item.id == selectedItem.id"
+                    type="radio">
+                  <span v-html="item[label]"/>
+                </label>
+              </template>
+            </li>
+          </template>
+        </ul>
+      </template>
     </template>
     <slot :name="view" />
     <slot />
@@ -199,6 +215,9 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    isImageModel () {
+      return this.model === 'images'
     }
   },
   data () {

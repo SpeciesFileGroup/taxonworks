@@ -103,16 +103,25 @@
       </div>
     </div>
     <div v-else>
-      <dropzone
-        class="dropzone-card separate-bottom"
-        @vdropzone-sending="sending"
-        @vdropzone-success="success"
-        ref="figure"
-        id="figure"
-        url="/depictions"
-        :use-custom-dropzone-options="true"
-        :dropzone-options="dropzone"
-      />
+      <smart-selector
+        model="images"
+        :autocomplete="false"
+        :search="false"
+        :target="objectType"
+        :addTabs="['new']"
+        @selected="createDepiction">
+        <dropzone
+          slot="new"
+          class="dropzone-card separate-bottom"
+          @vdropzone-sending="sending"
+          @vdropzone-success="success"
+          ref="figure"
+          id="figure"
+          url="/depictions"
+          :use-custom-dropzone-options="true"
+          :dropzone-options="dropzone"
+        />
+      </smart-selector>
       <label>
         <input
           type="checkbox"
@@ -164,6 +173,7 @@ import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -171,7 +181,8 @@ export default {
     dropzone,
     Autocomplete,
     OtuPicker,
-    RadialAnnotator
+    RadialAnnotator,
+    SmartSelector
   },
   computed: {
     updateObjectType () {
@@ -247,6 +258,17 @@ export default {
       if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
         this.removeItem(item)
       }
+    },
+    createDepiction (image) {
+      const depiction = {
+        image_id: image.id,
+        annotated_global_entity: this.globalId,
+        is_metadata_depiction: this.isDataDepiction
+      }
+      this.create('/depictions.json', { depiction: depiction }).then(({ body }) => {
+        this.list.push(body)
+        TW.workbench.alert.create('Depiction was successfully created.', 'notice')
+      })
     }
   }
 }
