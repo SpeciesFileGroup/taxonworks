@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit asserted distribution on quick forms
 - Reference overflow on Browse nomenclature
 - Date requested filled automatically [#1872]
+- Remove collecting event on comprehensive specimen digitization [#1878]
 
 ### Changed
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
