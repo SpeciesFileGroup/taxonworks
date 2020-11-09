@@ -101,11 +101,9 @@ export default {
       GetImages(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
-        this.$emit('pagination', response)
+        this.$emit('response', response)
         this.$emit('params', params)
         this.searching = false
-        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/images/filter?${urlParams.toString()}`)
         if (response.body.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }

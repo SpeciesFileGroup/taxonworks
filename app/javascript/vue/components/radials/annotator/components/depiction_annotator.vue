@@ -108,7 +108,7 @@
         :autocomplete="false"
         :search="false"
         :target="objectType"
-        :addTabs="['new']"
+        :addTabs="['new', 'filter']"
         @selected="createDepiction">
         <dropzone
           slot="new"
@@ -121,6 +121,24 @@
           :use-custom-dropzone-options="true"
           :dropzone-options="dropzone"
         />
+        <div
+          class="horizontal-left-content align-start"
+          slot="filter">
+          <filter-image
+            @result="loadList"/>
+          <div class="margin-small-left flex-wrap-row">
+            <div
+              v-for="image in filterList"
+              :key="image.id"
+              class="thumbnail-container margin-small cursor-pointer"
+              @click="createDepiction(image)">
+              <img
+                :width="image.alternatives.thumb.width"
+                :height="image.alternatives.thumb.height"
+                :src="image.alternatives.thumb.image_file_url">
+            </div>
+          </div>
+        </div>
       </smart-selector>
       <label>
         <input
@@ -168,18 +186,21 @@
 <script>
 
 import CRUD from '../request/crud.js'
-import dropzone from 'components/dropzone.vue'
+import Dropzone from 'components/dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import FilterImage from 'tasks/images/filter/components/filter'
+import FilterImageList from 'tasks/images/filter/components/list'
 import SmartSelector from 'components/smartSelector'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    dropzone,
+    Dropzone,
     Autocomplete,
+    FilterImage,
     OtuPicker,
     RadialAnnotator,
     SmartSelector
@@ -225,7 +246,8 @@ export default {
       ],
       isDataDepiction: false,
       selectedType: undefined,
-      selectedObject: undefined
+      selectedObject: undefined,
+      filterList: []
     }
   },
   mounted () {
@@ -269,6 +291,10 @@ export default {
         this.list.push(body)
         TW.workbench.alert.create('Depiction was successfully created.', 'notice')
       })
+    },
+    loadList (newList) {
+      console.log(newList)
+      this.filterList = newList
     }
   }
 }
@@ -286,9 +312,6 @@ export default {
 			width: 100%;
 			height: 100px;
 		}
-    /deep/ .vue-autocomplete-input {
-      width: 400px;
-    }
 	}
 }
 </style>

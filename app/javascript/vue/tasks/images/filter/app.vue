@@ -39,7 +39,7 @@
         @params="params = $event"
         @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
-        @pagination="pagination = getPagination($event)"
+        @response="updateUrl"
         @result="loadList"
         @reset="resetTask"/>
       <div class="full_width">
@@ -151,6 +151,11 @@ export default {
     },
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
+    },
+    updateUrl (response) {
+      this.getPagination(response)
+      const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
+      history.pushState(null, null, `/tasks/images/filter?${urlParams.toString()}`)
     },
     getPagination: GetPagination
   }
