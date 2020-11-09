@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - otu_ids param on Image matrix task
 - Open image matrix button on Interactive keys task
 - Citations on image response
+- View mode on image matrix
 
 ### Fixed
 - CVT view helper bug with predicates
