@@ -27,6 +27,10 @@
         Search
       </button>
       <otus-component v-model="params.base.otu_id"/>
+      <scope-component v-model="params.base.taxon_name_id"/>
+      <related-component
+        v-model="params.includes"
+        :taxon-name="params.base.taxon_name_id"/>
       <collection-object-component v-model="params.base.collection_object_id"/>
       <biocurations-component v-model="params.base.biocuration_class_id"/>
       <identifier-component v-model="params.identifier"/>
@@ -44,6 +48,8 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/collection_objects/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
+import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
+import RelatedComponent from 'tasks/taxon_names/filter/components/filters/related'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -58,7 +64,9 @@ export default {
     SpinnerComponent,
     UsersComponent,
     OtusComponent,
-    TagsComponent
+    TagsComponent,
+    ScopeComponent,
+    RelatedComponent
   },
   computed: {
     getMacKey () {
@@ -91,7 +99,7 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.includes, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },
@@ -119,6 +127,7 @@ export default {
         },
         base: {
           otu_id: [],
+          taxon_name_id: [],
           biocuration_class_id: [],
           collection_object_id: [],
           keyword_ids: []
@@ -129,6 +138,10 @@ export default {
           identifier_start: undefined,
           identifier_end: undefined,
           namespace_id: undefined
+        },
+        includes: {
+          descendants: undefined,
+          ancestors: undefined
         },
         depictions: {},
         collectingEvent: {},
