@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added image smart selector [#1832]
+- Added `pixels_to_centimeter` to images [#1785]
 - Add shape on asserted distribution list [#1828]
 - Row filter on Interactive keys task
 - Interactive keys and image matrix buttons on observation matrix dashboard
@@ -18,6 +20,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Removed pages field on topic section
 
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 

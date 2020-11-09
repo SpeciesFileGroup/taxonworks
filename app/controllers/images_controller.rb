@@ -139,6 +139,11 @@ class ImagesController < ApplicationController
     render :show
   end
 
+  # GET /images/select_options?target=TaxonDetermination
+  def select_options
+    @images = Image.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
   private
 
   def filter_params
