@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
 - Add shape on asserted distribution list [#1828]
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Removed pages field on topic section
 
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
 [#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
