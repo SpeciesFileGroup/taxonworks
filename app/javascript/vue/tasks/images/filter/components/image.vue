@@ -1,6 +1,6 @@
 <template>
   <div
-    style="background-color: black; width: 100px"
+    style="background-color: black; width: 100px; height: 100px"
     class="depiction-thumb-container horizontal-center-content middle position-relative">
     <img
       class="cursor-pointer"
