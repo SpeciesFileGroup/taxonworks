@@ -31,6 +31,9 @@
       <related-component
         v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
+      <ancestor-target
+        v-model="params.base.ancestor_id_target"
+        :taxon-name="params.base.taxon_name_id"/>
       <collection-object-component v-model="params.base.collection_object_id"/>
       <biocurations-component v-model="params.base.biocuration_class_id"/>
       <identifier-component v-model="params.identifier"/>
@@ -52,12 +55,14 @@ import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
 import RelatedComponent from 'tasks/taxon_names/filter/components/filters/related'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
+import AncestorTarget from './filters/ancestorTarget'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetImages } from '../request/resources.js'
 
 export default {
   components: {
+    AncestorTarget,
     BiocurationsComponent,
     CollectionObjectComponent,
     IdentifierComponent,
@@ -130,7 +135,8 @@ export default {
           taxon_name_id: [],
           biocuration_class_id: [],
           collection_object_id: [],
-          keyword_ids: []
+          keyword_ids: [],
+          ancestor_id_target: undefined
         },
         identifier: {
           identifier: undefined,
