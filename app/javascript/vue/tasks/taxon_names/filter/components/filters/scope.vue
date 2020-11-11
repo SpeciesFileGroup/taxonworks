@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Scope</h2>
+    <h2>Classification scope</h2>
     <label>Return these names</label>
     <autocomplete
       url="/taxon_names/autocomplete"

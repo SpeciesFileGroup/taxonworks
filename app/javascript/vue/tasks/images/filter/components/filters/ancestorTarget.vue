@@ -49,7 +49,7 @@ export default {
           value: undefined
         },
         {
-          label: 'Otu',
+          label: 'OTU',
           value: 'Otu'
         },
         {
