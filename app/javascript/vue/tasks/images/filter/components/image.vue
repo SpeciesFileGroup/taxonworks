@@ -17,6 +17,7 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)">
+      <h3 slot="header">Image</h3>
       <div
         slot="body"
         class="horizontal-left-content align-start">
