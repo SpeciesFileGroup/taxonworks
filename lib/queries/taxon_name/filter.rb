@@ -1,5 +1,5 @@
 module Queries
-  module TaxonName 
+  module TaxonName
 
     # https://api.taxonworks.org/#/taxon_names
     class Filter < Queries::Query
@@ -25,18 +25,18 @@ module Queries
       attr_accessor :exact
 
       # @param updated_since [String] in format yyyy-mm-dd
-      #  Names updated (.modified_at) since this date. 
-      attr_accessor :updated_since 
+      #  Names updated (.modified_at) since this date.
+      attr_accessor :updated_since
 
       # @prams validity [ Boolean]
       # ['true' or 'false'] on initialize
-      #   true if only valid, false if only invalid, nil if both 
+      #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
 
       # @params taxon_name_id [Array]
       #   An array of taxon_name_id.
       # @return
-      #   Return the taxon name(s) with this/these ids 
+      #   Return the taxon name(s) with this/these ids
       attr_accessor :taxon_name_id
 
       # @params parent_id[] [Array]
@@ -61,7 +61,7 @@ module Queries
       attr_accessor :ancestors
 
       # @param taxon_name_relationship [Array]
-      #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ] 
+      #  [ { 'type' => 'TaxonNameRelationship::<>', 'subject|object_taxon_name_id' => '123' } ... {} ]
       # Each entry must have a 'type'
       # Each entry must have one (and only one) of 'subject_taxon_name_id' or 'object_taxon_name_id'
       #
@@ -80,7 +80,7 @@ module Queries
       #   The project scope.
       # TODO: probably should be an array for API purposes.
       # TODO: unify globally as to whether param belongs here, or at controller level.
-      attr_accessor :project_id 
+      attr_accessor :project_id
 
       # @params citations [String]
       #  'without_citations' - names without citations
@@ -99,13 +99,13 @@ module Queries
 
       # @param authors [Boolean, nil]
       # ['true' or 'false'] on initialize
-      #   whether the name has an author string, from any source, provided 
+      #   whether the name has an author string, from any source, provided
       attr_accessor :authors
 
       # @params type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
-      attr_accessor :type_metadata 
+      attr_accessor :type_metadata
 
       # @return [Array, nil]
       # &nomenclature_group=< Higher|Family|Genus|Species  >
@@ -127,7 +127,20 @@ module Queries
       #   &taxon_name_type=<Protonym|Combination|Hybrid>
       attr_accessor :taxon_name_type
 
-      # @param params [Params] 
+      # @return [Array]
+      attr_accessor :taxon_name_author_ids
+
+      # @return [Boolean]
+      # @param [String]
+      #    'true'
+      attr_accessor :taxon_name_author_ids_or
+
+      # @return [String, nil]
+      # @param sort [String, nil]
+      #   one of :classification, :alphabetical
+      attr_accessor :sort
+
+      # @param params [Params]
       #   as permitted via controller
       def initialize(params)
         @author = params[:author]
@@ -144,18 +157,21 @@ module Queries
         @otus = (params[:otus]&.downcase == 'true' ? true : false) if !params[:otus].nil?
         @etymology = (params[:etymology]&.downcase == 'true' ? true : false) if !params[:etymology].nil?
         @project_id = params[:project_id]
-        @taxon_name_classification = params[:taxon_name_classification] || [] 
+        @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id] || []
         @parent_id = params[:parent_id] || []
-        @taxon_name_relationship = params[:taxon_name_relationship] || [] 
-        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || [] 
+        @sort = params[:sort]
+        @taxon_name_relationship = params[:taxon_name_relationship] || []
+        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
         @type_metadata = (params[:type_metadata]&.downcase == 'true' ? true : false) if !params[:type_metadata].nil?
-        @updated_since = params[:updated_since].to_s 
+        @updated_since = params[:updated_since].to_s
         @validity = (params[:validity]&.downcase == 'true' ? true : false) if !params[:validity].nil?
-        @year = params[:year].to_s 
-        
-        # TODO: support here?
+        @year = params[:year].to_s
+
+        @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
+        @taxon_name_author_ids_or = (params[:taxon_name_author_ids_or]&.downcase == 'true' ? true : false) if !params[:taxon_name_author_ids_or].nil?
+
         @keyword_ids ||= []
 
         set_user_dates(params)
@@ -173,15 +189,15 @@ module Queries
       def year=(value)
         @year = value.to_s
       end
-      
-      # @return [String, nil] 
+
+      # @return [String, nil]
       #   accessor for attr :nomenclature_group, wrap with needed wildcards
       def nomenclature_group
         return nil unless @nomenclature_group
         "NomenclaturalRank::%#{@nomenclature_group}%"
       end
 
-      # @return [String, nil] 
+      # @return [String, nil]
       #   accessor for attr :nomenclature_code, wrap with needed wildcards
       def nomenclature_code
         return nil unless @nomenclature_code
@@ -189,14 +205,14 @@ module Queries
       end
 
       # @return Scope
-      #   match only names that are a descendant of some taxon_name_id 
+      #   match only names that are a descendant of some taxon_name_id
       # A merge facet.
       def descendant_facet
         return nil if taxon_name_id.empty? || !(descendants == true)
 
         descendants_subquery = ::TaxonNameHierarchy.where(
           ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-          ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
         )
 
         unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
@@ -212,10 +228,10 @@ module Queries
       def ancestor_facet
         return nil if taxon_name_id.empty? || !(ancestors == true)
 
-       ancestors_subquery = ::TaxonNameHierarchy.where(
-         ::TaxonNameHierarchy.arel_table[:ancestor_id].eq(::TaxonName.arel_table[:id]).and(
-           ::TaxonNameHierarchy.arel_table[:descendant_id].in(taxon_name_id))
-       )
+        ancestors_subquery = ::TaxonNameHierarchy.where(
+          ::TaxonNameHierarchy.arel_table[:ancestor_id].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameHierarchy.arel_table[:descendant_id].in(taxon_name_id))
+        )
 
         ::TaxonName.where(ancestors_subquery.arel.exists)
       end
@@ -230,7 +246,7 @@ module Queries
       # @return Scope
       def authors_facet
         return nil if authors.nil?
-        authors ? 
+        authors ?
           ::TaxonName.where.not(cached_author_year: nil) :
           ::TaxonName.where(cached_author_year: nil)
       end
@@ -238,7 +254,7 @@ module Queries
       # @return Scope
       def with_etymology_facet
         return nil if etymology.nil?
-        etymology ? 
+        etymology ?
           ::TaxonName.where.not(etymology: nil) :
           ::TaxonName.where(etymology: nil)
       end
@@ -264,8 +280,8 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameRelationship.where(
             ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])).and(
-            ::TaxonNameRelationship.arel_table[:type].eq(hsh['type']))
+              ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])).and(
+                ::TaxonNameRelationship.arel_table[:type].eq(hsh['type']))
           ).arel.exists
         )
       end
@@ -277,10 +293,41 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameClassification.where(
             ::TaxonNameClassification.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameClassification.arel_table[:type].in(taxon_name_classification))
+              ::TaxonNameClassification.arel_table[:type].in(taxon_name_classification))
           ).arel.exists
         )
       end
+
+
+      # TODO: dry with Source, CollectingEvent , etc.
+      def matching_taxon_name_author_ids
+        return nil if taxon_name_author_ids.empty?
+        o = table
+        r = ::Role.arel_table
+
+        a = o.alias("a_")
+        b = o.project(a[Arel.star]).from(a)
+
+        c = r.alias('r1')
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:role_object_id])
+          .and(c[:role_object_type].eq('TaxonName'))
+          .and(c[:type].eq('TaxonNameAuthor'))
+        )
+
+        e = c[:id].not_eq(nil)
+        f = c[:person_id].eq_any(taxon_name_author_ids)
+
+        b = b.where(e.and(f))
+        b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(taxon_name_author_ids.length)) unless taxon_name_author_ids_or
+        b = b.as('z1_')
+
+        ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      end
+
 
       # @return Scope
       def type_metadata_facet
@@ -297,7 +344,7 @@ module Queries
       end
 
       # @return Scope
-      def citations_facet 
+      def citations_facet
         return nil if citations.nil?
 
         citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::TaxonName.arel_table[:id]).and(
@@ -338,12 +385,12 @@ module Queries
         end
       end
 
-      def parent_id_facet 
+      def parent_id_facet
         return nil if parent_id.empty?
-          table[:parent_id].eq_any(parent_id)
+        table[:parent_id].eq_any(parent_id)
       end
 
-      def author_facet 
+      def author_facet
         return nil if author.blank?
         if exact
           table[:cached_author_year].eq(author.strip)
@@ -352,7 +399,7 @@ module Queries
         end
       end
 
-      def year_facet 
+      def year_facet
         return nil if year.blank?
         table[:cached_author_year].matches('%' + year + '%')
       end
@@ -362,9 +409,9 @@ module Queries
         table[:updated_at].gt(Date.parse(updated_since))
       end
 
-      def validity_facet 
-        return nil if validity.nil? 
-        if validity 
+      def validity_facet
+        return nil if validity.nil?
+        if validity
           table[:id].eq(table[:cached_valid_taxon_name_id])
         else
           table[:id].not_eq(table[:cached_valid_taxon_name_id])
@@ -411,6 +458,7 @@ module Queries
           created_updated_facet,
           taxon_name_classification_facet,
           matching_keyword_ids,
+          matching_taxon_name_author_ids,
           type_metadata_facet,
           otus_facet,
           authors_facet,
@@ -436,7 +484,7 @@ module Queries
         a = and_clauses
         b = merge_clauses
 
-        q = nil 
+        q = nil
         if a && b
           q = b.where(a)
         elsif a
@@ -448,10 +496,29 @@ module Queries
         end
 
         q = q.where(project_id: project_id) if project_id
+        q = order_clause(q) if sort
+
         q
       end
 
-      protected
+      def order_clause(query)
+        case sort
+        when 'alphabetical'
+          ::TaxonName.select('*').from(
+            query.order('taxon_names.cached'), :inner_query
+          )
+        when 'classification'
+          ::TaxonName.select('*').from(
+            query
+            .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
+            .order('taxon_name_hierarchies.generations, taxon_name_hierarchies.ancestor_id, taxon_names.cached'),
+          :inner_query
+          )
+        else
+          query
+        end
+      end
+
     end
   end
 end

@@ -305,10 +305,12 @@ class CollectingEventsController < ApplicationController
       :end_date,   # used in date range
       :partial_overlap_dates,
       :spatial_geographic_areas,
+      :collector_ids_or,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],
-      otu_ids: []
+      otu_ids: [],
+      collector_ids: [],
     )
   end
 
@@ -326,10 +328,12 @@ class CollectingEventsController < ApplicationController
       :end_date,   # used in date range
       :partial_overlap_dates,
       :spatial_geographic_areas,
+      :collector_ids_or,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],
-      otu_ids: []
+      otu_ids: [],
+      collector_ids: [],
     )
   end
 

@@ -69,7 +69,7 @@ const GetGeographicAreaByCoords = function (lat,long) {
 }
 
 const GetGeographicArea = function (id) {
-  return ajaxCall('get', `/geographic_areas/${id}.json`)
+  return ajaxCall('get', `/geographic_areas/${id}.json`, { params: { geo_json: true } })
 }
 
 const GetTypes = function () {

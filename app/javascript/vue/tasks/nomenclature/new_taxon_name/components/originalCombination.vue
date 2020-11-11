@@ -25,9 +25,10 @@
           :key="item.id">
           <autocomplete
             url="/taxon_names/autocomplete"
-            label="label"
+            label="label_html"
             min="2"
             :disabled="disabled"
+            clear-after
             @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
             event-send="autocomplete"
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"

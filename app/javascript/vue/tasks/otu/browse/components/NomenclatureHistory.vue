@@ -3,8 +3,8 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    menu
     @menu="showModal = true">
-    <a name="timeline"/>
     <div class="switch-radio separate-top separate-bottom">
       <template v-for="(item, index) in filterTabs">
         <input

@@ -11,21 +11,78 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
-- Add shape on asserted distribution list [#1828]
+- PENDING TEST - API - `sort` (with `classification`, `alphabetical` options) to `/taxon_names` [#1865]
+- Taxon determination, citations and collecting event information in specimen record on browse OTU
+- Serial facet on filter sources
+- Pulse animation for radial annotator [#1822]
+- OTU column in asserted distribution on Browse OTU [#1846]
+- Radial annotator on Uniquify people task
+- History title on Browse nomenclature
+- otu_ids param on Image matrix task
+- Open image matrix button on Interactive keys task
+- Citations on image response
+- View mode on image matrix
+
+### Fixed
+- CVT view helper bug with predicates
+- Fixed database seeding bugs.
+- Fixed display problem of OTUs without taxon name on Browse OTU
+- Edit asserted distribution on quick forms
+- Reference overflow on Browse nomenclature
+- Date requested filled automatically [#1872]
+- Remove collecting event on comprehensive specimen digitization [#1878]
+
+### Changed
+- Running `rake db:seed` without `user_id`/`project_id` is now possible.
+- Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
+- No longer needed set user on User facet in filters
+- Autocomplete label for original combination on New taxon name task
+- Changed "n/a" to combination label on Browse nomenclature
+- Create original citation in image matrix task
+
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
+[#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
+[#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
+[#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
+[#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
+[#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
+
+## [0.14.1] - 2020-10-22
+
+### Added
+- API - `type` to /roles/:id
+- API - `year` to /taxon_names
+- API - `include_roles` param to /people
+- API - `taxon_name_author_ids[]=`, `taxon_name_author_ids_or` params to /taxon_names
+- API - `collector_ids[]=`, `collector_ids_or` params to /collecting_events
+- Shape on asserted distribution list [#1828]
 - Row filter on Interactive keys task
 - Interactive keys and image matrix buttons on observation matrix dashboard
 
 ### Fixed
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
+- Show repository on Browse OTU
+- Enable search after fill collecting event fields [#1833]
+- Missing geo_json param on geographic_area request [#1840]
 
 ### Changed
+- Exclude Roles from response from /api/v1/people by default
+- Increased `max_per_page` to 10000
+- Random words clashes mitigation: Project factory names made longer and `Faker` unique generator is reset only between specs instead of before each test.
 - Removed pages field on topic section
+- Improved verbatim date parsing
+- Georeference scope over geographic area scope [#1841]
 
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
 [#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
+[#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
+[#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
+[#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
 
 ## [0.14.0] - 2020-10-16
 
@@ -583,7 +640,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...development
+[0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17

@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default margin-small-bottom"
       @click="setModelView(true)">
-      Filter
+      Select
     </button>
     <modal-component
       v-if="showModal"
@@ -52,6 +52,12 @@
           @click="closeAndApply">
           Apply filter
         </button>
+        <button
+          type="button"
+          class="button normal-input button-default"
+          @click="openImageMatrix">
+          Open image matrix
+        </button>
       </div>
     </modal-component>
   </div>
@@ -65,6 +71,7 @@ import RanksList from '../const/ranks'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
+import { RouteNames } from 'routes/routes'
 
 export default {
   mixins: [ExtendResult],
@@ -115,6 +122,10 @@ export default {
     closeAndApply () {
       this.LoadObservationMatrix()
       this.setModelView(false)
+    },
+    openImageMatrix () {
+      const otuIds = this.rowFilter.map(id => this.remaining.find(r => r.object.id === id)).map(otu => otu.object.otu_id)
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${this.observationMatrix.observation_matrix_id}&otu_ids=${otuIds.join('|')}`, '_blank')
     }
   }
 }

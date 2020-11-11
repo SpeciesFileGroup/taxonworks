@@ -38,6 +38,7 @@
       <type-component v-model="params.source.source_type"/>
       <authors-component v-model="params.source"/>
       <date-component v-model="params.source"/>
+      <serials-component v-model="params.source.serial_ids"/>
       <tags-component v-model="params.source.keyword_ids"/>
       <topics-component v-model="params.source.topic_ids"/>
       <identifier-component v-model="params.identifier"/>
@@ -64,6 +65,7 @@ import DateComponent from './filters/date'
 import TagsComponent from './filters/tags'
 import IdentifierComponent from './filters/identifiers'
 import CitationTypesComponent from './filters/citationTypes'
+import SerialsComponent from './filters/serials'
 import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import TopicsComponent from './filters/topics'
@@ -84,7 +86,8 @@ export default {
     WithComponent,
     TypeComponent,
     UsersComponent,
-    TopicsComponent
+    TopicsComponent,
+    SerialsComponent
   },
   computed: {
     getMacKey () {
@@ -161,7 +164,8 @@ export default {
           citation_object_type: [],
           keyword_ids: [],
           topic_ids: [],
-          users: []
+          users: [],
+          serial_ids: []
         },
         byRecordsWith: {
           citations: undefined,

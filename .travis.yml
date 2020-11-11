@@ -6,7 +6,7 @@ branches:
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
-    - TEST_WORKERS=4
+    - TEST_WORKERS=5
     - COVERALLS_PARALLEL=true
 jobs:
   include:
@@ -41,6 +41,7 @@ jobs:
       services:
         - postgresql
       before_install:
+        - export PGPORT=$(pg_lsclusters -h | grep '^12 main' | cut -f3 -d' ')
         - nvm install 10
         - nvm use 10
       install:
@@ -67,6 +68,9 @@ jobs:
     - <<: *test-stage
       env:
         - TEST_WORKER=3
+    - <<: *test-stage
+      env:
+        - TEST_WORKER=4
     - stage: deliver
       if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal

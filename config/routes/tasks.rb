@@ -368,6 +368,11 @@ scope :tasks do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '', action: :index, as: 'interactive_key_task'
     end
+
+    scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
+      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      get '', action: :index, as: 'image_matrix_task'
+    end
   end
 
   scope :otus do

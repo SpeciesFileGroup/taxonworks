@@ -750,7 +750,8 @@ class Protonym < TaxonName
       dependants.each do |i|
         columns_to_update = {
           cached: i.get_full_name,
-          cached_html: i.get_full_name_html
+          cached_html: i.get_full_name_html,
+          cached_author_year: i.get_author_and_year
         }
 
         if i.is_species_rank?

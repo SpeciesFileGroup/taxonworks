@@ -3,8 +3,8 @@
     :status="status"
     :title="title"
     :spinner="loadState.biologicalAssociations"
+    menu
     @menu="setModalView(true)">
-    <a name="biological-associations"/>
     <table class="full_width">
       <thead>
         <tr>
