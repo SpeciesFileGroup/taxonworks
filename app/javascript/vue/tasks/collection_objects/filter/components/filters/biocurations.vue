@@ -4,13 +4,14 @@
     <ul class="no_bullets">
       <li
         v-for="item in biocurations"
-        :key="item.id">
+        :key="item.id"
+        class="margin-small-bottom">
         <label>
           <input
             type="checkbox"
             v-model="selectedBiocurations"
             :value="item.id">
-            {{ item.name }}
+          <span v-html="item.object_tag"/>
         </label>
       </li>
     </ul>

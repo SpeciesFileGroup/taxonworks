@@ -86,8 +86,7 @@ export default {
     return {
       params: this.initParams(),
       result: [],
-      searching: false,
-      perRequest: 10
+      searching: false
     }
   },
   mounted () {
@@ -127,7 +126,7 @@ export default {
     initParams () {
       return {
         settings: {
-          per: 500,
+          per: 50,
           page: 1
         },
         base: {
