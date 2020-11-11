@@ -41,7 +41,12 @@ module Queries
       # @return [Protonym.id, nil]
       #   return all images depicting an Otu that is self or descendant linked
       #   to this TaxonName
-      # attr_accessor :ancestor_id
+      attr_accessor :ancestor_id
+
+      # @return [Array]
+      #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
+      # Only used when `ancestor_id` provided
+      attr_accessor :ancestor_id_target
 
       # @return [Array]
       #   depicts some collection objec that is a type specimen
@@ -65,15 +70,24 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
-     
-        @depiction = (params[:depiction]&.downcase == 'true' ? true : false) if !params[:depiction].nil?
+        @ancestor_id = params[:ancestor_id]
+        @ancestor_id_target = params[:ancestor_id]
 
-        # TODO
-        # @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
+        @depiction = (params[:depiction]&.downcase == 'true' ? true : false) if !params[:depiction].nil?
 
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
+      end
+
+      def ancestor_id
+        [ @ancestor_id ].flatten.compact
+      end
+
+      def ancestor_id_target
+        a = [ @ancestor_id_target ].flatten.compact
+        a = ['Otu', 'CollectionObject'] if a.empty?
+        a
       end
 
       def biocuration_class_id
@@ -154,7 +168,7 @@ module Queries
       def depiction_facet
         return nil if depiction.nil?
         subquery = ::Image.joins(:depictions).where(table[:id].eq(depiction_table[:image_id])).arel.exists
-        ::Image.where(depiction == 'true' ? subquery : subquery.not)
+        ::Image.where(depiction == true ? subquery : subquery.not)
       end
 
       # facet
@@ -172,7 +186,6 @@ module Queries
         return nil if sqed_depiction_id.empty?
         ::Image.joins(depictions: [:sqed_depiction]).where(sqed_depictions: {id: sqed_depiction_id})
       end
-
 
       #     def collecting_event_merge_clauses
       #       c = []
@@ -230,12 +243,12 @@ module Queries
           build_depiction_facet('CollectingEvent', collecting_event_id),
           #    type_material_facet,
           #    type_material_type_facet,
-          #    ancestors_facet,
+          ancestors_facet,
           matching_keyword_ids,  # See Queries::Concerns::Tags
           created_updated_facet, # See Queries::Concerns::Users
-          #    identifier_between_facet,
-          #    identifier_facet,
-          #    identifier_namespace_facet,
+          #   identifier_between_facet,
+          #   identifier_facet,
+          #   identifier_namespace_facet,
           sqed_depiction_facet,
           sled_image_facet,
           biocuration_facet,
@@ -309,38 +322,70 @@ module Queries
         ::Image.joins(:depictions).where(depictions: {depiction_object_id: ids, depiction_object_type:  kind})
       end
 
-      # def ancestors_facet
-      #   return nil if ancestor_id.nil?
-      #   h = Arel::Table.new(:taxon_name_hierarchies)
-      #   t = ::TaxonName.arel_table
+      def ancestors_facet
+        #  Image -> Depictions -> Otu -> TaxonName -> Ancestors
+        return nil if ancestor_id.empty?
 
-      #   q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-      #     table[:id].eq(taxon_determination_table[:biological_collection_object_id])
-      #   ).join(otu_table, Arel::Nodes::InnerJoin).on(
-      #     taxon_determination_table[:otu_id].eq(otu_table[:id])
-      #   ).join(t, Arel::Nodes::InnerJoin).on(
-      #     otu_table[:taxon_name_id].eq(t[:id])
-      #   ).join(h, Arel::Nodes::InnerJoin).on(
-      #     t[:id].eq(h[:descendant_id])
-      #   )
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        t = ::TaxonName.arel_table
 
-      #   z = h[:ancestor_id].eq(ancestor_id)
+        j1, j2, q1, q2 = nil, nil, nil, nil
 
-      #   if validity == true
-      #     z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-      #   elsif validity == false
-      #     z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
-      #   end
+        if ancestor_id_target.include?('Otu')
+          a = otu_table.alias('oj1')
+          b = t.alias('tj1')
+          h_alias = h.alias('th1')
 
-      #   if current_determinations == true
-      #     z = z.and(taxon_determination_table[:position].eq(1))
-      #   elsif current_determinations == false
-      #     z = z.and(taxon_determination_table[:position].gt(1))
-      #   end
+          j1 = table
+            .join(depiction_table, Arel::Nodes::InnerJoin).on(table[:id].eq(depiction_table[:image_id]))
+            .join(a, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(a[:id]).and( depiction_table[:depiction_object_type].eq('Otu') ))
+            .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
+            .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-      #   ::Image.joins(q.join_sources).where(z)
-      # end
+          z = h_alias[:ancestor_id].eq_any(ancestor_id)
+          q1 = ::Image.joins(j1.join_sources).where(z)
+        end
 
+        if ancestor_id_target.include?('CollectionObject')
+          a = otu_table.alias('oj2')
+          b = t.alias('tj2')
+          h_alias = h.alias('th2')
+
+          j2 = table
+            .join(depiction_table, Arel::Nodes::InnerJoin).on(table[:id].eq(depiction_table[:image_id]))
+            .join(collection_object_table, Arel::Nodes::InnerJoin).on( depiction_table[:depiction_object_id].eq(collection_object_table[:id]).and( depiction_table[:depiction_object_type].eq('CollectionObject') ))
+            .join(taxon_determination_table, Arel::Nodes::InnerJoin).on( collection_object_table[:id].eq(taxon_determination_table[:biological_collection_object_id]) )
+            .join(a, Arel::Nodes::InnerJoin).on(  taxon_determination_table[:otu_id].eq(a[:id]) )
+            .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
+            .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
+
+          z = h_alias[:ancestor_id].eq_any(ancestor_id)
+          q2 = ::Image.joins(j2.join_sources).where(z)
+        end
+
+        if q1 && q2
+          ::Image.from("((#{q1.to_sql}) UNION (#{q2.to_sql})) as images")
+        elsif q1
+          q1
+        else
+          q2
+        end
+
+        #  if validity == true
+        #    z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+        #  elsif validity == false
+        #    z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+        #  end
+
+        # if current_determinations == true
+        #   z = z.and(taxon_determination_table[:position].eq(1))
+        # elsif current_determinations == false
+        #   z = z.and(taxon_determination_table[:position].gt(1))
+        # end
+
+      end
     end
   end
 end
+
+

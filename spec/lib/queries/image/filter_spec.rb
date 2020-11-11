@@ -12,6 +12,10 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   let(:co) { Specimen.create!  }
   let(:ce) { CollectingEvent.create!(verbatim_label: 'Test') }
 
+  let(:t1) { FactoryBot.create(:root_taxon_name) }
+  let(:t2) { Protonym.create(name: 'Aus', parent: t1, rank_class: Ranks.lookup(:iczn, :genus) ) }
+  let(:t3) { Protonym.create(name: 'bus', parent: t2, rank_class: Ranks.lookup(:iczn, :species) ) }
+
   specify '#otu_id one' do
     o.images << i1
     q.otu_id = o.id
@@ -80,7 +84,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
   specify '#sqed_image_id array' do
     a = FactoryBot.create(:valid_sqed_depiction, image: i1)
-    q.sqed_depiction_id =  [a.id]
+    q.sqed_depiction_id = [a.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
@@ -97,4 +101,61 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
+  specify '#ancestor_id id' do
+    o.update!(taxon_name: t3)
+    o.images << i1
+    q.ancestor_id = t2.id
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#ancestor_id array, Otu' do
+    o.update!(taxon_name: t3)
+    o.images << i1
+    q.ancestor_id = [t2.id]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#ancestor_id array, CollectionObject' do
+    o.update!(taxon_name: t3)
+    co.images << i1
+    co.otus << o
+    q.ancestor_id = [t2.id]
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify '#ancestor_id, #ancestor_id_target' do
+    # Collection object
+    o.update!(taxon_name: t3)
+    co.images << i1
+    co.otus << o
+
+    # Otu
+    o.images << i2
+
+    q.ancestor_id = [t2.id]
+    q.ancestor_id_target = 'CollectionObject'
+
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+  end
+
+  specify 'some together' do
+
+    # Collection object
+    o.update!(taxon_name: t3)
+    co.images << i1
+    co.otus << o
+
+    # Otu
+    o.images << i2
+
+    q.ancestor_id = [t2.id]
+    q.depiction = true
+    q.image_id = [i1.id]
+
+    expect(q.all.map(&:id)).to contain_exactly(i1.id)
+
+
+  end
+
 end
+

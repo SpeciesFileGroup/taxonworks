@@ -148,6 +148,8 @@ class ImagesController < ApplicationController
 
   def filter_params
     params.permit(
+      :ancestor_id,
+      :ancestor_id_target,
       :otu_id,
       :collection_object_id,
       :image_id,
