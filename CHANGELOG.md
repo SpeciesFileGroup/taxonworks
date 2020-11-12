@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - View mode on image matrix
 
 ### Fixed
+- Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
 - Fixed database seeding bugs.
 - Fixed display problem of OTUs without taxon name on Browse OTU
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed "n/a" to combination label on Browse nomenclature
 - Create original citation in image matrix task
 
+[#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
 [#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
