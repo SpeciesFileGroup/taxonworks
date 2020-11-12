@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Open image matrix button on Interactive keys task
 - Citations on image response
 - View mode on image matrix
+- Lock view option for smart selector
 
 ### Fixed
 - Fix matrix view row order [#1881]
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete label for original combination on New taxon name task
 - Changed "n/a" to combination label on Browse nomenclature
 - Create original citation in image matrix task
+- Autocomplete list style
 
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454

@@ -206,6 +206,10 @@ export default {
     filterIds: {
       type: [Number, Array],
       default: () => []
+    },
+    lockView: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -295,7 +299,9 @@ export default {
           }
         })
       }
-      this.view = SelectFirst(this.lists, this.options)
+      if (!this.lockView) {
+        this.view = SelectFirst(this.lists, this.options)
+      }
     },
     alreadyOnLists () {
       return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
