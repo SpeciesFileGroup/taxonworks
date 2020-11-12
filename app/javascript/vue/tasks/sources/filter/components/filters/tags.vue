@@ -2,7 +2,7 @@
   <div>
     <h2>Tags</h2>
     <fieldset>
-      <legend>Tags</legend>
+      <legend>Keywords</legend>
       <smart-selector
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
         :autocomplete-params="{'type[]' : 'Keyword'}"
