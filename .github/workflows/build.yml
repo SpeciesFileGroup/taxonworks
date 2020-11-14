@@ -104,4 +104,4 @@ jobs:
       run: bundle exec rails assets:precompile
         
     - name: Run tests
-      run: bundle exec rspec --color
+      run: bundle exec rspec --color --tty
