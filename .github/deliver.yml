@@ -1,0 +1,20 @@
+name: deliver
+
+on: [push, pull_request] # TODO: Only development and version tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: docker build . -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
+
+    - name: Run image tests
+      run: .github/docker-test.sh
+
+    # TODO: Wait here for build workflow to finish successfully, fail here otherwise.
+
+    # TODO: Deliver image to DockerHub (set up secrets also). Don't deliver on pull request.
