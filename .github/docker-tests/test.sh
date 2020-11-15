@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 set -e
 set -x
 
-docker build .. -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
-
 for ver in `echo 10 12`; do
   export PG_VERSION=$ver
 

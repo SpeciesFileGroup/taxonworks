@@ -13,7 +13,7 @@ jobs:
       run: docker build . -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
 
     - name: Run image tests
-      run: .github/docker-test.sh
+      run: .github/docker-tests/test.sh
 
     # TODO: Wait here for build workflow to finish successfully, fail here otherwise.
 
