@@ -47,5 +47,5 @@ public/packs
 public/assets
 
 spec
-.travis
+.github
 k8s

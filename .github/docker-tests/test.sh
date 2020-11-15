@@ -4,6 +4,8 @@ cd "$(dirname "$0")"
 set -e
 set -x
 
+export REVISION=$(echo $GITHUB_SHA | cut -c1-9)
+
 for ver in `echo 10 12`; do
   export PG_VERSION=$ver
 
