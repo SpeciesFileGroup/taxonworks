@@ -38,4 +38,6 @@ jobs:
 
     - name: Save Docker cache (if cache was NOT hit)
       if: steps.docker_cache.outputs.cache-hit != 'true'
-      run: docker save -o .github/.docker-cache/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
+      run: |
+        mkdir -p .github/.docker-cache
+        docker save -o .github/.docker-cache/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
