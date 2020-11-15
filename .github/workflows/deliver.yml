@@ -36,6 +36,6 @@ jobs:
 
     # TODO: Deliver image to DockerHub (set up secrets also). Don't deliver on pull request.
 
-    - name: Save Docker cache (if cached was NOT hit)
+    - name: Save Docker cache (if cache was NOT hit)
       if: steps.docker_cache.outputs.cache-hit != 'true'
       run: docker save -o .github/.docker-cache/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
