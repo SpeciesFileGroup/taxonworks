@@ -17,14 +17,14 @@ for ver in `echo 10 12`; do
 
   docker-compose logs
 
-  docker-compose exec test bundle exec rspec -fd
+  docker-compose exec -T test bundle exec rspec -fd --color --tty
 
   # Test redis is running
-  docker-compose exec taxonworks redis-cli ping
+  docker-compose exec -T taxonworks redis-cli ping
 
   # Test deploy-time backup is restorable
-  docker-compose exec taxonworks find /backup | grep dump || (echo "BACKUP AT STARTUP WAS NOT MADE!" && exit 1) # Check backup was made at startup
-  docker-compose exec db psql -U travis -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'travis' AND pid <> pg_backend_pid();"
-  docker-compose exec taxonworks bundle exec rake tw:db:restore_last DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+  docker-compose exec -T taxonworks find /backup | grep dump || (echo "BACKUP AT STARTUP WAS NOT MADE!" && exit 1) # Check backup was made at startup
+  docker-compose exec -T db psql -U travis -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'travis' AND pid <> pg_backend_pid();"
+  docker-compose exec -T taxonworks bundle exec rake tw:db:restore_last DISABLE_DATABASE_ENVIRONMENT_CHECK=1
   docker-compose down --volumes
 done
