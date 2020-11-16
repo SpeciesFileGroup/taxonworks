@@ -205,6 +205,8 @@ class Source < ApplicationRecord
   ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
                           :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
+  belongs_to :language
+
   # @return [Boolean]
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation

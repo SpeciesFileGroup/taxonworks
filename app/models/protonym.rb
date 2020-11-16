@@ -706,10 +706,11 @@ class Protonym < TaxonName
     v = get_original_combination
     if !v.blank? && is_hybrid?
       w = v.split(' ')
-      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
       v = w.join(' ')
     end
-    v = v.gsub(') [sic]', ' [sic])') if !v.blank?
+    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
+
     v = Utilities::Italicize.taxon_name(v)
     v = '† ' + v if !v.blank? && is_fossil?
     v

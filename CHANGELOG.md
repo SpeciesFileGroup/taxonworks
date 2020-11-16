@@ -36,6 +36,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan smart selector DB query.
 
 ### Changed
+- [sic] changed to (sic) for misspelled bacterial names
+- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
+- Observation matrix could be resolved without observation_matrix_id, only with otu_filter
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
