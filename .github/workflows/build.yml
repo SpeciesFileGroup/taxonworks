@@ -109,5 +109,5 @@ jobs:
     - name: Run tests
       env:
         TEST_WORKER: ${{ matrix.worker }}
-        TEST_WORKERS: 3
+        TEST_WORKERS: 4
       run: .github/spec_runner.sh
