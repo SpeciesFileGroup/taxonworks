@@ -3,7 +3,7 @@ name: deliver
 on: [push, pull_request] # TODO: Only development and version tags
 
 jobs:
-  build:
+  deliver:
     env:
       DOCKER_TAG: github-actions
 
