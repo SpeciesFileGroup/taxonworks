@@ -10,6 +10,9 @@ jobs:
       RAILS_ENV: test
 
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        worker: [0, 1]
 
     services:
       db:
@@ -68,11 +71,11 @@ jobs:
           public/packs-test
         key: ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
-    - name: Set up VCR cache # When spliting into multiple jobs this will require separate caches for each.
+    - name: Set up VCR cache
       uses: actions/cache@v2
       with:
         path: spec/fixtures/vcr_cassettes
-        key: ${{ runner.os }}-vcr-${{ steps.datetime.outputs.iso_date }}
+        key: ${{ runner.os }}-vcr-${{ steps.datetime.outputs.iso_date }}-${{ matrix.worker }}
 
     - name: Install apt packages
       run: |
@@ -104,4 +107,7 @@ jobs:
       run: bundle exec rails assets:precompile
         
     - name: Run tests
-      run: bundle exec rspec --color --tty
+      env:
+        TEST_WORKER: ${{ matrix.worker }}
+        TEST_WORKERS: 2
+      run: .github/spec_runner.sh
