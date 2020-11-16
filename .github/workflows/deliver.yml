@@ -4,6 +4,9 @@ on: [push, pull_request] # TODO: Only development and version tags
 
 jobs:
   build:
+    env:
+      DOCKER_TAG: github-actions
+
     runs-on: ubuntu-latest
     steps:
     - name: Get startup date
@@ -32,9 +35,29 @@ jobs:
     - name: Run image tests
       run: .github/docker-tests/test.sh
 
-    # TODO: Wait here for build workflow to finish successfully, fail here otherwise.
+    - name: Wait build workflow to complete
+      id: wait_for_build
+      uses: fountainhead/action-wait-for-check@4699210ccc66e2a13260803fadbb77085421b891
+      checkName: 'build'
+      intervalSeconds: 60
+      timeoutSeconds: 900
 
-    # TODO: Deliver image to DockerHub (set up secrets also). Don't deliver on pull request.
+    - name: Check build workflow completed succesfully
+      run: |
+        [ "${{ steps.wait-for-tests.outputs.conclusion }}" = "success" ] || exit 1
+
+    - name: Login to DockerHub
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Push image to DockerHub
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
+        docker push sfgrp/taxonworks:$DOCKER_TAG
 
     - name: Save Docker cache (if cache was NOT hit)
       if: steps.docker_cache.outputs.cache-hit != 'true'
