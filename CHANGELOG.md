@@ -33,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reference overflow on Browse nomenclature
 - Date requested filled automatically [#1872]
 - Remove collecting event on comprehensive specimen digitization [#1878]
+- Loan smart selector DB query.
 
 ### Changed
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
@@ -87,6 +88,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
 [#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
 [#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
+[#1878]: https://github.com/SpeciesFileGroup/taxonworks/issues/1878
 
 ## [0.14.0] - 2020-10-16
 
