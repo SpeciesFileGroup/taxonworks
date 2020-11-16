@@ -38,9 +38,10 @@ jobs:
     - name: Wait build workflow to complete
       id: wait_for_build
       uses: fountainhead/action-wait-for-check@4699210ccc66e2a13260803fadbb77085421b891
-      checkName: 'build'
-      intervalSeconds: 60
-      timeoutSeconds: 900
+      with:
+        checkName: 'build'
+        intervalSeconds: 60
+        timeoutSeconds: 900
 
     - name: Check build workflow completed succesfully
       run: |
