@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        worker: [0, 1]
+        worker: [0, 1, 2]
 
     services:
       db:
@@ -109,5 +109,5 @@ jobs:
     - name: Run tests
       env:
         TEST_WORKER: ${{ matrix.worker }}
-        TEST_WORKERS: 2
+        TEST_WORKERS: 3
       run: .github/spec_runner.sh
