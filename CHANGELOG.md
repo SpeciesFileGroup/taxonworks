@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
+- People can be Tagged
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
@@ -25,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock view option for smart selector
 
 ### Fixed
+- People filter role + name [#1662] 
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
 - Fixed database seeding bugs.
@@ -35,6 +38,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove collecting event on comprehensive specimen digitization [#1878]
 
 ### Changed
+- Moved `levenshtein_distance` to Query for general use
+- Remove `people/123/similar` endpoint (used `/index`)
+- Person filter `person_wildcards` is `person_wildcard`
+- Person filter behaviour vs. `levenshtein_cuttof`
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
@@ -43,6 +50,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create original citation in image matrix task
 - Autocomplete list style
 
+[#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
+[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859 PENDING
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
