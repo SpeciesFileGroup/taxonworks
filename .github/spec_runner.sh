@@ -39,16 +39,6 @@ report_cleanup() {
 START_TIME=$(date +%s)
 trap 'report_cleanup' ERR
 
-# Refresh VCRs on CRON event
-[ "$TRAVIS_EVENT_TYPE" != "cron" ] || (rm -rf spec/fixtures/vcr_cassettes/* && echo "VCRs cleared")
-
-# Refresh assets cache on CRON event
-[ "$TRAVIS_EVENT_TYPE" != "cron" ] || (rm -rf tmp/cache && rm -rf assets/* && echo "Assets cleared")
-
-# Precompile assets only if feature tests will be executed
-echo ${SPECS_TO_RUN[$TEST_WORKER]} | grep -qv "spec/features/" || \
-NODE_OPTIONS="--max-old-space-size=4096" bundle exec rake assets:precompile
-
 echo "[TEST_WORKER=$TEST_WORKER specs set] ${SPECS_TO_RUN[$TEST_WORKER]}"
 bundle exec rspec --force-color ${SPECS_TO_RUN[$TEST_WORKER]}
 
