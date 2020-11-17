@@ -56,7 +56,7 @@ jobs:
 
           let run, attempts = 15
           do {
-            run = github.actions.getWorkflowRun({
+            run = await github.actions.getWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: buildRunId
