@@ -39,17 +39,19 @@ jobs:
       uses: actions/github-script@v3
       with:
         script: |
-          const buildRunId = (await github.actions.listWorkflowRunsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo
-          }).data.workflow_runs.find((wr) => {
+          const buildRunId = (
+            await github.actions.listWorkflowRunsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
+          ).data.workflow_runs.find((wr) => {
             return wr.name === 'build' && wr.head_sha === context.sha
           }).id
 
           const oneMinute = () => {
             return new Promise(resolve => {
               setTimeout(() => resolve(true), 60000)
-            }
+            })
           }
 
           let run, attempts = 15
