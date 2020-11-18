@@ -31,6 +31,10 @@ jobs:
           --health-retries 5
 
     steps:
+    - name: Debug codecov
+      run: |
+        ruby -e '["GITHUB_REF", "GITHUB_HEAD_REF", "GITHUB_SHA", "GITHUB_REPOSITORY", "GITHUB_RUN_ID"].each { |v| puts "#{v}: #{ENV[v].inspect}" }'
+
     - name: Get startup date
       id: datetime
       run: echo "::set-output name=iso_date::$(date --iso-8601 -u)"
