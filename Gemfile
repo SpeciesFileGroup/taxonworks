@@ -149,7 +149,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', :require => false
+  gem 'codecov', require: false, github: 'LocoDelAssembly/codecov-ruby', branch: 'github-actions-branch-detection-fix'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
@@ -164,5 +164,3 @@ group :production do
   gem 'execjs', '~> 2.7.0'
   gem 'passenger', '~> 6.0.2'
 end
-
-
