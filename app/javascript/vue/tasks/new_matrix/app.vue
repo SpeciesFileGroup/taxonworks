@@ -8,6 +8,14 @@
       <h1>{{ (matrix.id ? 'Edit' : 'New') }} observation matrix</h1>
       <div class="horizontal-left-content">
         <ul class="context-menu">
+          <li >
+            <label class="middle">
+              <input
+                v-model="settings.sortable"
+                type="checkbox">
+              Sortable columns/rows
+            </label>
+          </li>
           <li>
             <a
               href="/tasks/observation_matrices/observation_matrix_hub/index">
@@ -133,8 +141,13 @@ export default {
     matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
     },
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     }
   },
   data() {

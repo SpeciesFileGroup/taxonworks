@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Citations on image response
 - View mode on image matrix
 - Lock view option for smart selector
+- Sortable option to lock column/rows on edit/new observation matrix task [#1895]
 
 ### Fixed
 - Fix family synonym validation [#1892]
@@ -59,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
 [#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
+[#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
 
 ## [0.14.1] - 2020-10-22
 
