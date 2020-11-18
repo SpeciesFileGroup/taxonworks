@@ -2,7 +2,14 @@ name: build
 
 on:
   push:
+    - master
+    - development
   pull_request:
+    - master
+    - development
+  tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+-*'
   schedule:
     - cron: '0 0 * * *'
 

@@ -1,8 +1,13 @@
 name: deliver
 
-on: # TODO: Only development and version tags
+on:
   push:
+    - development
   pull_request:
+    - development
+  tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+-*'
   schedule:
     - cron: '0 0 * * *'
 
@@ -82,8 +87,8 @@ jobs:
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       run: |
-        docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
-        docker push sfgrp/taxonworks:$DOCKER_TAG
+        docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:github-actions-$DOCKER_TAG
+        docker push sfgrp/taxonworks:github-actions-$DOCKER_TAG
 
     - name: Save Docker cache (if cache was NOT hit)
       if: steps.docker_cache.outputs.cache-hit != 'true'
