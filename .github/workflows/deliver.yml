@@ -2,12 +2,14 @@ name: deliver
 
 on:
   push:
-    - development
+    branches:
+      - development
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
   pull_request:
-    - development
-  tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+'
-    - 'v[0-9]+.[0-9]+.[0-9]+-*'
+    branches:
+      - development
   schedule:
     - cron: '0 0 * * *'
 
