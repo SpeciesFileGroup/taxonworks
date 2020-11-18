@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove collecting event on comprehensive specimen digitization [#1878]
 - Loan smart selector DB query.
 - Label overlap on menu on observation matrices view [#1894]
+- Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
 - [sic] changed to (sic) for misspelled bacterial names
@@ -61,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
 [#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
 [#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
+[#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
 
 ## [0.14.1] - 2020-10-22
 
