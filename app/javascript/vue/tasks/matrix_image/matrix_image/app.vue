@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="vue-matrix-image">
     <spinner-component
       :full-screen="true"
       :legend="('Saving changes...')"
@@ -31,9 +31,12 @@
         </li>
         <template v-if="matrixId">
           <li>
-            <span
-              class="cursor-pointer"
-              @click="showRowModal = true">Add row</span>
+            <label class="cursor-pointer middle">
+              <input
+                v-model="viewMode"
+                type="checkbox">
+              View mode
+            </label>
           </li>
           <li>
             <span
@@ -69,15 +72,22 @@
         @getItem="findRow($event.id, $event.position)"
       />
     </template>
-    <matrix-table
-      v-if="matrixId"
-      class="separate-table"
-      ref="matrixTable"
-      :columns="observationColumns"
-      :rows="observationRows"/>
-    <pagination-component
-      :pagination="pagination"
-      @nextPage="getRows($event.page)"/>
+    <template v-if="matrixId">
+      <view-component
+        v-if="viewMode"
+        class="separate-table"
+        :matrix-id="matrixId"/>
+      <template v-else>
+        <matrix-table
+          class="separate-table"
+          ref="matrixTable"
+          :columns="observationColumns"
+          :rows="observationRows"/>
+        <pagination-component
+          :pagination="pagination"
+          @nextPage="getRows($event.page)"/>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -93,17 +103,20 @@ import MatrixTable from './components/MatrixTable.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
+import ViewComponent from './components/View/Main.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import PaginationComponent from 'components/pagination.vue'
 
 import { GetterNames } from './store/getters/getters'
 import GetPagination from 'helpers/getPagination.js'
+import { RouteNames } from 'routes/routes'
 
 import scrollParentToChild from 'helpers/scrollParentToChild.js'
-import { Promise } from 'q';
+import setParam from 'helpers/setParam'
 
 export default {
   components: {
+    ViewComponent,
     MatrixTable,
     SpinnerComponent,
     RowModal,
@@ -125,8 +138,9 @@ export default {
       showColumnModal: false,
       matrixId: undefined,
       pagination: {},
-      maxPerPage: 10,
-      otu_ids: undefined
+      maxPerPage: 3,
+      otu_ids: undefined,
+      viewMode: false
     }
   },
   created() {
@@ -165,6 +179,7 @@ export default {
     loadMatrix(id, rowId = undefined, position = undefined) {
       this.matrixId = id
       let promises = []
+      setParam(RouteNames.ImageMatrix, 'observation_matrix_id', id)
       promises.push(GetObservationMatrix(id).then(response => {
         this.observationMatrix = response.body
       }))

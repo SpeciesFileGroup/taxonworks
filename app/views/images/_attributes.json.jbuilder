@@ -3,6 +3,7 @@ json.width image.width
 json.height image.height
 json.content_type image.image_file_content_type
 json.size image.image_file_file_size
+json.pixels_to_centimeter image.pixels_to_centimeter
 
 json.partial! '/shared/data/all/metadata', object: image 
 

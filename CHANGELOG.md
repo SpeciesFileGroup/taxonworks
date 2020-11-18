@@ -8,6 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added image filter [#1454]
+- Added image smart selector [#1832]
+- Added `pixels_to_centimeter` to images [#1785]
 - PENDING TEST - API - `sort` (with `classification`, `alphabetical` options) to `/taxon_names` [#1865]
 - Taxon determination, citations and collecting event information in specimen record on browse OTU
 - Serial facet on filter sources
@@ -18,23 +21,37 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - otu_ids param on Image matrix task
 - Open image matrix button on Interactive keys task
 - Citations on image response
+- View mode on image matrix
+- Lock view option for smart selector
 
 ### Fixed
+- Fix family synonym validation [#1892]
+- Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
 - Fixed database seeding bugs.
 - Fixed display problem of OTUs without taxon name on Browse OTU
 - Edit asserted distribution on quick forms
 - Reference overflow on Browse nomenclature
 - Date requested filled automatically [#1872]
+- Remove collecting event on comprehensive specimen digitization [#1878]
+- Loan smart selector DB query.
 
 ### Changed
+- [sic] changed to (sic) for misspelled bacterial names
+- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
+- Observation matrix could be resolved without observation_matrix_id, only with otu_filter
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
 - Autocomplete label for original combination on New taxon name task
 - Changed "n/a" to combination label on Browse nomenclature
 - Create original citation in image matrix task
+- Autocomplete list style
 
+[#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
 [#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
@@ -67,11 +84,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved verbatim date parsing
 - Georeference scope over geographic area scope [#1841]
 
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
 [#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
 [#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
 [#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
 [#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
+[#1878]: https://github.com/SpeciesFileGroup/taxonworks/issues/1878
 
 ## [0.14.0] - 2020-10-16
 
