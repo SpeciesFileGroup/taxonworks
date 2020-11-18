@@ -50,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed "n/a" to combination label on Browse nomenclature
 - Create original citation in image matrix task
 - Autocomplete list style
+- Edit button color on type material species task [#1898]
 
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
@@ -63,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
 [#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
 [#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
+[#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
 
 ## [0.14.1] - 2020-10-22
 
