@@ -1,6 +1,10 @@
 name: deliver
 
-on: [push, pull_request] # TODO: Only development and version tags
+on: # TODO: Only development and version tags
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   deliver:
@@ -56,6 +60,7 @@ jobs:
 
           let run, attempts = 15
           do {
+            core.info(`Checking run completed successfully (${attempts} remaining). [run_id = ${buildRunId}]`)
             run = (await github.actions.getWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -64,7 +69,7 @@ jobs:
           } while(attempts-- && run.status !== 'completed' && await oneMinute())
 
           if (run.conclusion !== 'success') {
-            core.setFailed(`Build workflow did not complete successfully. [status = '${run.status}'; conclusion = '${run.conclusion}]'`);
+            core.setFailed(`Build workflow did not complete successfully. [status = '${run.status}'; conclusion = '${run.conclusion}']`);
           }
 
     - name: Login to DockerHub
