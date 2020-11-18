@@ -16,7 +16,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/codecov-ruby.git
-  revision: c7a35261a8a34e992795b9e9ce15c9aea2f2bfac
+  revision: 575145c62f98a07afe86f324562f103b2d412963
   branch: github-actions-branch-detection-fix
   specs:
     codecov (0.2.12)
@@ -242,7 +242,6 @@ GEM
       turbolinks
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    json (2.3.1)
     kaminari (1.2.1)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.1)
@@ -472,11 +471,10 @@ GEM
     shellany (0.0.1)
     shortener (0.8.2)
       voight_kampff (~> 1.1.2)
-    simplecov (0.16.1)
+    simplecov (0.19.1)
       docile (~> 1.1)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.2)
+      simplecov-html (~> 0.11)
+    simplecov-html (0.12.3)
     spring (2.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
