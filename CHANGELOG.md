@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - View mode on image matrix
 - Lock view option for smart selector
 - Sortable option to lock column/rows on edit/new observation matrix task [#1895]
+- Media Descriptor on Matrix Row Coder [#1896]
 
 ### Fixed
 - Fix family synonym validation [#1892]
@@ -63,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
 [#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
 [#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
+[#1896]: https://github.com/SpeciesFileGroup/taxonworks/issues/1896
 [#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
 [#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
 

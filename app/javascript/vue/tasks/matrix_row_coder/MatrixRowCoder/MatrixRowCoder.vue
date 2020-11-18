@@ -38,10 +38,10 @@
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(descriptor, index) in descriptors"
+        :key="descriptor.id"
         :data-descriptor-id="descriptor.id">
-
         <div
-          :is="descriptor.componentName" 
+          :is="descriptor.componentName"
           :index="(index+1)"
           :descriptor="descriptor"/>
       </li>
@@ -60,6 +60,7 @@ import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescri
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
+import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
@@ -150,6 +151,7 @@ export default {
     PresenceDescriptor,
     QualitativeDescriptor,
     SampleDescriptor,
+    MediaDescriptor,
     Spinner,
     DestroyAllObservations
   }

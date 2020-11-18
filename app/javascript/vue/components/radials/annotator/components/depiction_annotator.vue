@@ -192,7 +192,6 @@ import Autocomplete from 'components/autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
-import FilterImageList from 'tasks/images/filter/components/list'
 import SmartSelector from 'components/smartSelector'
 
 export default {
@@ -293,7 +292,6 @@ export default {
       })
     },
     loadList (newList) {
-      console.log(newList)
       this.filterList = newList
     }
   }

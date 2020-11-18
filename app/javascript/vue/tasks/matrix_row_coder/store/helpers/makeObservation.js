@@ -15,7 +15,7 @@ export default function (observationData) {
     return makePresenceObservation(observationData)
   } else if (observationData.type === ObservationTypes.Sample) { 
     return makeSampleObservation(observationData)
-  } else if (observationData.type === ObservationTypes.Media) { 
+  } else if (observationData.type === ObservationTypes.Media) {
     return makeMediaObservation(observationData)
   }
   return makeBaseObservation(observationData)

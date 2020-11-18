@@ -51,11 +51,12 @@ function makeBaseDescriptor (descriptorData) {
     isSaving: false,
     hasSavedAtLeastOnce: false,
     notes: null,
-    depictions: null,
+    depictions: null
   }
 }
 
 const DescriptorTypesToComponentNames = {
+  [DescriptorTypes.Media]: ComponentNames.Media,
   [DescriptorTypes.Qualitative]: ComponentNames.Qualitative,
   [DescriptorTypes.Continuous]: ComponentNames.Continuous,
   [DescriptorTypes.Sample]: ComponentNames.Sample,
