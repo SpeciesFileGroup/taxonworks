@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock view option for smart selector
 
 ### Fixed
+- Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
 - Fixed database seeding bugs.
