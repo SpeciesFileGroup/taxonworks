@@ -31,6 +31,9 @@ jobs:
           --health-retries 5
 
     steps:
+    - name: Debug codecov
+      run: echo "$GITHUB_REF"
+
     - name: Get startup date
       id: datetime
       run: echo "::set-output name=iso_date::$(date --iso-8601 -u)"
