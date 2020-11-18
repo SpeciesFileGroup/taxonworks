@@ -149,7 +149,8 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'coveralls', '~> 0.8.22', require: false
+  gem 'codecov', :require => false
+  gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
@@ -157,9 +158,6 @@ group :test do
   gem 'database_cleaner', '~> 1.8'
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
-
-# gem 'simplecov', :require => false
-# gem 'simplecov-rcov', :require => false
 end
 
 group :production do
