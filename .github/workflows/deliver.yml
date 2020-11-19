@@ -15,9 +15,6 @@ on:
 
 jobs:
   deliver:
-    env:
-      DOCKER_TAG: github-actions
-
     runs-on: ubuntu-latest
     steps:
     - name: Get startup date
@@ -86,11 +83,21 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Get tag for docker image
+      id: docker_tag
+      uses: actions/github-script@v3
+      with:
+        result-encoding: string
+        script: |
+          return github.ref.startsWith('refs/tags/v') ? github.ref.replace('refs/tags/v', '') : 'latest'
+
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
+      env:
+        DOCKER_TAG: 'github-actions-${{steps.docker_tag.outputs.result}}'
       run: |
-        docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:github-actions-$DOCKER_TAG
-        docker push sfgrp/taxonworks:github-actions-$DOCKER_TAG
+        docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
+        docker push sfgrp/taxonworks:$DOCKER_TAG
 
     - name: Save Docker cache (if cache was NOT hit)
       if: steps.docker_cache.outputs.cache-hit != 'true'
