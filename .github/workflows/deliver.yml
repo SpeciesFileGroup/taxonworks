@@ -94,7 +94,7 @@ jobs:
       with:
         result-encoding: string
         script: |
-          return github.ref.startsWith('refs/tags/v') ? github.ref.replace('refs/tags/v', '') : 'latest'
+          return context.ref.startsWith('refs/tags/v') ? context.ref.replace('refs/tags/v', '') : 'latest'
 
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
