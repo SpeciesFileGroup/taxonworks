@@ -1036,7 +1036,11 @@ class TaxonName < ApplicationRecord
   #    TODO: on third thought- eliminate this mess
   def name_with_misspelling(gender)
     if cached_misspelling
-      name.to_s + ' [sic]'
+      if rank_string =~ /Icnp/
+        name.to_s + ' (sic)'
+      else
+        name.to_s + ' [sic]'
+      end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s
     else

@@ -117,6 +117,19 @@ class ObservationMatrix < ApplicationRecord
     Observation.in_observation_matrix(id)
   end
 
+  def media_observations
+    Observation.in_observation_matrix(id).where(type: 'Observation::Media')
+  end
+
+  def observation_depictions
+    Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+        .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
+        .joins("INNER JOIN images ON depictions.image_id = images.id")
+        .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
+        .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+        .where(depiction_object: media_observations).order('depictions.position')
+  end
+
   # @return [Hash]
   #   grid: [columns][rows][observations]
   #   rows: [row_object.GlobalId, row_object.GlobalId] (Klass)

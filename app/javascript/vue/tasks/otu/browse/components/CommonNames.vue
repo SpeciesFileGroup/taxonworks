@@ -2,7 +2,6 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="common-names"/>
     <table-display 
       v-if="commonNames.length"
       :list="commonNames"

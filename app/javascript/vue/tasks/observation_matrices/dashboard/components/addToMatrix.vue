@@ -5,7 +5,7 @@
       class="button normal-input button-default"
       @click="showModal = true"
       :disabled="!selectedIds.length">
-      Add to matrix
+      Open in matrix
     </button>
     <modal-component
       v-if="showModal"

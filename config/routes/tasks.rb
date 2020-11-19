@@ -64,6 +64,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :filter, controller: 'tasks/images/filter' do
+      get '/', action: :index, as: 'filter_images_task'
+    end
+
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'index_new_image_task'
     end
@@ -363,6 +367,11 @@ scope :tasks do
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '', action: :index, as: 'interactive_key_task'
+    end
+
+    scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
+      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      get '', action: :index, as: 'image_matrix_task'
     end
   end
 

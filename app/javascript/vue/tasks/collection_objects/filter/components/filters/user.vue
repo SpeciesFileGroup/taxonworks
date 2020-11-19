@@ -4,9 +4,9 @@
       User
       <span
         class="margin-small-left"
-        v-if="!user.user_id || !user.user_target || (!user.user_date_start && !user.user_date_end)"
+        v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
         data-icon="warning"
-        title="Select a user and date range first to pick a date"/>
+        title="Select a date range first to pick a date"/>
     </h2>
     <div class="field">
       <select v-model="user.user_id">
@@ -36,7 +36,7 @@
         <input 
           type="date"
           class="date-input"
-          :disabled="!user.user_id || !user.user_target"
+          :disabled="!user.user_target"
           v-model="user.user_date_start">
       </div>
       <div class="field">
@@ -46,11 +46,11 @@
           <input
             type="date"
             class="date-input"
-            :disabled="!user.user_id || !user.user_target"
+            :disabled="!user.user_target"
             v-model="user.user_date_end">
           <button
             type="button"
-            :disabled="!user.user_id || !user.user_target"
+            :disabled="!user.user_target"
             class="button normal-input button-default margin-small-left"
             @click="setActualDate">
             Now
@@ -105,7 +105,7 @@ export default {
   watch: {
     user: {
       handler (newVal) {
-        if(!newVal.user_id || !newVal.user_target) {
+        if(!newVal.user_target) {
           this.user.user_date_start = undefined
           this.user.user_date_end = undefined
         }

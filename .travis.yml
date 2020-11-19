@@ -24,7 +24,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.7.1
+        - 2.7.2
       bundler_args: --without development production
       addons:
         postgresql: "12"

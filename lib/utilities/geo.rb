@@ -610,18 +610,18 @@ To add a new (discovered) symbol:
         coordinates[:long_deg] = matchdata4[4]
         coordinates[:long_min] = matchdata4[5]
         coordinates[:long_we]  = matchdata4[6]
-        # pattern: S42.18°W88.34°
-      elsif matchdata5 = text.match(/\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ]?\D/)
-        coordinates[:lat_deg] = matchdata5[2]
-        coordinates[:lat_ns]  = matchdata5[1]
-        coordinates[:long_deg] = matchdata5[4]
-        coordinates[:long_we]  = matchdata5[3]
         # pattern: 42.18°S88.43°W
       elsif matchdata6 = text.match(/\D(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata6[1]
         coordinates[:lat_ns]  = matchdata6[2]
         coordinates[:long_deg] = matchdata6[3]
         coordinates[:long_we]  = matchdata6[4]
+        # pattern: S42.18°W88.34°
+      elsif matchdata5 = text.match(/\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ]?\D/)
+        coordinates[:lat_deg] = matchdata5[2]
+        coordinates[:lat_ns]  = matchdata5[1]
+        coordinates[:long_deg] = matchdata5[4]
+        coordinates[:long_we]  = matchdata5[3]
         # pattern: -12.263, 49.398
       elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?\d+),.*?(-?\d+[\.|,]\d+|\-?\d+)\D/)
         coordinates[:lat_deg] = matchdata7[1]
