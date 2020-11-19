@@ -15,6 +15,9 @@ on:
 
 jobs:
   deliver:
+    env:
+      REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
     runs-on: ubuntu-latest
     steps:
     - name: Get startup date
@@ -47,14 +50,14 @@ jobs:
       uses: actions/github-script@v3
       with:
         script: |
-          const buildRunId = (
-            await github.actions.listWorkflowRunsForRepo({
+          const suiteId = (
+            await github.checks.listForRef({
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              ref: process.env.REF_SHA,
+              check_name: 'build (0)'
             })
-          ).data.workflow_runs.find((wr) => {
-            return wr.name === 'build' && wr.head_sha === context.sha
-          }).id
+          ).data.check_runs[0].check_suite.id
 
           const oneMinute = () => {
             return new Promise(resolve => {
@@ -62,18 +65,20 @@ jobs:
             })
           }
 
-          let run, attempts = 15
+          let suite, attempts = 15
           do {
-            core.info(`Checking run completed successfully (${attempts} remaining). [run_id = ${buildRunId}]`)
-            run = (await github.actions.getWorkflowRun({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              run_id: buildRunId
-            })).data
-          } while(attempts-- && run.status !== 'completed' && await oneMinute())
+            core.info(`Checking suite completed successfully (${attempts} remaining). [check_suite_id = ${suiteId}]`)
+            suite = (
+              await github.checks.getSuite({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                check_suite_id: suiteId
+              })
+            ).data
+          } while(attempts-- && suite.status !== 'completed' && await oneMinute())
 
-          if (run.conclusion !== 'success') {
-            core.setFailed(`Build workflow did not complete successfully. [status = '${run.status}'; conclusion = '${run.conclusion}']`);
+          if (suite.conclusion !== 'success') {
+            core.setFailed(`Build workflow did not complete successfully. [status = '${suite.status}'; conclusion = '${suite.conclusion}']`);
           }
 
     - name: Login to DockerHub
