@@ -3,7 +3,8 @@ const ComponentNames = {
   Qualitative: 'qualitative-descriptor',
   Presence: 'presence-descriptor',
   Continuous: 'continuous-descriptor',
-  Sample: 'sample-descriptor'
+  Sample: 'sample-descriptor',
+  FreeText: 'free-text-descriptor'
 }
 
 export default ComponentNames

@@ -57,6 +57,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
+import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
@@ -148,6 +149,7 @@ export default {
   components: {
     CloneScoring,
     ContinuousDescriptor,
+    FreeTextDescriptor,
     PresenceDescriptor,
     QualitativeDescriptor,
     SampleDescriptor,

@@ -14,6 +14,8 @@ export default function ({ commit, state }, args) {
 
   const payload = makeBasePayload()
 
+  if (observation.type === ObservationTypes.FreeText) { setupFreeTextPayload(payload) }
+
   if (observation.type === ObservationTypes.Qualitative) { setupQualitativePayload(payload) }
 
   if (observation.type === ObservationTypes.Presence) { setupPresencePayload(payload) }
@@ -46,6 +48,10 @@ export default function ({ commit, state }, args) {
 
   function makeObservationIdArgs (observationId, global_id) {
     return Object.assign({}, args, { observationId, global_id })
+  }
+
+  function setupFreeTextPayload (payload) {
+    return Object.assign(payload, { description: observation.description })
   }
 
   function setupQualitativePayload (payload) {

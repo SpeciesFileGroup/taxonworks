@@ -24,7 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - View mode on image matrix
 - Lock view option for smart selector
 - Sortable option to lock column/rows on edit/new observation matrix task [#1895]
-- Media Descriptor on Matrix Row Coder [#1896]
+- Media Descriptor support on Matrix Row Coder [#1896]
+- Free Text Descriptor support on Matrix Row Coder [#1896]
 - Search source on New source task [#1899]
 
 ### Fixed
