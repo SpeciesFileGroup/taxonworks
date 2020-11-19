@@ -1,6 +1,6 @@
 # TaxonWorks
 
-![build](https://github.com/SpeciesFileGroup/taxonworks/workflows/build/badge.svg)
+[![build](https://github.com/SpeciesFileGroup/taxonworks/workflows/build/badge.svg?branch=development)](https://github.com/SpeciesFileGroup/taxonworks/actions?query=workflow%3Abuild)
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Gitter][20]][19]
