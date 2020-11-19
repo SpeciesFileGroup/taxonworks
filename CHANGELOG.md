@@ -8,6 +8,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
+- Note filter improvements, specs, new params, API exposure [#XXX]
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
@@ -36,6 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loan smart selector DB query.
 
 ### Changed
+- Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
+- Note filter params `query_string` => `text`, `note_object_types[]` => `note_object_type[]`, `note_object_ids[]` => `note_object_id[]`, added corresponding non-array versions
 - [sic] changed to (sic) for misspelled bacterial names
 - Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
 - Observation matrix could be resolved without observation_matrix_id, only with otu_filter
