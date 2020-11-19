@@ -53,7 +53,6 @@
             <button
               class="button normal-input button-default full_width"
               @click="findPerson"
-              :disabled="!enableFindPerson"
               type="submit">Search
             </button>
           </div>
@@ -63,7 +62,7 @@
               class="full_width"
               type="text"
               placeholder="Search is wild card wrapped"
-              v-model="lastName">
+              v-model="params.base.last_name_starts_with">
           </div>
           <div class="field label-above">
             <label>First name</label>
@@ -71,12 +70,15 @@
               class="full_width"
               type="text"
               placeholder="Search is wild card wrapped"
-              v-model="firstName">
+              v-model="params.base.first_name">
           </div>
+          <active-filter v-model="params.active"/>
+          <born-filter v-model="params.born"/>
+          <died-filter v-model="params.died"/>
           <div class="field">
             <label>Roles</label>
             <role-types
-              v-model="selectedRoles"/>
+              v-model="params.base.role"/>
           </div>
         </div>
       </div>
@@ -84,17 +86,17 @@
         <div class="horizontal-left-content align-start">
           <div class="margin-medium-right margin-medium-left">
             <div v-show="showFound">
-              <h2>Select person</h2>
               <found-people
                 ref="foundPeople"
                 v-model="selectedPerson"
+                @expand="expandPeople = $event"
                 @addToList="foundPeople.push($event)"
+                :expanded="expandPeople"
                 :found-people="foundPeople"
                 :display-count="displayCount"
               />
             </div>
             <div v-show="showMatch">
-              <h2>Match people</h2>
               <match-people
                 ref="matchPeople"
                 v-model="mergePerson"
@@ -119,8 +121,10 @@
 </template>
 
 <script>
-// TODO:  Revise queries to bias toward last name
-//        Add alternate values for names
+
+import ActiveFilter from './components/filters/active.vue'
+import BornFilter from './components/filters/born.vue'
+import DiedFilter from './components/filters/died.vue'
 import RoleTypes from './components/role_types'
 import FoundPeople from './components/found_people'
 import MatchPeople from './components/match_people'
@@ -131,22 +135,20 @@ import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
 
 export default {
   components: {
+    ActiveFilter,
+    BornFilter,
+    DiedFilter,
     RoleTypes,
     FoundPeople,
     MatchPeople,
     CompareComponent,
     Spinner
   },
-  computed: {
-    enableFindPerson () {
-      return ((this.lastName.length > 0) || (this.firstName.length > 0))
-    }
-  },
   data () {
     return {
       lastName: '',
       firstName: '',
-      selectedRoles: [],
+      expandPeople: true,
       isLoading: false,
       isSaving: false,
       foundPeople: [],
@@ -157,10 +159,44 @@ export default {
       haltWatcher: false,
       showMatch: true,
       showFound: true,
-      showSearch: true
+      showSearch: true,
+      params: this.initParams()
     }
   },
   methods: {
+    filterEmptyParams (object) {
+      const keys = Object.keys(object)
+      keys.forEach(key => {
+        if (object[key] === '' || object[key] === undefined || (Array.isArray(object[key]) && !object[key].length)) {
+          delete object[key]
+        }
+      })
+      return object
+    },
+    initParams () {
+      return {
+        settings: {
+          per: 100
+        },
+        base: {
+          last_name_starts_with: '',
+          first_name: '',
+          role: []
+        },
+        active: {
+          active_before_year: undefined,
+          active_after_year: undefined
+        },
+        born: {
+          born_before_year: undefined,
+          born_after_year: undefined
+        },
+        died: {
+          died_before_year: undefined,
+          died_after_year: undefined
+        }
+      }
+    },
     flipPerson () {
       this.haltWatcher = true
       const tmp = this.selectedPerson
@@ -169,20 +205,12 @@ export default {
     },
     findPerson (event) {
       event.preventDefault()
-      const params = {
-        last_name_starts_with: this.lastName,
-        first_name: this.firstName,
-        per: 100,
-        roles: this.selectedRoles
-      }
-
-      if (!params.first_name.length) {
-        delete params.first_name
-      }
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.settings))
 
       this.isLoading = true
       this.clearFoundData()
       this.displayCount = true
+      this.expandPeople = true
 
       GetPeopleList(params).then(response => {
         this.foundPeople = response.body
@@ -222,15 +250,15 @@ export default {
       this.clearMatchData()
     },
     clearSearchData () {
-      this.lastName = ''
-      this.firstName = ''
-      this.selectedRoles = []
+      this.params = this.initParams()
       this.clearFoundData()
     },
     clearFoundData () {
       this.displayCount = false
+      this.expandPeople = true
       this.selectedPerson = undefined
       this.foundPeople = []
+      this.matchPeople = []
     },
     clearMatchData () {
       this.foundPeople = []
@@ -239,7 +267,7 @@ export default {
       this.mergePerson = {}
     }
   },
-  mounted () { // accepts only last_name param in links from other pages
+  mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const lastName = urlParams.get('last_name')
     const personId = urlParams.get('person_id')
@@ -247,7 +275,7 @@ export default {
     if (/^\d+$/.test(personId)) {
       this.getPerson(personId)
     } else if (lastName) {
-      this.lastName = lastName
+      this.params.base.last_name_starts_with = lastName
       this.findPerson()
     }
   }

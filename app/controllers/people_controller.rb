@@ -153,7 +153,7 @@ class PeopleController < ApplicationController
       :born_after_year, :born_before_year,
       :active_after_year, :active_before_year,
       :died_before_year, :died_after_year,
-      :levenshtein_cuttof,
+      :levenshtein_cuttoff,
       :identifier,
       :identifier_end,
       :identifier_exact,
@@ -163,7 +163,7 @@ class PeopleController < ApplicationController
       :user_id,
       :user_target,
       keyword_ids: [],
-      roles: [],
+      role: [],
       person_wildcard: []
     )
   end

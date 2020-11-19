@@ -1,8 +1,16 @@
 <template>
   <div>
-    <p v-if="displayCount">{{ foundPeople.length }}  people found</p>
+    <div class="horizontal-left-content middle">
+      <h2>Select person</h2>
+      <a
+        class="cursor-pointer margin-small-left"
+        v-if="!expanded"
+        @click="$emit('expand', true)">Expand
+      </a>
+    </div>
+    <p v-if="displayCount">{{ foundPeople.length }} people found</p>
     <div>
-      <table>
+      <table class="full_width">
         <thead>
           <tr>
             <th></th>
@@ -13,7 +21,7 @@
             <th>Roles</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody v-if="expanded">
           <template v-for="person in foundPeople">
             <tr
               v-if="person.id != selected['id']"
@@ -21,6 +29,7 @@
               <td>
                 <button
                   type="button"
+                  class="button normal-input button-default"
                   @click="selectPerson(person)">
                   Select
                 </button>
@@ -45,13 +54,9 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import { GetPeople } from '../request/resources'
 
 export default {
-  components: {
-    Autocomplete
-  },
   props: {
     value: {
       type: Object,
@@ -64,6 +69,10 @@ export default {
     displayCount: {
       type: Boolean,
       default: false
+    },
+    expanded: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -78,7 +87,7 @@ export default {
   },
   data() {
     return {
-      selected: {} // gets populated by the v-model to the value attribute of the radio button input 
+      selected: {}
     }
   },
   methods: {
@@ -98,8 +107,9 @@ export default {
       this.selected = person
     },
     selectPerson (person) {
-      AjaxCall('get', `/people/${person.id.toString()}.json`).then(response => {
+      GetPeople(person.id).then(response => {
         this.selectedPerson = response.body
+        this.$emit('expand', false)
       })
     },
     getRoles (person) {
