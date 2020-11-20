@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Free Text Descriptor support on Matrix Row Coder [#1896]
 - Search source on New source task [#1899]
 - Link to Browse OTU on New asserted distribution task [#1893]
+- Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
 - Fix family synonym validation [#1892]
@@ -65,6 +66,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
+[#1889]: https://github.com/SpeciesFileGroup/taxonworks/issues/1889
 [#1893]: https://github.com/SpeciesFileGroup/taxonworks/issues/1893
 [#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
 [#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
