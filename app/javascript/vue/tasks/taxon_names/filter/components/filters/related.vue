@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Includes</h3>
+    <h3>Include</h3>
     <ul class="no_bullets">
       <li v-for="option in options">
         <label>

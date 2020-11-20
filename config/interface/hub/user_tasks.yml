@@ -597,3 +597,12 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
+filter_images_task:
+  hub: true
+  name: 'Filter images task'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Filter images.'

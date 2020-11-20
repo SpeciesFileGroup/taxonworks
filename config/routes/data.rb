@@ -301,6 +301,9 @@ resources :images do
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
   end
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :keywords, only: [] do

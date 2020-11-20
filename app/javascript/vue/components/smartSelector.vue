@@ -35,6 +35,21 @@
           @getItem="getObject($event.id)"/>
       </div>
       <slot name="body"/>
+      <template v-if="isImageModel">
+        <div class="flex-wrap-row">
+          <div
+            v-for="image in lists[view]"
+            :key="image.id"
+            class="thumbnail-container margin-small cursor-pointer"
+            @click="sendObject(image)">
+            <img
+              :width="image.alternatives.thumb.width"
+              :height="image.alternatives.thumb.height"
+              :src="image.alternatives.thumb.image_file_url">
+          </div>
+        </div>
+      </template>
+      <template v-else>
       <ul
         v-if="view && view != 'search'"
         class="no_bullets"
@@ -68,6 +83,7 @@
           </li>
         </template>
       </ul>
+    </template>
     </template>
     <slot :name="view" />
     <slot />
@@ -190,6 +206,10 @@ export default {
     filterIds: {
       type: [Number, Array],
       default: () => []
+    },
+    lockView: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -200,6 +220,9 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    isImageModel () {
+      return this.model === 'images'
     }
   },
   data () {
@@ -276,7 +299,9 @@ export default {
           }
         })
       }
-      this.view = SelectFirst(this.lists, this.options)
+      if (!this.lockView) {
+        this.view = SelectFirst(this.lists, this.options)
+      }
     },
     alreadyOnLists () {
       return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false

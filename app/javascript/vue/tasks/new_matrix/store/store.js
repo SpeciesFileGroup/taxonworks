@@ -11,7 +11,8 @@ function makeInitialState () {
   return {
     settings: {
       loadingRows: false,
-      loadingColumns: false
+      loadingColumns: false,
+      sortable: false
     },
     configParams: {
       per: 500
