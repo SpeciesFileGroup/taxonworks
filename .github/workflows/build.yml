@@ -21,6 +21,7 @@ jobs:
       PGHOST: 127.0.0.1
       PGUSER: postgres
       RAILS_ENV: test
+      CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL }}
 
     runs-on: ubuntu-latest
     strategy:
