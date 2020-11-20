@@ -8,6 +8,13 @@
       :logo-size="{ width: '100px', height: '100px'}"/>
     <p v-if="selectedPerson">{{ matchList.length }}  matches found</p>
     <div>
+      <autocomplete
+        url="/people/autocomplete"
+        param="term"
+        label="label_html"
+        placeholder="Search a person..."
+        clear-after
+        @getItem="selectMergePerson"/>
       <table class="full_width">
         <thead>
           <tr>
@@ -52,10 +59,12 @@
 
 import { GetPeople, GetPeopleList } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
-    SpinnerComponent
+    SpinnerComponent,
+    Autocomplete
   },
   props: {
     value: {

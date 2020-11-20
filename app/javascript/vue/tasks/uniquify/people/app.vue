@@ -7,6 +7,14 @@
           <label>
             <input
               type="checkbox"
+              v-model="activeJSONRequest">
+            Show JSON request
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="showSearch">
             Show filter
           </label>
@@ -41,6 +49,15 @@
       :full-screen="true"
       :legend="isLoading ? 'Loading...' : 'Merging...'"
       :logo-size="{ width: '100px', height: '100px'}"/>
+    <div
+      v-show="activeJSONRequest"
+      class="panel content separate-bottom">
+      <div class="flex-separate middle">
+        <span>
+          JSON Request: {{ urlRequest }}
+        </span>
+      </div>
+    </div>
     <div class="horizontal-left-content align-start">
       <div
         v-if="showSearch"
@@ -80,6 +97,8 @@
             <role-types
               v-model="params.base.role"/>
           </div>
+          <keywords-component v-model="params.base.keyword_ids" />
+          <users-component v-model="params.user"/>
         </div>
       </div>
       <div class="full_width">
@@ -130,6 +149,8 @@ import FoundPeople from './components/found_people'
 import MatchPeople from './components/match_people'
 import CompareComponent from './components/compare.vue'
 import Spinner from 'components/spinner.vue'
+import KeywordsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 
 import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
 
@@ -142,12 +163,14 @@ export default {
     FoundPeople,
     MatchPeople,
     CompareComponent,
+    UsersComponent,
+    KeywordsComponent,
     Spinner
   },
   data () {
     return {
-      lastName: '',
-      firstName: '',
+      activeJSONRequest: false,
+      urlRequest: undefined,
       expandPeople: true,
       isLoading: false,
       isSaving: false,
@@ -181,7 +204,8 @@ export default {
         base: {
           last_name_starts_with: '',
           first_name: '',
-          role: []
+          role: [],
+          keyword_ids: []
         },
         active: {
           active_before_year: undefined,
@@ -194,7 +218,12 @@ export default {
         died: {
           died_before_year: undefined,
           died_after_year: undefined
-        }
+        },
+        user: {
+          user_id: undefined,
+          user_target: undefined,
+          user_date_start: undefined
+        },
       }
     },
     flipPerson () {
@@ -205,7 +234,7 @@ export default {
     },
     findPerson (event) {
       event.preventDefault()
-      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
 
       this.isLoading = true
       this.clearFoundData()
@@ -214,6 +243,7 @@ export default {
 
       GetPeopleList(params).then(response => {
         this.foundPeople = response.body
+        this.urlRequest = response.request.responseURL
         this.isLoading = false
       })
     },
