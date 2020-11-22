@@ -109,6 +109,7 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
+gem 'zaru', '~> 0.3.0'
 
 # www 
 gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 

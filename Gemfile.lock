@@ -553,6 +553,7 @@ GEM
       activerecord (>= 4.2)
     xpath (3.2.0)
       nokogiri (~> 1.8)
+    zaru (0.3.0)
     zeitwerk (2.4.0)
 
 PLATFORMS
@@ -668,6 +669,7 @@ DEPENDENCIES
   webmock (~> 3.8)
   webpacker (>= 4.0.x)
   wikidata-client (~> 0.0.12)
+  zaru (~> 0.3.0)
 
 RUBY VERSION
    ruby 2.7.1p83

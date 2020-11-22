@@ -16,6 +16,11 @@ scope :tasks do
   end
 
   scope :exports do
+      scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+        get '/', action: :index, as: 'export_taxonworks_project_task'
+        get 'download', as: 'download_taxonworks_project_task'
+      end
+
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
