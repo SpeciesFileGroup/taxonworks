@@ -73,25 +73,22 @@
               type="submit">Search
             </button>
           </div>
-          <div class="field label-above">
-            <label>Last name</label>
-            <input
-              class="full_width"
-              type="text"
-              placeholder="Search is wild card wrapped"
-              v-model="params.base.last_name_starts_with">
-          </div>
-          <div class="field label-above">
-            <label>First name</label>
-            <input
-              class="full_width"
-              type="text"
-              placeholder="Search is wild card wrapped"
-              v-model="params.base.first_name">
-          </div>
+          <name-field
+            title="Name"
+            param="name"
+            v-model="params.base"/>
+          <name-field
+            title="Last name"
+            param="last_name"
+            v-model="params.base"/>
+          <name-field
+            title="First name"
+            param="first_name"
+            v-model="params.base"/>
           <active-filter v-model="params.active"/>
           <born-filter v-model="params.born"/>
           <died-filter v-model="params.died"/>
+          <levenshtein-cuttoff v-model="params.base.levenshtein_cuttoff"/>
           <div class="field">
             <label>Roles</label>
             <role-types
@@ -151,6 +148,8 @@ import CompareComponent from './components/compare.vue'
 import Spinner from 'components/spinner.vue'
 import KeywordsComponent from 'tasks/collection_objects/filter/components/filters/tags'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
+import NameField from './components/filters/nameField.vue'
 
 import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
 
@@ -165,6 +164,8 @@ export default {
     CompareComponent,
     UsersComponent,
     KeywordsComponent,
+    LevenshteinCuttoff,
+    NameField,
     Spinner
   },
   data () {
@@ -202,10 +203,12 @@ export default {
           per: 100
         },
         base: {
-          last_name_starts_with: '',
+          levenshtein_cuttoff: 3,
+          last_name: '',
           first_name: '',
           role: [],
-          keyword_ids: []
+          keyword_ids: [],
+          person_wildcard: []
         },
         active: {
           active_before_year: undefined,
@@ -222,8 +225,9 @@ export default {
         user: {
           user_id: undefined,
           user_target: undefined,
-          user_date_start: undefined
-        },
+          user_date_start: undefined,
+          user_date_end: undefined
+        }
       }
     },
     flipPerson () {
@@ -305,7 +309,7 @@ export default {
     if (/^\d+$/.test(personId)) {
       this.getPerson(personId)
     } else if (lastName) {
-      this.params.base.last_name_starts_with = lastName
+      this.params.base.last_name = lastName
       this.findPerson()
     }
   }
