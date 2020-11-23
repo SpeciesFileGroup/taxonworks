@@ -6,9 +6,11 @@ module Queries
       include Queries::Concerns::Users
 
       # @return [String, nil]
+      #   also matches any AlternateValue
       attr_accessor :first_name
 
       # @return [String, nil]
+      #   also matches any AlternateValue 
       attr_accessor :last_name
 
       # @param role [Array, String]
@@ -27,7 +29,7 @@ module Queries
       attr_accessor :levenshtein_cuttoff
 
       # @return [Array]
-      #   values are attributes that should be wildcarded, e.g.:
+      #   values are attributes that should be wildcarded:
       #     last_name, first_name, name
       attr_accessor :person_wildcard
 
@@ -40,8 +42,12 @@ module Queries
       attr_accessor :died_after_year
       attr_accessor :died_before_year
 
-
       attr_accessor :last_name_starts_with
+
+      # @return [Array]
+      #   only return people with roles in this project, named to clarify this has slightly
+      #   different meaning for shared people than straight project_id
+      attr_accessor :used_in_project_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -55,6 +61,8 @@ module Queries
         @last_name_starts_with = params[:last_name_starts_with]
 
         @person_wildcard = [params[:person_wildcard]].flatten.compact
+
+        @used_in_project_id = params[:used_in_project_id]
 
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
 
@@ -84,6 +92,10 @@ module Queries
 
       def base_query
         ::Person.select('people.*')
+      end
+
+      def used_in_project_id
+        [@used_in_project_id].flatten.compact
       end
 
       def born_after_year_facet
@@ -166,6 +178,18 @@ module Queries
         )
       end
 
+      def used_in_project_id_facet
+        return nil unless !used_in_project_id.empty?
+
+        w1 = role_table[:project_id].eq_any(used_in_project_id)
+        w2 = ::ProjectSource.arel_table[:project_id].eq_any(used_in_project_id)
+
+        a = ::Person.joins(:roles).where(w1.to_sql)
+        b = ::Person.joins(sources: [:project_sources]).where( w2.to_sql)
+
+        ::Person.from("((#{a.to_sql}) UNION (#{b.to_sql})) as people")
+      end
+
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
@@ -180,9 +204,6 @@ module Queries
           active_before_year_facet,
 
           last_name_starts_with_facet,
-
-          #  matching_alternate_value_on_values(:last_name, [last_name]),
-          #  matching_alternate_value_on_values(:first_name, [first_name]),
         ].compact
 
         return nil if clauses.empty?
@@ -202,6 +223,7 @@ module Queries
           role_facet,
           levenshtein_facet,
 
+
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
@@ -209,7 +231,10 @@ module Queries
           matching_keyword_ids,
           tag_facet,
 
+          used_in_project_id_facet,
+
           created_updated_facet, # See Queries::Concerns::Users
+
         ].compact
 
         return nil if clauses.empty?

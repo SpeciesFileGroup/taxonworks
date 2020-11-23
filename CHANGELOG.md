@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- `person#sources` has_many (very slight potential for issues)
 - Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
 - People can be Tagged
 - Added image filter [#1454]

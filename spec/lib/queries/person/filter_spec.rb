@@ -177,6 +177,20 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
+  specify '#in_project_id 1' do
+    query.used_in_project_id = [collecting_event.project_id]
+    expect(query.all.map(&:id)).to contain_exactly(p2.id)
+  end
+
+  specify '#in_project_id 2' do
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.authors << p3
+    c = ProjectSource.create!(source: s, project_id: Current.project_id)
+
+    query.used_in_project_id = [collecting_event.project_id]
+    expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
+  end
+
   #
   # Tested elsewhere, just check to see that they are initialized here
   #
