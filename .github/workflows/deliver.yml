@@ -48,6 +48,7 @@ jobs:
       run: .github/docker-tests/test.sh
 
     - name: Wait build workflow to complete successfully
+      if: ${{ github.event_name != 'pull_request' }}
       uses: actions/github-script@v3
       with:
         script: |
