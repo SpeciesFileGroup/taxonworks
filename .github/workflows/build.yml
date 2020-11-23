@@ -86,7 +86,9 @@ jobs:
           tmp/cache/webpacker
           public/assets
           public/packs-test
-        key: ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
+        key: ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}-${{ hashFiles('app/javascript/**', 'app/assets/**') }}
+        restore-keys: |
+          ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
     - name: Set up VCR cache
       uses: actions/cache@v2
