@@ -5,6 +5,7 @@
       <input
         class="full_width"
         type="text"
+        :disabled="disabled"
         v-model="params[param]">
     </div>
     <div class="field label-above">
@@ -12,6 +13,7 @@
       <input
         type="checkbox"
         :value="param"
+        :disabled="disabled"
         v-model="params.person_wildcard">
     </div>
   </div>
@@ -31,6 +33,10 @@ export default {
     param: {
       type: String,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

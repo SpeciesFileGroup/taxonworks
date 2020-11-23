@@ -13,7 +13,7 @@
       min="0"
       max="6"
       step="0"
-      v-model="optionValue">
+      v-model.number="optionValue">
     <div class="options-label">
       <span
         v-for="n in 7"
@@ -27,7 +27,7 @@ export default {
   props: {
     value: {
       type: [Number, String],
-      required: true
+      default: 0
     }
   },
   computed: {
@@ -36,7 +36,7 @@ export default {
         return this.value
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('input', value === 0 ? undefined : value)
       }
     }
   }

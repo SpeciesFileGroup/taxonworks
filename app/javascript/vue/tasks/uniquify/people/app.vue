@@ -80,10 +80,12 @@
           <name-field
             title="Last name"
             param="last_name"
+            :disabled="levenshteinCuttoff > 0"
             v-model="params.base"/>
           <name-field
             title="First name"
             param="first_name"
+            :disabled="levenshteinCuttoff > 0"
             v-model="params.base"/>
           <active-filter v-model="params.active"/>
           <born-filter v-model="params.born"/>
@@ -168,6 +170,11 @@ export default {
     NameField,
     Spinner
   },
+  computed: {
+    levenshteinCuttoff () {
+      return this.params.base.levenshtein_cuttoff
+    }
+  },
   data () {
     return {
       activeJSONRequest: false,
@@ -187,6 +194,15 @@ export default {
       params: this.initParams()
     }
   },
+  watch: {
+    levenshteinCuttoff (newVal) {
+      console.log(newVal)
+      if (newVal !== 0) {
+        this.params.base.first_name = undefined
+        this.params.base.last_name = undefined
+      }
+    }
+  },
   methods: {
     filterEmptyParams (object) {
       const keys = Object.keys(object)
@@ -203,7 +219,7 @@ export default {
           per: 100
         },
         base: {
-          levenshtein_cuttoff: 3,
+          levenshtein_cuttoff: undefined,
           last_name: '',
           first_name: '',
           role: [],
