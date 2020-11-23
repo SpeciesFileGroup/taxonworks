@@ -1,5 +1,5 @@
 module Export::Project
-  
+
   # Restorable with psql -U :username -d :database -f dump.sql. Requires database to be created without tables (rails db:create)
   def self.generate_dump(project, file)
     config = ActiveRecord::Base.connection_config
@@ -19,7 +19,7 @@ module Export::Project
     schema_head, schema_tail = schema[0..split_point-1], schema[split_point..-1]
 
     tables = (ActiveRecord::Base.connection.tables - ['spatial_ref_sys', 'project', 'users']).sort
-    
+
     file.puts schema_head
     file.write "\n-- DATA RESTORE\n\n"
     export_users(file, project)
@@ -58,7 +58,7 @@ module Export::Project
     else
       where_clause = ''
     end
-    
+
     io.puts("COPY public.#{table} (#{cols.join(', ')}) FROM stdin;")
 
     # TODO: Consider "WITH CSV HEADER" if dumping to a set of CSV files gets implemented
