@@ -84,32 +84,6 @@ namespace :tw do
       reset_indecies
     end
 
-    desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ database_host=0.0.0.0 file=2017-07-10_154344UTC.dump'"
-    task restore: [:environment, 'db:drop', 'db:create'] do
-      puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
-      database = ApplicationRecord.connection.current_database
-      puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
-
-      args = postgres_arguments(
-        {
-          '--format' => 'custom',
-          '--dbname' => database,
-          '--username' => @args[:database_user],
-          '--host' => @args[:database_host],
-        }
-      )
-
-      args += " --no-acl --disable-triggers #{@args[:tw_backup_file]}"
-
-      puts Rainbow("with arguments: #{args}").yellow
-
-      puts(Benchmark.measure{ `pg_restore #{args}` })
-      raise TaxonWorks::Error, Rainbow("pg_restore failed with exit code #{$?.to_i}").red unless $? == 0
-
-      # TODO: Once RAILS is restarted automagically this this can go
-      reset_indecies
-    end
-
     desc "Drops, recreates and loads DB with data from a SQL file 'rake tw:db:load file=/your/path/dump.sql'"
     task load: [:environment, 'tw:file', 'db:drop', 'db:create'] do
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
