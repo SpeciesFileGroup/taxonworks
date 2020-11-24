@@ -73,6 +73,8 @@
               type="submit">Search
             </button>
           </div>
+          <in-project v-model="params.base.in_project_id"/>
+          <h3>Person</h3>
           <name-field
             title="Name"
             param="name"
@@ -152,6 +154,7 @@ import KeywordsComponent from 'tasks/collection_objects/filter/components/filter
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
 import NameField from './components/filters/nameField.vue'
+import InProject from './components/filters/inProject.vue'
 
 import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
 
@@ -160,6 +163,7 @@ export default {
     ActiveFilter,
     BornFilter,
     DiedFilter,
+    InProject,
     RoleTypes,
     FoundPeople,
     MatchPeople,
@@ -224,7 +228,8 @@ export default {
           first_name: '',
           role: [],
           keyword_ids: [],
-          person_wildcard: []
+          person_wildcard: [],
+          in_project_id: []
         },
         active: {
           active_before_year: undefined,
