@@ -18,6 +18,8 @@ jobs:
     if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
     env:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CACHE_HASH: ${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
+      CACHE_PATH: ".github/.docker-cache"
 
     runs-on: ubuntu-latest
     steps:
@@ -33,13 +35,13 @@ jobs:
       uses: actions/cache@v2
       with:
         path: .github/.docker-cache
-        key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
+        key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ env.CACHE_HASH }}
         restore-keys: |
           ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}
 
     - name: Load Docker cache (if cache was hit)
-      if: steps.docker_cache.outputs.cache-hit == 'true'
-      run: docker load -i .github/.docker-cache/images.tar
+      run: |
+        [ ! -f ${CACHE_PATH}/images.tar ] || docker load -i ${CACHE_PATH}/images.tar
 
     - name: Build the Docker image
       run: docker build . -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
@@ -107,7 +109,7 @@ jobs:
         docker push sfgrp/taxonworks:$DOCKER_TAG
 
     - name: Save Docker cache (if cache was NOT hit)
-      if: steps.docker_cache.outputs.cache-hit != 'true'
       run: |
-        mkdir -p .github/.docker-cache
-        docker save -o .github/.docker-cache/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
+        mkdir -p $CACHE_PATH
+        [ -f ${CACHE_PATH}/${CACHE_HASH} ] || docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
+        touch ${CACHE_PATH}/${CACHE_HASH}
