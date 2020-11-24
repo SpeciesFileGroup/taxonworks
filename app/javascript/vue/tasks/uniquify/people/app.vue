@@ -73,7 +73,7 @@
               type="submit">Search
             </button>
           </div>
-          <in-project v-model="params.base.in_project_id"/>
+          <in-project v-model="params.base.used_in_project_id"/>
           <h3>Person</h3>
           <name-field
             title="Name"
@@ -207,8 +207,6 @@ export default {
       }
     },
     selectedPerson (newVal) {
-      console.log('asdfasd')
-      console.log(newVal)
       if (newVal) {
         this.getMatchPeople(newVal)
       }
@@ -236,7 +234,7 @@ export default {
           role: [],
           keyword_ids: [],
           person_wildcard: [],
-          in_project_id: []
+          used_in_project_id: []
         },
         active: {
           active_before_year: undefined,

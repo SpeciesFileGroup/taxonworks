@@ -162,6 +162,7 @@ class PeopleController < ApplicationController
       :user_date_start,
       :user_id,
       :user_target,
+      used_in_project_id: [],
       keyword_ids: [],
       role: [],
       person_wildcard: []
