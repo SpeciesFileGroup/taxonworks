@@ -45,6 +45,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- cached_valid_taxon_name_id updated for combination after valid status is assigned.
+- updated soft validation for 'Uncertain placement'
 - [sic] changed to (sic) for misspelled bacterial names
 - Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
 - Observation matrix could be resolved without observation_matrix_id, only with otu_filter
