@@ -18,7 +18,6 @@ jobs:
     if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
     env:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      CACHE_HASH: ${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
       CACHE_PATH: ".github/.docker-cache"
 
     runs-on: ubuntu-latest
@@ -35,7 +34,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: .github/.docker-cache
-        key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ env.CACHE_HASH }}
+        key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}
 
@@ -109,6 +108,8 @@ jobs:
         docker push sfgrp/taxonworks:$DOCKER_TAG
 
     - name: Save Docker cache (if cache was NOT hit)
+      env:
+        CACHE_HASH: ${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
       run: |
         mkdir -p $CACHE_PATH
         [ -f ${CACHE_PATH}/${CACHE_HASH} ] || docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
