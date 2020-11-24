@@ -1,11 +1,6 @@
 <template>
   <div>
     <h2>Match people</h2>
-    <spinner-component
-      v-if="isLoading"
-      :full-screen="true"
-      legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"/>
     <p v-if="selectedPerson">{{ matchList.length }}  matches found</p>
     <div>
       <autocomplete
@@ -74,6 +69,10 @@ export default {
     selectedPerson: {
       type: Object,
       default: undefined
+    },
+    matchPeople: {
+      type: Array,
+      required: true
     }
   },
   computed: {
@@ -89,43 +88,15 @@ export default {
       return this.matchPeople.filter(person => this.selectedPerson.id !== person.id)
     }
   },
-  watch: {
-    selectedPerson (newVal) {
-      if (newVal) {
-        this.getMatchPeople(newVal)
-      }
-    }
-  },
-  data () {
-    return {
-      isLoading: false,
-      matchPeople: [],
-      mergePerson: {}
-    }
-  },
   methods: {
     addToList (person) {
       person.cached = person.label
-      this.matchPeople.push(person)
+      this.$emit('addToList', person)
       this.selectMergePerson(person)
     },
     selectMergePerson (person) {
       GetPeople(person.id).then(response => {
         this.selectedMergePerson = response.body
-      })
-    },
-    getMatchPeople (person) {
-      if (!person && !Object.keys(person.selectedPerson).length) {
-        this.mergePerson = {}
-        return
-      }
-      this.isLoading = true
-      GetPeopleList({
-        name: person.cached,
-        levenshtein_cuttoff: 3
-      }).then(response => {
-        this.isLoading = false
-        this.matchPeople = response.body
       })
     },
     getRoles (person) {

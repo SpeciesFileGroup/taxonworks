@@ -16,7 +16,7 @@
         label="label_html"
         placeholder="Search a person..."
         clear-after
-        @getItem="selectPerson"/>
+        @getItem="addToList"/>
       <table class="full_width">
         <thead>
           <tr>
@@ -28,32 +28,61 @@
             <th>Roles</th>
           </tr>
         </thead>
-        <tbody v-if="expanded">
-          <template v-for="person in foundPeople">
-            <tr
-              v-if="person.id != selected['id']"
-              :key="person.id">
-              <td>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
-                  @click="selectPerson(person)">
-                  Select
-                </button>
-              </td>
-              <td>{{ person.cached }}</td>
-              <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
-              </td>
-              <td>
-                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
-              </td>
-              <td>
-                <span class="feedback feedback-thin feedback-primary">{{ person.roles.length }}</span>
-              </td>
-              <td>{{ getRoles(person) }}</td>
-            </tr>
+        <tbody>
+          <template v-if="expanded">
+            <template v-for="person in foundPeople">
+              <tr :key="person.id">
+                <td>
+                  <button
+                    v-if="person.id != selected['id']"
+                    type="button"
+                    class="button normal-input button-default"
+                    @click="selectPerson(person)">
+                    Select
+                  </button>
+                  <button
+                    v-else
+                    type="button"
+                    class="button normal-input button-default"
+                    disabled>
+                    Selected
+                  </button>
+                </td>
+                <td>{{ person.cached }}</td>
+                <td>
+                  <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
+                </td>
+                <td>
+                  <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
+                </td>
+                <td>
+                  <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : 0 }}</span>
+                </td>
+                <td>{{ getRoles(person) }}</td>
+              </tr>
+            </template>
           </template>
+          <tr v-else>
+            <td>
+              <button
+                type="button"
+                class="button normal-input button-default"
+                disabled>
+                Selected
+              </button>
+            </td>
+            <td>{{ selected.cached }}</td>
+            <td>
+              <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(selected.year_born) }} - {{ yearValue(selected.year_died) }}</span>
+            </td>
+            <td>
+              <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(selectedPerson.year_active_start) }} - {{ yearValue(selected.year_active_end) }}</span>
+            </td>
+            <td>
+              <span class="feedback feedback-thin feedback-primary">{{ selected.roles ? selected.roles.length : '?' }}</span>
+            </td>
+            <td>{{ getRoles(selected) }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -111,20 +140,21 @@ export default {
         this.foundPeople.splice(index, 1)
       }
     },
-    addToList(person) {
-      this.selectPerson(person)
-      person.cached = person.label
+    async addToList (person) {
+      person = await this.selectPerson(person)
       this.$emit('addToList', person)
       this.selected = person
     },
-    selectPerson (person) {
-      GetPeople(person.id).then(response => {
+    async selectPerson (person) {
+      this.selected = person
+      return GetPeople(person.id).then(response => {
         this.selectedPerson = response.body
         this.$emit('expand', false)
+        return response.body
       })
     },
     getRoles (person) {
-      return [...new Set(person.roles.map(r => r.role_object_type))].join(', ')
+      return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : '?'
     },
     yearValue (value) {
       return value || '?'

@@ -118,8 +118,9 @@
             </div>
             <div v-show="showMatch">
               <match-people
-                ref="matchPeople"
+                @addToList="mergePeople.push($event)"
                 v-model="mergePerson"
+                :match-people="matchPeople"
                 :selected-person="selectedPerson"
               />
             </div>
@@ -200,10 +201,16 @@ export default {
   },
   watch: {
     levenshteinCuttoff (newVal) {
-      console.log(newVal)
       if (newVal !== 0) {
         this.params.base.first_name = undefined
         this.params.base.last_name = undefined
+      }
+    },
+    selectedPerson (newVal) {
+      console.log('asdfasd')
+      console.log(newVal)
+      if (newVal) {
+        this.getMatchPeople(newVal)
       }
     }
   },
@@ -320,6 +327,14 @@ export default {
       this.selectedPerson = undefined
       this.matchPeople = []
       this.mergePerson = {}
+    },
+    getMatchPeople (person) {
+      GetPeopleList({
+        name: person.cached,
+        levenshtein_cuttoff: 3
+      }).then(response => {
+        this.matchPeople = response.body
+      })
     }
   },
   mounted () {
