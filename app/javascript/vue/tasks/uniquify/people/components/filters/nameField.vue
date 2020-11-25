@@ -8,13 +8,16 @@
         :disabled="disabled"
         v-model="params[param]">
     </div>
-    <div class="field label-above">
-      <label>Wildcard</label>
-      <input
-        type="checkbox"
-        :value="param"
-        :disabled="disabled"
-        v-model="params.person_wildcard">
+    <div class="field">
+      <br>
+      <label class="horizontal-left-content">
+        <input
+          type="checkbox"
+          :value="param"
+          :disabled="disabled"
+          v-model="params.person_wildcard">
+        Wildcard
+      </label>
     </div>
   </div>
 </template>

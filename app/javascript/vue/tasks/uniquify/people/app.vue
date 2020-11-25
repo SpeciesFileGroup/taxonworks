@@ -47,7 +47,7 @@
     <spinner
       v-if="isLoading || isSaving"
       :full-screen="true"
-      :legend="isLoading ? 'Loading...' : 'Merging...'"
+      :legend="isLoading ? 'Loading...' : `Merging... ${this.mergeList.length} persons remaining...`"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div
       v-show="activeJSONRequest"
@@ -118,8 +118,8 @@
             </div>
             <div v-show="showMatch">
               <match-people
-                @addToList="mergePeople.push($event)"
-                v-model="mergePerson"
+                @addToList="matchPeople.push($event)"
+                v-model="mergeList"
                 :match-people="matchPeople"
                 :selected-person="selectedPerson"
               />
@@ -132,7 +132,7 @@
                 @flip="flipPerson"
                 @merge="mergePeople"
                 :selected="selectedPerson"
-                :merge="mergePerson"/>
+                :merge-list="mergeList"/>
             </div>
           </div>
         </div>
@@ -190,6 +190,7 @@ export default {
       foundPeople: [],
       selectedPerson: undefined,
       matchPeople: [],
+      mergeList: [],
       mergePerson: {},
       displayCount: false,
       haltWatcher: false,
@@ -256,11 +257,11 @@ export default {
         }
       }
     },
-    flipPerson () {
+    flipPerson (personIndex) {
       this.haltWatcher = true
       const tmp = this.selectedPerson
-      this.selectedPerson = this.mergePerson
-      this.mergePerson = tmp
+      this.selectedPerson = this.mergeList[personIndex]
+      this.$set(this.mergeList, personIndex, tmp)
     },
     findPerson (event) {
       event.preventDefault()
@@ -286,23 +287,29 @@ export default {
       })
     },
     mergePeople () {
-      const params = {
-        person_to_destroy: this.mergePerson.id
-      }
+      this.processMerge(this.mergeList)
+    },
+    processMerge (mergeList) {
+      const mergePerson = mergeList.pop()
       this.isSaving = true
+      const params = {
+        person_to_destroy: mergePerson.id
+      }
       PersonMerge(this.selectedPerson.id, params).then(({ body }) => {
         const personIndex = this.foundPeople.findIndex(person => person.id === this.selectedPerson.id)
 
         this.selectedPerson = body
-        this.foundPeople = this.foundPeople.filter(people => this.mergePerson.id !== people.id)
-        this.matchPeople = this.matchPeople.filter(people => this.mergePerson.id !== people.id)
-        this.mergePerson = {}
+        this.foundPeople = this.foundPeople.filter(people => mergePerson.id !== people.id)
+        this.matchPeople = this.matchPeople.filter(people => mergePerson.id !== people.id)
 
         if (personIndex > -1) {
           this.$set(this.foundPeople, personIndex, this.selectedPerson)
         }
-
-        this.isSaving = false
+        if (mergeList.length) {
+          this.processMerge(mergeList)
+        } else {
+          this.isSaving = false
+        }
       })
     },
     resetApp () {
@@ -325,6 +332,7 @@ export default {
       this.selectedPerson = undefined
       this.matchPeople = []
       this.mergePerson = {}
+      this.mergeList = []
     },
     getMatchPeople (person) {
       GetPeopleList({

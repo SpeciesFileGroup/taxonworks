@@ -9,7 +9,7 @@
         label="label_html"
         placeholder="Search a person..."
         clear-after
-        @getItem="selectMergePerson"/>
+        @getItem="addToList"/>
       <table class="full_width">
         <thead>
           <tr>
@@ -25,12 +25,10 @@
           <template v-for="person in matchList">
             <tr :key="person.id">
               <td>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
-                  @click="selectMergePerson(person)">
-                  Select
-                </button>
+                <input
+                  type="checkbox"
+                  :value="person"
+                  v-model="selectedMergePerson">
               </td>
               <td>{{ person.cached }}</td>
               <td>
@@ -40,7 +38,7 @@
                 <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
               </td>
               <td>
-                <span class="feedback feedback-thin feedback-primary">{{ person.roles.length }}</span>
+                <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : '?' }}</span>
               </td>
               <td>{{ getRoles(person) }}</td>
             </tr>
@@ -52,18 +50,16 @@
 </template>
 <script>
 
-import { GetPeople, GetPeopleList } from '../request/resources'
-import SpinnerComponent from 'components/spinner'
+import { GetPeople } from '../request/resources'
 import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
-    SpinnerComponent,
     Autocomplete
   },
   props: {
     value: {
-      type: Object,
+      type: Array,
       required: true
     },
     selectedPerson: {
@@ -91,16 +87,15 @@ export default {
   methods: {
     addToList (person) {
       person.cached = person.label
-      this.$emit('addToList', person)
-      this.selectMergePerson(person)
-    },
-    selectMergePerson (person) {
       GetPeople(person.id).then(response => {
-        this.selectedMergePerson = response.body
+        if (!this.selectedMergePerson.find(p => p.id === response.body.id)) {
+          this.selectedMergePerson.push(response.body)
+          this.$emit('addToList', response.body)
+        }
       })
     },
     getRoles (person) {
-      return [...new Set(person.roles.map(r => r.role_object_type))].join(', ')
+      return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : ''
     },
     yearValue (value) {
       return value || '?'
