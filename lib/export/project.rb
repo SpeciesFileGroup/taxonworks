@@ -18,7 +18,7 @@ module Export::Project
     split_point = schema.index(/\n(--[^\n]*\n)*\s*ALTER\s+TABLE/)
     schema_head, schema_tail = schema[0..split_point-1], schema[split_point..-1]
 
-    tables = (ActiveRecord::Base.connection.tables - ['spatial_ref_sys', 'project', 'users']).sort
+    tables = (ActiveRecord::Base.connection.tables - ['spatial_ref_sys', 'project', 'users', 'versions']).sort
 
     file.puts schema_head
     file.write "\n-- DATA RESTORE\n\n"
