@@ -70,7 +70,14 @@
             <button
               class="button normal-input button-default full_width"
               @click="findPerson"
-              type="submit">Search
+              type="button">Search
+            </button>
+            <button
+              class="button normal-input button-default full_width margin-medium-top"
+              type="button"
+              :disabled="!selectedPerson"
+              @click="getMatchPeople()">
+              Update match people
             </button>
           </div>
           <in-project v-model="params.base.used_in_project_id"/>
@@ -209,7 +216,7 @@ export default {
     },
     selectedPerson (newVal) {
       if (newVal) {
-        this.getMatchPeople(newVal)
+        this.getMatchPeople({ name: newVal.cached, levenshtein_cuttoff: 3 })
       }
     }
   },
@@ -266,6 +273,8 @@ export default {
     findPerson (event) {
       event.preventDefault()
       const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+
+      this.clearFoundData()
 
       this.isLoading = true
       this.clearFoundData()
@@ -326,19 +335,18 @@ export default {
       this.selectedPerson = undefined
       this.foundPeople = []
       this.matchPeople = []
+      this.mergeList = []
     },
     clearMatchData () {
       this.foundPeople = []
       this.selectedPerson = undefined
       this.matchPeople = []
-      this.mergePerson = {}
       this.mergeList = []
     },
-    getMatchPeople (person) {
-      GetPeopleList({
-        name: person.cached,
-        levenshtein_cuttoff: 3
-      }).then(response => {
+    getMatchPeople (params) {
+      const data = params || this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+      this.mergeList = []
+      GetPeopleList(data).then(response => {
         this.matchPeople = response.body
       })
     }

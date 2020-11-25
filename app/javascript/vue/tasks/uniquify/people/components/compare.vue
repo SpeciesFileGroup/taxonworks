@@ -33,7 +33,7 @@
     </div>
     <table>
       <tbody>
-        <tr>
+        <tr v-if="Object.keys(selected).length">
           <td/>
           <td>
             <div class="horizontal-left-content">
