@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added content filter, API endpoints [#1905] 
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
@@ -45,6 +46,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- removed `most_recent_upates` from Content params
+- removed `/contents/filter.json` endpoint, use `/contents.json`
 - [sic] changed to (sic) for misspelled bacterial names
 - Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
 - Observation matrix could be resolved without observation_matrix_id, only with otu_filter
@@ -57,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
 
+[#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832

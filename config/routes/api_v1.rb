@@ -63,6 +63,9 @@ namespace :api, defaults: {format: :json} do
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
 
+      get '/contents', to: '/contents#api_index'
+      get '/contents/:id', to: '/contents#api_show'
+
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
 
