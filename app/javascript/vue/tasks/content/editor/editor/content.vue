@@ -302,8 +302,7 @@
       loadContent: function () {
         if (this.disabled) return
 
-        let
-          ajaxUrl = `/contents/filter.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
+        let ajaxUrl = `/contents.json?otu_id=${this.otu.id}&topic_id=${this.topic.id}`
 
         this.firstInput = true
         this.resetAutoSave()

@@ -74,7 +74,7 @@
         if (this.disabled) return
 
         let that = this,
-          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
+          ajaxUrl = `/contents.json?topic_id=${this.topic.id}`
 
         AjaxCall('get', ajaxUrl).then(response => {
           that.contents = removeDuplicate(response.body, this.content.id)
