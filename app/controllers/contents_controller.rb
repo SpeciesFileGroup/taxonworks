@@ -131,6 +131,10 @@ class ContentsController < ApplicationController
       :exact,
       :citations,
       :depictions,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
       topic_id: [],
       otu_id: []
     ).to_h.merge(project_id: sessions_current_project_id)
@@ -144,6 +148,10 @@ class ContentsController < ApplicationController
       :exact,
       :citations,
       :depictions,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
       topic_id: [],
       otu_id: []
     ).to_h.merge(project_id: sessions_current_project_id)

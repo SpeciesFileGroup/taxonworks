@@ -1,7 +1,8 @@
 module Queries
   module Content
     class Filter 
-      include Arel::Nodes
+
+      include Queries::Concerns::Users
 
       # @return [Array]
       # @param topic_id [Array, Integer, String, nil]
@@ -39,6 +40,8 @@ module Queries
         @depictions = (params[:depictions]&.downcase == 'true' ? true : false) if !params[:depictions].nil?
       
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
+
+        set_user_dates(params)
       end
 
       def topic_id
@@ -128,6 +131,7 @@ module Queries
         clauses = [
           depictions_facet, 
           citations_facet,
+          created_updated_facet, # See Queries::Concerns::Users
         ].compact
 
         return nil if clauses.empty?
