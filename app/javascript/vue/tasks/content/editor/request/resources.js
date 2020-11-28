@@ -18,6 +18,10 @@ const GetContentCitations = id => AjaxCall('get', `/contents/${id}/citations.jso
 
 const GetContentDepictions = id => AjaxCall('get', `/contents/${id}/depictions.json`)
 
+const GetOtu = id => AjaxCall('get', `/otus/${id}.json`)
+
+const GetTopics = () => AjaxCall('get', '/topics/list')
+
 const UpdateContent = (id, data) => AjaxCall('patch', `/contents/${id}.json`, data)
 
 const UpdateDepiction = (id, data) => AjaxCall('patch', `/depictions/${id}.json`, data)
@@ -34,6 +38,8 @@ export {
   GetContents,
   GetContentCitations,
   GetContentDepictions,
+  GetOtu,
+  GetTopics,
   UpdateContent,
   UpdateDepiction,
   SortDepictions
