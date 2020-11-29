@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added content filter, API endpoints [#1905] 
 - New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
 - Note filter improvements, specs, new params, API exposure [#XXX]
 - `person#sources` `has_many` (very slight potential for issues)
@@ -51,6 +52,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- removed `most_recent_upates` from Content params
+- removed `/contents/filter.json` endpoint, use `/contents.json`
 - Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
 - Note filter params `query_string` => `text`, `note_object_types[]` => `note_object_type[]`, `note_object_ids[]` => `note_object_id[]`, added corresponding non-array versions
 - Moved `levenshtein_distance` to Query for general use
@@ -71,6 +74,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
 
+[#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
 [#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
 [#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881

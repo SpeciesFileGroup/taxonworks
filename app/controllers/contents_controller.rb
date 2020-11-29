@@ -1,7 +1,7 @@
 class ContentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_content, only: [:show, :edit, :update, :destroy]
+  before_action :set_content, only: [:show, :edit, :update, :destroy, :api_show]
 
   # GET /contents
   # GET /contents.json
@@ -12,11 +12,10 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @contents = filtered_content
+        @contents = Queries::Content::Filter.new(filter_params).all.page(params[:page]).per(params[:per])
       }
     end
   end
-
 
   # GET /contents/1
   # GET /contents/1.json
@@ -79,16 +78,10 @@ class ContentsController < ApplicationController
   def search
     if params[:id].blank?
       redirect_to content_path,
-                  notice: 'You must select an item from the list with a click or tab press before clicking show.'
+        notice: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to content_path(params[:id])
     end
-  end
-
-  # GET /contents/filter.json
-  def filter
-    @contents = filtered_content
-    render '/contents/index'
   end
 
   def autocomplete
@@ -97,7 +90,7 @@ class ContentsController < ApplicationController
       {id: t.id,
        label: ApplicationController.helpers.taxon_works_content_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: ApplicationController.helpers.taxon_works_content_tag(t)
       }
@@ -114,14 +107,54 @@ class ContentsController < ApplicationController
       filename: "contents_#{DateTime.now}.csv")
   end
 
+  # GET /api/v1/content
+  def api_index
+    @contents = Queries::Content::Filter.new(api_params).all
+      .includes(:topic)
+      .order('otus.id, controlled_vocabulary_terms.name')
+      .page(params[:page]).per(params[:per])
+    render '/contents/api/v1/index'
+  end
+
+  # GET /api/v1/content/:id
+  def api_show
+    render '/contents/api/v1/show'
+  end
+
   private
 
-  def filtered_content
-    p =  params.permit(:otu_id, :topic_id, :hours_ago, :most_recent_updates).to_h.symbolize_keys
-    p[:most_recent_updates] = 10 if p.empty?
-    Queries::ContentFilterQuery.new(**p)
-      .all
-      .with_project_id(sessions_current_project_id)
+  def api_params
+    params.permit(
+      :otu_id,
+      :topic_id,
+      :text,
+      :exact,
+      :citations,
+      :depictions,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      topic_id: [],
+      otu_id: []
+    ).to_h.merge(project_id: sessions_current_project_id)
+  end
+
+  def filter_params
+    params.permit(
+      :otu_id,
+      :topic_id,
+      :text,
+      :exact,
+      :citations,
+      :depictions,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      topic_id: [],
+      otu_id: []
+    ).to_h.merge(project_id: sessions_current_project_id)
   end
 
   def set_content
