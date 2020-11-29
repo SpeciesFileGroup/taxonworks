@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Added content filter, API endpoints [#1905] 
+- New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
+- Note filter improvements, specs, new params, API exposure [#XXX]
 - `person#sources` `has_many` (very slight potential for issues)
 - Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
 - People can be Tagged
@@ -52,6 +54,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - removed `most_recent_upates` from Content params
 - removed `/contents/filter.json` endpoint, use `/contents.json`
+- Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
+- Note filter params `query_string` => `text`, `note_object_types[]` => `note_object_type[]`, `note_object_ids[]` => `note_object_id[]`, added corresponding non-array versions
 - Moved `levenshtein_distance` to Query for general use
 - Remove `people/123/similar` endpoint (used `/index`)
 - Person filter `person_wildcards` is `person_wildcard`
