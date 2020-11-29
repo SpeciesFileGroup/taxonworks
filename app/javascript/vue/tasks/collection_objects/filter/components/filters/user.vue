@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="flex-separate">
-      User
+      Housekeeping
       <span
         class="margin-small-left"
         v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
@@ -20,14 +20,19 @@
     </div>
     <h3>Date range</h3>
     <div class="field">
-      <select v-model="user.user_target">
-        <option
+      <ul class="no_bullets">
+        <li
           v-for="item in options"
-          :value="item.value"
           :key="item.value">
-          {{ item.label }}
-        </option>
-      </select>
+          <label>
+            <input
+              :value="item.value"
+              v-model="user.user_target"
+              type="radio">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul>
     </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
@@ -36,7 +41,6 @@
         <input 
           type="date"
           class="date-input"
-          :disabled="!user.user_target"
           v-model="user.user_date_start">
       </div>
       <div class="field">
@@ -46,11 +50,9 @@
           <input
             type="date"
             class="date-input"
-            :disabled="!user.user_target"
             v-model="user.user_date_end">
           <button
             type="button"
-            :disabled="!user.user_target"
             class="button normal-input button-default margin-small-left"
             @click="setActualDate">
             Now
@@ -94,23 +96,12 @@ export default {
         {
           label: 'created at',
           value: 'created'
-        }, 
-        { 
+        },
+        {
           label: 'updated',
           value: 'updated'
         }
       ]
-    }
-  },
-  watch: {
-    user: {
-      handler (newVal) {
-        if(!newVal.user_target) {
-          this.user.user_date_start = undefined
-          this.user.user_date_end = undefined
-        }
-      },
-      deep: true
     }
   },
   mounted () {

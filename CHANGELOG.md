@@ -9,6 +9,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Added content filter, API endpoints [#1905] 
+- `person#sources` `has_many` (very slight potential for issues)
+- Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
+- People can be Tagged
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
@@ -32,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
+- People filter role + name [#1662] 
 - Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
@@ -48,6 +52,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - removed `most_recent_upates` from Content params
 - removed `/contents/filter.json` endpoint, use `/contents.json`
+- Moved `levenshtein_distance` to Query for general use
+- Remove `people/123/similar` endpoint (used `/index`)
+- Person filter `person_wildcards` is `person_wildcard`
+- Person filter behaviour vs. `levenshtein_cuttof`
+- cached_valid_taxon_name_id updated for combination after valid status is assigned.
+- updated soft validation for 'Uncertain placement'
 - [sic] changed to (sic) for misspelled bacterial names
 - Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
 - Observation matrix could be resolved without observation_matrix_id, only with otu_filter
@@ -61,6 +71,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit button color on type material species task [#1898]
 
 [#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
+[#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
+[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832

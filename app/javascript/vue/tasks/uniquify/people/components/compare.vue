@@ -3,48 +3,69 @@
     <div class="horizontal-left-content align-start">
       <div class="column-buttons">
         <h2>&nbsp;</h2>
-        <button
-          type="button"
-          class="button normal-input button-default separate-right"
-          :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
-          @click="$emit('flip')">Flip</button>
-        <button
-          class="button normal-input button-submit"
-          @click="sendMerge"
-          :disabled="!mergeEmpty">Merge people
-        </button>
+        <div class="horizontal-left-content">
+          <button
+            type="button"
+            class="button normal-input button-default separate-right"
+            :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
+            @click="$emit('flip', personIndex)">Flip</button>
+          <confirm-modal
+            v-if="mergeList.length > 1"
+            @onAccept="$emit('merge')"/>
+          <button
+            v-else
+            class="button normal-input button-submit"
+            @click="sendMerge"
+            :disabled="mergeEmpty">Merge people
+          </button>
+        </div>
       </div>
       <div class="title-person">
         <h2>Selected person</h2>
         <template v-if="selectedEmpty">
-          <p>This person will remain.</p> 
-          <h3 class="horizontal-left-content">
-            <a
-              target="_blank"
-              :href="`/people/${selected.id}`">
-              {{ selected.cached }}
-            </a>
-            <radial-annotator :global-id="selected.global_id"/>
-          </h3>
+          <p>This person will remain.</p>
         </template>
       </div>
       <div class="title-merge">
         <h2>Person to merge</h2>
-        <template v-if="mergeEmpty">
-          <p data-icon="warning">This person will be deleted.</p>
-          <h3 class="horizontal-left-content">
-            <a
-              target="_blank"
-              :href="`/people/${merge.id}`">
-              {{ merge.cached }}
-            </a>
-            <radial-annotator :global-id="merge.global_id"/>
-          </h3>
+        <template v-if="!mergeEmpty">
+          <p data-icon="warning">This person(s) will be deleted.</p>
+          <switch-component
+            v-model="personIndex"
+            use-index
+            :options="peopleList"/>
         </template>
       </div>
     </div>
     <table>
       <tbody>
+        <tr v-if="Object.keys(selected).length">
+          <td/>
+          <td>
+            <div class="horizontal-left-content">
+              <a
+                target="_blank"
+                :href="`/people/${selected.id}`">
+                {{ selected.cached }}
+              </a>
+              <radial-annotator
+                v-if="selected.global_id"
+                :global-id="selected.global_id"/>
+            </div>
+          </td>
+          <td>
+            <div class="horizontal-left-content">
+              <a
+                target="_blank"
+                :href="`/people/${merge.id}`">
+                {{ merge.cached }}
+              </a>
+              <radial-annotator
+                v-if="merge.global_id"
+                :global-id="merge.global_id"/>
+            </div>
+          </td>
+        </tr>
         <tr
           v-for="(property, key, index) in selected"
           v-if="!isNestedProperty(property)"
@@ -102,13 +123,17 @@ import TableRoles from './tableRoles'
 import TableAnnotations from './tableAnnotations'
 import TablePersonRoles from './roles_table'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import SwitchComponent from 'components/switch'
+import ConfirmModal from './confirmModal.vue'
 
 export default {
   components: {
     TablePersonRoles,
     TableAnnotations,
     TableRoles,
-    RadialAnnotator
+    RadialAnnotator,
+    SwitchComponent,
+    ConfirmModal
   },
   name: 'CompareComponent',
   props: {
@@ -116,17 +141,28 @@ export default {
       type: [Object, Array],
       default: () => { return {} }
     },
-    merge: {
-      type: [Object, Array],
-      default: () => { return {} }
+    mergeList: {
+      type: Array,
+      required: true
     }
   },
   computed: {
     selectedEmpty() {
       return Object.keys(this.selected).length > 0
     },
-    mergeEmpty() {
-      return Object.keys(this.merge).length > 0
+    mergeEmpty () {
+      return this.mergeList.length === 0
+    },
+    merge () {
+      return this.mergeList.length ? this.mergeList[this.personIndex] || {} : {}
+    },
+    peopleList () {
+      return this.mergeList.map(p => p.cached)
+    }
+  },
+  data () {
+    return {
+      personIndex: 0
     }
   },
   filters: {
