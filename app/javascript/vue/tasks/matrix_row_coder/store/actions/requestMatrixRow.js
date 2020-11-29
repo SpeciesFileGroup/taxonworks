@@ -3,7 +3,7 @@ import DescriptorTypes from '../helpers/DescriptorTypes'
 import ComponentNames from '../helpers/ComponentNames'
 import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor'
 
-export default function ({commit, state}, args) {
+export default function ({ commit, state }, args) {
   const {
     rowId,
     otuId
@@ -51,11 +51,13 @@ function makeBaseDescriptor (descriptorData) {
     isSaving: false,
     hasSavedAtLeastOnce: false,
     notes: null,
-    depictions: null,
+    depictions: null
   }
 }
 
 const DescriptorTypesToComponentNames = {
+  [DescriptorTypes.FreeText]: ComponentNames.FreeText,
+  [DescriptorTypes.Media]: ComponentNames.Media,
   [DescriptorTypes.Qualitative]: ComponentNames.Qualitative,
   [DescriptorTypes.Continuous]: ComponentNames.Continuous,
   [DescriptorTypes.Sample]: ComponentNames.Sample,

@@ -39,7 +39,11 @@ Object.assign(TW.views.shared.slideout, {
 
 		document.body.addEventListener("click", function (event) {
 			if (event.target.getAttribute('data-pdfviewer')) {
-				document.dispatchEvent(new CustomEvent('pdfViewer:load', { detail: { url: event.target.getAttribute('data-pdfviewer') } } ));
+				document.dispatchEvent(new CustomEvent('pdfViewer:load', { detail: {
+					url: event.target.getAttribute('data-pdfviewer'),
+					sourceId: event.target.getAttribute('data-sourceid')
+				} 
+			}));
 			}
 		});
 	},

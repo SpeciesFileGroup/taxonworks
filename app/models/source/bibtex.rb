@@ -877,7 +877,8 @@ class Source::Bibtex < Source
       end
       n = []
       n += [stated_year.to_s] if stated_year && year && stated_year != year
-      n += ['in ' + language.english_name.to_s] if language_id
+
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
       n += [note.to_s] if note
       c = c + " [#{n.join(', ')}]" unless n.empty?
 

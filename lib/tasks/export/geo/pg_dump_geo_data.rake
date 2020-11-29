@@ -4,18 +4,17 @@ namespace :tw do
     # rake tw:initialization:pg_dump_geo_data[../gaz/data/internal/dump/]
     desc 'Save gazetter information in native pg_dump compressed form.'
     task :pg_dump_geo_data, [:dump_to_path] => [:environment] do |t, args|
-      database = ApplicationRecord.connection.current_database
       args.with_defaults(dump_to_path: '/tmp/' )
       data_store = args[:dump_to_path]
       begin
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_area_types.dump"
-        a = Support::Database.pg_dump(database, 'geographic_area_types', data_store)
+        a = Support::Database.pg_dump('geographic_area_types', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_areas.dump"
-        c = Support::Database.pg_dump(database, 'geographic_areas', data_store)
+        c = Support::Database.pg_dump('geographic_areas', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_items.dump"
-        b = Support::Database.pg_dump(database, 'geographic_items', data_store)
+        b = Support::Database.pg_dump('geographic_items', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}: To #{data_store}geographic_areas_geographic_items.dump"
-        d = Support::Database.pg_dump(database, 'geographic_areas_geographic_items', data_store)
+        d = Support::Database.pg_dump('geographic_areas_geographic_items', data_store)
         puts "#{Time.now.strftime "%H:%M:%S"}."
       rescue
         raise

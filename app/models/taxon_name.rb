@@ -841,7 +841,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this?
+    set_cached_classified_as
     set_cached_author_year
   end
 

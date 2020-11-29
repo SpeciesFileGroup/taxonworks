@@ -55,6 +55,7 @@ class Person < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
+  include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
   include Shared::IsData
@@ -105,7 +106,7 @@ class Person < ApplicationRecord
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
 
-  # has_many :sources, through: :roles # TODO: test and confirm dependent
+  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors

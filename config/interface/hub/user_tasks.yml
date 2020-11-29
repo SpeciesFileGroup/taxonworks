@@ -606,3 +606,10 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
+export_taxonworks_project_task:
+  hub: true
+  name: 'Export project database copy'
+  related:
+  categories:
+  status: prototype
+  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
