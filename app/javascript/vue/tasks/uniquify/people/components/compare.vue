@@ -3,16 +3,22 @@
     <div class="horizontal-left-content align-start">
       <div class="column-buttons">
         <h2>&nbsp;</h2>
-        <button
-          type="button"
-          class="button normal-input button-default separate-right"
-          :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
-          @click="$emit('flip', personIndex)">Flip</button>
-        <button
-          class="button normal-input button-submit"
-          @click="sendMerge"
-          :disabled="mergeEmpty">Merge people
-        </button>
+        <div class="horizontal-left-content">
+          <button
+            type="button"
+            class="button normal-input button-default separate-right"
+            :disabled="!(Object.keys(selected).length && Object.keys(merge).length)"
+            @click="$emit('flip', personIndex)">Flip</button>
+          <confirm-modal
+            v-if="mergeList.length > 1"
+            @onAccept="$emit('merge')"/>
+          <button
+            v-else
+            class="button normal-input button-submit"
+            @click="sendMerge"
+            :disabled="mergeEmpty">Merge people
+          </button>
+        </div>
       </div>
       <div class="title-person">
         <h2>Selected person</h2>
@@ -118,6 +124,7 @@ import TableAnnotations from './tableAnnotations'
 import TablePersonRoles from './roles_table'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
+import ConfirmModal from './confirmModal.vue'
 
 export default {
   components: {
@@ -125,7 +132,8 @@ export default {
     TableAnnotations,
     TableRoles,
     RadialAnnotator,
-    SwitchComponent
+    SwitchComponent,
+    ConfirmModal
   },
   name: 'CompareComponent',
   props: {
