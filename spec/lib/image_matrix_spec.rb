@@ -28,13 +28,15 @@ describe ImageMatrix, type: :model, group: :observation_matrix do
     let!(:c3) { ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor3, observation_matrix: observation_matrix) }
 
     let!(:o1 ) {Observation::Media.create!(descriptor: descriptor1, otu: otu1) }
+    let!(:o2 ) {Observation::Media.create!(descriptor: descriptor2, otu: otu2) }
 
     let(:image_file) { fixture_file_upload( Spec::Support::Utilities::Files.generate_png, 'image/png') }
     let(:source) { FactoryBot.create(:valid_source) }
-    let!(:depiction) { Depiction.create!(image_attributes: {image_file: image_file}, depiction_object: o1) }
+    let!(:depiction1) { Depiction.create!(image_attributes: {image_file: image_file}, depiction_object: o1) }
+    let!(:depiction2) { Depiction.create!(image_attributes: {image_file: image_file}, depiction_object: o2) }
 
     specify 'image_matrix' do
-      depiction.image.citations.create(source: source, is_original: true)
+      depiction1.image.citations.create(source: source, is_original: true)
       im =  ImageMatrix.new(
           observation_matrix_id: observation_matrix.id,
           project_id: observation_matrix.project_id)
@@ -44,5 +46,31 @@ describe ImageMatrix, type: :model, group: :observation_matrix do
       expect(im.depiction_matrix[otu1.id.to_s + '|'][:depictions][0].count).to eq(1)
       expect(im.depiction_matrix[otu1.id.to_s + '|'][:depictions][0].first.source_id).to eq(source.id)
     end
+
+    specify 'image_matrix: otu_filter' do
+      im =  ImageMatrix.new(
+          observation_matrix_id: observation_matrix.id,
+          project_id: observation_matrix.project_id,
+          otu_filter: otu1.id.to_s + '|' + otu2.id.to_s)
+      expect(im.list_of_descriptors.count).to eq(3)
+      expect(im.depiction_matrix.count).to eq(2)
+    end
+
+    specify 'image_matrix: otu_filter, no matrix id 1' do
+      im =  ImageMatrix.new(
+          project_id: observation_matrix.project_id,
+          otu_filter: otu2.id.to_s + '|' + otu3.id.to_s)
+      expect(im.list_of_descriptors.count).to eq(1)
+      expect(im.depiction_matrix.count).to eq(1)
+    end
+
+    specify 'image_matrix: otu_filter, no matrix id 2' do
+      im =  ImageMatrix.new(
+          project_id: observation_matrix.project_id,
+          otu_filter: otu1.id.to_s + '|' + otu2.id.to_s + '|' + otu3.id.to_s)
+      expect(im.list_of_descriptors.count).to eq(2)
+      expect(im.depiction_matrix.count).to eq(2)
+    end
+
   end
   end

@@ -33,8 +33,8 @@
               <pin-component
                 type="TaxonName"
                 :object-id="taxon.id"/>
-              <a 
-                class=" button-circle btn-edit"
+              <a
+                class=" button-circle btn-edit button-default"
                 :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
             </div>
           </div>
@@ -71,7 +71,7 @@
               <radial-annotator :global-id="item.global_id"/>
               <span 
                 @click="setTypeMaterial(item)"
-                class="button circle-button btn-edit"/>
+                class="button circle-button btn-edit button-default"/>
               <span
                 @click="removeTypeSpecimen(item)"
                 class="button circle-button btn-delete"/>

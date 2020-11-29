@@ -1,4 +1,5 @@
 import setDescriptors from './setDescriptors'
+import setFreeTextValue from './setFreeTextValue'
 import setTaxonTitle from './setTaxonTitle'
 import setTaxonId from './setTaxonId'
 import setConfidenceLevels from './setConfidenceLevels'
@@ -47,6 +48,7 @@ export const MutationNames = {
   SetDescriptorZoom: 'setDescriptorZoom',
   SetContinuousValue: 'setContinuousValue',
   SetContinuousUnit: 'setContinuousUnit',
+  SetFreeTextValue: 'setFreeTextValue',
   SetPresence: 'setPresence',
   SetCharacterStateChecked: 'setCharacterStateChecked',
   SetSampleMedian: 'setSampleMedian ',
@@ -84,6 +86,7 @@ export const MutationFunctions = {
   [MutationNames.SetDescriptorZoom]: setDescriptorZoom,
   [MutationNames.SetContinuousValue]: setContinuousValue,
   [MutationNames.SetContinuousUnit]: setContinuousUnit,
+  [MutationNames.SetFreeTextValue]: setFreeTextValue,
   [MutationNames.SetPresence]: setPresence,
   [MutationNames.SetCharacterStateChecked]: setCharacterStateChecked,
   [MutationNames.SetSampleMedian]: setSampleMedian,

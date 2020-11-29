@@ -57,6 +57,8 @@ function makePayload (observation) {
     return {
       presence: observation.isChecked
     }
+  } else if (observation.type === ObservationTypes.FreeText) {
+    return { description: observation.description }
   }
 }
 

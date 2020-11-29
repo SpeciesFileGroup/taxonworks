@@ -1054,7 +1054,7 @@ module Protonym::SoftValidationExtensions
           z = 0
           unless taxa.empty?
             taxa.each do |t|
-              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
+              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && t.id == t.cached_valid_taxon_name_id && z == 0
               z = 1
             end
           end

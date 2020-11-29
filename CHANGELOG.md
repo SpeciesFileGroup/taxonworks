@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- `person#sources` has_many (very slight potential for issues)
+- `person#sources` `has_many` (very slight potential for issues)
 - Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
 - People can be Tagged
 - Added image filter [#1454]
@@ -26,9 +26,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Citations on image response
 - View mode on image matrix
 - Lock view option for smart selector
+- Sortable option to lock column/rows on edit/new observation matrix task [#1895]
+- Media Descriptor support on Matrix Row Coder [#1896]
+- Free Text Descriptor support on Matrix Row Coder [#1896]
+- Search source on New source task [#1899]
+- Link to Browse OTU on New asserted distribution task [#1893]
+- Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
 - People filter role + name [#1662] 
+- Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
 - Fixed database seeding bugs.
@@ -37,12 +44,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reference overflow on Browse nomenclature
 - Date requested filled automatically [#1872]
 - Remove collecting event on comprehensive specimen digitization [#1878]
+- Loan smart selector DB query.
+- Label overlap on menu on observation matrices view [#1894]
+- Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
 - Moved `levenshtein_distance` to Query for general use
 - Remove `people/123/similar` endpoint (used `/index`)
 - Person filter `person_wildcards` is `person_wildcard`
 - Person filter behaviour vs. `levenshtein_cuttof`
+- cached_valid_taxon_name_id updated for combination after valid status is assigned.
+- updated soft validation for 'Uncertain placement'
+- [sic] changed to (sic) for misspelled bacterial names
+- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
+- Observation matrix could be resolved without observation_matrix_id, only with otu_filter
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
 - No longer needed set user on User facet in filters
@@ -50,9 +65,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed "n/a" to combination label on Browse nomenclature
 - Create original citation in image matrix task
 - Autocomplete list style
+- Edit button color on type material species task [#1898]
 
 [#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
-[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859 PENDING
+[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
@@ -62,6 +78,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
+[#1889]: https://github.com/SpeciesFileGroup/taxonworks/issues/1889
+[#1893]: https://github.com/SpeciesFileGroup/taxonworks/issues/1893
+[#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
+[#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
+[#1896]: https://github.com/SpeciesFileGroup/taxonworks/issues/1896
+[#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
+[#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
+[#1899]: https://github.com/SpeciesFileGroup/taxonworks/issues/1899
 
 ## [0.14.1] - 2020-10-22
 
@@ -97,6 +121,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
 [#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
 [#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
+[#1878]: https://github.com/SpeciesFileGroup/taxonworks/issues/1878
 
 ## [0.14.0] - 2020-10-16
 

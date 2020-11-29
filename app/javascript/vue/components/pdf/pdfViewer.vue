@@ -10,6 +10,7 @@
         v-if="documentUrl"
         class="margin-medium-right"
         :href="documentUrl"
+        :data-pdf-source-id="sourceId"
         download>Download</a>
     </div>
     <resize-handle
@@ -115,7 +116,8 @@ export default {
       noTrigger: false,
       checkScroll: undefined,
       documentUrl: undefined,
-      loadingPdf: false
+      loadingPdf: false,
+      sourceId: undefined
     }
   },
   mounted() {
@@ -257,6 +259,7 @@ export default {
       this.showPage = 1
       this.numPages = 0
       this.pdfdata = undefined
+      this.sourceId = event.detail.sourceId
       this.$nextTick(() => {
         this.getPdf(event.detail.url)
       })

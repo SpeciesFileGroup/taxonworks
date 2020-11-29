@@ -8,6 +8,11 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    content: {
+      otu_id: undefined,
+      topic_id: undefined,
+      text: undefined
+    },
     selected: {
       content: undefined,
       topic: undefined,
