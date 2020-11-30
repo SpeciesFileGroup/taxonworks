@@ -25,7 +25,7 @@ module Export::Coldp::Files::Name
   # https://api.catalogue.life/vocab/nomStatus
   # @return [String, nil]
   # @params taxon_name [TaxonName]
-  #   any TaxonName 
+  #   any TaxonName
   def self.nom_status_field(taxon_name)
     case taxon_name.type
     when 'Combination'
@@ -35,21 +35,21 @@ module Export::Coldp::Files::Name
         ::TaxonName::NOMEN_VALID[taxon_name.nomenclatural_code]
       else
         c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
-        c ? c.class::NOMEN_URI : nil # We should also infer status from TaxonNameRelationship see 
+        c ? c.class::NOMEN_URI : nil # We should also infer status from TaxonNameRelationship see
       end
     end
   end
 
-  # Invalid Protonyms are rendered only as their original Combination 
+  # Invalid Protonyms are rendered only as their original Combination
   # @param t [Protonym]
   #    only place that var./frm can be handled.
   def self.add_original_combination(t, csv)
     e = t.original_combination_elements
 
-    infraspecific_element = t.original_combination_infraspecific_element(e) 
+    infraspecific_element = t.original_combination_infraspecific_element(e)
     rank = infraspecific_element ? infraspecific_element.first : t.rank
 
-    id = t.reified_id 
+    id = t.reified_id
 
     csv << [
       id,                                                                                     # ID
@@ -74,7 +74,7 @@ module Export::Coldp::Files::Name
   end
 
   # @params otu [Otu]
-  #   the top level OTU 
+  #   the top level OTU
   def self.generate(otu, reference_csv = nil)
     CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
@@ -102,11 +102,11 @@ module Export::Coldp::Files::Name
       unique = {}
 
       otu.taxon_name.self_and_descendants.each do |name|
-        
+
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
         #
-        # Need the next highest valid parent not in this list!! 
+        # Need the next highest valid parent not in this list!!
         # %w{
         #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
         #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
@@ -129,7 +129,7 @@ module Export::Coldp::Files::Name
 
             # higher, valid, combination and not added
             if higher || t.is_valid? || t.is_combination? # && unique[basionym_id].nil?
-              # unique[basionym_id] = true 
+              # unique[basionym_id] = true
               csv << [
                 t.id,                                               # ID
                 basionym_id,                                        # basionymID
