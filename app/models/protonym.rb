@@ -62,7 +62,7 @@ class Protonym < TaxonName
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
 
-  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym 
+  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
@@ -643,7 +643,7 @@ class Protonym < TaxonName
     s.blank? ? nil : s
   end
 
-  # 
+  #
   # {
   #  genus: ["", 'Aus' ],
   #  ...
@@ -711,7 +711,7 @@ class Protonym < TaxonName
     [:form, :variety, :subspecies].each do |r|
       return [r.to_s, original_combination_elements[r].last] if original_combination_elements[r]
     end
-    nil 
+    nil
   end
 
   # @return [String, nil]
