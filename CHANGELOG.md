@@ -77,6 +77,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create original citation in image matrix task
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
+- GitHub Actions used as main CI/CD provider
 
 [#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
 [#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
