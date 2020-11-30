@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.15.0] - 2020-11-30
+
 ### Added
 - Export project database task [#1868]
 - Additional collecting methods recognized from the collecting event label
@@ -79,6 +83,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
 - GitHub Actions used as main CI/CD provider
+- Updated vulnerable node packages [#1912]
 
 [#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
 [#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
@@ -101,6 +106,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
 [#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
 [#1899]: https://github.com/SpeciesFileGroup/taxonworks/issues/1899
+[#1912]: https://github.com/SpeciesFileGroup/taxonworks/pull/1912
 
 ## [0.14.1] - 2020-10-22
 
@@ -694,7 +700,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...development
+[0.15.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
