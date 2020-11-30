@@ -13,9 +13,9 @@ module Utilities::CollectingMethods
              'u.v. light' => 'UV light',
              'blacklight trap' => 'black light trap',
              'black light trap' => 'black light trap',
+             'hg light trap' => 'mercury vapor light trap',
              'blacklight' => 'black light',
              'light trap' => 'light trap',
-             'at light' => 'at light',
              'mercury vapor' => 'mercury vapor light',
              'hg. vapor' => 'mercury vapor light',
              'hg vapor' => 'mercury vapor light',
@@ -23,6 +23,7 @@ module Utilities::CollectingMethods
              'm.v. light' => 'mercury vapor light',
              'mercury vapour' => 'mercury vapor light',
              'merc. vapor' => 'mercury vapor light',
+             'at light' => 'at light',
              'light' => 'at light',
 
              'hand collecting' => 'hand collecting',

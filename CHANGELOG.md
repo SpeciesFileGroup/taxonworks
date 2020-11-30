@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Additional collecting methods recognized from the collecting event label
 - Added content filter, API endpoints [#1905] 
 - New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
 - Note filter improvements, specs, new params, API exposure [#XXX]
