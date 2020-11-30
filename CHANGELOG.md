@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
+- Potential issue (may be others) with CoLDP raising in the midst of large exports
 - People filter role + name [#1662] 
 - Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- tweaked CoLDP `reified` id concept and use
 - removed `most_recent_upates` from Content params
 - removed `/contents/filter.json` endpoint, use `/contents.json`
 - Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
