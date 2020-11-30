@@ -55,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- change the order of TaxonName softvalidation to bring the duplicate message on the top
 - tweaked CoLDP `reified` id concept and use
 - removed `most_recent_upates` from Content params
 - removed `/contents/filter.json` endpoint, use `/contents.json`
