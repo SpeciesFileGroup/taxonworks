@@ -3,8 +3,8 @@
     :spinner="isLoading"
     :status="status"
     :title="title"
+    menu
     @menu="showModal = true">
-    <a name="descendants"/>
     <tree-view
       :current-taxon-id="otu.taxon_name_id"
       :only-valid="onlyValid"

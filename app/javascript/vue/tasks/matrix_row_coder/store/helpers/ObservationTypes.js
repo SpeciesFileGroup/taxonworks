@@ -3,7 +3,8 @@ const ObservationTypes = {
   Presence: 'Observation::PresenceAbsence',
   Continuous: 'Observation::Continuous',
   Sample: 'Observation::Sample',
-  Media: 'Observation::Media'
+  Media: 'Observation::Media',
+  FreeText: 'Observation::Working'
 }
 
 export default ObservationTypes

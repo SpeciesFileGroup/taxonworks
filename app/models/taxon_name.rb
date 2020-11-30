@@ -330,6 +330,7 @@ class TaxonName < ApplicationRecord
 
   # @return Scope
   #   names that are not leaves
+  # TODO: belongs in lib/queries/filter.rb likely
   def self.not_leaves
     t = self.arel_table
     h = ::TaxonNameHierarchy.arel_table
@@ -401,6 +402,7 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # TODO: what is this:!? :)
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
       ( SELECT *, rank()
@@ -839,7 +841,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this?
+    set_cached_classified_as
     set_cached_author_year
   end
 
@@ -916,9 +918,9 @@ class TaxonName < ApplicationRecord
   #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
-    data = []
+    data   = []
     safe_self_and_ancestors.each do |i|
-      rank = i.rank
+      rank   = i.rank
       gender = i.gender_name if rank == 'genus'
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
@@ -1031,7 +1033,11 @@ class TaxonName < ApplicationRecord
   #    TODO: on third thought- eliminate this mess
   def name_with_misspelling(gender)
     if cached_misspelling
-      name.to_s + ' [sic]'
+      if rank_string =~ /Icnp/
+        name.to_s + ' (sic)'
+      else
+        name.to_s + ' [sic]'
+      end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s
     else

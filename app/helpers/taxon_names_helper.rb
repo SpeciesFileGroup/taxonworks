@@ -235,7 +235,7 @@ module TaxonNamesHelper
         content_tag(:em, 'ERROR')
       end
     when 'Combination'
-      content_tag(:em, 'n/a')
+      content_tag(:em, 'Combination')
     end
   end
 

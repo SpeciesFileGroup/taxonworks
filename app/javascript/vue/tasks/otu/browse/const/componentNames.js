@@ -4,7 +4,7 @@ export default () => {
     Descendants: {
       title: 'Descendants',
       status: 'prototype',
-      rankGroup: ['FamilyGroup', 'GenusGroup']
+      rankGroup: ['FamilyGroup', 'GenusGroup', 'SpeciesGroup']
     },
     ImageGallery: {
       title: 'Images',

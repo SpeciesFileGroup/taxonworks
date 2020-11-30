@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_09_214219) do
+ActiveRecord::Schema.define(version: 2020_11_06_152035) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -983,6 +983,7 @@ ActiveRecord::Schema.define(version: 2020_09_09_214219) do
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
+    t.float "pixels_to_centimeter"
     t.index ["created_by_id"], name: "index_images_on_created_by_id"
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
     t.index ["project_id"], name: "index_images_on_project_id"

@@ -1062,6 +1062,7 @@ describe 'Geo', group: :geo do
     context 'multiple use cases in coordinates_regex_from_verbatim_label' do
 
       use_cases = {
+                   'text, 20.2501ºN 105.7145ºE 156m text'     => '20.2501///N/105.7145///E',
                    'text, 42°5ʼ18.1"S 88°11ʼ43.3"W, text'     => '42/5/18.1/S/88/11/43.3/W',
                    'text, 00°39’25.7” S 076°27’10.8” W, text' => '00/39/25.7/S/076/27/10.8/W',
                    'text, 19°8′31″ S 44°49′41″ E, text'       => '19/8/31/S/44/49/41/E',

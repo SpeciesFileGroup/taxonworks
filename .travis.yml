@@ -6,7 +6,7 @@ branches:
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
-    - TEST_WORKERS=5
+    - TEST_WORKERS=1
     - COVERALLS_PARALLEL=true
 jobs:
   include:
@@ -24,7 +24,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.7.1
+        - 2.7.2
       bundler_args: --without development production
       addons:
         postgresql: "12"
@@ -59,18 +59,6 @@ jobs:
         - bundle exec rake db:migrate RAILS_ENV=test
       script:
         - .travis/spec_runner.sh
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=1
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=2
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=3
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=4
     - stage: deliver
       if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal

@@ -2,7 +2,6 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="content"/>
     <div class="separate-top">
       <ul>
         <li
