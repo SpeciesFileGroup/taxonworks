@@ -23,7 +23,6 @@ module Queries
 
       attr_accessor :type
 
-      # TODO -> attribute does nothing yet
       # Probably turn it into component parts
       attr_accessor :object_global_id
 
@@ -38,6 +37,7 @@ module Queries
         @identifier_object_type = params[:identifier_object_type] 
         @identifier_object_id = params[:identifier_object_id] 
 
+        # TODO: deprecate, see README.md
         @identifier_object_ids = params[:identifier_object_ids] || []
         @identifier_object_types = params[:identifier_object_types] || []
 

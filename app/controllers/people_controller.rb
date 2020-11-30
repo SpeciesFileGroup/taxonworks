@@ -40,18 +40,13 @@ class PeopleController < ApplicationController
     respond_to do |format|
       if @person.save
         format.html {redirect_to url_for(@person.metamorphosize),
-                                 notice: "Person '#{@person.name}' was successfully created."}
+                     notice: "Person '#{@person.name}' was successfully created."}
         format.json {render action: 'show', status: :created, location: @person}
       else
         format.html {render action: 'new'}
         format.json {render json: @person.errors, status: :unprocessable_entity}
       end
     end
-  end
-
-  def similar
-    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name)
-    render '/people/index'
   end
 
   # PATCH/PUT /people/1
@@ -150,11 +145,53 @@ class PeopleController < ApplicationController
   private
 
   def filter_params
-    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
+    params.permit(
+      :name,
+      :last_name,
+      :first_name,
+      :last_name_starts_with,
+      :born_after_year, :born_before_year,
+      :active_after_year, :active_before_year,
+      :died_before_year, :died_after_year,
+      :levenshtein_cuttoff,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      used_in_project_id: [],
+      keyword_ids: [],
+      role: [],
+      person_wildcard: []
+    )
   end
 
   def api_params
-    params.permit(:last_name, :first_name, :last_name_starts_with, :include_roles, roles: [])
+    params.permit(
+      :name,
+      :last_name,
+      :first_name,
+      :last_name_starts_with,
+      :born_after_year, :born_before_year,
+      :active_after_year, :active_before_year,
+      :died_before_year, :died_after_year,
+      :role,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :tags,
+      keyword_ids: [],
+      role: [],
+      person_wildcard: []
+    )
   end
 
   def autocomplete_params
@@ -168,17 +205,17 @@ class PeopleController < ApplicationController
 
   def person_params
     params.require(:person).permit(
-        :type,
-        :last_name, :first_name,
-        :suffix, :prefix,
-        :year_born, :year_died, :year_active_start, :year_active_end
+      :type,
+      :last_name, :first_name,
+      :suffix, :prefix,
+      :year_born, :year_died, :year_active_start, :year_active_end
     )
   end
 
   def merge_params
     params.require(:person).permit(
-        :old_person_id,
-        :new_person_id
+      :old_person_id,
+      :new_person_id
     )
   end
 end

@@ -8,6 +8,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Additional collecting methods recognized from the collecting event label
+- Added content filter, API endpoints [#1905] 
+- New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
+- Note filter improvements, specs, new params, API exposure [#XXX]
+- `person#sources` `has_many` (very slight potential for issues)
+- Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
+- People can be Tagged
 - Added image filter [#1454]
 - Added image smart selector [#1832]
 - Added `pixels_to_centimeter` to images [#1785]
@@ -31,6 +38,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
+- Potential issue (may be others) with CoLDP raising in the midst of large exports
+- People filter role + name [#1662] 
 - Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
@@ -45,6 +54,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+- tweaked CoLDP `reified` id concept and use
+- removed `most_recent_upates` from Content params
+- removed `/contents/filter.json` endpoint, use `/contents.json`
+- Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
+- Note filter params `query_string` => `text`, `note_object_types[]` => `note_object_type[]`, `note_object_ids[]` => `note_object_id[]`, added corresponding non-array versions
+- Moved `levenshtein_distance` to Query for general use
+- Remove `people/123/similar` endpoint (used `/index`)
+- Person filter `person_wildcards` is `person_wildcard`
+- Person filter behaviour vs. `levenshtein_cuttof`
 - cached_valid_taxon_name_id updated for combination after valid status is assigned.
 - updated soft validation for 'Uncertain placement'
 - [sic] changed to (sic) for misspelled bacterial names
@@ -59,6 +77,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
 
+[#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
+[#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
+[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859
 [#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
 [#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
 [#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832

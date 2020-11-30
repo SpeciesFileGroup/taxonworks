@@ -33,25 +33,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
 
       specify 'format 2' do
-        taxon_name.year_of_publication = '123' 
+        taxon_name.year_of_publication = '123'
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
       end
 
       specify 'format 3' do
-        taxon_name.year_of_publication = nil 
+        taxon_name.year_of_publication = nil
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
       specify 'format 4' do
-        taxon_name.year_of_publication = 1920 
+        taxon_name.year_of_publication = 1920
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
       specify 'format 4' do
-        taxon_name.year_of_publication = 2999 
+        taxon_name.year_of_publication = 2999
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
       end
@@ -244,7 +244,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             @subspecies.reload
 
             expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
-            
+
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
             expect(@subspecies.get_author_and_year).to eq ('McAtee, 1900')
@@ -589,9 +589,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # This isn't recent!
         let!(:tr2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
-          subject_taxon_name: tribe, 
-          object_taxon_name: subfamily, 
-          created_at: 1.month.ago, 
+          subject_taxon_name: tribe,
+          object_taxon_name: subfamily,
+          created_at: 1.month.ago,
           updated_at: 1.month.ago ) }
 
         let(:user_id) { species.created_by_id }
@@ -963,6 +963,73 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       specify 'run all soft validations without error' do
         expect(taxon_name.soft_validate).to be_truthy
       end
+    end
+  end
+
+  # Some observations:
+  #  - reified ids are only for original combinations (for which we have no ID)
+  #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
+  context 'reified ids' do
+
+    let(:root1) { FactoryBot.create(:root_taxon_name) }
+    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
+    let(:genus1) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let(:genus2) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus2) }
+    let(:species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
+
+
+    # Same as current classification
+    let(:c1) { Combination.create!(genus: genus1, species: species) }
+
+    # Different than current classification
+    let(:c2) { Combination.create!(genus: genus2, species: species) }
+
+    let(:c3) { Combination.create!(genus: genus1, subgenus: genus2, species: species) }
+
+
+
+    specify '#reified_id 1' do
+      expect(family.reified_id).to eq(family.to_param)
+    end
+
+    specify '#reified_id 2' do
+      expect(species.reified_id).to eq(species.to_param)
+    end
+
+    specify '#reified_id 3' do
+      species.update!(verbatim_author: 'Smith')
+      expect(species.reified_id).to eq(species.id.to_param)
+    end
+
+    specify '#reified_id 4' do
+      species.update!(verbatim_author: '(Smith)')
+      expect(species.reified_id).to eq(species.to_param)
+    end
+
+    specify '#reified_id 5' do
+      expect(c1.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id 6' do
+      expect(c2.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id 7' do
+      expect(c3.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id with original_combination relationship' do
+      species.update!(verbatim_author: 'Smith', original_genus: genus2)
+      a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
+      expect(species.reified_id).to eq(a)
+    end
+
+    specify '#reified_id 1' do
+      species.update!(parent: subgenus, original_genus: genus1)
+      species.reload
+      a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
+      expect(species.reified_id).to eq(a)
     end
 
   end

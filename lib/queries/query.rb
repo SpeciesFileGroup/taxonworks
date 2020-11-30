@@ -21,7 +21,7 @@ module Queries
     # @return [String, nil]
     #   the initial, unparsed value
     attr_accessor :query_string
-    
+
     attr_accessor :terms
     attr_accessor :project_id
 
@@ -287,6 +287,12 @@ module Queries
         a = a.or(b)
       end
       a
+    end
+
+    def levenshtein_distance(attribute, value)
+      value = "'" + value.gsub(/'/, "''") + "'"
+      a = ApplicationRecord.sanitize_sql(value)
+      Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
 
     #

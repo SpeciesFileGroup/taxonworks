@@ -104,33 +104,21 @@ module Export
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end
 
-    # There are suite of issues with TaxonWorks model
-    # all tied to the fact that we do not treat original combinations (lower case)
-    # as Combinations (model).  All these problems go away if/when we remodel the original Combination.
-    # These problems include:
-    #     * inablity to site historical usages of the protonym that are properly latinized (e.g. var or f. names as subspecies)
-    #     * providing unique IDs for form/var names
-    # @param taxon_name [an invalid Protonym]
-    def self.reified_id(taxon_name)
-      if taxon_name.original_combination_relationships.any?
-        taxon_name.id.to_s + '/' + Digest::MD5.hexdigest(taxon_name.cached_original_combination)
-      else
-        # there is no need to MD5 the name, as it hasn't been potentially altered by original combination assertions
-        taxon_name.id.to_s
-      end
-    end
-
     # @param taxon_name [a valid Protonym or a Combination]
     #   see also exclusion of OTUs/Names based on Ranks not handled 
     def self.basionym_id(taxon_name)
       if taxon_name.type == 'Protonym'
-        taxon_name.id
+        taxon_name.reified_id
       elsif taxon_name.type == 'Combination'
-        taxon_name.protonyms.last.id
+        taxon_name.protonyms.last.reified_id
+        # taxon_name.protonyms.last.id
       else
         nil # shouldn't be hit
       end
     end
+
+    # Reification spec
+    # Duplicate Combination check -> is the Combination in question already represented int he current *classification* 
 
   end
 end

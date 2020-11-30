@@ -608,7 +608,7 @@ filter_images_task:
   description: 'Filter images.'
 export_taxonworks_project_task:
   hub: true
-  name: 'Export project database copy'
+  name: 'Export project database'
   related:
   categories:
   status: prototype

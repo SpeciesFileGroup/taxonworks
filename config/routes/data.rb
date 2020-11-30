@@ -173,9 +173,6 @@ end
 
 resources :contents do
   concerns [:data_routes]
-  collection do
-    get :filter
-  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -494,7 +491,6 @@ resources :people do
   end
 
   member do
-    get :similar, defaults: {format: :json}
     get :roles
     get :details
     post :merge, defaults: {format: :json}
