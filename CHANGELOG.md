@@ -79,6 +79,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Autocomplete list style
 - Edit button color on type material species task [#1898]
 - GitHub Actions used as main CI/CD provider
+- Updated vulnerable node packages [#1912]
 
 [#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
 [#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
@@ -101,6 +102,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
 [#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
 [#1899]: https://github.com/SpeciesFileGroup/taxonworks/issues/1899
+[#1912]: https://github.com/SpeciesFileGroup/taxonworks/pull/1912
 
 ## [0.14.1] - 2020-10-22
 
