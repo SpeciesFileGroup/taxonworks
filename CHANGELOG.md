@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Export project database task [#1868]
 - Additional collecting methods recognized from the collecting event label
 - Added content filter, API endpoints [#1905] 
 - New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
@@ -88,6 +89,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
 [#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
 [#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
+[#1868]: https://github.com/SpeciesFileGroup/taxonworks/issues/1868
 [#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
 [#1889]: https://github.com/SpeciesFileGroup/taxonworks/issues/1889
 [#1893]: https://github.com/SpeciesFileGroup/taxonworks/issues/1893
