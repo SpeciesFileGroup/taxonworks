@@ -57,7 +57,7 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations. ! TODO:  family group names 
+  # The ranks that can be used to build combinations. ! TODO:  family group names  ?
   APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
@@ -269,6 +269,7 @@ class Combination < TaxonName
 
   # @return [Array of TaxonName]
   #   pre-ordered by rank
+  # TODO: hard code sort order
   def protonyms
     return protonyms_by_association if new_record?
     p = combination_taxon_names.sort{|a,b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string) }
@@ -307,7 +308,7 @@ class Combination < TaxonName
     if data['form'].nil? && !data['subform'].nil?
       data['form'] = [nil, "[FORM NOT SPECIFIED]"]
     end
-    
+
     data
   end
 
@@ -370,7 +371,6 @@ class Combination < TaxonName
     c[c.keys.last].valid_taxon_name
   end
 
- 
   def finest_protonym
     protonyms_by_rank.values.last
   end
@@ -379,7 +379,7 @@ class Combination < TaxonName
     ay = iczn_author_and_year
     ay.blank? ? nil : ay
   end
- 
+
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association
@@ -417,7 +417,7 @@ class Combination < TaxonName
   end
 
   def sv_combination_duplicates
-    duplicate = Combination.not_self(self).where(cached: cached) 
+    duplicate = Combination.not_self(self).where(cached: cached)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
 

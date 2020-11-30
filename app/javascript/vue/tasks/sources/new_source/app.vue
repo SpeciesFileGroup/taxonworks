@@ -4,6 +4,15 @@
       <h1>New source</h1>
       <ul class="context-menu">
         <li>
+          <autocomplete
+            url="/sources/autocomplete"
+            param="term"
+            placeholder="Search a source..."
+            label="label_html"
+            clear-after
+            @getItem="loadSource($event.id)"/>
+        </li>
+        <li>
           <label>
             <input
               type="checkbox"
@@ -133,6 +142,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
+import Autocomplete from 'components/autocomplete'
 
 import PinComponent from 'components/pin'
 
@@ -147,6 +157,7 @@ import NavBar from 'components/navBar'
 
 export default {
   components: {
+    Autocomplete,
     RadialAnnotator,
     RadialObject,
     PinComponent,
@@ -191,7 +202,7 @@ export default {
     }
   },
   watch: {
-    source: { 
+    source: {
       handler (newVal, oldVal) {
         if (newVal.id === oldVal.id) {
           this.settings.lastEdit = Date.now()
@@ -229,6 +240,9 @@ export default {
     },
     convert () {
       this.$store.dispatch(ActionNames.ConvertToBibtex)
+    },
+    loadSource (sourceId) {
+      this.$store.dispatch(ActionNames.LoadSource, sourceId)
     },
     getMacKey: GetMacKey
   }

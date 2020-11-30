@@ -9,7 +9,6 @@
 .otto*
 *.orig
 *.sql
-.ruby-version
 *.md
 *.orig
 .DS_Store
@@ -48,5 +47,5 @@ public/packs
 public/assets
 
 spec
-.travis
+.github
 k8s

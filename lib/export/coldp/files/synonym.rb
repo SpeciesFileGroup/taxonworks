@@ -31,7 +31,11 @@ module Export::Coldp::Files::Synonym
 
       csv << %w{taxonID nameID status remarks referenceID}
 
+      # reddis?
+      unique = {}
+
       # otus are valid and invalid
+      
       otus.each do |o| 
         next unless o.taxon_name && o.taxon_name.is_valid?
 
@@ -39,12 +43,18 @@ module Export::Coldp::Files::Synonym
         data = ::Catalog::Nomenclature::Entry.new(name)
 
         data.names.each do |t|
-          reified = !(t.is_valid? || t.type == 'Combination')
+          # not valid, not a combioantion
+          # reified = !(t.is_valid? || t.is_combination?)
+          id = t.reified_id
+
+          next if unique[[o.id, id]] == true
+
+          unique[[o.id, id]] = true
 
           references = reference_id_field(o)
           csv << [
             o.id,                                             # taxonID attached to the current valid concept
-            (reified ? ::Export::Coldp.reified_id(t) : t.id), # nameID
+            id,                                               # nameID
             nil,                                              # status TODO def status(taxon_name_id)
             remarks_field, 
             references                                        # unclear what this means in TW

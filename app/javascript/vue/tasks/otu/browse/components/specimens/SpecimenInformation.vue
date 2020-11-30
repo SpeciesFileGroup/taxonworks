@@ -1,5 +1,15 @@
 <template>
   <div class="content">
+    <template v-if="determinationCitations.length">
+      <ul class="no_bullets">
+        <li
+          v-for="citation in determinationCitations"
+          :key="citation.id"
+          v-html="citation.object_tag">
+        </li>
+      </ul>
+      <br>
+    </template>
     <span class="middle">
       <span class="mark-box button-default separate-right" />
       <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
@@ -34,9 +44,11 @@
 </template>
 
 <script>
-import { GetCollectionObject } from '../../request/resources'
 
 import {
+  GetCollectionObject,
+  GetTaxonDeterminations,
+  GetTaxonDeterminationCitations,
   GetBiocurations,
   GetDepictions,
   GetRepository,
@@ -44,8 +56,12 @@ import {
 } from '../../request/resources'
 
 import { GetterNames } from '../../store/getters/getters'
+import ImageViewer from '../gallery/ImageViewer'
 
 export default {
+  components: {
+    ImageViewer
+  },
   props: {
     specimen: {
       type: Object,
@@ -64,7 +80,7 @@ export default {
     },
     collectingEventLabel () {
       const ce = this.collectingEvents.find(item => {
-        return this.specimen.collecting_event_id === item.id
+        return this.collectionObject.collecting_event_id === item.id
       })
       return ce ? ce.object_tag : 'not specified'
     },
@@ -85,9 +101,12 @@ export default {
       depictions: [],
       biocurations: [],
       repository: undefined,
+      determinations: [],
+      determinationCitations: [],
       citations: [],
       expand: false,
-      alreadyLoaded: false
+      alreadyLoaded: false,
+      collectionObject: {}
     }
   },
   watch: {
@@ -105,9 +124,13 @@ export default {
     loadData () {
       GetCollectionObject(this.specimen.collection_objects_id).then(response => {
         const repositoryId = response.body.repository_id
-        GetRepository(repositoryId).then(response => {
-          this.repository = response.body
-        })
+
+        this.collectionObject = response.body
+        if (repositoryId) {
+          GetRepository(repositoryId).then(response => {
+            this.repository = response.body
+          })
+        }
       })
       GetBiocurations(this.specimen.collection_objects_id).then(response => {
         this.biocurations = response.body
@@ -117,6 +140,18 @@ export default {
       })
       GetCitations('collection_objects', this.specimen.collection_objects_id).then(response => {
         this.citations = response.body
+      })
+      GetTaxonDeterminations({ collection_object_id: this.specimen.collection_objects_id }).then(response => {
+        const determinations = response.body
+
+        this.determinations = determinations
+        determinations.forEach(item => {
+          GetTaxonDeterminationCitations(item.id).then(citationResponse => {
+            citationResponse.body.forEach(c => {
+              this.determinationCitations.push(c)
+            })
+          })
+        })
       })
     }
   }

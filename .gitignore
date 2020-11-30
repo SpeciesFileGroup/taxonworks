@@ -40,8 +40,6 @@ config/initializers/vendor/better_errors.rb
 /.bundle
 /bundle_bin
 
-.ruby-version
-
 /bin/bundle
 /bin/spring
 /bin/delayed_job

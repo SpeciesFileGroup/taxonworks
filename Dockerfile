@@ -48,6 +48,7 @@ RUN gem install bundler
 
 ADD package.json /app/
 ADD package-lock.json /app/
+ADD .ruby-version /app/
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
 

@@ -7,11 +7,11 @@
 # * CoLDP can not handle assertions that a name that is currently treated as (invalid) was useds as a name (valid) for previously valid concept, i.e. CoL does not track alternative past concept heirarchies
 #
 # TODO: create map of all possible CoLDP used IRIs and ability to populate project with them automatically
-# 
+#
 module Export::Coldp::Files::Taxon
 
   IRI_MAP = {
-    extinct: 'https://api.catalogue.life/datapackage#Taxon.extinct',                         # Boolean, nil
+    extinct: 'https://api.catalogue.life/datapackage#Taxon.extinct',                         # 1,0
     temporal_range_end: 'https://api.catalogue.life/datapackage#Taxon.temporal_range_end',   # from https://api.catalogue.life/vocab/geotime
     temporal_range_start: 'https://api.catalogue.life/datapackage#Taxon.temporal_range_end', # from https://api.catalogue.life/vocab/geotime
     lifezone: 'https://api.catalogue.life/datapackage#Taxon.lifezone',                       # from https://api.catalogue.life/vocab/lifezone
@@ -21,7 +21,7 @@ module Export::Coldp::Files::Taxon
   #   a key from IRI_MAP
   def self.predicate_value(otu, predicate)
     return nil unless IRI_MAP[predicate]
-    otu.data_attributes.joins(:predicate).where(controlled_vocabulary_terms: {uri: IRI_MAP[predicate]}).first&.value 
+    otu.data_attributes.joins(:predicate).where(controlled_vocabulary_terms: {uri: IRI_MAP[predicate]}).first&.value
   end
 
   # return [Boolean, nil]
@@ -39,8 +39,8 @@ module Export::Coldp::Files::Taxon
   end
 
   # The scrutinizer concept is unused at present
-  # We're looking for the canonical implementation of it 
-  # before we implement/extrapolate from data here. 
+  # We're looking for the canonical implementation of it
+  # before we implement/extrapolate from data here.
   #    * crawl attribution for inference on higher/lower
   #    * UI/methods to assign/spam/visualize throught
   #    * project preference (!! should project preferences has reference ids? !!)
@@ -118,16 +118,26 @@ module Export::Coldp::Files::Taxon
         next unless o.taxon_name && o.taxon_name.is_valid?
 
         # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU ?
-        
+
         sources = o.sources
         source = o.source
 
-        # For OTUs with combinations we might have to change the parenthood?!
-        #
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
         # !! Handle this edge case
-        
+
+        # TODO: alter way parent is set to conform to CoLDP status
+        # Consider:
+        #    OTUs/ranks are excluded :
+        # Need the next highest valid parent not in this list!!
+        # %w{
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+        #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+        # }
+        #
+        # Also:
+        #   For OTUs with combinations we might have to change the parenthood?!
+
         parent_id = (root_otu_id == o.id ? nil : o.parent_otu&.id )
 
         csv << [

@@ -277,7 +277,8 @@ class SourcesController < ApplicationController
       citation_object_type: [],
       ids: [],
       keyword_ids: [],
-      topic_ids: []
+      topic_ids: [],
+      serial_ids: []
     )
   end
 
@@ -317,7 +318,8 @@ class SourcesController < ApplicationController
       author_ids: [],
       citation_object_type: [],
       keyword_ids: [],
-      topic_ids: []
+      topic_ids: [],
+      serial_ids: []
     )
   end
 

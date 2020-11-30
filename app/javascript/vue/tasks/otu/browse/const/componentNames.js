@@ -4,7 +4,7 @@ export default () => {
     Descendants: {
       title: 'Descendants',
       status: 'prototype',
-      rankGroup: ['FamilyGroup', 'GenusGroup']
+      rankGroup: ['FamilyGroup', 'GenusGroup', 'SpeciesGroup']
     },
     ImageGallery: {
       title: 'Images',
@@ -28,6 +28,7 @@ export default () => {
     CollectionObjects: {
       title: 'Specimen records',
       status: 'prototype',
+      otu: true,
       rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
     },
     ContentComponent: {

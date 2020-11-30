@@ -135,6 +135,11 @@ module Queries
       #    'true'
       attr_accessor :taxon_name_author_ids_or
 
+      # @return [String, nil]
+      # @param sort [String, nil]
+      #   one of :classification, :alphabetical
+      attr_accessor :sort
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(params)
@@ -155,6 +160,7 @@ module Queries
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id] || []
         @parent_id = params[:parent_id] || []
+        @sort = params[:sort]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
         @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
         @taxon_name_type = params[:taxon_name_type]
@@ -206,7 +212,7 @@ module Queries
 
         descendants_subquery = ::TaxonNameHierarchy.where(
           ::TaxonNameHierarchy.arel_table[:descendant_id].eq(::TaxonName.arel_table[:id]).and(
-          ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
+            ::TaxonNameHierarchy.arel_table[:ancestor_id].in(taxon_name_id))
         )
 
         unless descendants_max_depth.nil? || descendants_max_depth.to_i < 0
@@ -222,10 +228,10 @@ module Queries
       def ancestor_facet
         return nil if taxon_name_id.empty? || !(ancestors == true)
 
-       ancestors_subquery = ::TaxonNameHierarchy.where(
-         ::TaxonNameHierarchy.arel_table[:ancestor_id].eq(::TaxonName.arel_table[:id]).and(
-           ::TaxonNameHierarchy.arel_table[:descendant_id].in(taxon_name_id))
-       )
+        ancestors_subquery = ::TaxonNameHierarchy.where(
+          ::TaxonNameHierarchy.arel_table[:ancestor_id].eq(::TaxonName.arel_table[:id]).and(
+            ::TaxonNameHierarchy.arel_table[:descendant_id].in(taxon_name_id))
+        )
 
         ::TaxonName.where(ancestors_subquery.arel.exists)
       end
@@ -274,8 +280,8 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameRelationship.where(
             ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])).and(
-            ::TaxonNameRelationship.arel_table[:type].eq(hsh['type']))
+              ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])).and(
+                ::TaxonNameRelationship.arel_table[:type].eq(hsh['type']))
           ).arel.exists
         )
       end
@@ -287,7 +293,7 @@ module Queries
         ::TaxonName.where(
           ::TaxonNameClassification.where(
             ::TaxonNameClassification.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id]).and(
-            ::TaxonNameClassification.arel_table[:type].in(taxon_name_classification))
+              ::TaxonNameClassification.arel_table[:type].in(taxon_name_classification))
           ).arel.exists
         )
       end
@@ -381,7 +387,7 @@ module Queries
 
       def parent_id_facet
         return nil if parent_id.empty?
-          table[:parent_id].eq_any(parent_id)
+        table[:parent_id].eq_any(parent_id)
       end
 
       def author_facet
@@ -490,10 +496,29 @@ module Queries
         end
 
         q = q.where(project_id: project_id) if project_id
+        q = order_clause(q) if sort
+
         q
       end
 
-      protected
+      def order_clause(query)
+        case sort
+        when 'alphabetical'
+          ::TaxonName.select('*').from(
+            query.order('taxon_names.cached'), :inner_query
+          )
+        when 'classification'
+          ::TaxonName.select('*').from(
+            query
+            .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
+            .order('taxon_name_hierarchies.generations, taxon_name_hierarchies.ancestor_id, taxon_names.cached'),
+          :inner_query
+          )
+        else
+          query
+        end
+      end
+
     end
   end
 end

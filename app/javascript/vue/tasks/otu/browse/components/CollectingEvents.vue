@@ -3,7 +3,6 @@
     :status="status"
     :title="title"
     :spinner="isLoading">
-    <a name="collecting-events"/>
     <ul>
       <li
         v-for="(item, index) in collectingEvents"

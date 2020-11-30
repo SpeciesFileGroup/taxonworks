@@ -45,13 +45,12 @@
         :otu="otu" />
       <div class="separate-top separate-bottom"></div>
       <draggable
-        v-if="taxonName"
         class="container"
         handle=".handle"
         v-model="preferences.sections">
         <template v-for="component in preferences.sections">
           <component
-            v-if="showForRanks(componentNames[component].rankGroup)"
+            v-if="showForRanks(componentNames[component])"
             class="separate-bottom full_width"
             :key="component"
             :title="componentNames[component].title"
@@ -203,8 +202,9 @@ export default {
         this.componentsOrder = response.preferences.layout[this.keyStorage]
       })
     },
-    showForRanks (rankGroup) {
-      return rankGroup ? ShowForThisGroup(rankGroup, this.taxonName) : true
+    showForRanks (section) {
+      const rankGroup = section.rankGroup
+      return rankGroup ? this.taxonName ? ShowForThisGroup(rankGroup, this.taxonName) : section.otu : true
     }
   }
 }

@@ -18,7 +18,9 @@ export default ({ dispatch, commit, state }, otus) => {
       })
     })
   }
-  dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+  if (state.currentOtu.taxon_name_id) {
+    dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
+  }
   GetTaxonNames({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
     commit(MutationNames.SetTaxonNames, response.body)
   })

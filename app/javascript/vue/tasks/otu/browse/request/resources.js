@@ -28,7 +28,11 @@ const GetIdentifiers = (id) => ajaxCall('get', `/otus/${id}/identifiers.json`)
 
 const GetDataAttributes = (id) => ajaxCall('get', `/otus/${id}/data_attributes.json`)
 
-const GetContent = (id) => ajaxCall('get', `/contents/filter.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
+const GetContent = (id) => ajaxCall('get', `/contents.json?otu_id=${id}`, { params: { most_recent_updates: 100 } })
+
+const GetTaxonDeterminations = (params) => ajaxCall('get', '/taxon_determinations.json', { params: params})
+
+const GetTaxonDeterminationCitations = (id) => ajaxCall('get', `/taxon_determinations/${id}/citations.json`)
 
 const GetTaxonNames = (params) => ajaxCall('get', '/taxon_names.json', { params: params })
 
@@ -95,5 +99,7 @@ export {
   GetOtuAssertedDistribution,
   GetTaxonNames,
   GetTaxonName,
+  GetTaxonDeterminations,
+  GetTaxonDeterminationCitations,
   GetSoftValidation
 }

@@ -10,6 +10,9 @@ module Protonym::SoftValidationExtensions
         description: 'Validates parent rank.'
       },
 
+      sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_missing_original_genus: { set: :missing_relationships, has_fix: false},
       sv_missing_type_species: { set: :missing_relationships, has_fix: false},
       sv_missing_type_genus: { set: :missing_relationships, has_fix: false},
@@ -41,11 +44,8 @@ module Protonym::SoftValidationExtensions
       sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
       sv_parent_priority: { set: :parent_priority, has_fix: false},
       sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
-      sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_family_is_invalid: { set: :family_is_invalid, has_fix: false},
       sv_family_is_invalid_no_substitute: { set: :family_is_invalid, has_fix: false},
-      sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_source_not_older_then_description: { set: :dates, has_fix: false},
       sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
       sv_extant_children: { set: :extant_children, has_fix: false},
@@ -1054,7 +1054,7 @@ module Protonym::SoftValidationExtensions
           z = 0
           unless taxa.empty?
             taxa.each do |t|
-              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
+              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && t.id == t.cached_valid_taxon_name_id && z == 0
               z = 1
             end
           end

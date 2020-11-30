@@ -11,6 +11,7 @@
       <draggable
         element="tbody"
         v-model="newList"
+        :disabled="!sortable"
         @end="onSortable"
       >
         <tr
@@ -128,6 +129,9 @@ export default {
   computed: {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
+    },
+    sortable () {
+      return this.$store.getters[GetterNames.GetSettings].sortable
     }
   },
   data () {
