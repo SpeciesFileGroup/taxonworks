@@ -7,8 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- `db:seed` displays password for created users and adds admin to Default project [#1913]
+### Fixed
+- `tw:db:load` task not handling settings reliably. [#1914]
 
+[#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
+[#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
 ## [0.15.0] - 2020-11-30
 
 ### Added
