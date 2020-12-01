@@ -124,7 +124,11 @@ export default {
     }
   },
   mounted () {
-    this.lock = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    const value = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    if (value !== null) {
+      this.lock = value === true
+    }
+
     if (this.lock) {
       this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
       this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))

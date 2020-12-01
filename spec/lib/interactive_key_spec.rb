@@ -164,7 +164,7 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
     # 0   2   1   0   1     2 true
 
     let!(:o1 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs1) }
-    let!(:o1a ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs2) }
+    let!(:o1a) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu1, character_state: cs2) }
     let!(:o2 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu2, character_state: cs2) }
     let!(:o3 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu3, character_state: cs3) }
     let!(:o4 ) {Observation::Qualitative.create!(descriptor: descriptor1, otu: otu4, character_state: cs1) }

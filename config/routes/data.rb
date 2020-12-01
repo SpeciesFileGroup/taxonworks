@@ -173,9 +173,6 @@ end
 
 resources :contents do
   concerns [:data_routes]
-  collection do
-    get :filter
-  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -300,6 +297,9 @@ resources :images do
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
+  end
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -503,7 +503,6 @@ resources :people do
   end
 
   member do
-    get :similar, defaults: {format: :json}
     get :roles
     get :details
     post :merge, defaults: {format: :json}

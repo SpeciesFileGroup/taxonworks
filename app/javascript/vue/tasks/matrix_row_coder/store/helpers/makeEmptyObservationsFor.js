@@ -7,7 +7,8 @@ const ComponentNamesToObservations = {
   [ComponentNames.Continuous]: ObservationTypes.Continuous,
   [ComponentNames.Sample]: ObservationTypes.Sample,
   [ComponentNames.Presence]: ObservationTypes.Presence,
-  [ComponentNames.Media]: ObservationTypes.Media
+  [ComponentNames.Media]: ObservationTypes.Media,
+  [ComponentNames.FreeText]: ObservationTypes.FreeText
 }
 
 export default function (descriptor) {

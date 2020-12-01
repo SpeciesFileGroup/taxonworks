@@ -42,6 +42,14 @@
           <li>
             <a href="/tasks/accessions/comprehensive/index">New collection object</a>
           </li>
+          <li>
+            <label class="middle">
+              <input
+                v-model="settings.sortable"
+                type="checkbox">
+              Sortable columns/rows
+            </label>
+          </li>
           <template v-if="matrix.id">
             <li>
               <pin-component
@@ -133,8 +141,13 @@ export default {
     matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
     },
-    settings () {
-      return this.$store.getters[GetterNames.GetSettings]
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     }
   },
   data() {

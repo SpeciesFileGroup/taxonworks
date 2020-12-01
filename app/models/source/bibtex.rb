@@ -875,9 +875,12 @@ class Source::Bibtex < Source
           c = c + " #{pages}"
         end
       end
-      if stated_year && year && stated_year != year
-        c = c + " [#{stated_year}]"
-      end
+      n = []
+      n += [stated_year.to_s] if stated_year && year && stated_year != year
+
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
+      n += [note.to_s] if note
+      c = c + " [#{n.join(', ')}]" unless n.empty?
 
       attributes_to_update.merge!(
         cached: c,

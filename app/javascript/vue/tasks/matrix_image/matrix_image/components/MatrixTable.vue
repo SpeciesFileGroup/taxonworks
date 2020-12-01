@@ -25,35 +25,37 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          class="row-cell"
-          :data-matrix-id="row.id"
-          v-for="(row, rIndex) in rows">
-          <td class="checkbox-cell">
-            <input
-              type="checkbox"
-              :value="row.id"
-              :checked="!collapseRows.includes(row.id)"
-              v-model="collapseRows"/>
-          </td>
-          <td
-            class="object-cell"
-            v-html="row.row_object.object_tag"/>
-          <template>
-            <template v-for="(column, cIndex) in columns">
-              <td
-                v-if="column.descriptor.type == 'Descriptor::Media'"
-                :class="{ [!filterCell(column.id, row.id) ? 'padding-cell' : 'collapse-cell']: true }"
-                :key="column.id">
-                <cell-component 
-                  :index="rIndex + cIndex"
-                  :column="column"
-                  :show="!filterCell(column.id, row.id)"
-                  :row="row"/>
-              </td>
+        <template v-for="(row, rIndex) in rows">
+          <tr
+            class="row-cell"
+            :key="row.row_id"
+            :data-matrix-id="row.id">
+            <td class="checkbox-cell">
+              <input
+                type="checkbox"
+                :value="row.id"
+                :checked="!collapseRows.includes(row.id)"
+                v-model="collapseRows"/>
+            </td>
+            <td
+              class="object-cell"
+              v-html="row.row_object.object_tag"/>
+            <template>
+              <template v-for="(column, cIndex) in columns">
+                <td
+                  v-if="column.descriptor.type == 'Descriptor::Media'"
+                  :class="{ [!filterCell(column.id, row.id) ? 'padding-cell' : 'collapse-cell']: true }"
+                  :key="column.id">
+                  <cell-component 
+                    :index="rIndex + cIndex"
+                    :column="column"
+                    :show="!filterCell(column.id, row.id)"
+                    :row="row"/>
+                </td>
+              </template>
             </template>
-          </template>
-        </tr>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -99,7 +101,8 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+#vue-matrix-image {
   table {
     max-width: 100vh;
     max-height: calc(100vh - 170px);
@@ -134,7 +137,7 @@ export default {
 
   tbody {
     display: block;
-    max-height: calc(100vh - 320px);
+    max-height: calc(100vh - 380px);
     overflow-y: auto;
     tr:hover {
       background-color: initial !important;
@@ -185,4 +188,5 @@ export default {
       background-color: transparent;
     }
   }
+}
 </style>

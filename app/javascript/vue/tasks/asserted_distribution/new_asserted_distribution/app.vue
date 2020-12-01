@@ -39,12 +39,12 @@
       </div>
     </nav-bar-component>
     <div class="horizontal-left-content align-start">
-      <div class="panel-section">
+      <div class="width-30">
         <div class="horizontal-left-content panel-section separate-right align-start">
           <source-component
             v-model="asserted_distribution"
             ref="sourceComponent"
-            class="separate-right"/>
+            class="separate-right full_width"/>
           <lock-component
             class="margin-medium-top"
             v-model="locks.citation"/>
@@ -58,18 +58,18 @@
           </ul>
         </p>
       </div>
-      <div class="horizontal-left-content separate-bottom panel-section separate-left separate-right align-start">
+      <div class="horizontal-left-content separate-bottom separate-left separate-right align-start width-40">
         <otu-component
-          class="separate-right"
+          class="separate-right full_width"
           ref="otuComponent"
           v-model="asserted_distribution.otu"/>
         <lock-component
           class="margin-medium-top"
           v-model="locks.otu"/>
       </div>
-      <div class="horizontal-left-content panel-section separate-left align-start">
+      <div class="horizontal-left-content separate-left align-start width-30">
         <geographic-area
-          class="separate-right"
+          class="separate-right full_width"
           ref="geoComponent"
           @selected="triggerAutosave"
           v-model="asserted_distribution"/>

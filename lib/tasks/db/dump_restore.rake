@@ -84,6 +84,18 @@ namespace :tw do
       reset_indecies
     end
 
+    desc "Drops, recreates and loads DB with data from a SQL file 'rake tw:db:load file=/your/path/dump.sql'"
+    task load: [:environment, 'tw:file', 'db:drop', 'db:create'] do
+      puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
+      database = ApplicationRecord.connection.current_database
+      puts Rainbow("Restoring #{database} from #{@args[:file]}").yellow
+
+      config = Support::Database.pg_env_args
+
+      system(config[:env], 'psql', '-v', 'ON_ERROR_STOP=1', *config[:args], '-f', @args[:file])
+      raise TaxonWorks::Error, Rainbow("psql failed with exit code #{$?.to_i}").red unless $? == 0
+    end
+
     desc 'First dump then restore the database. Not intended for Production uses.'
     task safe_restore: [:dump, :restore]
 

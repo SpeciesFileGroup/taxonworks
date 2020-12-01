@@ -44,6 +44,9 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
+      get '/notes', to: '/notes#api_index'
+      get '/notes/:id', to: '/notes#api_show'
+
       get '/identifiers', to: '/identifiers#api_index'
       get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'
@@ -62,6 +65,9 @@ namespace :api, defaults: {format: :json} do
 
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
+
+      get '/contents', to: '/contents#api_index'
+      get '/contents/:id', to: '/contents#api_show'
 
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'

@@ -607,3 +607,19 @@ index_dwca_import_task:
     - collection_object
   status: prototype
   description: 'Import Darwin Core Archive data into project.'
+filter_images_task:
+  hub: true
+  name: 'Filter images task'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Filter images.'
+export_taxonworks_project_task:
+  hub: true
+  name: 'Export project database'
+  related:
+  categories:
+  status: prototype
+  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'

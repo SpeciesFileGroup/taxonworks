@@ -16,7 +16,11 @@
       <tr
         v-for="item in list"
         :key="item.id">
-        <td v-html="item.otu.object_tag"/>
+        <td>
+          <a
+            :href="browseOtu(item.otu.id)"
+            v-html="item.otu.object_tag"/>
+        </td>
         <td v-html="item.geographic_area.name"/>
         <template>
           <td v-if="item.citations.length > 1">
@@ -99,6 +103,9 @@ export default {
       if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.$emit('remove', item)
       }
+    },
+    browseOtu(id) {
+      return `${RouteNames.BrowseOtu}?otu_id=${id}`
     }
   }
 

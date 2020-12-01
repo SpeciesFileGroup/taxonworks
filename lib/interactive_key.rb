@@ -255,13 +255,7 @@ class InteractiveKey
   end
 
   def get_rows_with_filter
-    #    if !@row_filter.blank?
-    #      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.id IN (?)', @row_filter.to_s.split('|')).order(:position)
-    #    elsif !@otu_filter.blank?
-    #      observation_matrix.observation_matrix_rows.where('observation_matrix_rows.otu_id IN (?)', @otu_filter.to_s.split('|')).order(:position)
-    #    else
-          observation_matrix.observation_matrix_rows.order(:position)
-    #    end
+    observation_matrix.observation_matrix_rows.order(:position)
   end
 
   ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)

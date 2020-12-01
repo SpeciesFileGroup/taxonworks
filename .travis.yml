@@ -3,20 +3,12 @@ branches:
   only:
     - master
     - development
-    - staged-imports
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
-    - TEST_WORKERS=4
+    - TEST_WORKERS=1
     - COVERALLS_PARALLEL=true
 jobs:
-  allow_failures:
-  - env: TEST_WORKER=0
-  - env: TEST_WORKER=1
-  - env: TEST_WORKER=2
-  - env: TEST_WORKER=3
-  - env: TEST_WORKER=4
-
   include:
     - &test-stage
       stage: test
@@ -32,7 +24,7 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.7.1
+        - 2.7.2
       bundler_args: --without development production
       addons:
         postgresql: "12"
@@ -67,19 +59,13 @@ jobs:
         - bundle exec rake db:migrate RAILS_ENV=test
       script:
         - .travis/spec_runner.sh
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=1
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=2
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=3
-    - language: minimal
+    - stage: deliver
+      if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
+      language: minimal
       services:
         - docker
       install:
+        - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse HEAD | cut -c1-9)
         - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
       script:
@@ -89,8 +75,8 @@ jobs:
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \
           [ "$TRAVIS_EVENT_TYPE" == "push" ] && \
           docker login -u "$DOCKER_USER" -p "$DOCKER_PASS" && \
-          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:staged-imports && \
-          docker push sfgrp/taxonworks:staged-imports
+          docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG && \
+          docker push sfgrp/taxonworks:$DOCKER_TAG
 notifications:
   email:
     recipients:

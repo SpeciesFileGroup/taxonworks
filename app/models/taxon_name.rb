@@ -126,7 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
-  
+
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
@@ -152,7 +152,7 @@ class TaxonName < ApplicationRecord
   include SoftValidation
   include Shared::IsData
   include TaxonName::OtuSyncronization
-  
+
   include Shared::MatrixHooks::Member
   include Shared::MatrixHooks::Dynamic
 
@@ -330,6 +330,7 @@ class TaxonName < ApplicationRecord
 
   # @return Scope
   #   names that are not leaves
+  # TODO: belongs in lib/queries/filter.rb likely
   def self.not_leaves
     t = self.arel_table
     h = ::TaxonNameHierarchy.arel_table
@@ -401,6 +402,7 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # TODO: what is this:!? :)
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
       ( SELECT *, rank()
@@ -839,7 +841,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this?
+    set_cached_classified_as
     set_cached_author_year
   end
 
@@ -909,8 +911,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [ [rank, prefix, name], ...] for genus and below
-  # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
+  # @return [ rank, prefix, name], ...] for genus and below
+  # @taxon_name.full_name_array # =>
+  #   [ ["genus", [nil, "Aus"]],
+  #     ["subgenus", [nil, "Aus"]],
+  #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
     data   = []
@@ -1028,7 +1033,11 @@ class TaxonName < ApplicationRecord
   #    TODO: on third thought- eliminate this mess
   def name_with_misspelling(gender)
     if cached_misspelling
-      name.to_s + ' [sic]'
+      if rank_string =~ /Icnp/
+        name.to_s + ' (sic)'
+      else
+        name.to_s + ' [sic]'
+      end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s
     else
@@ -1263,6 +1272,17 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [String]
+  #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
+  # Some observations:
+  #  - reified ids are only for original combinations (for which we have no ID)
+  #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
+  # mental note- consider combinatoin - is_current_placement?
+  def reified_id
+    target = (is_combination? ? finest_protonym : self)
+    return target.id.to_s unless target.has_alternate_original?
+    target.id.to_s + '-' + Digest::MD5.hexdigest(target.cached_original_combination) # missing spec to catch when chached original combination nil
+  end
 
   protected
 

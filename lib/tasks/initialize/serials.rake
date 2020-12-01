@@ -12,16 +12,17 @@ namespace :tw do
         end
       end
 
-      database = ApplicationRecord.connection.current_database
       path = File.join(@args[:data_directory], 'serial_table.dump')
 
+      config = Support::Database.pg_env_args
+
       # serial data
-      `pg_restore -Fc --disable-triggers -c -d #{database} #{path}`
+      system(config[:env], 'pg_restore', '-Fc', '--disable-triggers', '-c', *config[:args], path)
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
      
       # metadata 
       path = File.join(@args[:data_directory], 'serial_metadata_tables.dump')
-      `pg_restore -Fc -c -d #{database} #{path}` 
+      system(config[:env], 'pg_restore', '-Fc', '-c', *config[:args], path)
       raise "pg_restore failed with exit code #{$?.to_i}" unless $? == 0
       
       puts 'Completed serial data load from .dumps'.yellow
