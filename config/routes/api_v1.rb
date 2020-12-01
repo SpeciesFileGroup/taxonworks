@@ -4,6 +4,8 @@ namespace :api, defaults: {format: :json} do
     # authentication free
     get '/', to: 'base#index'
 
+    get '/stats', to: 'stats#index'
+
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
