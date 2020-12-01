@@ -7,8 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- `tw:db:load` task not handling settings reliably. [#1914]
 
+[#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
 ## [0.15.0] - 2020-11-30
 
 ### Added
