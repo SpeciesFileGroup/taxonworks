@@ -23,7 +23,7 @@
           </ul>
         </div>
         <ul class="context-menu">
-          <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
           <li><%= confidence_default_icon(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
