@@ -14,7 +14,7 @@ module Queries
       attr_accessor :last_name
 
       # @param role [Array, String]
-      #   A valid role name like 'Author' or array like ['TaxonDeterminer', 'Editor'].  See Role descendants.
+      #   A valid role name like 'Author' or array like ['TaxonDeterminer', 'SourceEditor'].  See Role descendants.
       # @return [Array]
       attr_accessor :role
 
