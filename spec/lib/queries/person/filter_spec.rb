@@ -191,6 +191,15 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
   end
 
+  specify '#role + other 1' do
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.editors << p3
+
+    query.role = ['SourceEditor']
+    query.last_name_starts_with = p3.last_name[0..3]
+   expect(query.all.map(&:id)).to contain_exactly(p3.id)
+  end
+
   #
   # Tested elsewhere, just check to see that they are initialized here
   #

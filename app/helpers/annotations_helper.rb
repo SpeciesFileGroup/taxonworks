@@ -29,6 +29,17 @@ module AnnotationsHelper
 
   end
 
+  def annotations_exist(object)
+    return (object.has_citations? && object.citations.any?) || 
+      (object.has_identifiers? && object.identifiers.any?) ||
+      (object.has_data_attributes? && object.data_attributes.any?) ||
+      (object.has_notes? && object.notes.any?) ||
+      (object.has_tags? && object.tags.load.any?) ||
+      (object.has_alternate_values? && object.alternate_values.any?) ||
+      (object.has_confidences? && object.confidences.any?) ||
+      (object.has_attribution? && object.attribution)
+  end
+
   def annotation_id(object)
     "annotation_anchor_#{object.metamorphosize.class.name}_#{object.id}"
   end
