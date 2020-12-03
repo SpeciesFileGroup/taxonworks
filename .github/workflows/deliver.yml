@@ -102,7 +102,7 @@ jobs:
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: 'github-actions-${{steps.docker_tag.outputs.result}}'
+        DOCKER_TAG: '${{steps.docker_tag.outputs.result}}'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG
