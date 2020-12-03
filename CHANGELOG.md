@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - `tw:db:load` task not handling settings reliably. [#1914]
 - Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
+- Invalid attribute `:note` in Note API result view.
 
 [#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
