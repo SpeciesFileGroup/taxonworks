@@ -7,13 +7,23 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Default pin button on Uniquify people task
+- Checkbox to Select/unselect all match people on Uniquify people task [#1921]
+
 ### Changed
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
+
 ### Fixed
 - `tw:db:load` task not handling settings reliably. [#1914]
+- Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
+- Invalid attribute `:note` in Note API result view.
+- Malformed PDF exception handling in Document model.
 
 [#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
+[#1921]: https://github.com/SpeciesFileGroup/taxonworks/issues/1921
+
 ## [0.15.0] - 2020-11-30
 
 ### Added
