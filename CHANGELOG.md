@@ -15,13 +15,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
 
 ### Fixed
+- ShallowPolymorphic called in `.json` form [#1928]
 - Documentation of param names, examples, for the "CASTOR" taxon name batch load [#1926]
 - `tw:db:load` task not handling settings reliably. [#1914]
 - Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
 
-
+[#1928]: https://github.com/SpeciesFileGroup/taxonworks/issues/1928
 [#1926]: https://github.com/SpeciesFileGroup/taxonworks/issues/1926
 [#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
