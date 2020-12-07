@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Start date needs to be set before set end date on Housekeeping facet
 
 ### Fixed
+- Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
 - ShallowPolymorphic called in `.json` form [#1928]
 - Documentation of param names, examples, for the "CASTOR" taxon name batch load [#1926]
 - `tw:db:load` task not handling settings reliably. [#1914]
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
 
+[#1920]: https://github.com/SpeciesFileGroup/taxonworks/issues/1920
 [#1928]: https://github.com/SpeciesFileGroup/taxonworks/issues/1928
 [#1926]: https://github.com/SpeciesFileGroup/taxonworks/issues/1926
 [#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913

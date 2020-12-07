@@ -139,7 +139,6 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   end
 
   specify 'some together' do
-
     # Collection object
     o.update!(taxon_name: t3)
     co.images << i1
@@ -153,8 +152,6 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     q.image_id = [i1.id]
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
-
-
   end
 
 end

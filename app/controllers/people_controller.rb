@@ -165,7 +165,8 @@ class PeopleController < ApplicationController
       used_in_project_id: [],
       keyword_ids: [],
       role: [],
-      person_wildcard: []
+      person_wildcard: [],
+      user_id: []
     )
   end
 
@@ -188,6 +189,7 @@ class PeopleController < ApplicationController
       :user_id,
       :user_target,
       :tags,
+      # user_id: [],
       keyword_ids: [],
       role: [],
       person_wildcard: []
