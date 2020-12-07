@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
+- Start date needs to be set before set end date on Housekeeping facet
 
 ### Fixed
 - ShallowPolymorphic called in `.json` form [#1928]
