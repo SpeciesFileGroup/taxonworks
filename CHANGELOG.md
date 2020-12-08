@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Default pin button on Uniquify people task
 - Checkbox to Select/unselect all match people on Uniquify people task [#1921]
+- Pixels to centimeter on new image task
 
 ### Changed
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
