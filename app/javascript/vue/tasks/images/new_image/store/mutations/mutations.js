@@ -23,6 +23,7 @@ import addTag from './addTag'
 import setTags from './setTags'
 import addDataAttribute from './addDataAttribute'
 import setDataAttributes from './setDataAttributes'
+import setPixels from './setPixels'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -50,6 +51,7 @@ const MutationNames = {
   AddTag: 'addTag',
   SetDataAttributes: 'setDataAttributes',
   AddDataAttribute: 'addDataAtributte',
+  SetPixels: 'setPixels'
 }
 
 const MutationFunctions = {
@@ -77,7 +79,8 @@ const MutationFunctions = {
   [MutationNames.SetTags]: setTags,
   [MutationNames.AddTag]: addTag,
   [MutationNames.SetDataAttributes]: setDataAttributes,
-  [MutationNames.AddDataAttribute]: addDataAttribute
+  [MutationNames.AddDataAttribute]: addDataAttribute,
+  [MutationNames.SetPixels]: setPixels
 }
 
 export {

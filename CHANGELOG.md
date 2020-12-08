@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show buffered values in `Task - Browse collection objects` [#1931]
 - Default pin button on Uniquify people task
 - Checkbox to Select/unselect all match people on Uniquify people task [#1921]
+- Pixels to centimeter on new image task
 
 ### Changed
 - Clean timeline display in `Task - Browse collection objects`
