@@ -8,10 +8,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Show buffered values in `Task - Browse collection objects` [#1931]
 - Default pin button on Uniquify people task
 - Checkbox to Select/unselect all match people on Uniquify people task [#1921]
 
 ### Changed
+- Clean timeline display in `Task - Browse collection objects`
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
 - Start date needs to be set before set end date on Housekeeping facet
 
@@ -25,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
 
+
+[#1931]: https://github.com/SpeciesFileGroup/taxonworks/issues/1931
 [#1930]: https://github.com/SpeciesFileGroup/taxonworks/issues/1930
 [#1920]: https://github.com/SpeciesFileGroup/taxonworks/issues/1920
 [#1928]: https://github.com/SpeciesFileGroup/taxonworks/issues/1928
