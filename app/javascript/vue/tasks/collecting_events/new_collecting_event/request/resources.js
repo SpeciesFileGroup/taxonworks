@@ -22,6 +22,8 @@ const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verba
 
 const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce.id}`, { collecting_event: ce })
 
+const UpdateDepiction = (id, depiction) => ajaxCall('patch', `/depictions/${id}.json`, depiction)
+
 const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 
 const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
@@ -47,6 +49,7 @@ export {
   GetGeographicAreaByCoords,
   LoadSoftValidation,
   UpdateCollectingEvent,
+  UpdateDepiction,
   UpdateUserPreferences,
   ParseVerbatim
 }

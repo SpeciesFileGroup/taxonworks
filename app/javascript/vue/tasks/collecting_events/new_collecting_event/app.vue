@@ -70,7 +70,9 @@
       @select="setCollectingEvent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
-      <collecting-event-form class="full_width" />
+      <collecting-event-form
+        v-model="collectingEvent"
+        class="full_width" />
       <right-section class="separate-left" />
     </div>
   </div>
@@ -78,8 +80,6 @@
 
 <script>
 
-import { GetterNames } from './store/getters/getters'
-import { MutationNames } from './store/mutations/mutations'
 import { RouteNames } from 'routes/routes'
 import Autocomplete from 'components/autocomplete'
 
@@ -96,6 +96,7 @@ import NavBar from 'components/navBar'
 import ParseData from './components/parseData'
 
 import collectingEventForm from './components/CollectingEventForm'
+import makeCollectingEvent from './const/collectingEvent'
 
 import {
   GetCollectingEvent,
@@ -119,17 +120,18 @@ export default {
   computed: {
     collectingEvent: {
       get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
+        return this.ce
       },
       set (value) {
-        this.$store.commit(MutationNames.SetCollectingEvent, value)
+        this.ce = value
       }
     }
   },
   data () {
     return {
       settings: {},
-      showRecent: false
+      showRecent: false,
+      ce: makeCollectingEvent()
     }
   },
   mounted () {
@@ -149,7 +151,7 @@ export default {
   },
   methods: {
     reset () {
-      // this.$store.dispatch(ActionNames.ResetApp)
+      this.ce = makeCollectingEvent()
     },
     loadCollectingEvent (id) {
       GetCollectingEvent(id).then(response => {
@@ -163,12 +165,12 @@ export default {
     saveCollectingEvent () {
       if (this.collectingEvent.id) {
         UpdateCollectingEvent(this.collectingEvent).then(response => {
-          this.collectingEvent = response.body
+          this.collectingEvent = Object.assign({}, this.collectingEvent, response.body)
           TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
         })
       } else {
         CreateCollectingEvent(this.collectingEvent).then(response => {
-          this.collectingEvent = response.body
+          this.collectingEvent = Object.assign({}, this.collectingEvent, response.body)
           TW.workbench.alert.create('Collection objects was successfully created.', 'notice')
         })
       }

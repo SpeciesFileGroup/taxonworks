@@ -56,11 +56,13 @@ import extendCE from '../mixins/extendCE.js'
 import ParseDMS from 'helpers/parseDMS.js'
 import addGeoreference from '../../helpers/addGeoreference.js'
 import createGeoJSONFeature from '../../helpers/createGeoJSONFeature.js'
+import DepictionImage from './depictionImage'
 import EXIF from 'exif-js'
 
 export default {
   mixins: [extendCE],
   components: {
+    DepictionImage,
     Dropzone
   },
   computed: {
@@ -88,8 +90,7 @@ export default {
         dictDefaultMessage: 'Drop images or click here to add figures',
         acceptedFiles: 'image/*'
       },
-      coordinatesEXIF: [],
-      coordinatesQueue: []
+      coordinatesEXIF: []
     }
   },
   watch: {
@@ -97,12 +98,14 @@ export default {
       if (newVal.id && (newVal.id !== oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
+        this.coordinatesEXIF = []
         GetDepictions(newVal.id).then(response => {
-          this.figuresList = response
+          this.figuresList = response.body
         })
       } else {
         if (!newVal.id) {
           this.figuresList = []
+          this.coordinatesEXIF = []
           this.$refs.depiction.setOption('autoProcessQueue', false)
         }
       }

@@ -26,26 +26,30 @@
 
 import Draggable from 'vuedraggable'
 import { ComponentMap, ComponentParse, ComponentVerbatim, VueComponents } from '../const/components'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     Draggable,
     ...VueComponents
   },
+  props: {
+    value: {
+      type: Object,
+      required: true
+    }
+  },
   computed: {
     collectingEvent: {
       get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent]
+        return this.value
       },
       set (value) {
-        this.$store.commit(MutationNames.SetCollectingEvent)
+        this.$emit('input', value)
       }
     },
     collectingEventId: {
       get () {
-        return this.$store.getters[GetterNames.GetCollectingEvent].id
+        return this.collectingEvent.id
       }
     }
   },

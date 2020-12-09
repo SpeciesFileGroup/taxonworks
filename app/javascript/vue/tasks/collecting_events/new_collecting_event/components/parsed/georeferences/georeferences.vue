@@ -178,6 +178,7 @@ export default {
     collectingEventId: {
       handler (newVal) {
         if (newVal) {
+          console.log(newVal)
           this.processQueue().then(() => {
             this.getGeoreferences()
           })
