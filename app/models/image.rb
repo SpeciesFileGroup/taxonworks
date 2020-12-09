@@ -38,9 +38,9 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
-# @!attribute pixels_to_centimeter 
+# @!attribute pixels_to_centimeter
 #   @return [Float, nil]
-#      used to generate scale bars on the fly 
+#      used to generate scale bars on the fly
 #
 class Image < ApplicationRecord
   include Housekeeping
@@ -239,7 +239,7 @@ class Image < ApplicationRecord
     rescue RuntimeError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
-      img.destroy!      
+      img.destroy!
     end
     cropped
   end
@@ -343,11 +343,11 @@ class Image < ApplicationRecord
 
     if target && !r.empty?
       h[:recent] = (
-        Image.where('"images"."id" IN (?)', r.first(10) ).to_a +
+        Image.where('"images"."id" IN (?)', r.first(5) ).to_a +
         Image.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
         .limit(3).to_a
-      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
+      ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
 
       h[:quick] = (
         Image.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +

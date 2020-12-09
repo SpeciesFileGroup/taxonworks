@@ -41,7 +41,7 @@ module Queries
       # @return [Protonym.id, nil]
       #   return all images depicting an Otu that is self or descendant linked
       #   to this TaxonName
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
 
       # @return [Array]
       #   one or both of 'Otu', 'CollectionObject', defaults to both if nothing provided
@@ -70,8 +70,8 @@ module Queries
         @biocuration_class_id = params[:biocuration_class_id]
         @sled_image_id = params[:sled_image_id]
         @sqed_depiction_id = params[:sqed_depiction_id]
-        @ancestor_id = params[:ancestor_id]
-        @ancestor_id_target = params[:ancestor_id]
+        @taxon_name_id = params[:taxon_name_id]
+        @ancestor_id_target = params[:ancestor_id_target]
 
         @depiction = (params[:depiction]&.downcase == 'true' ? true : false) if !params[:depiction].nil?
 
@@ -80,8 +80,8 @@ module Queries
         set_user_dates(params)
       end
 
-      def ancestor_id
-        [ @ancestor_id ].flatten.compact
+      def taxon_name_id
+        [ @taxon_name_id ].flatten.compact
       end
 
       def ancestor_id_target
@@ -324,7 +324,7 @@ module Queries
 
       def ancestors_facet
         #  Image -> Depictions -> Otu -> TaxonName -> Ancestors
-        return nil if ancestor_id.empty?
+        return nil if taxon_name_id.empty?
 
         h = Arel::Table.new(:taxon_name_hierarchies)
         t = ::TaxonName.arel_table
@@ -342,7 +342,7 @@ module Queries
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(ancestor_id)
+          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
           q1 = ::Image.joins(j1.join_sources).where(z)
         end
 
@@ -359,7 +359,7 @@ module Queries
             .join(b, Arel::Nodes::InnerJoin).on( a[:taxon_name_id].eq(b[:id]))
             .join(h_alias, Arel::Nodes::InnerJoin).on(b[:id].eq(h_alias[:descendant_id]))
 
-          z = h_alias[:ancestor_id].eq_any(ancestor_id)
+          z = h_alias[:ancestor_id].eq_any(taxon_name_id)
           q2 = ::Image.joins(j2.join_sources).where(z)
         end
 
