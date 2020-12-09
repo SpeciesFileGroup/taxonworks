@@ -32,10 +32,10 @@
         <li v-for="item in coordinatesEXIF">
           <label class="middle">
             <input
-              v-model="coordinatesQueue"
+              v-model="queueGeoreferences"
               :value="item"
               type="checkbox">
-            {{ item }}
+            {{ geoJsonLabel(parseGeoJson(item)) }}
           </label>
         </li>
       </ul>
@@ -50,7 +50,7 @@
 
 <script>
 
-import { CreateGeoreference, GetDepictions, DestroyDepiction } from '../../request/resources.js'
+import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
 import ParseDMS from 'helpers/parseDMS.js'
@@ -121,14 +121,17 @@ export default {
     addedfile (file) {
       EXIF.getData(file, () => {
         var allMetaData = EXIF.getAllTags(file)
+        console.log(allMetaData)
         if (allMetaData.hasOwnProperty('GPSLatitude')) {
           const coordinates = {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
             longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
           }
-          this.coordinatesEXIF.push(coordinates)
+          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), 'Georeference::Exit')
+
+          this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {
-            this.collectingEvent.queueGeoreferences.push(addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude, 'Georeference::Exit')))
+            this.collectingEvent.queueGeoreferences.push(geojson)
           }
         }
       })
@@ -151,6 +154,13 @@ export default {
     },
     parseEXIFCoordinate (GPSCoordinate) {
       return `${GPSCoordinate[0]}° ${GPSCoordinate[1]}' ${GPSCoordinate[2]}"`
+    },
+    parseGeoJson (georeference) {
+      const coordinates = JSON.parse(georeference.geographic_item_attributes.shape).geometry.coordinates
+      return { longitude: coordinates[0], latitude: coordinates[1] }
+    },
+    geoJsonLabel (coordinates) {
+      return `Latitude: ${coordinates.latitude}, Longitude: ${coordinates.longitude}`
     }
   }
 }
