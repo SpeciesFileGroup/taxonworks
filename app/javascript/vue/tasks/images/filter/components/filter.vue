@@ -28,9 +28,6 @@
       </button>
       <otus-component v-model="params.base.otu_id"/>
       <scope-component v-model="params.base.taxon_name_id"/>
-      <related-component
-        v-model="params.includes"
-        :taxon-name="params.base.taxon_name_id"/>
       <ancestor-target
         v-model="params.base.ancestor_id_target"
         :taxon-name="params.base.taxon_name_id"/>
@@ -103,7 +100,7 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.includes, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },
@@ -143,10 +140,6 @@ export default {
           identifier_start: undefined,
           identifier_end: undefined,
           namespace_id: undefined
-        },
-        includes: {
-          descendants: undefined,
-          ancestors: undefined
         },
         depictions: {},
         collectingEvent: {},
