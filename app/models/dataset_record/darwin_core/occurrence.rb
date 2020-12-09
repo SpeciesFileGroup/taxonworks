@@ -332,17 +332,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # fieldNumber: verbatim_trip_identifier
     set_hash_val(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
 
-    eventDate = get_field_value(:eventDate)
+    eventDate = get_field_value(:eventDate)&.split('/', 2)
 
     begin
-      start_date = DateTime.iso8601(eventDate) if eventDate
+      start_date, end_date = eventDate.map { |d| DateTime.iso8601(d) if d }
     rescue Date::Error
       raise DarwinCore::InvalidData.new(
         { "eventDate":
-          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). Examples: 1972-05; 1983-10-25; 2020-09-22T15:30"]
+          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
         }
       )
-    end
+    end if eventDate
 
     year = get_integer_field_value(:year)
     month = get_integer_field_value(:month)
@@ -357,7 +357,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     day   ||= start_date&.day
 
     if startDayOfYear
-      raise DarwinCore::InvalidData.new({ "startDayOfYear": ["Missing year value"] }) if year.nil? || eventDate.nil?
+      raise DarwinCore::InvalidData.new({ "startDayOfYear": ["Missing year value"] }) if year.nil?
 
       begin
         ordinal = Date.ordinal(year, startDayOfYear)
@@ -386,8 +386,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     endDayOfYear = get_integer_field_value(:endDayOfYear)
 
+    year = end_date&.year
+    month = end_date&.month
+    day = end_date&.day
+
     if endDayOfYear
-      raise DarwinCore::InvalidData.new({ "endDayOfYear": ["Missing year value"] }) if year.nil? || eventDate.nil?
+      raise DarwinCore::InvalidData.new({ "endDayOfYear": ["Missing year value"] }) if year.nil?
 
       begin
         ordinal = Date.ordinal(year, endDayOfYear)
@@ -397,6 +401,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
       month = ordinal.month
       day = ordinal.day
+
+      raise DarwinCore::InvalidData.new({ "eventDate": ["Conflicting values. Please check year and endDayOfYear match eventDate"] }) if end_date &&
+      (year && end_date.year != year || month && end_date.month != month || day && end_date.day != day)
     end
 
     # endDayOfYear: end_date_* ## TODO: Might need to support date ranges for eventDate as this field does not make possible to end next year
@@ -426,4 +433,5 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     { collecting_event: collecting_event }
   end
+
 end
