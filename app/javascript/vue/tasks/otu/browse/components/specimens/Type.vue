@@ -1,8 +1,8 @@
 <template>
   <section-panel
     :status="status"
+    :name="title"
     :title="`${title} (${collectionObjects.length})`">
-    <a name="type-specimens"/>
     <div
       v-if="types.length"
       class="separate-top">
@@ -12,7 +12,6 @@
           v-for="co in collectionObjects"
           :key="co.collection_objects_id">
           <type-information
-            :otu="otu"
             :types="types.filter(item => co.collection_objects_id === item.collection_object_id)"
             :specimen="co"/>
         </li>
@@ -24,6 +23,7 @@
 <script>
 
 import SectionPanel from '../shared/sectionPanel'
+import { GetterNames } from '../../store/getters/getters'
 import { GetTypeMaterials, GetCollectionObjects } from '../../request/resources.js'
 import TypeInformation from './TypeInformation'
 import extendSection from '../shared/extendSections'
@@ -48,6 +48,12 @@ export default {
         return acc
       }, {})
       return output
+    },
+    taxonNames () {
+      return this.$store.getters[GetterNames.GetTaxonNames]
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data () {
@@ -57,13 +63,18 @@ export default {
     }
   },
   watch: {
-    otu: {
-      handler(newVal) {
-        if(newVal) {
-          GetCollectionObjects({ type_specimen_taxon_name_id: newVal.taxon_name_id }).then(response => {
-            this.collectionObjects = response.body.data.map((item, index) => { return this.createObject(response.body, index) })
-            GetTypeMaterials(newVal.taxon_name_id).then(response => {
-              this.types = response.body
+    taxonNames: {
+      handler (newVal) {
+        if (newVal.length) {
+          const currentTaxon = newVal.find(taxon => this.otu.taxon_name_id === taxon.id)
+          const data = currentTaxon.id === currentTaxon.cached_valid_taxon_name_id ? newVal : [currentTaxon]
+
+          data.forEach(taxon => {
+            GetCollectionObjects({ type_specimen_taxon_name_id: taxon.id }).then(response => {
+              this.collectionObjects = this.collectionObjects.concat(response.body.data.map((item, index) => this.createObject(response.body, index)))
+              GetTypeMaterials(taxon.id).then(response => {
+                this.types = this.types.concat(response.body)
+              })
             })
           })
         }

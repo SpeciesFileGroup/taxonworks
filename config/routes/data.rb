@@ -173,9 +173,6 @@ end
 
 resources :contents do
   concerns [:data_routes]
-  collection do
-    get :filter
-  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -300,6 +297,9 @@ resources :images do
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
+  end
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -426,6 +426,7 @@ resources :otus do
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
 
@@ -490,7 +491,6 @@ resources :people do
   end
 
   member do
-    get :similar, defaults: {format: :json}
     get :roles
     get :details
     post :merge, defaults: {format: :json}
@@ -584,6 +584,7 @@ resources :sources do
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
     get :citation_object_types, defaults: {format: :json}
+    get :csl_types, defaults: {format: :json}
     get :generate, defaults: {format: :json}
   end
 

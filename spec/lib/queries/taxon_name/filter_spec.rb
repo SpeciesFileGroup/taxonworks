@@ -180,6 +180,32 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id)
   end
 
+  specify '#taxon_name_id[] 3' do
+    query.taxon_name_id = [species.id]
+    query.ancestors = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, root.id)
+  end
+
+  specify '#taxon_name_id[] 4' do
+    query.taxon_name_id = [species.id]
+    query.ancestors = true
+    query.nomenclature_group = 'Genus'
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#taxon_name_id[] 5' do
+    query.taxon_name_id = [genus.id]
+    query.ancestors = true
+    query.descendants = true
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#taxon_name_id[] 4' do
+    query.taxon_name_id = [species.id]
+    query.ancestors = true
+    expect(query.all.map(&:id)).to contain_exactly(species.id, genus.id, root.id)
+  end
+
   specify '#name' do
     query.name = 'vulner' 
     expect(query.all.map(&:id)).to contain_exactly(species.id)
@@ -207,6 +233,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
+  # TODO: deprecate for User concern
   specify '#updated_since' do
     species.update(updated_at: '2050/1/1')
     query.updated_since = '2049-12-01'

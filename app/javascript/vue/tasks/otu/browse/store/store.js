@@ -14,10 +14,11 @@ function makeInitialState () {
       descendants: true,
       distribution: true,
       assertedDistribution: true,
-      collectionObjects: true
+      collectionObjects: true,
+      biologicalAssociations: true
     },
     preferences: {
-      preferenceSchema: 20200703,
+      preferenceSchema: 20200807,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {
@@ -102,13 +103,18 @@ function makeInitialState () {
         ]
       }
     },
+    taxonName: undefined,
+    taxonNames: [],
     currentOtu: undefined,
     assertedDistributions: [],
+    biologicalAssociations: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
     georeferences: [],
     typeMaterials: [],
+    depictions: [],
+    commonNames: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],
@@ -128,5 +134,6 @@ function newStore () {
 }
 
 export {
-  newStore
+  newStore,
+  makeInitialState
 }

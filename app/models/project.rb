@@ -25,32 +25,36 @@ class Project < ApplicationRecord
   attr_accessor :set_new_api_access_token
   
   # ORDER MATTERS
-  # Used in nuke order (not available in production UI), but 
-  # ultimately also for dumping records
+  # Used in `nuke` order (not available in production UI), but 
+  # ultimately also for dumping records.
+  #
+  # The intent is to use  `delete_all` for speed. This means
+  # that callbacks are *not* fired (associated destroys).
   MANIFEST = %w{
+     Observation  
+     CitationTopic
+     Citation
+     Note   
+     CharacterState     
+     Protocol
+     AlternateValue
+     DataAttribute
+     TaggedSectionKeyword
+     Tag
+     Confidence
+     Role
      SledImage
      Label
      Attribution
      DwcOccurrence
      ProtocolRelationship
-     CharacterState
-     Protocol
-     AlternateValue
-     DataAttribute
-     CitationTopic
-     Citation
      SqedDepiction
      Depiction
      Documentation
      Document
      CollectionObjectObservation
      DerivedCollectionObject
-     Note
      PinboardItem
-     TaggedSectionKeyword
-     Tag
-     Confidence
-     Role
      AssertedDistribution
      BiocurationClassification
      BiologicalRelationshipType
@@ -72,33 +76,33 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     CollectionObject
      CollectingEvent
      RangedLotCategory
      Image
      CommonName
-     Otu
      TaxonNameClassification
      TaxonNameRelationship
-     TaxonName
      ControlledVocabularyTerm
      OriginRelationship
      Sequence
      SequenceRelationship
-     Observation
      Extract
      GeneAttribute
+     ObservationMatrixColumn 
      ObservationMatrixColumnItem
-     ObservationMatrixColumn
-     ObservationMatrixRowItem
      ObservationMatrixRow
+     ObservationMatrixRowItem
      ObservationMatrix
+     CollectionObject
+     Otu
+     TaxonName
      Descriptor
      ProjectMember
      Download
     }
   
   has_many :project_members, dependent: :restrict_with_error
+
   has_many :users, through: :project_members
   has_many :project_sources, dependent: :restrict_with_error
   has_many :sources, through: :project_sources
@@ -109,6 +113,16 @@ class Project < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name
+
+  def project_administrators
+    users.joins(:project_members).where(project_members: {is_project_administrator: true})
+  end
+
+  def is_editable?(user)
+    user = User.find(user) if !user.kind_of?(User)
+    return true if user.is_administrator? || project_administrators.include?(user)
+    false
+  end
 
   # !! This is not production ready.
   # @return [Boolean]

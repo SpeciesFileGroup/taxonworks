@@ -25,7 +25,7 @@
           <span class="separate-right"> {{ repositorySelected }}</span>
           <span
             class="circle-button button-default btn-undo"
-            @click="repository = undefined"/>
+            @click="repository = null"/>
         </div>
       </template>
     </fieldset>

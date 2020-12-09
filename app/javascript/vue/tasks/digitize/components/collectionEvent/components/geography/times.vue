@@ -72,7 +72,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_start_hour
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeStartHour, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeStartHour, value)
       }
     },
     StartMinute: {
@@ -80,7 +80,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_start_minute
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeStartMinute, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeStartMinute, value)
       }
     },
     StartSecond: {
@@ -88,7 +88,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_start_second
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeStartSecond, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeStartSecond, value)
       },
     },
     EndHour: {
@@ -96,7 +96,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_end_hour
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeEndHour, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeEndHour, value)
       }
     },
     EndMinute: {
@@ -104,7 +104,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_end_minute
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeEndMinute, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeEndMinute, value)
       }
     },
     EndSecond: {
@@ -112,7 +112,7 @@ export default {
         return this.$store.getters[GetterNames.GetCollectionEvent].time_end_second
       },
       set(value) {
-        this.$store.commit(MutationNames.setCollectionEventTimeEndSecond, value)
+        this.$store.commit(MutationNames.SetCollectionEventTimeEndSecond, value)
       }
     }
   }

@@ -115,7 +115,13 @@
         <li
           class="list-complete-item flex-separate middle"
           v-for="(item, index) in list">
-          <span v-html="item.object_tag"/>
+          <a
+            v-if="item.id"
+            v-html="item.object_tag"
+            :href="openBrowseOtu(item.otu_id)"/>
+          <span
+            v-else
+            v-html="item.object_tag"/>
           <div class="horizontal-left-content">
             <span
               v-if="item.id"
@@ -141,6 +147,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import { GetOtu, GetOtus, CreateOtu } from '../../request/resources.js'
+import { RouteNames } from 'routes/routes'
 
 import SmartSelector from 'components/smartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
@@ -280,9 +287,13 @@ export default {
     if (/^\d+$/.test(taxonId)) {
       GetOtus(taxonId).then(response => {
         if (response.body.length) {
+          if (response.body.length === 1) {
+            this.setOtu(response.body[0])
+          }
           this.smartList.quick = response.body
         } else {
           CreateOtu(taxonId).then(otu => {
+            this.setOtu(otu)
             this.smartList.quick.push(otu.body)
           })
         }
@@ -350,6 +361,9 @@ export default {
         return `on ${this.taxonDetermination.day_made ? `${this.taxonDetermination.day_made}-` : ''}${this.taxonDetermination.month_made ? `${this.taxonDetermination.month_made}-` : ''}${this.taxonDetermination.year_made ? `${this.taxonDetermination.year_made}` : ''}`
       }
       return ''
+    },
+    openBrowseOtu (id) {
+      return `${RouteNames.BrowseOtu}?otu_id=${id}`
     }
   }
 }
@@ -360,6 +374,9 @@ export default {
     label {
       display: block;
     }
+    li label {
+      display: inline;
+    }
     .date-fields {
       input {
         max-width: 80px;
@@ -369,6 +386,9 @@ export default {
       .vue-autocomplete-input {
         max-width: 150px;
       }
+    }
+    .otu_tag_taxon_name {
+      white-space: pre-wrap !important;
     }
   }
 </style>

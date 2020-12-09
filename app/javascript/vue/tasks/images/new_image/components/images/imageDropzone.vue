@@ -2,6 +2,7 @@
   <div class="image-container">
     <dropzone
       class="dropzone-card separate-bottom"
+      @vdropzone-sending="sending"
       @vdropzone-success="success"
       ref="image"
       id="image"
@@ -30,11 +31,12 @@
 
 import Dropzone from 'components/dropzone.vue'
 import ImageViewer from './imageViewer.vue'
+import { GetterNames } from '../../store/getters/getters'
 
 export default {
   components: {
     ImageViewer,
-    Dropzone,
+    Dropzone
   },
   props: {
     value: {
@@ -42,11 +44,16 @@ export default {
       default: () => { return [] }
     }
   },
+  computed: {
+    pixelToCm () {
+      return this.$store.getters[GetterNames.GetPixels]
+    }
+  },
   watch: {
     value: {
       handler(newVal) {
         this.figuresList = newVal
-      }, 
+      },
       deep: true
     }
   },
@@ -60,6 +67,7 @@ export default {
         url: '/images',
         autoProcessQueue: true,
         parallelUploads: 1,
+        timeout: 600000,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
@@ -69,14 +77,17 @@ export default {
     }
   },
   methods: {
-    'success': function (file, response) {
+    success (file, response) {
       this.figuresList.push(response)
       this.$refs.image.removeFile(file)
       this.$emit('input', this.figuresList)
       this.$emit('created',response)
     },
-    clearImages() {
-      if(window.confirm("Are you sure you want to clear the images?")) {
+    sending (file, xhr, formData) {
+      formData.append('image[pixels_to_centimeter]', this.pixelToCm)
+    },
+    clearImages () {
+      if (window.confirm("Are you sure you want to clear the images?")) {
         this.$emit('input', [])
         this.$emit('onClear')
       }

@@ -35,19 +35,36 @@
           @getItem="getObject($event.id)"/>
       </div>
       <slot name="body"/>
+      <template v-if="isImageModel">
+        <div class="flex-wrap-row">
+          <div
+            v-for="image in lists[view]"
+            :key="image.id"
+            class="thumbnail-container margin-small cursor-pointer"
+            @click="sendObject(image)">
+            <img
+              :width="image.alternatives.thumb.width"
+              :height="image.alternatives.thumb.height"
+              :src="image.alternatives.thumb.image_file_url">
+          </div>
+        </div>
+      </template>
+      <template v-else>
       <ul
         v-if="view && view != 'search'"
         class="no_bullets"
         :class="{ 'flex-wrap-row': inline }">
         <template v-for="item in lists[view]">
           <li
+            class="margin-small-bottom"
             v-if="filterItem(item)"
             :key="item.id">
             <template
               v-if="buttons">
               <button
                 type="button"
-                class="button normal-input tag_button button-data"
+                class="button normal-input tag_button"
+                :class="buttonClass"
                 v-html="item[label]"
                 @click.prevent="sendObject(item)"/>
             </template>
@@ -66,6 +83,7 @@
           </li>
         </template>
       </ul>
+    </template>
     </template>
     <slot :name="view" />
     <slot />
@@ -107,6 +125,10 @@ export default {
     buttons: {
       type: Boolean,
       default: false
+    },
+    buttonClass: {
+      type: String,
+      default: 'button-data'
     },
     otuPicker: {
       type: Boolean,
@@ -184,6 +206,10 @@ export default {
     filterIds: {
       type: [Number, Array],
       default: () => []
+    },
+    lockView: {
+      type: Boolean,
+      default: true
     }
   },
   computed: {
@@ -194,6 +220,9 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    isImageModel () {
+      return this.model === 'images'
     }
   },
   data () {
@@ -213,6 +242,9 @@ export default {
         this.addCustomElements()
       },
       deep: true
+    },
+    model (newVal) {
+      this.refresh()
     }
   },
   mounted () {
@@ -235,8 +267,9 @@ export default {
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
       AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
-        this.options = OrderSmart(Object.keys(response.body))
         this.lists = response.body
+        this.addCustomElements()
+        this.options = Object.keys(this.lists)
 
         if (this.firstTime) {
           this.view = SelectFirst(this.lists, this.options)
@@ -250,7 +283,7 @@ export default {
           }
         }
         this.options = this.options.concat(this.addTabs)
-        this.addCustomElements()
+        this.options = OrderSmart(this.options)
       })
     },
     addCustomElements () {
@@ -258,11 +291,17 @@ export default {
       if (keys.length) {
         keys.forEach(key => {
           if (this.lists[key]) {
-            this.lists[keys] = getUnique(this.lists[keys].concat(this.customList[key]), 'id')
+            this.$set(this.lists, key, getUnique(this.lists[key].concat(this.customList[key]), 'id'))
+          } else {
+            this.$set(this.lists, key, this.customList[key])
+            this.options.push(key)
+            this.options = OrderSmart(this.options)
           }
         })
       }
-      this.view = SelectFirst(this.lists, this.options)
+      if (!this.lockView) {
+        this.view = SelectFirst(this.lists, this.options)
+      }
     },
     alreadyOnLists () {
       return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false

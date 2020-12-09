@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Descriptor::Continuous, type: :model, group: :matrix do
+RSpec.describe Descriptor::Continuous, type: :model, group: [:descriptor, :observation_matrix] do
   let(:descriptor) { Descriptor::Continuous.new }
 
   let(:otu) { FactoryBot.create(:valid_otu) }

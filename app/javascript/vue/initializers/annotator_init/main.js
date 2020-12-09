@@ -2,9 +2,10 @@ import Vue from 'vue'
 import App from './app.vue'
 
 function init(element) {
-  let id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`
-  let globalId = element.getAttribute('data-global-id')
-  let showCount = element.getAttribute('data-show-count')
+  const id = `radial-annotator-${(Math.random().toString(36).substr(2, 5))}`
+  const globalId = element.getAttribute('data-global-id')
+  const showCount = element.getAttribute('data-show-count')
+  const pulse = element.getAttribute('data-pulse')
 
   if (globalId) {
     element.setAttribute('id', id)
@@ -16,7 +17,8 @@ function init(element) {
           props: {
             id: id,
             globalId: globalId,
-            showCount: (showCount == 'true') ? true : false
+            showCount: (showCount == 'true') ? true : false,
+            pulse: (pulse == 'true') ? true : false,
           }
         })
       }

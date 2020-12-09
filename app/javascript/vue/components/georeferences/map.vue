@@ -18,14 +18,6 @@ import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
 
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
-  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default
-})
-
 export default {
   props: {
     width: {
@@ -310,7 +302,7 @@ export default {
 
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds(), this.geographicArea.getBounds()))
+          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()))
         }
         else if (this.geographicArea.getLayers().length) {
           this.mapObject.fitBounds(this.geographicArea.getBounds())

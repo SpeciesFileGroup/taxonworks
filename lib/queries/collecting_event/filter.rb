@@ -56,6 +56,11 @@ module Queries
       # @return [Array]
       attr_accessor :otu_ids
 
+      # @return [Array]
+      attr_accessor :collector_ids
+
+      attr_accessor :collector_ids_or
+
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
@@ -76,6 +81,10 @@ module Queries
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
 
         @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
+
+        @collector_ids = params[:collector_ids].blank? ? [] : params[:collector_ids]
+
+        @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
@@ -113,6 +122,36 @@ module Queries
         end
         c
       end
+
+      # TODO: dry with Source, TaxonName, etc.
+      def collector_ids_facet
+        return nil if collector_ids.empty?
+        o = table
+        r = ::Role.arel_table
+
+        a = o.alias("a_") 
+        b = o.project(a[Arel.star]).from(a)
+
+        c = r.alias('r1')
+
+        b = b.join(c, Arel::Nodes::OuterJoin)
+          .on(
+            a[:id].eq(c[:role_object_id])
+          .and(c[:role_object_type].eq('CollectingEvent'))
+          .and(c[:type].eq('Collector'))
+        )
+
+        e = c[:id].not_eq(nil)
+        f = c[:person_id].eq_any(collector_ids)
+
+        b = b.where(e.and(f))
+        b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(collector_ids.length)) unless collector_ids_or
+        b = b.as('z1_')
+
+        ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      end
+
 
      ## TODO: what is it @param value [String] ?!
      ## In 
@@ -208,7 +247,7 @@ module Queries
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,
-
+          collector_ids_facet,
           matching_spatial_via_geographic_area_ids
         ].compact!
         clauses

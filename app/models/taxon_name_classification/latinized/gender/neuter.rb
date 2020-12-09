@@ -7,7 +7,7 @@ class TaxonNameClassification::Latinized::Gender::Neuter < TaxonNameClassificati
   end
 
   def self.possible_species_endings
-    %w(iense ense ianum anum culum ulum lum ium rum um on e or cens ops)
+    %w(iense ense ianum anum culum ulum lum ium rum um on e or cens ops ius)
   end
 
   def self.questionable_species_endings

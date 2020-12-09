@@ -8,9 +8,9 @@ class Observation < ApplicationRecord
   include Shared::Depictions
   include Shared::Notes
   include Shared::Tags
-  include Shared::IsData
   include Shared::Depictions
   include Shared::Confidences
+  include Shared::IsData
 
   ignore_whitespace_on(:description)
 
@@ -22,7 +22,7 @@ class Observation < ApplicationRecord
   belongs_to :otu, inverse_of: :observations
   belongs_to :collection_object, inverse_of: :observations
 
-  after_initialize :convert_observation_object_global_id
+  before_validation :convert_observation_object_global_id
   before_validation :set_type_from_descriptor
 
   validates_presence_of :descriptor_id, :type
@@ -148,7 +148,6 @@ class Observation < ApplicationRecord
     b = descriptor&.type&.split('::')&.last
     errors.add(:type, 'type of Observation does not match type of Descriptor') if a && b && a != b
   end
-
 
   def convert_observation_object_global_id
     set_observation_object_id(GlobalID::Locator.locate(observation_object_global_id)) if observation_object_global_id 

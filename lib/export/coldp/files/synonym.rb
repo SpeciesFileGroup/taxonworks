@@ -1,75 +1,70 @@
-# Is this OTU/OTU synonymy?!
-# Technically this is Otu to Name
-#   however in backend this is NameUsage : Name
+# The synonym table is simply a list of all the Names that have been used for valid OTUs (Taxa) in the current classification
+# regardless of whether they are valid or invalid names.  Only TaxonIds for valid OTUs should be here, though the format
+# will apparently handle taxon ids that are not in the taxon table.
+
+# Bigger picture: understand how this maps to core name usage table in CoL
 #   
 module Export::Coldp::Files::Synonym
 
-  # We don't cover ICNCP?
+  # @return String
+  # Last 3 of https://api.catalogue.life/vocab/taxonomicstatus
+  def self.status(o, t)
+    #'accepted'
+    #'provisionally accepted'
+    #'synonym'
+    #'ambiguous synonym'
+    #'missaplied'
+
+    'synonym' 
+  end
+
+  def self.remarks_field
+    nil 
+  end
+
+  def self.reference_id_field(otu)
+    nil
+  end
+
   def self.generate(otus, reference_csv = nil)
-
-    # @return String
-    # Last 3 of https://api.catalogue.life/vocab/taxonomicstatus
-    def self.status(o, t)
-      
-      #'accepted'
-      #'provisionally accepted'
-      #'synonym'
-      #'ambiguous synonym'
-      #'missaplied'
-
-      'synonym' 
-    end
-
-    def self.remarks_field
-      nil 
-    end
-
-    def self.reference_id_field(otu)
-      nil
-    end
-
-    # taxonID - are all valid 
-    # nameID - are all invalid
-
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{taxonID nameID status remarks referenceID}
 
-      otus.each do |o|
-        next unless o.taxon_name && !o.taxon_name.is_valid?
+      # reddis?
+      unique = {}
 
-        # This is an experiment
-        synonym_type = Otu.where(taxon_name_id: o.taxon_name.cached_valid_taxon_name_id).size > 1 ? 'ambiguous synonym' : 'synonym'
+      # otus are valid and invalid
+      
+      otus.each do |o| 
+        next unless o.taxon_name && o.taxon_name.is_valid?
 
-        # Coordinated?!
-        Otu.where(taxon_name_id: o.taxon_name.cached_valid_taxon_name_id).each do |votu|
+        name = o.taxon_name
+        data = ::Catalog::Nomenclature::Entry.new(name)
 
-          references = reference_id_field(votu)
+        data.names.each do |t|
+          # not valid, not a combioantion
+          # reified = !(t.is_valid? || t.is_combination?)
+          id = t.reified_id
 
+          next if unique[[o.id, id]] == true
+
+          unique[[o.id, id]] = true
+
+          references = reference_id_field(o)
           csv << [
-            votu.id,
-            o.taxon_name.id,
-            synonym_type, # Todo def status(taxon_name_id)
+            o.id,                                             # taxonID attached to the current valid concept
+            id,                                               # nameID
+            nil,                                              # status TODO def status(taxon_name_id)
             remarks_field, 
-            references
+            references                                        # unclear what this means in TW
           ]
 
-          if !Export::Coldp.original_field(o.taxon_name)
-            csv << [
-              votu.id,
-              ::Export::Coldp.current_taxon_name_id(o.taxon_name), 
-              synonym_type, # Todo def status(taxon_name_id)
-              remarks_field, 
-              references,
-            ]
-          end
         end
-
-
       end
-
-      # If we cite relationships then we add sources here (when CoL allows)
-      # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv) if reference_csv
     end
   end
+
+  # It is unclear what the relationship beyond "used" means. We likely need a sensu style model to record these assertions
+  # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv) if reference_csv
 end

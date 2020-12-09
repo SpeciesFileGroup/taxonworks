@@ -6,7 +6,7 @@
       <div
         :data-icon="expand ? 'w_less' : 'w_plus'"
         class="expand-box button-default separate-right"/>
-      <span>[<span v-html="types.map(type => type.object_tag).join('; ')"/>] <span>{{ ceLabel }}</span></span>
+      <span>[<span v-html="types.map(type => `${type.type_type} of ${type.original_combination}`).join('; ')"/>] <span>{{ ceLabel }}</span></span>
     </div>
     <template v-if="expand">
       <type-data

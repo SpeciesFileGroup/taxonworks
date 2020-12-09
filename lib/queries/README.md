@@ -24,6 +24,10 @@ These are the primary filtering, and autocomplete queries.  The directory is bei
 * filter queries should be hit on JSON requests to :index (e.g. `/otus.json?<params>`)
 * autocomplete queries should be hit on `/<model>/autocomplete`
 
+## Parameter names
+
+* Array parameters should be singular, like `taxon_name_id[]=`.  This needs to be made consistent throughout.
+* TODO: consider naming convention for boolean paramters
 
 
 

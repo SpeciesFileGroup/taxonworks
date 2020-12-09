@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend v-help.section.BibTeX.editors>Editors</legend>
+  <fieldset v-help.section.BibTeX.editors>
+    <legend>Editors</legend>
     <smart-selector
       model="people"
       ref="smartSelector"

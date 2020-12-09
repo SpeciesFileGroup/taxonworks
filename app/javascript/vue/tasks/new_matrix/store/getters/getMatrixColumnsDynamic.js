@@ -1,3 +1,5 @@
 export default function (state) {
-  return state.matrixColumnDynamicItems
+  return state.matrixColumnDynamicItems.sort((a, b) => {
+    return a.position - b.position
+  })
 }

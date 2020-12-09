@@ -5,11 +5,11 @@
       class="button normal-input button-default"
       @click="showModal = true"
       :disabled="!selectedIds.length">
-      Add to matrix
+      Open in matrix
     </button>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '500px' }"
+      :container-style="{ width: '600px' }"
       @close="closeModal">
       <h3 slot="header">Add OTUs to matrix</h3>
       <div slot="body">
@@ -19,20 +19,34 @@
         <div class="horizontal-left-content">
           <select
             class="full_width margin-small-right"
-            v-model="matrixId">
+            v-model="matrix">
             <option :value="undefined">Select a observation matrix</option>
             <option
               v-for="item in observationMatrices"
               :key="item.id"
-              :value="item.id">
+              :value="item">
               {{ item.name }}
             </option>
           </select>
           <button
             @click="addRows"
-            :disabled="!matrixId"
+            :disabled="!matrix"
             class="button normal-input button-submit">
             Add
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default margin-small-left"
+            :disabled="!matrix"
+            @click="openInteractiveKeys(matrix.id)">
+            Interactive keys
+          </button>
+          <button
+            v-if="matrix && matrix.is_media_matrix"
+            type="button"
+            class="button normal-input button-default margin-small-left"
+            @click="openImageMatrix(matrix.id)">
+            Image matrix
           </button>
         </div>
       </div>
@@ -44,6 +58,7 @@
 
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
+import { RouteNames } from 'routes/routes'
 import { GetObservationMatrices, CreateObservationMatrixRow } from '../request/resources'
 
 export default {
@@ -62,7 +77,7 @@ export default {
       isLoading: false,
       showModal: false,
       observationMatrices: [],
-      matrixId: undefined
+      matrix: undefined
     }
   },
   watch: {
@@ -84,9 +99,9 @@ export default {
       const promises = []
       const data = this.selectedIds.map(id => {
         return {
-          observation_matrix_id: this.matrixId,
+          observation_matrix_id: this.matrix.id,
           otu_id: id,
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         }
       })
 
@@ -100,6 +115,12 @@ export default {
     closeModal () {
       this.showModal = false
       this.$emit('close')
+    },
+    openInteractiveKeys (id) {
+      window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}`, '_self')
+    },
+    openImageMatrix (id) {
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_self')
     }
   }
 }

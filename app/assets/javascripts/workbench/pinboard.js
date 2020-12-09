@@ -103,7 +103,7 @@ Object.assign(TW.workbench.pinboard, {
             })
           }
       injectItem = injectItem + '<a href="' + object.object_url + '" class="remove circle-button button-delete" data-remote="true" rel="nofollow" data-method="delete">Remove</a> \
-      <a class="circle-button button-pinboard-default button-submit option-default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/' + object.id + '?pinboard_item%5Bis_inserted%5D=true">Make default</a> \
+      <a class="circle-button button-pinboard-default button-submit option-default" title="Make default" data-remote="true" rel="nofollow" data-method="put" href="/pinboard_items/' + object.id + '?pinboard_item%5Bis_inserted%5D=true">Make default</a> \
       </div> \
         </div> \
       </li>'
@@ -151,6 +151,7 @@ Object.assign(TW.workbench.pinboard, {
     newEl.setAttribute('href', '/pinboard_items/' + id + '?pinboard_item%5Bis_inserted%5D=' + inserted);
     newEl.setAttribute('data-remote', 'true');
     newEl.setAttribute('rel', 'nofollow');
+    newEl.setAttribute('title', (inserted ? 'Make default' : 'Disable default'));
     newEl.setAttribute('data-method', 'put');
     newEl.classList.add('circle-button', 'button-pinboard-default', (inserted ? 'button-submit' : 'button-delete'), 'option-default');
 

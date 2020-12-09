@@ -62,6 +62,8 @@
         v-if="radialDepiction"
         :global-id="depiction.global_id"/>
       <default-citation
+        :is-original="isOriginal"
+        :citations="depiction.image.citations"
         :global-id="depiction.image.global_id"/>
       <span
         class="circle-button btn-delete"
@@ -94,6 +96,10 @@ export default {
     radialImage: {
       type: Boolean,
       default: true
+    },
+    isOriginal: {
+      type: Boolean,
+      default: false
     }
   },
   data: function () {

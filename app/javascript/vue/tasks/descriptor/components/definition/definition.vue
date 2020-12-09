@@ -52,6 +52,13 @@
           v-model="descriptor.key_name"
         >
       </div>
+      <div class="field">
+        <label>Weight</label>
+        <input
+          type="number"
+          v-model="descriptor.weight"
+        >
+      </div>
     </div>
   </div>
 </template>

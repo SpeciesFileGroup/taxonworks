@@ -128,6 +128,7 @@ describe Source, type: :model, group: :source do
 
     specify '#year_suffix different authors 2' do
       source2.author_roles.build(person: FactoryBot.create(:valid_person))
+      source2.update(year_suffix: 'c')
       expect(source2.valid?).to be_truthy
     end
 

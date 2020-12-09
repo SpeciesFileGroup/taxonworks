@@ -1,12 +1,12 @@
 <template>
   <div>
     <h2 class="flex-separate">
-      User
+      Housekeeping
       <span
         class="margin-small-left"
-        v-if="!user.user_id || !user.user_target || (!user.user_date_start && !user.user_date_end)"
+        v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
         data-icon="warning"
-        title="Select a user and date range first to pick a date"/>
+        title="Select a date range first to pick a date"/>
     </h2>
     <div class="field">
       <select v-model="user.user_id">
@@ -20,14 +20,19 @@
     </div>
     <h3>Date range</h3>
     <div class="field">
-      <select v-model="user.user_target">
-        <option
+      <ul class="no_bullets">
+        <li
           v-for="item in options"
-          :value="item.value"
           :key="item.value">
-          {{ item.label }}
-        </option>
-      </select>
+          <label>
+            <input
+              :value="item.value"
+              v-model="user.user_target"
+              type="radio">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul>
     </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
@@ -36,7 +41,6 @@
         <input 
           type="date"
           class="date-input"
-          :disabled="!user.user_id || !user.user_target"
           v-model="user.user_date_start">
       </div>
       <div class="field">
@@ -45,12 +49,12 @@
         <div class="horizontal-left-content">
           <input
             type="date"
+            :disabled="!user.user_date_start"
             class="date-input"
-            :disabled="!user.user_id || !user.user_target"
             v-model="user.user_date_end">
           <button
             type="button"
-            :disabled="!user.user_id || !user.user_target"
+            :disabled="!user.user_date_start"
             class="button normal-input button-default margin-small-left"
             @click="setActualDate">
             Now
@@ -75,12 +79,15 @@ export default {
   },
   computed: {
     user: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
+    },
+    startDate () {
+      return this.user.user_date_start
     }
   },
   data () {
@@ -94,8 +101,8 @@ export default {
         {
           label: 'created at',
           value: 'created'
-        }, 
-        { 
+        },
+        {
           label: 'updated',
           value: 'updated'
         }
@@ -103,14 +110,10 @@ export default {
     }
   },
   watch: {
-    user: {
-      handler (newVal) {
-        if(!newVal.user_id || !newVal.user_target) {
-          this.user.user_date_start = undefined
-          this.user.user_date_end = undefined
-        }
-      },
-      deep: true
+    startDate (newVal) {
+      if (!newVal) {
+        this.user.user_date_end = undefined
+      }
     }
   },
   mounted () {

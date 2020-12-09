@@ -1,10 +1,9 @@
 require 'rails_helper'
 
-RSpec.describe Observation::Continuous, type: :model, group: :matrix do
+RSpec.describe Observation::Continuous, type: :model, group: :observation_matrix do
   let(:observation) { Observation::Continuous.new } 
 
   let(:otu) { FactoryBot.create(:valid_otu) }
-
 
   specify '#continuous_value required' do
     observation.valid?
@@ -31,7 +30,7 @@ RSpec.describe Observation::Continuous, type: :model, group: :matrix do
     expect(o1.unit).to be_a(::RubyUnits::Unit)
   end
 
-  context 'combining' do
+  context 'units, operators' do
     specify '"speed" +' do
       d = Descriptor::Continuous.create!(name: 'Speed', default_unit: 'm/s')
       o1 = Observation::Continuous.create!(otu: otu, descriptor: d, continuous_value: 1, continuous_unit: 'km/h' )
@@ -52,5 +51,12 @@ RSpec.describe Observation::Continuous, type: :model, group: :matrix do
       o2 = Observation::Continuous.create!(otu: otu, descriptor: d, continuous_value: 2, continuous_unit: 'count' )
       expect(o1 + o2).to eq(3)
     end
+
+    specify '#converted_value' do
+      d = Descriptor::Continuous.create!(name: 'Speed', default_unit: 'm/s')
+      o1 = Observation::Continuous.create!(otu: otu, descriptor: d, continuous_value: 1, continuous_unit: 'km/h' )
+      expect(o1.converted_value).to eq(0.2777777777777778)
+    end
+
   end
 end

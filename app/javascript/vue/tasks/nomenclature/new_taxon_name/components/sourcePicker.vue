@@ -150,9 +150,9 @@
         <div class="flex-separate">
           <role-picker
             v-model="roles"
-            @create="updateTaxonName"
-            @delete="updateTaxonName"
-            @sortable="updateTaxonName"
+            @create="updateLastChange"
+            @delete="updateLastChange"
+            @sortable="updateLastChange"
             @update="updatePersons"
             role-type="TaxonNameAuthor"
           />
@@ -315,6 +315,9 @@ export default {
       if (this.isAutosaveActive) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       }
+    },
+    updateLastChange () {
+      this.$store.commit(MutationNames.UpdateLastChange)
     }
   }
 }

@@ -16,13 +16,21 @@ const GetPeople = (id) => {
   return ajaxCall('get', `/people/${id}.json`)
 }
 
+const GetSerial = (id) => {
+  return ajaxCall('get', `/serials/${id}.json`)
+}
+
 const GetCitationTypes = () => {
   return ajaxCall('get', '/sources/citation_object_types.json')
 }
 
 const GetBibtex = (params) => {
-  return ajaxCall('get', '/sources.bib', { params: params })
+  return ajaxCall('get', '/sources.bib', params)
 }
+
+const GetBibtexStyle = () => ajaxCall('get', '/sources/csl_types')
+
+const GetBibliography = (params) => ajaxCall('get', '/sources/generate.json', params)
 
 const GetGenerateLinks = (params) => {
   return ajaxCall('get', '/sources/generate', { params: params })
@@ -40,5 +48,8 @@ export {
   GetGenerateLinks,
   GetNamespace,
   GetPeople,
-  GetKeyword
+  GetKeyword,
+  GetBibtexStyle,
+  GetBibliography,
+  GetSerial
 }

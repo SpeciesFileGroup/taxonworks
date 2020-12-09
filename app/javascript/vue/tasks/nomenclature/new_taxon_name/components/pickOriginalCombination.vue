@@ -3,7 +3,7 @@
     anchor="original-combination"
     :warning="softValidation.length"
     v-help.section.originalCombination.container>
-    <h3 slot="header">Original combination and classification</h3>
+    <h3 slot="header">Original combination and rank</h3>
     <div
       slot="body"
       class="original-combination-picker">
@@ -39,8 +39,9 @@
                 :value="item.name"
                 disabled>
               <span
-                class="handle"
-                data-icon="scroll-v"/>
+                class="handle button circle-button button-submit"
+                title="Press and hold to drag input"
+                data-icon="w_scroll-v"/>
             </div>
           </draggable>
         </div>
@@ -225,8 +226,8 @@ export default {
     width: 400px;
   }
   .handle {
-    width: 15px;
     background-position: center;
+    padding: 0px;
   }
 }
 </style>

@@ -2,12 +2,9 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '2.7.1'
+ruby '~> 2.7.0'
 
 gem 'bundler', '~> 2.0'
-
-# TODO: Remove when solved without forcing
-gem 'google-protobuf', '~> 3.12.0.rc.1'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
@@ -82,7 +79,7 @@ gem 'serrano', '~> 0.6.0'
 gem 'pdf-reader', '~> 2.2'
 
 # UI/UX
-gem 'chartkick', '~> 3.3'
+gem 'chartkick', '~> 3.4'
 gem 'groupdate', '~> 4.2'
 gem 'dropzonejs-rails', '~> 0.8.1'
 gem 'kaminari', '~> 1.2.0'
@@ -94,16 +91,16 @@ gem 'rgb'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
-gem 'sqed', '0.5.8'
+gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1.1'
-gem 'biodiversity', '~> 4.0', '>= 4.0.3'
+gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
 gem 'gnfinder', '~> 0.11.0'
 
 # Minor Utils/helpers
-gem 'awesome_print', '~> 1.8'
+gem 'amazing_print', '~> 1.2.1'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0.0'
 gem 'term-ansicolor', '~> 1.6' # DEPRECATED
@@ -112,6 +109,7 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
+gem 'zaru', '~> 0.3.0'
 
 # www 
 gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 
@@ -123,7 +121,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
   gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', '~> 0.24.0'
+  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -152,7 +150,8 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'coveralls', '~> 0.8.22', require: false
+  gem 'codecov', require: false, github: 'LocoDelAssembly/codecov-ruby', branch: 'github-actions-branch-detection-fix'
+  gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
@@ -160,14 +159,9 @@ group :test do
   gem 'database_cleaner', '~> 1.8'
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
-
-# gem 'simplecov', :require => false
-# gem 'simplecov-rcov', :require => false
 end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
   gem 'passenger', '~> 6.0.2'
 end
-
-

@@ -45,6 +45,10 @@
               @onSelectedGlobalId="loadMetadata"
               @updateCount="setTotal"/>
           </div>
+          <destroy-confirmation
+            v-if="showDestroyModal"
+            @close="showDestroyModal = false"
+            @confirm="destroyObject"/>
         </div>
       </modal>
       <span
@@ -68,6 +72,7 @@ import CRUD from './request/crud'
 import Icons from './images/icons.js'
 
 import RecentComponent from './components/recent.vue'
+import DestroyConfirmation from './components/DestroyConfirmation'
 import all_tasksComponent from './components/allTasks.vue'
 
 const defaultOptions = {
@@ -80,13 +85,14 @@ const defaultOptions = {
 
 export default {
   mixins: [CRUD],
-  name: 'RadialObject',
+  name: 'RadialNavigation',
   components: {
     all_tasksComponent,
     RecentComponent,
     RadialMenu,
     Modal,
-    Spinner
+    Spinner,
+    DestroyConfirmation
   },
   props: {
     reload: {
@@ -133,6 +139,7 @@ export default {
       metadata: undefined,
       title: 'Radial object',
       deleted: false,
+      showDestroyModal: false,
       menuOptions: [],
       customOptions: ['alltasks', 'circleButton'],
       defaultSlices: [
@@ -218,22 +225,7 @@ export default {
             window.open(this.metadata.resource_path, target)
             break
           case defaultOptions.Destroy:
-            if (window.confirm('Are you sure you want to destroy this record?')) {
-              this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
-                TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
-                if (this.globalId == this.metadata.globalId) {
-                  this.eventDestroy()
-                  this.deleted = true
-                }
-                if (window.location.pathname == this.metadata.resource_path) {
-                  window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
-                } else {
-                  window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
-                }
-              }, () => {
-                TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')
-              })
-            }
+            this.showDestroyModal = true
             break
           case 'alltasks':
             this.currentView = 'all_tasks'
@@ -308,8 +300,12 @@ export default {
       return menu
     },
     addDefaultOptions () {
+      const filterOptions = this.filterOptions
+      if (!this.metadata.destroy) {
+        filterOptions.push(defaultOptions.Destroy)
+      }
       this.defaultSlices.forEach(slice => {
-        const founded = this.filterOptions.find(option => {
+        const founded = filterOptions.find(option => {
           return option.toLowerCase() == slice.label.toLowerCase()
         })
 
@@ -363,6 +359,23 @@ export default {
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
         this.$delete(this.metadata, 'pinboard_item')
+      })
+    },
+    destroyObject () {
+      this.showDestroyModal = false
+      this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
+        TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
+        if (this.globalId === this.metadata.globalId) {
+          this.eventDestroy()
+          this.deleted = true
+        }
+        if (window.location.pathname == this.metadata.resource_path) {
+          window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
+        } else {
+          window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
+        }
+      }, () => {
+        TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')
       })
     }
   }

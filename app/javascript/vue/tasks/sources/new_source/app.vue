@@ -4,6 +4,15 @@
       <h1>New source</h1>
       <ul class="context-menu">
         <li>
+          <autocomplete
+            url="/sources/autocomplete"
+            param="term"
+            placeholder="Search a source..."
+            label="label_html"
+            clear-after
+            @getItem="loadSource($event.id)"/>
+        </li>
+        <li>
           <label>
             <input
               type="checkbox"
@@ -51,6 +60,13 @@
             Save
           </button>
           <button
+            v-if="source.type === 'Source::Verbatim' && source.id"
+            class="button normal-input button-submit button-size margin-small-right"
+            type="button"
+            @click="convert">
+            To BibTeX
+          </button>
+          <button
             :disabled="!source.id"
             v-shortkey="[getMacKey(), 'c']"
             @shortkey="cloneSource"
@@ -60,6 +76,7 @@
             Clone
           </button>
           <button
+            v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
             type="button"
             @click="showModal = true">
@@ -102,6 +119,11 @@
     <bibtex-button
       v-if="showBibtex"
       @close="showBibtex = false"/>
+    <spinner-component
+      v-if="settings.isConverting"
+      :full-screen="true"
+      :logo-size="{ width: '100px', height: '100px'}"
+      legend="Converting verbatim to BiBTeX..."/>
   </div>
 </template>
 
@@ -109,6 +131,7 @@
 
 import SourceType from './components/sourceType'
 import RecentComponent from './components/recent'
+import SpinnerComponent from 'components/spinner'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
@@ -119,6 +142,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
+import Autocomplete from 'components/autocomplete'
 
 import PinComponent from 'components/pin'
 
@@ -133,6 +157,7 @@ import NavBar from 'components/navBar'
 
 export default {
   components: {
+    Autocomplete,
     RadialAnnotator,
     RadialObject,
     PinComponent,
@@ -145,7 +170,8 @@ export default {
     BibtexButton,
     AddSource,
     NavBar,
-    RecentComponent
+    RecentComponent,
+    SpinnerComponent
   },
   computed: {
     section () {
@@ -176,7 +202,7 @@ export default {
     }
   },
   watch: {
-    source: { 
+    source: {
       handler (newVal, oldVal) {
         if (newVal.id === oldVal.id) {
           this.settings.lastEdit = Date.now()
@@ -211,6 +237,12 @@ export default {
     },
     cloneSource () {
       this.$store.dispatch(ActionNames.CloneSource)
+    },
+    convert () {
+      this.$store.dispatch(ActionNames.ConvertToBibtex)
+    },
+    loadSource (sourceId) {
+      this.$store.dispatch(ActionNames.LoadSource, sourceId)
     },
     getMacKey: GetMacKey
   }

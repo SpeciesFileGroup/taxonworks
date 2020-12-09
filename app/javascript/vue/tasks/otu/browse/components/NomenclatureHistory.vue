@@ -3,8 +3,8 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    menu
     @menu="showModal = true">
-    <a name="timeline"/>
     <div class="switch-radio separate-top separate-bottom">
       <template v-for="(item, index) in filterTabs">
         <input
@@ -21,9 +21,11 @@
     <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => { return { [item.key]: !item.value } }))">
       <h3>Citations ({{ filteredList.length }})</h3>
       <ul class="taxonomic_history">
-        <li v-for="item in filteredList">
-          <span v-html="item.label_html"/>
-        </li>
+        <template v-for="item in filteredList">
+          <li v-if="item.label_html">
+            <span v-html="item.label_html"/>
+          </li>
+        </template>
       </ul>
       <h3>References</h3>
       <ul
