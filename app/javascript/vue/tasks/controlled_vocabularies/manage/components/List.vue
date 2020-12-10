@@ -35,7 +35,8 @@
               class="button button-circle"
               v-if="item.id"
               :object-id="item.id"
-              :type="`${item.type}`"
+              :section="`${item.type}s`"
+              type="ControlledVocabularyTerm"
             />
           </td>
           <td>
