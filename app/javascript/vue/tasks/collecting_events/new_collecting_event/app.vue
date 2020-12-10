@@ -39,12 +39,16 @@
           </div>
         </div>
         <div class="horizontal-right-content">
-          <parse-data @onParse="setParsedData"/>
+          <collection-objects-table
+            :ce-id="collectingEvent.id"/>
+          <parse-data
+            class="separate-left"
+            @onParse="setParsedData"/>
           <button
             v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
             @click="saveCollectingEvent"
-            class="button normal-input button-submit button-size separate-right separate-left"
+            class="button normal-input button-submit button-size separate-left"
             type="button">
             Save
           </button>
@@ -72,6 +76,7 @@
     <div class="horizontal-left-content align-start">
       <collecting-event-form
         v-model="collectingEvent"
+        :sortable="settings.sortable"
         class="full_width" />
       <right-section class="separate-left" />
     </div>
@@ -95,8 +100,9 @@ import RightSection from './components/RightSection'
 import NavBar from 'components/navBar'
 import ParseData from './components/parseData'
 
-import collectingEventForm from './components/CollectingEventForm'
+import CollectingEventForm from './components/CollectingEventForm'
 import makeCollectingEvent from './const/collectingEvent'
+import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 
 import {
   GetCollectingEvent,
@@ -107,6 +113,7 @@ import {
 
 export default {
   components: {
+    CollectionObjectsTable,
     RadialAnnotator,
     RadialObject,
     PinComponent,
@@ -114,7 +121,7 @@ export default {
     NavBar,
     ParseData,
     RecentComponent,
-    collectingEventForm,
+    CollectingEventForm,
     Autocomplete
   },
   computed: {
@@ -129,7 +136,9 @@ export default {
   },
   data () {
     return {
-      settings: {},
+      settings: {
+        sortable: false
+      },
       showRecent: false,
       ce: makeCollectingEvent()
     }

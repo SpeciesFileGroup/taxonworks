@@ -36,6 +36,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    sortable: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -68,7 +72,6 @@ export default {
         componentParse: Object.keys(ComponentParse),
         componentMap: Object.keys(ComponentMap)
       },
-      sortable: true,
       titleSection: {
         componentVerbatim: 'Verbatim',
         componentParse: 'Parse'

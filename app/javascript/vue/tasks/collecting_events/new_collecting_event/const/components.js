@@ -18,6 +18,7 @@ import Predicates from '../components/parsed/Predicates.vue'
 import Georeferences from '../components/parsed/georeferences/georeferences.vue'
 
 import MapComponent from '../components/map/Map.vue'
+import PrintLabel from '../components/map/PrintLabel.vue'
 import Depictions from '../components/map/Depictions.vue'
 
 const ComponentVerbatim = {
@@ -46,6 +47,7 @@ const ComponentParse = {
 
 const ComponentMap = {
   Map: 'Map',
+  PrintLabel: 'PrintLabel',
   Depictions: 'Depictions'
 }
 
@@ -69,6 +71,7 @@ const VueComponents = {
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
   [ComponentParse.Predicates]: Predicates,
+  [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
   [ComponentMap.Depictions]: Depictions
 }

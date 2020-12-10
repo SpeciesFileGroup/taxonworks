@@ -4,6 +4,8 @@ const CreateCollectingEvent = (ce) => ajaxCall('post', '/collecting_events.json'
 
 const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
 
+const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.json', { params })
+
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
 const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json', { params: params })
@@ -39,6 +41,7 @@ export {
   CreateGeoreference,
   DestroyDepiction,
   DestroyCollectingEvent,
+  GetCollectionObjects,
   GetCollectingEvent,
   GetCollectingEvents,
   GetGeographicArea,
