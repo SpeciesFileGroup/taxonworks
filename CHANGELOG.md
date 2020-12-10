@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Start date needs to be set before set end date on Housekeeping facet
 
 ### Fixed
+- CVT smart selectors/pinboard scope broken [#1940] [#1941]
 - Image filter `ancestor_id` was to be `taxon_name_id` or `taxon_name_id[]` [#1916]
 - Bad Image select_option sort [#1930] 
 - Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
@@ -30,6 +31,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Malformed PDF exception handling in Document model.
 
 
+[#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
+[#1940]: https://github.com/SpeciesFileGroup/taxonworks/issues/1940
 [#1916]: https://github.com/SpeciesFileGroup/taxonworks/issues/1916
 [#1931]: https://github.com/SpeciesFileGroup/taxonworks/issues/1931
 [#1930]: https://github.com/SpeciesFileGroup/taxonworks/issues/1930
