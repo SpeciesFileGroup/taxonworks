@@ -43,7 +43,7 @@
             :ce-id="collectingEvent.id"/>
           <parse-data
             class="separate-left"
-            @onParse="setParsedData"/>
+            @onParse="setCollectingEvent"/>
           <button
             v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
@@ -169,23 +169,20 @@ export default {
       })
     },
     setCollectingEvent (ce) {
-      this.collectingEvent = ce
+      this.collectingEvent = Object.assign({}, this.collectingEvent, ce)
     },
     saveCollectingEvent () {
       if (this.collectingEvent.id) {
         UpdateCollectingEvent(this.collectingEvent).then(response => {
-          this.collectingEvent = Object.assign({}, this.collectingEvent, response.body)
+          this.setCollectingEvent(response.body)
           TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
         })
       } else {
         CreateCollectingEvent(this.collectingEvent).then(response => {
-          this.collectingEvent = Object.assign({}, this.collectingEvent, response.body)
+          this.setCollectingEvent(response.body)
           TW.workbench.alert.create('Collection objects was successfully created.', 'notice')
         })
       }
-    },
-    setParsedData (data) {
-      this.collectingEvent = Object.assign({}, this.collectingEvent, data)
     },
     getOSKey: GetOSKey
   }

@@ -4,29 +4,17 @@
       type="button"
       class="button normal-input button-default"
       :disabled="!ceId"
-      @click="showModal = true">Recent</button>
+      @click="showModal = true">Collection object attached</button>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Recent collection objects</h3>
+      <h3 slot="header">Collection objects attached to this collecting event</h3>
       <div slot="body">
         <spinner-component v-if="isLoading"/>
         <table class="full_width">
           <thead>
             <tr>
-              <th>Total</th>
-              <th>Family</th>
-              <th>Genus</th>
-              <th>Scientific name</th>
-              <th>Identifier</th>
-              <th>Biocuration attributes</th>
-              <th>Level 1</th>
-              <th>Level 2</th>
-              <th>Level 3</th>
-              <th>Verbatim locality</th>
-              <th>Date start</th>
-              <th>Container</th>
-              <th>Update at</th>
+              <th>Collection object</th>
             </tr>
           </thead>
           <tbody>
@@ -36,24 +24,7 @@
               class="contextMenuCells"
               :class="{ 'even': (index % 2 == 0) }"
               @click="sendCO(item)">
-              <td>{{ item.dwc_attributes.individualCount }}</td>
-              <td>{{ item.dwc_attributes.family }}</td>
-              <td>{{ item.dwc_attributes.genus }}</td>
-              <td>{{ item.dwc_attributes.scientificName }}</td>
-              <template>
-                <td 
-                  v-if="item.identifier_from_container"
-                  v-html="item.object_tag"/>
-                <td v-else>{{ item.dwc_attributes.catalogNumber}}</td>
-              </template>
-              <td>{{ item.biocuration }}</td>
-              <td>{{ item.dwc_attributes.country }}</td>
-              <td>{{ item.dwc_attributes.stateProvince }}</td>
-              <td>{{ item.dwc_attributes.county }}</td>
-              <td>{{ item.dwc_attributes.verbatimLocality }}</td>
-              <td>{{ item.dwc_attributes.eventDate }}</td>
-              <td v-html="item.container"/>
-              <td>{{ item.updated_at }}</td>
+              <td v-html="item.object_tag"/>
             </tr>
           </tbody>
         </table>

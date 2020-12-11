@@ -39,11 +39,6 @@
           </label>
         </li>
       </ul>
-      <button
-        type="button"
-        class="button normal-input button-submit margin-medium-top">
-        Create
-      </button>
     </div>
   </div>
 </template>
@@ -109,6 +104,20 @@ export default {
           this.$refs.depiction.setOption('autoProcessQueue', false)
         }
       }
+    },
+    queueGeoreferences: {
+      handler (newVal, oldVal) {
+        if (this.collectingEvent.id) {
+          const removed = oldVal.filter(val => newVal.findIndex((v) => v.tmpId === val.tmpId) === -1)
+          removed.forEach(item => {
+            const index = this.coordinatesEXIF.findIndex(v => v.tmpId === item.tmpId)
+            if (index > -1) {
+              this.coordinatesEXIF.splice(index, 1)
+            }
+          })
+        }
+      },
+      deep: true
     }
   },
   methods: {
