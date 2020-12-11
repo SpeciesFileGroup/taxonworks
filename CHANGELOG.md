@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
 - Clipboard copy shortcut
+- Source hub link on Citations by source task
 
 
 [#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
