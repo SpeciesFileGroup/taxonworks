@@ -130,7 +130,7 @@ export default {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
             longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
           }
-          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), 'Georeference::Exit')
+          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), 'Georeference::Exif')
 
           this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {
