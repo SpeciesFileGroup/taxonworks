@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
+- Clipboard copy shortcut
 
 
 [#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
