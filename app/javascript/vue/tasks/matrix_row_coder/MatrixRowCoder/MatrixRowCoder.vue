@@ -38,10 +38,10 @@
       <li
         class="matrix-row-coder__descriptor-container"
         v-for="(descriptor, index) in descriptors"
+        :key="descriptor.id"
         :data-descriptor-id="descriptor.id">
-
         <div
-          :is="descriptor.componentName" 
+          :is="descriptor.componentName"
           :index="(index+1)"
           :descriptor="descriptor"/>
       </li>
@@ -57,9 +57,11 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import ContinuousDescriptor from './SingleObservationDescriptor/ContinuousDescriptor/ContinuousDescriptor.vue'
+import FreeTextDescriptor from './SingleObservationDescriptor/FreeText/FreeText.vue'
 import PresenceDescriptor from './SingleObservationDescriptor/PresenceDescriptor/PresenceDescriptor.vue'
 import QualitativeDescriptor from './QualitativeDescriptor/QualitativeDescriptor.vue'
 import SampleDescriptor from './SingleObservationDescriptor/SampleDescriptor/SampleDescriptor.vue'
+import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
@@ -71,11 +73,11 @@ const computed = mapState({
 
 export default {
   created: function () {
-    this.setApiValues()
     this.loadMatrixRow({
       rowId: this.$props.rowId,
       otuId: this.$props.otuId
     })
+    this.$store.dispatch(ActionNames.RequestUnits)
   },
   data() {
     return {
@@ -95,7 +97,7 @@ export default {
       this.$store.state.request.setApi({
         apiBase: this.$props.apiBase,
         apiParams: this.$props.apiParams
-      })      
+      })
     },
     zoomDescriptor (descriptorId) {
       const top = document.querySelector(`[data-descriptor-id="${descriptorId}"]`).getBoundingClientRect().top
@@ -147,9 +149,11 @@ export default {
   components: {
     CloneScoring,
     ContinuousDescriptor,
+    FreeTextDescriptor,
     PresenceDescriptor,
     QualitativeDescriptor,
     SampleDescriptor,
+    MediaDescriptor,
     Spinner,
     DestroyAllObservations
   }

@@ -48,7 +48,7 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
-import { FilterCollectingEvent } from '../../../../request/resources.js'
+import { FilterCollectingEvent, ParseVerbatim } from '../../../../request/resources.js'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 
@@ -68,6 +68,14 @@ export default {
     },
     bufferedCollectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionObject].buffered_collecting_event
+    },
+    collectingEvent: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionEvent, value)
+      }
     }
   },
   data() {
@@ -92,8 +100,12 @@ export default {
     cloneLabel() {
       this.searching = true
       FilterCollectingEvent({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
-        this.list = response
+        this.list = response.body
         this.searching = false
+        ParseVerbatim(this.bufferedCollectingEvent).then(response => {
+          const parsed = response.body
+          this.collectingEvent = Object.assign(this.collectingEvent, parsed.date, parsed.geo.verbatim, parsed.elevation, parsed.collecting_method)
+        })
       })
     },
     setCE(ce) {
@@ -102,7 +114,7 @@ export default {
     },
     closeModal() {
       this.showModal = false
-      this.selectedCE = false      
+      this.selectedCE = false
     }
   }
 }

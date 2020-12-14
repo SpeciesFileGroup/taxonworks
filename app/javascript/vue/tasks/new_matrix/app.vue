@@ -1,13 +1,23 @@
 <template>
   <div id="vue_new_matrix_task">
+    <spinner-component
+      v-if="settings.loadingRows || settings.loadingColumns"
+      legend="Loading..."
+      :full-screen="true"/>
     <div class="flex-separate middle">
-      <h1>{{ (matrix.id ? 'Edit' : 'New') }} matrix</h1>
+      <h1>{{ (matrix.id ? 'Edit' : 'New') }} observation matrix</h1>
       <div class="horizontal-left-content">
         <ul class="context-menu">
-          <li> 
-            <a 
+          <li>
+            <a
               href="/tasks/observation_matrices/observation_matrix_hub/index">
               Hub
+            </a>
+          </li>
+          <li>
+            <a
+              href="/tasks/observation_matrices/dashboard/index">
+              Dashboard
             </a>
           </li>
           <li>
@@ -17,29 +27,48 @@
           </li>
 
           <li>
-            <a 
-              target="blank" 
-              href="/otus/new">New Otu
-            </a>
-          </li>
-          <li>
-            <a 
-              target="blank" 
-              href="/tasks/descriptors/new_descriptor">New Descriptor
-            </a>
+            <a href="/otus/new">New OTU</a>
           </li>
           <li>
             <a
-              target="blank"
-              href="/tasks/accessions/comprehensive/index">New Collection Object
+              v-if="matrix.id"
+              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New descriptor
+            </a>
+            <a
+              v-else
+              :href="`/tasks/descriptors/new_descriptor`">New descriptor
             </a>
           </li>
           <li>
-            <radial-annotator 
-              v-if="matrix.id"
-              type="annotations"
-              :global-id="matrix.global_id"/>
+            <a href="/tasks/accessions/comprehensive/index">New collection object</a>
           </li>
+          <li>
+            <label class="middle">
+              <input
+                v-model="settings.sortable"
+                type="checkbox">
+              Sortable columns/rows
+            </label>
+          </li>
+          <template v-if="matrix.id">
+            <li>
+              <pin-component
+                :object-id="matrix.id"
+                :type="matrix.base_class"
+                section="ObservationMatrices"
+              />
+            </li>
+            <li>
+              <radial-navigation
+                type="annotations"
+                :global-id="matrix.global_id"/>
+            </li>
+            <li>
+              <radial-annotator
+                type="annotations"
+                :global-id="matrix.global_id"/>
+            </li>
+          </template>
         </ul>
       </div>
     </div>
@@ -73,6 +102,9 @@ import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import PinComponent from 'components/pin.vue'
+import SpinnerComponent from 'components/spinner'
+import RadialNavigation from 'components/radials/navigation/radial'
 
 import rowsDynamic from './components/rows/dynamic'
 import columnDynamic from './components/columns/dynamic'
@@ -88,23 +120,34 @@ export default {
     TablesComponent,
     columnsFixed,
     columnDynamic,
-    RadialAnnotator
+    RadialAnnotator,
+    PinComponent,
+    SpinnerComponent,
+    RadialNavigation
   },
   computed: {
-    matrix() {
+    matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
     },
-    isRow() {
+    isRow () {
       return (this.$store.getters[GetterNames.GetMatrixView] == 'row' ? true : false) 
     },
-    isFixed() {
+    isFixed () {
       return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
     },
-    columnList() {
+    columnList () {
       return this.$store.getters[GetterNames.GetMatrixColumns]
     },
-    matrixId() {
+    matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
     }
   },
   data() {
@@ -135,12 +178,11 @@ export default {
     flex-direction: column-reverse;
     margin: 0 auto;
     margin-top: 1em;
-    max-width: 1240px;
 
     .cleft, .cright {
-      min-width: 450px;
-      max-width: 450px;
-      width: 400px;
+      min-width: 500px;
+      max-width: 500px;
+      width: 450px;
     }
     #cright-panel {
       width: 350px;

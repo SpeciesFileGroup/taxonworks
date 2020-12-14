@@ -211,4 +211,81 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
 
     end
   end
+
+  context 'test date_regex_from_verbatim_label' do
+    context 'multiple use cases in date_regex_from_verbatim_label' do
+
+      use_cases = {
+          'text, June 27 1946 - July 1 1947, text' => '27/6/1946/1/7/1947',
+          'text, June 27, 1946 - July 1, 1947, text' => '27/6/1946/1/7/1947',
+          'text, 27 June 1946 - 1 July 1947, text' => '27/6/1946/1/7/1947',
+          'text, 27 VI 1946 - 1 VII 1947, text' => '27/6/1946/1/7/1947',
+          'text, 27VI1946 - 1VII1947, text' => '27/6/1946/1/7/1947',
+          'text, 27-VI-1946 - 1-VII-1947, text' => '27/6/1946/1/7/1947',
+          'text, 5 27 1946 - 6 1 1947, text' => '27/5/1946/1/6/1947',
+          'text, June 27 - July 1 1947, text' => '27/6/1947/1/7/1947',
+          'text, VII-30-VIII-17-2000, text' => '30/7/2000/17/8/2000',
+          'text, 27 June - 1 July 1947, text' => '27/6/1947/1/7/1947',
+          'text, 27 VI - 1 VII 1947, text' => '27/6/1947/1/7/1947',
+          'text, 27-VI - 1-VII-1947, text' => '27/6/1947/1/7/1947',
+          'text, 27VI - 1VII1947, text' => '27/6/1947/1/7/1947',
+          'text, 5 27 - 6 1 1947, text' => '27/5/1947/1/6/1947',
+          'text, June 27-29 1947, text' => '27/6/1947/29/6/1947',
+          'text, 27-29 June 1947, text' => '27/6/1947/29/6/1947',
+          'text, 8–12.07.2019, text' => '8/07/2019/12/07/2019',
+          'text, 12 27-29 1947, text' => '27/12/1947/29/12/1947',
+          'text, 20/XI/2018, text' => '20/11/2018///',
+          'text, Jun 29 1947, text' => '29/6/1947///',
+          'text, Jun 29, 1947, text' => '29/6/1947///',
+          'text, June 29, 1947, text' => '29/6/1947///',
+          'text, VI-29-1947, text' => '29/6/1947///',
+          'text, X.25.2000, text' => '25/10/2000///',
+          "text, Jun 29, '47, text" => '29/6/1947///',
+          "text, June 29, '47, text" => '29/6/1947///',
+          'text, VI-4-08, text' => '4/6/1908///',
+          'text, 29 Jun 1947, text' => '29/6/1947///',
+          'text, 29 June 1947, text' => '29/6/1947///',
+          'text, 2 June, 1983, text' => '2/6/1983///',
+          'text, 29 VI 1947, text' => '29/6/1947///',
+          'text, 29-VI-1947, text' => '29/6/1947///',
+          'text, 25.X.2000, text' => '25/10/2000///',
+          'text, 25X2000, text' => '25/10/2000///',
+          "text, 29 June '47, text" => '29/6/1947///',
+          "text, 29 Jun '47, text" => '29/6/1947///',
+          'text, 6/29/1947, text' => '29/6/1947///',
+          'text, 6-29-1947, text' => '29/6/1947///',
+          'text, 6-15 1985, text' => '15/6/1985///',
+          'text, 10.25 2000, text' => '25/10/2000///',
+          'text, 7.10.1994, text' => '10/7/1994///',
+          'text, 6/29/47, text' => '29/6/1947///',
+          "text, 6/29/'47, text" => '29/6/1947///',
+          "text, 7.10.94, text" => '10/7/1894///',
+          "text, 5-17-97, text" => '17/5/1897///',
+          'text, Jun - Jul 1947, text' => '/6/1947//7/1947',
+          'text, June - July, 1947, text' => '/6/1947//7/1947',
+          'text, VI-X 1947, text' => '/6/1947//10/1947',
+          'text, Jun 1947, text' => '/6/1947///',
+          'text, June, 1947, text' => '/6/1947///',
+          'text, VI 1947, text' => '/6/1947///',
+      }
+
+      @entry = 0
+
+      use_cases.each { |co_ordinate, result|
+        @entry += 1
+        specify "case #{@entry}: '#{co_ordinate}' should yield #{result}" do
+          use_case = Utilities::Dates.date_regex_from_verbatim_label(co_ordinate)
+          u = use_case[:start_date_day].to_s + '/' +
+              use_case[:start_date_month].to_s + '/' +
+              use_case[:start_date_year].to_s + '/' +
+              use_case[:end_date_day].to_s + '/' +
+              use_case[:end_date_month].to_s + '/' +
+              use_case[:end_date_year].to_s
+
+          expect(u).to eq(result)
+        end
+      }
+    end
+  end
+
 end

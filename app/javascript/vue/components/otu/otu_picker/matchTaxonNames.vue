@@ -3,16 +3,49 @@
     <spinner-component
       :show-legend="false"
       v-if="isSearching"/>
-    <ul class="no_bullets">
-      <li
+    <template
+      v-if="foundMatches">
+      <ul
         v-for="item in matches"
-        class="horizontal-left-content">
-        <span v-html="item.cached_html"/>
+        :key="item.id"
+        class="no_bullets">
+        <li
+          class="margin-small-top">
+          <button
+            class="button normal-input button-submit full_width"
+            type="button"
+            @click="send({ otuName: undefined, taxon: item })">
+            Create and use OTU for taxon name <span v-html="item.cached_html"/>
+          </button>
+        </li>
+        <li
+          class="margin-small-top">
+          <button
+            class="button normal-input button-submit full_width"
+            type="button"
+            @click="send({ otuName: item.cached, taxon: item })">
+            Create and use OTU with name "<span v-html="item.cached_html"/>"
+          </button>
+        </li>
+        <li class="margin-small-top">
+          <button
+            @click="createNew"
+            type="button"
+            class="button normal-input button-default full_width">
+            Customize a new OTU with name "{{ otuName }}"
+          </button>
+        </li>
+      </ul>
+    </template>
+    <ul
+      class="no_bullets"
+      v-else>
+      <li class="margin-small-top">
         <button
-          class="button normal-input button-default margin-medium-left"
+          @click="createNew"
           type="button"
-          @click="setTaxonName(item)">
-          Select
+          class="button normal-input button-default full_width">
+          Customize a new OTU with name "{{ otuName }}"
         </button>
       </li>
     </ul>
@@ -31,7 +64,7 @@ export default {
   props: {
     otuName: {
       type: String,
-      required: true
+      default: undefined
     }
   },
   data () {
@@ -39,13 +72,15 @@ export default {
       matches: [],
       delay: 1000,
       timeOut: undefined,
-      isSearching: false
+      isSearching: false,
+      searchDone: false
     }
   },
   watch: {
     otuName: {
       handler (newVal) {
         this.isSearching = true
+        this.foundMatches = false
         clearTimeout(this.timeOut)
         this.timeOut = setTimeout(() => {
           this.searchByTaxonName()
@@ -56,13 +91,22 @@ export default {
   },
   methods: {
     searchByTaxonName () {
-      ajaxCall('get', `/taxon_names.json?name=${this.otuName}&exact=true`).then(response => {
+      ajaxCall('get', '/taxon_names.json', {
+        params: {
+          name: this.otuName,
+          exact: true
+        }
+      }).then(response => {
         this.matches = response.body
         this.isSearching = false
+        this.foundMatches = response.body.length > 0
       })
     },
-    setTaxonName (taxon) {
+    send (taxon) {
       this.$emit('selected', taxon)
+    },
+    createNew () {
+      this.$emit('createNew', true)
     }
   }
 }

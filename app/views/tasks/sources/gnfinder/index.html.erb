@@ -1,0 +1,90 @@
+<h1> Task - Global Names Finder playground </h1>
+<p> <%= link_to('Report a problem with gnfinder results (verification, unfound names, etc.).', 'https://github.com/gnames/gnfinder/issues', target: :blank) -%><em>Issues that match gnfinder data to TaxonWorks data should be reported in the TaxonWorks issue tracker.</em></p>
+<div>
+<% if @source %>
+  <span class="feedback feedback-primary"><%= object_link(@source) -%> </span>
+  &nbsp; Existing citations: <%= @source.citations.where(project_id: sessions_current_project_id).count -%>
+<% end %>
+</div>
+<br>
+
+<div>
+  <span class="feedback feedback-secondary"><%= object_link(@document) -%></span>
+  Language <b><%= @result.client.language -%></b> detected. With log10 average odds per best match of <%= a = @result.score.round(4) -%> that the OCR of this document is probably <%= @result.probable_source_of_text -%>.
+</div>
+
+<%= content_tag(:a, '', id: :top) -%>
+
+<% sections = %i{missing_new_names missing_other_names missing_low_probability_names found_names} %>
+
+<% unless @result.ocr_failure %>
+
+  <p> <%= sections.collect{|a| link_to(a.to_s.humanize, "##{a}", data: {turbolinks: false} )}.join(' | ').html_safe -%> </p>
+
+  <% sections.each do |t| -%>
+    <%= content_tag(:a, '', id: t) -%>
+    <div>
+      <%= link_to('Top', "#top", class: [:right_float], data: {turbolinks: false}) -%>
+      <%= content_tag(:h2, t.to_s.humanize) -%>
+    </div>
+
+    <% if @result.send(t).count > 0 -%>
+      <table class="full_width">
+        <tr>
+          <th colspan="2"> Name </th>
+          <th colspan="3"> TaxonWorks </th>
+          <th colspan="5"> Verification </th>
+        </tr>
+
+        <tr>
+          <th> Name </th>
+          <th> Verbatim </th>
+
+          <th> Matches </th>
+          <th> New </th>
+          <th> Parent(?) </th>
+
+          <th> Hits </th>
+          <th> Verified? (best match) </th>
+          <th> Origin (best match) </th>
+          <th> Data source quality</th>
+          <th> Context(s) </th>
+        </tr>
+
+        <% @result.send(t).each do |k, v| -%>
+          <tr>
+            <%= content_tag(:td, k) -%>
+            <%= content_tag(:td, v.first.found.verbatim) -%>
+
+            <% if (t == :missing_new_names) || (t == :missing_other_names) %>
+              <td> - </td>
+              <%= content_tag(:td, link_to('New', new_taxon_name_task_path(name: v.first.protonym_name, parent_id: v.first.taxonworks_parent&.id))) -%>
+            <% else %>
+
+              <%= content_tag(:td, gnfinder_matches_links(v.first.matches, @source)) -%>
+              <td> - </td>
+            <% end %>
+
+            <% if v.first.taxonworks_parent %>
+              <%= content_tag(:td, link_to(v.first.taxonworks_parent.cached, browse_nomenclature_task_path(taxon_name_id: v.first.taxonworks_parent)))  -%>
+            <% else %>
+              <td>-</td>
+            <% end %>
+
+            <%= content_tag(:td, v.count) -%>
+            <%= content_tag(:td, v.first.is_verified? ? content_tag(:span, v.first.best_match_type, class: [:feedback, 'feedback-info', 'feedback-thin']) : content_tag(:span, 'No', class: [:feedback, 'feedback-warning', 'feedback-thin'])) -%>
+            <%= content_tag(:td, v.first.best_result&.data_source_title) -%>
+            <%= content_tag(:td, content_tag(:span, v.first.log_odds.round(4), data: {'heatmap': 'base-10'}) ) -%>
+            <%= content_tag(:td, content_tag(:pre, (v.first.words_before.join('&nbsp;') + '&nbsp;<em>*</em>&nbsp;' + v.first.words_after.join(' ')).html_safe )) -%>
+          </tr>
+        <% end %>
+      </table>
+
+    <% else %> <!--- no records of this type --->
+      <%= content_tag(:span, 'None', class: ['feedback', 'feedback-info', 'feedback-thin']) -%>
+    <% end %>
+  <% end %>
+
+<% else %>
+  <p class="feedback feedback-danger"> Playground failed, OCR of text likely missing. </p>
+<% end %>

@@ -62,11 +62,11 @@ class Protonym < TaxonName
 
   has_many :combinations, through: :combination_relationships, source: :object_taxon_name
 
-  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym 
+  has_many :type_materials, class_name: 'TypeMaterial', inverse_of: :protonym
 
   TaxonNameRelationship.descendants.each do |d|
     if d.respond_to?(:assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Ictv|Icnp|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icvcn|Icnp|SourceClassifiedAs)/
         relationship = "#{d.assignment_method}_relationship".to_sym
         has_one relationship, class_name: d.name.to_s, foreign_key: :subject_taxon_name_id
         has_one d.assignment_method.to_sym, through: relationship, source: :object_taxon_name
@@ -83,7 +83,7 @@ class Protonym < TaxonName
     end
 
     if d.respond_to?(:inverse_assignment_method)
-      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Ictv|SourceClassifiedAs)/
+      if d.name.to_s =~ /TaxonNameRelationship::(Iczn|Icn|Icnp|Icvcn|SourceClassifiedAs)/
         relationships = "#{d.inverse_assignment_method}_relationships".to_sym
         # ActiveRecord::Base.send(:sanitize_sql_array, [d.name])
         has_many relationships, -> {
@@ -250,7 +250,7 @@ class Protonym < TaxonName
     case rank_class.try(:nomenclatural_code)
       when :iczn
         ay = iczn_author_and_year
-      when :ictv
+      when :icvcn
         ay = icn_author_and_year
       when :icnp
         ay = icn_author_and_year
@@ -326,13 +326,15 @@ class Protonym < TaxonName
   end
 
   ## taxon_name.predicted_children_rank('Cicadellidae') >> NomenclaturalRank::Iczn::FamilyGroup::Family
-  def predicted_child_rank(children_string)
-    return nil if children_string.blank?
+  def predicted_child_rank(child_string)
+    return nil if child_string.blank?
     parent_rank = rank_class.to_s
     parent_rank_name = rank_name
     ncode = nomenclatural_code
 
-    if children_string == children_string.downcase
+    return nil if ncode.nil? # Happens with some names like "Root"
+
+    if child_string == child_string.downcase
       if !is_species_rank?
         r = Ranks.lookup(ncode, 'species')
       elsif parent_rank_name == 'species'
@@ -346,13 +348,13 @@ class Protonym < TaxonName
       else
         return nil
       end
-    elsif children_string == children_string.capitalize
+    elsif child_string == child_string.capitalize
       if rank_name == 'genus'
         r = Ranks.lookup(ncode, 'subgenus')
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && children_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
@@ -446,13 +448,11 @@ class Protonym < TaxonName
     # !((type == 'Protonym') && (taxon_name_classifications.collect{|t| t.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?)
 
     # Is faster than above?
-    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
-    taxon_name_classifications.each do |tc| # ! find_each
-      return true if EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.include?(tc.type)
-    end
-    taxon_name_relationships.each do |tr|
-      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
-    end
+    #    return true if rank_string =~ /Icnp/ && (name.start_with?('Candidatus ') || name.start_with?('Ca. '))
+
+    return true if is_family_rank? && !(taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM).empty?
+    return true unless (taxon_name_classifications.collect{|i| i.type} & EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS).empty?
+    return true unless (taxon_name_relationships.collect{|i| i.type} & TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).empty?
     false
   end
 
@@ -472,6 +472,11 @@ class Protonym < TaxonName
     false
   end
 
+  # Same as is_original_name?!
+  def has_alternate_original?
+    cached_original_combination && (cached != cached_original_combination) ? true : false
+  end
+
   def is_species_rank?
     SPECIES_RANK_NAMES.include?(rank_string)
   end
@@ -486,6 +491,10 @@ class Protonym < TaxonName
 
   def is_family_rank?
     FAMILY_RANK_NAMES.include?(rank_string)
+  end
+
+  def is_higher_rank?
+    HIGHER_RANK_NAMES.include?(rank_string)
   end
 
   # @return Boolean
@@ -626,7 +635,7 @@ class Protonym < TaxonName
     #
     # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
     # and this didn't do what you think it did, it's was returning an Array of two things
-    return e[:species][1] if rank_class.to_s =~ /Ictv/
+    return e[:species][1] if rank_class.to_s =~ /Icvcn/
 
     p = TaxonName::COMBINATION_ELEMENTS.inject([]){|ary, r| ary.push(e[r]) }
 
@@ -634,6 +643,13 @@ class Protonym < TaxonName
     s.blank? ? nil : s
   end
 
+  #
+  # {
+  #  genus: ["", 'Aus' ],
+  #  ...
+  #  form: ['frm', 'aus']
+  # }
+  #
   def original_combination_elements
     elements = { }
     return elements if rank.blank?
@@ -687,6 +703,17 @@ class Protonym < TaxonName
     elements
   end
 
+  # @return [[rank_name, name], nil]
+  def original_combination_infraspecific_element(elements = nil)
+    elements ||= original_combination_elements
+
+    # TODO: consider plants/other codes?
+    [:form, :variety, :subspecies].each do |r|
+      return [r.to_s, original_combination_elements[r].last] if original_combination_elements[r]
+    end
+    nil
+  end
+
   # @return [String, nil]
   #    a monomial, as originally rendered, with parens if subgenus
   def original_name
@@ -700,10 +727,11 @@ class Protonym < TaxonName
     v = get_original_combination
     if !v.blank? && is_hybrid?
       w = v.split(' ')
-      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])')
+      w[-1] = ('×' + w[-1]).gsub('×(', '(×').gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))')
       v = w.join(' ')
     end
-    v = v.gsub(') [sic]', ' [sic])') if !v.blank?
+    v = v.gsub(') [sic]', ' [sic])').gsub(') (sic)', ' (sic))') if !v.blank?
+
     v = Utilities::Italicize.taxon_name(v)
     v = '† ' + v if !v.blank? && is_fossil?
     v
@@ -744,7 +772,8 @@ class Protonym < TaxonName
       dependants.each do |i|
         columns_to_update = {
           cached: i.get_full_name,
-          cached_html: i.get_full_name_html
+          cached_html: i.get_full_name_html,
+          cached_author_year: i.get_author_and_year
         }
 
         if i.is_species_rank?
@@ -789,7 +818,6 @@ class Protonym < TaxonName
   def nominotypical_sub_of?(protonym)
     is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
   end
-
 
   protected
 

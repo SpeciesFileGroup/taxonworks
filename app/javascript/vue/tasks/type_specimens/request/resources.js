@@ -1,31 +1,4 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
-
-Vue.use(VueResource)
-
-const ajaxCall = function (type, url, data = null) {
-  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-  return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
-      return resolve(response.body)
-    }, response => {
-      handleError(response.body)
-      return reject(response)
-    })
-  })
-}
-
-const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
-
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
-  })
-
-  TW.workbench.alert.create(errorMessage, 'error')
-}
+import ajaxCall from 'helpers/ajaxCall'
 
 const GetTypeMaterial = function (protonymId) {
   return ajaxCall('get', `/type_materials.json?protonym_id=${protonymId}`)
@@ -33,6 +6,10 @@ const GetTypeMaterial = function (protonymId) {
 
 const GetBiocurationsTypes = function (protonymId) {
   return ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=BiocurationClass`)
+}
+
+const CheckForExistingIdentifier = function (namespaceId, identifier) {
+  return ajaxCall('get', `/identifiers.json?type=Identifier::Local::CatalogNumber&namespace_id=${namespaceId}&identifier=${identifier}`)
 }
 
 const GetBiocurationsCreated = function (biologicalId) {
@@ -71,12 +48,24 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
+const GetIdentifiersFromCO = function (id) {
+  return ajaxCall('get', `/identifiers.json?identifier_object_type=CollectionObject&identifier_object_id=${id}&type=Identifier::Local::CatalogNumber`)
+}
+
+const GetNamespace = function (id) {
+  return ajaxCall('get', `/namespaces/${id}.json`)
+}
+
 const LoadSoftvalidation = function (global_id) {
   return ajaxCall('get', `/soft_validations/validate?global_id=${global_id}`)
 }
 
 const CreateTypeMaterial = function (data) {
   return ajaxCall('post', `/type_materials.json`, data)
+}
+
+const CreateIdentifier = function (data) {
+  return ajaxCall('post', '/identifiers.json', { identifier: data })
 }
 
 const CreateBiocurationClassification = function (data) {
@@ -93,6 +82,10 @@ const UpdateDepiction = function (id, data) {
 
 const UpdateCollectionObject = function (id, data) {
   return ajaxCall('patch', `/collection_objects/${id}.json`, { collection_object: data })
+}
+
+const UpdateIdentifier = function (data) {
+  return ajaxCall('patch', `/identifiers/${data.id}.json`, { identifier: data })
 }
 
 const DestroyCitation = function (id) {
@@ -112,8 +105,10 @@ const DestroyDepiction = function (id) {
 }
 
 export {
+  CheckForExistingIdentifier,
   CreateTypeMaterial,
   CreateBiocurationClassification,
+  CreateIdentifier,
   GetBiocurationsCreated,
   GetTypeMaterial,
   GetTaxonName,
@@ -125,8 +120,11 @@ export {
   GetBiocuration,
   GetBiocurationsTypes,
   GetCollectionEvent,
+  GetIdentifiersFromCO,
+  GetNamespace,
   UpdateTypeMaterial,
   UpdateDepiction,
+  UpdateIdentifier,
   DestroyTypeMaterial,
   DestroyBiocuration,
   DestroyCitation,

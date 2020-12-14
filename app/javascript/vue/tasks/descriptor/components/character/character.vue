@@ -1,89 +1,106 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Character states</h3>
-    </div>
-    <div class="body">
-      <div class="horizontal-left-content align-start">
-        <div class="field">
-          <label>Label</label><br>
+  <div>
+    <h3>Character states</h3>
+    <div class="horizontal-left-content align-start">
+      <div class="field">
+        <label>Label</label><br>
+        <input
+          class="character-input"
+          maxlength="2"
+          type="text"
+          v-model="characterState.label"
+        >
+      </div>
+      <div class="field separate-left">
+        <div class="separate-bottom">
+          <label>Name</label><br>
           <input
-            class="character-input"
-            maxlength="2"
             type="text"
-            v-model="label"/>
+            v-model="characterState.name"
+          >
         </div>
-        <div class="field separate-left">
+        <template v-if="show">
           <div class="separate-bottom">
-            <label>Name</label><br>
-            <input 
+            <label>Description name</label><br>
+            <input
               type="text"
-              v-model="name"/>
+              v-model="characterState.description_name"
+            >
           </div>
-          <template v-if="show">
-            <div class="separate-bottom">
-              <label>Description name</label><br>
-              <input 
-                type="text"
-                v-model="description_name"/>
-            </div>
-            <div>
-              <label>Key name</label><br>
-              <input 
-                type="text"
-                v-model="key_name"/>
-            </div>
-          </template>
-        </div>
-        <div class="field separate-left">
-          <br>
-          <template v-if="id">
-            <button
-              :disabled="!validateFields"
-              class="normal-input button button-submit"
-              @click="updateCharacter"
-              type="button">Update</button>
-            <button
-              class="button normal-input button-default"
-              @click="resetInputs">New</button>
-          </template>
+          <div>
+            <label>Key name</label><br>
+            <input
+              type="text"
+              v-model="characterState.key_name"
+            >
+          </div>
+        </template>
+      </div>
+      <div class="field separate-left">
+        <br>
+        <template v-if="characterState.id">
           <button
-            v-else
-            @click="createCharacter"
             :disabled="!validateFields"
             class="normal-input button button-submit"
-            type="button">Create</button>
-          <a
-            class="separate-left cursor-pointer"
-            @click="show = !show"> {{ show ? 'Hide' : 'Show more' }}</a>
-        </div>
+            @click="updateCharacter"
+            type="button"
+          >
+            Update
+          </button>
+          <button
+            class="button normal-input button-default"
+            @click="resetInputs"
+          >
+            New
+          </button>
+        </template>
+        <button
+          v-else
+          @click="createCharacter"
+          :disabled="!validateFields"
+          class="normal-input button button-submit"
+          type="button"
+        >
+          Add
+        </button>
+        <a
+          class="separate-left cursor-pointer"
+          @click="show = !show"
+        > {{ show ? 'Hide' : 'Show more' }}</a>
       </div>
-      <ul class="table-entrys-list">
-        <draggable
-          v-model="list"
-          @end="onSortable">
-          <li
-            class="flex-separate middle"
-            v-for="(character, index) in list">
-            <span> {{ character.object_tag }} </span>
-            <div class="horizontal-left-content middle">
-              <span
-                class="circle-button btn-edit"
-                @click="editCharacter(index)"/>
-              <radial-annotator :global-id="character.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                @click="removeCharacter(index)"/>
-            </div>
-          </li>
-        </draggable>
-      </ul>
     </div>
+    <ul
+      v-if="list.length"
+      class="table-entrys-list">
+      <draggable
+        v-model="list"
+        @end="onSortable"
+      >
+        <li
+          class="flex-separate middle"
+          v-for="(character, index) in list"
+          :key="character.id"
+        >
+          <span> {{ character.object_tag }} </span>
+          <div class="horizontal-left-content middle">
+            <span
+              class="circle-button btn-edit"
+              @click="editCharacter(index)"
+            />
+            <radial-annotator :global-id="character.global_id" />
+            <span
+              class="circle-button btn-delete"
+              @click="removeCharacter(index)"
+            />
+          </div>
+        </li>
+      </draggable>
+    </ul>
   </div>
 </template>
 <script>
 
-import RadialAnnotator from '../../../../components/radials/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 
 export default {
@@ -92,101 +109,95 @@ export default {
     RadialAnnotator
   },
   props: {
-    descriptor: {
+    value: {
       type: Object,
       required: true
     }
   },
   computed: {
-    validateFields() {
-      return this.descriptor['id'] && this.label && this.name
+    validateFields () {
+      return this.characterState.label && this.characterState.name && this.descriptor.name
+    },
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
     }
   },
-  data() {
+  data () {
     return {
       show: false,
-      label: undefined,
-      name: undefined,
-      description_name: undefined,
-      key_name: undefined,
-      id: undefined,
-      list: []
+      list: [],
+      characterState: this.newCharacter()
     }
   },
   watch: {
     descriptor: {
-      handler(newVal, oldVal) {
-        if(JSON.stringify(newVal.character_states) != JSON.stringify(oldVal.character_states))
-          this.list = this.sortPosition(newVal.character_states)
+      handler (newVal, oldVal) {
+        if (JSON.stringify(newVal.character_states) !== JSON.stringify(oldVal.character_states)) { this.list = this.sortPosition(newVal.character_states) }
       },
-      deep: true,
+      deep: true
     }
   },
-  mounted() {
-    if(this.descriptor.hasOwnProperty('character_states'))
+  mounted () {
+    if (this.descriptor.hasOwnProperty('character_states')) {
       this.list = this.sortPosition(this.descriptor.character_states)
+    }
   },
   methods: {
-    createCharacter() {
-      let newDescriptor = this.descriptor
-      newDescriptor['character_states_attributes'] = [{
-        descriptor_id: this.descriptor.id,
-        name: this.name,
-        label: this.label,
-        key_name: this.key_name,
-        description_name: this.description_name
-      }]
-      this.$emit('save', newDescriptor)
+    createCharacter () {
+      this.descriptor.character_states_attributes = [this.characterState]
+      this.$emit('save', this.descriptor)
       this.resetInputs()
     },
-    resetInputs() {
-      this.id = undefined,
-      this.label = undefined,
-      this.name = undefined,
-      this.key_name = undefined,
-      this.description_name = undefined
+    newCharacter () {
+      return {
+        label: undefined,
+        name: undefined,
+        description_name: undefined,
+        key_name: undefined,
+        id: undefined
+      }
     },
-    removeCharacter(index) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        this.list[index]['_destroy'] = true
+    resetInputs () {
+      this.characterState = this.newCharacter()
+    },
+    removeCharacter (index) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.list[index]._destroy = true
         this.onSortable()
       }
     },
-    editCharacter(index) {
-      this.id = this.list[index].id
-      this.label = this.list[index].label
-      this.name = this.list[index].name
-      this.key_name = this.list[index].key_name,
-      this.description_name = this.list[index].description_name
+    editCharacter (index) {
+      this.characterState.id = this.list[index].id
+      this.characterState.label = this.list[index].label
+      this.characterState.name = this.list[index].name
+      this.characterState.key_name = this.list[index].key_name
+      this.characterState.description_name = this.list[index].description_name
     },
-    updateCharacter() {
-      let index = this.list.findIndex((item) => {
-        return item.id == this.id
-      })
-      if(index > -1) {
-        let newDescriptor = this.descriptor
-        this.list[index].label = this.label
-        this.list[index].name = this.name
-        this.list[index].key_name = this.key_name,
-        this.list[index].description_name = this.description_name
-        newDescriptor['character_states_attributes'] = this.list
-        this.$emit('save', newDescriptor)
+    updateCharacter () {
+      const index = this.list.findIndex((item) => { return item.id === this.characterState.id })
+      if (index > -1) {
+        this.descriptor.character_states_attributes = [this.characterState]
+        this.$emit('save', this.descriptor)
       }
       this.resetInputs()
     },
-    onSortable() {
+    onSortable () {
       this.updateIndex()
-      let newDescriptor = this.descriptor
-      newDescriptor['character_states_attributes'] = this.list
-      this.$emit('save', newDescriptor)
+      this.descriptor.character_states_attributes = this.list
+      this.$emit('save', this.descriptor)
     },
-    updateIndex() {
+    updateIndex () {
       var that = this
       this.list.forEach(function (element, index) {
         that.list[index].position = (index + 1)
       })
     },
-    sortPosition(list) {
+    sortPosition (list) {
       list.sort((a, b) => {
         if (a.position > b.position) {
           return 1
@@ -194,7 +205,7 @@ export default {
         return -1
       })
       return list
-    },
+    }
   }
 }
 </script>

@@ -1,41 +1,51 @@
 <template>
-  <div
-    v-if="citations.length"
-    class="citation-count"
-    @mouseover="showCitations = true"
-    @mouseout="showCitations = false">
-    <span class="button-data circle-button btn-citation">
-      <span class="circle-count button-default middle">{{ citations.length }} </span>
-    </span>
+  <span>
     <div
-      v-show="showCitations"
-      class="citation-tooltip-list panel">
-      <display-list 
-        :list="citations"
-        :label="['citation_source_body']"
-        @delete="removeCitation"
-        :edit="false">
-        <div
-          slot="options"
-          slot-scope="slotProps">
-          <display-source :source="slotProps.item.source"/>
-        </div>
-      </display-list>
+      v-if="citations.length"
+      class="citation-count"
+      @click.prevent="setModalView(true)">
+      <span class="circle-button btn-citation button-default">
+        <span class="circle-count button-data middle">{{ citations.length }} </span>
+      </span>
     </div>
-  </div>
+    <modal-component
+      v-if="showCitations"
+      @close="setModalView(false)">
+      <h3 slot="header">Citations</h3>
+      <div
+        slot="body">
+        <display-list
+          :list="citations"
+          :validations="true"
+          :label="['citation_source_body']"
+          @delete="removeCitation"
+          :edit="false">
+          <div
+            slot="options"
+            slot-scope="slotProps">
+            <a
+              :title="slotProps.item.source.object_tag"
+              class="button-default circle-button btn-citation"
+              :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
+              target="blank"/>
+          </div>
+        </display-list>
+      </div>
+    </modal-component>
+  </span>
 </template>
 
 <script>
 
 import CRUD from '../../request/crud.js'
 import DisplayList from 'components/displayList'
-import DisplaySource from './displaySource'
+import ModalComponent from 'components/modal'
 
 export default {
   mixins: [CRUD],
   components: {
     DisplayList,
-    DisplaySource
+    ModalComponent
   },
   props: {
     object: {
@@ -45,13 +55,25 @@ export default {
     target: {
       type: String,
       required: true
+    },
+    values: {
+      type: Array,
+      default: undefined
     }
   },
-  data() {
+  data () {
     return {
       showCitations: false,
       citations: []
     }
+  },
+  watch: {
+    values: {
+      handler (newVal) {
+        this.citations = newVal
+      }
+    },
+    deep: true
   },
   mounted() {
     this.loadCitations()
@@ -71,9 +93,13 @@ export default {
       })
     },
     loadCitations() {
-      this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
-        this.citations = response.body
-      })
+      if (!this.values) {
+        this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
+          this.citations = response.body
+        })
+      } else {
+        this.citations = this.values
+      }
     },
     refreshCitations(event) {
       if(event) {
@@ -83,6 +109,9 @@ export default {
           this.loadCitations()
         }
       }
+    },
+    setModalView (value) {
+      this.showCitations = value
     }
   }
 }
@@ -97,15 +126,9 @@ export default {
     font-size: 100%;
     justify-content: center
   }
-  .citation-tooltip-list {
-    position: fixed;
-    min-width: 300px;
-    transform: translateX(-50%);
-    z-index: 30;
-  }
   .circle-count {
-    right:-2px;
-    bottom: -2px;
+    left:15px;
+    bottom: -6px;
     justify-content: center;
     position: absolute;
     border-radius: 50%;

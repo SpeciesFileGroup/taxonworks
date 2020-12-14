@@ -11,6 +11,15 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    settings: {
+      lock: {
+        notes_attributes: false,
+        tags_attributes: false,
+        repository_id: false,
+        identifier: false,
+        preparation_type_id: false
+      }
+    },
     collection_object: {
       id: undefined,
       total: 1,

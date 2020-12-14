@@ -7,10 +7,9 @@ IFS=$'\n\t'
 function wait_for_db {
   sleep 3
 
-  while [[ $(pg_isready -h "db" \
-           -U "postgres") = "no response" ]]; do
+  until pg_isready -h "db" -U "postgres"; do
     echo "Waiting for postgresql to start..."
-    sleep 1
+    sleep 2
   done
 }
 # Could do sanity check of environment here
@@ -20,15 +19,24 @@ wait_for_db
 
 if [ ! -f /app/config/database.yml ]; then
   cp /app/config/database.yml.docker.compose.example /app/config/database.yml
-  printf "\n Copying config/database.yml \n" 
+  printf "\n Copying config/database.yml \n"
 else
-  printf "\n Found config/database.yml \n" 
+  printf "\n Found config/database.yml \n"
 fi
 
 if [ ! -f /app/config/secrets.yml ]; then
   cp /app/config/secrets.yml.example /app/config/secrets.yml
+  printf "\n Copying config/secrets.yml \n"
+else
+  printf "\n Found config/secrets.yml \n"
 fi
 
+if [ ! -f /app/config/application_settings.yml ]; then
+  cp /app/config/application_settings.yml.docker.compose.example /app/config/application_settings.yml
+  printf "\n Copying config/application_settings.yml \n"
+else
+  printf "\n Found config/application_settings.yml \n"
+fi
 
 # 1) Ensure that we can connect to the database first from within the app container (where this is being run). That is build into this script script the 
 # connection string, likely based on the database.yml? Check available environment variables.

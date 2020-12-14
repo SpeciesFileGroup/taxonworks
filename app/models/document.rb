@@ -47,6 +47,8 @@ class Document < ApplicationRecord
 
   has_many :documentation, dependent: :destroy, inverse_of: :document
 
+  has_many :sources, through: :documentation, source_type: 'Source', source: 'documentation_object'
+
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
@@ -108,6 +110,10 @@ class Document < ApplicationRecord
     @initialize_start_page = value 
   end
 
+  def pdftotext
+    `pdftotext -layout #{document_file.path} -`  
+  end
+
   protected
 
   def check_for_documentation
@@ -123,7 +129,7 @@ class Document < ApplicationRecord
         reader = PDF::Reader.new(io)
         write_attribute(:page_total, reader.page_count)
       end
-    rescue MalformedPDFError
+    rescue PDF::Reader::MalformedPDFError
       errors.add(:base, 'pdf is malformed')
     end
     set_pages_by_start(initialize_start_page) if initialize_start_page

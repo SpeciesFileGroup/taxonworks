@@ -1,37 +1,15 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
+import ajaxCall from 'helpers/ajaxCall'
 
-Vue.use(VueResource)
-
-const ajaxCall = function (type, url, data = null) {
-  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-  return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(response)
-      }
-      return resolve(response.body)
-    }, response => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(response)
-      }
-      handleError(response)
-      return reject(response)
-    })
-  })
+const CreateOtu = function(id) {
+  return ajaxCall('post', `/otus`, { otu: { taxon_name_id: id } })
 }
 
-const handleError = function (json) {
-  if ((typeof json !== 'object') || (json.status === 404)) return
-  let errors = Object.keys(json.body)
-  let errorMessage = ''
-
-  if(errors.length === 1 && 'success') return
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>') + '<br>'
+const GetOtus = function (id) {
+  return ajaxCall('get', `/taxon_names/${id}/otus.json`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
   })
-
-  TW.workbench.alert.create(errorMessage, 'error')
 }
 
 const GetProjectPreferences = function () {
@@ -70,48 +48,8 @@ const UpdateUserPreferences = function (id, data) {
   return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 }
 
-const GetRepositorySmartSelector = function () {
-  return ajaxCall('get', `/repositories/select_options`)
-}
-
-const GetSourceSmartSelector = function () {
-  return ajaxCall('get', `/sources/select_options`)
-}
-
-const GetNamespacesSmartSelector = function () {
-  return ajaxCall('get', `/namespaces/select_options?klass=CollectionObject`)
-}
-
-const GetTaxonNameSmartSelector = function () {
-  return ajaxCall('get', `/taxon_names/select_options`, { params: { 'nomenclature_group[]': 'SpeciesGroup' } })
-}
-
-const GetCollectingEventsSmartSelector = function () {
-  return ajaxCall('get', `/collecting_events/select_options`)
-}
-
-const GetTypeDesignatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options`)
-}
-
 const FilterCollectingEvent = function (params) {
   return ajaxCall('get', `/collecting_events.json`, { params: params })
-}
-
-const GetCollectorsSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Collector`)
-}
-
-const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
-}
-
-const GetGeographicSmartSelector = function () {
-  return ajaxCall('get', `/geographic_areas/select_options?target=CollectingEvent`)
-}
-
-const GetOtuSmartSelector = function () {
-  return ajaxCall('get', `/otus/select_options?target=TaxonDetermination`)
 }
 
 const GetTaxonDeterminationCO = function (id) {
@@ -131,7 +69,7 @@ const GetGeographicAreaByCoords = function (lat,long) {
 }
 
 const GetGeographicArea = function (id) {
-  return ajaxCall('get', `/geographic_areas/${id}.json`)
+  return ajaxCall('get', `/geographic_areas/${id}.json`, { params: { geo_json: true } })
 }
 
 const GetTypes = function () {
@@ -144,10 +82,6 @@ const GetTaxon = function (id) {
 
 const GetCollectionEvent = function (id) {
   return ajaxCall('get', `/collecting_events/${id}.json`)
-}
-
-const GetBiologicalRelationshipsSmartSelector = function () {
-  return ajaxCall('get', '/biological_relationships/select_options')
 }
 
 const CreateLabel = function (data) {
@@ -218,10 +152,6 @@ const GetBiocurationsCreated = function (biologicalId) {
   return ajaxCall('get', `/biocuration_classifications.json?biological_collection_object_id=${biologicalId}`)
 }
 
-const GetBiocuration = function (biologicalId, biocurationClassId) {
-  return ajaxCall('get', `/biocuration_classifications.json?biocuration_class_id=${biocurationClassId}&biological_collection_object_id=${biologicalId}`)
-}
-
 const GetPreparationTypes = function () {
   return ajaxCall('get', `/preparation_types.json`)
 }
@@ -246,14 +176,6 @@ const GetRepository = function (id) {
   return ajaxCall('get', `/repositories/${id}.json`)
 }
 
-const GetOtuBiologicalAssociationsSmartSelector = function () {
-  return ajaxCall('get', '/otus/select_options?target=BiologicalAssociation')
-}
-
-const GetCOBiologicalAssociationSmartSelector = function () {
-  return ajaxCall('get', `/collection_objects/select_options?target=BiologicalAssociation`)
-}
-
 const GetIdentifier = function (id) {
   return ajaxCall('get', `/identifiers/${id}.json`)
 }
@@ -273,6 +195,8 @@ const CreateTypeMaterial = function (data) {
 const CreateTaxonDetermination = function (data) {
   return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
 }
+
+const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verbatim_label', { params: { verbatim_label: label } })
 
 const CreateBiocurationClassification = function (data) {
   return ajaxCall('post', `/biocuration_classifications.json`, data)
@@ -319,6 +243,8 @@ const DestroyBiologicalAssociation = function (id) {
 }
 
 export {
+  GetOtus,
+  CreateOtu,
   GetProjectPreferences,
   GetCEMd5Label,
   GetSoftValidation,
@@ -330,19 +256,7 @@ export {
   GetIdentifiersFromCO,
   GetRecentCollectionObjects,
   GetBiologicalRelationshipsCreated,
-  GetTaxonNameSmartSelector,
-  GetCollectorsSmartSelector,
-  GetRepositorySmartSelector,
-  GetGeographicSmartSelector,
-  GetSourceSmartSelector,
-  GetTaxonDeterminatorSmartSelector,
-  GetBiologicalRelationshipsSmartSelector,
   GetBiologicalRelationships,
-  GetOtuBiologicalAssociationsSmartSelector,
-  GetCOBiologicalAssociationSmartSelector,
-  GetOtuSmartSelector,
-  GetCollectingEventsSmartSelector,
-  GetTypeDesignatorSmartSelector,
   GetGeographicAreaByCoords,
   FilterCollectingEvent,
   GetTaxonDeterminationCO,
@@ -366,7 +280,6 @@ export {
   CreateCollectionEvent,
   GetBiocurationsTypes,
   GetBiocurationsCreated,
-  GetBiocuration,
   GetBiocurationsGroupTypes,
   GetBiocurationsTags,
   GetPreparationTypes,
@@ -388,6 +301,6 @@ export {
   CreateContainer,
   CreateContainerItem,
   GetContainer,
-  GetNamespacesSmartSelector,
-  GetGeographicArea
+  GetGeographicArea,
+  ParseVerbatim
 }

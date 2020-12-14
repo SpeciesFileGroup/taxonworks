@@ -49,7 +49,7 @@ export default {
   },
   data() {
     return {
-      bibtexInput: "",
+      bibtexInput: '',
       creating: false,
       recentCreated: []
     };
@@ -57,7 +57,7 @@ export default {
   methods: {
     createSource() {
       this.creating = true
-      this.$http.post("/sources.json", { bibtex_input: this.bibtexInput }).then(response => {
+      AjaxCall('post', '/sources.json', { bibtex_input: this.bibtexInput }).then(response => {
         this.bibtexInput = ""
         this.creating = false
         this.$emit('close', true)

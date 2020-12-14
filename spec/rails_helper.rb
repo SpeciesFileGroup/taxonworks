@@ -1,11 +1,10 @@
-require 'coveralls'
-Coveralls.wear!('rails')
+if ENV['CI']
+  require 'simplecov'
+  SimpleCov.start
 
-# require 'simplecov'
-# SimpleCov.start
-
-# require 'simplecov-rcov'
-# SimpleCov.formatter = SimpleCov::Formatter::RcovFormatter
+  require 'codecov'
+  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+end
 
 ENV['RAILS_ENV'] ||= 'test'
 
@@ -14,7 +13,7 @@ require File.expand_path('../../config/environment', __FILE__)
 ActiveRecord::Migration.check_pending!
 ActiveRecord::Migration.maintain_test_schema!
 
-require 'awesome_print'
+require 'amazing_print'
 require 'rspec/rails'
 require 'spec_helper'
 

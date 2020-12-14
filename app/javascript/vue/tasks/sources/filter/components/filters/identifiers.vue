@@ -4,7 +4,7 @@
     <div class="field">
       <label>Identifier</label>
       <br>
-      <input 
+      <input
         type="text"
         v-model="identifier.identifier">
     </div>
@@ -17,7 +17,7 @@
             <input
               type="radio"
               :value="item.value"
-              :disabled="!identifier.identifier || !identifier.identifier.length"
+              :disabled="!identifier.identifier"
               v-model="identifier.identifier_exact"
               name="match-radio">
             {{ item.label }}
@@ -53,7 +53,7 @@
     <div
       v-if="namespace"
       class="middle flex-separate separate-top">
-      <span v-html="namespace.object_tag"/>
+      <span v-html="namespace.name"/>
       <span 
         class="button button-circle btn-undo button-default"
         @click="unsetNamespace"/>
@@ -64,6 +64,8 @@
 <script>
 
 import SmartSelector from 'components/smartSelector'
+import { GetNamespace } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -87,8 +89,8 @@ export default {
   },
   watch: {
     identifier: {
-      handler(newVal) {
-        if(!newVal.identifier || !newVal.identifier.length) {
+      handler (newVal) {
+        if (!newVal.identifier) {
           this.identifier.identifier_exact = undefined
         }
       },
@@ -113,15 +115,26 @@ export default {
       ]
     }
   },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.identifier = {
+      identifier: urlParams.identifier,
+      identifier_exact: urlParams.identifier_exact,
+      identifier_start: urlParams.identifier_start,
+      identifier_end: urlParams.identifier_end
+    }
+    if (urlParams.namespace_id) {
+      GetNamespace(urlParams.namespace_id).then(response => {
+        this.setNamespace(response.body)
+      })
+    }
+  },
   methods: {
-    setNamespace(namespace) {
-      if(namespace.hasOwnProperty('label_html')) {
-        namespace.object_tag = namespace.label_html
-      }
+    setNamespace (namespace) {
       this.namespace = namespace
       this.identifier.namespace_id = namespace.id
     },
-    unsetNamespace() {
+    unsetNamespace () {
       this.namespace = undefined
       this.identifier.namespace_id = undefined
     }

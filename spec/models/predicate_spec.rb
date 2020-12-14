@@ -26,15 +26,15 @@ describe Predicate, type: :model do
     end 
 
     specify '.used_recently' do
-      expect(Predicate.used_recently).to contain_exactly(predicate)
+      expect(Predicate.used_recently(predicate.created_by_id, predicate.project_id, '')).to contain_exactly()
     end
 
     specify '#used_recently.used_on_klass 1' do
-      expect(Predicate.used_recently.used_on_klass('Otu')).to contain_exactly(predicate)
+      expect(Predicate.used_recently(predicate.created_by_id, predicate.project_id, 'Otu')).to contain_exactly(predicate.id)
     end
 
     specify '#used_recently.used_on_klass 1' do
-      expect(Predicate.used_recently.used_on_klass('CollectionObject')).to contain_exactly()
+      expect(Predicate.used_recently(predicate.created_by_id, predicate.project_id, 'CollectionObject')).to contain_exactly()
     end
 
   end

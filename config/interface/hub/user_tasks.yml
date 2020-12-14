@@ -65,7 +65,7 @@ otus_filter_task:
   description: 'Find OTUs by nomenclature, geography and author.'
 comprehensive_collection_object_task:
   hub: true
-  name: 'Comprehensive collection object form'
+  name: 'Comprehensive specimen digitization'
   related:
     - collection_objects
   categories:
@@ -323,7 +323,7 @@ new_combination_task:
   description: 'Create a new or subsequent nomenclatural combination.'
 browse_otus_task:
   hub: true
-  name: 'Browse taxa'
+  name: 'Browse OTUs'
   related:
   categories:
     - browse
@@ -417,8 +417,8 @@ new_source_task:
   categories:
    - source
    - new
-  status: prototype
-  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
+  status: stable
+  description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
@@ -443,6 +443,14 @@ index_dashboard_task:
     - matrix
   status: prototype
   description: 'Summarize observations across a nomenclaturally-based hierarchy.'
+interactive_key_task:
+  hub: true
+  name: 'Interactive key'
+  related:
+  categories:
+    - matrix
+  status: prototype
+  description: 'Interactive key based on an observation matrix.'
 index_stats_task:
   hub: true
   name: 'Nomenclature stats'
@@ -478,7 +486,7 @@ collection_objects_filter_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 syncronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Syncronize nomenclature and OTUs'
+  name: 'Synchronize nomenclature and OTUs'
   related:
   categories:
     - nomenclature
@@ -580,6 +588,30 @@ project_data_task:
   categories:
   status: prototype
   description: 'Quick stats and download options for the overall project.'
+gnfinder_task:
+  hub: true
+  name: 'Gnfinder playground'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Show all names in a document.'
+filter_images_task:
+  hub: true
+  name: 'Filter images task'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Filter images.'
+export_taxonworks_project_task:
+  hub: true
+  name: 'Export project database'
+  related:
+  categories:
+  status: prototype
+  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
 dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'

@@ -17,12 +17,21 @@ module Queries
       # @return author [String, nil]
       attr_accessor :author 
 
+      # @return ids [Array of Integer, nil]
+      attr_accessor :ids 
+
       # @return [Boolean, nil]
       # @params exact_author ['true', 'false', nil]
       attr_accessor :exact_author 
 
       # @params author [Array of Integer, Person#id]
       attr_accessor :author_ids
+
+      # @params author [Boolean, nil]
+      attr_accessor :author_ids_or
+
+      # @params author [Array of Integer, Topic#id]
+      attr_accessor :topic_ids
 
       # @params year_start [Integer, nil]
       attr_accessor :year_start
@@ -40,6 +49,10 @@ module Queries
       # @return [Boolean, nil]
       # @params citations ['true', 'false', nil]
       attr_accessor :citations
+
+      # @return [Boolean, nil]
+      # @params recent ['true', 'false', nil]
+      attr_accessor :recent
 
       # @return [Boolean, nil]
       # @params roles ['true', 'false', nil]
@@ -73,12 +86,21 @@ module Queries
       # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] 
       attr_accessor :source_type
 
+      # @params author [Array of Integer, Serial#id]
+      attr_accessor :serial_ids
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
         
         @author = params[:author]
         @author_ids = params[:author_ids] || []
+
+        @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
+
+        @ids = params[:ids] || []
+        @topic_ids = params[:topic_ids] || []
+        @serial_ids = params[:serial_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
         @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
@@ -94,6 +116,7 @@ module Queries
         @with_doi = (params[:with_doi]&.downcase == 'true' ? true : false) if !params[:with_doi].nil?
         @year_end = params[:year_end]
         @year_start = params[:year_start]
+        @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
 
         build_terms
         set_identifier(params)
@@ -142,6 +165,14 @@ module Queries
         end
       end
 
+      def source_ids_facet
+        ids.empty? ? nil : table[:id].eq_any(ids)
+      end
+
+      def serial_ids_facet
+        serial_ids.empty? ? nil : table[:serial_id].eq_any(serial_ids)
+      end
+
       def author_ids_facet
         return nil if author_ids.empty?
         o = table
@@ -164,9 +195,14 @@ module Queries
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
+        b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
         b = b.as('z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+      end
+
+      def topic_ids_facet
+        ::Source.joins(:citation_topics).where(citation_topics: { topic_id: topic_ids }).distinct unless topic_ids.empty?
       end
 
       def in_project_facet
@@ -272,6 +308,7 @@ module Queries
       def merge_clauses
         clauses = [
           author_ids_facet,
+          topic_ids_facet,
           citation_facet,
           citation_object_type_facet,
           document_facet,
@@ -303,10 +340,12 @@ module Queries
 
         clauses += [
           cached,
+          source_ids_facet,
+          serial_ids_facet,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet,
+          year_facet
         ].compact
 
         return nil if clauses.empty?
@@ -333,6 +372,8 @@ module Queries
         else
           q = ::Source.all
         end
+
+        q = q.order(updated_at: :desc) if recent
         q
       end
 

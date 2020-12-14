@@ -7,7 +7,7 @@ class TaxonNameClassification::Latinized::Gender::Feminine < TaxonNameClassifica
   end
 
   def self.possible_species_endings
-    %w(iensis ensis iana ana cula ula la ra os is ia a ior)
+    %w(iensis ensis iana ana cula ula la ra os is ia a or cens ops)
   end
 
   def self.questionable_species_endings

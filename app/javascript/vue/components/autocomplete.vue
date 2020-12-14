@@ -28,6 +28,7 @@ Parameters:
     <input
       :id="inputId"
       ref="autofocus"
+      :style="inputStyle"
       class="vue-autocomplete-input normal-input"
       type="text"
       :placeholder="placeholder"
@@ -58,13 +59,18 @@ Parameters:
       </li>
       <li v-if="json.length == 20">Results may be truncated</li>
     </ul>
-    <ul v-if="type && searchEnd && !json.length">
+    <ul 
+      v-if="type && searchEnd && !json.length"
+      class="vue-autocomplete-empty-list">
       <li>--None--</li>
     </ul>
   </div>
 </template>
 
 <script>
+
+import AjaxCall from 'helpers/ajaxCall'
+
 export default {
   data: function () {
     return {
@@ -74,7 +80,8 @@ export default {
       getRequest: 0,
       type: this.sendLabel,
       json: [],
-      current: -1
+      current: -1,
+      requestId: Math.random().toString(36).substr(2, 5)
     }
   },
 
@@ -195,6 +202,11 @@ export default {
     eventSend: {
       type: String,
       default: 'itemSelect'
+    },
+
+    inputStyle: {
+      type: Object,
+      default: () => {}
     }
   },
 
@@ -276,17 +288,17 @@ export default {
     },
 
     ajaxUrl: function () {
-      var tempUrl = this.url + '?' + this.param + '=' + this.type
+      var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
         Object.keys(this.addParams).forEach((key) => {
           if(Array.isArray(this.addParams[key])) {
             this.addParams[key].forEach((param) => {
-              params += `&${key}=${param}`
+              params += `&${key}=${encodeURIComponent(param)}`
             })
           }
           else {
-            params += `&${key}=${this.addParams[key]}`
+            params += `&${key}=${encodeURIComponent(this.addParams[key])}`
           }
         })
       }
@@ -328,19 +340,10 @@ export default {
         this.searchEnd = true
         this.showList = (this.json.length > 0)
       } else {
-
-        this.$http.get(this.ajaxUrl(), {
-          before (request) {
-            if(Object.keys(this.headers).length) {
-              request.headers.map = this.headers
-            }
-            if (this.previousRequest) {
-              this.previousRequest.abort()
-            }
-            this.previousRequest = request
-          }}).then(response => {
-            this.json = this.getNested(response.body, this.nested)
-          
+        AjaxCall('get', this.ajaxUrl(), {
+          requestId: this.requestId
+        }).then(response => {
+          this.json = this.getNested(response.body, this.nested)
           this.showList = (this.json.length > 0)
           this.spinner = false
           this.searchEnd = true
@@ -358,6 +361,9 @@ export default {
     },
     activeSpinner: function () {
       return 'ui-autocomplete-loading'
+    },
+    setFocus () {
+      this.$refs.autofocus.focus()
     }
   }
 }

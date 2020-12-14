@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Observation::Sample, type: :model, group: :matrix do
+RSpec.describe Observation::Sample, type: :model, group: :observation_matrix do
   let(:observation) { Observation::Sample.new } 
 
   context 'validation' do

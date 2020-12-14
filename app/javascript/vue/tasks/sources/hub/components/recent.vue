@@ -28,7 +28,9 @@
           </td>
           <td> {{ item.year }} </td>
           <td>
-            <citations-count :source-id="item.id"/>
+            <div>
+              <citations-count :source-id="item.id"/>
+            </div>
           </td>
           <td>
             <documents-component :source-id="item.id"/>
@@ -76,25 +78,15 @@ export default {
     CitationsCount,
     DocumentsComponent
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
-  data() {
+  data () {
     return {
       sources: []
     }
   },
-  mounted() {
+  mounted () {
     GetRecentSources().then(response => {
       this.sources = response.body
     })
-  },
-  methods: {
-    editSource(source) {
-      window.open(`/sources/${source.id}/edit`,'blank')
-    }
   }
 }
 </script>

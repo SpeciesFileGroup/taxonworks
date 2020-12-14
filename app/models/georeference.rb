@@ -67,10 +67,9 @@ class Georeference < ApplicationRecord
   include Housekeeping
   include Shared::Notes
   include Shared::Tags
-  include Shared::IsData
-  include Shared::Confidences
   include Shared::Citations
   include Shared::HasRoles
+  include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
@@ -83,12 +82,12 @@ class Georeference < ApplicationRecord
   has_many :collection_objects, through: :collecting_event
 
   has_many :georeferencer_roles, -> { order('roles.position ASC') },
-    class_name: 'Georeferencer',
-    as: :role_object, validate: true
+           class_name: 'Georeferencer',
+           as: :role_object, validate: true
 
   has_many :georeferencers, -> { order('roles.position ASC') },
-    through: :georeferencer_roles,
-    source: :person, validate: true
+           through: :georeferencer_roles,
+           source: :person, validate: true
 
   validates :geographic_item, presence: true
   validates :type, presence: true
@@ -178,12 +177,13 @@ class Georeference < ApplicationRecord
 
   # @return [Float]
   def latitude
-    geographic_item.center_coords[1]
+    geographic_item.center_coords[0]
   end
 
   # @return [Float]
+  # !!! TODO: correct? was inverted 0/1
   def longitude
-    geographic_item.center_coords[0]
+    geographic_item.center_coords[1]
   end
 
   # TODO: parametrize to include gazeteer

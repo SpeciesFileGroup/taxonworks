@@ -7,6 +7,9 @@ import setMatrixView from './setMatrixView'
 import setMatrixMode from './setMatrixMode'
 import setMatrixColumnsDynamic from './setMatrixColumnsDynamic'
 import setMatrixRowsDynamic from './setMatrixRowsDynamic'
+import setRowFixedPagination from './setRowFixedPagination'
+import setColumnFixedPagination from './setColumnFixedPagination'
+import setSettings from './setSettings'
 
 const MutationNames = {
   SetMatrix: 'setMatrix',
@@ -17,7 +20,10 @@ const MutationNames = {
   SetMatrixRows: 'setMatrixRows',
   SetMatrixView: 'setMatrixView',
   SetMatrixMode: 'setMatrixMode',
-  AddRowItem: 'addRowItem'
+  SetRowFixedPagination: 'setRowFixedPagination',
+  SetColumnFixedPagination: 'setColumnFixedPagination',
+  AddRowItem: 'addRowItem',
+  SetSettings: 'setSettings'
 }
 
 const MutationFunctions = {
@@ -30,6 +36,9 @@ const MutationFunctions = {
   [MutationNames.SetMatrixView]: setMatrixView,
   [MutationNames.SetMatrixMode]: setMatrixMode,
   [MutationNames.AddRowItem]: addRowItem,
+  [MutationNames.SetRowFixedPagination]: setRowFixedPagination,
+  [MutationNames.SetColumnFixedPagination]: setColumnFixedPagination,
+  [MutationNames.SetSettings]: setSettings
 }
 
 export {

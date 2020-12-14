@@ -28,6 +28,12 @@
         v-if="source.id"
         :object-id="source.id"
         :type="source.base_class"/>
+      <a
+        v-for="document in source.documents"
+        class="circle-button btn-download"
+        :download="document.document_file_file_name"
+        :title="document.document_file_file_name"
+        :href="document.document_file"></a>
     </span>
     <ul
       v-if="source && source.author_roles.length"
@@ -44,11 +50,12 @@
 </template>
 <script>
 
-  import Autocomplete from "components/autocomplete";
-  import RadialAnnotator from "components/radials/annotator/annotator.vue";
-  import PinComponent from "components/pin.vue"
-  import RadialObject from "components/radials/navigation/radial.vue"
+  import Autocomplete from 'components/autocomplete';
+  import RadialAnnotator from 'components/radials/annotator/annotator.vue';
+  import PinComponent from 'components/pin.vue'
+  import RadialObject from 'components/radials/navigation/radial.vue'
   import DefaultSource from 'components/getDefaultPin'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -67,7 +74,7 @@
   methods: {
     getSource() {
       if (this.sourceID) {
-        this.$http.get(`/sources/${this.sourceID}.json`).then(response => {
+        AjaxCall('get', `/sources/${this.sourceID}.json`).then(response => {
           this.source = response.body
           history.pushState(null, null, `/tasks/nomenclature/by_source?source_id=${this.source.id}`)
           this.$emit('sourceID', this.sourceID);
@@ -80,10 +87,10 @@
       this.$emit('sourceID', this.sourceID);  // since we avoided the AJAX
     },
     getSelectOptions(onModel) {
-      this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
+      AjaxCall('get', this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
-        this.$http.get(this.allSelectOptionUrl).then(response => {
+        AjaxCall('get', this.allSelectOptionUrl).then(response => {
           if(response.body.length) {
             this.moreOptions = ['all']
           }

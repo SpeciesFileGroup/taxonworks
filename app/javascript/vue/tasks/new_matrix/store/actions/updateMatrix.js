@@ -8,7 +8,7 @@ export default function ({ commit, state, dispatch }) {
     }
     UpdateMatrix(state.matrix.id, data).then(response => {
       TW.workbench.alert.create('Matrix was successfully updated.', 'notice')
-      return resolve(response)
+      return resolve(response.body)
     })
   })
 }

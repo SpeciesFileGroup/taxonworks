@@ -6,90 +6,85 @@
       :logo-size="{ width: '100px', height: '100px'}"
       legend="Loading..."/>
     <h1>Task - New asserted distribution</h1>
+    <nav-bar-component class="margin-medium-bottom">
+      <div class="flex-separate middle">
+        <div>
+          <span
+            v-if="currentAssertedDistribution"
+            v-html="currentAssertedDistribution.object_tag"/>
+          <span v-else>New record</span>
+        </div>
+        <div class="horizontal-center-content middle">
+          <label class="middle margin-small-right">
+            <input
+              v-model="autosave"
+              type="checkbox">
+            Autosave
+          </label>
+          <button
+            type="button"
+            v-shortkey="[getMacKey(), 's']"
+            @shortkey="createAndNewAssertedDistribution()"
+            :disabled="!validate"
+            class="button normal-input button-submit separate-left separate-right"
+            @click="createAndNewAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default padding-medium-left padding-medium-right"
+            @click="newWithLock">
+            New
+          </button>
+        </div>
+      </div>
+    </nav-bar-component>
     <div class="horizontal-left-content align-start">
-      <div class="panel-section">
-        <div class="horizontal-left-content middle panel-section separate-right">
+      <div class="width-30">
+        <div class="horizontal-left-content panel-section separate-right align-start">
           <source-component
-            v-model="asserted_distribution.citations_attributes[0]"
+            v-model="asserted_distribution"
             ref="sourceComponent"
-            :class="{
-              highlight: highlight.source
-            }"
-            class="separate-right"/>
-          <lock-component v-model="locks.citations_attributes"/>
+            class="separate-right full_width"/>
+          <lock-component
+            class="margin-medium-top"
+            v-model="locks.citation"/>
         </div>
         <p class="horizontal-left-content">
-          <span class="separate-right">Add source: </span>
           <ul class="no_bullets context-menu">
             <li class="navigation-item context-menu-option">
               <a
-                target="blank" 
-                href="/sources/new">New</a>
-            </li>
-            <li class="navigation-item context-menu-option">
-              <a
-                target="blank"
-                href="/tasks/bibliography/verbatim_reference/new">New from citation</a>
-            </li>
-            <li class="navigation-item context-menu-option">
-              <a
-                target="blank" 
-                href="/tasks/sources/individual_bibtex_source/index">New from bibtex</a>
+                href="/tasks/sources/new_source">New source</a>
             </li>
           </ul>
         </p>
       </div>
-      <div class="horizontal-left-content middle separate-bottom panel-section separate-left separate-right">
+      <div class="horizontal-left-content separate-bottom separate-left separate-right align-start width-40">
         <otu-component
-          class="separate-right"
-          :class="{
-            highlight: highlight.otu
-          }"
+          class="separate-right full_width"
           ref="otuComponent"
-          v-model="asserted_distribution.otu_id"/>
-        <lock-component v-model="locks.otu_id"/>
+          v-model="asserted_distribution.otu"/>
+        <lock-component
+          class="margin-medium-top"
+          v-model="locks.otu"/>
       </div>
-      <div class="horizontal-left-content middle panel-section separate-left">
+      <div class="horizontal-left-content separate-left align-start width-30">
         <geographic-area
-          class="separate-right"
+          class="separate-right full_width"
           ref="geoComponent"
-          :class="{
-            highlight: highlight.geo
-          }"
-          v-model="asserted_distribution.geographic_area_id"/>
-        <lock-component v-model="locks.geographic_area_id"/>
+          @selected="triggerAutosave"
+          v-model="asserted_distribution"/>
+        <lock-component
+          class="margin-medium-top"
+          v-model="locks.geographicArea"/>
       </div>
     </div>
-    <div class="horizontal-center-content middle">
-      <button
-        type="button"
-        v-shortkey="[getMacKey(), 's']"
-        @shortkey="saveAssertedDistribution()"
-        :disabled="!validate"
-        class="button normal-input button-submit separate-right"
-        @click="saveAssertedDistribution">Save
-      </button>
-      <button
-        type="button"
-        v-shortkey="[getMacKey(), 'n']"
-        @shortkey="createAndNewAssertedDistribution()"
-        :disabled="!validate"
-        class="button normal-input button-submit separate-left separate-right"
-        @click="createAndNewAssertedDistribution">Save and new
-      </button>
-      <span
-        class="cursor-pointer"
-        @click="newWithLock">
-        <span data-icon="reset"/>Reset
-      </span>
-    </div>
+
     <table-component
       class="full_width"
       :list="list"
       @onSourceOtu="setSourceOtu"
       @onSourceGeo="setSourceGeo"
       @onOtuGeo="setGeoOtu"
-      @highlight="highlight = $event"
       @remove="removeAssertedDistribution"/>
   </div>
 </template>
@@ -102,9 +97,17 @@ import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
 import LockComponent from 'components/lock'
 import SpinnerComponent from 'components/spinner'
+import NavBarComponent from 'components/navBar'
 import GetMacKey from 'helpers/getMacKey'
 
-import { CreateAssertedDistribution, RemoveAssertedDistribution, UpdateAssertedDistribution, LoadRecentRecords } from './request/resources.js'
+import {
+  CreateAssertedDistribution,
+  RemoveAssertedDistribution,
+  UpdateAssertedDistribution,
+  LoadRecentRecords,
+  GetSource,
+  GetAssertedDistribution
+} from './request/resources.js'
 
 export default {
   components: {
@@ -113,33 +116,33 @@ export default {
     GeographicArea,
     TableComponent,
     LockComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    NavBarComponent
   },
   computed: {
-    validate() {
-      return this.asserted_distribution.otu_id &&
-        this.asserted_distribution.geographic_area_id &&
-        this.asserted_distribution.citations_attributes[0].source_id
+    validate () {
+      return this.asserted_distribution.otu && this.asserted_distribution.geographicArea && this.asserted_distribution.citation.source
+    },
+    currentAssertedDistribution () {
+      return this.list.find(item => {
+        return item.id === this.asserted_distribution.id
+      })
     }
   },
-  data() {
+  data () {
     return {
       asserted_distribution: this.newAssertedDistribution(),
       list: [],
       loading: true,
-      highlight: {
-        otu: false,
-        source: false,
-        geo: false
-      },
+      autosave: true,
       locks: {
-        otu_id: false,
-        geographic_area_id: false,
-        citation_attributes: false,
+        otu: false,
+        geographicArea: false,
+        citation: false
       }
     }
   },
-  mounted() {
+  mounted () {
     this.addShortcutsDescription()
     LoadRecentRecords().then(response => {
       this.list = response.body
@@ -147,42 +150,39 @@ export default {
     })
   },
   methods: {
-    addShortcutsDescription() {
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save asserted distribution changes', 'New asserted distribution')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Save and create new asserted distribution', 'New asserted distribution')
+    triggerAutosave () {
+      if (this.validate && this.autosave) {
+        this.createAndNewAssertedDistribution()
+      }
     },
-    newAssertedDistribution() {
+    addShortcutsDescription () {
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
+    },
+    newAssertedDistribution () {
       return {
         id: undefined,
-        otu_id: undefined, 
-        geographic_area_id: undefined,
+        otu: undefined,
+        geographicArea: undefined,
         is_absent: undefined,
-        origin_citation_attributes: undefined,
-        citations_attributes: [{
+        citation: {
           id: undefined,
-          source_id: undefined,
-          is_original: undefined,
+          source: undefined,
           pages: undefined,
-        }]
+          is_original: undefined
+        }
       }
     },
-    newWithLock() {
-      let newObject = this.newAssertedDistribution()
-      let keys = Object.keys(newObject)
+    newWithLock () {
+      const newObject = this.newAssertedDistribution()
+      const keys = Object.keys(newObject)
       keys.forEach(key => {
-        newObject[key] = this.locks[key] ? this.asserted_distribution[key] : (Array.isArray(newObject[key]) ? [] : undefined)
+        if (this.locks[key]) {
+          newObject[key] = this.asserted_distribution[key]
+        }
       })
-      if(!this.locks.citations_attributes) {
-        newObject.citations_attributes.push({
-          id: undefined,
-          source_id: undefined,
-          is_original: undefined,
-          pages: undefined,
-        })
-      }
       this.asserted_distribution = newObject
     },
-    getMacKey() {
+    getMacKey () {
       return GetMacKey()
     },
     createAndNewAssertedDistribution() {
@@ -191,28 +191,54 @@ export default {
         this.newWithLock()
       })
     },
-    saveAssertedDistribution() {
-      if(!this.validate) return
-      return new Promise((resolve, reject) => { 
-        if(this.asserted_distribution.id) {
-          UpdateAssertedDistribution(this.asserted_distribution).then(response => {
+    saveAssertedDistribution () {
+      if (!this.validate) return
+      const assertedDistribution = {
+        id: this.asserted_distribution.id,
+        otu_id: this.asserted_distribution.otu.id,
+        geographic_area_id: this.asserted_distribution.geographicArea.id,
+        is_absent: this.asserted_distribution.is_absent,
+        citations_attributes: [{
+          id: this.asserted_distribution.citation.id,
+          source_id: this.asserted_distribution.citation.source.id,
+          is_original: this.asserted_distribution.citation.is_original,
+          pages: this.asserted_distribution.citation.pages
+        }]
+      }
+      return new Promise((resolve, reject) => {
+        if (assertedDistribution.id) {
+          UpdateAssertedDistribution(assertedDistribution).then(response => {
             this.$set(this.list, this.list.findIndex(item => {
-              return item.id == response.body.id
+              return item.id === response.body.id
             }), response.body)
-            this.asserted_distribution.id = response.body.id
-            this.setCitation(response.body.citations[0])
             TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+            this.refreshSmarts()
             resolve(response.body)
           })
-        }
-        else {
-          this.asserted_distribution.citations_attributes[0].id = undefined
-          CreateAssertedDistribution(this.asserted_distribution).then(response => {
-            this.asserted_distribution.id = response.body.id
-            this.setCitation(response.body.citations[0])
-            this.list.unshift(response.body)
-            TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-            resolve(response.body)
+        } else {
+          assertedDistribution.citations_attributes[0].id = undefined
+          GetAssertedDistribution({ 
+            otu_id: assertedDistribution.otu_id,
+            geographic_area_id: assertedDistribution.geographic_area_id
+          }).then(response => {
+            if (response.body.length) {
+              assertedDistribution.id = response.body[0].id
+              UpdateAssertedDistribution(assertedDistribution).then(response => {
+                this.$set(this.list, this.list.findIndex(item => {
+                  return item.id === response.body.id
+                }), response.body)
+                TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+                this.refreshSmarts()
+                resolve(response.body)
+              })
+            } else {
+              CreateAssertedDistribution(assertedDistribution).then(response => {
+                this.list.unshift(response.body)
+                TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
+                this.refreshSmarts()
+                resolve(response.body)
+              })
+            }
           })
         }
       })
@@ -220,58 +246,45 @@ export default {
     removeAssertedDistribution(asserted) {
       RemoveAssertedDistribution(asserted.id).then(response => {
         this.list.splice(this.list.findIndex(item => {
-          return item.id == asserted.id
+          return item.id === asserted.id
         }), 1)
       })
     },
-    setSourceOtu(item) {
+    refreshSmarts () {
+      this.$refs.sourceComponent.refresh()
+      this.$refs.geoComponent.refresh()
+      this.$refs.otuComponent.refresh()
+    },
+    setSourceOtu (item) {
       this.newWithLock()
+      this.setCitation(item.citations[0])
       this.asserted_distribution.id = undefined
-      this.setCitation(item.citation)
-      this.asserted_distribution.otu_id = item.otu.id
-      this.$refs.sourceComponent.setSelected(item.citation)
-      this.$refs.otuComponent.setSelected(item.otu)
+      this.asserted_distribution.otu = item.otu
     },
-    setSourceGeo(item) {
+    setSourceGeo (item) {
       this.newWithLock()
-      this.setCitation(item.citation)
-      this.asserted_distribution.geographic_area_id = item.geo.id
-      this.$refs.sourceComponent.setSelected(item.citation.source)
-      this.$refs.geoComponent.setSelected(item.geo)
+      this.setCitation(item.citations[0])
+      this.asserted_distribution.geographicArea = item.geographic_area
+      this.asserted_distribution.is_absent = item.is_absent
     },
-    setGeoOtu(item) {
+    setGeoOtu (item) {
       this.newWithLock()
+      this.autosave = false
       this.asserted_distribution.id = item.id
-      this.asserted_distribution.geographic_area_id = item.geo.id
-      this.asserted_distribution.otu_id = item.otu.id
-      this.$refs.geoComponent.setSelected(item.geo)  
-      this.$refs.otuComponent.setSelected(item.otu)    
+      this.asserted_distribution.geographicArea = item.geographic_area
+      this.asserted_distribution.otu = item.otu
+      this.asserted_distribution.is_absent = item.is_absent
     },
-    setCitation(item) {
-      this.asserted_distribution.citations_attributes = []
-      this.asserted_distribution.citations_attributes.push({
-        id: item.id,
-        source_id: item.source_id,
-        is_original: item.is_original,
-        pages: item.pages
-      })      
+    setCitation (citation) {
+      GetSource(citation.source_id).then(response => {
+        this.asserted_distribution.citation = {
+          id: undefined,
+          source: response.body,
+          is_original: citation.is_original,
+          pages: citation.pages
+        }
+      })
     }
   }
 }
 </script>
-<style lang="scss">
-  #vue-task-asserted-distribution-new {
-    .highlight {
-      fieldset {
-        background-color: #E3E8E3 !important;
-      }
-    }
-    .panel-section {
-      flex-grow: 1;
-      flex-basis: 0;
-    }
-    fieldset {
-      width: 100%;
-    }
-  }
-</style>

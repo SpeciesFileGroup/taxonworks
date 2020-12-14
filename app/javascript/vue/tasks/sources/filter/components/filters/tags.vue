@@ -2,7 +2,7 @@
   <div>
     <h2>Tags</h2>
     <fieldset>
-      <legend>Tags</legend>
+      <legend>Keywords</legend>
       <smart-selector
         autocomplete-url="/controlled_vocabulary_terms/autocomplete"
         :autocomplete-params="{'type[]' : 'Keyword'}"
@@ -11,13 +11,15 @@
         klass="CollectionObject"
         pin-section="Keywords"
         pin-type="Keyword"
+        :custom-list="tags"
         @selected="addKeyword"/>
     </fieldset>
     <display-list
       :list="keywords"
       label="object_tag"
+      :delete-warning="false"
       @deleteIndex="removeKeyword"
-      />
+    />
   </div>
 </template>
 
@@ -25,6 +27,9 @@
 
 import SmartSelector from 'components/smartSelector'
 import DisplayList from 'components/displayList'
+import { GetKeyword } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import ajaxCall from 'helpers/ajaxCall.js'
 
 export default {
   components: {
@@ -49,7 +54,8 @@ export default {
   },
   data () {
     return {
-      keywords: []
+      keywords: [],
+      tags: undefined
     }
   },
   watch: {
@@ -65,6 +71,17 @@ export default {
       deep: true
     }
   },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    this.loadTags('Keyword')
+    if (urlParams.keyword_ids) {
+      urlParams.keyword_ids.forEach(id => {
+        GetKeyword(id).then(response => {
+          this.addKeyword(response.body)
+        })
+      })
+    }
+  },
   methods: {
     addKeyword (keyword) {
       if (!this.params.includes(keyword.id)) {
@@ -73,6 +90,11 @@ export default {
     },
     removeKeyword (index) {
       this.keywords.splice(index, 1)
+    },
+    loadTags (type) {
+      ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
+        this.tags = { all: response.body }
+      })
     }
   }
 }

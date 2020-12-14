@@ -33,7 +33,7 @@ module Shared::IsData
       return false if ids.empty? || attribute.nil? || value.nil?
       begin
         self.transaction do
-          self.where(id: ids).find_each do |li|
+          self.where(id: ids).each do |li|
             li.update(attribute => value)
           end
         end
@@ -77,6 +77,83 @@ module Shared::IsData
       scope = klass.where(attr)
       scope
     end
+
+  end  # END CLASS METHODS
+
+  # Returns whether it is permissible to try to destroy
+  # they record based on it's relationships to projects
+  # the user is in.  I.e. false if it is related to data in
+  # a project in which they user is not a member.
+  # !! Does not look at :dependendant assertions
+  # @return [Boolean]
+  #   true - there is at least some related data in another projects
+  # @param user [user_id or User]
+  #   an id or User object
+  def is_destroyable?(user)
+    user = User.find(user) if !user.kind_of?(User)
+    return true if user.is_administrator?
+
+    p = user.projects.pluck(:id)
+    self.class.reflect_on_all_associations(:has_many).each do |r|
+      if r.klass.column_names.include?('project_id')
+        # If this has any related data in another project, we can't destroy it
+        #    if !send(r.name).nil?
+        return false if send(r.name).where.not(project_id: p).count(:all) > 0
+        #     end
+      end
+    end
+
+    self.class.reflect_on_all_associations(:has_one).each do |r|
+      if is_community? # *this* object is community, others we don't care about
+        if o = t.send(r.name)
+          return false if o.respond_to(:project_id) && !p.include?(o.project)
+        end
+      end
+    end
+    true
+  end
+
+
+  def is_editable?(user)
+    user = User.find(user) if !user.kind_of?(User)
+    return true if user.is_administrator? || is_community?
+    return false if !is_in_users_projects?(user)
+    true
+  end
+
+  def is_in_users_projects?(user)
+    user.projects.pluck(:id).include?(project_id)
+  end
+
+  # @return [Boolean]
+  # @params exclude [Array]
+  #   of symbols
+  # @params only [Array]
+  #   of symbols
+  # !! provide only exclude or only
+  def is_in_use?(exclude = [], only = [])
+    if only.empty?
+      self.class.reflect_on_all_associations(:has_many).each do |r|
+        next if exclude.include?(r.name)
+        return true if self.send(r.name).count(:all) > 0
+      end
+
+      self.class.reflect_on_all_associations(:has_one).each do |r|
+        next if exclude.include?(r.name)
+        return true if self.send(r.name).count(:all) > 0
+      end
+    else
+      only.each do |r|
+        return true if self.send(r.to_s).count(:all) > 0
+      end
+    end
+
+    false
+  end
+
+  # @return [Boolean]
+  def is_community?
+    self.class < Shared::SharedAcrossProjects ? true : false
   end
 
   # @return [Object]
@@ -85,27 +162,6 @@ module Shared::IsData
   def metamorphosize
     return self if self.class.descends_from_active_record?
     self.becomes(self.class.base_class)
-  end
-
-  # @return [Boolean]
-  def is_community?
-    self.class < Shared::SharedAcrossProjects ? true : false
-  end
-
-  # @return [Boolean]
-  # @params exclude [Array]
-  #   of symbols
-  def is_in_use?(exclude = [])
-    self.class.reflect_on_all_associations(:has_many).each do |r|
-      next if exclude.include?(r.name)
-      return true if self.send(r.name).count(:all) > 0
-    end
-
-    self.class.reflect_on_all_associations(:has_one).each do |r|
-      return true if self.send(r.name).count(:all) > 0
-    end
-
-    false
   end
 
   # @param [Symbol] keys
@@ -150,58 +206,4 @@ module Shared::IsData
     errors_excepting(*keys).full_messages
   end
 
-  # TODO: move out to own file
-  module Stripper
-    # protected
-
-    # @param [Hash] attr is hash
-    # @return [Hash]
-    def self.strip_similar_attributes(klass, attr = {})
-      begin # test to see if this class has an IGNORE_SIMILAR constant
-        ig = add_class_list(klass::IGNORE_SIMILAR)
-      rescue NameError
-        ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
-      end
-      attr.delete_if{|kee, _value| ig.include?(kee) }
-      attr
-    end
-
-    # @param [Hash] attr is hash
-    # @return [Hash]
-    def self.strip_identical_attributes(klass, attr = {})
-      begin # test to see if this class has an IGNORE_IDENTICAL constant
-        ig = add_class_list(klass::IGNORE_IDENTICAL)
-      rescue NameError
-        ig = RESERVED_ATTRIBUTES.dup.map(&:to_s)
-      end
-      attr.delete_if{ |kee, _value| ig.include?(kee) }
-      attr
-    end
-
-    # @param [Array] list of symbols to be ignored
-    # @return [Array] of strings to be ignored
-    def self.add_class_list(list)
-      ig_list  = RESERVED_ATTRIBUTES.dup
-      add_list = list.dup if list.any?
-      ig_list  += add_list if add_list
-      # convert ignore list from symbols to strings for subsequent include test
-      return ig_list.map(&:to_s)
-    end
-
-    # @param [Class] klass
-    # @param [Symbol, String] compare - one of [:identical, :similar] (optional, defaults to :identical)
-    # @return [Array] of symbols which represent the attributes which will be tested for a given class
-    def self.tested_attributes(klass, compare = :identical)
-      case compare.to_s
-        when 'similar'
-          obj = klass.new
-          obj.attributes.each_key { |kee| obj[kee] = 1 }
-          strip_similar_attributes(klass, obj.attributes).collect { |kee, _val| kee.to_sym }
-        # when 'identical'
-        #   strip_identical_attributes(klass, klass.new.attributes).collect { |kee, _val| kee.to_sym }
-        else
-          strip_identical_attributes(klass, klass.new.attributes).collect { |kee, _val| kee.to_sym }
-      end
-    end
-  end
 end

@@ -1,6 +1,9 @@
 <template>
   <div class="depiction_annotator">
-    <div class="field" v-if="depiction">
+    <div
+      class="field"
+      v-if="depiction"
+    >
       <div class="separate-bottom">
         <img
           :src="depiction.image.alternatives.medium.image_file_url"
@@ -11,36 +14,49 @@
         >
       </div>
       <div class="field">
-        <input class="normal-input" type="text" v-model="depiction.figure_label" placeholder="Label">
+        <input
+          class="normal-input"
+          type="text"
+          v-model="depiction.figure_label"
+          placeholder="Label"
+        >
       </div>
-      <textarea class="normal-input separate-bottom" type="text" v-model="depiction.caption" placeholder="Caption"/>
+      <textarea
+        class="normal-input separate-bottom"
+        type="text"
+        v-model="depiction.caption"
+        placeholder="Caption"
+      />
       <label>
         <input
           type="checkbox"
-          v-model="depiction.is_metadata_depiction">
-          Is data depiction
+          v-model="depiction.is_metadata_depiction"
+        >
+        Is data depiction
       </label>
       <div class="separate-top separate-bottom">
-        <p>
-          <h4>Move to</h4>
+        <p /><h4>Move to</h4>
         </p>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
-            :key="type.value">
+            :key="type.value"
+          >
             <label>
               <input
                 type="radio"
                 name="depiction-type"
                 v-model="selectedType"
-                :value="type">
+                :value="type"
+              >
               {{ type.label }}
             </label>
           </li>
         </ul>
         <div
           v-if="selectedType && !selectedObject"
-          class="separate-top">
+          class="separate-top"
+        >
           <autocomplete
             v-if="selectedType.value != 'Otu'"
             :disabled="!selectedType"
@@ -49,66 +65,147 @@
             :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
             :clear-after="true"
             @getItem="selectedObject = $event"
-            param="term"/>
+            param="term"
+          />
           <otu-picker
             v-else
             :clear-after="true"
-            @getItem="selectedObject = $event"/>
+            @getItem="selectedObject = $event"
+          />
         </div>
         <div
           v-if="selectedObject"
-          class="horizontal-left-content">
-          <span v-html="selectedObject.label_html"/>
+          class="horizontal-left-content"
+        >
+          <span v-html="selectedObject.label_html" />
           <span
             class="circle-button button-default btn-undo"
-            @click="selectedObject = undefined"/>
+            @click="selectedObject = undefined"
+          />
         </div>
       </div>
 
       <div>
-        <button type="button" class="normal-input button button-submit" @click="updateFigure()">Update</button>
-        <button type="button" class="normal-input button button-default" @click="depiction = undefined">Back</button>
+        <button
+          type="button"
+          class="normal-input button button-submit"
+          @click="updateFigure()"
+        >
+          Update
+        </button>
+        <button
+          type="button"
+          class="normal-input button button-default"
+          @click="depiction = undefined"
+        >
+          Back
+        </button>
       </div>
     </div>
     <div v-else>
-      <dropzone class="dropzone-card separate-bottom" @vdropzone-sending="sending" @vdropzone-success="success" ref="figure" id="figure" url="/depictions" :use-custom-dropzone-options="true" :dropzone-options="dropzone"/>
+      <smart-selector
+        model="images"
+        :autocomplete="false"
+        :search="false"
+        :target="objectType"
+        :addTabs="['new', 'filter']"
+        @selected="createDepiction">
+        <dropzone
+          slot="new"
+          class="dropzone-card separate-bottom"
+          @vdropzone-sending="sending"
+          @vdropzone-success="success"
+          ref="figure"
+          id="figure"
+          url="/depictions"
+          :use-custom-dropzone-options="true"
+          :dropzone-options="dropzone"
+        />
+        <div
+          class="horizontal-left-content align-start"
+          slot="filter">
+          <filter-image
+            @result="loadList"/>
+          <div class="margin-small-left flex-wrap-row">
+            <div
+              v-for="image in filterList"
+              :key="image.id"
+              class="thumbnail-container margin-small cursor-pointer"
+              @click="createDepiction(image)">
+              <img
+                :width="image.alternatives.thumb.width"
+                :height="image.alternatives.thumb.height"
+                :src="image.alternatives.thumb.image_file_url">
+            </div>
+          </div>
+        </div>
+      </smart-selector>
       <label>
         <input
           type="checkbox"
-          v-model="isDataDepiction">
+          v-model="isDataDepiction"
+        >
         Is data depiction
       </label>
-      <table-list
-        :attributes="['object_tag','is_metadata_depiction']"
-        :header="['Image', 'Is data', '']"
-        :list="list"
-        :edit="true"
-        :destroy="true"
-        @edit="depiction = $event"
-        @delete="removeItem"
-        class="list"/>
+      <table class="full_width">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Is data</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in list"
+            :key="item.id"
+          >
+            <td v-html="item.object_tag" />
+            <td>{{ item.is_metadata_depiction }}</td>
+            <td>
+              <div class="horizontal-right-content middle">
+                <radial-annotator
+                  default-view="attributioan"
+                  :global-id="item.image.global_id"
+                />
+                <span
+                  class="button circle-button btn-edit button-submit"
+                  @click="depiction = item" />
+                <span
+                  @click="confirmDelete(item)"
+                  class="button circle-button btn-delete"
+                />
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 <script>
 
 import CRUD from '../request/crud.js'
-import TableList from 'components/table_list'
-import dropzone from 'components/dropzone.vue'
+import Dropzone from 'components/dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
 import Autocomplete from 'components/autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import FilterImage from 'tasks/images/filter/components/filter'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
-    dropzone,
-    TableList,
+    Dropzone,
     Autocomplete,
-    OtuPicker
+    FilterImage,
+    OtuPicker,
+    RadialAnnotator,
+    SmartSelector
   },
   computed: {
-    updateObjectType() {
+    updateObjectType () {
       return (this.selectedObject && this.selectedType)
     }
   },
@@ -148,32 +245,54 @@ export default {
       ],
       isDataDepiction: false,
       selectedType: undefined,
-      selectedObject: undefined
+      selectedObject: undefined,
+      filterList: []
     }
   },
+  mounted () {
+    this.$options.components.RadialAnnotator = RadialAnnotator
+  },
   methods: {
-    'success': function (file, response) {
+    success: function (file, response) {
       this.list.push(response)
       this.$refs.figure.removeFile(file)
     },
-    'sending': function (file, xhr, formData) {
+    sending: function (file, xhr, formData) {
       formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
       formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
     updateFigure () {
-      if(this.updateObjectType) {
+      if (this.updateObjectType) {
         this.depiction.depiction_object_type = this.selectedType.value
         this.depiction.depiction_object_id = this.selectedObject.id
       }
       this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
-        if(this.updateObjectType) {
+        if (this.updateObjectType) {
           this.$delete(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
-        }
-        else {
+        } else {
           this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
         }
         this.depiction = undefined
       })
+    },
+    confirmDelete (item) {
+      if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
+        this.removeItem(item)
+      }
+    },
+    createDepiction (image) {
+      const depiction = {
+        image_id: image.id,
+        annotated_global_entity: this.globalId,
+        is_metadata_depiction: this.isDataDepiction
+      }
+      this.create('/depictions.json', { depiction: depiction }).then(({ body }) => {
+        this.list.push(body)
+        TW.workbench.alert.create('Depiction was successfully created.', 'notice')
+      })
+    },
+    loadList (newList) {
+      this.filterList = newList
     }
   }
 }
@@ -191,9 +310,6 @@ export default {
 			width: 100%;
 			height: 100px;
 		}
-    /deep/ .vue-autocomplete-input {
-      width: 400px;
-    }
 	}
 }
 </style>

@@ -195,9 +195,9 @@
         let that = this
 
         return getTagMetadata().then(response => {
-          that.info = response
-          that.keywords = response.keywords
-          that.pinboard = response.pinboard
+          that.info = response.body
+          that.keywords = response.body.keywords
+          that.pinboard = response.body.pinboard
         })
       },
       removeKeyword(id, type) {
@@ -214,7 +214,7 @@
         this.loan_item.loan_id = this.loan.id
 
         createLoanItem({loan_item: this.loan_item}).then(response => {
-          that.$store.commit(MutationNames.AddLoanItem, response)
+          that.$store.commit(MutationNames.AddLoanItem, response.body)
           TW.workbench.alert.create('Loan item was successfully created.', 'notice')
         })
       },

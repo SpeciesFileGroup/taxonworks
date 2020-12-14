@@ -17,8 +17,10 @@
       class="body horizontal-left-content align-start"
       v-show="expanded">
       <div class="column-left">
-        <div class="field separate-right">
-          <label v-help.section.basic.name for="taxon-name">Name</label><br>
+        <div class="field separate-right label-above">
+          <label
+            v-help.section.basic.name
+            for="taxon-name">Name</label>
           <hard-validation field="name">
             <input
               id="taxon-name"
@@ -31,12 +33,13 @@
           </hard-validation>
         </div>
         <div class="field separate-top">
-          <label v-help.section.basic.parent for="parent-name">Parent</label>
+          <label
+            v-help.section.basic.parent
+            for="parent-name">Parent</label>
           <parent-picker/>
         </div>
         <rank-selector v-if="validateInfo"/>
         <hard-validation field="rank_class"/>
-
       </div>
       <div class="column-right item">
         <check-exist
@@ -60,12 +63,12 @@
       @close="showModal = false">
       <h3 slot="header">Non latinized name</h3>
       <div slot="body">
-        <p>Create this name and apply the non-latin status?</p>
+        <p>{{ taxon.id ? 'Update' : 'Create' }} this name and apply the non-latin status?</p>
         <button
           class="button normal-input button-submit"
           type="button"
           @click="createNonLatin">
-          Create
+          {{ taxon.id ? 'Update' : 'Create' }}
         </button>
       </div>
     </modal-component>
@@ -109,9 +112,7 @@ export default {
       }
     },
     validateInfo () {
-      return (this.parent != undefined && 
-        (this.taxon.name != undefined && 
-        this.taxon.name.replace(/\s/g, '').length > 2))
+      return true
     },
     taxonName: {
       get () {
@@ -119,7 +120,7 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetTaxonName, value)
-        this.$store.commit(MutationNames.UpdateLastChange)
+        // this.$store.commit(MutationNames.UpdateLastChange)
       }
     },
     errors () {
@@ -171,11 +172,21 @@ export default {
       let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
       let statusList = this.$store.getters[GetterNames.GetStatusList][code]
       let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
-      this.taxon.taxon_name_classifications_attributes = [{
-        type: statusType.type
-      }]
-
-      this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon)
+      if (this.taxon.id) {
+        this.$store.dispatch(ActionNames.AddTaxonStatus, {
+          type: statusType.type,
+          name: statusType.name
+        }).then(() => {
+          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(() => {
+            this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
+          })
+        })
+      } else {
+        this.taxon.taxon_name_classifications_attributes = [{ type: statusType.type }]
+        this.$store.dispatch(ActionNames.CreateTaxonName, this.taxon).then(() => {
+          this.$store.dispatch(ActionNames.LoadTaxonStatus, this.taxon.id)
+        })
+      }
       this.showModal = false
     }
   }
@@ -209,9 +220,6 @@ export default {
       padding: 2em;
       padding-top: 1em;
       padding-bottom: 1em;
-    }
-    .vue-autocomplete-input {
-      width: 300px;
     }
     .taxonName-input,#error_explanation {
       width: 300px;

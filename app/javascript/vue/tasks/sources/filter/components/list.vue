@@ -6,7 +6,9 @@
       <thead>
         <tr>
           <th>
-            <tag-all :ids="ids"/>
+            <tag-all
+              type="Source"
+              :ids="ids"/>
           </th>
           <th
             class="capitalize"
@@ -46,6 +48,7 @@
             <div class="flex-wrap-row">
               <pdf-button
                 v-for="pdf in item.documents"
+                :key="pdf.id"
                 :pdf="pdf"/>
             </div>
           </td>
@@ -56,6 +59,11 @@
           </td>
           <td>
             <div class="horizontal-left-content">
+              <pin-component
+                class="button button-circle"
+                :object-id="item.id"
+                type="Source"
+              />
               <radial-annotator :global-id="item.global_id"/>
               <radial-navigation :global-id="item.global_id"/>
             </div>
@@ -73,6 +81,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
+import PinComponent from 'components/pin.vue'
 
 export default {
   components: {
@@ -80,7 +89,8 @@ export default {
     RadialAnnotator,
     PdfButton,
     TagAll,
-    AddToProject
+    AddToProject,
+    PinComponent
   },
   props: {
     list: {

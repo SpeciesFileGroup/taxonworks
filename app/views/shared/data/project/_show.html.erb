@@ -38,7 +38,7 @@
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
-              <li><%= radial_annotator(object) %></li>
+              <li><%= radial_annotator(object, annotations_exist(object)) %></li>
               <li><%= tag_default_icon(object) %></li>
               <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
               <li><%= radial_navigation_tag(object) %></li>
@@ -47,8 +47,8 @@
         </div> 
 
         <div class="navigation-controls">
-          <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
-          <%= destroy_object_link(object) if controller.respond_to?(:destroy) %>  
+          <%= edit_object_link(object) -%>
+          <%= destroy_object_link(object) %>
 
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>

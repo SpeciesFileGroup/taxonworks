@@ -38,6 +38,12 @@ describe ControlledVocabularyTerm, type: :model do
     expect(controlled_vocabulary_term.errors.include?(:definition)).to be_truthy
   end
 
+  specify 'if uri is provided uri_relation is not required' do
+    controlled_vocabulary_term.uri = 'http://abc.com/123'
+    controlled_vocabulary_term.valid?
+    expect(controlled_vocabulary_term.errors.include?(:uri)).to be_falsey
+  end
+
   specify 'if uri_relation is provided uri must also be provided' do
     controlled_vocabulary_term.uri_relation = 'skos:narrowMatch'
     expect(controlled_vocabulary_term.valid?).to be_falsey

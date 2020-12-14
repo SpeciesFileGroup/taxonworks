@@ -1,101 +1,63 @@
 <template>
   <fieldset>
     <legend>Geographic area</legend>
-    <smart-selector 
-      name="geographic"
-      class="separate-bottom"
-      v-model="view"
-      :options="options"/>
-    <div v-if="isViewSearch">
-      <autocomplete
-        url="/geographic_areas/autocomplete"
-        label="label_html"
-        param="term"
-        ref="autocomplete"
-        placeholder="Select a geographic area"
-        :clear-after="true"
-        display="label"
-        @getItem="sendItem"/>
-    </div>
-    <ul
-      v-else
-      class="no_bullets">
-      <li
-        v-for="item in lists[view]"
-        :key="item.id">
-        <label
-          @click="sendItem(item)">
-          <input
-            type="radio"
-            name="geo"
-            :checked="item.id == value">
-          {{ item.name }}
-        </label>
-      </li>
-    </ul>
-    <template v-if="selected">
-      <p>
-        <span data-icon="ok"/>
-        <span v-html="selected"/>
-      </p>
-    </template>
+    <smart-selector
+      v-model="assertedDistribution.geographicArea"
+      model="geographic_areas"
+      klass="AssertedDistribution"
+      target="AssertedDistribution"
+      ref="smartSelector"
+      label="name"
+      pin-section="GeographicAreas"
+      @selected="onSelect"
+      pin-type="GeographicArea">
+      <template v-if="assertedDistribution.geographicArea">
+        <p class="horizontal-left-content">
+          <span data-icon="ok"/>
+          <span v-html="assertedDistribution.geographicArea.name"/>
+          <span
+            class="button circle-button btn-undo button-default"
+            @click="unset"/>
+        </p>
+      </template>
+    </smart-selector>
   </fieldset>
 </template>
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import SmartSelector from 'components/switch'
-import { GetGeographicAreaSmartSelector } from '../request/resources.js'
-import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   components: {
-    SmartSelector,
-    Autocomplete
+    SmartSelector
   },
   props: {
-    value: {}
+    value: {
+      type: Object,
+      default: undefined
+    }
   },
   computed: {
-    isViewSearch() {
-      return this.view == 'search'
+    assertedDistribution: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
     }
-  },
-  data() {
-    return {
-      options: [],
-      lists: [],
-      view: undefined,
-      selected: undefined
-    }
-  },
-  watch: {
-    value(newVal) {
-      if(newVal == undefined)
-        this.selected = undefined
-    }
-  },
-  mounted() {
-    this.loadSmartSelector()
   },
   methods: {
-    sendItem(item) {
-      this.setSelected(item)
-      this.$emit('input', item.id)
+    refresh () {
+      this.$refs.smartSelector.refresh()
     },
-    loadSmartSelector() {
-      GetGeographicAreaSmartSelector().then(response => {
-        this.lists = response.body
-        this.options = OrderSmartSelector(Object.keys(response.body))
-        let newView = SelectFirstSmartOption(this.lists, this.options)
-        this.options.push('search')
-        this.view = (newView ? newView : 'search')
-      })
+    unset () {
+      this.assertedDistribution.geographicArea = undefined
     },
-    setSelected(item) {
-      this.selected = item.hasOwnProperty('label') ? item.label : item.name
+    onSelect (geo) {
+      this.assertedDistribution.geographicArea = geo
+      this.$emit('selected')
     }
   }
 }

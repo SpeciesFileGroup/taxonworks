@@ -17,6 +17,7 @@
 
 import LeafMap from './map.vue'
 import PrintLabel from './printLabel'
+import SoftValidation from './softValidation'
 import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
@@ -30,7 +31,8 @@ export default {
     LeafMap,
     DepictionComponent,
     PrintLabel,
-    Draggable
+    Draggable,
+    SoftValidation
   },
   computed: {
     settings: {
@@ -45,6 +47,7 @@ export default {
   data () {
     return {
       componentsOrder: [
+        'SoftValidation',
         'LeafMap',
         'PrintLabel',
         'DepictionComponent'
@@ -57,6 +60,7 @@ export default {
 
 <style lang="scss">
   .digitize-map-layout {
+    max-width: 30%;
     label {
       display: block;
     }

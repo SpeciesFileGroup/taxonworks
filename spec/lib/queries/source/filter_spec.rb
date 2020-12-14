@@ -82,6 +82,28 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
+  specify '#topic_ids 1' do
+    topic = FactoryBot.create(:valid_topic)
+    Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
+    query.topic_ids = [topic.id]
+    expect(query.all.map(&:id)).to contain_exactly(s1.id)
+  end
+
+  specify '#topic_ids 2' do
+    t1 = FactoryBot.create(:valid_topic)
+    t2 = FactoryBot.create(:valid_topic)
+    Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [t1])
+    query.topic_ids = [t2.id]
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#topic_ids 3' do
+    topic = FactoryBot.create(:valid_topic)
+    Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
+    expect(query.all.map(&:id)).to_not contain_exactly()
+  end
+
+
   specify '#with_doi 1' do
     Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi)
     query.with_doi = true

@@ -87,34 +87,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
 
-    context '#user_id' do
-      specify 'updated 1' do
-        query.user_target = 'updated'
-        query.user_date_start = '1999-01-01'
-        query.user_date_end = '2002-01-01'
-        query.user_id = Current.user_id
-        expect(query.all.map(&:id)).to contain_exactly(co1.id)
-      end
-
-      specify 'updated 2' do
-        query.user_target = 'updated'
-        query.user_date_start = '2001-01-01'
-        query.user_id = Current.user_id
-        expect(query.all.map(&:id)).to contain_exactly(co1.id)
-      end
-
-      specify 'created 1' do
-        query.user_target = 'created'
-        query.user_date_start = '2001-01-01'
-        query.user_id = Current.user_id
-        expect(query.all.map(&:id)).to contain_exactly()
-      end
-
-      specify 'created 2' do
-        query.user_target = 'created'
-        query.user_date_start = '2015-01-01'
-        expect(query.all.map(&:id)).to contain_exactly(co2.id)
-      end
+    # See spec/lib/queries/person/filter_spec.rb for specs.
+    specify 'user hooks' do
+      query.user_id = Current.user_id
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
     end
 
     context 'determinations, types and hierarchical search' do
@@ -148,11 +124,22 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
       context 'type_material' do
-        let!(:tm) { TypeMaterial.create(collection_object: co1, protonym: species1, type_type: 'holotype') }
+        let!(:tm1) { TypeMaterial.create!(collection_object: co1, protonym: species1, type_type: 'holotype') }
+        let!(:tm2) { TypeMaterial.create!(collection_object: co3, protonym: species2, type_type: 'neotype') }
 
         specify '#type_specimen_taxon_name_id' do
           query.type_specimen_taxon_name_id = species1.id
           expect(query.all.map(&:id)).to contain_exactly(co1.id)
+        end
+
+        specify '#type_type (1)' do
+          query.is_type = ['holotype']
+          expect(query.all.map(&:id)).to contain_exactly(co1.id)
+        end
+
+        specify '#type_type (2)' do
+          query.is_type = ['holotype', 'neotype']
+          expect(query.all.map(&:id)).to contain_exactly(co1.id, co3.id)
         end
       end
 

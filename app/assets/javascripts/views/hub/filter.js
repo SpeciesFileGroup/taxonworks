@@ -9,7 +9,9 @@ Object.assign(TW.views.hub.filter, {
 		if(!$("#filter").attr('loaded') == true) { 
 			$("#filter").attr('loaded', 'true');
 			this.filterHubTask = new FilterHub();
-			this.resizeTaskCarrousel();
+			if(document.querySelector('#task_carrousel')) {
+				this.resizeTaskCarrousel();
+			}
 			this.loadCategoriesIcons();
 			this.handleEvents();
 		}

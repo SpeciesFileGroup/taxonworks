@@ -29,7 +29,7 @@
 #
 # @!attribute verbatim_geolocation_uncertainty
 #   @return [String]
-#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value
+#   A string, typically sliced from verbatim_label, that represents the provided uncertainty value.
 #
 # @!attribute verbatim_trip_identifier
 #   @return [String]
@@ -179,14 +179,16 @@
 class CollectingEvent < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::DataAttributes 
+  include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
-  include Shared::Depictions 
+  include Shared::Depictions
+  include Shared::Labels
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
+  include Shared::IsData
   include SoftValidation
   include Shared::HasRoles
   include Shared::Labels
@@ -225,6 +227,11 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects
+  has_many :georeferences, dependent: :destroy
+  has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
+  has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
+  has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
+  has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
   has_many :otus, through: :collection_objects
 
@@ -246,9 +253,9 @@ class CollectingEvent < ApplicationRecord
   accepts_nested_attributes_for :collectors, :collector_roles, allow_destroy: true
 
   validate :check_verbatim_geolocation_uncertainty,
-    :check_date_range,
-    :check_elevation_range,
-    :check_ma_range
+           :check_date_range,
+           :check_elevation_range,
+           :check_ma_range
 
   validates_uniqueness_of :md5_of_verbatim_label, scope: [:project_id], unless: -> { verbatim_label.blank? }
   validates_presence_of :verbatim_longitude, if: -> { !verbatim_latitude.blank? }
@@ -280,13 +287,13 @@ class CollectingEvent < ApplicationRecord
   validates_presence_of :end_date_month, if: -> { !end_date_day.nil? }
 
   validates :end_date_day, date_day: {year_sym: :end_date_year, month_sym: :end_date_month},
-    unless: -> { end_date_year.nil? || end_date_month.nil? }
+            unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-    unless: -> { start_date_year.nil? || start_date_month.nil? }
+            unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
-  soft_validate(:sv_verbatim_uncertainty_format)
+  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
 
   # @param [String]
   def verbatim_label=(value)
@@ -294,7 +301,7 @@ class CollectingEvent < ApplicationRecord
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
   end
 
-  scope :used_recently, -> { joins(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order(created_at: :desc) }
+  scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { created_at: 1.weeks.ago..Time.now } ).order('"collection_objects"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }
 
   class << self
@@ -308,13 +315,16 @@ class CollectingEvent < ApplicationRecord
         recent: (CollectingEvent.used_in_project(project_id)
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
+          .distinct
           .limit(5)
-          .distinct.to_a +
+          .order(:cached)
+          .to_a +
         CollectingEvent.where(project_id: project_id, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
       }
 
-      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
+      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  +
+          h[:recent]).uniq
       h
     end
 
@@ -509,8 +519,8 @@ class CollectingEvent < ApplicationRecord
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev = Utilities::Geo.distance_in_meters(verbatim_elevation)
-      point = Gis::FACTORY.point(local_latitude, local_longitude, elev)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
+      point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
       nil
@@ -759,7 +769,7 @@ class CollectingEvent < ApplicationRecord
     name_hash.keys.sort.each do |k| # alphabetically first (keys are unordered)
       if name_hash[k].size > most_count
         most_count = name_hash[k].size
-        most_key = k
+        most_key   = k
       end
     end
     most_key
@@ -793,29 +803,85 @@ class CollectingEvent < ApplicationRecord
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
-      'properties' => {
-        'collecting_event' => {
-          'id'  => self.id,
-          'tag' => "Collecting event #{self.id}."
-        }
-      }
-    })
+                                   'properties' => {
+                                     'collecting_event' => {
+                                       'id'  => self.id,
+                                       'tag' => "Collecting event #{self.id}."
+                                     }
+                                   }
+                                 })
   end
 
   # TODO: parametrize to include gazetteer
   #   i.e. geographic_areas_geogrpahic_items.where( gaz = 'some string')
   def to_simple_json_feature
     base = {
-      'type' => 'Feature',
+      'type'       => 'Feature',
       'properties' => {}
     }
 
     if geographic_items.any?
-      geo_item_id = geographic_items.select(:id).first.id
+      geo_item_id      = geographic_items.select(:id).first.id
       query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
       base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
     end
     base
+  end
+
+  # rubocop:enable Style/StringHashKeys
+
+  # @return [CollectingEvent]
+  #   return the next collecting event without a georeference in this collecting events project sort order
+  #   1.  verbatim_locality
+  #   2.  geography_id
+  #   3.  start_date_year
+  #   4.  updated_on
+  #   5.  id
+  def next_without_georeference
+    CollectingEvent.not_including(self).
+      includes(:georeferences).
+      where(project_id: self.project_id, georeferences: {collecting_event_id: nil}).
+      order(:verbatim_locality, :geographic_area_id, :start_date_year, :updated_at, :id).
+      first
+  end
+
+  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
+  # @return [RGeo::Geographic::ProjectedPointImpl, nil]
+  #   for the *verbatim* latitude/longitude only
+  def verbatim_map_center(delta_z = 0.0)
+    retval = nil
+    unless verbatim_latitude.blank? or verbatim_longitude.blank?
+      lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
+      long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s).to_f
+      delta_z = elev unless elev == 0.0 # Meh, BAD! must be nil
+      retval  = Gis::FACTORY.point(long, lat, delta_z)
+    end
+    retval
+  end
+
+  # @return [Symbol, nil]
+  #   the name of the method that will return an Rgeo object that represent
+  #   the "preferred" centroid for this collecting event
+  def map_center_method
+    return :preferred_georeference if preferred_georeference # => { georeferenceProtocol => ?  }
+    return :verbatim_map_center if verbatim_map_center # => { }
+    return :geographic_area if geographic_area.try(:has_shape?)
+    nil
+  end
+
+  # @return [Rgeo::Geographic::ProjectedPointImpl, nil]
+  def map_center
+    case map_center_method
+    when :preferred_georeference
+      preferred_georeference.geographic_item.centroid
+    when :verbatim_map_center
+      verbatim_map_center
+    when :geographic_area
+      geographic_area.default_geographic_item.geo_object.centroid
+    else
+      nil
+    end
   end
 
   def names
@@ -842,7 +908,8 @@ class CollectingEvent < ApplicationRecord
     cache_geographic_names[:state]
   end
 
-  # @return [CollectingEvent instance]
+  # @return [CollectingEvent]
+  #   the instance may not be valid!
   def clone
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
@@ -859,11 +926,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    begin
-      a.save!
-    rescue ActiveRecord::RecordInvalid
-      return false
-    end
+    a.save
     a
   end
 
@@ -937,7 +1000,11 @@ class CollectingEvent < ApplicationRecord
   end
 
   def check_date_range
-    errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    begin
+      errors.add(:base, 'End date is earlier than start date.') if has_start_date? && has_end_date? && (start_date > end_date)
+    rescue
+      errors.add(:base, 'Start and/or end date invalid.')
+    end
     errors.add(:base, 'End date without start date.') if (has_end_date? && !has_start_date?)
   end
 
@@ -947,6 +1014,23 @@ class CollectingEvent < ApplicationRecord
 
   def check_elevation_range
     errors.add(:maximum_elevation, 'Maximum elevation is lower than minimum elevation.') if !minimum_elevation.blank? && !maximum_elevation.blank? && maximum_elevation < minimum_elevation
+  end
+
+  def sv_georeference_matches_verbatim
+    if a = georeferences.where(type: 'Georeference::VerbatimData').first
+      d_lat = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude).to_f
+      d_long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude).to_f
+      if (a.latitude.to_f !=  d_lat)
+        soft_validations.add(
+          :base,
+        "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
+      end
+      if (a.longitude.to_f != d_long)
+        soft_validations.add(
+            :base,
+            "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
+      end
+    end
   end
 
   def sv_minimally_check_for_a_label

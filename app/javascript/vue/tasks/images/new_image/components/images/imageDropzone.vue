@@ -34,7 +34,7 @@ import ImageViewer from './imageViewer.vue'
 export default {
   components: {
     ImageViewer,
-    Dropzone,
+    Dropzone
   },
   props: {
     value: {
@@ -46,7 +46,7 @@ export default {
     value: {
       handler(newVal) {
         this.figuresList = newVal
-      }, 
+      },
       deep: true
     }
   },
@@ -59,6 +59,8 @@ export default {
         paramName: 'image[image_file]',
         url: '/images',
         autoProcessQueue: true,
+        parallelUploads: 1,
+        timeout: 600000,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
@@ -68,14 +70,14 @@ export default {
     }
   },
   methods: {
-    'success': function (file, response) {
+    success (file, response) {
       this.figuresList.push(response)
       this.$refs.image.removeFile(file)
       this.$emit('input', this.figuresList)
       this.$emit('created',response)
     },
-    clearImages() {
-      if(window.confirm("Are you sure you want to clear the images?")) {
+    clearImages () {
+      if (window.confirm("Are you sure you want to clear the images?")) {
         this.$emit('input', [])
         this.$emit('onClear')
       }

@@ -28,11 +28,11 @@ class TypeMaterial < ApplicationRecord
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::HasRoles
-  include Shared::Identifiers
-  include Shared::IsData
+
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::IsData
   include SoftValidation
 
   # Keys are valid values for type_type, values are

@@ -1,24 +1,15 @@
 <template>
-  <div class="panel basic-information">
-    <div class="header">
-      <h3>Default units</h3>
-    </div>
-    <div class="body">
-      <select 
-        v-model="selected"
-        class="normal-input">
-        <option
-          v-for="(label, key) in list"
-          :value="key">{{ key }}: {{ label }}
-        </option>
-      </select>
-      <button
-        :disabled="!validateFields"
-        @click="sendDescriptor"
-        class="normal-input button button-submit"
-        type="button">{{ descriptor['id'] ? 'Update' : 'Create' }}
-      </button>
-    </div>
+  <div class="field label-above">
+    <label>Default units</label>
+    <select
+      v-model="descriptor.default_unit"
+      class="normal-input">
+      <option
+        v-for="(label, key) in list"
+        :key="key"
+        :value="key">{{ key }}: {{ label }}
+      </option>
+    </select>
   </div>
 </template>
 <script>
@@ -27,42 +18,33 @@ import { GetUnits } from '../../request/resources'
 
 export default {
   props: {
-    descriptor: {
+    value: {
       type: Object,
       required: true
     }
   },
   computed: {
-    validateFields() {
-      return this.descriptor.name && this.selected
+    validateFields () {
+      return this.descriptor.name && this.descriptor.default_unit
+    },
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
     }
   },
-  data() {
+  data () {
     return {
-      selected: undefined,
       list: undefined
     }
   },
-  watch: {
-    descriptor: {
-      handler(value, oldVal) {
-        if(value['default_unit'] != oldVal['default_unit'])
-          this.selected = value['default_unit']
-      },
-      deep: true
-    }
-  },
-  mounted() {
+  mounted () {
     GetUnits().then(response => {
-      this.list = response
+      this.list = response.body
     })
-  },
-  methods: {
-    sendDescriptor() {
-      let newDescriptor = this.descriptor
-      newDescriptor['default_unit'] = this.selected
-      this.$emit('save', newDescriptor)
-    }
   }
 }
 </script>

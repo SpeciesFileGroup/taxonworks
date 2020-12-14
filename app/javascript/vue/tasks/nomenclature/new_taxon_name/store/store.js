@@ -34,7 +34,8 @@ function makeInitialState () {
       saving: false,
       lastSave: 0,
       lastChange: 0,
-      initLoad: false
+      initLoad: false,
+      autosave: true
     },
     taxonStatusList: [],
     taxonRelationshipList: [],
@@ -52,6 +53,11 @@ function makeInitialState () {
       taxonStatusList: {
         title: 'Status',
         list: []
+      },
+      original_combination: {
+        title: 'Original combination',
+        list: [],
+        transform: (value) => { return Object.values(value) }
       }
     },
     hardValidation: undefined,

@@ -1,5 +1,5 @@
-require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'  
-require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'  
+require_dependency Rails.root.to_s + '/app/models/nomenclatural_rank.rb'
+require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
 # A {https://github.com/SpeciesFileGroup/nomen NOMEN} derived classfication (roughly, a status) for a {TaxonName}.
 #
@@ -33,10 +33,10 @@ class TaxonNameClassification < ApplicationRecord
   validate :nomenclature_code_matches
 
   scope :where_taxon_name, -> (taxon_name) {where(taxon_name_id: taxon_name)}
-  scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}" ) }
-  scope :with_type_base, -> (base_string) {where('type LIKE ?', "#{base_string}%" ) }
-  scope :with_type_array, -> (base_array) {where('type IN (?)', base_array ) }
-  scope :with_type_contains, -> (base_string) {where('type LIKE ?', "%#{base_string}%" ) }
+  scope :with_type_string, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}" ) }
+  scope :with_type_base, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}%" ) }
+  scope :with_type_array, -> (base_array) {where('taxon_name_classifications.type IN (?)', base_array ) }
+  scope :with_type_contains, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "%#{base_string}%" ) }
 
   soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
   soft_validate(:sv_proper_year, set: :proper_classification, has_fix: false)
@@ -51,12 +51,12 @@ class TaxonNameClassification < ApplicationRecord
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
     return :icnp if type.match(/::Icnp/)
-    return :ictv if type.match(/::Ictv/)
+    return :icvcn if type.match(/::Icvcn/)
     return :icn if type.match(/::Icn/)
     return nil
   end
 
-  # TODO: helper method 
+  # TODO: helper method
   def self.label
     name.demodulize.underscore.humanize.downcase.gsub(/\d+/, ' \0 ').squish
   end
@@ -180,6 +180,23 @@ class TaxonNameClassification < ApplicationRecord
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
+        elsif type_name =~ /Latinized::PartOfSpeach/
+          t.update_columns(
+              cached: t.get_full_name,
+              cached_html: t.get_full_name_html,
+              cached_original_combination: t.get_original_combination,
+              cached_original_combination_html: t.get_original_combination_html
+          )
+          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+            t1.update_cached_original_combinations
+          end
+          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+            t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            t1.update_columns(
+                cached: t1.get_full_name,
+                cached_html: t1.get_full_name_html
+            )
+          end
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
             t1.update_columns(
@@ -187,10 +204,10 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html
             )
           end
-          TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
-          TaxonNameRelationship.where(type: 'TaxonNameRelationship::Combination::Genus', subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
+          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             t1.update_columns(
                 cached: t1.get_full_name,
@@ -205,6 +222,9 @@ class TaxonNameClassification < ApplicationRecord
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.combination_list_self.each do |c|
+              c.update_column(:cached_valid_taxon_name_id, vn.id)
+            end
           end
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
@@ -254,7 +274,7 @@ class TaxonNameClassification < ApplicationRecord
 
   def sv_validate_disjoint_classes
     classifications = TaxonNameClassification.where_taxon_name(self.taxon_name).not_self(self)
-    classifications.find_each  do |i|
+    classifications.each  do |i|
       soft_validations.add(:type, "The status  '#{self.type_class.label}' conflicting with another status: '#{i.type_class.label}'") if self.type_class.disjoint_taxon_name_classes.include?(i.type_name)
     end
   end

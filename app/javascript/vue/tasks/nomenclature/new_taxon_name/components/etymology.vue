@@ -1,38 +1,31 @@
 <template>
-  <div class="basic-information panel">
-    <a
-      name="etymology"
-      class="anchor"/>
-    <div class="header flex-separate middle">
-    <h3
-    v-help.section.etymology.container
-    >Etymology</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
+  <block-layout
+    anchor="etymology"
+    v-help.section.etymology.container>
+    <h3 slot="header">Etymology</h3>
     <div
-      class="body"
+      slot="body"
       v-show="expanded">
       <markdown-editor
+        @blur="updateLastChange"
         class="edit-content"
         v-model="etymology"
         :configs="config"
         ref="etymologyText"/>
     </div>
-  </div>
+  </block-layout>
 </template>
 <script>
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import MarkdownEditor from 'components/markdown-editor.vue'
-import Expand from './expand.vue'
+import BlockLayout from './blockLayout'
 
 export default {
   components: {
-    MarkdownEditor,
-    Expand
+    BlockLayout,
+    MarkdownEditor
   },
   computed: {
     etymology: {
@@ -41,7 +34,6 @@ export default {
       },
       set (text) {
         this.$store.commit(MutationNames.SetEtymology, text)
-        this.$store.commit(MutationNames.UpdateLastChange)
       }
     }
   },
@@ -50,9 +42,13 @@ export default {
       expanded: true,
       config: {
         status: false,
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
         spellChecker: false
       }
+    }
+  },
+  methods: {
+    updateLastChange () {
+      this.$store.commit(MutationNames.UpdateLastChange)
     }
   }
 }

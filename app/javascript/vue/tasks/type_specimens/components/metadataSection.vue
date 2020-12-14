@@ -15,7 +15,9 @@
       <div class="flex-wrap-row separate-top separate-bottom">
         <template v-if="checkForTypeList">
           <ul class="flex-wrap-column no_bullets">
-            <li v-for="(item, key) in types[taxon.nomenclatural_code]">
+            <li
+              v-for="(item, key) in types[taxon.nomenclatural_code]"
+              :key="key">
               <label class="capitalize">
                 <input
                   v-model="type"
@@ -29,46 +31,57 @@
         </template>
       </div>
       <div class="field">
-        <label>Source</label>
+        <fieldset v-if="!citationCreated">
+          <legend>Source</legend>
+          <smart-selector
+            model="sources"
+            klass="CollectionObject"
+            pin-section="Sources"
+            pin-type="Source"
+            @selected="selectSource"
+          >
+            <div slot="body">
+              <p
+                v-if="showSource && citation.source_id"
+                class="horizontal-left-content">
+                <span v-html="showSource"/>
+                <span
+                  class="circle-button button-default btn-undo"
+                  @click="resetCitation"/>
+              </p>
+            </div>
+            <div slot="footer">
+              <ul class="no_bullets context-menu">
+                <li>
+                  <input
+                    type="text"
+                    v-model="citation.pages"
+                    placeholder="Pages">
+                </li>
+                <li>
+                  <label>
+                    <input
+                      type="checkbox"
+                      v-model="citation.is_original">
+                    Is original
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </smart-selector>
+        </fieldset>
         <div
-          v-if="!citationCreated"
+          v-else
           class="horizontal-left-content">
-          <autocomplete
-            class="separate-right"
-            url="/sources/autocomplete"
-            label="label_html"
-            param="term"
-            :clear-after="true"
-            min="2"
-            placeholder="Select a source"
-            @getItem="citation.source_id = $event.id; showSource = $event.label_html"/>
-          <default-pinned
-            section="Sources"
-            type="Source"
-            @getLabel="showSource = $event"
-            @getId="citation.source_id = $event"/>
-          <input
-            class="separate-left"
-            type="text"
-            v-model="citation.pages"
-            placeholder="Pages">
-        </div>
-        <div
-          class="horizontal-left-content">
-          <template v-if="citationCreated">
+          <span>
             <span v-html="typeMaterial.origin_citation.object_tag"/>
-            <span
-              class="circle-button btn-delete"
-              @click="removeCitation"/>
-          </template>
-          <template v-else>
-            <template v-if="showSource && citation.source_id">
-              <span v-html="showSource"/>
-              <span
-                class="circle-button button-default btn-undo"
-                @click="resetCitation"/>
-            </template>
-          </template>
+            <soft-validation
+              class="margin-small-left"
+              :global-id="typeMaterial.origin_citation.global_id"/>
+          </span>
+          <span
+            class="circle-button btn-delete"
+            @click="removeCitation"/>
         </div>
       </div>
     </div>
@@ -78,9 +91,9 @@
 <script>
 
 import Expand from './expand.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import SmartSelector from 'components/smartSelector'
 import Spinner from 'components/spinner.vue'
-import DefaultPinned from 'components/getDefaultPin'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -88,10 +101,10 @@ import { GetTypes, GetSource, DestroyCitation } from '../request/resources'
 
 export default {
   components: {
-    Autocomplete,
     Spinner,
     Expand,
-    DefaultPinned
+    SmartSelector,
+    SoftValidation
   },
   computed: {
     citation: {
@@ -143,7 +156,7 @@ export default {
       handler (newVal, oldVal) {
         if(newVal.source_id && newVal.source_id !== oldVal.source_id) {
           GetSource(newVal.source_id).then(response => {
-            this.showSource = response.object_tag
+            this.showSource = response.body.object_tag
           })
         }
       },
@@ -152,7 +165,7 @@ export default {
   },
   mounted: function () {
     GetTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
   },
   methods: {
@@ -167,12 +180,11 @@ export default {
       DestroyCitation(this.typeMaterial.origin_citation.id).then(response => {
         this.typeMaterial.origin_citation = undefined
       })
+    },
+    selectSource (source) {
+      this.citation.source_id = source.id
+      this.showSource = source.object_tag
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-/deep/ .vue-autocomplete-input {
-  width: 400px;
-}
-</style>

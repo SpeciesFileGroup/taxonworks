@@ -3,7 +3,8 @@
     <ul>
       <li
         class="flex-separate middle"
-        v-for="(item, index) in citations">{{ item.source.author_year }}
+        v-for="(item, index) in citations"
+        :key="item.id">{{ item.source.author_year }}
         <div
           @click="removeItem(index, item)"
           class="circle-button btn-delete">Remove
@@ -17,6 +18,8 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { GetContentCitations, DeleteCitation } from '../request/resources'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   computed: {
@@ -31,7 +34,7 @@ export default {
     }
   },
   watch: {
-    'content': function (val, oldVal) {
+    content (val, oldVal) {
       if (val != undefined) {
         if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
           this.loadContent()
@@ -42,16 +45,13 @@ export default {
     }
   },
   methods: {
-    removeItem: function (index, item) {
-      this.$http.delete('/citations/' + item.id).then(() => {
+    removeItem (index, item) {
+      DeleteCitation(item.id).then(() => {
         this.$store.commit(MutationNames.RemoveCitation, index)
       })
     },
-    loadContent: function () {
-      let ajaxUrl
-
-      ajaxUrl = `/contents/${this.content.id}/citations`
-      this.$http.get(ajaxUrl, this.content).then(response => {
+    loadContent () {
+      GetContentCitations(this.content.id).then(response => {
         this.$store.commit(MutationNames.SetCitationList, response.body)
       })
     }

@@ -30,7 +30,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
 
 
   def subject_status
-    'invalid'
+    'unavailable or invalid'
   end
 
   def object_status

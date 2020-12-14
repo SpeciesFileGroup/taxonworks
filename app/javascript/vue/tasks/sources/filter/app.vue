@@ -65,9 +65,16 @@
               Select all
             </button>
             <span class="separate-left separate-right">|</span>
-            <csv-button :list="list"/>
+            <csv-button :list="csvList"/>
+            <span class="separate-left separate-right">|</span>
+            <bibliography-button
+              :selected-list="ids"
+              :pagination="pagination"
+              :params="params"/>
             <span class="separate-left separate-right">|</span>
             <bibtex-button
+              :selected-list="ids"
+              :pagination="pagination"
               :params="params"/>
           </div>
         </div>
@@ -75,7 +82,7 @@
           class="flex-separate margin-medium-bottom"
           :class="{ 'separate-left': activeFilter }">
           <pagination-component
-            v-if="pagination"
+            v-if="pagination && list.length"
             @nextPage="loadPage"
             :pagination="pagination"/>
           <div
@@ -118,6 +125,7 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 import BibtexButton from './components/bibtex'
+import BibliographyButton from './components/bibliography.vue'
 import PlatformKey from 'helpers/getMacKey'
 
 export default {
@@ -126,7 +134,8 @@ export default {
     FilterComponent,
     ListComponent,
     CsvButton,
-    BibtexButton
+    BibtexButton,
+    BibliographyButton
   },
   computed: {
     csvFields () {
@@ -137,6 +146,9 @@ export default {
     },
     sourceIDs () {
       return this.list.map(item => { return item.id })
+    },
+    csvList () {
+      return this.ids.length ? this.list.filter(item => { return this.ids.includes(item.id) }) : this.list
     }
   },
   data () {
@@ -170,6 +182,7 @@ export default {
       this.list = []
       this.urlRequest = ''
       this.pagination = undefined
+      history.pushState(null, null, '/tasks/sources/filter')
     },
     loadList (newList) {
       if (this.append && this.list) {

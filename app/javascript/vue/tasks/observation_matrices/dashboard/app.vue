@@ -28,18 +28,17 @@
       <filter-component
         class="separate-right"
         v-show="activeFilter"
-        @rankSelected="ranks = $event"
-        @onTaxon="taxon = $event"
-        @onValidity="validity = $event"
-        @reset="resetTask"
-        @onSearch="loadRankTable"/>
+        :field-set="['observations']"
+        @onSearch="loadRankTable"
+        @onTableFilter="tableFilter = $event"
+        @reset="resetTask"/>
       <div class="full_width">
         <div
           v-show="Object.keys(rankTable).length"
           class="horizontal-left-content align-start full_width">
           <rank-table
-            class="separate-right"
-            :ranksSelected="ranks"
+            class="margin-medium-left"
+            :filter="tableFilter"
             :table-list="rankTable"/>
         </div>
         <h3
@@ -76,85 +75,46 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetRankTable, value)
       }
-    },
-    combination () {
-      return this.$store.getters[GetterNames.GetCombinations]
-    },
-    rankList () {
-      return this.$store.getters[GetterNames.GetRanks]
     }
   },
   data () {
     return {
       activeFilter: true,
-      taxon: undefined,
-      fieldSet: ['observations'],
-      ranks: [],
       jsonUrl: '',
       activeJson: false,
-      validity: false,
-      limit: 5000
+      limit: 5000,
+      tableFilter: undefined
     }
   },
   watch: {
-    ranks: {
-      handler (newVal) {
-        if (newVal.length) {
-          //this.loadRankTable()
-        }
-      },
-      deep: true
-    },
     rankTable: {
       handler (newVal) {
-        if (newVal.data.length === this.limit) {
+        if (Object.keys(newVal).length && newVal.data.length === this.limit) {
           TW.workbench.alert.create('Result contains 1000 rows, it may be truncated.', 'notice')
         }
       },
       deep: true
-    },
-    combination (newVal) {
-      if (this.taxon) {
-        //this.loadRankTable()
-      }
     }
   },
   methods: {
     resetTask () {
-      this.list = []
+      this.rankTable = {}
+      this.jsonUrl = undefined
+      history.pushState(null, null, '/tasks/observation_matrices/dashboard/index')
     },
-    loadRankTable () {
-      const params = {
-        ancestor_id: this.taxon.id,
-        ranks: this.orderRanks(),
+    loadRankTable (params) {
+      const data = {
         fieldsets: this.fieldSet,
-        validity: this.validity ? true : undefined,
-        combination: this.combination,
         limit: this.limit
       }
-      GetRanksTable(this.taxon.id, params).then(response => {
-        this.jsonUrl = response.url
+      GetRanksTable(Object.assign({}, data, params)).then(response => {
+        const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
+
+        this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
+
+        history.pushState(null, null, `/tasks/observation_matrices/dashboard/index?${urlParams.toString()}`)
       })
-    },
-    orderRanks() {
-      let rankNames = [...new Set(this.getRankNames(this.rankList))]
-      let ranksOrder = rankNames.filter(rank => {
-        return this.ranks.includes(rank)
-      })
-      return ranksOrder
-    },
-    getRankNames (list, nameList = []) {
-      for (var key in list) {
-        if (typeof list[key] === 'object') {
-          this.getRankNames(list[key], nameList)
-        } else {
-          if (key === 'name') {
-            nameList.push(list[key])
-          }
-        }
-      }
-      return nameList
     }
   }
 }

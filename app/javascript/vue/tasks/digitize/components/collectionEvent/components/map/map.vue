@@ -14,14 +14,19 @@
     <div
       v-if="(!latitude || !longitude) && (collectionEvent.verbatim_latitude || collectionEvent.verbatim_longitude)"
       class="panel aligner middle"
-      style="height: 300px; align-items: center; width:310px; text-align: center;">
-      <h3>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.' (perhaps with warning triangle).</h3>
+      style="height: 300px; align-items: center; width:100%; text-align: center;">
+      <h3>
+        <span class="soft_validation">
+          <span data-icon="warning"/>
+          <span>Verbatim latitude/longitude unparsable or incomplete, location preview unavailable.</span>
+        </span>
+      </h3>
     </div>
 
     <div
       v-show="!collectionEvent.verbatim_latitude && !collectionEvent.verbatim_longitude"
       class="panel aligner"
-      style="height: 300px; align-items: center; width:310px; text-align: center;">
+      style="height: 300px; align-items: center; width:100%; text-align: center;">
       <h3>Provide verbatim latitude/longitude to preview location on map.</h3>
     </div>
   </div>
@@ -32,13 +37,16 @@
 import { GetterNames } from '../../../../store/getters/getters.js'
 import L from 'leaflet'
 import convertDMS from '../../../../helpers/parseDMS.js'
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png'
+import iconUrl from 'leaflet/dist/images/marker-icon.png'
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
 
-delete L.Icon.Default.prototype._getIconUrl;
+delete L.Icon.Default.prototype._getIconUrl
 
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
-  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default,
+  iconRetinaUrl: iconRetina,
+  iconUrl: iconUrl,
+  shadowUrl: shadowUrl
 })
 
 export default {
@@ -69,11 +77,17 @@ export default {
     latitude (newVal) {
       if (newVal && this.longitude) {
         this.setCoordinates(L.latLng(newVal, this.longitude))
+        this.$nextTick(() => {
+          this.mapObject.invalidateSize()
+        })
       }
     },
     longitude (newVal) {
       if (newVal && this.latitude) {
         this.setCoordinates(L.latLng(this.latitude, newVal))
+        this.$nextTick(() => {
+          this.mapObject.invalidateSize()
+        })
       }
     }
   },

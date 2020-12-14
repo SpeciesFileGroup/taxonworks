@@ -6,7 +6,7 @@ module Queries
       attr_accessor :biological_collection_object_ids, :otu_ids, :determiner_ids
 
       def initialize(params = {})
-        @otu_ids = params[:otu_ids]
+        @otu_ids = params[:otu_ids] || []
         @biological_collection_object_ids = params[:biological_collection_object_ids]
      
         if !params[:collection_object_id].blank? 
@@ -16,7 +16,7 @@ module Queries
 
         @determiner_ids = params[:determiner_ids]
         
-        @otu_ids ||= []
+        @otu_ids.push(params[:otu_id]) unless params[:otu_id].blank?
         @biological_collection_object_ids ||= []
         @determiner_ids ||= []
       end
