@@ -72,7 +72,7 @@ export default {
     },
     pixelsToCm: {
       get () {
-        return this.$store.getters[GetterNames.SetPixels]
+        return this.$store.getters[GetterNames.GetPixels]
       },
       set (value) {
         this.$store.commit(MutationNames.SetPixels, value)
