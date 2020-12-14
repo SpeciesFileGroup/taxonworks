@@ -7,8 +7,7 @@
         <label>Pixels</label>
         <input
           type="text"
-          v-model="pixels"
-          @input="pixelsToUnit"
+          v-model.number="pixels"
         >
       </div>
       <div class="field margin-small-left margin-small-right label-above">
@@ -19,14 +18,13 @@
         <label>Value</label>
         <input
           type="text"
-          @input="unitToPixels"
-          v-model="unitValue">
+          v-model.number="unitValue">
       </div>
       <div class="field label-above">
         <label>Unit</label>
         <select v-model="selected">
           <option
-            v-for="(item, key) in pxToUnits"
+            v-for="(item, key) in unitToCm"
             :key="key"
             :value="item">
             {{ key }}
@@ -38,6 +36,7 @@
         <button
           class="button normal-input button-submit margin-small-left"
           type="button"
+          :disabled="!isInputFilled"
           @click="apply"
         >
           Apply
@@ -53,21 +52,24 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 
-const pxToUnits = {
-  mm: 0.2645833333,
-  cm: 0.0264583333,
-  um: 264.5833,
-  nm: 264583.3,
-  m: 0.0002645833,
-  in: 0.0104166667,
-  ft: 0.0008680556,
-  mi: 1.6440444056709E-7,
-  nmi: 1.4286355291577E-7,
-  P: 0.062499992175197
+const unitToCm = {
+  mm: 1 / 10,
+  cm: 1,
+  nm: 1 / 1e+7,
+  um: 1 / 10000,
+  m: 100,
+  in: 2.54,
+  ft: 30.48,
+  mi: 160934,
+  nmi: 185200,
+  P: 0.42333333
 }
 
 export default {
   computed: {
+    isInputFilled () {
+      return this.pixels && this.unitValue
+    },
     pixelsToCm: {
       get () {
         return this.$store.getters[GetterNames.SetPixels]
@@ -77,41 +79,25 @@ export default {
       }
     },
     pixelValue () {
-      return this.pixels && this.selected ? this.pixels * this.selected : null
+      return this.isInputFilled ? (this.pixels / (this.unitValue * this.selected)) : null
     }
   },
   data () {
     return {
-      pxToUnits: pxToUnits,
-      selected: pxToUnits.mm,
+      unitToCm: unitToCm,
+      selected: unitToCm.mm,
       pixels: null,
-      unitValue: null,
-      isUnitLastSet: false
+      unitValue: null
     }
   },
   watch: {
     pixelValue (newVal) {
-      this.pixelsToCm = this.pixels ? this.pixels * this.pxToUnits.cm : null
-    },
-    selected () {
-      if (this.isUnitLastSet) {
-        this.unitToPixels()
-      } else {
-        this.pixelsToUnit()
-      }
+      this.pixelsToCm = newVal
     }
   },
   methods: {
     apply () {
       this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
-    },
-    pixelsToUnit () {
-      this.isUnitLastSet = false
-      this.unitValue = this.pixelValue
-    },
-    unitToPixels () {
-      this.isUnitLastSet = true
-      this.pixels = this.unitValue ? this.unitValue / this.selected : null
     }
   }
 }
