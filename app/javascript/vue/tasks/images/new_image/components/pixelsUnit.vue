@@ -31,17 +31,6 @@
           </option>
         </select>
       </div>
-      <div class="field label-above">
-        <label>&nbsp;</label>
-        <button
-          class="button normal-input button-submit margin-small-left"
-          type="button"
-          :disabled="!isInputFilled"
-          @click="apply"
-        >
-          Apply
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -50,7 +39,6 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { ActionNames } from '../store/actions/actions'
 
 const unitToCm = {
   mm: 1 / 10,
@@ -93,11 +81,6 @@ export default {
   watch: {
     pixelValue (newVal) {
       this.pixelsToCm = newVal
-    }
-  },
-  methods: {
-    apply () {
-      this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
     }
   }
 }
