@@ -2,7 +2,6 @@
   <div class="image-container">
     <dropzone
       class="dropzone-card separate-bottom"
-      @vdropzone-sending="sending"
       @vdropzone-success="success"
       ref="image"
       id="image"
@@ -31,7 +30,6 @@
 
 import Dropzone from 'components/dropzone.vue'
 import ImageViewer from './imageViewer.vue'
-import { GetterNames } from '../../store/getters/getters'
 
 export default {
   components: {
@@ -42,11 +40,6 @@ export default {
     value: {
       type: Array,
       default: () => { return [] }
-    }
-  },
-  computed: {
-    pixelToCm () {
-      return this.$store.getters[GetterNames.GetPixels]
     }
   },
   watch: {
@@ -82,9 +75,6 @@ export default {
       this.$refs.image.removeFile(file)
       this.$emit('input', this.figuresList)
       this.$emit('created',response)
-    },
-    sending (file, xhr, formData) {
-      formData.append('image[pixels_to_centimeter]', this.pixelToCm)
     },
     clearImages () {
       if (window.confirm("Are you sure you want to clear the images?")) {
