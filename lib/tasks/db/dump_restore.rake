@@ -90,17 +90,9 @@ namespace :tw do
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:file]}").yellow
 
-      config = ActiveRecord::Base.connection_config
+      config = Support::Database.pg_env_args
 
-      args = [
-        ['-h', config[:host]],
-        ['-d', config[:database]],
-        ['-U', config[:username]],
-        ['-p', config[:port]],
-        ['-f', @args[:file]]
-      ].reject! { |(a, v)| v.nil? }.flatten!
-
-      system({'PGPASSWORD' => config[:password]}, 'psql', '-v', 'ON_ERROR_STOP=1', *args)
+      system(config[:env], 'psql', '-v', 'ON_ERROR_STOP=1', *config[:args], '-f', @args[:file])
       raise TaxonWorks::Error, Rainbow("psql failed with exit code #{$?.to_i}").red unless $? == 0
     end
 

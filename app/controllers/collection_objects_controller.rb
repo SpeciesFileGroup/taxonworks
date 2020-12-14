@@ -428,13 +428,16 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
-      biological_relationship_ids: []
-
+      biological_relationship_ids: [],
+      #  user_id: []
+      
       #  collecting_event: {
       #   :recent,
       #   keyword_ids: []
       # }
     )
+
+    # TODO: check user_id: []
 
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
@@ -480,7 +483,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
-      biological_relationship_ids: []
+      biological_relationship_ids: [],
 
       #  collecting_event: {
       #   :recent,

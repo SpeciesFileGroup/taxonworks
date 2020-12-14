@@ -29,14 +29,14 @@ unless $user_seed_ran ||= false
     end
 
     project = Project.create!(name: 'Default', by: admin)
-    ProjectMember.create!(project: project, user: user, by: admin)
+    [admin, user].each { |u| ProjectMember.create!(project: project, user: u, by: admin) }
 
     # Used by matrix seed when env vars are not set
     Current.user_id = user.id
     Current.project_id = project.id
     ###
 
-    puts Rainbow("Created an administrator #{admin.email}, user #{user.email}, and project #{project.name} with them in it.").blue
+    puts Rainbow("Created an administrator #{admin.email}, a user #{user.email} (both with password 'taxonworks'), and project #{project.name} with them in it.").blue
   rescue ActiveRecord::RecordInvalid => e
     puts Rainbow("Failed with #{e.error.full_messages.join(', ')}.").red
   rescue TaxonWorks::SeedError => e

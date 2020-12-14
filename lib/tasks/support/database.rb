@@ -12,8 +12,8 @@ module Support
           [database_arg, config[:database]],
           ['-h', config[:host]],
           ['-U', config[:username]],
-          ['-p', config[:port]]
-        ].reject! { |(a, v)| v.nil? }.flatten!
+          ['-p', config[:port]&.to_s]
+        ].reject { |(a, v)| v.nil? }.flatten!
       }
     end
 

@@ -13,7 +13,11 @@
       <table class="full_width">
         <thead>
           <tr>
-            <th></th>
+            <th>
+              <input
+                v-model="selectAll"
+                type="checkbox">
+            </th>
             <th>Cached</th>
             <th>Lived</th>
             <th>Active</th>
@@ -78,6 +82,14 @@ export default {
       },
       set (value) {
         this.$emit('input', value)
+      }
+    },
+    selectAll: {
+      get () {
+        return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
+      },
+      set (value) {
+        this.selectedMergePerson = value ? this.matchList : []
       }
     },
     matchList () {

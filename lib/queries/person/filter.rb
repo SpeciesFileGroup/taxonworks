@@ -1,7 +1,7 @@
 module Queries
   module Person
 
-    class Filter  < Queries::Query
+    class Filter < Queries::Query
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
 
@@ -14,7 +14,7 @@ module Queries
       attr_accessor :last_name
 
       # @param role [Array, String]
-      #   A valid role name like 'Author' or array like ['TaxonDeterminer', 'Editor'].  See Role descendants.
+      #   A valid role name like 'Author' or array like ['TaxonDeterminer', 'SourceEditor'].  See Role descendants.
       # @return [Array]
       attr_accessor :role
 
@@ -223,7 +223,6 @@ module Queries
           role_facet,
           levenshtein_facet,
 
-
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
@@ -234,7 +233,6 @@ module Queries
           used_in_project_id_facet,
 
           created_updated_facet, # See Queries::Concerns::Users
-
         ].compact
 
         return nil if clauses.empty?

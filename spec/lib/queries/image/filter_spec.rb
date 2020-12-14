@@ -101,29 +101,29 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#ancestor_id id' do
+  specify '#taxon_name_id id' do
     o.update!(taxon_name: t3)
     o.images << i1
-    q.ancestor_id = t2.id
+    q.taxon_name_id = t2.id
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#ancestor_id array, Otu' do
+  specify '#taxon_name_id array, Otu' do
     o.update!(taxon_name: t3)
     o.images << i1
-    q.ancestor_id = [t2.id]
+    q.taxon_name_id = [t2.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#ancestor_id array, CollectionObject' do
+  specify '#taxon_name_id array, CollectionObject' do
     o.update!(taxon_name: t3)
     co.images << i1
     co.otus << o
-    q.ancestor_id = [t2.id]
+    q.taxon_name_id = [t2.id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
-  specify '#ancestor_id, #ancestor_id_target' do
+  specify '#taxon_name_id, #ancestor_id_target' do
     # Collection object
     o.update!(taxon_name: t3)
     co.images << i1
@@ -132,14 +132,13 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     # Otu
     o.images << i2
 
-    q.ancestor_id = [t2.id]
+    q.taxon_name_id = [t2.id]
     q.ancestor_id_target = 'CollectionObject'
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify 'some together' do
-
     # Collection object
     o.update!(taxon_name: t3)
     co.images << i1
@@ -148,13 +147,11 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     # Otu
     o.images << i2
 
-    q.ancestor_id = [t2.id]
+    q.taxon_name_id = [t2.id]
     q.depiction = true
     q.image_id = [i1.id]
 
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
-
-
   end
 
 end

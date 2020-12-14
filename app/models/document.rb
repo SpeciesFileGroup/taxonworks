@@ -129,7 +129,7 @@ class Document < ApplicationRecord
         reader = PDF::Reader.new(io)
         write_attribute(:page_total, reader.page_count)
       end
-    rescue MalformedPDFError
+    rescue PDF::Reader::MalformedPDFError
       errors.add(:base, 'pdf is malformed')
     end
     set_pages_by_start(initialize_start_page) if initialize_start_page

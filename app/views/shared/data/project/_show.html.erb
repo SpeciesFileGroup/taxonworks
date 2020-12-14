@@ -38,7 +38,7 @@
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
-              <li><%= radial_annotator(object, true) %></li>
+              <li><%= radial_annotator(object, annotations_exist(object)) %></li>
               <li><%= tag_default_icon(object) %></li>
               <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
               <li><%= radial_navigation_tag(object) %></li>
