@@ -78,11 +78,14 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
       end
     end
 
-    context 'helper methods' do
-      specify '#stale?' do
-        expect(collection_object.dwc_occurrence.stale?).to be_falsey
-      end
+    specify '#stale?' do
+      expect(collection_object.dwc_occurrence.stale?).to be_falsey
     end
+  end
+
+  # Can't test within a transaction.
+  specify '.empty_fields' do
+    expect(::DwcOccurrence.empty_fields).to contain_exactly() # Should be ::DwcOccurrence.column_names
   end
 
   # context 'concerns' do

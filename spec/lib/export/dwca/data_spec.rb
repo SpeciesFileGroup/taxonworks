@@ -2,18 +2,18 @@ require 'rails_helper'
 require 'export/dwca/data'
 
 describe Export::Dwca::Data, type: :model do 
-  let(:scope) { DwcOccurrence.all }
+  let(:scope) { ::DwcOccurrence.all }
 
   specify 'initializing without a scope raises' do
-    expect {Export::Dwca::Data.new(nil)}.to raise_error ArgumentError 
+    expect {Export::Dwca::Data.new(::DwcOccurrence.all)}.to raise_error ArgumentError 
   end
 
   specify 'initializing with a DwcOccurrence scope succeeds' do
-    expect(Export::Dwca::Data.new(scope)).to be_truthy
+    expect(Export::Dwca::Data.new(core_scope: scope)).to be_truthy
   end
 
-   context 'when initialized with a scope' do
-    let(:data) { Export::Dwca::Data.new(scope) }
+  context 'when initialized with a scope' do
+    let(:data) { Export::Dwca::Data.new(core_scope: scope) }
 
     specify '#csv returns csv String' do
       expect(data.csv).to be_kind_of( String ) 
@@ -37,19 +37,19 @@ describe Export::Dwca::Data, type: :model do
       context 'various scopes' do
         specify 'with .where clauses' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(s)
+          d = Export::Dwca::Data.new(core_scope: s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
 
         specify 'with .order clauses' do
           s = scope.order(:basisOfRecord)
-          d = Export::Dwca::Data.new(s)
+          d = Export::Dwca::Data.new(core_scope: s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
 
         specify 'with .join clauses' do
           s = scope.collection_objects_join
-          d = Export::Dwca::Data.new(s)
+          d = Export::Dwca::Data.new(core_scope: s)
           expect(d.csv_headers).to contain_exactly(*headers)
         end
       end

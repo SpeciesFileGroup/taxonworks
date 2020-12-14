@@ -254,7 +254,6 @@ module CollectionObject::DwcExtensions
     current_taxon_determination&.date
   end
 
-
   attr_accessor :taxonomy
 
   # @params reset [Boolean]

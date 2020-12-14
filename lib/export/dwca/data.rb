@@ -17,22 +17,29 @@ module Export::Dwca
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
-    attr_accessor :data, :eml, :meta, :zipfile, :scope, :total
+    attr_accessor :data, :eml, :meta, :zipfile
+
+    attr_accessor :core_scope
+
+    attr_accessor :total # todo, update
+
     attr_reader :filename
 
     # @param [Hash] args
-    def initialize(record_scope)
-      raise ArgumentError, 'must pass a scope' if !record_scope.kind_of?( ActiveRecord::Relation )
-      @scope = record_scope
-      @total = scope.count # ('*')
+    def initialize(core_scope: nil, extension_scopes: {} )
+      # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
+      @core_scope = get_scope(core_scope)
+      # @extensio_scope = get_scope(core_scope)
+      @total = core_scope.count # ('*')
     end
 
     # @return [CSV]
     #   the data as a CSV object
     def csv
-      Export::Download.generate_csv(
-        scope.computed_columns,
-        trim_columns: false,
+      ::Export::Download.generate_csv(
+        core_scope.computed_columns,
+        exclude_columns: ::DwcOccurrence.excluded_columns,
+        trim_columns: true, # going to have to be optional
         trim_rows: false,
         header_converters: [:dwc_headers]
       )
@@ -51,7 +58,7 @@ module Export::Dwca
     end
 
     # @return [Boolean]
-    #   true if provided scope returns no records
+    #   true if provided core_scope returns no records
     def no_records?
       total == 0
     end
@@ -95,7 +102,7 @@ module Export::Dwca
           'xsi:schemaLocation' => 'eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.1/eml.xsd',
           'packageId' => identifier,
           'system' => 'http://taxonworks.org',
-          'scope' => 'system',
+          'core_scope' => 'system',
           'xml:lang' => 'eng'
         ) {
           xml.dataset {
@@ -177,6 +184,11 @@ module Export::Dwca
     # @return [File]
     #   the stream to use in send_data, for example
     def getzip
+      build_zip
+      File.read(zipfile.path)
+    end
+
+    def build_zip
       Zip::OutputStream.open(zipfile) { |zos| }
 
       Zip::File.open(zipfile.path, Zip::File::CREATE) do |zip|
@@ -184,8 +196,6 @@ module Export::Dwca
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
       end
-
-      File.read(zipfile.path)
     end
 
     # @return [Tempfile]
@@ -214,6 +224,18 @@ module Export::Dwca
       data.close
       data.unlink
       true
+    end
+
+    # params core_scope [String, ActiveRecord::Relation]
+    #   string is fully formed SQL
+    def get_scope(scope)
+      if scope.kind_of?(String)
+        DwcOccurrence.from('(' + core_scope + ') as dwc_occurrences')
+      elsif scope.kind_of?(ActiveRecord::Relation)
+        scope
+      else
+        raise 'Scope is not a SQL string or ActiveRecord::Relation'
+      end
     end
 
   end

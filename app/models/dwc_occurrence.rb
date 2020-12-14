@@ -45,20 +45,7 @@ class DwcOccurrence < ApplicationRecord
 
   belongs_to :dwc_occurrence_object, polymorphic: true
 
-  # @return Scope
-  def self.empty_fields(project_id)
-    empty_in_all_projects = ::DwcOccurrence.connection.execute("select attname
-    from pg_stats
-    where tablename = 'dwc_occurrences'
-    and most_common_vals is null
-    and most_common_freqs is null
-    and histogram_bounds is null
-    and correlation is null
-    and null_frac = 1;").pluck('attname')
-
-    empty_in_all_projects - target_columns
-  end
-
+  # @return [ActiveRecord::Relation]
   def self.collection_objects_join
     a = arel_table
     b = ::CollectionObject.arel_table 
@@ -73,12 +60,36 @@ class DwcOccurrence < ApplicationRecord
   validates :dwc_occurrence_object, presence: true
   validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
 
+ # @return [Array]
+  #   of column names as symbols that are blank in *ALL* projects (not just this one)
+  def self.empty_fields
+    empty_in_all_projects =  ActiveRecord::Base.connection.execute("select attname
+    from pg_stats
+    where tablename = 'dwc_occurrences'
+    and most_common_vals is null
+    and most_common_freqs is null
+    and histogram_bounds is null
+    and correlation is null
+    and null_frac = 1;").pluck('attname').map(&:to_sym)
 
+    empty_in_all_projects #  - target_columns
+  end
+
+  # @return [Array]
+  #   of symbols
   def self.target_columns
-    ['id', 'basisOfRecord'] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+    [:id, :basisOfRecord] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
+  end
+
+  # @return [Array] 
+  #   of symbols
+  # TODO: 
+  def self.excluded_columns
+    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - self.target_columns 
   end
 
   # @return [Scope]
+  #   the columns inferred to have data
   def self.computed_columns
     select(target_columns)
   end
