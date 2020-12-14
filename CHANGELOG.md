@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Malformed PDF exception handling in Document model.
 - Clipboard copy shortcut
 - Source hub link on Citations by source task
+- Clean content editor after change a topic
 
 
 [#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
