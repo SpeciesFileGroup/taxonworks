@@ -4,6 +4,8 @@ const CreateCollectingEvent = (ce) => ajaxCall('post', '/collecting_events.json'
 
 const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
 
+const CreateLabel = data => ajaxCall('post', '/labels.json', data)
+
 const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.json', { params })
 
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
@@ -14,17 +16,21 @@ const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`
 
 const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_areas/by_lat_long', { params: { latitude: lat, longitude: long } })
 
-const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
-
 const GetDepictions = (id) => ajaxCall('get', `/collecting_events/${id}/depictions.json`)
 
+const GetLabelsFromCE = (id) => ajaxCall('get', `/labels.json?label_object_id=${id}&label_object_type=CollectingEvent`)
+
 const GetProjectPreferences = () => ajaxCall('get', '/project_preferences.json')
+
+const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
 
 const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verbatim_label', { params: { verbatim_label: label } })
 
 const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce.id}`, { collecting_event: ce })
 
 const UpdateDepiction = (id, depiction) => ajaxCall('patch', `/depictions/${id}.json`, depiction)
+
+const UpdateLabel = (id, data) => ajaxCall('patch', `/labels/${id}.json`, data)
 
 const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 
@@ -39,12 +45,14 @@ const DestroyCollectingEvent = (id) => ajaxCall('delete', `/collecting_events/${
 export {
   CreateCollectingEvent,
   CreateGeoreference,
+  CreateLabel,
   DestroyDepiction,
   DestroyCollectingEvent,
   GetCollectionObjects,
   GetCollectingEvent,
   GetCollectingEvents,
   GetGeographicArea,
+  GetLabelsFromCE,
   GetRecentCollectingEvents,
   GetUserPreferences,
   GetDepictions,
@@ -53,6 +61,7 @@ export {
   LoadSoftValidation,
   UpdateCollectingEvent,
   UpdateDepiction,
+  UpdateLabel,
   UpdateUserPreferences,
   ParseVerbatim
 }

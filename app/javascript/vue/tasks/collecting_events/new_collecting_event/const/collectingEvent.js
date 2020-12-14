@@ -1,3 +1,5 @@
+import makeLabel from './label'
+
 export default () => {
   return {
     id: undefined,
@@ -43,6 +45,7 @@ export default () => {
     roles_attributes: [],
     identifiers_attributes: [],
     georeferences: [],
-    queueGeoreferences: []
+    queueGeoreferences: [],
+    label: makeLabel()
   }
 }

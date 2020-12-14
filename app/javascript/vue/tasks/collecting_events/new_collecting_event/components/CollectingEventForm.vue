@@ -3,7 +3,8 @@
     <div class="horizontal-left-content align-start">
       <div
         class="flex-wrap-column full_width margin-medium-right"
-        v-for="(column, key) in componentsOrder">
+        v-for="(column, key) in componentsOrder"
+        :key="key">
         <h2 v-if="titleSection[key]">{{ titleSection[key] }}</h2>
         <draggable
           class="full_width"

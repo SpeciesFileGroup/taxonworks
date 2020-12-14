@@ -76,6 +76,8 @@
     <div class="horizontal-left-content align-start">
       <collecting-event-form
         v-model="collectingEvent"
+        :label="label"
+        @updateLabel="updateLabel"
         :sortable="settings.sortable"
         class="full_width" />
       <right-section class="separate-left" />
@@ -102,13 +104,17 @@ import ParseData from './components/parseData'
 
 import CollectingEventForm from './components/CollectingEventForm'
 import makeCollectingEvent from './const/collectingEvent'
+import makeLabel from './const/label'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 
 import {
-  GetCollectingEvent,
-  GetUserPreferences,
   CreateCollectingEvent,
-  UpdateCollectingEvent
+  CreateLabel,
+  GetCollectingEvent,
+  GetLabelsFromCE,
+  GetUserPreferences,
+  UpdateCollectingEvent,
+  UpdateLabel
 } from './request/resources'
 
 export default {
@@ -140,7 +146,8 @@ export default {
         sortable: false
       },
       showRecent: false,
-      ce: makeCollectingEvent()
+      ce: makeCollectingEvent(),
+      label: makeLabel()
     }
   },
   mounted () {
@@ -163,7 +170,8 @@ export default {
       this.ce = makeCollectingEvent()
     },
     loadCollectingEvent (id) {
-      GetCollectingEvent(id).then(response => {
+      GetCollectingEvent(id).then(async response => {
+        response.body.label = (await GetLabelsFromCE(response.body.id)).body[0]
         this.setCollectingEvent(response.body)
         SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', id)
       })
@@ -171,18 +179,34 @@ export default {
     setCollectingEvent (ce) {
       this.collectingEvent = Object.assign({}, this.collectingEvent, ce)
     },
-    saveCollectingEvent () {
+    async saveCollectingEvent () {
       if (this.collectingEvent.id) {
-        UpdateCollectingEvent(this.collectingEvent).then(response => {
+        UpdateCollectingEvent(this.collectingEvent).then(async response => {
+          const label = this.collectingEvent.label
+
+          if (label.text.length && label.total) {
+            label.label_object_id = response.body.id
+            response.body.label = label.id ? (await UpdateLabel(label.id, label)).body : (await CreateLabel(label)).body
+          }
           this.setCollectingEvent(response.body)
           TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
         })
       } else {
-        CreateCollectingEvent(this.collectingEvent).then(response => {
+        CreateCollectingEvent(this.collectingEvent).then(async response => {
+          const label = this.collectingEvent.label
+
+          if (label.text.length && label.total) {
+            label.label_object_id = response.body.id
+            response.body.label = (await CreateLabel(label)).body
+          }
+
           this.setCollectingEvent(response.body)
           TW.workbench.alert.create('Collection objects was successfully created.', 'notice')
         })
       }
+    },
+    updateLabel (value) {
+      this.label = value
     },
     getOSKey: GetOSKey
   }

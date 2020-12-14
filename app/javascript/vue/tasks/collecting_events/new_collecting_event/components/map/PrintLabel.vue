@@ -19,19 +19,19 @@
       <label>Que to print
         <input
           class="que-input"
-          :disabled="!(label.text && label.text.length)"
+          :disabled="!(collectingEvent.label.text && collectingEvent.label.text.length)"
           size="5"
-          v-model="label.total"
+          v-model="collectingEvent.label.total"
           type="number">
       </label>
       <a
-        v-if="label.id && label.total > 0"
+        v-if="collectingEvent.label.id && collectingEvent.label.total > 0"
         target="blank"
         href="/tasks/labels/print_labels/index">Preview
       </a>
     </div>
     <textarea
-      v-model="label.text"
+      v-model="collectingEvent.label.text"
       cols="45"
       rows="12"/>
     <label>Document label</label>
@@ -44,23 +44,17 @@
 
 <script>
 import extendCE from '../mixins/extendCE.js'
-import makeLabel from '../../const/label.js'
 
 export default {
   mixins: [extendCE],
   computed: {
     isEmpty () {
-      return this.label.text.length === 0
+      return this.collectingEvent.label.text.length === 0
     }
   },
   methods: {
     copyLabel () {
-      this.label.text = this.collectingEvent.verbatim_label
-    }
-  },
-  data () {
-    return {
-      label: makeLabel()
+      this.collectingEvent.label.text = this.collectingEvent.verbatim_label
     }
   }
 }
