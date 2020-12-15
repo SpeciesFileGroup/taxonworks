@@ -45,6 +45,14 @@
             class="separate-left"
             @onParse="setCollectingEvent"/>
           <button
+            type="button"
+            class="button normal-input button-submit margin-small-left"
+            :disabled="!collectingEvent.id"
+            @click="cloneCE"
+          >
+            Clone
+          </button>
+          <button
             v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
             @click="saveCollectingEvent"
@@ -110,6 +118,7 @@ import makeCollectingEvent from './const/collectingEvent'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
 
 import {
+  CloneCollectionEvent,
   CreateCollectingEvent,
   CreateLabel,
   GetCollectingEvent,
@@ -170,6 +179,12 @@ export default {
     })
   },
   methods: {
+    cloneCE () {
+      CloneCollectionEvent(this.collectingEvent.id).then(response => {
+        this.setCollectingEvent(response.body)
+        TW.workbench.alert.create('Collecting event was successfully cloned.', 'notice')
+      })
+    },
     reset () {
       this.ce = makeCollectingEvent()
       this.validation = []

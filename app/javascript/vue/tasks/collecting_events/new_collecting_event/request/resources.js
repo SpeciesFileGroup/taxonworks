@@ -12,6 +12,8 @@ const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.jso
 
 const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json', { params: params })
 
+const CloneCollectionEvent = (id) => ajaxCall('post', `/collecting_events/${id}/clone`)
+
 const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`)
 
 const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_areas/by_lat_long', { params: { latitude: lat, longitude: long } })
@@ -45,6 +47,7 @@ const DestroyDepiction = (id) => ajaxCall('delete', `/depictions/${id}`)
 const DestroyCollectingEvent = (id) => ajaxCall('delete', `/collecting_events/${id}`)
 
 export {
+  CloneCollectionEvent,
   CreateCollectingEvent,
   CreateGeoreference,
   CreateLabel,
