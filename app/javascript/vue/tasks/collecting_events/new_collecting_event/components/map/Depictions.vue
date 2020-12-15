@@ -1,7 +1,7 @@
 <template>
   <div class="full_width">
     <dropzone
-      class="dropzone-card separate-bottom"
+      class="dropzone-card"
       @vdropzone-sending="sending"
       @vdropzone-file-added="addedfile"
       @vdropzone-success="success"
@@ -20,26 +20,32 @@
         :key="item.id"
         :depiction="item"/>
     </div>
-    <div>
-      <label>
-        <input
-          v-model="autogeo"
-          type="checkbox"> Create georeferences from EXIF
-      </label>
-    </div>
-    <div v-if="coordinatesEXIF.length">
-      <ul class="no_bullets">
-        <li v-for="item in coordinatesEXIF">
-          <label class="middle">
+    <table
+      class="full_width">
+      <thead>
+        <tr>
+          <th>
+            <input
+              v-model="setAutogeo"
+              type="checkbox">
+          </th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in coordinatesEXIF">
+          <td>
             <input
               v-model="queueGeoreferences"
               :value="item"
               type="checkbox">
-            {{ geoJsonLabel(parseGeoJson(item)) }}
-          </label>
-        </li>
-      </ul>
-    </div>
+          </td>
+          <td>{{ parseGeoJson(item).latitude }}</td>
+          <td>{{ parseGeoJson(item).longitude }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -67,6 +73,29 @@ export default {
       },
       set (value) {
         this.collectingEvent.queueGeoreferences = value
+      }
+    },
+    setAutogeo: {
+      get () {
+        return this.autogeo
+      },
+      set (value) {
+        if (value) {
+          this.coordinatesEXIF.forEach(item => {
+            const found = this.queueGeoreferences.find(geo => geo.tmpId === item.tmpId)
+            if (!found) {
+              this.queueGeoreferences.push(item)
+            }
+          })
+        } else {
+          this.coordinatesEXIF.forEach(item => {
+            const index = this.queueGeoreferences.findIndex(geo => geo.tmpId === item.tmpId)
+            if (index > -1) {
+              this.queueGeoreferences.splice(index, 1)
+            }
+          })
+        }
+        this.autogeo = value
       }
     }
   },
