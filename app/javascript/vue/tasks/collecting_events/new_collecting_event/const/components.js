@@ -22,14 +22,14 @@ import PrintLabel from '../components/map/PrintLabel.vue'
 import Depictions from '../components/map/Depictions.vue'
 
 const ComponentVerbatim = {
-  Collectors: 'Collectors',
-  DateComponent: 'DateComponent',
+  Label: 'Label',
+  Locality: 'Locality',
+  Latitude: 'Latitude',
+  Longitude: 'Longitude',
   Geolocation: 'Geolocation',
   Habitat: 'Habitat',
-  Label: 'Label',
-  Latitude: 'Latitude',
-  Locality: 'Locality',
-  Longitude: 'Longitude',
+  DateComponent: 'DateComponent',
+  Collectors: 'Collectors',
   Method: 'Method',
   TripIdentifier: 'TripIdentifier'
 }

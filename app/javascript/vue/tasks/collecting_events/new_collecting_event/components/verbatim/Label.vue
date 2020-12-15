@@ -2,7 +2,8 @@
   <div class="field label-above">
     <label>Label</label>
     <textarea
-      rows="3"
+      class="full_width"
+      rows="5"
       v-model="collectingEvent.verbatim_label"/>
   </div>
 </template>

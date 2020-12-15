@@ -2,8 +2,9 @@
   <div class="panel content">
     <div class="horizontal-left-content align-start">
       <div
-        class="flex-wrap-column full_width margin-medium-right"
-        v-for="(column, key) in componentsOrder"
+        class="flex-wrap-column full_width"
+        v-for="(column, key, index) in componentsOrder"
+        :class="{ 'margin-medium-right': (index < lastColumn) }"
         :key="key">
         <h2 v-if="titleSection[key]">{{ titleSection[key] }}</h2>
         <draggable
@@ -49,6 +50,9 @@ export default {
     }
   },
   computed: {
+    lastColumn () {
+      return Object.keys(this.componentsOrder).length - 1
+    },
     collectingEvent: {
       get () {
         return this.value

@@ -6,12 +6,14 @@
         <label>Minimum</label>
         <input
           type="text"
+          class="input-xsmall-width"
           v-model="collectingEvent.minimum_elevation">
       </div>
       <div class="field label-above separate-right">
         <label>Maximum</label>
         <input
           type="text"
+          class="input-xsmall-width"
           v-model="collectingEvent.maximum_elevation">
       </div>
       <div class="field label-above separate-right">
@@ -20,6 +22,7 @@
           <span>+/-</span>
           <input
             type="text"
+            class="input-xsmall-width"
             v-model="collectingEvent.elevation_precision">
         </div>
       </div>

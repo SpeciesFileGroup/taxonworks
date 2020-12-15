@@ -7,12 +7,14 @@
           <label>Day</label>
           <input
             type="text"
+            class="input-xsmall-width"
             maxlength="2"
             v-model="collectingEvent.start_date_day">
         </div>
         <div class="separate-left separate-right label-above">
           <label>Month</label>
           <input
+            class="input-xsmall-width"
             type="text"
             maxlength="2"
             v-model="collectingEvent.start_date_month">
@@ -21,6 +23,7 @@
           <label>Year</label>
           <input
             id="start-date-year"
+            class="input-xsmall-width"
             type="text"
             maxlength="4"
             v-model="collectingEvent.start_date_year">
@@ -49,6 +52,7 @@
           <label>Day</label>
           <input
             type="text"
+            class="input-xsmall-width"
             maxlength="2"
             v-model="collectingEvent.end_date_day">
         </div>
@@ -56,6 +60,7 @@
           <label>Month</label>
           <input
             type="text"
+            class="input-xsmall-width"
             maxlength="2"
             v-model="collectingEvent.end_date_month">
         </div>
@@ -63,6 +68,7 @@
           <label>Year</label>
           <input
             type="text"
+            class="input-xsmall-width"
             maxlength="4"
             v-model="collectingEvent.end_date_year">
         </div>

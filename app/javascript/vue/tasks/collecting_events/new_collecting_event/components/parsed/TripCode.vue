@@ -4,7 +4,7 @@
     <div
       class="flex-wrap-column middle align-start"
     >
-      <div class="separate-right">
+      <div class="full_width">
         <fieldset>
           <legend>Namespace</legend>
           <smart-selector
