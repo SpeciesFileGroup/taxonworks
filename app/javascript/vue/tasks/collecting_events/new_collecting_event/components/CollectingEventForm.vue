@@ -15,6 +15,7 @@
             class="separate-bottom"
             v-for="(componentName) in column"
             v-model="collectingEvent"
+            :soft-validation="softValidation"
             :key="componentName"
             :is="componentName"/>
         </draggable>
@@ -41,6 +42,10 @@ export default {
     sortable: {
       type: Boolean,
       default: false
+    },
+    softValidation: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {

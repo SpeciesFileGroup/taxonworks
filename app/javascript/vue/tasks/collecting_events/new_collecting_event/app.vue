@@ -71,12 +71,13 @@
     </nav-bar>
     <recent-component
       v-if="showRecent"
-      @select="setCollectingEvent"
+      @select="loadCollectingEvent($event.id)"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
       <collecting-event-form
         v-model="collectingEvent"
         :sortable="settings.sortable"
+        :soft-validation="validation"
         class="full_width" />
       <right-section class="separate-left" />
     </div>
@@ -110,6 +111,7 @@ import {
   GetCollectingEvent,
   GetLabelsFromCE,
   GetUserPreferences,
+  GetSoftValidation,
   UpdateCollectingEvent,
   UpdateLabel
 } from './request/resources'
@@ -144,6 +146,7 @@ export default {
       },
       userPreferences: {},
       showRecent: false,
+      validation: [],
       ce: makeCollectingEvent()
     }
   },
@@ -165,31 +168,34 @@ export default {
   methods: {
     reset () {
       this.ce = makeCollectingEvent()
+      this.validation = []
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
     },
     loadCollectingEvent (id) {
       GetCollectingEvent(id).then(async response => {
-        response.body.label = (await GetLabelsFromCE(response.body.id)).body[0]
+        this.loadValidation(response.body.global_id)
+        const label = (await GetLabelsFromCE(response.body.id)).body[0]
+        response.body.label = label || makeCollectingEvent().label
         this.setCollectingEvent(response.body)
-        SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', id)
       })
     },
     setCollectingEvent (ce) {
       this.collectingEvent = Object.assign({}, this.collectingEvent, ce)
+      SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', this.collectingEvent.id)
     },
     async saveCollectingEvent () {
       if (this.collectingEvent.id) {
         UpdateCollectingEvent(this.collectingEvent).then(async response => {
+          this.loadValidation(response.body.global_id)
           response.body.label = await this.saveLabel(this.collectingEvent)
           this.setCollectingEvent(response.body)
-          SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', response.body.id)
           TW.workbench.alert.create('Collecting event was successfully updated.', 'notice')
         })
       } else {
         CreateCollectingEvent(this.collectingEvent).then(async response => {
+          this.loadValidation(response.body.global_id)
           response.body.label = await this.saveLabel(this.collectingEvent)
           this.setCollectingEvent(response.body)
-          SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', response.body.id)
           TW.workbench.alert.create('Collecting event was successfully created.', 'notice')
         })
       }
@@ -203,6 +209,11 @@ export default {
       } else {
         return label
       }
+    },
+    loadValidation (globalId) {
+      GetSoftValidation(globalId).then(response => {
+        this.validation = response.body.validations.soft_validations
+      })
     },
     getOSKey: GetOSKey
   }

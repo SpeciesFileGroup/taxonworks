@@ -22,6 +22,8 @@ const GetLabelsFromCE = (id) => ajaxCall('get', `/labels.json?label_object_id=${
 
 const GetProjectPreferences = () => ajaxCall('get', '/project_preferences.json')
 
+const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
+
 const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
 
 const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verbatim_label', { params: { verbatim_label: label } })
@@ -55,6 +57,7 @@ export {
   GetLabelsFromCE,
   GetRecentCollectingEvents,
   GetUserPreferences,
+  GetSoftValidation,
   GetDepictions,
   GetProjectPreferences,
   GetGeographicAreaByCoords,
