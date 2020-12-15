@@ -20,7 +20,6 @@ import Georeferences from '../components/parsed/georeferences/georeferences.vue'
 import MapComponent from '../components/map/Map.vue'
 import PrintLabel from '../components/map/PrintLabel.vue'
 import Depictions from '../components/map/Depictions.vue'
-import SoftValidation from '../components/map/SoftValidation.vue'
 
 const ComponentVerbatim = {
   Collectors: 'Collectors',
@@ -47,7 +46,6 @@ const ComponentParse = {
 }
 
 const ComponentMap = {
-  SoftValidation: 'SoftValidation',
   Map: 'Map',
   PrintLabel: 'PrintLabel',
   Depictions: 'Depictions'
@@ -75,7 +73,6 @@ const VueComponents = {
   [ComponentParse.Predicates]: Predicates,
   [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
-  [ComponentMap.SoftValidation]: SoftValidation,
   [ComponentMap.Depictions]: Depictions
 }
 

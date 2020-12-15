@@ -17,10 +17,7 @@
 
 <script>
 
-import extendCE from '../mixins/extendCE'
-
 export default {
-  mixins: [extendCE],
   props: {
     softValidation: {
       type: Array,

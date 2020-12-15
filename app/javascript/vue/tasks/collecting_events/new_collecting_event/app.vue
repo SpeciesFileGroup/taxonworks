@@ -79,7 +79,11 @@
         :sortable="settings.sortable"
         :soft-validation="validation"
         class="full_width" />
-      <right-section class="separate-left" />
+      <right-section
+        :value="collectingEvent"
+        :soft-validation="validation"
+        @select="loadCollectingEvent($event.id)"
+        class="separate-left" />
     </div>
   </div>
 </template>
