@@ -7,6 +7,7 @@ import getRowPositionById from './getRowPositionById'
 import getSettings from './getSettings'
 import getVirtualPages from './getVirtualPages'
 import getCurrentVirtualPage from './getCurrentVirtualPage'
+import getStartRow from './getStartRow'
 
 const GetterNames = {
   GetDataset: 'getDataset',
@@ -17,7 +18,8 @@ const GetterNames = {
   GetRowPositionById: 'getRowPositionById',
   GetSettings: 'getSettings',
   GetVirtualPages: 'getVirtualPages',
-  GetCurrentVirtualPage: 'getCurrentVirtualPage'
+  GetCurrentVirtualPage: 'getCurrentVirtualPage',
+  getStartRow: 'getStartRow'
 }
 
 const GetterFunctions = {
@@ -29,7 +31,8 @@ const GetterFunctions = {
   [GetterNames.GetRowPositionById]: getRowPositionById,
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetVirtualPages]: getVirtualPages,
-  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage
+  [GetterNames.GetCurrentVirtualPage]: getCurrentVirtualPage,
+  [GetterNames.GetStartRow]: getStartRow,
 }
 
 export {

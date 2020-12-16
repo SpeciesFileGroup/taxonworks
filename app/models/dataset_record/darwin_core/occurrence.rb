@@ -406,7 +406,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       (year && end_date.year != year || month && end_date.month != month || day && end_date.day != day)
     end
 
-    # endDayOfYear: end_date_* ## TODO: Might need to support date ranges for eventDate as this field does not make possible to end next year
     set_hash_val(collecting_event, :end_date_year, year)
     set_hash_val(collecting_event, :end_date_month, month)
     set_hash_val(collecting_event, :end_date_day, day)

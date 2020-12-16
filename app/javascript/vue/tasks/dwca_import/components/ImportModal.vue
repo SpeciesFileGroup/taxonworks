@@ -43,6 +43,9 @@
           @click="startImport">
           Start import
         </button>
+        <input
+          type="checkbox"
+          v-model="settings.retryErrored"> Retry errored records
       </template>
     </modal-component>
   </div>

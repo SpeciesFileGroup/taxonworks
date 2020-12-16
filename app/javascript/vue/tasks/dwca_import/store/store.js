@@ -11,7 +11,8 @@ function makeInitialState () {
   return {
     settings: {
       isLoading: false,
-      isProcessing: false
+      isProcessing: false,
+      retryErrored: false
     },
     paramsFilter: {
       per: 50,
