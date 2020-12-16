@@ -2,7 +2,7 @@
   <div>
     <spinner-component
       :full-screen="true"
-      v-if="loading"/>
+      v-if="isLoading"/>
     <button
       @click="showModalView(true)"
       class="button normal-input button-default button-size separate-left"
@@ -59,13 +59,16 @@ export default {
   data () {
     return {
       collectingEvents: [],
-      loading: false,
+      isLoading: false,
       showModal: false
     }
   },
   mounted () {
+    this.isLoading = true
     GetCollectingEvents({ per: 10 }).then(response => {
       this.collectingEvents = response.body
+    }).finally(() => {
+      this.isLoading = false
     })
   },
   methods: {
@@ -81,6 +84,7 @@ export default {
     },
     selectCollectingEvent (collectingEvent) {
       this.$emit('select', collectingEvent)
+      this.showModalView(false)
     }
   }
 }

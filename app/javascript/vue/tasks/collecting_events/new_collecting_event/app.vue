@@ -2,8 +2,8 @@
   <div>
     <spinner-component
       full-screen
-      legend="Saving..."
-      v-if="isSaving"/>
+      :legend="isSaving ? 'Saving...' : 'Loading...'"
+      v-if="isSaving || isLoading"/>
     <div class="flex-separate middle">
       <h1>New collecting event</h1>
       <ul class="context-menu">
@@ -159,6 +159,7 @@ export default {
   },
   data () {
     return {
+      isLoading: false,
       isSaving: false,
       settings: {
         sortable: false
@@ -192,11 +193,14 @@ export default {
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
     },
     loadCollectingEvent (id) {
+      this.isLoading = true
       GetCollectingEvent(id).then(async response => {
         this.loadValidation(response.body.global_id)
         const label = (await GetLabelsFromCE(response.body.id)).body[0]
         response.body.label = label || makeCollectingEvent().label
         this.setCollectingEvent(response.body)
+      }).finally(() => {
+        this.isLoading = false
       })
     },
     setCollectingEvent (ce) {
