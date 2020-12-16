@@ -66,7 +66,7 @@ module PinboardItemsHelper
       .joins(:tags)
       .where(tags: {keyword: keyword})
       .order(id: :asc)
-      .where(['id > ?', id]).limit(1)
+      .where(['id > ?', object.id]).limit(1)
     if respond_to?(:project_id)
       base.where(project_id: sessions_current_project_id).first
     else
@@ -80,7 +80,7 @@ module PinboardItemsHelper
       .joins(:tags)
       .where(tags: {keyword: keyword})
       .order(id: :desc)
-      .where(['id < ?', id]).limit(1)
+      .where(['id < ?', object.id]).limit(1)
     if respond_to?(:project_id)
       base.where(project_id: sessions_current_project_id).first
     else
