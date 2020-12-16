@@ -11,6 +11,7 @@
           class="full_width"
           v-model="componentsOrder[key]"
           :key="key"
+          @end="updatePreferences"
           :disabled="!sortable">
           <component
             class="separate-bottom"
@@ -28,7 +29,17 @@
 <script>
 
 import Draggable from 'vuedraggable'
-import { ComponentMap, ComponentParse, ComponentVerbatim, VueComponents } from '../const/components'
+import {
+  GetUserPreferences,
+  UpdateUserPreferences
+} from '../request/resources.js'
+
+import {
+  ComponentMap,
+  ComponentParse,
+  ComponentVerbatim,
+  VueComponents
+} from '../const/components'
 
 export default {
   components: {
@@ -68,9 +79,11 @@ export default {
     }
   },
   watch: {
-    componentsOrder: {
-      handler (newVal) {
-        console.log(newVal)
+    preferences: {
+      handler () {
+        if (this.preferences.layout[this.keyStorage] && this.componentsOrder.length === this.preferences.layout[this.keyStorage].length) {
+          this.componentsOrder = this.preferences.layout[this.keyStorage]
+        }
       },
       deep: true
     }
@@ -85,7 +98,22 @@ export default {
       titleSection: {
         componentVerbatim: 'Verbatim',
         componentParse: 'Parse'
-      }
+      },
+      preferences: {},
+      keyStorage: 'tasks::collectingEvent::componentsOrder'
+    }
+  },
+  created () {
+    GetUserPreferences().then(response => {
+      this.preferences = response.body
+    })
+  },
+  methods: {
+    updatePreferences () {
+      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+        this.preferences.layout = response.body.preferences
+        this.componentsOrder = response.body.preferences.layout[this.keyStorage]
+      })
     }
   }
 }

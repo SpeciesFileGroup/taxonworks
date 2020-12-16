@@ -7,7 +7,8 @@
       @click="showModal = true">Collection object attached</button>
     <modal-component
       v-if="showModal"
-      @close="showModal = false">
+      @close="showModal = false"
+      :containerStyle="{ width: '800px' }">
       <h3 slot="header">Collection objects attached to this collecting event</h3>
       <div slot="body">
         <spinner-component v-if="isLoading"/>

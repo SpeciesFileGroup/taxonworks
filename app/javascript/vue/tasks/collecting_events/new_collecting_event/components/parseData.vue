@@ -6,7 +6,8 @@
     </button>
     <modal-component
       v-if="showModal"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+      :containerStyle="{ width: '800px' }">
       <h3 slot="header">Parse collection object buffered data</h3>
       <div slot="body">
         <smart-selector

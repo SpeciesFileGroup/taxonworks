@@ -1,5 +1,9 @@
 <template>
   <div>
+    <spinner-component
+      full-screen
+      legend="Saving..."
+      v-if="isSaving"/>
     <div class="flex-separate middle">
       <h1>New collecting event</h1>
       <ul class="context-menu">
@@ -116,6 +120,7 @@ import ParseData from './components/parseData'
 import CollectingEventForm from './components/CollectingEventForm'
 import makeCollectingEvent from './const/collectingEvent'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
+import SpinnerComponent from 'components/spinner'
 
 import {
   CloneCollectionEvent,
@@ -123,7 +128,6 @@ import {
   CreateLabel,
   GetCollectingEvent,
   GetLabelsFromCE,
-  GetUserPreferences,
   GetSoftValidation,
   UpdateCollectingEvent,
   UpdateLabel
@@ -140,7 +144,8 @@ export default {
     ParseData,
     RecentComponent,
     CollectingEventForm,
-    Autocomplete
+    Autocomplete,
+    SpinnerComponent
   },
   computed: {
     collectingEvent: {
@@ -154,10 +159,10 @@ export default {
   },
   data () {
     return {
+      isSaving: false,
       settings: {
         sortable: false
       },
-      userPreferences: {},
       showRecent: false,
       validation: [],
       ce: makeCollectingEvent()
@@ -173,10 +178,6 @@ export default {
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     }
-
-    GetUserPreferences().then(response => {
-      this.userPreferences = response.body
-    })
   },
   methods: {
     cloneCE () {
@@ -203,21 +204,17 @@ export default {
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', this.collectingEvent.id)
     },
     async saveCollectingEvent () {
-      if (this.collectingEvent.id) {
-        UpdateCollectingEvent(this.collectingEvent).then(async response => {
-          this.loadValidation(response.body.global_id)
-          response.body.label = await this.saveLabel(this.collectingEvent)
-          this.setCollectingEvent(response.body)
-          TW.workbench.alert.create('Collecting event was successfully updated.', 'notice')
-        })
-      } else {
-        CreateCollectingEvent(this.collectingEvent).then(async response => {
-          this.loadValidation(response.body.global_id)
-          response.body.label = await this.saveLabel(this.collectingEvent)
-          this.setCollectingEvent(response.body)
-          TW.workbench.alert.create('Collecting event was successfully created.', 'notice')
-        })
-      }
+      const saveCE = this.collectingEvent.id ? UpdateCollectingEvent : CreateCollectingEvent
+
+      this.isSaving = true
+      saveCE(this.collectingEvent).then(async response => {
+        this.loadValidation(response.body.global_id)
+        response.body.label = await this.saveLabel(this.collectingEvent)
+        TW.workbench.alert.create(`Collecting event was successfully ${this.collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
+        this.setCollectingEvent(response.body)
+      }).finally(() => {
+        this.isSaving = false
+      })
     },
     async saveLabel (ce) {
       const label = this.collectingEvent.label
