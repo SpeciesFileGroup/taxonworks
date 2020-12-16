@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default"
       :disabled="!ceId"
-      @click="showModal = true">Collection object attached</button>
+      @click="showModal = true">Collection object(s) ({{ list.length }})</button>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
@@ -59,13 +59,17 @@ export default {
     }
   },
   watch: {
-    showModal (newVal) {
-      if (newVal) {
-        this.isLoading = true
-        GetCollectionObjects({ collecting_event_ids: [this.ceId] }).then(response => {
-          this.list = response.body
-          this.isLoading = false
-        })
+    ceId: {
+      handler (newVal) {
+        if (newVal) {
+          this.isLoading = true
+          GetCollectionObjects({ collecting_event_ids: [this.ceId] }).then(response => {
+            this.list = response.body
+            this.isLoading = false
+          })
+        } else {
+          this.list = []
+        }
       }
     }
   },
