@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.15.1] - 2020-12-14
 ### Added
 - `Person` can not be active for > 119 years
 - Show buffered values in `Task - Browse collection objects` [#1931]
@@ -18,8 +21,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clean timeline display in `Task - Browse collection objects`
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
 - Start date needs to be set before set end date on Housekeeping facet
+- Bump node package `ini` from 1.3.5 to 1.3.7
 
 ### Fixed
+- CVT smart selectors/pinboard scope broken [#1940] [#1941]
 - Image filter `ancestor_id` was to be `taxon_name_id` or `taxon_name_id[]` [#1916]
 - Bad Image select_option sort [#1930] 
 - Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
@@ -29,8 +34,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
 - Invalid attribute `:note` in Note API result view.
 - Malformed PDF exception handling in Document model.
+- Clipboard copy shortcut
+- Source hub link on Citations by source task
+- Clean content editor after change a topic
 
 
+[#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
+[#1940]: https://github.com/SpeciesFileGroup/taxonworks/issues/1940
 [#1916]: https://github.com/SpeciesFileGroup/taxonworks/issues/1916
 [#1931]: https://github.com/SpeciesFileGroup/taxonworks/issues/1931
 [#1930]: https://github.com/SpeciesFileGroup/taxonworks/issues/1930
@@ -732,7 +742,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...development
+[0.15.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
