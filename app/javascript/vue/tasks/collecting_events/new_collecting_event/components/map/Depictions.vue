@@ -161,8 +161,8 @@ export default {
     },
     addedfile (file) {
       EXIF.getData(file, () => {
-        var allMetaData = EXIF.getAllTags(file)
-        console.log(allMetaData)
+        const allMetaData = EXIF.getAllTags(file)
+
         if (allMetaData.hasOwnProperty('GPSLatitude')) {
           const coordinates = {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),

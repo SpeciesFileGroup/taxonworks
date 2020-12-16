@@ -46,6 +46,7 @@ export default () => {
     identifiers_attributes: [],
     georeferences: [],
     queueGeoreferences: [],
-    label: makeLabel()
+    label: makeLabel(),
+    geographicArea: undefined
   }
 }

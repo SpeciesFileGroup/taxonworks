@@ -14,9 +14,9 @@ const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json
 
 const CloneCollectionEvent = (id) => ajaxCall('post', `/collecting_events/${id}/clone`)
 
-const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`)
+const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`, { params: { geo_json: true }})
 
-const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_areas/by_lat_long', { params: { latitude: lat, longitude: long } })
+const GetGeographicAreaByCoords = (lat, long) => ajaxCall('get', '/geographic_areas/by_lat_long', { params: { latitude: lat, longitude: long, geo_json: true } })
 
 const GetDepictions = (id) => ajaxCall('get', `/collecting_events/${id}/depictions.json`)
 

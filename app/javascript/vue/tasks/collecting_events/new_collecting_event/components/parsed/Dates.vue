@@ -33,12 +33,14 @@
           <div class="horizontal-left-content">
             <button
               type="button"
-              class="button normal-input button-default separate-right">
+              class="button normal-input button-default separate-right"
+              @click="setActualDateForStart">
               Now
             </button>
             <button
               type="button"
-              class="button normal-input button-default">
+              class="button normal-input button-default"
+              @click="cloneDate">
               Clone
             </button>
           </div>
@@ -76,7 +78,8 @@
           <label>&nbsp</label>
           <button
             type="button"
-            class="button normal-input button-default">
+            class="button normal-input button-default"
+            @click="setActualDateForEnd">
             Now
           </button>
         </div>
@@ -90,6 +93,25 @@
 import extendCE from '../mixins/extendCE'
 
 export default {
-  mixins: [extendCE]
+  mixins: [extendCE],
+  methods: {
+    setActualDateForStart () {
+      const today = new Date()
+      this.collectingEvent.start_date_day = today.getDate()
+      this.collectingEvent.start_date_month = today.getMonth() + 1
+      this.collectingEvent.start_date_year = today.getFullYear()
+    },
+    setActualDateForEnd () {
+      const today = new Date()
+      this.collectingEvent.end_date_day = today.getDate()
+      this.collectingEvent.end_date_month = today.getMonth() + 1
+      this.collectingEvent.end_date_year = today.getFullYear()
+    },
+    cloneDate () {
+      this.collectingEvent.end_date_day = this.collectingEvent.start_date_day
+      this.collectingEvent.end_date_month = this.collectingEvent.start_date_month
+      this.collectingEvent.end_date_year = this.collectingEvent.start_date_year
+    }
+  }
 }
 </script>

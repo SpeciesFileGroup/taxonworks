@@ -74,7 +74,7 @@
 <script>
 
 import SmartSelector from 'components/smartSelector.vue'
-import { GetGeographicAreaByCoords } from '../../request/resources.js'
+import { GetGeographicAreaByCoords, GetGeographicArea } from '../../request/resources.js'
 
 import ModalComponent from 'components/modal'
 
@@ -86,6 +86,11 @@ export default {
     SmartSelector,
     ModalComponent
   },
+  computed: {
+    geographicAreaId () {
+      return this.collectingEvent.geographic_area_id
+    }
+  },
   data () {
     return {
       selected: undefined,
@@ -95,10 +100,23 @@ export default {
       geographicArea: undefined
     }
   },
+  watch: {
+    geographicAreaId (newVal) {
+      if (newVal) {
+        GetGeographicArea(newVal).then(response => {
+          this.collectingEvent.geographicArea = response.body
+          this.selected = response.body
+        })
+      } else {
+        this.clearSelection()
+      }
+    }
+  },
   methods: {
     clearSelection () {
       this.selected = undefined
       this.collectingEvent.geographic_area_id = null
+      this.collectingEvent.geographicArea = undefined
     },
     selectGeographicArea (item) {
       this.selected = item

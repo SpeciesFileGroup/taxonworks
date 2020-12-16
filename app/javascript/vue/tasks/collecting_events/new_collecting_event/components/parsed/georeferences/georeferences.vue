@@ -4,6 +4,14 @@
       type="button"
       class="button normal-input button-default"
       @click="showModal = !showModal">Georeference ({{ geojson.length }})</button>
+    <button
+      v-if="!verbatimGeoreferenceAlreadyCreated"
+      type="button"
+      class="button normal-input button-submit"
+      :disabled="!verbatimLat && !verbatimLat"
+      @click="createVerbatimShape">
+      Create georeference from verbatim
+    </button>
     <modal-component
       @close="showModal = false"
       :container-style="{ width: '80vw' }"
@@ -41,7 +49,7 @@
             v-if="show"
             :height="height"
             :width="width"
-            :geojson="geojson"
+            :geojson="mapGeoreferences"
             :zoom="zoom"
             :fit-bounds="true"
             :resize="true"
@@ -127,15 +135,14 @@ export default {
     show: {
       type: Boolean,
       default: true
-    },
-    geographicArea: {
-      type: Object,
-      default: undefined
     }
   },
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
-      return this.georeferences.find(item => { return item.type === 'Georeference::VerbatimData' })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === 'Georeference::VerbatimData' })
+    },
+    mapGeoreferences () {
+      return [].concat(this.shapes.features, this.queueGeoreferences.map(item => JSON.parse(item.geographic_item_attributes.shape)))
     },
     geojson () {
       return this.collectingEventId ? this.shapes.features : this.queueGeoreferences.map(item => JSON.parse(item.geographic_item_attributes.shape))
@@ -145,6 +152,9 @@ export default {
     },
     verbatimLng () {
       return this.collectingEvent.verbatim_longitude
+    },
+    geographicArea () {
+      return this.collectingEvent.geographicArea?.shape
     },
     georeferences: {
       get () {
@@ -178,7 +188,6 @@ export default {
     collectingEventId: {
       handler (newVal) {
         if (newVal) {
-          console.log(newVal)
           this.processQueue().then(() => {
             this.getGeoreferences()
           })
@@ -192,12 +201,18 @@ export default {
           this.processQueue()
         }
       }
+    },
+    geographicArea: {
+      handler () {
+        this.populateShapes()
+      },
+      deep: true
     }
   },
   methods: {
     updateRadius(geo) {
       const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
-      console.log(index)
+
       if (geo.id) {
         this.georeferences[index].error_radius = geo.error_radius
         this.queueGeoreferences.push(this.georeferences[index])
