@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default"
       :disabled="!ceId"
-      @click="showModal = true">Collection object(s) {{ list.length }}</button>
+      @click="showModal = true">Collection object(s) ({{ list.length }})</button>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
