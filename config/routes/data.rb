@@ -133,6 +133,7 @@ resources :collecting_events do
   member do
     get :card
     post :clone
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -248,7 +249,7 @@ resources :geographic_areas, only: [:index, :show] do
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
   end
-  
+
   member do
     get 'related'
   end
@@ -369,11 +370,11 @@ resources :observation_matrices do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
-   #  get :csv
-   #  get :biom
+    #  get :csv
+    #  get :biom
 
-   get :reorder_rows, defaults: {format: :json}
-   get :reorder_columns, defaults: {format: :json}
+    get :reorder_rows, defaults: {format: :json}
+    get :reorder_columns, defaults: {format: :json}
   end 
 
 end
@@ -552,7 +553,7 @@ resources :sequences do
 
   collection do
     get :select_options, defaults: {format: :json}
-    
+
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 

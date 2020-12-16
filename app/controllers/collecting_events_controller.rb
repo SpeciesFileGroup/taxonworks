@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
   after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
@@ -253,6 +253,9 @@ class CollectingEventsController < ApplicationController
     render json: {} and return if params[:term].blank?
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
     render '/collecting_events/api/v1/autocomplete'
+  end
+
+  def navigation
   end
 
   private
