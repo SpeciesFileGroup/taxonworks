@@ -2,10 +2,14 @@
   <div>
     <button
       type="button"
-      @click="setModalView(true)">
+      class="button normal-input button-default"
+      @click="setModalView(true)"
+      :disabled="!collectingEvent.id">
       Navigate
     </button>
-    <modal-component  v-if="showModal">
+    <modal-component
+      v-if="showModal"
+      @close="showModalView(false)">
       <h3 slot="header">Navigate</h3>
       <div slot="body">
         <spinner-component v-if="isLoading"/>
@@ -30,7 +34,8 @@
               <td>
                 <button
                   type="button"
-                  :disabled="!navigate.next_by[key]">
+                  :disabled="!navigate.next_by[key]"
+                  @click="loadCE(navigate.next_by[key])">
                   {{ key.replaceAll('_', '') }}
                 </button>
               </td>
@@ -76,6 +81,14 @@ export default {
           this.isLoading = false
         })
       }
+    }
+  },
+  methods: {
+    setModalView(value) {
+      this.showModal = value
+    },
+    loadCE(id) {
+      this.$emit('select', id)
     }
   }
 }

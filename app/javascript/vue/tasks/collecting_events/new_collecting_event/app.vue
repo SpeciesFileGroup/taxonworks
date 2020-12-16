@@ -43,6 +43,11 @@
           </div>
         </div>
         <div class="horizontal-right-content">
+          <navigate-component
+            class="margin-small-right"
+            :collectingEvent="collectingEvent"
+            @select="loadCollectingEvent"
+          />
           <button
             type="button"
             class="button normal-input button-default margin-small-right"
@@ -127,6 +132,7 @@ import ParseData from './components/parseData'
 import CollectingEventForm from './components/CollectingEventForm'
 import makeCollectingEvent from './const/collectingEvent'
 import CollectionObjectsTable from './components/CollectionObjectsTable.vue'
+import NavigateComponent from './components/Navigate'
 import SpinnerComponent from 'components/spinner'
 
 import {
@@ -152,6 +158,7 @@ export default {
     RecentComponent,
     CollectingEventForm,
     Autocomplete,
+    NavigateComponent,
     SpinnerComponent
   },
   computed: {
