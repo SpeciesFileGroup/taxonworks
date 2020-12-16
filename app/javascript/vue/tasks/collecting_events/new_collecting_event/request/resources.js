@@ -28,6 +28,8 @@ const GetSoftValidation = (globalId) => ajaxCall('get', '/soft_validations/valid
 
 const GetRecentCollectingEvents = () => ajaxCall('get', '/collecting_events.json', { params: { per: 10, recent: true } })
 
+const NavigateCollectingEvents = (id) => ajaxCall('get', `/collecting_events/${id}/navigation`)
+
 const ParseVerbatim = (label) => ajaxCall('get', '/collecting_events/parse_verbatim_label', { params: { verbatim_label: label } })
 
 const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce.id}`, { collecting_event: ce })
@@ -65,6 +67,7 @@ export {
   GetProjectPreferences,
   GetGeographicAreaByCoords,
   LoadSoftValidation,
+  NavigateCollectingEvents,
   UpdateCollectingEvent,
   UpdateDepiction,
   UpdateLabel,
