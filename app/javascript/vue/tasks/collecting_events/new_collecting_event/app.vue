@@ -43,11 +43,24 @@
           </div>
         </div>
         <div class="horizontal-right-content">
+          <button
+            type="button"
+            class="button normal-input button-default margin-small-right"
+            @click="openComprehensive"
+            :disabled="!collectingEvent.id">
+            Add collection object in comprehensive
+          </button>
           <collection-objects-table
             :ce-id="collectingEvent.id"/>
           <parse-data
             class="separate-left"
             @onParse="setCollectingEvent"/>
+          <button
+            @click="showRecent = true"
+            class="button normal-input button-default button-size separate-left"
+            type="button">
+            Recent
+          </button>
           <button
             type="button"
             class="button normal-input button-submit margin-small-left"
@@ -63,12 +76,6 @@
             class="button normal-input button-submit button-size separate-left"
             type="button">
             Save
-          </button>
-          <button
-            @click="showRecent = true"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
-            Recent
           </button>
           <button
             v-shortkey="[getOSKey(), 'n']"
@@ -234,6 +241,9 @@ export default {
       GetSoftValidation(globalId).then(response => {
         this.validation = response.body.validations.soft_validations
       })
+    },
+    openComprehensive () {
+      window.open(`${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`, '_self')
     },
     getOSKey: GetOSKey
   }
