@@ -8,7 +8,7 @@
     <div>
       <div class="flex-separate middle">
         <h1 class="task_header">Citations by source</h1>
-        <a href="/tasks/sources/hub/index">Back to source hub</a>
+        <a href="/tasks/sources/hub">Back to source hub</a>
       </div>
       <nomen-source @sourceID="lists = initStoreList(); sourceID = $event"/>
     </div>
