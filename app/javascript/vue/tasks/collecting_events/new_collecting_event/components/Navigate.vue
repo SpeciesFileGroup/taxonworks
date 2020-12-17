@@ -9,7 +9,7 @@
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModalView(false)"
+      @close="setModalView(false)"
       :containerStyle="{ width: '500px'}">
       <h3 slot="header">Navigate</h3>
       <div slot="body">
