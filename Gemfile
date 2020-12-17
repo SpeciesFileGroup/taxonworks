@@ -130,7 +130,7 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
-  gem 'better_errors', '~> 2.4'
+  gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false

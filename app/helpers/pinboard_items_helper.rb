@@ -82,7 +82,7 @@ module PinboardItemsHelper
     base = object.class.base_class
       .joins(:tags)
       .where(tags: {keyword: keyword})
-      .where("#{t}.id > #{object.id}")
+      .where("#{t}.id < #{object.id}")
       .order("#{t}.id DESC")
       .limit(1)
     if respond_to?(:project_id)

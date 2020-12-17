@@ -115,7 +115,7 @@ GEM
     best_in_place (3.1.1)
       actionpack (>= 3.2)
       railties (>= 3.2)
-    better_errors (2.8.1)
+    better_errors (2.9.1)
       coderay (>= 1.0.0)
       erubi (>= 1.0.0)
       rack (>= 0.9.0)
@@ -565,7 +565,7 @@ DEPENDENCIES
   amazing_print (~> 1.2.1)
   bcrypt (~> 3.1.11)
   best_in_place (~> 3.1.1)
-  better_errors (~> 2.4)
+  better_errors (~> 2.9)
   bibtex-ruby (~> 5.1.1)
   binding_of_caller
   biodiversity!
