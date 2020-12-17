@@ -9,15 +9,17 @@
     </button>
     <modal-component
       v-if="showModal"
-      @close="showModalView(false)">
+      @close="showModalView(false)"
+      :containerStyle="{ width: '500px'}">
       <h3 slot="header">Navigate</h3>
       <div slot="body">
+        <p>Current: <span v-html="collectingEvent.object_tag"/></p>
         <spinner-component v-if="isLoading"/>
-        <table>
+        <table class="full_width">
           <thead>
             <tr>
-              <th>Previous</th>
-              <th>Next</th>
+              <th>Previous by</th>
+              <th>Next by</th>
             </tr>
           </thead>
           <tbody>
@@ -27,16 +29,19 @@
               <td>
                 <button
                   type="button"
-                  :disabled="!navigate.previous_by[key]">
-                  {{ key.replaceAll('_', '') }}
+                  class="button normal-input button-default"
+                  :disabled="!navigate.previous_by[key]"
+                  @click="loadCE(navigate.previous_by[key])">
+                  {{ key.replaceAll('_', ' ') }}
                 </button>
               </td>
               <td>
                 <button
+                  class="button normal-input button-default"
                   type="button"
                   :disabled="!navigate.next_by[key]"
                   @click="loadCE(navigate.next_by[key])">
-                  {{ key.replaceAll('_', '') }}
+                  {{ key.replaceAll('_', ' ') }}
                 </button>
               </td>
             </tr>
@@ -64,6 +69,11 @@ export default {
       required: true
     }
   },
+  computed: {
+    collectingEventId () {
+      return this.collectingEvent.id
+    }
+  },
   data () {
     return {
       isLoading: false,
@@ -72,8 +82,8 @@ export default {
     }
   },
   watch: {
-    showModal (newVal) {
-      if (newVal && this.collectingEvent.id) {
+    collectingEventId (newVal) {
+      if (newVal) {
         this.isLoading = true
         NavigateCollectingEvents(this.collectingEvent.id).then(response => {
           this.navigate = response.body
@@ -87,7 +97,7 @@ export default {
     setModalView(value) {
       this.showModal = value
     },
-    loadCE(id) {
+    loadCE (id) {
       this.$emit('select', id)
     }
   }
