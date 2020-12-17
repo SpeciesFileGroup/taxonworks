@@ -62,11 +62,13 @@ module PinboardItemsHelper
 
   def next_object_by_inserted_keyword(object, keyword)
     return nil if keyword.nil? || object.nil?
+    t = object.class.name.tableize
     base = object.class.base_class
       .joins(:tags)
       .where(tags: {keyword: keyword})
-      .order(id: :asc)
-      .where(['id > ?', object.id]).limit(1)
+      .where("#{t}.id > #{object.id}")
+      .order("#{t}.id ASC")
+      .limit(1)
     if respond_to?(:project_id)
       base.where(project_id: sessions_current_project_id).first
     else
@@ -76,11 +78,13 @@ module PinboardItemsHelper
 
   def previous_object_by_inserted_keyword(object, keyword)
     return nil if keyword.nil? || object.nil?
+    t = object.class.name.tableize
     base = object.class.base_class
       .joins(:tags)
       .where(tags: {keyword: keyword})
-      .order(id: :desc)
-      .where(['id < ?', object.id]).limit(1)
+      .where("#{t}.id > #{object.id}")
+      .order("#{t}.id DESC")
+      .limit(1)
     if respond_to?(:project_id)
       base.where(project_id: sessions_current_project_id).first
     else
@@ -92,8 +96,10 @@ module PinboardItemsHelper
     k = inserted_pinboard_item_object_for_klass('Keyword')
     return [nil, nil] if k == false
 
-    [ previous_object_by_inserted_keyword(object, k),
-      next_object_by_inserted_keyword(object, k) ]
+    [ 
+      previous_object_by_inserted_keyword(object, k)&.id,
+      next_object_by_inserted_keyword(object, k)&.id
+    ]
   end
 
 end

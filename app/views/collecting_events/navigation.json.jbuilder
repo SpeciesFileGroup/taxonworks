@@ -27,7 +27,7 @@ json.next_by do
   json.identifier @collecting_event.next_by_identifier&.id
   json.created_at nil
   json.user_created_at nil
-  json.with_pinned_keyword by_keyword[0] 
+  json.with_pinned_keyword by_keyword[1] 
 
   # Specific
   json.start_date nil
