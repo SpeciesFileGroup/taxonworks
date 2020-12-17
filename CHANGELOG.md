@@ -7,6 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- `Georeference::Wkt` an anonymous WKT based assertion
+
+### Changed
+- Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
+
 \-
 
 ## [0.15.1] - 2020-12-14

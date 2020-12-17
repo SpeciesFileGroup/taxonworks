@@ -27,7 +27,7 @@ gem 'rmagick', '~> 4.0'
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 2.1'
+gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 2.0'
 gem 'postgresql_cursor', '~> 0.6.1'
