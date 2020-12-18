@@ -46,7 +46,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', github: 'ClosureTree/closure_tree', ref: '15b253e' # '~> 7.0'
+gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
@@ -144,7 +144,7 @@ group :development do
   gem 'rubocop-rspec', '~>1.38'
   gem 'rubocop-faker', '~> 0.2.0'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
-  gem 'seedbank', git: 'https://github.com/james2m/seedbank'
+  gem 'seedbank', '~> 0.5.0'
 end
 
 group :doc do
@@ -153,7 +153,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', require: false, github: 'LocoDelAssembly/codecov-ruby', branch: 'github-actions-branch-detection-fix'
+  gem 'codecov', '~> 0.2.13'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
