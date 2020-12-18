@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Fetch codecov, seedback and closure_tree gems from RubyGems.
 
 ## [0.15.1] - 2020-12-14
 ### Added
