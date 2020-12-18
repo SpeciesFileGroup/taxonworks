@@ -81,8 +81,9 @@ export default {
   watch: {
     preferences: {
       handler () {
-        if (this.preferences.layout[this.keyStorage] && this.componentsOrder.length === this.preferences.layout[this.keyStorage].length) {
-          this.componentsOrder = this.preferences.layout[this.keyStorage]
+        const store = this.preferences.layout[this.keyStorage]
+        if (store && Object.keys(this.componentsOrder).every(key => store[key].length === this.componentsOrder[key].length)) {
+          this.componentsOrder = store
         }
       },
       deep: true

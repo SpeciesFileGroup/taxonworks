@@ -1,4 +1,5 @@
 import Collectors from '../components/verbatim/Collectors.vue'
+import CollectorsComponent from '../components/parsed/Collectors.vue'
 import DateComponent from '../components/verbatim/Date.vue'
 import Geolocation from '../components/verbatim/Geolocation.vue'
 import Habitat from '../components/verbatim/Habitat.vue'
@@ -40,6 +41,7 @@ const ComponentParse = {
   Dates: 'Dates',
   Elevation: 'Elevation',
   Time: 'Time',
+  CollectorsComponent: 'CollectorsComponent',
   TripCode: 'TripCode',
   Group: 'Group',
   Predicates: 'Predicates'
@@ -68,6 +70,7 @@ const VueComponents = {
   [ComponentParse.GeographicArea]: GeographicArea,
   [ComponentParse.Georeferences]: Georeferences,
   [ComponentParse.Group]: Group,
+  [ComponentParse.CollectorsComponent]: CollectorsComponent,
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
   [ComponentParse.Predicates]: Predicates,

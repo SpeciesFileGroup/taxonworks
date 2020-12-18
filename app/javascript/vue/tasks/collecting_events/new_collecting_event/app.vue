@@ -5,7 +5,7 @@
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isSaving || isLoading"/>
     <div class="flex-separate middle">
-      <h1>New collecting event</h1>
+      <h1>{{ collectingEvent.id ? 'Edit' : 'New' }} collecting event</h1>
       <ul class="context-menu">
         <li>
           <label>

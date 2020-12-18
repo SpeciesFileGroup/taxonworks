@@ -8,14 +8,52 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false"
-      :containerStyle="{ width: '800px' }">
-      <h3 slot="header">Collection objects attached to this collecting event</h3>
-      <div slot="body">
+      :containerStyle="{ 
+        width: '1000px',
+        height: '90vh',
+        overflowX: 'scroll'
+      }">
+      <div slot="header">
+        <h3>Create collection objects</h3>
+        <span>{{ list.length }} object(s) are already associated with this collecting event</span>
+      </div>
+      <div
+        slot="body"
+        class="horizontal-left-content align-start">
         <spinner-component v-if="isLoading"/>
+        <div class="full_width margin-medium-right">
+          <div class="flex-separate align-end">
+            <div class="field label-above">
+              <label>Number to create</label>
+              <input
+                min="1"
+                type="number"
+                max="100"
+                v-model.number="count">
+            </div>
+            <div class="field">
+              <button
+                class="button normal-input button-submit"
+                type="button"
+                @click="createCOs(0)">
+                Create
+              </button>
+            </div>
+          </div>
+          <identifiers-component
+            v-model="identifier"
+            :count="count"/>
+          <determiner-component v-model="determinations"/>
+        </div>
         <table class="full_width">
           <thead>
             <tr>
-              <th>Collection object</th>
+              <th>Result</th>
+              <th>ID</th>
+              <th>Identifier</th>
+              <th>Determination</th>
+              <th>Annotator</th>
+              <th>Comprehensive</th>
             </tr>
           </thead>
           <tbody>
@@ -25,7 +63,14 @@
               class="contextMenuCells"
               :class="{ 'even': (index % 2 == 0) }"
               @click="sendCO(item)">
+              <td class="capitalize">{{ item.id ? 'success' : 'failed' }}
+              <td>{{ item.id }}</td>
               <td v-html="item.object_tag"/>
+              <td/>
+              <td>
+                <radial-annotator :global-id="item.global_id"/>
+              </td>
+              <td/>
             </tr>
           </tbody>
         </table>
@@ -38,12 +83,23 @@
 
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
-import { GetCollectionObjects } from '../request/resources.js'
+import IdentifiersComponent from './Identifiers'
+import DeterminerComponent from './Determiner'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+
+import {
+  GetCollectionObjects,
+  CreateCollectionObject,
+  CreateTaxonDetermination
+} from '../request/resources.js'
 
 export default {
   components: {
+    DeterminerComponent,
+    IdentifiersComponent,
     ModalComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    RadialAnnotator
   },
   props: {
     ceId: {
@@ -55,7 +111,13 @@ export default {
     return {
       showModal: false,
       list: [],
-      isLoading: false
+      isLoading: false,
+      count: 1,
+      identifier: {
+        start: undefined,
+        namespace_id: undefined
+      },
+      determinations: []
     }
   },
   watch: {
@@ -77,6 +139,35 @@ export default {
     sendCO (item) {
       this.showModal = false
       this.$emit('selected', item)
+    },
+    createCOs (index = 0) {
+      console.log(index)
+      if (index < this.count) {
+        const identifier = {
+          identifier: this.identifier.start + index,
+          namespace_id: this.identifier.namespace_id,
+          type: 'Identifier::Local::CatalogNumber'
+        }
+
+        const co = {
+          total: 1,
+          collecting_event_id: this.ceId,
+          identifiers_attributes: [identifier]
+        }
+
+        CreateCollectionObject(co).then(response => {
+          this.list.unshift(response.body)
+          this.determinations.forEach(determination => {
+            determination.biological_collection_object_id = response.body.id
+            CreateTaxonDetermination(determination).then(r => {
+
+            })
+          })
+        }).finally(() => {
+          index++
+          this.createCOs(index)
+        })
+      }
     }
   }
 }

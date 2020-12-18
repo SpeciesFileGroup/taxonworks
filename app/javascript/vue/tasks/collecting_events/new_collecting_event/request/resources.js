@@ -2,9 +2,13 @@ import ajaxCall from 'helpers/ajaxCall'
 
 const CreateCollectingEvent = (ce) => ajaxCall('post', '/collecting_events.json', { collecting_event: ce })
 
+const CreateCollectionObject = (co) => ajaxCall('post', '/collection_objects.json', { collection_object: co })
+
 const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
 
 const CreateLabel = data => ajaxCall('post', '/labels.json', data)
+
+const CreateTaxonDetermination = (data) => ajaxCall('post', '/taxon_determinations.json', { taxon_determination: data })
 
 const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.json', { params })
 
@@ -51,8 +55,10 @@ const DestroyCollectingEvent = (id) => ajaxCall('delete', `/collecting_events/${
 export {
   CloneCollectionEvent,
   CreateCollectingEvent,
+  CreateCollectionObject,
   CreateGeoreference,
   CreateLabel,
+  CreateTaxonDetermination,
   DestroyDepiction,
   DestroyCollectingEvent,
   GetCollectionObjects,
