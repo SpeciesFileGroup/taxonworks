@@ -8,6 +8,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Subclasses for labels
+- `Label::QrCode`
+- Include `rqrcode`
+- add `label` attribute to Label JSON response that renders QR code
 - `Georeference::Wkt` an anonymous WKT based assertion
 
 ### Changed
