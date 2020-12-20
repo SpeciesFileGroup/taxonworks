@@ -5,7 +5,7 @@ describe Export::Dwca::Data, type: :model do
   let(:scope) { ::DwcOccurrence.all }
 
   specify 'initializing without a scope raises' do
-    expect {Export::Dwca::Data.new(::DwcOccurrence.all)}.to raise_error ArgumentError 
+    expect {Export::Dwca::Data.new()}.to raise_error ArgumentError 
   end
 
   specify 'initializing with a DwcOccurrence scope succeeds' do
@@ -83,9 +83,21 @@ describe Export::Dwca::Data, type: :model do
           expect(data.meta).to be_kind_of(Tempfile)
         end
 
-        specify '#getzip is a zipfile string' do
-          expect(data.getzip).to be_kind_of(String) 
+        specify '#zipfile is a Tempfile' do
+          expect(data.zipfile).to be_kind_of(Tempfile) 
         end
+
+        specify '#package_download packages' do
+          d = FactoryBot.build(:valid_download)
+          expect(data.package_download(d)).to be_truthy
+        end
+
+        specify '#package_download 2' do
+          d = FactoryBot.build(:valid_download)
+          data.package_download(d)
+          expect(File.exist?(d.file_path)).to be_truthy
+        end
+
       end
 
       # TODO: actually check tempfile directory

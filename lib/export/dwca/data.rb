@@ -17,7 +17,13 @@ module Export::Dwca
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
-    attr_accessor :data, :eml, :meta, :zipfile
+    attr_accessor :data
+
+    attr_accessor :eml
+
+    attr_accessor :meta
+
+    attr_accessor :zipfile
 
     attr_accessor :core_scope
 
@@ -30,7 +36,10 @@ module Export::Dwca
       # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
       @core_scope = get_scope(core_scope)
       # @extensio_scope = get_scope(core_scope)
-      @total = core_scope.count # ('*')
+    end
+
+    def total
+      @total ||= core_scope.count
     end
 
     # @return [CSV]
@@ -181,29 +190,36 @@ module Export::Dwca
       @meta
     end
 
-    # @return [File]
-    #   the stream to use in send_data, for example
-    def getzip
-      build_zip
-      File.read(zipfile.path)
-    end
+    #   # @return [File]
+    #   #   the stream to use in send_data, for example
+    #   def getzip
+    #     build_zip
+    #     File.read(zipfile.path)
+    #   end
 
     def build_zip
-      Zip::OutputStream.open(zipfile) { |zos| }
+      t = Tempfile.new(filename)
 
-      Zip::File.open(zipfile.path, Zip::File::CREATE) do |zip|
+      Zip::OutputStream.open(t) { |zos| }
+
+      Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.csv', data.path)
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
       end
-    end
+      t
+    end 
 
     # @return [Tempfile]
     #   the zipfile
     def zipfile
-      @zipfile ||= Tempfile.new(filename)
+      if @zipfile.nil?
+        @zipfile = build_zip
+      end
       @zipfile
     end
+
+    # File.read(@zipfile.path)
 
     # @return [String]
     # the name of zipfile
@@ -230,12 +246,19 @@ module Export::Dwca
     #   string is fully formed SQL
     def get_scope(scope)
       if scope.kind_of?(String)
-        DwcOccurrence.from('(' + core_scope + ') as dwc_occurrences')
+        DwcOccurrence.from('(' + scope + ') as dwc_occurrences')
       elsif scope.kind_of?(ActiveRecord::Relation)
         scope
       else
-        raise 'Scope is not a SQL string or ActiveRecord::Relation'
+        raise ArgumentError, 'Scope is not a SQL string or ActiveRecord::Relation'
       end
+    end
+
+    # @param download [Download instance]
+    # @return [Download] a download instance
+    def package_download(download)
+      download.update!(source_file_path: zipfile.path)
+      download
     end
 
   end
