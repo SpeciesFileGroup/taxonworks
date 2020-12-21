@@ -20,7 +20,7 @@ end
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
 end
-match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} 
+match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
@@ -114,6 +114,7 @@ resources :collection_objects do
     get :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    get :preview, defaults: {format: :json}
   end
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -285,7 +286,7 @@ resources :identifiers, except: [:show] do
     get :identifier_types, {format: :json}
   end
 
-  member do 
+  member do
     get :show, defaults: {format: :json}
   end
 end
@@ -323,7 +324,7 @@ resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
   end
-  collection do 
+  collection do
     get :select_options, defaults: {format: :json}
   end
 end
@@ -366,7 +367,7 @@ resources :observation_matrices do
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
-  member do 
+  member do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
@@ -375,7 +376,7 @@ resources :observation_matrices do
 
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
-  end 
+  end
 
 end
 

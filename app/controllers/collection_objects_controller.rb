@@ -88,6 +88,11 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
+  # /collection_objects/preview?<filter params>
+  def preview
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+  end
+
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions

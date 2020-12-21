@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- `/collecting_events/preview?<filter_params>` a preview look for brief tables
 - Subclasses for labels
 - `Label::QrCode`
 - Include `rqrcode`
