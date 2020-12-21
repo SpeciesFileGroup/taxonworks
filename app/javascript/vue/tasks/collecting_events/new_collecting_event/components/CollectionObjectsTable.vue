@@ -68,9 +68,19 @@
               <td v-html="item.object_tag"/>
               <td/>
               <td>
-                <radial-annotator :global-id="item.global_id"/>
+                <radial-annotator
+                  v-if="item.global_id"
+                  :global-id="item.global_id"/>
               </td>
-              <td/>
+              <td>
+                <button
+                  v-if="item.id"
+                  type="button"
+                  class="button normal-input button-default"
+                  @click="openComprehensive(item.id)">
+                  Open
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -86,6 +96,7 @@ import SpinnerComponent from 'components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import { RouteNames } from 'routes/routes'
 
 import {
   GetCollectionObjects,
@@ -117,7 +128,8 @@ export default {
         start: undefined,
         namespace_id: undefined
       },
-      determinations: []
+      determinations: [],
+      isSaving: false,
     }
   },
   watch: {
@@ -141,7 +153,7 @@ export default {
       this.$emit('selected', item)
     },
     createCOs (index = 0) {
-      console.log(index)
+      this.isSaving = true
       if (index < this.count) {
         const identifier = {
           identifier: this.identifier.start + index,
@@ -152,7 +164,7 @@ export default {
         const co = {
           total: 1,
           collecting_event_id: this.ceId,
-          identifiers_attributes: [identifier]
+          identifiers_attributes: identifier.identifier && identifier.namespace_id ? [identifier] : undefined
         }
 
         CreateCollectionObject(co).then(response => {
@@ -163,11 +175,22 @@ export default {
 
             })
           })
+        }, () => {
+          this.list.unshift({
+            id: undefined,
+            object_tag: 'Not created',
+            identifier: `${identifier.identifier}`
+          })
         }).finally(() => {
           index++
           this.createCOs(index)
         })
+      } else {
+        this.isSaving = false
       }
+    },
+    openComprehensive (id) {
+      window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
     }
   }
 }
