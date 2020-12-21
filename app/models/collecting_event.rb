@@ -214,7 +214,7 @@ class CollectingEvent < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
+  #handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
   # See also CollectingEvent::GeoLocate
 

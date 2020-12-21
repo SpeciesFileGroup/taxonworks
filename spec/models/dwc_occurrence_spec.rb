@@ -4,6 +4,7 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
 
   # This now creates a dwc_occurrence by default
   let(:collection_object) { FactoryBot.create(:valid_specimen) } 
+  let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
 
   let(:dwc_occurrence) { DwcOccurrence.new }
 
@@ -77,11 +78,30 @@ describe DwcOccurrence, type: :model, group: :darwin_core do
         end
       end
     end
-
-    specify '#stale?' do
-      expect(collection_object.dwc_occurrence.stale?).to be_falsey
-    end
   end
+
+  specify '#stale? 1' do
+    a = collection_object.get_dwc_occurrence
+    expect(a.stale?).to be_falsey
+  end
+
+  specify '#stale? 2' do
+    a = collection_object.get_dwc_occurrence
+    a.update!(updated_at: 2.weeks.ago)
+    collecting_event.update!(updated_at: 1.week.ago) 
+    expect(a.stale?).to be_truthy
+  end
+
+  specify '#stale? 3' do
+    a = collection_object.get_dwc_occurrence
+    a.update!(updated_at: 2.weeks.ago)
+    
+    b = TaxonDetermination.new(otu: FactoryBot.create(:valid_otu))
+    collection_object.taxon_determinations << b
+    
+    expect(a.stale?).to be_truthy
+  end
+
 
   # Can't test within a transaction.
   specify '.empty_fields' do

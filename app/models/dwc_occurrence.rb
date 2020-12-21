@@ -25,6 +25,7 @@ class DwcOccurrence < ApplicationRecord
   # Not yet implemented, but likely needed
   # ? :id
   TW_ATTRIBUTES = [
+    :id,
     :project_id,
     :created_at,
     :updated_at,
@@ -43,8 +44,14 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
-  belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occcurrence
-  belongs_to :collecting_event, inverse_of: :dwc_occurrences
+  belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
+  has_one :collecting_event, through: :dwc_occurrence_object, inverse_of: :dwc_occurrences
+
+  before_validation :set_basis_of_record
+  validates_presence_of :basisOfRecord
+
+  validates :dwc_occurrence_object, presence: true
+  validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
 
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
@@ -52,14 +59,7 @@ class DwcOccurrence < ApplicationRecord
     b = ::CollectionObject.arel_table 
     j = a.join(b).on(a[:dwc_occurrence_object_type].eq('CollectionObject').and(a[:dwc_occurrence_object_id].eq(b[:id])))
     joins(j.join_sources)
-#    joins("JOIN collection_objects on collection_objects.id = dwc_occurrences.dwc_occurrence_object_id AND dwc_occurrence_object_type = 'CollectionObject'")
   end
-
-  before_validation :set_basis_of_record
-  validates_presence_of :basisOfRecord
-
-  validates :dwc_occurrence_object, presence: true
-  validates_uniqueness_of :dwc_occurrence_object_id, scope: [:dwc_occurrence_object_type, :project_id]
 
  # @return [Array]
   #   of column names as symbols that are blank in *ALL* projects (not just this one)
@@ -110,9 +110,21 @@ class DwcOccurrence < ApplicationRecord
     'Undefined'
   end
 
-  # TODO: include necessary reference to other objects as well (e.g. CE)
+  # Is a spot check not a join/query based check.
+  # @return [Boolean]
   def stale?
-    dwc_occurrence_object.updated_at > updated_at
+    case dwc_occurrence_object_type
+
+    when 'CollectionObject'
+      t = [
+        dwc_occurrence_object.updated_at,
+        dwc_occurrence_object.collecting_event&.updated_at,
+        dwc_occurrence_object&.taxon_determinations&.first&.updated_at
+      ].compact!
+      t.sort.first > (updated_at || Time.now)
+    else # AssertedDistribution
+      dwc_occurrence_object.updated_at > updated_at
+    end
   end
 
   protected
