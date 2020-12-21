@@ -7,9 +7,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- `DwcOccurrence` controller (metadata use only)
+
 ### Changed
+- Added various `:inverse_of` across collection objects related models
+- `DwcOccurrence#individualCount` is integer now
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
+
+### Fixed
 
 ## [0.15.1] - 2020-12-14
 ### Added

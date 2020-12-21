@@ -52,19 +52,13 @@ namespace :tw do
         i = 0
 
         begin
-          records.order(:id).limit(total).in_groups_of(20, false) do |group|
-            ApplicationRecord.transaction do
-              print Rainbow("Writing\n").bold
-              group.each do |o|
-                z = o.get_dwc_occurrence
-                print " id: #{o.id}\n"
-                i += 1
-              end
-              print Rainbow("...saved.\n").bold
-            end
+          records.order(:id).limit(total).find_each do |o|
+            print " id: #{o.id} - "
+            print Benchmark.measure{z = o.get_dwc_occurrence}.to_s
+            i += 1
           end
         rescue
-          puts Rainbow('Error, current batch of 20 records not written.').red.bold
+          puts Rainbow('Error, record #{o.id} not written.').red.bold
           raise
         end
 

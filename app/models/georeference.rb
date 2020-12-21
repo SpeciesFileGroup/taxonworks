@@ -69,7 +69,9 @@ class Georeference < ApplicationRecord
   include Shared::Tags
   include Shared::Citations
   include Shared::HasRoles
+  include Shared::Confidences # qualitative, not spatial 
   include Shared::IsData
+
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 

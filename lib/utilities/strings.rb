@@ -13,22 +13,24 @@ module Utilities::Strings
   # @return [String, nil]
   #   strips space, leaves internal whitespace as is, returns nil if nothing is left
   def self.nil_strip(string) # string should have content or be empty
-    if !string.nil?
-      string.strip!
-      string = nil if string == ''
+    a = string.dup
+    if !a.nil?
+      a.strip!
+      a = nil if a == ''
     end
-    string
+    a 
   end
 
   # @param [String] string
   # @return [String, nil]
-  #  strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
+  #   strips pre/post fixed space and condenses internal spaces, but returns nil (not empty string) if nothing is left
   def self.nil_squish_strip(string)
-    if !string.nil?
-      string.squish!
-      string = nil if string == ''
+    a = string.dup
+    if !a.nil?
+      a.squish!
+      a = nil if a == ''
     end
-    string
+    a 
   end
 
   # @param [String] text
@@ -74,15 +76,16 @@ module Utilities::Strings
   #   TODO: Likely need to handle quotes, and write better UTF compliancy tests
   #   ~~ Technically \n is allowed!
   def self.sanitize_for_csv(string)
-    return string if string.blank?
-    string.to_s.gsub(/\n|\t/, ' ')
+    a = string.dup
+    return a if a.blank? # TODO: .blank is Rails, not OK here
+    a.to_s.gsub(/\n|\t/, ' ')
   end
 
-  #   return nil if content.nil?, else wrap and return string if provided
   # @param [String] pre
   # @param [String] content
   # @param [String] post
   # @return [String]
+  #   nil if content.nil?, else wrap and return string if provided
   def self.nil_wrap(pre = nil, content = nil, post = nil)
     return nil if content.blank?
     [pre, content, post].compact.join.html_safe

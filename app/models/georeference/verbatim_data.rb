@@ -77,7 +77,7 @@ class Georeference::VerbatimData < Georeference
       georeferenceSources: "Physical collection object.",
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
       georeferenceProtocol: 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).',
-      geodeticDatum: verbatim_datum,
+      geodeticDatum: nil, # TODO: check
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
 
       georeferencedBy: creator.name,

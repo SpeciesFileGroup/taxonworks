@@ -43,7 +43,8 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
-  belongs_to :dwc_occurrence_object, polymorphic: true
+  belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occcurrence
+  belongs_to :collecting_event, inverse_of: :dwc_occurrences
 
   # @return [ActiveRecord::Relation]
   def self.collection_objects_join
@@ -109,6 +110,7 @@ class DwcOccurrence < ApplicationRecord
     'Undefined'
   end
 
+  # TODO: include necessary reference to other objects as well (e.g. CE)
   def stale?
     dwc_occurrence_object.updated_at > updated_at
   end

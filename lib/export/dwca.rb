@@ -2,11 +2,11 @@ require 'dwc_archive'
 
 module Export
   module Dwca
-    # Generates a DwC-A from database data
 
     # @param record_scope [ActiveRecord::Relation]
-    #   a relation return DwcOccurrence records
-    # @return [] 
+    #   a relation that returns DwcOccurrence records
+    # @return [Download] 
+    #   the download object containing the archive
     def self.download_async(record_scope, request = nil)
       name = "dwc-a_#{DateTime.now}.zip"
 
@@ -22,8 +22,6 @@ module Export
 
       download
     end
-
-
 
   end
 end

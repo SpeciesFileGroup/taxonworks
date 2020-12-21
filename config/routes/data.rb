@@ -231,6 +231,12 @@ resources :downloads, except: [:edit, :new, :create] do
   end
 end
 
+resources :dwc_occurrences, only: [], defaults: {format: :json} do
+  collection do
+    get 'metadata'
+  end
+end
+
 resources :extracts do
   concerns [:data_routes]
 end

@@ -164,8 +164,6 @@ module Export::Dwca
       @eml
     end
 
-    # @return [Tempfile]
-    #   the actual data file
     def meta
       return @meta if @meta
 
@@ -189,13 +187,6 @@ module Export::Dwca
       @meta.flush
       @meta
     end
-
-    #   # @return [File]
-    #   #   the stream to use in send_data, for example
-    #   def getzip
-    #     build_zip
-    #     File.read(zipfile.path)
-    #   end
 
     def build_zip
       t = Tempfile.new(filename)

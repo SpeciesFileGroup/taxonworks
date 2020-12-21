@@ -86,7 +86,7 @@ class GeographicItem < ApplicationRecord
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
-  has_many :georeferences
+  has_many :georeferences, inverse_of: :geographic_item
   has_many :georeferences_through_error_geographic_item,
            class_name: 'Georeference', foreign_key: :error_geographic_item_id
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
