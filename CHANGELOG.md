@@ -8,8 +8,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
+- `protonym.has_misspelling_relationship?` is pure SQL
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
+
+### Fixed
+- CoLDP [sic], errant chresonym, and basionym ids for misspellings
 
 ## [0.15.1] - 2020-12-14
 ### Added

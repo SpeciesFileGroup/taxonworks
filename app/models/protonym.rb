@@ -466,10 +466,12 @@ class Protonym < TaxonName
   # @return [Boolean]
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
-    taxon_name_relationships.each do |tr|
-      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
-    end
-    false
+    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+
+   #taxon_name_relationships.each do |tr|
+   #  return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
+   #end
+   #false
   end
 
   # Same as is_original_name?!

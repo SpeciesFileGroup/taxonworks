@@ -29,7 +29,7 @@ module Export::Coldp::Files::Name
   def self.nom_status_field(taxon_name)
     case taxon_name.type
     when 'Combination'
-      'chresonym' # TODO: remove this for updated semantics
+      nil # This is *not* 'chresonym' sensu CoL (which is this: [correct: 'Aus bus Smith 1920', chresonym: 'Aus bus Jones 1922'])
     else
       if taxon_name.is_valid?
         ::TaxonName::NOMEN_VALID[taxon_name.nomenclatural_code]
@@ -49,33 +49,64 @@ module Export::Coldp::Files::Name
     infraspecific_element = t.original_combination_infraspecific_element(e)
     rank = infraspecific_element ? infraspecific_element.first : t.rank
 
+    genus, subgenus, species = nil, nil, nil
+
+    if e[:genus]
+      if e[:genus][1] =~ /NOT SPECIFIED/
+        genus = nil 
+      else
+        genus = e[:genus][1]
+      end
+    end
+
+    if e[:subgenus]
+      if e[:subgenus][1] =~ /NOT SPECIFIED/
+        subgenus = nil 
+      else
+        subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
+      end
+    end
+
+    if e[:species]
+      if e[:species][1] =~ /NOT SPECIFIED/
+        species = nil 
+      else
+        species = e[:species][1]
+      end
+    end
+
     id = t.reified_id
 
+    basionym_id = t.has_misspelling_relationship? ? t.valid_taxon_name.reified_id : id # => t.reified_id
+    # case 1 - original combination difference
+    # case 2 - misspelling (same combination)
+
     csv << [
-      id,                                                                                     # ID
-      id,                                                                                     # basionymID, always nil, this is the original
-      t.cached_original_combination,                                                          # scientificName
-      authorship_field(t, true),                                                              # authorship
-      rank,                                                                                   # rank
-      nil,                                                                                    # uninomial
-      (e[:genus]&.last =~ /NOT SPECIFIED/) ? nil : e[:genus]&.last,                           # genus
-      (e[:subgenus]&.last =~ /NOT SPECIFIED/) ? nil : e[:subgenus]&.last&.gsub(/[\)\(]/, ''), # subgenus (no parens) # TODO - optimize to not have to strip these
-      (e[:species]&.last =~ /NOT SPECIFIED/) ? nil : e[:species]&.last,                       # species
-      infraspecific_element ? infraspecific_element.last : nil,                           # infraspecificEpithet
-      nil,                                                                                # publishedInID   |
-      nil,                                                                                # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                                                                # publishedInYear |
-      true,                                                                               # original
-      code_field(t),                                                                      # code
-      nil,                                                                                # status https://api.catalogue.life/vocab/nomStatus
-      nil,                                                                                # link (probably TW public or API)
-      remarks_field(t),                                                                   # remarks
+      id,                                                                         # ID
+      basionym_id,                                                                # basionymID (can't be invalid
+      t.cached_original_combination.gsub(/\s+\[sic\]/, ''),                       # scientificName
+      authorship_field(t, true),                                                  # authorship
+      rank,                                                                       # rank
+      nil,                                                                        # uninomial
+      genus,                                                                      # genus
+      subgenus,                                                                   # subgenus (no parens) # TODO - optimize to not have to strip these
+      species,                                                                    # species
+      infraspecific_element ? infraspecific_element.last : nil,                   # infraspecificEpithet
+      nil,                                                                        # publishedInID   |
+      nil,                                                                        # publishedInPage |-- Decisions is that these add to Synonym table
+      nil,                                                                        # publishedInYear |
+      true,                                                                       # original
+      code_field(t),                                                              # code
+      nil,                                                                        # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                                        # link (probably TW public or API)
+      remarks_field(t),                                                           # remarks
     ]
   end
 
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, reference_csv = nil)
+     name_total = 0
     CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         ID
@@ -100,9 +131,8 @@ module Export::Coldp::Files::Name
 
       # why we getting double
       unique = {}
-
+     
       otu.taxon_name.self_and_descendants.each do |name|
-
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
         #
@@ -115,6 +145,8 @@ module Export::Coldp::Files::Name
         # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
 
         if name.is_valid?
+
+          name_total += 1
           data = ::Catalog::Nomenclature::Entry.new(name)
 
           data.names.each do |t|
@@ -154,6 +186,7 @@ module Export::Coldp::Files::Name
 
             if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) && unique[basionym_id].nil?
               unique[basionym_id] = true
+              name_total += 1
               add_original_combination(t, csv)
             end
 
@@ -161,7 +194,11 @@ module Export::Coldp::Files::Name
           end
         end
       end
+   
+      # byebug
+      puts Rainbow("----------TOTAL: #{name_total}------").red.bold
+ 
     end
-  end
+ end 
 
 end
