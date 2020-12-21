@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`).
 - Remove `no_leaves`= true from taxon name on filter images task [#1953]
 - Turn off autocomplete feature on vue autocomplete [#1956]
+- Limited CoLDP exports runtime to 1 hour and 2 attemps.
 
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
