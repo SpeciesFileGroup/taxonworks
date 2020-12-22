@@ -155,6 +155,7 @@ export default {
   watch: {
     ceId: {
       handler (newVal) {
+        this.noCreated = []
         if (newVal) {
           this.loadTable()
         } else {
