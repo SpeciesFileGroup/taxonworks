@@ -20,7 +20,7 @@ export default ({ state, getters, commit }) => {
               commit(MutationNames.SetRow, payload)
             }
           })
-          commit(MutationNames.SetStartRow, response.body.results.reduce((max, cur) => Math.max(max, cur.id), 0))
+          commit(MutationNames.SetStartRow, response.body.results.reduce((max, cur) => Math.max(max, cur.id + 1), 0))
           delete response.body.results
           commit(MutationNames.SetDataset, response.body)
 
