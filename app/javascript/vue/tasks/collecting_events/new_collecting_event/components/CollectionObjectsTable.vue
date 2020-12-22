@@ -20,7 +20,9 @@
       <div
         slot="body"
         class="horizontal-left-content align-start">
-        <spinner-component v-if="isLoading"/>
+        <spinner-component
+          v-if="isLoading || isSaving"
+          :legend="isSaving ? 'Saving...' : 'Loading...'"/>
         <div class="full_width margin-medium-right">
           <div class="flex-separate align-end">
             <div class="field label-above">
@@ -35,7 +37,7 @@
               <button
                 class="button normal-input button-submit"
                 type="button"
-                @click="createCOs(0)">
+                @click="noCreated = []; createCOs(0)">
                 Create
               </button>
             </div>
@@ -45,45 +47,60 @@
             :count="count"/>
           <determiner-component v-model="determinations"/>
         </div>
-        <table class="full_width">
-          <thead>
-            <tr>
-              <th>Result</th>
-              <th>ID</th>
-              <th>Identifier</th>
-              <th>Determination</th>
-              <th>Annotator</th>
-              <th>Comprehensive</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(item, index) in list"
-              :key="item.id"
-              class="contextMenuCells"
-              :class="{ 'even': (index % 2 == 0) }"
-              @click="sendCO(item)">
-              <td class="capitalize">{{ item.id ? 'success' : 'failed' }}
-              <td>{{ item.id }}</td>
-              <td v-html="item.object_tag"/>
-              <td/>
-              <td>
-                <radial-annotator
-                  v-if="item.global_id"
-                  :global-id="item.global_id"/>
-              </td>
-              <td>
-                <button
-                  v-if="item.id"
-                  type="button"
-                  class="button normal-input button-default"
-                  @click="openComprehensive(item.id)">
-                  Open
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div
+          class="full_width">
+          <template v-if="noCreated.length">
+            <h3>No created</h3>
+            <table
+              class="full_width margin-medium-bottom">
+              <thead>
+                <tr>
+                  <th>Identifier</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(item, index) in noCreated"
+                  :key="index"
+                  class="contextMenuCells"
+                  :class="{ 'even': (index % 2 == 0) }">
+                  <td>{{ item.namespace }} {{ item.identifier }}</td>
+                  <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
+          <table class="full_width">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Identifier</th>
+                <th>Determination</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="(item, index) in list"
+                :key="item.id"
+                class="contextMenuCells"
+                :class="{ 'even': (index % 2 == 0) }">
+                <td>{{ item.id }}</td>
+                <td v-html="item.catalogNumber"/>
+                <td v-html="item.scientificName"/>
+                <td>
+                  <div
+                    v-if="item.global_id"
+                    class="horizontal-left-content">
+                    <radial-annotator :global-id="item.global_id"/>
+                    <radial-navigation :global-id="item.global_id"/>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </modal-component>
   </div>
@@ -96,6 +113,7 @@ import SpinnerComponent from 'components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialNavigation from 'components/radials/navigation/radial'
 import { RouteNames } from 'routes/routes'
 
 import {
@@ -110,7 +128,8 @@ export default {
     IdentifiersComponent,
     ModalComponent,
     SpinnerComponent,
-    RadialAnnotator
+    RadialAnnotator,
+    RadialNavigation
   },
   props: {
     ceId: {
@@ -126,21 +145,18 @@ export default {
       count: 1,
       identifier: {
         start: undefined,
-        namespace_id: undefined
+        namespace: undefined
       },
       determinations: [],
       isSaving: false,
+      noCreated: []
     }
   },
   watch: {
     ceId: {
       handler (newVal) {
         if (newVal) {
-          this.isLoading = true
-          GetCollectionObjects({ collecting_event_ids: [this.ceId] }).then(response => {
-            this.list = response.body
-            this.isLoading = false
-          })
+          this.loadTable()
         } else {
           this.list = []
         }
@@ -148,38 +164,34 @@ export default {
     }
   },
   methods: {
-    sendCO (item) {
-      this.showModal = false
-      this.$emit('selected', item)
-    },
     createCOs (index = 0) {
       this.isSaving = true
       if (index < this.count) {
         const identifier = {
           identifier: this.identifier.start + index,
-          namespace_id: this.identifier.namespace_id,
-          type: 'Identifier::Local::CatalogNumber'
+          namespace: this.identifier.namespace
         }
 
         const co = {
           total: 1,
           collecting_event_id: this.ceId,
-          identifiers_attributes: identifier.identifier && identifier.namespace_id ? [identifier] : undefined
+          identifiers_attributes: identifier.identifier && identifier.namespace.id ? [{
+            identifier: identifier.identifier,
+            namespace_id: identifier.namespace.id,
+            type: 'Identifier::Local::CatalogNumber'
+          }] : undefined
         }
 
         CreateCollectionObject(co).then(response => {
-          this.list.unshift(response.body)
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
-            CreateTaxonDetermination(determination).then(r => {
-
-            })
+            CreateTaxonDetermination(determination)
           })
-        }, () => {
-          this.list.unshift({
-            id: undefined,
-            object_tag: 'Not created',
-            identifier: `${identifier.identifier}`
+        }, (error) => {
+          this.noCreated.unshift({
+            identifier: identifier.identifier,
+            namespace: identifier.namespace.name,
+            error: error.body
           })
         }).finally(() => {
           index++
@@ -187,10 +199,18 @@ export default {
         })
       } else {
         this.isSaving = false
+        this.loadTable()
       }
     },
     openComprehensive (id) {
       window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`, '_self')
+    },
+    loadTable () {
+      this.isLoading = true
+      GetCollectionObjects({ collecting_event_ids: [this.ceId] }).then(response => {
+        this.list = response.body
+        this.isLoading = false
+      })
     }
   }
 }

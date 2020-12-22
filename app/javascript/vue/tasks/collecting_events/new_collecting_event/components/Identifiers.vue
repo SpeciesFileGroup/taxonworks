@@ -17,16 +17,16 @@
           class="margin-small-top margin-small-left"
           href="/namespaces/new">New</a>
       </div>
-      <template v-if="namespace">
+      <template v-if="identifier.namespace">
         <div class="middle separate-top">
           <span data-icon="ok" />
           <p
             class="separate-right"
-            v-html="namespace.name"
+            v-html="identifier.namespace.name"
           />
           <span
             class="circle-button button-default btn-undo"
-            @click="namespace = undefined"
+            @click="identifier.namespace = undefined"
           />
         </div>
       </template>
@@ -85,17 +85,16 @@ export default {
   },
   data () {
     return {
-      start: null,
-      namespace: undefined
+      start: null
     }
   },
   methods: {
     setNamespace (namespace) {
-      this.identifier.namespace_id = namespace.id
+      this.identifier.namespace = namespace
       this.namespace = namespace
     },
     unset () {
-      this.identifier.namespace_id = undefined
+      this.identifier.namespace = undefined
       this.namespace = undefined
     }
   }
