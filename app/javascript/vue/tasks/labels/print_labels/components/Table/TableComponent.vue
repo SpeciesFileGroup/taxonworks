@@ -81,7 +81,7 @@
 import LabelForm from '../LabelForm'
 import OptionButtons from './OptionButtons'
 import CheckboxComponent from './CheckboxComponent'
-import { GetLabels, RemoveLabel, UpdateLabel, CreateLabel } from '../../request/resources.js'
+import { GetLabels, GetLabel, RemoveLabel, UpdateLabel, CreateLabel } from '../../request/resources.js'
 
 export default {
   components: {
@@ -116,9 +116,23 @@ export default {
       this.$emit('selected', newVal)
     }
   },
-  mounted() {
+  created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const labelId = urlParams.get('label_id')
+
     GetLabels().then(response => {
       this.list = response.body
+      if (/^\d+$/.test(labelId)) {
+        GetLabel(labelId).then(r => {
+          const index = this.list.findIndex(item => item.id === Number(labelId))
+
+          if (index > -1) {
+            this.list.splice(index, 1)
+          }
+          this.list.unshift(r.body)
+          this.selected.unshift(r.body)
+        })
+      }
     })
   },
   methods: {
@@ -134,9 +148,6 @@ export default {
     },
     selectAll() {
       this.selected = this.list.slice(0)
-    },
-    selectMyLabels() {
-      //Needs endpoint for this
     },
     removeRow(label) {
       if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
