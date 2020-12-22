@@ -1,1 +1,1 @@
-json.partial! '/collection_objects/attributes', collection_object: @collection_object
+json.partial! '/collection_objects/attributes', collection: @collection_objects, as: :collection_object
