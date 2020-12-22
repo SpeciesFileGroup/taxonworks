@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
+
 ### Changed
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
@@ -425,7 +428,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.12.14] - 2020-08-17
 
 ### Added
-- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 - Help tips in comprehensive specimen digitization task
 - Help tips in new source task
 - Type section in Browse OTUs task [#1615]
