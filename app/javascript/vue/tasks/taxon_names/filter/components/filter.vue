@@ -25,7 +25,9 @@
       </button>
       <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
-      <scope-component v-model="params.base.taxon_name_id"/>
+      <scope-component
+        :autocomplete-params="{ no_leaves: true }"
+        v-model="params.base.taxon_name_id"/>
       <related-component
         v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
