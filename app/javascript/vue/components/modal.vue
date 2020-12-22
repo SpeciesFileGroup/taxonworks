@@ -2,8 +2,8 @@
   <transition name="modal">
     <div
       class="modal-mask"
-      @click="$emit('close')"
-      @key.esc="$emit('close')">
+      @click="closeModal('out')"
+      @key.esc="closeModal('esc')">
       <div class="modal-wrapper">
         <div
           class="modal-container"
@@ -13,7 +13,7 @@
           <div class="modal-header">
             <div
               class="modal-close"
-              @click="$emit('close')"/>
+              @click="closeModal('x')"/>
             <slot name="header">
               default header
             </slot>
@@ -33,27 +33,33 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      containerClass: {
-        type: Object,
-        default: () => {
-          return {}
-        }
-      },
-      containerStyle: {
-        type: Object,
-        default: () => {
-          return {}
-        }
+export default {
+  props: {
+    containerClass: {
+      type: Object,
+      default: () => {
+        return {}
       }
     },
-    mounted: function () {
-      document.addEventListener('keydown', (e) => {
-        if (e.keyCode === 27) {
-          this.$emit('close')
-        }
-      })
+    containerStyle: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    }
+  },
+  mounted: function () {
+    document.addEventListener('keydown', (e) => {
+      if (e.keyCode === 27) {
+        this.closeModal('esc')
+      }
+    })
+  },
+  methods: {
+    closeModal (eventName) {
+      this.$emit('close')
+      this.$emit(`close-${eventName}`)
     }
   }
+}
 </script>
