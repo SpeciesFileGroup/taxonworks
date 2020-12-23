@@ -22,7 +22,7 @@
         class="horizontal-left-content align-start">
         <spinner-component
           v-if="isLoading || isSaving"
-          :legend="isSaving ? 'Saving...' : 'Loading...'"/>
+          :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
         <div class="full_width margin-medium-right">
           <div class="flex-separate align-end">
             <div class="field label-above">
@@ -50,7 +50,7 @@
         <div
           class="full_width">
           <template v-if="noCreated.length">
-            <h3>No created</h3>
+            <h3>No created ({{ noCreated.length }})</h3>
             <table
               class="full_width margin-medium-bottom">
               <thead>
@@ -141,6 +141,7 @@ export default {
     return {
       showModal: false,
       list: [],
+      index: 0,
       isLoading: false,
       count: 1,
       identifier: {
@@ -166,6 +167,7 @@ export default {
   },
   methods: {
     createCOs (index = 0) {
+      this.index = index + 1
       this.isSaving = true
       if (index < this.count) {
         const identifier = {
