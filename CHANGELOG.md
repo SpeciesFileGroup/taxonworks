@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- Changed softvalidation message for names being on Official ICZN lists
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
 - Remove `no_leaves`= true from taxon name on filter images task [#1953]
