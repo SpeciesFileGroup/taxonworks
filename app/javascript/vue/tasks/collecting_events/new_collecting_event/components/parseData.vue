@@ -52,6 +52,10 @@ export default {
             this.parsableData.geo.verbatim,
             this.parsableData.elevation,
             this.parsableData.collecting_method))
+          TW.workbench.alert.create('Buffered value parsed.', 'notice')
+          this.setModalView(false)
+        } else {
+          TW.workbench.alert.create('No buffered value to convert.', 'error')
         }
       })
     },
