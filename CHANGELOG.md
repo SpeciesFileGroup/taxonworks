@@ -19,6 +19,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Limited CoLDP exports runtime to 1 hour and 2 attemps.
 - Turn off autocomplete on new taxon name task
 
+### Fixed
+- `is_community?` reporting `false` for some models without `project_id`
+
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
 
