@@ -20,8 +20,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete on new taxon name task
 
 ### Fixed
+- `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
 
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
 
