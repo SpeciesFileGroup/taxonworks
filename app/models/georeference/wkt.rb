@@ -3,11 +3,12 @@
 class Georeference::Wkt < Georeference
   attr_accessor :wkt
 
+  # TODO: should coerce this through SHAP likely
   def wkt=(value)
-
-    a = RGeo::WKRep::WKTParser.new
-    b = a.parse(value)
-    self.geographic_item = GeographicItem.new(geometry_collection: b)
+    a = ::Gis::FACTORY.parse_wkt(value)
+    b =  a.geometry_type.type_name.tableize.singularize.to_sym
+   
+    self.geographic_item = GeographicItem.new(b => a)
 
   end
 

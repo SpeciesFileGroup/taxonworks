@@ -21,8 +21,17 @@ describe Georeference::Wkt, type: :model, group: :geo do
     expect( Georeference::Wkt.new(wkt: polygon, collecting_event: ce).valid?).to be_truthy
   end
 
-  specify '#wkt, geometry_collection' do
-    expect( Georeference::Wkt.new(wkt: geometry_collection, collecting_event: ce).valid?).to be_truthy
+  specify '#wkt, point 1' do
+    expect( Georeference::Wkt.create(wkt: point, collecting_event: ce)).to be_truthy
   end
 
-end
+  specify '#wkt, line_string 1' do
+    expect( Georeference::Wkt.create(wkt: line_string, collecting_event: ce)).to be_truthy
+  end
+
+  specify '#wkt, polygon' do
+    expect( Georeference::Wkt.create(wkt: polygon, collecting_event: ce)).to be_truthy
+  end
+
+
+ end
