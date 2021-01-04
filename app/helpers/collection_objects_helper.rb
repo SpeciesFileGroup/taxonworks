@@ -4,11 +4,23 @@ module CollectionObjectsHelper
   #   a descriptor including the identifier and determination
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
-    [ collection_object_deaccession_tag(collection_object),
+    a = [ 
+      collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
-      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first),
-      "[#{collection_object.type[(0..2)].capitalize}]",
-    ].compact.join('&nbsp;').html_safe
+      taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    ].compact
+
+    if a.empty?
+      a << [
+        collection_object.buffered_collecting_event,
+        collection_object.buffered_determinations,
+        collection_object.buffered_other_labels
+      ].compact
+    end
+
+    a << "[#{collection_object.type[(0..2)].capitalize}]"
+
+    a.join('&nbsp;').html_safe
   end
 
   def collection_object_link(collection_object)
