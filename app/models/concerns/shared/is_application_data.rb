@@ -6,10 +6,11 @@ module Shared::IsApplicationData
   included do
   end
 
-  class_methods do
+  module ClassMethods
     def is_community?
       true
     end
   end
 
+  delegate :is_community?, to: :class
 end
