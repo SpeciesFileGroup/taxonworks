@@ -15,8 +15,10 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @notes = Queries::Note::Filter.new(filter_params)
+          .all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -108,7 +110,9 @@ class NotesController < ApplicationController
   # GET /api/v1/notes
   def api_index
     @notes = Queries::Note::Filter.new(api_params).all
-      .order('notes.id').page(params[:page]).per(params[:per])
+      .order('notes.id')
+      .page(params[:page])
+      .per(params[:per])
     render '/notes/api/v1/index'
   end
 
@@ -127,7 +131,9 @@ class NotesController < ApplicationController
       :object_global_id,
       note_object_id: [],
       note_object_type: [],
-    ).to_h.merge(shallow_object_global_param)
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
   end
 
   def api_params
@@ -138,7 +144,9 @@ class NotesController < ApplicationController
       :object_global_id,
       note_object_id: [],
       note_object_type: [],
-    ).to_h.merge(shallow_object_global_param)
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
   end
 
   def set_note
