@@ -9,33 +9,45 @@ module BatchLoad::BatchLoadHelper
     content_tag(:div, str.html_safe)
   end
 
+  # @param rp
   def batch_data_created_td(rp)
     content_tag :td do
       content_tag :table do
         rp.objects.collect { |klass, objs|
           content_tag(:tr, content_tag(:td, klass), class: 'underlined_elements') +
-              objs.collect { |o| content_tag(:tr,
-                                             content_tag(:td,
-                                                         o.persisted? ? object_link(o) : content_tag(:span, object_tag(o), class: 'warning')
-                                             )
+            objs.collect { |o| content_tag(
+              :tr,
+              content_tag(
+                :td,
+                o.persisted? ? object_link(o) : content_tag(:span, object_tag(o), class: 'feedback feedback-warning')
               )
-              }.join.html_safe
+            )
+            }.join.html_safe
         }.join.html_safe
       end
     end
   end
 
   def batch_data_errors_td(rp, sep = '; ')
+
+    errors = {}
+    rp.objects.each do |klass, objs| 
+      objs.each do |o|
+        if !o.valid?
+          errors[klass] ||= []
+          errors[klass].push o.errors.full_messages.join(sep)
+        end
+      end
+    end
+
     content_tag(:td) do
       content_tag(:table, border: true) do
-        rp.objects.collect { |klass, objs|
+        errors.collect { |klass, objs|
           content_tag(:tr, content_tag(:th, klass) +
-              objs.collect { |o|
-                content_tag(:tr,
-                            content_tag(:td, (o.valid? ? content_tag(:span, 'None.', class: 'subtle') : "#{o.errors.full_messages.join(sep)}").html_safe)
-                )
-              }.join.html_safe
-          )
+                      objs.collect { |o|
+                        content_tag(:tr, content_tag(:td, o, class: 'feedback feedback-thin feedback-warning').html_safe)
+                      }.join.html_safe
+                     )
         }.join.html_safe
       end
     end
@@ -54,7 +66,7 @@ module BatchLoad::BatchLoadHelper
   end
 
   def batch_line_link_td(line)
-    content_tag(:td, link_to(line, "#line_#{line}", id: "parse_#{line}").html_safe)
+    content_tag(:td, link_to(line, "#line_#{line}", id: "parse_#{line}", data: {'turbolinks': false}).html_safe)
   end
 
   def batch_otu_name_td(otu)

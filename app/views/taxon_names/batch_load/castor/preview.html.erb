@@ -1,5 +1,5 @@
 <% content_for :warn_level do -%>
-    <%= warn_level_input(@result) -%>
+  <%= warn_level_input(@result) -%>
 <% end %>
 
 <%= content_for :batch_form do -%>
@@ -9,11 +9,11 @@
 <%= content_for :line_breakdown do -%>
   <table class="top_align_text"> 
     <tr>
-      <th class="four_character_width">line</th>
-      <th class="four_character_width">data count</th>
-      <th> name(s) </th>
-      <th class=""> data errors* </th>
-      <th class=""> parse errrors </th>
+      <th class="four_character_width">Line</th>
+      <th class="four_character_width">Data count</th>
+      <th> Name(s) </th>
+      <th> Data errors* </th>
+      <th> Parse errrors </th>
     </tr>
 
     <% @result.sorted_processed_rows.each do |i, rp| -%>
@@ -30,6 +30,4 @@
   </table>
 <% end %>
 
-
 <%= render partial: '/shared/data/all/batch_load/preview' -%>
-
