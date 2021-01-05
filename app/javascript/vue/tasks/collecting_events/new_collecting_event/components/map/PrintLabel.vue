@@ -70,7 +70,7 @@ export default {
       this.collectingEvent.label.text = this.collectingEvent.verbatim_label
     },
     generateVerbatimLabel () {
-      console.log(this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item).join('\n'))
+      this.collectingEvent.label.text = this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item).join('\n')
     }
   }
 }
