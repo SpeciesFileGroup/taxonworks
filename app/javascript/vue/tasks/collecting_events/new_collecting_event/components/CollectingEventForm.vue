@@ -17,6 +17,7 @@
             class="separate-bottom"
             v-for="(componentName) in column"
             v-model="collectingEvent"
+            :components-order="componentsOrder"
             :soft-validation="softValidation"
             :key="componentName"
             :is="componentName"/>

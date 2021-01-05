@@ -3,6 +3,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    componentsOrder: {
+      type: Object,
+      default: () => {}
     }
   },
   computed: {

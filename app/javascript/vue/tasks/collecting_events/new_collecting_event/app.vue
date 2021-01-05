@@ -224,9 +224,10 @@ export default {
     },
     async saveCollectingEvent () {
       const saveCE = this.collectingEvent.id ? UpdateCollectingEvent : CreateCollectingEvent
+      const cloneCE = this.cleanCE()
 
       this.isSaving = true
-      saveCE(this.collectingEvent).then(async response => {
+      saveCE(cloneCE).then(async response => {
         this.loadValidation(response.body.global_id)
         response.body.label = await this.saveLabel(this.collectingEvent)
         TW.workbench.alert.create(`Collecting event was successfully ${this.collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
@@ -252,6 +253,14 @@ export default {
     },
     openComprehensive () {
       window.open(`${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`, '_self')
+    },
+    cleanCE () {
+      const cloneCE = JSON.parse(JSON.stringify(this.collectingEvent))
+      delete cloneCE.queueGeoreferences
+      delete cloneCE.label
+      delete cloneCE.geographicArea
+      delete cloneCE.georeferences
+      return cloneCE
     },
     getOSKey: GetOSKey
   }
