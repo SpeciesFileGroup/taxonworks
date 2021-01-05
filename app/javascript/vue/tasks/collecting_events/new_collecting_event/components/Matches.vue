@@ -1,12 +1,12 @@
 <template>
   <div
-    class="matches-panel">
+    v-if="founded.length"
+    class="matches-panel panel content">
+    <h3>Matches</h3>
     <spinner-component
       v-if="searching"
       legend="Searching..."/>
     <display-list
-      class="panel"
-      v-if="founded.length"
       :list="founded"
       label="object_tag"
       :remove="false"

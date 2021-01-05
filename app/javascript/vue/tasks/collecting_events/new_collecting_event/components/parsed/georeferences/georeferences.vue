@@ -270,7 +270,7 @@ export default {
               this.$emit('created', response.body)
               this.$emit('onGeoreferences', this.georeferences)
             }, response => {
-              TW.workbench.alert.create(response.bodyText, 'error')
+              this.showSpinner = false
             }))
           }
         })
