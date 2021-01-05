@@ -6,6 +6,15 @@ GIT
     biodiversity (4.1.0)
 
 GIT
+  remote: https://github.com/LocoDelAssembly/dwc-archive.git
+  revision: ebcf3848b161c815dabaae5dbd6d12f3d6377e85
+  branch: overhaul
+  specs:
+    dwc-archive (1.1.1)
+      biodiversity (~> 4)
+      nokogiri (~> 1.10)
+
+GIT
   remote: https://github.com/LocoDelAssembly/geckodriver-helper.git
   revision: 8cb32dde4b152250ad053aab7432b151d11dddf9
   specs:
@@ -146,9 +155,6 @@ GEM
     docile (1.3.3)
     dropzonejs-rails (0.8.5)
       rails (> 3.1)
-    dwc-archive (1.1.1)
-      biodiversity (~> 4)
-      nokogiri (~> 1.10)
     dwc_agent (1.5.1.2)
       namae (~> 1)
       namecase (~> 2)
@@ -584,7 +590,7 @@ DEPENDENCIES
   database_cleaner (~> 1.8)
   delayed_job_active_record (~> 4.1.3)
   dropzonejs-rails (~> 0.8.1)
-  dwc-archive (~> 1.1.1)
+  dwc-archive!
   dwc_agent (~> 1.5)
   exception_notification (~> 4.4)
   execjs (~> 2.7.0)
