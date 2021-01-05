@@ -2,18 +2,18 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="setModalView(true)">WTK coordinates</button>
+      @click="setModalView(true)">WKT coordinates</button>
     <modal-component
       v-if="show"
       @close="setModalView(false)">
-      <h3 slot="header">Create WTK georeference</h3>
+      <h3 slot="header">Create WKT georeference</h3>
       <div slot="body">
         <div class="field label-above">
-          <label>WTK data</label>
+          <label>WKT data</label>
           <textarea
             class="full_width"
             rows="8"
-            v-model="wtk"/>
+            v-model="wkt"/>
         </div>
       </div>
       <div slot="footer">
@@ -40,20 +40,20 @@ export default {
   data () {
     return {
       show: false,
-      wtk: undefined
+      wkt: undefined
     }
   },
   methods: {
     createShape () {
       this.$emit('create', {
         tmpId: Math.random().toString(36).substr(2, 5),
-        wkt: this.wtk,
+        wkt: this.wkt,
         type: GeoreferenceTypes.Wkt
       })
       this.show = false
     },
     resetShape () {
-      this.wtk = undefined
+      this.wkt = undefined
     },
     setModalView (value) {
       this.resetShape()
