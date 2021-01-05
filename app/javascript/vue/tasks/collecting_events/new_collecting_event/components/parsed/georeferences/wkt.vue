@@ -2,10 +2,10 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="openModal">WTK coordinates</button>
+      @click="setModalView(true)">WTK coordinates</button>
     <modal-component
       v-if="show"
-      @close="show = false">
+      @close="setModalView(false)">
       <h3 slot="header">Create WTK georeference</h3>
       <div slot="body">
         <div class="field label-above">
@@ -53,12 +53,11 @@ export default {
       this.show = false
     },
     resetShape () {
-      return {
-        wtk: undefined
-      }
+      this.wtk = undefined
     },
-    openModal () {
-      this.show = true
+    setModalView (value) {
+      this.resetShape()
+      this.show = value
     }
   }
 }

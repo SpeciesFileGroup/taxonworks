@@ -2,10 +2,10 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="show = true">GEOLocate</button>
+      @click="setModalView(true)">GEOLocate</button>
     <modal-component
       v-if="show"
-      @close="show = false">
+      @close="setModalView(false)">
       <h3 slot="header">GEOLocate</h3>
       <div slot="body">
         <div class="field">
@@ -59,6 +59,13 @@ export default {
       })
       this.iframe_response = undefined
       this.show = false
+    },
+    resetShape () {
+      this.iframe_response = undefined
+    },
+    setModalView (value) {
+      this.resetShape()
+      this.show = value
     }
   }
 }

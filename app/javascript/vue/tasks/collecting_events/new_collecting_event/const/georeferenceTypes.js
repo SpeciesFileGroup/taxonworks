@@ -3,5 +3,5 @@ export default {
   Geolocate: 'Georeference::GeoLocate',
   Leaflet: 'Georeference::Leaflet',
   Verbatim: 'Georeference::VerbatimData',
-  Wkt: 'Georeference:: WKT'
+  Wkt: 'Georeference::Wkt'
 }
