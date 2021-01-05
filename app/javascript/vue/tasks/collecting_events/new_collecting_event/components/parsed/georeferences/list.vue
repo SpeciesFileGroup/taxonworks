@@ -17,8 +17,8 @@
           :key="item.id"
           class="list-complete-item">
           <td>{{ item.id }}</td>
-          <td class="word-keep-all">{{ geojsonObject(item).geometry.type }}</td>
-          <td>{{ getCoordinates(geojsonObject(item).geometry.coordinates) }}</td>
+          <td class="word-keep-all">{{ isTmpWkt(item) || isTempGeolocate(item) ? '' : getGeoJsonType(item) }}</td>
+          <td>{{ getCoordinatesByType(item) }}</td>
           <td class="line-nowrap">
             <edit-in-place
               v-model="item.error_radius"
@@ -44,6 +44,7 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import EditInPlace from 'components/editInPlace'
+import GeoreferenceTypes from '../../../const/georeferenceTypes'
 
 export default {
   components: {
@@ -96,8 +97,26 @@ export default {
     getCoordinates (coordinates) {
       return coordinates.map(coordinate => Array.isArray(coordinate) ? coordinate.map(item => item.slice(0, 2)) : coordinate)
     },
-    geojsonObject(object) {
+    geojsonObject (object) {
       return object.geo_json ? object.geo_json : JSON.parse(object.geographic_item_attributes.shape)
+    },
+    getGeoJsonType (object) {
+      return this.geojsonObject(object).geometry.type
+    },
+    isTmpWkt (object) {
+      return object.type === GeoreferenceTypes.Wkt && object.tmpId
+    },
+    isTempGeolocate (object) {
+      return object.type === GeoreferenceTypes.Geolocate && object.tmpId
+    },
+    getCoordinatesByType (object) {
+      if (this.isTmpWkt(object)) {
+        return object.wkt
+      } else if (this.isTempGeolocate(object)) {
+        return object.iframe_response
+      } else {
+        return this.getCoordinates(this.geojsonObject(object).geometry.coordinates)
+      }
     }
   }
 }

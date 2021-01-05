@@ -43,6 +43,25 @@
           </div>
         </div>
         <div class="horizontal-right-content">
+          <button
+            type="button"
+            class="button normal-input button-default margin-small-right"
+            @click="openComprehensive"
+            :disabled="!collectingEvent.id">
+            New collection object
+          </button>
+          <collection-objects-table
+            class="margin-small-right"
+            :ce-id="collectingEvent.id"/>
+          <parse-data
+            class="margin-small-right"
+            @onParse="setCollectingEvent"/>
+          <button
+            @click="showRecent = true"
+            class="button normal-input button-default button-size margin-small-right"
+            type="button">
+            Recent
+          </button>
           <navigate-component
             class="margin-small-right"
             :collectingEvent="collectingEvent"
@@ -50,25 +69,7 @@
           />
           <button
             type="button"
-            class="button normal-input button-default margin-small-right"
-            @click="openComprehensive"
-            :disabled="!collectingEvent.id">
-            Add collection object in comprehensive
-          </button>
-          <collection-objects-table
-            :ce-id="collectingEvent.id"/>
-          <parse-data
-            class="separate-left"
-            @onParse="setCollectingEvent"/>
-          <button
-            @click="showRecent = true"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
-            Recent
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-submit margin-small-left"
+            class="button normal-input button-submit margin-small-right"
             :disabled="!collectingEvent.id"
             @click="cloneCE"
           >
@@ -78,7 +79,7 @@
             v-shortkey="[getOSKey(), 's']"
             @shortkey="saveCollectingEvent"
             @click="saveCollectingEvent"
-            class="button normal-input button-submit button-size separate-left"
+            class="button normal-input button-submit button-size margin-small-right"
             type="button">
             Save
           </button>
@@ -86,7 +87,7 @@
             v-shortkey="[getOSKey(), 'n']"
             @shortkey="reset"
             @click="reset"
-            class="button normal-input button-default button-size separate-left"
+            class="button normal-input button-default button-size"
             type="button">
             New
           </button>

@@ -14,19 +14,27 @@
     </button>
     <modal-component
       @close="showModal = false"
-      :container-style="{ width: '80vw' }"
+      :container-style="{
+        width: '80vw',
+        maxHeight: '80vh',
+        overflowY: 'scroll'
+      }"
       v-if="showModal">
       <h3 slot="header">Georeferences</h3>
       <div
         slot="body"
         style="overflow-y: scroll">
         <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+          <wkt-component
+            @create="addToQueue"
+            class="margin-small-right"/>
           <manually-component
             class="margin-small-right"
             @create="addGeoreference"/>
           <geolocate-component
+            :disabled="!collectingEvent.id"
             class="margin-small-right"
-            @create="createGEOLocate"/>
+            @create="addToQueue"/>
           <button
             type="button"
             v-if="verbatimLat && verbatimLng"
@@ -61,12 +69,15 @@
             @geoJsonLayerCreated="addGeoreference($event)"/>
         </div>
         <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+          <wkt-component
+            @create="addToQueue"
+            class="margin-small-right"/>
           <manually-component
             class="margin-small-right"
             @create="addGeoreference"/>
           <geolocate-component
             class="margin-small-right"
-            @create="createGEOLocate"/>
+            @create="addToQueue"/>
           <button
             type="button"
             v-if="verbatimLat && verbatimLng"
@@ -100,10 +111,13 @@ import SpinnerComponent from 'components/spinner'
 import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
 import ManuallyComponent from 'components/georeferences/manuallyComponent'
-import GeolocateComponent from 'components/georeferences/geolocateComponent'
+import GeolocateComponent from './geolocate'
 import AjaxCall from 'helpers/ajaxCall'
 import ModalComponent from 'components/modal'
 import extendCE from '../../mixins/extendCE'
+import WktComponent from './wkt'
+
+import GeoreferenceTypes from '../../../const/georeferenceTypes'
 
 export default {
   mixins: [extendCE],
@@ -113,7 +127,8 @@ export default {
     DisplayList,
     ManuallyComponent,
     GeolocateComponent,
-    ModalComponent
+    ModalComponent,
+    WktComponent
   },
   props: {
     height: {
@@ -139,13 +154,13 @@ export default {
   },
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === 'Georeference::VerbatimData' })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim })
     },
     mapGeoreferences () {
-      return [].concat(this.shapes.features, this.queueGeoreferences.map(item => JSON.parse(item.geographic_item_attributes.shape)))
+      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate).map(item => JSON.parse(item.geographic_item_attributes.shape)))
     },
     geojson () {
-      return this.collectingEventId ? this.shapes.features : this.queueGeoreferences.map(item => JSON.parse(item.geographic_item_attributes.shape))
+      return this.collectingEventId ? this.shapes.features : this.queueGeoreferences
     },
     verbatimLat () {
       return this.collectingEvent.verbatim_latitude
@@ -175,6 +190,7 @@ export default {
   },
   data () {
     return {
+      isProcessing: false,
       showSpinner: false,
       selectedGeoreference: undefined,
       shapes: {
@@ -197,7 +213,7 @@ export default {
     },
     queueGeoreferences: {
       handler (newVal) {
-        if (this.collectingEventId && this.queueGeoreferences.length) {
+        if (newVal.length && this.collectingEventId && this.queueGeoreferences.length) {
           this.processQueue()
         }
       }
@@ -210,7 +226,7 @@ export default {
     }
   },
   methods: {
-    updateRadius(geo) {
+    updateRadius (geo) {
       const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
 
       if (geo.id) {
@@ -225,13 +241,15 @@ export default {
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
-        type: 'Georeference::Leaflet'
+        type: GeoreferenceTypes.Leaflet
       })
     },
     processQueue () {
+      if (this.isProcessing) return
       return new Promise((resolve, reject) => {
         const promises = []
         this.showSpinner = true
+        this.isProcessing = true
         this.queueGeoreferences.forEach(item => {
           item.collecting_event_id = this.collectingEventId
           if (item.id) {
@@ -260,6 +278,7 @@ export default {
         Promise.all(promises).then(() => {
           this.showSpinner = false
           this.queueGeoreferences = []
+          this.isProcessing = false
           this.populateShapes()
           resolve()
         })
@@ -271,7 +290,7 @@ export default {
         error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: 'Georeference::Leaflet'
+        type: GeoreferenceTypes.Leaflet
       })
     },
     getGeoreferences () {
@@ -317,25 +336,12 @@ export default {
       this.queueGeoreferences.push({
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
-        type: 'Georeference::VerbatimData',
+        type: GeoreferenceTypes.Verbatim,
         error_radius: this.geolocationUncertainty
       })
     },
-    createGEOLocate (iframe_data) {
-      this.showSpinner = true
-      AjaxCall('post', '/georeferences.json', { georeference: {
-        iframe_response: iframe_data,
-        collecting_event_id: this.collectingEventId,
-        type: 'Georeference::GeoLocate'
-      }}).then(response => {
-        this.showSpinner = false
-        this.georeferences.push(response.body)
-        this.populateShapes()
-        this.$emit('created', response.body)
-      }, response => {
-        this.showSpinner = false
-        TW.workbench.alert.create(response.bodyText, 'error')
-      })
+    addToQueue (data) {
+      this.queueGeoreferences.push(data)
     }
   }
 }

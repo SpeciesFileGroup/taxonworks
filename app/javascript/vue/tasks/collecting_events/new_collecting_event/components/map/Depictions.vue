@@ -52,6 +52,7 @@
 <script>
 
 import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
+import GeoreferenceTypes from '../../const/georeferenceTypes'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
 import ParseDMS from 'helpers/parseDMS.js'
@@ -111,7 +112,7 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop images or click here to add figures',
+        dictDefaultMessage: 'Drop image or click to browse',
         acceptedFiles: 'image/*'
       },
       coordinatesEXIF: []
@@ -168,7 +169,7 @@ export default {
             latitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLatitude) + allMetaData.GPSLatitudeRef),
             longitude: ParseDMS(this.parseEXIFCoordinate(allMetaData.GPSLongitude) + allMetaData.GPSLongitudeRef)
           }
-          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), 'Georeference::Exif')
+          const geojson = addGeoreference(createGeoJSONFeature(coordinates.longitude, coordinates.latitude), GeoreferenceTypes.Exif)
 
           this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {
