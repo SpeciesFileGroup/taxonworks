@@ -63,9 +63,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  /deep/ .modal-container {
-    max-width: 500px;
-  }
-</style>
