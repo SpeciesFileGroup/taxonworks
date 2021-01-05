@@ -32,7 +32,7 @@ namespace :api, defaults: {format: :json} do
     end
 
     defaults authenticate_user_or_project: true do
-      get '/otus', to: '/otus#api_index'     
+      get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id', to: '/otus#api_show'
 
@@ -59,7 +59,7 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/autocomplete', to: '/collection_objects#api_autocomplete'
       get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
-      
+
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
@@ -74,6 +74,9 @@ namespace :api, defaults: {format: :json} do
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
+
+      get '/images', to:`/images#api_index`
+      get '/images/:id', to:`/images#api_show`
 
       # get '/controlled_vocabulary_terms'
     end
