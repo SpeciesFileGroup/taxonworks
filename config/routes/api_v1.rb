@@ -75,8 +75,8 @@ namespace :api, defaults: {format: :json} do
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
-      get '/images', to:`/images#api_index`
-      get '/images/:id', to:`/images#api_show`
+      get '/images', to: '/images#api_index'
+      get '/images/:id', to: '/images#api_show'
 
       # get '/controlled_vocabulary_terms'
     end
