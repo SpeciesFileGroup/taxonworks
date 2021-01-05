@@ -4,8 +4,8 @@
     <div class="flex-separate separate-bottom middle">
       <div>
         <button
-          disabled="true"
-          class="button normal-input button-default margin-small-right">
+          class="button normal-input button-default margin-small-right"
+          @click="generateVerbatimLabel">
           Generate
         </button>
         <button
@@ -45,6 +45,19 @@
 <script>
 import extendCE from '../mixins/extendCE.js'
 
+const verbatimProperties = {
+  Label: 'verbatim_label',
+  Locality: 'verbatim_locality',
+  Latitude: 'verbatim_latitude',
+  Longitude: 'verbatim_longitude',
+  Geolocation: 'verbatim_geolocation_uncertainty',
+  Habitat: 'verbatim_habitat',
+  DateComponent: 'verbatim_date',
+  Collectors: 'verbatim_collectors',
+  Method: 'verbatim_method',
+  TripIdentifier: 'verbatim_trip_identifier'
+}
+
 export default {
   mixins: [extendCE],
   computed: {
@@ -55,6 +68,9 @@ export default {
   methods: {
     copyLabel () {
       this.collectingEvent.label.text = this.collectingEvent.verbatim_label
+    },
+    generateVerbatimLabel () {
+      console.log(this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item).join('\n'))
     }
   }
 }
