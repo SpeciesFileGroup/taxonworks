@@ -642,10 +642,7 @@ resources :taxon_names do
   end
 
   member do
-    get :browse
     get :original_combination, defaults: {format: :json}
-
-    get :catalog, defaults: {format: :json}
   end
 end
 
