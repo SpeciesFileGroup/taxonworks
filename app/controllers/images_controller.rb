@@ -25,6 +25,20 @@ class ImagesController < ApplicationController
   def show
   end
 
+  # GET /api/v1/images
+  def api_index
+    @otus = Queries::Image::Filter.new(api_params).all
+                .where(project_id: sessions_current_project_id)
+                .order('otus.id')
+                .page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
+  end
+
+  # GET /api/v1/images/:id
+  def api_show
+    render '/images/api/v1/show'
+  end
+
   # GET /images/new
   def new
     @image = Image.new
@@ -149,29 +163,57 @@ class ImagesController < ApplicationController
 
   def filter_params
     params.permit(
-      :taxon_name_id,
-      :ancestor_id_target,
-      :otu_id,
-      :collection_object_id,
-      :image_id,
-      :biocuration_class_id,
-      :sled_image_id,
-      :depiction,
-      :user_id, # user
-      :user_target,
-      :user_date_start,
-      :user_date_end,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      keyword_ids: [],
-      taxon_name_id: [],
-      sled_image_id: [],
-      biocuration_class_id: [],
-      image_id: [],
-      collection_object_id: [],
-      otu_id: []
+        :taxon_name_id,
+        :ancestor_id_target,
+        :otu_id,
+        :collection_object_id,
+        :image_id,
+        :biocuration_class_id,
+        :sled_image_id,
+        :depiction,
+        :user_id, # user
+        :user_target,
+        :user_date_start,
+        :user_date_end,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        keyword_ids: [],
+        taxon_name_id: [],
+        sled_image_id: [],
+        biocuration_class_id: [],
+        image_id: [],
+        collection_object_id: [],
+        otu_id: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def api_params
+    params.permit(
+        :taxon_name_id,
+        :ancestor_id_target,
+        :otu_id,
+        :collection_object_id,
+        :image_id,
+        :biocuration_class_id,
+        :sled_image_id,
+        :depiction,
+        :user_id, # user
+        :user_target,
+        :user_date_start,
+        :user_date_end,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        keyword_ids: [],
+        taxon_name_id: [],
+        sled_image_id: [],
+        biocuration_class_id: [],
+        image_id: [],
+        collection_object_id: [],
+        otu_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
