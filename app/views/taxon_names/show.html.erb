@@ -1,6 +1,6 @@
 
 <% content_for :tasks do %>
-    <%= render('tasks') -%>
+  <%= render('tasks') -%>
 <% end %>
 
 <% content_for :additional_navigation do %>
@@ -25,19 +25,17 @@
 <% end %>
 
 <% content_for :report do %>
- 
- <%= content_tag(:li, link_to("Browse nomenclature", browse_nomenclature_task_path(taxon_name_id: @taxon_name.id))) -%>
+
+  <%= content_tag(:li, link_to("Browse nomenclature", browse_nomenclature_task_path(taxon_name_id: @taxon_name.id))) -%>
+
   <% unless Otu.for_taxon_name(@taxon_name.to_param).empty? %>
-      <%= content_tag(:li, link_to(
-        'Distribution',
-        otu_distribution_data_task_path(taxon_name_id: @taxon_name.to_param),
-        'data-turbolinks' => false)) 
-      %>
+    <%= content_tag(:li, link_to(
+      'Distribution',
+      otu_distribution_data_task_path(taxon_name_id: @taxon_name.to_param),
+      'data-turbolinks' => false))
+    %>
   <% end %>
 
-    <%= content_tag(:li, link_to("Basis Catalog", basis_catalog_task_path(@taxon_name))) -%>
-
-    
-  <% end %>
+<% end %>
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @taxon_name}) -%>

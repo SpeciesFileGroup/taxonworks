@@ -10,6 +10,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total < T
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Conditional)
   end
 
+  def self.disjoint_subject_classes
+    self.parent.disjoint_subject_classes +
+        self.collect_to_s(TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology,
+                          TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology,
+                          TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
+  end
+
   def object_status
     'conserved'
   end

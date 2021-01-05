@@ -188,6 +188,22 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
     end
   end
 
+  class NoDiagnosisAfter1930AndRejectedBefore2000 < TaxonNameClassification::Iczn::Unavailable::NomenNudum
+
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0001060'.freeze
+
+    extend InnerClassAfter1930
+    extend FamilyGroupRanks
+
+    def self.code_applicability_end_year
+      1960
+    end
+
+    def sv_not_specific_classes
+      true
+    end
+  end
+
   class NoTypeDepositionStatementAfter1999 < TaxonNameClassification::Iczn::Unavailable::NomenNudum
 
     NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000190'.freeze
@@ -215,6 +231,10 @@ class TaxonNameClassification::Iczn::Unavailable::NomenNudum < TaxonNameClassifi
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000188'.freeze
 
     extend InnerClassAfter1999FamilyGroup
+
+  def sv_not_specific_classes
+    true
+  end
   end
 
   class NoTypeSpecimenFixationAfter1999 < TaxonNameClassification::Iczn::Unavailable::NomenNudum

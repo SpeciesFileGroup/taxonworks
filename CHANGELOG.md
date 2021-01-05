@@ -7,15 +7,31 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
+
 ### Changed
+- Changed softvalidation message for names being on Official ICZN lists
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
 - Remove `no_leaves`= true from taxon name on filter images task [#1953]
 - Turn off autocomplete feature on vue autocomplete [#1956]
 - Limited CoLDP exports runtime to 1 hour and 2 attemps.
+- Turn off autocomplete on new taxon name task
 
+### Fixed
+- broken API download link for exported references [#1908]
+- removed BASIS task stub [#1716]
+- `/api/v1/notes` project scoping [#1958]
+- `is_community?` reporting `false` for some models without `project_id`
+- New source after cloning not display changes on authors / editors lists
+
+[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
+[#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
 
 ## [0.15.1] - 2020-12-14
 ### Added

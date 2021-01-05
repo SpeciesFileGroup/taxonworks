@@ -30,6 +30,7 @@
 #
 class GeographicAreasGeographicItem < ApplicationRecord
   include Shared::IsData
+  include Shared::IsApplicationData
 
   belongs_to :geographic_area, inverse_of: :geographic_areas_geographic_items
   belongs_to :geographic_item, inverse_of: :geographic_areas_geographic_items
