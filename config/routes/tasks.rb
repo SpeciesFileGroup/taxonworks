@@ -329,12 +329,6 @@ scope :tasks do
       get '', action: :index, as: 'new_taxon_name_task'
     end
 
-    scope :catalog do
-      scope :basis, controller: 'tasks/nomenclature/catalog/basis' do
-        get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
-      end
-    end
-
     scope :browse, controller: 'tasks/nomenclature/browse' do
       get '', action: :index, as: 'browse_nomenclature_task'
     end
