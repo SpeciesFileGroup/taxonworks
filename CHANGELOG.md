@@ -24,12 +24,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - removed BASIS task stub [#1716]
 - `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
+- New source after cloning not display changes on authors / editors lists
 
 [#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
 [#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
 [#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
 
 ## [0.15.1] - 2020-12-14
 ### Added
