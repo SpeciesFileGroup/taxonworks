@@ -139,11 +139,14 @@ import SpinnerComponent from 'components/spinner'
 import {
   CloneCollectionEvent,
   CreateCollectingEvent,
+  CreateIdentifier,
   CreateLabel,
   GetCollectingEvent,
   GetLabelsFromCE,
   GetSoftValidation,
+  GetTripCodeByCE,
   UpdateCollectingEvent,
+  UpdateIdentifier,
   UpdateLabel
 } from './request/resources'
 
@@ -210,9 +213,13 @@ export default {
     loadCollectingEvent (id) {
       this.isLoading = true
       GetCollectingEvent(id).then(async response => {
-        this.loadValidation(response.body.global_id)
-        const label = (await GetLabelsFromCE(response.body.id)).body[0]
-        response.body.label = label || makeCollectingEvent().label
+        const ce = response.body
+        this.loadValidation(ce.global_id)
+        const label = (await GetLabelsFromCE(ce.id)).body[0]
+        const tripCode = (await GetTripCodeByCE(ce.id)).body[0]
+        ce.label = label || makeCollectingEvent().label
+        ce.tripCode = tripCode || makeCollectingEvent().tripCode
+        ce.roles_attributes = ce.collector_roles || []
         this.setCollectingEvent(response.body)
       }).finally(() => {
         this.isLoading = false
@@ -230,6 +237,7 @@ export default {
       saveCE(cloneCE).then(async response => {
         this.loadValidation(response.body.global_id)
         response.body.label = await this.saveLabel(this.collectingEvent)
+        response.body.tripCode = await this.saveIdentifier(this.collectingEvent.tripCode)
         TW.workbench.alert.create(`Collecting event was successfully ${this.collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
         this.setCollectingEvent(response.body)
       }).finally(() => {
@@ -246,6 +254,14 @@ export default {
         return label
       }
     },
+    async saveIdentifier (identifier) {
+      if (identifier.namespace_id && identifier.identifier) {
+        identifier.identifier_object_id = this.collectingEvent.id
+        return identifier.id ? (await UpdateIdentifier(identifier)).body : (await CreateIdentifier(identifier)).body
+      } else {
+        return identifier
+      }
+    },
     loadValidation (globalId) {
       GetSoftValidation(globalId).then(response => {
         this.validation = response.body.validations.soft_validations
@@ -260,6 +276,7 @@ export default {
       delete cloneCE.label
       delete cloneCE.geographicArea
       delete cloneCE.georeferences
+      delete cloneCE.tripCode
       return cloneCE
     },
     getOSKey: GetOSKey

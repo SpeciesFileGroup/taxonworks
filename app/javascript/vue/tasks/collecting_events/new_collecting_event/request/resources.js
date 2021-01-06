@@ -4,6 +4,8 @@ const CreateCollectingEvent = (ce) => ajaxCall('post', '/collecting_events.json'
 
 const CreateCollectionObject = (co) => ajaxCall('post', '/collection_objects.json', { collection_object: co })
 
+const CreateIdentifier = (identifier) => ajaxCall('post', '/identifiers.json', { identifier: identifier })
+
 const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
 
 const CreateLabel = data => ajaxCall('post', '/labels.json', data)
@@ -15,6 +17,10 @@ const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.js
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
 const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json', { params: params })
+
+const GetNamespace = (id) => ajaxCall('get', `/namespaces/${id}.json`)
+
+const GetTripCodeByCE = (ceId) => ajaxCall('get', `/identifiers.json?identifier_object_type=CollectingEvent&identifier_object_id=${ceId}&type=Identifier::Local::TripCode`)
 
 const CloneCollectionEvent = (id) => ajaxCall('post', `/collecting_events/${id}/clone`)
 
@@ -40,6 +46,8 @@ const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce
 
 const UpdateDepiction = (id, depiction) => ajaxCall('patch', `/depictions/${id}.json`, depiction)
 
+const UpdateIdentifier = (identifier) => ajaxCall('post', `/identifiers/${identifier.id}.json`, { identifier: identifier })
+
 const UpdateLabel = (id, data) => ajaxCall('patch', `/labels/${id}.json`, data)
 
 const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
@@ -52,10 +60,13 @@ const DestroyDepiction = (id) => ajaxCall('delete', `/depictions/${id}`)
 
 const DestroyCollectingEvent = (id) => ajaxCall('delete', `/collecting_events/${id}`)
 
+const RemoveIdentifier = (id) => ajaxCall('delete', `/identifiers/${id}.json`)
+
 export {
   CloneCollectionEvent,
   CreateCollectingEvent,
   CreateCollectionObject,
+  CreateIdentifier,
   CreateGeoreference,
   CreateLabel,
   CreateTaxonDetermination,
@@ -66,9 +77,11 @@ export {
   GetCollectingEvents,
   GetGeographicArea,
   GetLabelsFromCE,
+  GetNamespace,
   GetRecentCollectingEvents,
   GetUserPreferences,
   GetSoftValidation,
+  GetTripCodeByCE,
   GetDepictions,
   GetProjectPreferences,
   GetGeographicAreaByCoords,
@@ -76,7 +89,9 @@ export {
   NavigateCollectingEvents,
   UpdateCollectingEvent,
   UpdateDepiction,
+  UpdateIdentifier,
   UpdateLabel,
   UpdateUserPreferences,
-  ParseVerbatim
+  ParseVerbatim,
+  RemoveIdentifier
 }

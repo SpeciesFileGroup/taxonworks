@@ -42,7 +42,7 @@ export default {
   },
   methods: {
     roleExist (id) {
-      this.this.collectingEvent.roles_attributes.find(role => !role?._destroy && role.person_id === id)
+      this.collectingEvent.roles_attributes.find(role => !role?._destroy && role.person_id === id)
     },
     addRole (role) {
       if (!this.roleExist(role.id)) {

@@ -1,4 +1,5 @@
 import makeLabel from './label'
+import makeTripIdentifier from './makeTripIdentifier'
 
 export default () => {
   return {
@@ -47,6 +48,7 @@ export default () => {
     georeferences: [],
     queueGeoreferences: [],
     label: makeLabel(),
-    geographicArea: undefined
+    geographicArea: undefined,
+    tripCode: makeTripIdentifier()
   }
 }
