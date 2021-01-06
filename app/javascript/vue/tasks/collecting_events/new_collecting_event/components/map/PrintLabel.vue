@@ -5,7 +5,7 @@
       <div>
         <button
           class="button normal-input button-default margin-small-right"
-          @click="generateVerbatimLabel">
+          @click="generateLabel">
           Generate
         </button>
         <button
@@ -44,6 +44,7 @@
 
 <script>
 import extendCE from '../mixins/extendCE.js'
+import DOMPurify from 'dompurify'
 
 const verbatimProperties = {
   Label: 'verbatim_label',
@@ -58,6 +59,19 @@ const verbatimProperties = {
   TripIdentifier: 'verbatim_trip_identifier'
 }
 
+const romanNumbers = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix', 'x', 'xi', 'xii']
+
+const parsedProperties = {
+  GeographicArea: (ce) => ce.geographicArea?.name,
+  Dates: (ce) => [ce.start_date_day, romanNumbers[Number(ce.start_date_month) - 1], ce.start_date_year].filter(date => date).join('.'),
+  Elevation: (ce) => [ce.minimum_elevation, ce.maximum_elevation, ce.elevation_precision].filter(item => item).map(item => `${item}m`).join(' '),
+  Time: ce => [ce.time_start_hour, ce.time_start_minute, ce.time_start_second].filter(time => time).map(time => time < 10 ? `0${time}` : time).join(':'),
+  CollectorsComponent: ce => ce.roles_attributes.map(role => role.person.cached).join('; '),
+  TripCode: ce => DOMPurify.sanitize(ce.tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
+  //Group: 'Group',
+  //Predicates: 'Predicates'
+}
+
 export default {
   mixins: [extendCE],
   computed: {
@@ -70,7 +84,13 @@ export default {
       this.collectingEvent.label.text = this.collectingEvent.verbatim_label
     },
     generateVerbatimLabel () {
-      this.collectingEvent.label.text = this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item).join('\n')
+      return this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+    },
+    generateParsedLabel () {
+      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(this.collectingEvent))
+    },
+    generateLabel () {
+      this.collectingEvent.label.text = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
     }
   }
 }

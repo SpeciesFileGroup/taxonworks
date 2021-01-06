@@ -46,7 +46,7 @@ const UpdateCollectingEvent = (ce) => ajaxCall('patch', `/collecting_events/${ce
 
 const UpdateDepiction = (id, depiction) => ajaxCall('patch', `/depictions/${id}.json`, depiction)
 
-const UpdateIdentifier = (identifier) => ajaxCall('post', `/identifiers/${identifier.id}.json`, { identifier: identifier })
+const UpdateIdentifier = (identifier) => ajaxCall('patch', `/identifiers/${identifier.id}.json`, { identifier: identifier })
 
 const UpdateLabel = (id, data) => ajaxCall('patch', `/labels/${id}.json`, data)
 
