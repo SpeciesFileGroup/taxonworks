@@ -120,7 +120,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
         }
       ).update_all(ready ?
         "status = 'Ready', metadata = metadata - 'error_data'" :
-        "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set.\"] } }')"
+        "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set, see \\\"Settings\\\".\"] } }')"
       )
     end
   end
