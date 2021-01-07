@@ -89,7 +89,7 @@ scope :tasks do
 
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
-      get :index, as: 'index_print_labels_task'
+      get '/',  as: 'print_labels_task', action: :index
     end
   end
 

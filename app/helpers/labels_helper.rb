@@ -31,7 +31,7 @@ module LabelsHelper
     if label.label_object_id.blank?
       taxonworks_label_tag(label)
     else
-      link_to(content_tag(:span, label.text), label.label_object)
+      link_to(content_tag(:span, label.text), print_labels_task_path(label_id: label.to_param))
     end
   end
 

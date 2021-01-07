@@ -92,7 +92,8 @@ class LabelsController < ApplicationController
 
     def label_params
       params.require(:label).permit(
-        :text, :total, :style, :is_copy_edited, :is_printed, :label_object_id, :label_object_type,
+        :text, :total, :style, :is_copy_edited, :is_printed,
+        :label_object_id, :label_object_type,
         :annotated_global_entity
       )
     end
