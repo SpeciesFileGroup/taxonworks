@@ -12,6 +12,14 @@ const CreateLabel = data => ajaxCall('post', '/labels.json', data)
 
 const CreateTaxonDetermination = (data) => ajaxCall('post', '/taxon_determinations.json', { taxon_determination: data })
 
+const GetBiocurationsTypes = () => ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
+
+const GetBiocurationsGroupTypes = () => ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationGroup')
+
+const GetBiocurationsTags = (BiocurationGroupId) => ajaxCall('get', `/tags.json?keyword_id=${BiocurationGroupId}`)
+
+const CreateBiocurationClassification = (data) => ajaxCall('post', '/biocuration_classifications.json', data)
+
 const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.json', { params })
 
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
@@ -19,6 +27,8 @@ const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.jso
 const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json', { params: params })
 
 const GetNamespace = (id) => ajaxCall('get', `/namespaces/${id}.json`)
+
+const GetPreparationTypes = () => ajaxCall('get', '/preparation_types.json')
 
 const GetTripCodeByCE = (ceId) => ajaxCall('get', `/identifiers.json?identifier_object_type=CollectingEvent&identifier_object_id=${ceId}&type=Identifier::Local::TripCode`)
 
@@ -64,6 +74,7 @@ const RemoveIdentifier = (id) => ajaxCall('delete', `/identifiers/${id}.json`)
 
 export {
   CloneCollectionEvent,
+  CreateBiocurationClassification,
   CreateCollectingEvent,
   CreateCollectionObject,
   CreateIdentifier,
@@ -72,6 +83,9 @@ export {
   CreateTaxonDetermination,
   DestroyDepiction,
   DestroyCollectingEvent,
+  GetBiocurationsTypes,
+  GetBiocurationsGroupTypes,
+  GetBiocurationsTags,
   GetCollectionObjects,
   GetCollectingEvent,
   GetCollectingEvents,
@@ -83,6 +97,7 @@ export {
   GetSoftValidation,
   GetTripCodeByCE,
   GetDepictions,
+  GetPreparationTypes,
   GetProjectPreferences,
   GetGeographicAreaByCoords,
   LoadSoftValidation,

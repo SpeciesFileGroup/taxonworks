@@ -42,6 +42,13 @@
               </button>
             </div>
           </div>
+          <preparation-types
+            class="margin-medium-bottom"
+            v-model="preparationType"/>
+          <biocuration-component
+            class="margin-medium-bottom"
+            v-model="biocurations"/>
+          <repository-component v-model="repositoryId"/>
           <identifiers-component
             v-model="identifier"
             :count="count"/>
@@ -108,28 +115,35 @@
 
 <script>
 
+import BiocurationComponent from './Biocuration'
+import PreparationTypes from './PreparationTypes'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
+import RepositoryComponent from './Repository'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import { RouteNames } from 'routes/routes'
 
 import {
   GetCollectionObjects,
+  CreateBiocurationClassification,
   CreateCollectionObject,
   CreateTaxonDetermination
 } from '../request/resources.js'
 
 export default {
   components: {
+    BiocurationComponent,
     DeterminerComponent,
     IdentifiersComponent,
     ModalComponent,
     SpinnerComponent,
     RadialAnnotator,
-    RadialNavigation
+    RadialNavigation,
+    PreparationTypes,
+    RepositoryComponent
   },
   props: {
     ceId: {
@@ -139,6 +153,7 @@ export default {
   },
   data () {
     return {
+      biocurations: [],
       showModal: false,
       list: [],
       index: 0,
@@ -150,7 +165,9 @@ export default {
       },
       determinations: [],
       isSaving: false,
-      noCreated: []
+      noCreated: [],
+      preparationType: undefined,
+      repositoryId: undefined
     }
   },
   watch: {
@@ -177,6 +194,8 @@ export default {
 
         const co = {
           total: 1,
+          repository_id: this.repositoryId,
+          preparation_type_id: this.preparationType,
           collecting_event_id: this.ceId,
           identifiers_attributes: identifier.identifier && identifier.namespace.id ? [{
             identifier: identifier.identifier,
@@ -189,6 +208,14 @@ export default {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
             CreateTaxonDetermination(determination)
+          })
+          this.biocurations.forEach(biocurationId => {
+            CreateBiocurationClassification({
+              biocuration_classification: {
+                biocuration_class_id: biocurationId,
+                biological_collection_object_id: response.body.id
+              }
+            })
           })
         }, (error) => {
           this.noCreated.unshift({
