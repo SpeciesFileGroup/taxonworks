@@ -35,9 +35,9 @@ module LabelsHelper
           shape_rendering: 'crispEdges',
           module_size: 6,
           standalone: true
-        ).to_s,
+        ).to_s.html_safe,
         class: :qrcode_barcode
-      ).html_safe,
+      ),
       class: :qrcode
     )
 
