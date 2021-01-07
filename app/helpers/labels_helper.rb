@@ -1,3 +1,4 @@
+require 'rqrcode'
 module LabelsHelper
 
   # !! Note that `label_tag` is a Rails reserved word, so we have to append and make exceptions
@@ -5,7 +6,7 @@ module LabelsHelper
     return nil if label.nil?
     case label.type
     when 'Label::QrCode'
-      c = RQRCode::QRCode.new(label.text)
+      c = ::RQRCode::QRCode.new(label.text)
 
       # TODO: provide necessary structure here
       label.text + ' ' +

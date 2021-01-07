@@ -88,7 +88,7 @@ gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
 gem 'rgb'
-gem 'rqrcode'
+gem 'rqrcode', '~> 1.1.0'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'

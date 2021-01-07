@@ -637,7 +637,7 @@ DEPENDENCIES
   rgeo-geojson (~> 2.1, >= 2.1.1)
   rgeo-proj4 (~> 2.0)
   rmagick (~> 4.0)
-  rqrcode
+  rqrcode (~> 1.1.0)
   rspec (~> 3.6)
   rspec-activemodel-mocks (~> 1.1.0)
   rspec-rails (~> 4.0.0.beta2)
