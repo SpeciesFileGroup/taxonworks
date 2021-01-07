@@ -22,6 +22,7 @@
           <th @click="sort('total')">Total</th>
           <th @click="sort('is_copy_edited')">Is copy edited</th>
           <th @click="sort('is_printed')">Is printed</th>
+          <th @click="sort('type')">Type</th>
           <th @click="sort('updated_by')">Updated by</th>
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
@@ -39,7 +40,7 @@
               :val="item"/>
           </td>
           <td>
-            <pre>{{ item.text }}</pre>
+            <pre v-html="item.label"/>
           </td>
           <td v-html="item.total"/>
           <td>
@@ -56,6 +57,7 @@
               v-model="item.is_printed"
               @change="updateLabel(item)">
           </td>
+          <td>{{ item.type }}</td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
           <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
           <td v-html="item.on"/>

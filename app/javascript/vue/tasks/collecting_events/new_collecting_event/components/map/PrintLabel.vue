@@ -27,7 +27,7 @@
       <a
         v-if="collectingEvent.label.id && collectingEvent.label.total > 0"
         target="blank"
-        :href="`/tasks/labels/print_labels/index?label_id=${collectingEvent.label.id}`">Preview
+        :href="`/tasks/labels/print_labels?label_id=${collectingEvent.label.id}`">Preview
       </a>
     </div>
     <textarea

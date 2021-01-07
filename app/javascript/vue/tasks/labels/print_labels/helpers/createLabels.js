@@ -1,6 +1,6 @@
 
 function createLabel(label, cssStyle) {
-  return `<div class="${cssStyle}">${label.text}</div>`
+  return `<div class="${cssStyle}">${label.label}</div>`
 }
 
 function getLinesCount(str) {
@@ -73,10 +73,9 @@ function addSeparator(separator, spaceAround) {
 function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) {
   let columns = 1
   let pages = createHeader(customStyle) + `<body><div class="ce_label_pg"><div class="ce_label_col">`
-  
 
   labels.forEach(label => {
-    let labelLines = getLinesCount(label.text)
+    const labelLines = getLinesCount(label.text)
     let rowLines = 0
     for(var i = 0; i < label.total; i++) {
       rowLines = rowLines + labelLines
