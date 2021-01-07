@@ -6,21 +6,7 @@ module LabelsHelper
     return nil if label.nil?
     case label.type
     when 'Label::QrCode'
-      c = ::RQRCode::QRCode.new(label.text)
-
-      # TODO: provide necessary structure here
-      content_tag(:span, label.text, class: 'qrcode_text') +
-        content_tag(
-          :span, 
-          c.as_svg(
-            offset: 0,
-            color: '000',
-            shape_rendering: 'crispEdges',
-            module_size: 6,
-            standalone: true
-          ).to_s,
-          class: :qrcode_barcode
-        )
+      label_svg_tag(label)
     else
       content_tag(:span, label.text, style: label.style) # TODO: properly reference style
     end
@@ -33,6 +19,28 @@ module LabelsHelper
     else
       link_to(content_tag(:span, label.text), print_labels_task_path(label_id: label.to_param))
     end
+  end
+
+  def label_svg_tag(label)
+    c = ::RQRCode::QRCode.new(label.text)
+
+    content_tag(
+      :span, 
+      content_tag(:span, label.text, class: 'qrcode_text') +
+      content_tag(
+        :span, 
+        c.as_svg(
+          offset: 0,
+          color: '000',
+          shape_rendering: 'crispEdges',
+          module_size: 6,
+          standalone: true
+        ).to_s,
+        class: :qrcode_barcode
+      ),
+      class: :qrcode
+    )
+
   end
 
 end
