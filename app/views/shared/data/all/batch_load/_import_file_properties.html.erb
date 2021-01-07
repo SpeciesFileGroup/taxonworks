@@ -2,23 +2,23 @@
 <ul>
   <li>Successfully
     processed: <%= content_tag(:span, (@result.processed ? 'Yes' : 'No'), class: ['feedback feedback-thin', (@result.processed ? 'feedback-success' : 'feedback-warning') ]) -%></li>
-  <li>Total rows (total/with data/empty):
+  <li><p>Total rows (total/with data/empty):
     <%= @result.total_lines ? @result.total_lines : '?' -%>
     /<%= @result.total_data_lines ? @result.total_data_lines : '?' -%>
-    /<%= @result.total_lines && @result.total_data_lines ? (@result.total_lines - @result.total_data_lines) : '?' -%>
+  /<%= @result.total_lines && @result.total_data_lines ? (@result.total_lines - @result.total_data_lines) : '?' -%></p>
   </li>
 
-  <li> This file
+  <li><p> This file
     is <%= content_tag(:span, @result.warn_level_ok? ? 'OK' : 'NOT OK', class: ['feedback feedback-thin', (@result.warn_level_ok? ? 'feedback-success' : 'feedback-warning') ] ) -%>
-    for import level "warn".
+  for import level "warn".</p>
   </li>
-  <li> This file
+  <li><p> This file
     is <%= content_tag(:span, @result.line_strict_level_ok? ? 'OK' : 'NOT OK', class: ['feedback feedback-thin', ( @result.line_strict_level_ok? ? 'feedback-success' : 'feedback-danger') ] ) -%>
-    for import level "line strict".
+  for import level "line strict".</p>
   </li>
-  <li> This file
+  <li><p>This file
     is <%= content_tag(:span, @result.strict_level_ok? ? 'OK' : 'NOT OK',  class: ['feedback feedback-thin', ( @result.strict_level_ok?  ? 'feedback-success' : 'feedback-danger') ] ) -%>
-    for import level "strict".
+  for import level "strict".</p>
   </li>
 
   <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning')) }.join.html_safe -%>

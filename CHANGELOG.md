@@ -8,9 +8,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- Minor cleanup of batch preview layouts
 - Changed softvalidation message for names being on Official ICZN lists
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
@@ -20,12 +22,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete on new taxon name task
 
 ### Fixed
+- Line links of batch-preview results
 - broken API download link for exported references [#1908]
 - removed BASIS task stub [#1716]
 - `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
 
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
 [#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
 [#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
 [#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
