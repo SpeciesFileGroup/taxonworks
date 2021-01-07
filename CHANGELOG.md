@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- nested attributes for Labels
 - `/collecting_events/preview?<filter_params>` a preview look for brief tables
 - Subclasses for labels
 - `Label::QrCode`
@@ -16,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Georeference::Wkt` an anonymous WKT based assertion
 
 ### Changed
+- Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
 
 \-
