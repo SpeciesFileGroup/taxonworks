@@ -37,7 +37,7 @@ module LabelsHelper
           standalone: true
         ).to_s,
         class: :qrcode_barcode
-      ),
+      ).html_safe,
       class: :qrcode
     )
 
