@@ -49,6 +49,7 @@
             class="margin-medium-bottom"
             v-model="biocurations"/>
           <repository-component v-model="repositoryId"/>
+          <label-component v-model="labelType"/>
           <identifiers-component
             v-model="identifier"
             :count="count"/>
@@ -122,6 +123,7 @@ import SpinnerComponent from 'components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RepositoryComponent from './Repository'
+import LabelComponent from './Label'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import { RouteNames } from 'routes/routes'
@@ -138,6 +140,7 @@ export default {
     BiocurationComponent,
     DeterminerComponent,
     IdentifiersComponent,
+    LabelComponent,
     ModalComponent,
     SpinnerComponent,
     RadialAnnotator,
@@ -167,7 +170,8 @@ export default {
       isSaving: false,
       noCreated: [],
       preparationType: undefined,
-      repositoryId: undefined
+      repositoryId: undefined,
+      labelType: undefined
     }
   },
   watch: {
@@ -200,7 +204,12 @@ export default {
           identifiers_attributes: identifier.identifier && identifier.namespace.id ? [{
             identifier: identifier.identifier,
             namespace_id: identifier.namespace.id,
-            type: 'Identifier::Local::CatalogNumber'
+            type: 'Identifier::Local::CatalogNumber',
+            labels_attributes: this.labelType ? [{
+              text_method: 'build_cached',
+              type: this.labelType,
+              total: 1
+            }] : undefined
           }] : undefined
         }
 
