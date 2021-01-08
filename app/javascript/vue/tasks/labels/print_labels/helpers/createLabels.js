@@ -9,17 +9,6 @@ function getLinesCount(str) {
   return str.split(/\r\n|\r|\n/).length
 }
 
-function parseLabelStringToDOM (label) {
-  const DOMLabel = new DOMParser().parseFromString(label, 'text/html')
-  const QRText = DOMLabel.querySelector('.qrcode_text')
-
-  if (QRText) {
-    QRText.textContent = QRText.textContent.split(' ').join('\n')
-  }
-
-  return DOMLabel.body.innerHTML
-}
-
 function createHeader(customClass) {
   return `<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
