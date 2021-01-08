@@ -36,6 +36,15 @@ GIT
     seedbank (0.5.0)
       rake (>= 10.0)
 
+GIT
+  remote: https://github.com/mjy/rqrcode.git
+  revision: 4b6875fb192d90f565ed51c8a48441febe1a9ed2
+  branch: taxonworks
+  specs:
+    rqrcode (1.2.0)
+      chunky_png (~> 1.0)
+      rqrcode_core (~> 0.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -399,10 +408,7 @@ GEM
     rgeo-proj4 (2.0.1)
       rgeo (~> 2.0)
     rmagick (4.1.2)
-    rqrcode (1.1.2)
-      chunky_png (~> 1.0)
-      rqrcode_core (~> 0.1)
-    rqrcode_core (0.1.2)
+    rqrcode_core (0.2.0)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -632,12 +638,12 @@ DEPENDENCIES
   redcarpet (~> 3.4)
   redis (~> 4.1.0)
   responders (~> 3.0)
-  rgb
+  rgb (~> 0.1)
   rgeo (~> 2.2)
   rgeo-geojson (~> 2.1, >= 2.1.1)
   rgeo-proj4 (~> 2.0)
   rmagick (~> 4.0)
-  rqrcode (~> 1.1.0)
+  rqrcode!
   rspec (~> 3.6)
   rspec-activemodel-mocks (~> 1.1.0)
   rspec-rails (~> 4.0.0.beta2)

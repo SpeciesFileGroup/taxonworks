@@ -87,8 +87,8 @@ gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
-gem 'rgb'
-gem 'rqrcode', '~> 1.1.0'
+gem 'rgb', '~> 0.1'
+gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
