@@ -37,18 +37,24 @@ export default {
   },
   data () {
     return {
-      labelTypes: [{
-        label: 'Text',
-        value: 'Label'
-      },
-      {
-        label: 'QR Code',
-        value: 'Label::QrCode'
-      },
-      {
-        label: 'None',
-        value: undefined
-      }]
+      labelTypes: [
+        {
+          label: 'None',
+          value: undefined
+        },
+        {
+          label: 'Text',
+          value: 'Label'
+        },
+        {
+          label: 'QR Code',
+          value: 'Label::QrCode'
+        },
+        {
+          label: 'Barcode',
+          value: 'Label::Code128'
+        }
+      ]
     }
   }
 }

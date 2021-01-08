@@ -55,16 +55,13 @@ module LabelsHelper
 
   def label_code_128_tag(label)
     c = Barby::Code128.new(label.text)
-    o = Barby::SvgOutputter.new(c)
-
-    o.xmargin = 0 
 
     content_tag(
       :span, 
 
       content_tag(
         :span, 
-        o.to_svg.html_safe,  #c.to_svg().html_safe,
+        c.to_svg(xmargin: 0, ymargin: 0).html_safe,
         class: :code128_barcode
       ) +
       content_tag(:span, label.text, class: 'code128_text'),

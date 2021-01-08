@@ -42,17 +42,17 @@
               </button>
             </div>
           </div>
-          <preparation-types
-            class="margin-medium-bottom"
-            v-model="preparationType"/>
-          <biocuration-component
-            class="margin-medium-bottom"
-            v-model="biocurations"/>
-          <repository-component v-model="repositoryId"/>
           <label-component v-model="labelType"/>
           <identifiers-component
             v-model="identifier"
             :count="count"/>
+          <preparation-types
+            class="margin-medium-bottom"
+            v-model="preparationType"/>
+          <repository-component v-model="repositoryId"/>
+          <biocuration-component
+            class="margin-medium-bottom"
+            v-model="biocurations"/>
           <determiner-component v-model="determinations"/>
         </div>
         <div
@@ -79,6 +79,7 @@
               </tbody>
             </table>
           </template>
+          <h3>Result</h3>
           <table class="full_width">
             <thead>
               <tr>

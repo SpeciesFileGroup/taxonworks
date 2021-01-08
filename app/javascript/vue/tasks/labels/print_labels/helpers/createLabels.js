@@ -1,4 +1,6 @@
 
+import cssStyle from '!!css-loader!sass-loader!../stylesheets/ce.scss'
+
 function createLabel(label, cssStyle) {
   return `<div class="${cssStyle}">${label.label}</div>`
 }
@@ -7,53 +9,26 @@ function getLinesCount(str) {
   return str.split(/\r\n|\r|\n/).length
 }
 
+function parseLabelStringToDOM (label) {
+  const DOMLabel = new DOMParser().parseFromString(label, 'text/html')
+  const QRText = DOMLabel.querySelector('.qrcode_text')
+
+  if (QRText) {
+    QRText.textContent = QRText.textContent.split(' ').join('\n')
+  }
+
+  return DOMLabel.body.innerHTML
+}
+
 function createHeader(customClass) {
   return `<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <title>TW - Labels</title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <style>
-    div.ce_lbl_insect_compressed { /* this is good now, make another type if you want a new one */
-      font-size: 4pt;
-      font-family: Times;
-      line-height: 3.2pt;
-      margin: 0;
-      margin-bottom: .8pt;
-      white-space: pre;
-    }
-    
-    div.ce_lbl_insect { /* sensu NCSU insect museum */ 
-      font-size: 4pt;
-      font-family: Times;
-      margin: 0;
-      margin-bottom: .8pt;
-      white-space: pre;
-    }
+    ${cssStyle}
 
-    div.custom_style { ${customClass }}
-    
-    div.ce_lbl_4_dram_ETOH { /* sensu Cammack */
-      font-size: 8pt;
-      font-family: Times;
-      line-height: 8.2pt;
-      margin: 0;
-      margin-bottom: .8pt;
-      white-space: pre;
-    }
-    
-    div.ce_label_col {
-      float: left;
-      background: white;
-      padding-right: 4px;
-    }
-    
-    div.ce_label_pg {
-      float: left;
-      background: white;
-      padding-right: 4px;
-      margin: .2em;
-    }
+    div.custom_style { ${customClass} }
     </style>
   </head>`
 }
@@ -72,7 +47,7 @@ function addSeparator(separator, spaceAround) {
 
 function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) {
   let columns = 1
-  let pages = createHeader(customStyle) + `<body><div class="ce_label_pg"><div class="ce_label_col">`
+  let pages = `${createHeader(customStyle)}<body><div class="ce_label_pg"><div class="ce_label_col">`
 
   labels.forEach(label => {
     const labelLines = getLinesCount(label.text)

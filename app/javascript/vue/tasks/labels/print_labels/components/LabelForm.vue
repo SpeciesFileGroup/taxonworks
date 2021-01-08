@@ -27,6 +27,7 @@
         <input
           type="text"
           class="full_width"
+          disabled
           v-model="label.style">
       </div>
       <div class="field">
