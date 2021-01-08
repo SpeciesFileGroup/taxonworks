@@ -88,7 +88,10 @@ gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
 gem 'rgb', '~> 0.1'
+
+# Drawing
 gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
+gem 'barby', '~> 0.6.8'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'

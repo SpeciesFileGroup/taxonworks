@@ -1,4 +1,9 @@
 require 'rqrcode'
+require 'barby'
+require 'barby/barcode/code_128'
+require 'barby/outputter/svg_outputter'
+
+
 module LabelsHelper
 
   # !! Note that `label_tag` is a Rails reserved word, so we have to append and make exceptions
@@ -7,6 +12,8 @@ module LabelsHelper
     case label.type
     when 'Label::QrCode'
       label_svg_tag(label)
+    when 'Label::Code128'
+      label_code_128_tag(label)
     else
       content_tag(:span, label.text, style: label.style) # TODO: properly reference style
     end
@@ -44,7 +51,21 @@ module LabelsHelper
       ),
       class: :qrcode
     )
+  end
 
+  def label_code_128_tag(label)
+    c = Barby::Code128.new(label.text)
+
+    content_tag(
+      :span, 
+      content_tag(:span, label.text, class: 'code128_text') +
+      content_tag(
+        :span, 
+        c.to_svg().html_safe,
+        class: :code128_barcode
+      ),
+      class: :code128
+    )
   end
 
 end
