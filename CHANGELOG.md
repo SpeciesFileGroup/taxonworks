@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Add option to disable namecasing when Person is created from `/people/new` [#1967] 
 - Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
 
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
 [#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
 [#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
 [#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
