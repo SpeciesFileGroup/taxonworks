@@ -380,7 +380,7 @@ observation_matrix_view_task:
     - dna
   status: prototype
   description: 'A very basic visualization of an observation matrix.'
-index_print_labels_task:
+print_labels_task:
   hub: true
   name: 'Print labels'
   related:
