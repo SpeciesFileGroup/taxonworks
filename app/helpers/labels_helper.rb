@@ -58,12 +58,13 @@ module LabelsHelper
 
     content_tag(
       :span, 
-      content_tag(:span, label.text, class: 'code128_text') +
+
       content_tag(
         :span, 
         c.to_svg().html_safe,
         class: :code128_barcode
-      ),
+      ) +
+      content_tag(:span, label.text, class: 'code128_text'),
       class: :code128
     )
   end
