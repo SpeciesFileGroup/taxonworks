@@ -2,12 +2,9 @@ source 'https://rubygems.org'
 
 gem 'rack-cors', '~> 1.1', require: 'rack/cors'
 
-ruby '2.7.1'
+ruby '~> 2.7.0'
 
 gem 'bundler', '~> 2.0'
-
-# TODO: Remove when solved without forcing
-gem 'google-protobuf', '~> 3.12.0.rc.1'
 
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 6.0'
@@ -112,6 +109,7 @@ gem 'logical_query_parser'
 gem 'logic_tools'
 gem 'chunky_png', '~> 1.3.11'
 gem 'namecase', '~> 2.0'
+gem 'zaru', '~> 0.3.0'
 
 # www 
 gem 'wikidata-client', '~> 0.0.12', require: 'wikidata' 
@@ -152,7 +150,8 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'coveralls', '~> 0.8.22', require: false
+  gem 'codecov', require: false, github: 'LocoDelAssembly/codecov-ruby', branch: 'github-actions-branch-detection-fix'
+  gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
   gem 'webmock', '~> 3.8' # , '>= 3.6.2'
@@ -160,14 +159,9 @@ group :test do
   gem 'database_cleaner', '~> 1.8'
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
-
-# gem 'simplecov', :require => false
-# gem 'simplecov-rcov', :require => false
 end
 
 group :production do
   gem 'execjs', '~> 2.7.0'
   gem 'passenger', '~> 6.0.2'
 end
-
-

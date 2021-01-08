@@ -9,9 +9,246 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
-## [0.13.0] - 2020-09-22
+## [0.15.1] - 2020-12-14
+### Added
+- Show buffered values in `Task - Browse collection objects` [#1931]
+- Default pin button on Uniquify people task
+- Checkbox to Select/unselect all match people on Uniquify people task [#1921]
+- Pixels to centimeter on new image task
+
+### Changed
+- Clean timeline display in `Task - Browse collection objects`
+- `db:seed` displays password for created users and adds admin to Default project [#1913]
+- Start date needs to be set before set end date on Housekeeping facet
+- Bump node package `ini` from 1.3.5 to 1.3.7
+
+### Fixed
+- CVT smart selectors/pinboard scope broken [#1940] [#1941]
+- Image filter `ancestor_id` was to be `taxon_name_id` or `taxon_name_id[]` [#1916]
+- Bad Image select_option sort [#1930] 
+- Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
+- ShallowPolymorphic called in `.json` form [#1928]
+- Documentation of param names, examples, for the "CASTOR" taxon name batch load [#1926]
+- `tw:db:load` task not handling settings reliably. [#1914]
+- Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
+- Invalid attribute `:note` in Note API result view.
+- Malformed PDF exception handling in Document model.
+- Clipboard copy shortcut
+- Source hub link on Citations by source task
+- Clean content editor after change a topic
+
+
+[#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
+[#1940]: https://github.com/SpeciesFileGroup/taxonworks/issues/1940
+[#1916]: https://github.com/SpeciesFileGroup/taxonworks/issues/1916
+[#1931]: https://github.com/SpeciesFileGroup/taxonworks/issues/1931
+[#1930]: https://github.com/SpeciesFileGroup/taxonworks/issues/1930
+[#1920]: https://github.com/SpeciesFileGroup/taxonworks/issues/1920
+[#1928]: https://github.com/SpeciesFileGroup/taxonworks/issues/1928
+[#1926]: https://github.com/SpeciesFileGroup/taxonworks/issues/1926
+[#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
+[#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
+[#1921]: https://github.com/SpeciesFileGroup/taxonworks/issues/1921
+
+## [0.15.0] - 2020-11-30
 
 ### Added
+- Export project database task [#1868]
+- Additional collecting methods recognized from the collecting event label
+- Added content filter, API endpoints [#1905] 
+- New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
+- Note filter improvements, specs, new params, API exposure [#XXX]
+- `person#sources` `has_many` (very slight potential for issues)
+- Multiple new people filter params, see `lib/queries/person/filter.rb` [#1859]
+- People can be Tagged
+- Added image filter [#1454]
+- Added image smart selector [#1832]
+- Added `pixels_to_centimeter` to images [#1785]
+- PENDING TEST - API - `sort` (with `classification`, `alphabetical` options) to `/taxon_names` [#1865]
+- Taxon determination, citations and collecting event information in specimen record on browse OTU
+- Serial facet on filter sources
+- Pulse animation for radial annotator [#1822]
+- OTU column in asserted distribution on Browse OTU [#1846]
+- Radial annotator on Uniquify people task
+- History title on Browse nomenclature
+- otu_ids param on Image matrix task
+- Open image matrix button on Interactive keys task
+- Citations on image response
+- View mode on image matrix
+- Lock view option for smart selector
+- Sortable option to lock column/rows on edit/new observation matrix task [#1895]
+- Media Descriptor support on Matrix Row Coder [#1896]
+- Free Text Descriptor support on Matrix Row Coder [#1896]
+- Search source on New source task [#1899]
+- Link to Browse OTU on New asserted distribution task [#1893]
+- Link to Browse OTU on comprehensive specimen digitization [#1889]
+
+### Fixed
+- Potential issue (may be others) with CoLDP raising in the midst of large exports
+- People filter role + name [#1662] 
+- Fix family synonym validation [#1892]
+- Fix matrix view row order [#1881]
+- CVT view helper bug with predicates
+- Fixed database seeding bugs.
+- Fixed display problem of OTUs without taxon name on Browse OTU
+- Edit asserted distribution on quick forms
+- Reference overflow on Browse nomenclature
+- Date requested filled automatically [#1872]
+- Remove collecting event on comprehensive specimen digitization [#1878]
+- Loan smart selector DB query.
+- Label overlap on menu on observation matrices view [#1894]
+- Remove repository on comprehensive specimen digitization [#1897]
+
+### Changed
+- change the order of TaxonName softvalidation to bring the duplicate message on the top
+- tweaked CoLDP `reified` id concept and use
+- removed `most_recent_upates` from Content params
+- removed `/contents/filter.json` endpoint, use `/contents.json`
+- Deprecating `Concerns::Polymorphic` for `ShallowPolymorphic`, in progress, see Notes controller
+- Note filter params `query_string` => `text`, `note_object_types[]` => `note_object_type[]`, `note_object_ids[]` => `note_object_id[]`, added corresponding non-array versions
+- Moved `levenshtein_distance` to Query for general use
+- Remove `people/123/similar` endpoint (used `/index`)
+- Person filter `person_wildcards` is `person_wildcard`
+- Person filter behaviour vs. `levenshtein_cuttof`
+- cached_valid_taxon_name_id updated for combination after valid status is assigned.
+- updated soft validation for 'Uncertain placement'
+- [sic] changed to (sic) for misspelled bacterial names
+- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
+- Observation matrix could be resolved without observation_matrix_id, only with otu_filter
+- Running `rake db:seed` without `user_id`/`project_id` is now possible.
+- Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
+- No longer needed set user on User facet in filters
+- Autocomplete label for original combination on New taxon name task
+- Changed "n/a" to combination label on Browse nomenclature
+- Create original citation in image matrix task
+- Autocomplete list style
+- Edit button color on type material species task [#1898]
+- GitHub Actions used as main CI/CD provider
+- Updated vulnerable node packages [#1912]
+
+[#1905]: https://github.com/SpeciesFileGroup/taxonworks/issues/1905
+[#1662]: https://github.com/SpeciesFileGroup/taxonworks/issues/1662
+[#1859]: https://github.com/SpeciesFileGroup/taxonworks/issues/1859
+[#1881]: https://github.com/SpeciesFileGroup/taxonworks/issues/1881
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
+[#1737]: https://github.com/SpeciesFileGroup/taxonworks/issues/1737
+[#1865]: https://github.com/SpeciesFileGroup/taxonworks/issues/1865
+[#1822]: https://github.com/SpeciesFileGroup/taxonworks/issues/1822
+[#1846]: https://github.com/SpeciesFileGroup/taxonworks/issues/1846
+[#1868]: https://github.com/SpeciesFileGroup/taxonworks/issues/1868
+[#1872]: https://github.com/SpeciesFileGroup/taxonworks/issues/1872
+[#1889]: https://github.com/SpeciesFileGroup/taxonworks/issues/1889
+[#1893]: https://github.com/SpeciesFileGroup/taxonworks/issues/1893
+[#1894]: https://github.com/SpeciesFileGroup/taxonworks/issues/1894
+[#1895]: https://github.com/SpeciesFileGroup/taxonworks/issues/1895
+[#1896]: https://github.com/SpeciesFileGroup/taxonworks/issues/1896
+[#1897]: https://github.com/SpeciesFileGroup/taxonworks/issues/1897
+[#1898]: https://github.com/SpeciesFileGroup/taxonworks/issues/1898
+[#1899]: https://github.com/SpeciesFileGroup/taxonworks/issues/1899
+[#1912]: https://github.com/SpeciesFileGroup/taxonworks/pull/1912
+
+## [0.14.1] - 2020-10-22
+
+### Added
+- API - `type` to /roles/:id
+- API - `year` to /taxon_names
+- API - `include_roles` param to /people
+- API - `taxon_name_author_ids[]=`, `taxon_name_author_ids_or` params to /taxon_names
+- API - `collector_ids[]=`, `collector_ids_or` params to /collecting_events
+- Shape on asserted distribution list [#1828]
+- Row filter on Interactive keys task
+- Interactive keys and image matrix buttons on observation matrix dashboard
+
+### Fixed
+- Wrong param attribute in topic smart selector on radial annotator [#1829]
+- Show repository on Browse OTU
+- Enable search after fill collecting event fields [#1833]
+- Missing geo_json param on geographic_area request [#1840]
+
+### Changed
+- Exclude Roles from response from /api/v1/people by default
+- Increased `max_per_page` to 10000
+- Random words clashes mitigation: Project factory names made longer and `Faker` unique generator is reset only between specs instead of before each test.
+- Removed pages field on topic section
+- Improved verbatim date parsing
+- Georeference scope over geographic area scope [#1841]
+
+[#1454]: https://github.com/SpeciesFileGroup/taxonworks/issues/1454
+[#1832]: https://github.com/SpeciesFileGroup/taxonworks/issues/1832
+[#1785]: https://github.com/SpeciesFileGroup/taxonworks/issues/1785
+[#1828]: https://github.com/SpeciesFileGroup/taxonworks/issues/1828
+[#1829]: https://github.com/SpeciesFileGroup/taxonworks/issues/1829
+[#1833]: https://github.com/SpeciesFileGroup/taxonworks/issues/1833
+[#1840]: https://github.com/SpeciesFileGroup/taxonworks/issues/1840
+[#1841]: https://github.com/SpeciesFileGroup/taxonworks/issues/1841
+[#1878]: https://github.com/SpeciesFileGroup/taxonworks/issues/1878
+
+## [0.14.0] - 2020-10-16
+
+### Added
+- Added additional date recognition format for RegEx
+- Added OTU filter in the interactive key API
+- Collecting Event API endpoints
+- Collection Object API endpoints
+- Biological Assertion API endpoints
+- Asserted Distribution API endpoints
+- New Otu API params
+- People filter API endpoints [#1509]
+- Identifier filter API endpoints [#1510]
+- Source filter API endpoints [#1511]
+- New Interactive Key task [#1810] 
+- New model for matrix based interactive keys which produce JSON for the Interactive Key task [#1810]
+- `weight` field to descriptor
+- Ancestors facet on filter nomenclature [#1791]
+- TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME env var to disable built-in backup functionality at deploy/database-update time.
+- Display coordinate type specimens [#1811]
+- Changed background color header for invalid names on Browse OTU
+- Taxonworks version in header bar when not running in sandbox mode
+
+### Fixed
+- Fixed radial navigator broken for some data [#1824]
+- Fixed IsData position [#1805]
+- Collecting event object radial metadata settings
+- Webpack resolved_paths deprecation warning
+- Missing /otus/:otu_id/taxon_determinations route
+- tw:db:restore task not picking up database host settings
+- Create citation on new combination without pages
+- Param descriptor id on new descriptor task [#1798]
+- Filter by user on filter nomenclature [#1780]
+- Optimized selector queries for Loan model
+
+### Changed
+- Fix original author string for Plant names
+- Additional date format added for date recognition RegEx
+- Removed some attributes from api/v1 endpoints to simplify responses
+- type_materials/:id.json includes `original_combination` string
+- CoLDP references are full cached values, not partially passed
+- Combination nomenclatural code inference drawn from members, not parent
+- Some nomenclature rank related simbols moved to constants
+- Load Images for coordinate OTUs [#1787]
+- Extended New Image task upload timeout from 30 seconds to 10 minutes
+- Updated rgeo-proj4 gem
+
+
+[#1824]: https://github.com/SpeciesFileGroup/taxonworks/issues/1824
+[#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
+[#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
+[#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
+[#1511]: https://github.com/SpeciesFileGroup/taxonworks/issues/1511
+[#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
+[#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
+[#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
+[#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
+[#1811]: https://github.com/SpeciesFileGroup/taxonworks/issues/1811
+
+## [0.13.0] - 2020-09-22
+
+### Changed
+- Removed forced dependency on google-protobuf gem
+- Updated gems
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
 - Handling for new unicode minutes, seconds symbols [#1526]
 - Descriptor object radial paths
@@ -504,7 +741,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...development
+[0.15.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.17...v0.13.0
 [0.12.17]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.16...v0.12.17
 [0.12.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.15...v0.12.16

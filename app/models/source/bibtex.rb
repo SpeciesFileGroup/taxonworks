@@ -746,7 +746,7 @@ class Source::Bibtex < Source
   def namecase_bibtex_entry(bibtex_entry)
     bibtex_entry.parse_names
     bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first)if n.first
+      n.first = NameCase(n.first) if n.first
       n.last = NameCase(n.last) if n.last
       n.prefix = NameCase(n.prefix) if n.prefix
       n.suffix = NameCase(n.suffix) if n.suffix
@@ -875,9 +875,12 @@ class Source::Bibtex < Source
           c = c + " #{pages}"
         end
       end
-      if stated_year && year && stated_year != year
-        c = c + " [#{stated_year}]"
-      end
+      n = []
+      n += [stated_year.to_s] if stated_year && year && stated_year != year
+
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
+      n += [note.to_s] if note
+      c = c + " [#{n.join(', ')}]" unless n.empty?
 
       attributes_to_update.merge!(
         cached: c,

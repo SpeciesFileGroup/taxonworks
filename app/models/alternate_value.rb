@@ -33,9 +33,9 @@
 #
 class AlternateValue < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::DualAnnotator
   include Shared::AttributeAnnotations
+  include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:alternate_value_object)
 

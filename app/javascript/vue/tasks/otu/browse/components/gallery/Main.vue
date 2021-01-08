@@ -2,7 +2,6 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="images" />
     <div
       class="flex-wrap-row"
       v-if="figuresList.length"
@@ -18,11 +17,10 @@
 
 <script>
 
-import { GetDepictions } from '../../request/resources.js'
-
 import ImageViewer from './ImageViewer'
 import SectionPanel from '../shared/sectionPanel'
 import extendSection from '../shared/extendSections'
+import { GetterNames } from '../../store/getters/getters'
 
 export default {
   mixins: [extendSection],
@@ -30,26 +28,9 @@ export default {
     ImageViewer,
     SectionPanel
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
-  data: function () {
-    return {
-      figuresList: []
-    }
-  },
-  watch: {
-    otu: {
-      handler (newVal, oldVal) {
-        if (newVal) {
-          GetDepictions('otus', newVal.id).then(response => {
-            this.figuresList = response.body
-          })
-        }
-      },
-      immediate: true
+  computed: {
+    figuresList () {
+      return this.$store.getters[GetterNames.GetDepictions]
     }
   }
 }

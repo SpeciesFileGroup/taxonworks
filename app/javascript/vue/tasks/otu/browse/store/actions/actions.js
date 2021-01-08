@@ -3,6 +3,8 @@ import loadBiologicalAssociations from './loadBiologicalAssociations'
 import loadInformation from './loadInformation'
 import loadCollectionObjects from './loadCollectionObjects'
 import loadCollectingEvents from './loadCollectingEvents'
+import loadCommonNames from './loadCommonNames'
+import loadDepictions from './loadDepictions'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
 import loadDescendants from './loadDescendants'
@@ -15,6 +17,8 @@ const ActionFunctions = {
   [ActionNames.LoadInformation]: loadInformation,
   [ActionNames.LoadCollectionObjects]: loadCollectionObjects,
   [ActionNames.LoadCollectingEvents]: loadCollectingEvents,
+  [ActionNames.LoadCommonNames]: loadCommonNames,
+  [ActionNames.LoadDepictions]: loadDepictions,
   [ActionNames.LoadPreferences]: loadPreferences,
   [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
   [ActionNames.LoadDescendants]: loadDescendants,

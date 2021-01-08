@@ -126,7 +126,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
-  
+
   # @return class
   #   this method calls Module#module_parent
   # TODO: This method can be placed elsewhere inside this class (or even removed if not used)
@@ -152,7 +152,7 @@ class TaxonName < ApplicationRecord
   include SoftValidation
   include Shared::IsData
   include TaxonName::OtuSyncronization
-  
+
   include Shared::MatrixHooks::Member
   include Shared::MatrixHooks::Dynamic
 
@@ -330,6 +330,7 @@ class TaxonName < ApplicationRecord
 
   # @return Scope
   #   names that are not leaves
+  # TODO: belongs in lib/queries/filter.rb likely
   def self.not_leaves
     t = self.arel_table
     h = ::TaxonNameHierarchy.arel_table
@@ -401,6 +402,7 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
+  # TODO: what is this:!? :)
   def self.foo(rank_classes)
     from <<-SQL.strip_heredoc
       ( SELECT *, rank()
@@ -421,9 +423,14 @@ class TaxonName < ApplicationRecord
   # @param include_self [Boolean]
   #   if true then self will also be returned
   def ancestor_at_rank(rank, include_self = false)
-    r = Ranks.lookup( is_combination? ? parent.nomenclatural_code : nomenclatural_code, rank)
-    return self if include_self && (rank_class.to_s == r)
-    ancestors.with_rank_class( r ).first
+    if target_code = (is_combination? ? combination_taxon_names.first.nomenclatural_code : nomenclatural_code)
+      r = Ranks.lookup(target_code, rank)
+      return self if include_self && (rank_class.to_s == r)
+      ancestors.with_rank_class( r ).first
+    else
+      # Root has no nomenclature code
+      return nil
+    end
   end
 
   # @return scope [TaxonName, nil] an ancestor at the specified rank
@@ -602,7 +609,11 @@ class TaxonName < ApplicationRecord
   #   !! DO NOT USE IN building cached !!
   #   See also app/helpers/taxon_names_helper
   def original_author_year
-    cached_author_year&.gsub(/^\(|\)$/, '')
+    if nomenclatural_code == :iczn
+      cached_author_year&.gsub(/^\(|\)$/, '')
+    else
+      cached_author_year
+    end
   end
 
   # @return [Array of TaxonName] ancestors of type 'Protonym'
@@ -830,7 +841,7 @@ class TaxonName < ApplicationRecord
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
-    set_cached_classified_as # why this?
+    set_cached_classified_as
     set_cached_author_year
   end
 
@@ -900,8 +911,11 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [ [rank, prefix, name], ...] for genus and below
-  # @taxon_name.full_name_array # =>  {"genus"=>[nil, "Aus"], "subgenus"=>[nil, "Aus"], "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
+  # @return [ rank, prefix, name], ...] for genus and below
+  # @taxon_name.full_name_array # =>
+  #   [ ["genus", [nil, "Aus"]],
+  #     ["subgenus", [nil, "Aus"]],
+  #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
   def full_name_array
     gender = nil
     data   = []
@@ -940,7 +954,7 @@ class TaxonName < ApplicationRecord
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
+        if ['genus', 'subgenus', 'superspecies', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -990,9 +1004,9 @@ class TaxonName < ApplicationRecord
     elements.push ['(', d['supergenus'], ')'] if rank_name == 'supergenus'
     elements.push ['(', d['supersubgenus'], ')'] if rank_name == 'supersubgenus'
     elements.push ['(', d['supersupersubgenus'], ')'] if rank_name == 'supersupersubgenus'
-    elements.push ['(', d['supersuperspecies'], ')'] if rank_name == 'supersuperspecies'
-    elements.push ['(', d['superspecies'], ')'] if rank_name == 'superspecies'
-    elements.push ['(', d['subsuperspecies'], ')'] if rank_name == 'subsuperspecies'
+    elements.push [d['supersuperspecies']] if rank_name == 'supersuperspecies'
+    elements.push [d['superspecies']] if rank_name == 'superspecies'
+    elements.push [d['subsuperspecies']] if rank_name == 'subsuperspecies'
     elements.push(d['species'], d['subspecies'], d['variety'], d['subvariety'], d['form'], d['subform'])
     elements = elements.flatten.compact.join(' ').gsub(/\(\s*\)/, '').gsub(/\(\s/, '(').gsub(/\s\)/, ')').squish
     elements.blank? ? nil : elements
@@ -1019,7 +1033,11 @@ class TaxonName < ApplicationRecord
   #    TODO: on third thought- eliminate this mess
   def name_with_misspelling(gender)
     if cached_misspelling
-      name.to_s + ' [sic]'
+      if rank_string =~ /Icnp/
+        name.to_s + ' (sic)'
+      else
+        name.to_s + ' [sic]'
+      end
     elsif gender.nil? || rank_string =~ /Genus/
       name.to_s
     else
@@ -1254,6 +1272,17 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [String]
+  #  a reified ID is used when the original combination, which does not yet have it's own ID, is not the same as the current classification
+  # Some observations:
+  #  - reified ids are only for original combinations (for which we have no ID)
+  #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
+  # mental note- consider combinatoin - is_current_placement?
+  def reified_id
+    target = (is_combination? ? finest_protonym : self)
+    return target.id.to_s unless target.has_alternate_original?
+    target.id.to_s + '-' + Digest::MD5.hexdigest(target.cached_original_combination) # missing spec to catch when chached original combination nil
+  end
 
   protected
 

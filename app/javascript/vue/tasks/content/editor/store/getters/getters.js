@@ -9,11 +9,13 @@ import getRecent from './getRecent'
 import getTopicSelected from './getTopicSelected'
 import panelCitations from './panelCitations'
 import panelFigures from './panelFigures'
+import getCitationsBySource from './getCitationsBySource'
 
 const GetterNames = {
   ActiveOtuPanel: 'activeOtuPanel',
   ActiveRecentPanel: 'activeRecentPanel',
   ActiveTopicPanel: 'activeTopicPanel',
+  GetCitationsBySource: 'getCitationsBySource',
   GetCitationsList: 'getCitationsList',
   GetContentSelected: 'getContentSelected',
   GetDepictionsList: 'getDepictionsList',
@@ -29,6 +31,7 @@ const GetterFunctions = {
   [GetterNames.ActiveRecentPanel]: activeRecentPanel,
   [GetterNames.ActiveTopicPanel]: activeTopicPanel,
   [GetterNames.GetCitationsList]: getCitationsList,
+  [GetterNames.GetCitationsBySource]: getCitationsBySource,
   [GetterNames.GetContentSelected]: getContentSelected,
   [GetterNames.GetDepictionsList]: getDepictionsList,
   [GetterNames.GetOtuSelected]: getOtuSelected,

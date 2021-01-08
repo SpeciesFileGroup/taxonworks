@@ -1,6 +1,8 @@
 <template>
   <div class="panel separate-bottom">
-    <div class="content">
+    <div
+      class="content"
+      :class="{ 'feedback-warning': taxonName && taxonName.id != taxonName.cached_valid_taxon_name_id }">
       <ul
         v-if="navigation"
         class="breadcrumb_list">
@@ -41,6 +43,7 @@
           @shortkey="switchBrowse()"
           class="horizontal-left-content">
           <browse-taxon
+            v-if="otu.taxon_name_id"
             ref="browseTaxon"
             :object-id="otu.taxon_name_id"/>
           <radial-annotator
@@ -59,13 +62,12 @@
         v-shortkey="[getOSKey(), 'e']"
         @shortkey="switchComprehensive()"/>
       <ul
-        v-if="taxonName"
         class="context-menu no_bullets">
         <template v-for="item in menu">
           <li
             :key="item"
             v-show="showForRanks(item)">
-            <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
+            <a data-turbolinks="false" :href="`#${item}`">{{item}}</a>
           </li>
         </template>
       </ul>
@@ -146,8 +148,10 @@ export default {
     },
     getOSKey: getOSKey,
     showForRanks (section) {
-      const rankGroup = Object.values(componentNames()).find(item => item.title === section).rankGroup
-      return rankGroup ? ShowForThisGroup(rankGroup, this.taxonName) : true
+      const componentSection = Object.values(componentNames()).find(item => item.title === section)
+      const rankGroup = componentSection.rankGroup
+
+      return rankGroup ? this.taxonName ? ShowForThisGroup(rankGroup, this.taxonName) : componentSection.otu : true
     }
   }
 

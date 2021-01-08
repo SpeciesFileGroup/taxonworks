@@ -31,7 +31,6 @@ class Repository < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::IsData
   include Shared::IsApplicationData
   include Shared::AlternateValues
   include Shared::DataAttributes
@@ -39,6 +38,7 @@ class Repository < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name, :acronym]
 

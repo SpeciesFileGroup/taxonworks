@@ -10,12 +10,12 @@
           :key="item.id"
           class="contextMenuCells"
           :class="{ even: (index % 2 == 0) }">
-          <td 
+          <td
             class="column-property"
             :class="classForRoleProject(item)">
             {{ item.role_object_type }}
           </td>
-          <td v-html="item.role_object_tag"/>
+          <td v-html="item.role_object_tag" />
         </tr>
       </tbody>
     </table>
@@ -37,18 +37,17 @@ export default {
       required: true
     }
   },
-  data() {
+  data () {
     return {
       personRoles: []
     }
   },
   watch: {
     person: {
-      handler(newVal) {
-        if(newVal.hasOwnProperty('id')) {
+      handler (newVal) {
+        if (newVal.hasOwnProperty('id')) {
           this.getPerson(newVal.id)
-        }
-        else {
+        } else {
           this.personRoles = []
         }
       },
@@ -56,7 +55,7 @@ export default {
     }
   },
   methods: {
-    getPerson() {
+    getPerson () {
       AjaxCall('get', `/people/${this.person.id}/roles.json`).then(response => {
         this.personRoles = response.body
       })

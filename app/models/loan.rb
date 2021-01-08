@@ -195,9 +195,9 @@ class Loan < ApplicationRecord
     if r.empty?
       h[:quick] = Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = Loan.where('"loan"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:recent] = Loan.where(id: r.first(10)).to_a
       h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          Loan.where('"loan"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+          Loan.where(id: r.first(4)).to_a).uniq
     end
 
     h

@@ -17,7 +17,7 @@ RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-k
 # TaxonWorks dependancies
 RUN apt-get update && \
       apt-get install -y locales software-properties-common \ 
-      postgresql-client-10 \
+      postgresql-client-12 \
       git gcc build-essential \
       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
       pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
@@ -48,6 +48,7 @@ RUN gem install bundler
 
 ADD package.json /app/
 ADD package-lock.json /app/
+ADD .ruby-version /app/
 ADD Gemfile /app/
 ADD Gemfile.lock /app/
 

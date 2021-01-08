@@ -20,14 +20,6 @@ class SerialsController < ApplicationController
     end
   end
 
-  def filter_params
-    params.permit(
-        :name, :id,
-        data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
-  end
-
-
   def list
     @serials = Serial.order(:id).page(params[:page])
   end

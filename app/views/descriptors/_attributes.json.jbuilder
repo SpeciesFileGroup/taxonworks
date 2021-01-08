@@ -1,5 +1,5 @@
 json.extract! descriptor, :id, :name, :short_name, :description, :default_unit,
-  :type, :position, :description_name, :key_name, 
+  :type, :position, :description_name, :key_name, :weight,
   :gene_attribute_logic,
   :position,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at

@@ -3,12 +3,12 @@
     :status="status"
     :spinner="loadState.assertedDistribution"
     :title="title"
+    menu
     @menu="setModalView(true)">
     <a
       v-if="currentOtu"
       :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
       slot="title">Expand</a>
-    <a name="asserted-distributions"/>
     <table class="full_width">
       <thead>
         <tr>
@@ -20,6 +20,7 @@
           <th>Presence</th>
           <th>Shape</th>
           <th>Citations</th>
+          <th>OTU</th>
         </tr>
       </thead>
       <tbody>
@@ -34,6 +35,7 @@
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
           <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
           <td v-html="assertedDistribution.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
+          <td>{{ assertedDistribution.otu.object_label }}</td>
         </tr>
       </tbody>
     </table>

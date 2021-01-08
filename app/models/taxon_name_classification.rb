@@ -222,6 +222,9 @@ class TaxonNameClassification < ApplicationRecord
           vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.combination_list_self.each do |c|
+              c.update_column(:cached_valid_taxon_name_id, vn.id)
+            end
           end
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)

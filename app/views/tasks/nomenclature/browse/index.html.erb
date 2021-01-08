@@ -23,7 +23,7 @@
           </ul>
         </div>
         <ul class="context-menu">
-          <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
           <li><%= confidence_default_icon(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
@@ -60,6 +60,7 @@
             <%= render "filter" %>
             <div class="content">
               <div class="attributes"> 
+                <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
                     <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 

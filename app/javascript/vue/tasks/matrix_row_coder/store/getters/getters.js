@@ -1,3 +1,4 @@
+import getFreeTextValueFor from './getFreeTextValueFor'
 import getObservationsFor from './getObservationsFor'
 import getContinuousValueFor from './getContinuousValueFor'
 import getContinuousUnitFor from './getContinuousUnitFor'
@@ -18,6 +19,7 @@ import getMatrixRow from './getMatrixRow'
 import getUnits from './getUnits'
 
 export const GetterNames = {
+  GetFreeTextValueFor: 'getFreeTextValueFor',
   GetObservationsFor: 'getObservationsFor',
   GetContinuousValueFor: 'getContinuousValueFor',
   GetContinuousUnitFor: 'getContinuousUnitFor',
@@ -39,6 +41,7 @@ export const GetterNames = {
 }
 
 export const GetterFunctions = {
+  [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetContinuousValueFor]: getContinuousValueFor,
   [GetterNames.GetContinuousUnitFor]: getContinuousUnitFor,

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2>Scope</h2>
-    <label>Return these names</label>
+    <h2>Classification scope</h2>
+    <label>Taxon name</label>
     <autocomplete
       url="/taxon_names/autocomplete"
       param="term"
