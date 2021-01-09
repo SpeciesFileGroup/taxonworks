@@ -35,11 +35,11 @@
         slot="body"
         class="horizontal-left-content align-start">
         <style-selector
-          class="separate-right"
+          class="full_width"
           @onNewStyle="customStyle = $event"
           v-model="styleSelected"/>
         <layout-component
-          class="separate-left separate-right"
+          class="full_width"
           @onRowsChange="layout.rows = $event"
           @onColumnsChange="layout.columns = $event"
           @onSeparatorChange="layout.separator = $event"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Layout</h2>
+    <h3>Layout</h3>
     <div class="field label-above">
       <label>Columns</label>
       <input
