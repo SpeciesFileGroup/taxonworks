@@ -1,23 +1,17 @@
 <template>
   <div>
-    <label-form
-      :show-modal="showModalCreate"
-      @close="showModalCreate = false"
-      @save="createLabel($event); showModalCreate = false"/>
-    <label-form
-      v-if="selectedLabel"
-      :show-modal="showModal"
-      :value="selectedLabel"
-      @close="showModal = false"
-      @save="updateLabel($event); showModal = false"/>
-    <option-buttons
-      @selectAll="selectAll"
-      @new="showModalCreate = true"
-      @destroyAll="deleteLabels"/>
     <table>
       <thead>
         <tr>
-          <th>Select</th>
+          <th>
+            <label class="horizontal-left-content middle">
+              <input
+                class="margin-small-right"
+                v-model="selectAll"
+                type="checkbox">
+              Select
+            </label>
+          </th>
           <th @click="sort('text')">Label</th>
           <th @click="sort('total')">Total</th>
           <th @click="sort('is_copy_edited')">Is copy edited</th>
@@ -27,17 +21,27 @@
           <th @click="sort('updated_at')">Updated at</th>
           <th @click="sort('on')">On</th>
           <th>Edit</th>
-          <th>Destroy</th>
+          <th>
+            <button
+              type="button"
+              class="button normal-input button-delete"
+              @click="deleteLabels">
+              Destroy all selected
+            </button>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="item in sortedList"
+          v-for="(item, index) in sortedList"
+          class="contextMenuCells btn btn-neutral"
+          :class="{ even: index % 2 }"
           :key="item.id">
           <td>
-            <checkbox-component
+            <input
+              type="checkbox"
               v-model="selected"
-              :val="item"/>
+              :value="item">
           </td>
           <td>
             <pre v-html="item.label"/>
@@ -80,111 +84,73 @@
 </template>
 <script>
 
-import LabelForm from '../LabelForm'
-import OptionButtons from './OptionButtons'
-import CheckboxComponent from './CheckboxComponent'
-import { GetLabels, GetLabel, RemoveLabel, UpdateLabel, CreateLabel } from '../../request/resources.js'
-
 export default {
-  components: {
-    LabelForm,
-    OptionButtons,
-    CheckboxComponent
+  props: {
+    list: {
+      type: Array,
+      required: true
+    },
+    value: {
+      type: Array,
+      required: true
+    }
   },
   computed: {
-    sortedList() {
-      return this.list.sort((a,b) => {
+    sortedList () {
+      return this.list.slice(0).sort((a, b) => {
         let modifier = 1
-        if(this.currentSortDir === 'desc') modifier = -1
-        if(a[this.currentSort] < b[this.currentSort]) return -1 * modifier
-        if(a[this.currentSort] > b[this.currentSort]) return 1 * modifier
+        if (this.currentSortDir === 'desc') { modifier = -1 }
+        if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier
+        if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier
         return 0
-      });
+      })
+    },
+    selected: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    },
+    selectAll: {
+      get () {
+        return this.list.length === this.selected.length
+      },
+      set (value) {
+        this.selected = value ? this.list.slice(0) : []
+      }
     }
   },
-  data() {
+  data () {
     return {
-      list: [],
       currentSort: 'label',
       currentSortDir: 'asc',
-      showModal: false,
-      showModalCreate: false,
-      selectedLabel: undefined,
-      selected: []
     }
-  },
-  watch: {
-    selected(newVal) {
-      this.$emit('selected', newVal)
-    }
-  },
-  created () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const labelId = urlParams.get('label_id')
-
-    GetLabels().then(response => {
-      this.list = response.body
-      if (/^\d+$/.test(labelId)) {
-        GetLabel(labelId).then(r => {
-          const index = this.list.findIndex(item => item.id === Number(labelId))
-
-          if (index > -1) {
-            this.list.splice(index, 1)
-          }
-          this.list.unshift(r.body)
-          this.selected.unshift(r.body)
-        })
-      }
-    })
   },
   methods: {
-    setEdit(label) {
-      this.selectedLabel = label
-      this.showModal = true
+    setEdit (label) {
+      this.$emit('onEdit', label)
     },
-    sort(s) {
-      if(s === this.currentSort) {
-        this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc':'asc')
+    sort (s) {
+      if (s === this.currentSort) {
+        this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc' : 'asc')
       }
       this.currentSort = s
     },
-    selectAll() {
-      this.selected = this.list.slice(0)
-    },
-    removeRow(label) {
-      if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
-        this.removeLabel(label)
+    removeRow (label) {
+      if (window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+        this.$emit('onRemove', label)
       }
     },
-    removeLabel(label) {
-      RemoveLabel(label.id).then(() => {
-        this.list.splice(this.list.findIndex(item => {
-          return item.id === label.id
-        }),1)
-      })
-    },
-    deleteLabels() {
-      if(window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
-        this.selected.forEach((label, index) => {
-          this.removeLabel(label)
-        })
-        this.selected = []
+    deleteLabels () {
+      if (window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+        this.$emit('onRemoveAll')
       }
     },
-    createLabel(label) {
-      CreateLabel(label).then(response => {
-        this.list.push(response.body)
-      })
-    },
-    updateLabel(label) {
-      UpdateLabel(label).then(response => {
-        const index = this.list.findIndex(item => {
-          return item.id === label.id
-        })
-        this.$set(this.list, index, response.body)
-      })
+    updateLabel (label) {
+      this.$emit('onUpdate', label)
     }
   }
 }
 </script>
-
