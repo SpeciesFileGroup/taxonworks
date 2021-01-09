@@ -5,9 +5,16 @@ function createLabel(label, cssStyle) {
   return `<div class="${cssStyle}">${label.label}</div>`
 }
 
-function getLinesCount(str) {
+function getLinesCount(str) {   // (str, labelType)
+  // case labelType
+  // nil, other
   return str.split(/\r\n|\r|\n/).length
+  //   QRcode
+  // 3 (?)
+  //   128
+  // 2 (?)
 }
+
 
 function createHeader(customClass) {
   return `<html xmlns="http://www.w3.org/1999/xhtml">
@@ -34,7 +41,7 @@ function addSeparator(separator, spaceAround) {
   return ''
 }
 
-function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) {
+function createPages(labels, maxColumns, maxRows, divisor, cssStye, customStyle, separator = '', spaceAround) { // add labelType ?
   let columns = 1
   let pages = `${createHeader(customStyle)}<body><div class="ce_label_pg"><div class="ce_label_col">`
 
