@@ -17,6 +17,8 @@ import Time from '../components/parsed/Time.vue'
 import TripCode from '../components/parsed/TripCode.vue'
 import Predicates from '../components/parsed/Predicates.vue'
 import Georeferences from '../components/parsed/georeferences/georeferences.vue'
+import VerbatimElevation from '../components/verbatim/Elevation'
+import Datum from '../components/verbatim/Datum'
 
 import MapComponent from '../components/map/Map.vue'
 import PrintLabel from '../components/map/PrintLabel.vue'
@@ -28,8 +30,10 @@ const ComponentVerbatim = {
   Latitude: 'Latitude',
   Longitude: 'Longitude',
   Geolocation: 'Geolocation',
+  VerbatimElevation: 'VerbatimElevation',
   Habitat: 'Habitat',
   DateComponent: 'DateComponent',
+  Datum: 'Datum',
   Collectors: 'Collectors',
   Method: 'Method',
   TripIdentifier: 'TripIdentifier'
@@ -63,6 +67,8 @@ const VueComponents = {
   [ComponentVerbatim.Latitude]: Latitude,
   [ComponentVerbatim.Locality]: Locality,
   [ComponentVerbatim.Longitude]: Longitude,
+  [ComponentVerbatim.VerbatimElevation]: VerbatimElevation,
+  [ComponentVerbatim.Datum]: Datum,
   [ComponentVerbatim.Method]: Method,
   [ComponentVerbatim.TripIdentifier]: TripIdentifier,
   [ComponentParse.Dates]: Dates,
