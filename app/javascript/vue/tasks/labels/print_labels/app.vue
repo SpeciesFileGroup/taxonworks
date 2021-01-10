@@ -93,6 +93,10 @@ export default {
       links: [{
         label: 'New collecting event',
         url: RouteNames.NewCollectingEvent
+      },
+      {
+        label: 'New collection object',
+        url: '/collection_objects/new'
       }],
       customStyle: ''
     }
