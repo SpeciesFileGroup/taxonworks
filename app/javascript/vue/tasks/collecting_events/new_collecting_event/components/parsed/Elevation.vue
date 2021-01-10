@@ -29,20 +29,14 @@
       <div>
         Unit
         <ul class="no_bullets">
-          <li>
+          <li v-for="unit in units">
             <label>
               <input
+                v-model="collectingEvent.units"
                 type="radio"
+                :value="unit.value"
                 name="elevation">
-              Meters
-            </label>
-          </li>
-          <li>
-            <label>
-              <input
-                type="radio"
-                name="elevation">
-              Feet
+              {{ unit.label }}
             </label>
           </li>
         </ul>
@@ -56,6 +50,20 @@
 import extendCE from '../mixins/extendCE'
 
 export default {
-  mixins: [extendCE]
+  mixins: [extendCE],
+  data() {
+    return {
+      units: [
+        {
+          label: 'Meters',
+          value: undefined
+        },
+        {
+          label: 'Feet',
+          value: 'ft'
+        }
+      ]
+    }
+  }
 }
 </script>

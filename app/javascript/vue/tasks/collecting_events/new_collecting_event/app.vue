@@ -233,6 +233,14 @@ export default {
       const saveCE = this.collectingEvent.id ? UpdateCollectingEvent : CreateCollectingEvent
       const cloneCE = this.cleanCE()
 
+      if (this.collectingEvent.units === 'ft') {
+        ['minimum_elevation', 'maximum_elevation', 'elevation_precision'].forEach(key => {
+          const elevationValue = Number(cloneCE[key])
+          cloneCE[key] = elevationValue > 0 ? elevationValue / 3.281 : undefined
+        })
+        this.collectingEvent.units = undefined
+      }
+
       this.isSaving = true
       saveCE(cloneCE).then(async response => {
         this.loadValidation(response.body.global_id)
@@ -249,7 +257,7 @@ export default {
 
       if (label.text.length && label.total) {
         label.label_object_id = ce.id
-        return label.id ? (await UpdateLabel(label.id, label)).body : (await CreateLabel(label)).body
+        return label.id ? (await UpdateLabel(label.id, { label: label })).body : (await CreateLabel({ label: label })).body
       } else {
         return label
       }
@@ -277,6 +285,7 @@ export default {
       delete cloneCE.geographicArea
       delete cloneCE.georeferences
       delete cloneCE.tripCode
+      delete cloneCE.units
       return cloneCE
     },
     getOSKey: GetOSKey

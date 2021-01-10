@@ -43,6 +43,7 @@ export default () => {
     max_ma: undefined,
     min_ma: undefined,
     field_notes: undefined,
+    units: undefined,
     roles_attributes: [],
     identifiers_attributes: [],
     georeferences: [],
