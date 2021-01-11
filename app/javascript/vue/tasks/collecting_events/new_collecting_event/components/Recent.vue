@@ -65,7 +65,7 @@ export default {
   },
   mounted () {
     this.isLoading = true
-    GetCollectingEvents({ per: 10 }).then(response => {
+    GetCollectingEvents({ per: 10, recent: true }).then(response => {
       this.collectingEvents = response.body
     }).finally(() => {
       this.isLoading = false
