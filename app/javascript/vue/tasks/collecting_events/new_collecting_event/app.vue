@@ -15,11 +15,7 @@
             Sortable fields
           </label>
         </li>
-      </ul>
-    </div>
-    <nav-bar>
-      <div class="flex-separate full_width">
-        <div class="horizontal-left-content">
+        <li>
           <autocomplete
             url="/collecting_events/autocomplete"
             param="term"
@@ -27,20 +23,24 @@
             :clear-after="true"
             placeholder="Search a collecting event"
             @getItem="loadCollectingEvent($event.id)"/>
-          <div class="middle margin-small-left">
-            <span
-              class="word_break"
-              v-if="collectingEvent.id"
-              v-html="collectingEvent.cached"/>
-            <span v-else>New record</span>
-            <template v-if="collectingEvent.id">
-              <pin-component
-                :object-id="collectingEvent.id"
-                type="CollectingEvent"/>
-              <radial-annotator :global-id="collectingEvent.global_id"/>
-              <radial-object :global-id="collectingEvent.global_id"/>
-            </template>
-          </div>
+        </li>
+      </ul>
+    </div>
+    <nav-bar>
+      <div class="flex-separate full_width">
+        <div class="middle margin-small-left">
+          <span
+            class="word_break"
+            v-if="collectingEvent.id"
+            v-html="collectingEvent.cached"/>
+          <span v-else>New record</span>
+          <template v-if="collectingEvent.id">
+            <pin-component
+              :object-id="collectingEvent.id"
+              type="CollectingEvent"/>
+            <radial-annotator :global-id="collectingEvent.global_id"/>
+            <radial-object :global-id="collectingEvent.global_id"/>
+          </template>
         </div>
         <div class="horizontal-right-content">
           <button
@@ -142,6 +142,7 @@ import {
   CreateIdentifier,
   CreateLabel,
   GetCollectingEvent,
+  GetCollectionObject,
   GetLabelsFromCE,
   GetSoftValidation,
   GetTripCodeByCE,
@@ -193,9 +194,17 @@ export default {
 
     const urlParams = new URLSearchParams(window.location.search)
     const collectingEventId = urlParams.get('collecting_event_id')
+    const collectionObjectId = urlParams.get('collection_object_id')
 
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
+    } else if (/^\d+$/.test(collectionObjectId)) {
+      GetCollectionObject(collectionObjectId).then(response => {
+        const ceId = response.body.collecting_event_id
+        if (ceId) {
+          this.loadCollectingEvent(ceId)
+        }
+      })
     }
   },
   methods: {
@@ -209,6 +218,7 @@ export default {
       this.ce = makeCollectingEvent()
       this.validation = []
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
+      SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
     },
     loadCollectingEvent (id) {
       this.isLoading = true

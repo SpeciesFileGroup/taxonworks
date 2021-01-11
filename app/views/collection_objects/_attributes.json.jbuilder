@@ -1,4 +1,4 @@
-json.extract! collection_object, :id, :total, :repository_id, :preparation_type_id
+json.extract! collection_object, :id, :total, :repository_id, :preparation_type_id, :collecting_event_id
 json.extract! collection_object.get_dwc_occurrence,  :catalogNumber, :scientificName, :lifeStage, :sex, :country, :stateProvince, :verbatimLocality
 json.extract! collection_object, :buffered_collecting_event, :buffered_determinations, :buffered_other_labels, 
   :accessioned_at, :deaccessioned_at, :deaccession_reason,

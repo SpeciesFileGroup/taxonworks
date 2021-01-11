@@ -20,6 +20,8 @@ const GetBiocurationsTags = (BiocurationGroupId) => ajaxCall('get', `/tags.json?
 
 const CreateBiocurationClassification = (data) => ajaxCall('post', '/biocuration_classifications.json', data)
 
+const GetCollectionObject = (id) => ajaxCall('get', `/collection_objects/${id}.json`)
+
 const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.json', { params })
 
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
@@ -86,6 +88,7 @@ export {
   GetBiocurationsTypes,
   GetBiocurationsGroupTypes,
   GetBiocurationsTags,
+  GetCollectionObject,
   GetCollectionObjects,
   GetCollectingEvent,
   GetCollectingEvents,

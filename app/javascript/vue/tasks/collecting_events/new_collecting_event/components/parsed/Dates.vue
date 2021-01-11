@@ -37,12 +37,6 @@
               @click="setActualDateForStart">
               Now
             </button>
-            <button
-              type="button"
-              class="button normal-input button-default"
-              @click="cloneDate">
-              Clone
-            </button>
           </div>
         </div>
       </div>
@@ -81,6 +75,12 @@
             class="button normal-input button-default"
             @click="setActualDateForEnd">
             Now
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            @click="cloneDate">
+            Clone
           </button>
         </div>
       </div>
