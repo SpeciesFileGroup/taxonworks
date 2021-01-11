@@ -138,7 +138,7 @@ scope :tasks do
 
   scope :collecting_events do
       scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
-        get :index, as: 'index_new_collecting_event_task'
+        get '/', action: :index, as: 'new_collecting_event_task'
       end
 
     scope :browse, controller: 'tasks/collecting_events/browse' do

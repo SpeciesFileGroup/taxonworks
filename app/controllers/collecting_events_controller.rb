@@ -52,11 +52,11 @@ class CollectingEventsController < ApplicationController
     @collecting_event = @collecting_event.clone
     if @collecting_event.persisted?
       respond_to do |format|
-        format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
+        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
       end
     else
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
+      format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
       format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
     end
   end
