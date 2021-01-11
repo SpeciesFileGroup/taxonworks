@@ -15,7 +15,6 @@
       }">
       <div slot="header">
         <h3>Create collection objects</h3>
-        <span>{{ list.length }} object(s) are already associated with this collecting event</span>
       </div>
       <div
         slot="body"
@@ -58,7 +57,7 @@
         <div
           class="full_width">
           <template v-if="noCreated.length">
-            <h3>No created ({{ noCreated.length }})</h3>
+            <h3>Creation errors ({{ noCreated.length }})</h3>
             <table
               class="full_width margin-medium-bottom">
               <thead>
@@ -71,15 +70,15 @@
                 <tr
                   v-for="(item, index) in noCreated"
                   :key="index"
-                  class="contextMenuCells"
-                  :class="{ 'even': (index % 2 == 0) }">
+                  class="contextMenuCells feedback feedback-warning">
                   <td>{{ item.namespace }} {{ item.identifier }}</td>
                   <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
                 </tr>
               </tbody>
             </table>
           </template>
-          <h3>Result</h3>
+          <span>{{ list.length }} object(s) are already associated with this collecting event</span>
+          <h3>Existing</h3>
           <table class="full_width">
             <thead>
               <tr>
