@@ -12,6 +12,15 @@ GIT
     geckodriver-helper (0.27.0)
       archive-zip (~> 0.7)
 
+GIT
+  remote: https://github.com/mjy/rqrcode.git
+  revision: 4b6875fb192d90f565ed51c8a48441febe1a9ed2
+  branch: taxonworks
+  specs:
+    rqrcode (1.2.0)
+      chunky_png (~> 1.0)
+      rqrcode_core (~> 0.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -383,6 +392,7 @@ GEM
     rgeo-proj4 (2.0.1)
       rgeo (~> 2.0)
     rmagick (4.1.2)
+    rqrcode_core (0.2.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
       rspec-expectations (~> 3.10.0)
