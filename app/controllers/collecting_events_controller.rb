@@ -262,7 +262,7 @@ class CollectingEventsController < ApplicationController
 
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object    = @collecting_event
+    @recent_object = @collecting_event
   end
 
   def collecting_event_params
