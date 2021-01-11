@@ -43,18 +43,19 @@
           </template>
         </div>
         <div class="horizontal-right-content">
+          <span class="margin-small-right">Collection object:</span>
           <button
             type="button"
             class="button normal-input button-default margin-small-right"
             @click="openComprehensive"
             :disabled="!collectingEvent.id">
-            New collection object
+            New
           </button>
           <collection-objects-table
             class="margin-small-right"
             :ce-id="collectingEvent.id"/>
           <parse-data
-            class="margin-small-right"
+            class="margin-large-right"
             @onParse="setCollectingEvent"/>
           <button
             @click="showRecent = true"
