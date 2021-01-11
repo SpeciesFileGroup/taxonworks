@@ -22,15 +22,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add `label` attribute to Label JSON response that renders QR code
 - Add accomodation for printing pages of barcode-based labels
 - Add `Georeference::Wkt` an anonymous WKT based georeference assertion
+- Add option to disable namecasing when Person is created from `/people/new` [#1967] 
+- Full CASTOR (taxon names batch load) example template, CASTOR preview notices
+- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
 - Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
 - Tweak to how `pinned?` is calculated trying to eliminate database calls
+- Minor cleanup of batch preview layouts
+- Changed softvalidation message for names being on Official ICZN lists
+- Fetch codecov, seedback and closure_tree gems from RubyGems.
+- Updated gems (`bundle update` without altering `Gemfile`).
+- Remove `no_leaves`= true from taxon name on filter images task [#1953]
+- Turn off autocomplete feature on vue autocomplete [#1956]
+- Limited CoLDP exports runtime to 1 hour and 2 attemps.
+- Turn off autocomplete on new taxon name task
+
+### Fixed
+- Line links of batch-preview results
+- broken API download link for exported references [#1908]
+- removed BASIS task stub [#1716]
+- `/api/v1/notes` project scoping [#1958]
+- `is_community?` reporting `false` for some models without `project_id`
+- New source after cloning not display changes on authors / editors lists
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
-
-\-
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
+[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
+[#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
+[#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
+[#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
 
 ## [0.15.1] - 2020-12-14
 ### Added

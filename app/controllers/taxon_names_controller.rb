@@ -203,10 +203,6 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def browse
-    @data = NomenclatureCatalog.data_for(@taxon_name)
-  end
-
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id] # TODO: this may have to change to taxon_name_id
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
@@ -216,8 +212,8 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
-  def catalog
-    @data = NomenclatureCatalog.data_for(@taxon_name)
+  # GET /taxon_names/1/original_combination
+  def original_combination
   end
 
   # GET /api/v1/taxon_names

@@ -4,7 +4,7 @@
 [![Coverage Status][3]][4]
 [![CodePolice][5]][6]
 [![Gitter][20]][19]
-[![Inline docs](http://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](http://inch-ci.org/github/SpeciesFileGroup/taxonworks)
+[![Inline docs](https://inch-ci.org/github/SpeciesFileGroup/taxonworks.svg?branch=master&style=shields)](https://inch-ci.org/github/SpeciesFileGroup/taxonworks)
 
 ## Overview
 
@@ -30,8 +30,8 @@ The foundation of TaxonWorks is funded by an endowment of the [Species File Grou
 [4]: https://codecov.io/gh/SpeciesFileGroup/taxonworks
 [5]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks.png?branch=development
 [6]: https://codeclimate.com/github/SpeciesFileGroup/taxonworks?branch=development
-[9]: http://taxonworks.org
-[10]: http://rdoc.taxonworks.org/frames
+[9]: https://taxonworks.org
+[10]: https://rdoc.taxonworks.org/
 [11]: https://github.com/SpeciesFileGroup/install_taxonworks
 [12]: https://github.com/SpeciesFileGroup/taxonworks_api
 [13]: https://github.com/SpeciesFileGroup/taxonworks_doc
