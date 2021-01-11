@@ -46,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
+- Edit taxon name firing multiple updates when updating gender [#1970]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
 [#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
+[#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
 
 ## [0.15.1] - 2020-12-14
 ### Added
