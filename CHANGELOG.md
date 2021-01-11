@@ -8,17 +8,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- nested attributes for Labels
+- New collecting event task [#1530]
+- "Quick" collection objects options from new collecting event task
+- New WKT georeference inputs
+- Generate label (alpha), pastes values into print label input 
+- Collecting event navigation options (next/previous with/out <many things>
+- Nested_attributes for Labels
+- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
+- Collection object/and collecting event navigation options/bridges
 - `/collecting_events/preview?<filter_params>` a preview look for brief tables
-- Subclasses for labels
-- `Label::QrCode`
-- Include `rqrcode`
-- add `label` attribute to Label JSON response that renders QR code
-- `Georeference::Wkt` an anonymous WKT based assertion
+- Subclasses for labels:`Label::QrCode`, `Label::Code128`
+- Include `rqrcode`, `barby` for barcode rendering
+- Add `label` attribute to Label JSON response that renders QR code
+- Add accomodation for printing pages of barcode-based labels
+- Add `Georeference::Wkt` an anonymous WKT based georeference assertion
 
 ### Changed
 - Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
+- Tweak to how `pinned?` is calculated trying to eliminate database calls
+
+[#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 
 \-
 
