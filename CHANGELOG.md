@@ -8,9 +8,29 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- New collecting event task [#1530]
+- "Quick" collection objects options from new collecting event task
+- New WKT georeference inputs
+- Generate label (alpha), pastes values into print label input 
+- Collecting event navigation options (next/previous with/out <many things>
+- Nested_attributes for Labels
+- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
+- Collection object/and collecting event navigation options/bridges
+- `/collecting_events/preview?<filter_params>` a preview look for brief tables
+- Subclasses for labels:`Label::QrCode`, `Label::Code128`
+- Include `rqrcode`, `barby` for barcode rendering
+- Add `label` attribute to Label JSON response that renders QR code
+- Add accomodation for printing pages of barcode-based labels
+- Add `Georeference::Wkt` an anonymous WKT based georeference assertion
+- Add option to disable namecasing when Person is created from `/people/new` [#1967] 
+- Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- Setting `Identifier#cached` uses a build getter to enable Label building
+- Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
+- Tweak to how `pinned?` is calculated trying to eliminate database calls
+- Minor cleanup of batch preview layouts
 - Changed softvalidation message for names being on Official ICZN lists
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
@@ -20,12 +40,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete on new taxon name task
 
 ### Fixed
+- Line links of batch-preview results
 - broken API download link for exported references [#1908]
 - removed BASIS task stub [#1716]
 - `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
 
+[#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
 [#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
 [#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
 [#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
@@ -35,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.15.1] - 2020-12-14
 ### Added
+- `Person` can not be active for > 119 years
 - Show buffered values in `Task - Browse collection objects` [#1931]
 - Default pin button on Uniquify people task
 - Checkbox to Select/unselect all match people on Uniquify people task [#1921]

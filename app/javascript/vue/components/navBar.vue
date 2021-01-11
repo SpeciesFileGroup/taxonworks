@@ -58,3 +58,11 @@ export default {
 }
 </script>
 
+<style lang="scss" scoped>
+  .navbar-fixed-top {
+    top:0px;
+    z-index:1001;
+    width:inherit;
+    position: fixed;
+  }
+</style>

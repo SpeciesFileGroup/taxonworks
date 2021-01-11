@@ -60,31 +60,6 @@
   padding: 0;
 }
 
-// TODO: remove for shared pallette
-
-.green {
-  color: green;
-}
-
-.blue {
-  color: blue;
-}
-
-.brown {
-  color: brown;
-}
-
-.red {
-  color: red;
-}
-
-hr.line{
-  border: 0;
-  height: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 ul.tree, ul.tree ul {
   list-style: none;
    margin: 0;

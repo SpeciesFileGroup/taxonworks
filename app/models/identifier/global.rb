@@ -26,8 +26,12 @@ class Identifier::Global < Identifier
 
   protected
 
+  def build_cached
+    identifier
+  end
+
   def set_cached
-    update_column(:cached, identifier)
+    update_column(:cached, build_cached)
   end
 
   def permit_only_one_global_without_relation_supplied_per_type

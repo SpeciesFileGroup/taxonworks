@@ -27,7 +27,7 @@
       <a 
         v-if="label.id && que > 0"
         target="blank"
-        href="/tasks/labels/print_labels/index">Preview
+        href="/tasks/labels/print_labels">Preview
       </a>
     </div>
     <textarea

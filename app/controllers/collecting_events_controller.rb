@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
   after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
@@ -52,11 +52,11 @@ class CollectingEventsController < ApplicationController
     @collecting_event = @collecting_event.clone
     if @collecting_event.persisted?
       respond_to do |format|
-        format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
+        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
       end
     else
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
+      format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
       format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
     end
   end
@@ -255,11 +255,14 @@ class CollectingEventsController < ApplicationController
     render '/collecting_events/api/v1/autocomplete'
   end
 
+  def navigation
+  end
+
   private
 
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object    = @collecting_event
+    @recent_object = @collecting_event
   end
 
   def collecting_event_params

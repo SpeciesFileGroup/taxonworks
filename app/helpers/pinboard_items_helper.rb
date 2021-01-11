@@ -4,7 +4,7 @@ module PinboardItemsHelper
     if !object.pinned?(user, sessions_current_project_id)
       link_to('',  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id }, class: 'navigation-item pin-button', remote: true, method: :post)
     else
-      link_to('', pinboard_item_path(get_pinboard_item_form_object(object,user)), class: 'unpin-button', data: { "pin-button-item-id": object.id }, method: :delete, remote: true)
+      link_to('', pinboard_item_path(get_pinboard_item_from_object(object, user)), class: 'unpin-button', data: { "pin-button-item-id": object.id }, method: :delete, remote: true)
     end
   end
 
@@ -16,8 +16,8 @@ module PinboardItemsHelper
     end
   end
 
-  # TODO: remove user?  use sessions user?
-  def get_pinboard_item_form_object(object, user)
+  # TODO: remove user throughout this chain and use sessions user?
+  def get_pinboard_item_from_object(object, user)
     if object.pinned?(user, sessions_current_project_id)
       PinboardItem.where(pinned_object_id: object.id, user_id: user).first
     end
@@ -50,11 +50,56 @@ module PinboardItemsHelper
 
   # Session related helpers
 
+  # @param klass [String]
+  #  like 'Keyword'
   # @return [Integer, false]
   #   if there is an insertable pinboard for the item, that ID, otherwise false
+  # TODO: change to nil not false
   def inserted_pinboard_item_object_for_klass(klass)
     object = klass.constantize.joins(:pinboard_items).where(project_id: sessions_current_project_id, pinboard_items: {user_id: sessions_current_user_id, is_inserted: true}).first
     object ? object : false
+  end
+
+  def next_object_by_inserted_keyword(object, keyword)
+    return nil if keyword.nil? || object.nil?
+    t = object.class.name.tableize
+    base = object.class.base_class
+      .joins(:tags)
+      .where(tags: {keyword: keyword})
+      .where("#{t}.id > #{object.id}")
+      .order("#{t}.id ASC")
+      .limit(1)
+    if respond_to?(:project_id)
+      base.where(project_id: sessions_current_project_id).first
+    else
+      base.first
+    end
+  end
+
+  def previous_object_by_inserted_keyword(object, keyword)
+    return nil if keyword.nil? || object.nil?
+    t = object.class.name.tableize
+    base = object.class.base_class
+      .joins(:tags)
+      .where(tags: {keyword: keyword})
+      .where("#{t}.id < #{object.id}")
+      .order("#{t}.id DESC")
+      .limit(1)
+    if respond_to?(:project_id)
+      base.where(project_id: sessions_current_project_id).first
+    else
+      base.first
+    end
+  end
+
+  def next_previous_by_inserted_keyword(object)
+    k = inserted_pinboard_item_object_for_klass('Keyword')
+    return [nil, nil] if k == false
+
+    [ 
+      previous_object_by_inserted_keyword(object, k)&.id,
+      next_object_by_inserted_keyword(object, k)&.id
+    ]
   end
 
 end

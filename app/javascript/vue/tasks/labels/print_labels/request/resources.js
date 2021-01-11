@@ -1,5 +1,7 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const GetLabel = (id) => ajaxCall('get', `/labels/${id}.json`)
+
 const GetLabels = function () {
   return ajaxCall('get', '/labels.json')
 }
@@ -17,6 +19,7 @@ const RemoveLabel = function (id) {
 }
 
 export {
+  GetLabel,
   GetLabels,
   CreateLabel,
   UpdateLabel,

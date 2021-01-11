@@ -95,7 +95,7 @@ scope :tasks do
 
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
-      get :index, as: 'index_print_labels_task'
+      get '/',  as: 'print_labels_task', action: :index
     end
   end
 
@@ -143,6 +143,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+      scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
+        get '/', action: :index, as: 'new_collecting_event_task'
+      end
+
     scope :browse, controller: 'tasks/collecting_events/browse' do
       get '/', action: :index, as: 'browse_collecting_events_task'
     end

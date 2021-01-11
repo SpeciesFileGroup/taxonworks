@@ -1,20 +1,20 @@
 <template>
   <div>
-    <h2>Layout</h2>
-    <div class="field">
-      <label class="label-layout-size">Columns</label>
+    <h3>Layout</h3>
+    <div class="field label-above">
+      <label>Columns</label>
       <input
         v-model="columns"
         type="number">
     </div>
-    <div class="field">
-      <label class="label-layout-size">Lines per column</label>
+    <div class="field label-above">
+      <label>Lines per column</label>
       <input
         v-model="rows"
         type="number">
     </div>
-    <div class="field">
-      <label class="label-layout-size">Separator</label>
+    <div class="field label-above">
+      <label>Separator</label>
       <input
         v-model="separator"
         type="text">

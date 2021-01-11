@@ -1,26 +1,26 @@
-<h3> Import file properties </h3>
+<h3>Import file properties</h3>
 <ul>
   <li>Successfully
-    processed: <%= content_tag(:span, (@result.processed ? 'yes' : 'no'), class: (@result.processed ? 'passed' : 'warning')) -%></li>
-  <li>Total rows (total/with data/empty):
+    processed: <%= content_tag(:span, (@result.processed ? 'Yes' : 'No'), class: ['feedback feedback-thin', (@result.processed ? 'feedback-success' : 'feedback-warning') ]) -%></li>
+  <li><p>Total rows (total/with data/empty):
     <%= @result.total_lines ? @result.total_lines : '?' -%>
     /<%= @result.total_data_lines ? @result.total_data_lines : '?' -%>
-    /<%= @result.total_lines && @result.total_data_lines ? (@result.total_lines - @result.total_data_lines) : '?' -%>
+  /<%= @result.total_lines && @result.total_data_lines ? (@result.total_lines - @result.total_data_lines) : '?' -%></p>
   </li>
 
-  <li> This file
-    is <%= content_tag(:span, @result.warn_level_ok? ? 'OK' : 'NOT OK', class: (@result.warn_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "warn".
+  <li><p> This file
+    is <%= content_tag(:span, @result.warn_level_ok? ? 'OK' : 'NOT OK', class: ['feedback feedback-thin', (@result.warn_level_ok? ? 'feedback-success' : 'feedback-warning') ] ) -%>
+  for import level "warn".</p>
   </li>
-  <li> This file
-    is <%= content_tag(:span, @result.line_strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.line_strict_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "line strict".
+  <li><p> This file
+    is <%= content_tag(:span, @result.line_strict_level_ok? ? 'OK' : 'NOT OK', class: ['feedback feedback-thin', ( @result.line_strict_level_ok? ? 'feedback-success' : 'feedback-danger') ] ) -%>
+  for import level "line strict".</p>
   </li>
-  <li> This file
-    is <%= content_tag(:span, @result.strict_level_ok? ? 'OK' : 'NOT OK', class: (@result.strict_level_ok? ? 'passed' : 'warning')) -%>
-    for import level "strict".
+  <li><p>This file
+    is <%= content_tag(:span, @result.strict_level_ok? ? 'OK' : 'NOT OK',  class: ['feedback feedback-thin', ( @result.strict_level_ok?  ? 'feedback-success' : 'feedback-danger') ] ) -%>
+  for import level "strict".</p>
   </li>
 
-  <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'warning')) }.join.html_safe -%>
-  <%= @result.errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'warning')) }.join.html_safe -%>
+  <%= @result.file_errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning')) }.join.html_safe -%>
+  <%= @result.errors.collect { |e| content_tag(:li, content_tag(:span, e, class: 'feedback feedback-warning')) }.join.html_safe -%>
 </ul>
