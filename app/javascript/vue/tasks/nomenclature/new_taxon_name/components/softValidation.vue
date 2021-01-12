@@ -12,7 +12,16 @@
         v-for="key in Object.keys(errors)"
         v-if="errors[key].list.length">
         <hr>
-        <h3>{{ errors[key].title }}</h3>
+        <h3>
+          {{ errors[key].title }}
+          <button
+            v-if="getFixPresent(errors[key].list).length"
+            type="button"
+            class="button button-submit margin-small-left"
+            @click="runFix(getFixPresent(errors[key].list))">
+            Fix all
+          </button>
+        </h3>
         <hr>
         <ul
           v-for="list in errors[key].list"
@@ -23,7 +32,7 @@
               v-if="error.fix"
               type="button"
               class="button button-submit"
-              @click="runFix(list.global_id, error.fix)">
+              @click="runFix([{ global_id: list.global_id, fix: [error.fix] }])">
               Fix
             </button>
             <span v-html="error.message"/>
@@ -52,15 +61,19 @@ export default {
       this.errors.taxonStatusList.list.length ||
       this.errors.taxonRelationshipList.list.length)
     },
-    runFix (globalId, fixKey) {
-      const params = {
-        global_id: globalId,
-        fix: [fixKey]
-      }
+    runFix (fixItems) {
+      const promises = []
 
-      SoftValidationFix(params).then(response => {
+      fixItems.forEach(params => {
+        promises.push(SoftValidationFix(params))
+      })
+
+      Promise.all(promises).then(() => {
         location.reload()
       })
+    },
+    getFixPresent (list) {
+      return list.map(item => Object.assign({}, { global_id: item.global_id, key: item.validations.soft_validations.filter(v => v.fix).map(item => item.fix) })).filter(item => item.key.length)
     }
   }
 }
