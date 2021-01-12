@@ -192,13 +192,9 @@ export default {
     },
     async addEntry (item) {
       const alreadyStored = this.searchExisting()
-
-      this.saving = true
-      if (!(item.type === this.types.participle || item.type === this.types.adjective)) {
-        this.cleanNames()
-      }
       const taxon = Object.assign({}, this.taxon)
 
+      this.saving = true
       if (alreadyStored) {
         await this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored)
       }
