@@ -2,7 +2,7 @@ require 'rspec'
 require 'rails_helper'
 
 # These tests ensure that resolution: attributes set for soft_validate() methods exist in the application
-describe TaxonWorks, group: :soft_validation, type: :model do
+describe TaxonWorks, group: [:soft_validation, :lint], type: :model, lint: :true do
   Rails.application.eager_load!
 
   context 'model includes/attributes' do

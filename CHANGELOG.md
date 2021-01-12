@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Route linting specs
 - New collecting event task [#1530]
 - "Quick" collection objects options from new collecting event task
 - New WKT georeference inputs
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- Some tasks route names were "malformed" and renamed
 - ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
 - Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)

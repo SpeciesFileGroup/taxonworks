@@ -59,7 +59,7 @@ CollectingEvent:
   new: new_collecting_event_task
 Descriptor:
   tasks:
-    - observation_matrix_hub_task
+    - observation_matrices_hub_task
   new: new_descriptor_task
   edit: new_descriptor_task
 Document:
@@ -91,7 +91,7 @@ Otu:
     - otus_filter_task
     - comprehensive_collection_object_task
     - index_editor_task
-    - cite_otus_task_task
+    - cite_otus_task
     - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
   config:
@@ -121,7 +121,7 @@ TaxonName:
     - edit_type_material_task
     - comprehensive_collection_object_task
     - browse_otus_task
-    - index_stats_task
+    - nomenclature_stats_task
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task
