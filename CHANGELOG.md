@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
 - Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
 - Tweak to how `pinned?` is calculated trying to eliminate database calls
