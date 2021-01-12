@@ -18,7 +18,15 @@
           v-for="list in errors[key].list"
           class="no_bullets">
           <li v-for="error in list.validations.soft_validations">
-            <span data-icon="warning"/><span v-html="error.message"/>
+            <span data-icon="warning"/>
+            <button
+              v-if="error.fix"
+              type="button"
+              class="button button-submit"
+              @click="runFix(list.global_id, error.fix)">
+              Fix
+            </button>
+            <span v-html="error.message"/>
           </li>
         </ul>
       </div>
@@ -30,6 +38,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
+import { SoftValidationFix } from '../request/resources'
 
 export default {
   computed: {
@@ -42,6 +51,16 @@ export default {
       return (this.errors.taxon_name.list.length ||
       this.errors.taxonStatusList.list.length ||
       this.errors.taxonRelationshipList.list.length)
+    },
+    runFix (globalId, fixKey) {
+      const params = {
+        global_id: globalId,
+        fix: [fixKey]
+      }
+
+      SoftValidationFix(params).then(response => {
+        location.reload()
+      })
     }
   }
 }

@@ -44,6 +44,8 @@ const loadTaxonRelationships = (id) => ajaxCall('get', `/taxon_names/${id}/taxon
 
 const GetPredictedRank = (parentId, name) => ajaxCall('get', `/taxon_names/predicted_rank`, { params: { parent_id: parentId, name: name }})
 
+const SoftValidationFix = (params) => ajaxCall('post', `/soft_validations/fix?global_id=${params.global_id}`, params)
+
 export {
   createTaxonName,
   updateTaxonName,
@@ -62,5 +64,6 @@ export {
   removeTaxonRelationship,
   createTaxonRelationship,
   GetTypeMaterial,
-  GetPredictedRank
+  GetPredictedRank,
+  SoftValidationFix
 }

@@ -16,7 +16,7 @@ export default function ({ commit, state }, type) {
   validations.forEach(function (element) {
     promises.push(
       loadSoftValidation(element.global_id).then(response => {
-        return response.body
+        return Object.assign(response.body, { global_id: element.global_id })
       })
     )
   })
