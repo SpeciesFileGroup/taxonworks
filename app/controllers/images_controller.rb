@@ -29,7 +29,6 @@ class ImagesController < ApplicationController
   def api_index
     @images = Queries::Image::Filter.new(api_params).all
                 .where(project_id: sessions_current_project_id)
-                # .order('otus.id')
                 .page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
