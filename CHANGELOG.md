@@ -41,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete feature on vue autocomplete [#1956]
 - Limited CoLDP exports runtime to 1 hour and 2 attemps.
 - Turn off autocomplete on new taxon name task
+- Replaced display name attribute for object_label in parent autocomplete on New taxon name task
 
 ### Fixed
 - Line links of batch-preview results
