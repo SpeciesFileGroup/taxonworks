@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :api_show, :edit, :update, :destroy, :rotate]
 
   # GET /images
   # GET /images.json
