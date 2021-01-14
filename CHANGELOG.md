@@ -52,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
 - Edit taxon name firing multiple updates when updating gender [#1970]
+- Correct image size on image viewer 
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
