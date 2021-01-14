@@ -148,12 +148,12 @@ var CarrouselTask = function (sec, rows, columns) {
       return true;
     }
     else {
-      var words = this.filterWords.toLowerCase().trim().split(" ");
-      for(var i = 0; i < words.length; i++) {
-        if ($(child).find('.task_description').text().toLowerCase().indexOf(words[i]) >= 0) {
-          return true;
-        }
-      }
+      // var words = this.filterWords.toLowerCase().trim().split(" ");
+      // for(var i = 0; i < words.length; i++) {
+      //   if ($(child).find('.task_description').text().toLowerCase().indexOf(words[i]) >= 0) {
+      //     return true;
+      //   }
+      // }
       return false;
     }
   }

@@ -83,7 +83,7 @@ RSpec.configure do |config|
   test_excludes = {}
 
   # Tests that check validitify of factories
-  unless ENV['TAXONWORKS_TEST_LINTING']
+  unless ENV['TAXONWORKS_TEST_LINTING'] == 'true'
     test_excludes.merge!(lint: true)
   end
 

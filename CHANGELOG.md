@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Route linting specs
 - New collecting event task [#1530]
 - "Quick" collection objects options from new collecting event task
 - New WKT georeference inputs
@@ -27,6 +28,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 
 ### Changed
+- Some tasks route names were "malformed" and renamed
+- ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
 - Setting `Identifier#cached` uses a build getter to enable Label building
 - Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
 - Tweak to how `pinned?` is calculated trying to eliminate database calls
@@ -38,6 +41,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete feature on vue autocomplete [#1956]
 - Limited CoLDP exports runtime to 1 hour and 2 attemps.
 - Turn off autocomplete on new taxon name task
+- Replaced display name attribute for object_label in parent autocomplete on New taxon name task
+- Filter task by name only [#1962]
 
 ### Fixed
 - Line links of batch-preview results
@@ -46,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `/api/v1/notes` project scoping [#1958]
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
+- Edit taxon name firing multiple updates when updating gender [#1970]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
@@ -56,6 +62,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
 [#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
+[#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
 
 ## [0.15.1] - 2020-12-14
 ### Added
