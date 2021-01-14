@@ -50,6 +50,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes = parse_record_level_class
         attributes.deep_merge!(parse_occurrence_class)
         attributes.deep_merge!(parse_event_class)
+        attributes.deep_merge!(parse_location)
 
         specimen = Specimen.create!({
           no_dwc_occurrence: true
@@ -72,11 +73,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
         collecting_event = CollectingEvent.create!({
           collection_objects: [specimen],
-          verbatim_latitude: get_field_value("decimalLatitude"),
-          verbatim_longitude: get_field_value("decimalLongitude"),
-          verbatim_geolocation_uncertainty: get_field_value("coordinateUncertaintyInMeters")&.send(:+, 'm'),
-          verbatim_datum: get_field_value("geodeticDatum"),
-          verbatim_locality: get_field_value("locality"),
           no_dwc_occurrence: true
         }.merge!(attributes[:collecting_event]))
 
@@ -321,7 +317,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # occurrenceRemarks: [Not mapped]
   end
 
-
   def parse_event_class
     collecting_event = { }
 
@@ -429,6 +424,108 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     set_hash_val(collecting_event, :field_notes, get_field_value(:fieldNotes))
 
     # eventRemarks: Maybe field_notes (concatenated with fieldNotes)
+
+    { collecting_event: collecting_event }
+  end
+
+  def parse_location
+    collecting_event = {}
+
+    # locationID: [Not mapped]
+
+    # higherGeographyID: [Not mapped]
+
+    # higherGeography: [Not mapped]
+
+    # continent: [Not mapped]
+
+    # waterBody: [Not mapped]
+
+    # islandGroup: [Not mapped]
+
+    # island: [Not mapped]
+
+    # country: [Not mapped]
+
+    # countryCode: [Not mapped]
+
+    # stateProvince: [Not mapped]
+
+    # county: [Not mapped]
+
+    # municipality: [Not mapped]
+
+    # locality: [Not mapped]
+
+    # verbatimLocality: [verbatim_locality]
+    set_hash_val(collecting_event, :verbatim_locality, get_field_value("verbatimLocality"))
+
+    # minimumElevationInMeters: [Not mapped]
+    set_hash_val(collecting_event, :minimum_elevation, get_field_value("minimumElevationInMeters"))
+
+    # maximumElevationInMeters: [Not mapped]
+    set_hash_val(collecting_event, :maximum_elevation, get_field_value("maximumElevationInMeters"))
+
+    # verbatimElevation: [Not mapped]
+    set_hash_val(collecting_event, :verbatim_elevation, get_field_value("verbatimElevation"))
+
+    # minimumDepthInMeters: [Not mapped. REVISIT]
+
+    # maximumDepthInMeters: [Not mapped. REVISIT]
+
+    # verbatimDepth: [Not mapped. REVISIT]
+
+    # minimumDistanceAboveSurfaceInMeters: [Not mapped]
+
+    # maximumDistanceAboveSurfaceInMeters: [Not mapped]
+
+    # locationAccordingTo: [Not mapped. REVISIT]
+
+    # locationRemarks: [Not mapped. REVISIT]
+
+    # decimalLatitude: [verbatim_latitude]
+    set_hash_val(collecting_event, :verbatim_latitude, get_field_value("decimalLatitude"))
+
+    # decimalLongitude: [verbatim_longitude]
+    set_hash_val(collecting_event, :verbatim_longitude, get_field_value("decimalLongitude"))
+
+    # geodeticDatum: [verbatim_datum]
+    set_hash_val(collecting_event, :verbatim_datum, get_field_value("geodeticDatum"))
+
+    # coordinateUncertaintyInMeters: [verbatim_geolocation_uncertainty]
+    set_hash_val(collecting_event, :verbatim_geolocation_uncertainty, get_field_value("coordinateUncertaintyInMeters")&.send(:+, 'm'))
+
+    # coordinatePrecision: [Not mapped. Fail import if claimed precision is incorrect? Round to precision?]
+
+    # pointRadiusSpatialFit: [Not mapped]
+
+    # verbatimCoordinates: [Not mapped]
+
+    # verbatimLatitude: [Not mapped]
+
+    # verbatimLongitude: [Not mapped]
+
+    # verbatimCoordinateSystem: [Not mapped]
+
+    # verbatimSRS: [Not mapped]
+
+    # footprintWKT: [Not mapped]
+
+    # footprintSRS: [Not mapped]
+
+    # footprintSpatialFit: [Not mapped]
+
+    # georeferencedBy: [Not mapped]
+
+    # georeferencedDate: [Not mapped]
+
+    # georeferenceProtocol: [Not mapped]
+
+    # georeferenceSources: [Not mapped. REVISIT]
+
+    # georeferenceVerificationStatus: [Not mapped]
+
+    # georeferenceRemarks: [Not mapped. REVISIT]
 
     { collecting_event: collecting_event }
   end
