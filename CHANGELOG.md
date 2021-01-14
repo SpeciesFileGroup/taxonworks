@@ -45,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter task by name only [#1962]
 
 ### Fixed
+- Loan items reference proper housekeeping in table
 - Line links of batch-preview results
 - broken API download link for exported references [#1908]
 - removed BASIS task stub [#1716]
