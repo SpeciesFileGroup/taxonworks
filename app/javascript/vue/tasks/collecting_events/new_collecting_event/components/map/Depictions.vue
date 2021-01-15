@@ -175,6 +175,8 @@ export default {
           if (this.autogeo) {
             this.collectingEvent.queueGeoreferences.push(geojson)
           }
+
+          this.setExifCoordinates(coordinates)
         }
         if (allMetaData?.DateTimeOriginal) {
           let [date, time] = allMetaData.DateTimeOriginal.split(' ')
@@ -218,12 +220,6 @@ export default {
         this.collectingEvent.start_date_month = date[1]
         this.collectingEvent.start_date_year = date[0]
       }
-
-      if (!(this.collectingEvent.end_date_day || this.collectingEvent.end_date_month || this.collectingEvent.end_date_year)) {
-        this.collectingEvent.end_date_day = date[2]
-        this.collectingEvent.end_date_month = date[1]
-        this.collectingEvent.end_date_year = date[0]
-      }
     },
     setExifTime (time) {
       if (!(this.collectingEvent.time_start_hour || this.collectingEvent.time_start_minute || this.collectingEvent.time_start_second)) {
@@ -231,11 +227,11 @@ export default {
         this.collectingEvent.time_start_minute = time[1]
         this.collectingEvent.time_start_hour = time[0]
       }
-
-      if (!(this.collectingEvent.time_end_hour || this.collectingEvent.time_end_minute || this.collectingEvent.time_end_second)) {
-        this.collectingEvent.time_end_second = time[2]
-        this.collectingEvent.time_end_minute = time[1]
-        this.collectingEvent.time_end_hour = time[0]
+    },
+    setExifCoordinates (coordinates) {
+      if (!(this.collectingEvent.verbatim_latitude || this.collectingEvent.verbatim_latitude)) {
+        this.collectingEvent.verbatim_latitude = coordinates.latitude
+        this.collectingEvent.verbatim_longitude = coordinates.longitude
       }
     }
   }
