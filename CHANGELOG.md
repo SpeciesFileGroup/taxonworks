@@ -45,7 +45,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter task by name only [#1962]
 - Search geographic area by verbatim coordinates on new collecting event
 - Show coordinates from verbatim georeference
-- Parsed fields from verbatim label
+- Parsed verbatim label to fields
+- Parsed EXIF coordinates to verbatim fields
 
 ### Fixed
 - Loan items reference proper housekeeping in table
