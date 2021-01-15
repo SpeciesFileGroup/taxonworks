@@ -59,6 +59,11 @@
               @onParse="setCollectingEvent"/>
           </li>
           <li class="horizontal-right-content">
+            <span
+              v-if="unsave"
+              class="medium-icon margin-small-right"
+              title="You have unsaved changes."
+              data-icon="warning"/>
             <button
               @click="showRecent = true"
               class="button normal-input button-default button-size margin-small-right"
@@ -178,10 +183,15 @@ export default {
       set (value) {
         this.ce = value
       }
+    },
+    unsave () {
+      return this.lastChange > this.lastSave
     }
   },
   data () {
     return {
+      lastSave: undefined,
+      lastChange: undefined,
       isLoading: false,
       isSaving: false,
       settings: {
@@ -190,6 +200,14 @@ export default {
       showRecent: false,
       validation: [],
       ce: makeCollectingEvent()
+    }
+  },
+  watch: {
+    collectingEvent: {
+      handler (newVal) {
+        this.lastChange = Date.now()
+      },
+      deep: true
     }
   },
   mounted () {
@@ -210,6 +228,7 @@ export default {
         }
       })
     }
+    this.resetSave()
   },
   methods: {
     cloneCE () {
@@ -218,11 +237,16 @@ export default {
         TW.workbench.alert.create('Collecting event was successfully cloned.', 'notice')
       })
     },
+    resetSave () {
+      this.lastChange = Date.now()
+      this.lastSave = Date.now()
+    },
     reset () {
       this.ce = makeCollectingEvent()
       this.validation = []
       SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id')
       SetParam(RouteNames.NewCollectingEvent, 'collection_object_id')
+      this.resetSave()
     },
     loadCollectingEvent (id) {
       this.isLoading = true
@@ -235,6 +259,9 @@ export default {
         ce.tripCode = tripCode || makeCollectingEvent().tripCode
         ce.roles_attributes = ce.collector_roles || []
         this.setCollectingEvent(response.body)
+        setTimeout(() => {
+          this.resetSave()
+        }, 2000)
       }).finally(() => {
         this.isLoading = false
       })
@@ -262,6 +289,7 @@ export default {
         response.body.tripCode = await this.saveIdentifier(this.collectingEvent.tripCode)
         TW.workbench.alert.create(`Collecting event was successfully ${this.collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
         this.setCollectingEvent(response.body)
+        this.resetSave()
       }).finally(() => {
         this.isSaving = false
       })
