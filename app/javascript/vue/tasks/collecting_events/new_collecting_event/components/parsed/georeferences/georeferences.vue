@@ -12,6 +12,9 @@
       @click="createVerbatimShape">
       Create georeference from verbatim
     </button>
+    <template v-if="verbatimGeoreferenceAlreadyCreated">
+      <span>Lat: {{ georeferenceVerbatimLatitude }}, Long: {{ georeferenceVerbatimLongitude }}<span v-if="georeferenceVerbatimRadiusError">, Radius error: {{ georeferenceVerbatimRadiusError }}</span></span>
+    </template>
     <modal-component
       @close="showModal = false"
       :container-style="{
@@ -116,6 +119,7 @@ import AjaxCall from 'helpers/ajaxCall'
 import ModalComponent from 'components/modal'
 import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
+import { truncateDecimal } from 'helpers/math.js'
 
 import GeoreferenceTypes from '../../../const/georeferenceTypes'
 
@@ -153,6 +157,15 @@ export default {
     }
   },
   computed: {
+    georeferenceVerbatimLatitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[1]), 6) : undefined
+    },
+    georeferenceVerbatimLongitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[0]), 6) : undefined
+    },
+    georeferenceVerbatimRadiusError () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
+    },
     verbatimGeoreferenceAlreadyCreated () {
       return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim })
     },
