@@ -75,7 +75,7 @@
 
 import SmartSelector from 'components/smartSelector.vue'
 import { GetGeographicAreaByCoords, GetGeographicArea } from '../../request/resources.js'
-
+import convertDMS from 'helpers/parseDMS.js'
 import ModalComponent from 'components/modal'
 
 import extendCE from '../mixins/extendCE'
@@ -89,6 +89,12 @@ export default {
   computed: {
     geographicAreaId () {
       return this.collectingEvent.geographic_area_id
+    },
+    verbatimLatitude () {
+      return this.collectingEvent.verbatim_latitude
+    },
+    verbatimLongitude () {
+      return this.collectingEvent.verbatim_longitude
     }
   },
   data () {
@@ -97,7 +103,9 @@ export default {
       showModal: false,
       areasByCoors: [],
       geoId: undefined,
-      geographicArea: undefined
+      geographicArea: undefined,
+      ajaxCall: undefined,
+      delay: 1000
     }
   },
   watch: {
@@ -110,6 +118,12 @@ export default {
       } else {
         this.clearSelection()
       }
+    },
+    verbatimLongitude () {
+      this.getGeographicByVerbatim()
+    },
+    verbatimLatitude () {
+      this.getGeographicByVerbatim()
     }
   },
   methods: {
@@ -126,6 +140,13 @@ export default {
       GetGeographicAreaByCoords(lat, long).then(response => {
         this.areasByCoors = response.body
       })
+    },
+    getGeographicByVerbatim () {
+      if (this.collectingEvent.geographic_area_id) return
+      if (convertDMS(this.verbatimLatitude) && convertDMS(this.verbatimLongitude)) {
+        clearTimeout(this.ajaxCall)
+        this.ajaxCall = setTimeout(() => { this.getByCoords(convertDMS(this.verbatimLatitude), convertDMS(this.verbatimLongitude)) }, this.delay)
+      }
     }
   }
 }
