@@ -42,57 +42,60 @@
             <radial-object :global-id="collectingEvent.global_id"/>
           </template>
         </div>
-        <div class="horizontal-right-content">
-          <span class="margin-small-right">Collection object:</span>
-          <button
-            type="button"
-            class="button normal-input button-default margin-small-right"
-            @click="openComprehensive"
-            :disabled="!collectingEvent.id">
-            New
-          </button>
-          <collection-objects-table
-            class="margin-small-right"
-            :ce-id="collectingEvent.id"/>
-          <parse-data
-            class="margin-large-right"
-            @onParse="setCollectingEvent"/>
-          <button
-            @click="showRecent = true"
-            class="button normal-input button-default button-size margin-small-right"
-            type="button">
-            Recent
-          </button>
-          <navigate-component
-            class="margin-small-right"
-            :collectingEvent="collectingEvent"
-            @select="loadCollectingEvent"
-          />
-          <button
-            type="button"
-            class="button normal-input button-submit margin-small-right"
-            :disabled="!collectingEvent.id"
-            @click="cloneCE"
-          >
-            Clone
-          </button>
-          <button
-            v-shortkey="[getOSKey(), 's']"
-            @shortkey="saveCollectingEvent"
-            @click="saveCollectingEvent"
-            class="button normal-input button-submit button-size margin-small-right"
-            type="button">
-            Save
-          </button>
-          <button
-            v-shortkey="[getOSKey(), 'n']"
-            @shortkey="reset"
-            @click="reset"
-            class="button normal-input button-default button-size"
-            type="button">
-            New
-          </button>
-        </div>
+        <ul class="context-menu no_bullets">
+          <li class="horizontal-right-content">
+            <span class="margin-small-right">Collection object:</span>
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-right"
+              @click="openComprehensive"
+              :disabled="!collectingEvent.id">
+              New
+            </button>
+            <collection-objects-table
+              class="margin-small-right"
+              :ce-id="collectingEvent.id"/>
+            <parse-data
+              @onParse="setCollectingEvent"/>
+          </li>
+          <li class="horizontal-right-content">
+            <button
+              @click="showRecent = true"
+              class="button normal-input button-default button-size margin-small-right"
+              type="button">
+              Recent
+            </button>
+            <navigate-component
+              class="margin-small-right"
+              :collectingEvent="collectingEvent"
+              @select="loadCollectingEvent"
+            />
+            <button
+              type="button"
+              class="button normal-input button-submit margin-small-right"
+              :disabled="!collectingEvent.id"
+              @click="cloneCE"
+            >
+              Clone
+            </button>
+            <button
+              v-shortkey="[getOSKey(), 's']"
+              @shortkey="saveCollectingEvent"
+              @click="saveCollectingEvent"
+              class="button normal-input button-submit button-size margin-small-right"
+              type="button">
+              Save
+            </button>
+            <button
+              v-shortkey="[getOSKey(), 'n']"
+              @shortkey="reset"
+              @click="reset"
+              class="button normal-input button-default button-size"
+              type="button">
+              New
+            </button>
+          </li>
+        </ul>
       </div>
     </nav-bar>
     <recent-component
