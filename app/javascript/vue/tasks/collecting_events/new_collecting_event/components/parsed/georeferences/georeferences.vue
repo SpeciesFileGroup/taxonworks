@@ -167,7 +167,7 @@ export default {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
     },
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif })
     },
     mapGeoreferences () {
       return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate).map(item => JSON.parse(item.geographic_item_attributes.shape)))
