@@ -43,6 +43,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete on new taxon name task
 - Replaced display name attribute for object_label in parent autocomplete on New taxon name task
 - Filter task by name only [#1962]
+- Search geographic area by verbatim coordinates on new collecting event
+- Show coordinates from verbatim georeference
+- Parsed fields from verbatim label
 
 ### Fixed
 - Loan items reference proper housekeeping in table
