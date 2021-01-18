@@ -113,7 +113,8 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
       query = ready ? dataset_records.where(status: 'NotReady') : dataset_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
       query.where(
-        "data_fields -> :institution_code_field ->> 'value' = :institution_code AND data_fields -> :collection_code_field ->> 'value' = :collection_code",
+        "(:institution_code_field IS NULL OR data_fields -> :institution_code_field ->> 'value' = :institution_code) AND" +
+        "(:collection_code_field IS NULL OR data_fields -> :collection_code_field ->> 'value' = :collection_code)",
         {
           institution_code_field: fields_mapping["institutionCode"], institution_code: institution_code,
           collection_code_field: fields_mapping["collectionCode"], collection_code: collection_code
