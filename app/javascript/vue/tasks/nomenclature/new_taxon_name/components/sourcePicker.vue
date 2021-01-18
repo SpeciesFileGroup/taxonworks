@@ -114,7 +114,8 @@
             </p>
             <div class="horizontal-left-content">
               <citation-pages
-                @setPages="addPages($event.origin_citation_attributes)"
+                @setPages="addPages"
+                @save="triggerSave"
                 :citation="taxon"
               />
               <pdf-button
@@ -156,14 +157,16 @@
             @update="updatePersons"
             role-type="TaxonNameAuthor"
           />
-          <button
-            type="button"
-            class="button normal-input button-submit"
-            :disabled="!citation || isAlreadyClone"
-            @click="cloneFromSource"
-          >
-            Clone from source
-          </button>
+          <div>
+            <button
+              type="button"
+              class="button normal-input button-submit"
+              :disabled="!citation || isAlreadyClone"
+              @click="cloneFromSource"
+            >
+              Clone from source
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -261,6 +264,9 @@ export default {
     })
   },
   methods: {
+    test () {
+      console.log("se")
+    },
     setSource: function (source) {
       const newSource = {
         id: (source.hasOwnProperty('id') ? source.id : source),
@@ -270,10 +276,9 @@ export default {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
     addPages (citation) {
-      const that = this
       const newSource = {
         id: citation.source_id,
-        pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
+        pages: (citation?.pages ? citation.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
 
@@ -282,10 +287,14 @@ export default {
         this.autosave = null
       }
       if (this.isAutosaveActive) {
-        this.autosave = setTimeout(function () {
-          that.$store.dispatch(ActionNames.UpdateSource, citation)
+        this.autosave = setTimeout(() => {
+          this.triggerSave(citation)
         }, 3000)
       }
+    },
+    triggerSave (citation) {
+      clearTimeout(this.autosave)
+      this.$store.dispatch(ActionNames.UpdateSource, citation)
     },
     cloneFromSource () {
       const personsIds = this.roles.map(role => {
