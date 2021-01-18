@@ -84,7 +84,6 @@
             min="3"
             :autofocus="true"
             param="term"
-            event-send="sourceSelect"
             label="label_html"
             placeholder="Type for search..."
             display="label"
@@ -231,7 +230,7 @@ export default {
     roles: {
       get () {
         if (this.$store.getters[GetterNames.GetRoles] == undefined) return []
-        return this.$store.getters[GetterNames.GetRoles].sort(function (a, b) {
+        return this.$store.getters[GetterNames.GetRoles].sort((a, b) => {
           return (a.position - b.position)
         })
       },
@@ -258,19 +257,11 @@ export default {
       }
     }
   },
-  mounted: function () {
-    this.$on('sourceSelect', function (value) {
-      this.setSource(value)
-    })
-  },
   methods: {
-    test () {
-      console.log("se")
-    },
-    setSource: function (source) {
+    setSource (source) {
       const newSource = {
-        id: (source.hasOwnProperty('id') ? source.id : source),
-        pages: (source.hasOwnProperty('pages') ? source.pages : null)
+        id: (source?.id ? source.id : source),
+        pages: (source?.pages ? source.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
@@ -312,15 +303,15 @@ export default {
       this.roles = authorsPerson
       this.updateTaxonName()
     },
-    updatePersons: function (list) {
+    updatePersons (list) {
       this.$store.commit(MutationNames.SetRoles, list)
     },
-    removeSource: function (id) {
+    removeSource (id) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$store.dispatch(ActionNames.RemoveSource, id)
       }
     },
-    updateTaxonName: function () {
+    updateTaxonName () {
       if (this.isAutosaveActive) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       }
