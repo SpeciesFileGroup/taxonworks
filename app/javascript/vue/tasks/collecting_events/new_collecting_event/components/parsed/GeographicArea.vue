@@ -58,13 +58,13 @@
         </div>
       </modal-component>
     </template>
-    <template v-if="selected">
+    <template v-if="geographicArea">
       <div class="middle separate-top">
         <span data-icon="ok" />
-        <span class="separate-right"> {{ (selected['label'] ? selected.label : selected.name) }}</span>
+        <span class="separate-right"> {{ geographicArea.name }}</span>
         <span
           class="circle-button button-default btn-undo"
-          @click="clearSelection"
+          @click="selectGeographicArea()"
         />
       </div>
     </template>
@@ -73,8 +73,10 @@
 
 <script>
 
+import { GetterNames } from '../../store/getters/getters'
+import { ActionNames } from '../../store/actions/actions'
 import SmartSelector from 'components/smartSelector.vue'
-import { GetGeographicAreaByCoords, GetGeographicArea } from '../../request/resources.js'
+import { GetGeographicAreaByCoords } from '../../request/resources.js'
 import convertDMS from 'helpers/parseDMS.js'
 import ModalComponent from 'components/modal'
 
@@ -95,6 +97,9 @@ export default {
     },
     verbatimLongitude () {
       return this.collectingEvent.verbatim_longitude
+    },
+    geographicArea () {
+      return this.$store.getters[GetterNames.GetGeographicArea]
     }
   },
   data () {
@@ -103,21 +108,13 @@ export default {
       showModal: false,
       areasByCoors: [],
       geoId: undefined,
-      geographicArea: undefined,
       ajaxCall: undefined,
       delay: 1000
     }
   },
   watch: {
     geographicAreaId (newVal) {
-      if (newVal) {
-        GetGeographicArea(newVal).then(response => {
-          this.collectingEvent.geographicArea = response.body
-          this.selected = response.body
-        })
-      } else {
-        this.clearSelection()
-      }
+      this.$store.dispatch(ActionNames.LoadGeographicArea, newVal)
     },
     verbatimLongitude () {
       this.getGeographicByVerbatim()
@@ -127,14 +124,8 @@ export default {
     }
   },
   methods: {
-    clearSelection () {
-      this.selected = undefined
-      this.collectingEvent.geographic_area_id = null
-      this.collectingEvent.geographicArea = undefined
-    },
     selectGeographicArea (item) {
-      this.selected = item
-      this.collectingEvent.geographic_area_id = item.id
+      this.$store.dispatch(ActionNames.LoadGeographicArea, item?.id)
     },
     getByCoords (lat, long) {
       GetGeographicAreaByCoords(lat, long).then(response => {

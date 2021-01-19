@@ -51,6 +51,8 @@
 
 <script>
 
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
 import GeoreferenceTypes from '../../const/georeferenceTypes'
 import Dropzone from 'components/dropzone.vue'
@@ -70,10 +72,10 @@ export default {
   computed: {
     queueGeoreferences: {
       get () {
-        return this.collectingEvent.queueGeoreferences
+        return this.$store.getters[GetterNames.GetQueueGeoreferences]
       },
       set (value) {
-        this.collectingEvent.queueGeoreferences = value
+        this.$store.commit(MutationNames.SetQueueGeoreferences, value)
       }
     },
     setAutogeo: {
@@ -173,7 +175,7 @@ export default {
 
           this.coordinatesEXIF.push(geojson)
           if (this.autogeo) {
-            this.collectingEvent.queueGeoreferences.push(geojson)
+            this.queueGeoreferences.push(geojson)
           }
 
           this.setExifCoordinates(coordinates)
