@@ -172,7 +172,7 @@ export default {
     .modal-container {
       max-width: 90vw;
       max-height: 90vh;
-      overflow: scroll;
+      overflow: auto;
     }
 
     .img-thumb {
