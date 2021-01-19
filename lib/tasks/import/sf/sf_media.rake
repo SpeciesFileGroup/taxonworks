@@ -5,9 +5,66 @@ namespace :tw do
       require 'logged_task'
       namespace :media do
 
+        desc 'time rake tw:project_import:sf_import:media:image_files user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define image_files: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
+
+          path = @args[:data_directory] + 'tblImages.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          skipped_file_ids << 0
+
+          default_images = {}
+
+          CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0
+              # HLP: Lets start by not exposing data that could potentially be part of a manuscript for now.
+              # Emit a warning to remind us in the future of the missing images.
+              logger.warn "Skipping ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}, Status = #{row['Status']}"
+              next
+            end
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next if excluded_taxa.include? row['TaxonNameID']
+
+            project_id = get_tw_project_id[row['FileID']].to_i
+
+            begin
+              File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |image_file|
+                Image.create!({
+                  image_file: image_file,
+                  project_id: project_id,
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  created_at: row['CreatedOn'],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                  updated_at: row['LastUpdate'],
+                  identifiers: [
+                    Identifier::Global.new(
+                      identifier: "http://#{get_project_website_name[project_id]}.speciesfile.org/" +
+                                  "Common/basic/ShowImage.aspx?ImageID=#{row['ImageID']}",
+                      project_id: project_id,
+                      created_by_id: get_tw_user_id[row['CreatedBy']],
+                      updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                    )
+                  ]
+                })
+              end
+            rescue => exception
+              logger.error "Unhandled exception ocurred while processing ImageID = #{row['ImageID']}\n\t#{exception.class}: #{exception.message}"
+            end
+
+          end
+
+        end
+
         # NOTE: Use argument 'no_images=1' if you want to create depictions without "uploading" the actual images (works much faster)
         desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define images: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          raise 'TASK NEEDS TO BE REIMPLEMENTED FROM SCRATCH'
           # TODO: SourceID not imported!
 
           # Images table (15 col)
