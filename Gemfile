@@ -59,7 +59,7 @@ gem 'shortener', '~> 0.8.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '>= 4.0.x'
+gem 'webpacker', '~> 5.2', '>= 5.2.1'
 gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.3.3'
