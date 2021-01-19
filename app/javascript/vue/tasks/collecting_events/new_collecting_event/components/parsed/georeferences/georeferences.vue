@@ -12,6 +12,9 @@
       @click="createVerbatimShape">
       Create georeference from verbatim
     </button>
+    <template v-if="verbatimGeoreferenceAlreadyCreated">
+      <span>Lat: {{ georeferenceVerbatimLatitude }}, Long: {{ georeferenceVerbatimLongitude }}<span v-if="georeferenceVerbatimRadiusError">, Radius error: {{ georeferenceVerbatimRadiusError }}</span></span>
+    </template>
     <modal-component
       @close="showModal = false"
       :container-style="{
@@ -116,8 +119,12 @@ import AjaxCall from 'helpers/ajaxCall'
 import ModalComponent from 'components/modal'
 import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
+import { truncateDecimal } from 'helpers/math.js'
 
 import GeoreferenceTypes from '../../../const/georeferenceTypes'
+import { GetterNames } from '../../../store/getters/getters'
+import { MutationNames } from '../../../store/mutations/mutations'
+import { ActionNames } from '../../../store/actions/actions'
 
 export default {
   mixins: [extendCE],
@@ -153,8 +160,17 @@ export default {
     }
   },
   computed: {
+    georeferenceVerbatimLatitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[1]), 6) : undefined
+    },
+    georeferenceVerbatimLongitude () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[0] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[0]), 6) : undefined
+    },
+    georeferenceVerbatimRadiusError () {
+      return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.properties.radius : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).error_radius), 6) : undefined
+    },
     verbatimGeoreferenceAlreadyCreated () {
-      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim })
+      return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif })
     },
     mapGeoreferences () {
       return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate).map(item => JSON.parse(item.geographic_item_attributes.shape)))
@@ -169,22 +185,22 @@ export default {
       return this.collectingEvent.verbatim_longitude
     },
     geographicArea () {
-      return this.collectingEvent.geographicArea?.shape
+      return this.$store.getters[GetterNames.GetGeographicArea]?.shape
     },
     georeferences: {
       get () {
-        return this.collectingEvent.georeferences
+        return this.$store.getters[GetterNames.GetGeoreferences]
       },
       set (value) {
-        this.collectingEvent.georeferences = value
+        this.$store.commit(MutationNames.SetGeoreferences, value)
       }
     },
     queueGeoreferences: {
       get () {
-        return this.collectingEvent.queueGeoreferences
+        return this.$store.getters[GetterNames.GetQueueGeoreferences]
       },
       set (value) {
-        this.collectingEvent.queueGeoreferences = value
+        this.$store.commit(MutationNames.SetQueueGeoreferences, value)
       }
     }
   },
@@ -201,20 +217,15 @@ export default {
     }
   },
   watch: {
-    collectingEventId: {
-      handler (newVal) {
-        if (newVal) {
-          this.processQueue().then(() => {
-            this.getGeoreferences()
-          })
-        }
-      },
-      immediate: true
+    georeferences: {
+      handler() {
+        this.populateShapes()
+      }
     },
     queueGeoreferences: {
       handler (newVal) {
-        if (newVal.length && this.collectingEventId && this.queueGeoreferences.length) {
-          this.processQueue()
+        if (newVal.length && this.collectingEventId) {
+          this.$store.dispatch(ActionNames.ProcessGeoreferenceQueue)
         }
       }
     },
@@ -240,64 +251,17 @@ export default {
       this.queueGeoreferences.push({
         tmpId: Math.random().toString(36).substr(2, 5),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
-        error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
+        error_radius: shape.properties?.radius ? shape.properties.radius : undefined,
         type: GeoreferenceTypes.Leaflet
       })
     },
-    processQueue () {
-      if (this.isProcessing) return
-      return new Promise((resolve, reject) => {
-        const promises = []
-        this.showSpinner = true
-        this.isProcessing = true
-        this.queueGeoreferences.forEach(item => {
-          item.collecting_event_id = this.collectingEventId
-          if (item.id) {
-            promises.push(AjaxCall('patch', `/georeferences/${item.id}.json`, { georeference: item }).then(response => {
-              const index = this.georeferences.findIndex(geo => { return geo.id === response.body.id })
-              this.showSpinner = false
-              this.georeferences[index] = response.body
-              this.$emit('updated', response.body)
-            }, () => {
-              this.showSpinner = false
-            }))
-          } else {
-            promises.push(AjaxCall('post', '/georeferences.json', { georeference: item }).then(response => {
-              if (response.body.error_radius) {
-                response.body.geo_json.properties.radius = response.body.error_radius
-              }
-              this.georeferences.push(response.body)
-              this.$emit('created', response.body)
-              this.$emit('onGeoreferences', this.georeferences)
-            }, response => {
-              this.showSpinner = false
-            }))
-          }
-        })
-
-        Promise.all(promises).then(() => {
-          this.showSpinner = false
-          this.queueGeoreferences = []
-          this.isProcessing = false
-          this.populateShapes()
-          resolve()
-        })
-      })
-    },
     updateGeoreference (shape) {
-      this.queueGeoreferences.push({
+      this.$store.commit(MutationNames.AddGeoreferenceToQueue, {
         id: shape.properties.georeference.id,
         error_radius: (shape.properties.hasOwnProperty('radius') ? shape.properties.radius : undefined),
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: GeoreferenceTypes.Leaflet
-      })
-    },
-    getGeoreferences () {
-      AjaxCall('get', `/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
-        this.georeferences = response.body
-        this.populateShapes()
-        this.$emit('onGeoreferences', this.georeferences)
       })
     },
     populateShapes () {
@@ -333,7 +297,7 @@ export default {
           coordinates: [convertDMS(this.verbatimLng), convertDMS(this.verbatimLat)]
         }
       }
-      this.queueGeoreferences.push({
+      this.$store.commit(MutationNames.AddGeoreferenceToQueue, {
         geographic_item_attributes: { shape: JSON.stringify(shape) },
         collecting_event_id: this.collectingEventId,
         type: GeoreferenceTypes.Verbatim,
@@ -341,7 +305,7 @@ export default {
       })
     },
     addToQueue (data) {
-      this.queueGeoreferences.push(data)
+      this.$store.commit(MutationNames.AddGeoreferenceToQueue, data)
     }
   }
 }

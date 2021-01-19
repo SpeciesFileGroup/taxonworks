@@ -20,7 +20,7 @@
         <td><%= loan_item.disposition %></td>
         <td><%= loan_item_total_string(loan_item) %></td>
         <td><%= loan_item.loan_item_object_type %></td>
-        <%= fancy_metadata_cells_tag(loan_item.loan_item_object) -%>
+        <%= fancy_metadata_cells_tag(loan_item) -%>
       <% end %>
   <% end %>
   </tbody>

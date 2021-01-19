@@ -43,8 +43,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Turn off autocomplete on new taxon name task
 - Replaced display name attribute for object_label in parent autocomplete on New taxon name task
 - Filter task by name only [#1962]
+- Search geographic area by verbatim coordinates on new collecting event
+- Show coordinates from verbatim georeference
+- Parsed verbatim label to fields
+- Parsed EXIF coordinates to verbatim fields
 
 ### Fixed
+- Loan items reference proper housekeeping in table
 - Line links of batch-preview results
 - broken API download link for exported references [#1908]
 - removed BASIS task stub [#1716]
@@ -52,6 +57,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `is_community?` reporting `false` for some models without `project_id`
 - New source after cloning not display changes on authors / editors lists
 - Edit taxon name firing multiple updates when updating gender [#1970]
+- Correct image size on image viewer
+- Save pages before clone person [#1977]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
