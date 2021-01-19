@@ -161,7 +161,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         prefix: name[:title] || name[:appellation]
       }
 
-      Person.find_by(attributes) || Person::Unvetted.create!(attributes)
+      # self.import_dataset.derived_people.merge(Person.where(attributes)).first || # TODO: Doesn't work, fails to detect Person subclasses. Why (besides explanation in Shared::OriginRelationship)?
+      Person.where(attributes).joins(:related_origin_relationships).merge(
+        OriginRelationship.where(old_object: self.import_dataset)
+      ).first ||
+      Person::Unvetted.create!(attributes.merge({ # TODO: If name is used multiple times on dataset it changes to Person::Vetted (by vet_person in models/person.rb I guess). Is it OK? How can it be prevented?
+        related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
+      }))
     end
   end
 

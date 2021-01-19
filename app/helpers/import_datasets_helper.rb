@@ -7,7 +7,7 @@ module ImportDatasetsHelper
 
   def import_dataset_link(import_dataset)
     return nil if import_dataset.nil?
-    link_to(import_dataset_tag(import_dataset).html_safe, import_dataset)
+    link_to(import_dataset_tag(import_dataset).html_safe, import_dataset.becomes(ImportDataset))
   end
 
   def import_dataset_download(import_dataset)
