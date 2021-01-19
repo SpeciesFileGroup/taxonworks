@@ -155,11 +155,6 @@ export default {
      width: 100%
    }
   }
-  .modal-container {
-    width: auto;
-    min-width: 200px;
-    max-width: 100vh;
-  }
   .CodeMirror {
     min-height: 100px;
     height: 100px;
