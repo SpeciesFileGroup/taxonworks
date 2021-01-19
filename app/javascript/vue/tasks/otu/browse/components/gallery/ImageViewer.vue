@@ -35,12 +35,14 @@
             placeholder="Caption"/>
         </div>
         <div class="flex-separate">
-          <button
-            type="button"
-            class="button normal-input button-submit"
-            @click="updateDepiction">
-            Update
-          </button>
+          <div>
+            <button
+              type="button"
+              class="button normal-input button-submit"
+              @click="updateDepiction">
+              Update
+            </button>
+          </div>
           <div class="horizontal-left-content">
             <ul class="context-menu no_bullets">
               <li class="horizontal-left-content">
@@ -65,9 +67,9 @@
             <h3 v-if="attributionsList.length">Attributions</h3>
             <template v-for="(attribution, index) in attributionsList">
               <ul class="no_bullets">
-                <li v-for="persons in attribution"> {{persons}} </li>
+                <li v-for="persons in attribution"><span v-html="persons"/></li>
               </ul>
-              License: {{ attributions[index].license }}
+              License: <b>{{ attributions[index].license }}</b>
             </template>
           </div>
           <div>
@@ -112,7 +114,7 @@ export default {
     attributionsList () {
       return this.attributions.map(attr =>
         roleTypes.map(role =>
-          attr[role] ? `${roleLabel(role)}: ${attr[role].map(item => item.person.object_tag).join('; ')}` : []).filter(arr => arr.length))
+          attr[role] ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person?.object_tag || item.organization.name).join('; ')}</b>` : []).filter(arr => arr.length))
     },
     originalCitation () {
       return this.citations.filter(citation => citation.is_original).map(citation => citation.citation_source_body).join('; ')
