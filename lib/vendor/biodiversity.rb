@@ -97,7 +97,7 @@ module TaxonWorks
 
         # @return [Boolean]
         def parseable
-          @parseable = parse_result[:parsed] && parse_result[:unparsedTail].blank? if @parseable.nil?
+          @parseable = parse_result[:parsed] && parse_result[:tail].blank? if @parseable.nil?
           @parseable 
         end
 
@@ -109,15 +109,12 @@ module TaxonWorks
 
         # @return [Hash]
         def detail
-          if parseable 
-            return parse_result[:details].first if parse_result[:details]
-          end
-          {}
+          parse_result[:details] || {}
         end
 
         # @return [String, nil]
         def genus
-          (detail[:genus] && detail[:genus][:value]) || (detail[:uninomial] && detail[:uninomial][:value])
+          parse_result[:words]&.detect {|w| %{UNINOMIAL GENUS}.include?(w[:wordType])}&.dig(:normalized)
         end
 
         # @return [String, nil] 
@@ -149,12 +146,7 @@ module TaxonWorks
 
         # @return [String, nil]
         def infraspecies(biodiversity_rank)
-          if m = detail[:infraspecificEpithets]
-            m.each do |n|
-              return n[:value] if n[:rank] == biodiversity_rank
-            end
-          end
-          nil 
+          detail.dig(:infraSpecies, :infraSpecies)&.detect { |e| e[:rank] == biodiversity_rank }&.dig(:value)
         end
 
         # @return [Integer]
@@ -392,8 +384,8 @@ module TaxonWorks
         end
 
         def author_word_position 
-          if a = parse_result[:positions]
-            b = (a.detect { |v| v[0] == 'authorWord'})&.at(1)
+          if a = parse_result[:words]
+            b = (a.detect { |v| v[:wordType] == 'AUTHOR_WORD'})&.dig(:start)
             p = [name.length, b].compact.min
           end
         end
