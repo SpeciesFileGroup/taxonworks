@@ -61,6 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Correct image size on image viewer
 - Save pages before clone person [#1977]
 - Correct count display of attributions [#1979]
+- Uncheck collecting event option [#1980]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
@@ -74,6 +75,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
 [#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
 [#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
+[#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
 
 ## [0.15.1] - 2020-12-14
 ### Added

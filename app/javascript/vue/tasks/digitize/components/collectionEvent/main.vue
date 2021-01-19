@@ -33,6 +33,7 @@
             klass="CollectionObject"
             pin-section="CollectingEvents"
             pin-type="CollectingEvent"
+            v-model="collectingEvent"
             @selected="setCollectingEvent"/>
           <div class="horizontal-right-content">
             <lock-component
@@ -102,8 +103,13 @@ export default {
     LockComponent
   },
   computed: {
-    collectingEvent () {
-      return this.$store.getters[GetterNames.GetCollectionEvent]
+    collectingEvent: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionEvent]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionEvent, value)
+      }
     },
     actualComponent () {
       return (this.view + 'Component')
