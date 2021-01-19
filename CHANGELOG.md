@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Utilities::Params helpers
 - Route linting specs
 - New collecting event task [#1530]
 - "Quick" collection objects options from new collecting event task

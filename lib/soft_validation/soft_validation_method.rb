@@ -3,38 +3,37 @@ module SoftValidation
   # A metadata structure for each soft validation
   class SoftValidationMethod
 
-    # @param[Symbol]
+    # @param [Symbol]
     # the soft validation method
     attr_accessor :method
 
-    # @param[Symbol]
+    # @param [Symbol]
     # the (base) klass that has method
     attr_accessor :klass
 
-    # @return[String, nil]
+    # @return [String, nil]
     #  human name/title of this soft validation
     attr_accessor :name
 
-    # @return[String, nil]
+    # @return [String, nil]
     # human description of this soft validation
     attr_accessor :description
 
-    # @return[Array, nil]
+    # @return [Array, nil]
     # of symbols
     attr_accessor :resolution
 
-    # @return[Symbol, nil]
+    # @return [Symbol, nil]
     #  assign this soft validation method to a set
     attr_accessor :set
 
-    # @return[Boolean]
-    #   by default everything is fixable
-    #      nil = fixable
-    #      true = fixable (default value, not necessary option)
-    #      false = not fixable
-    #   manual assertion of whether the method has a fix
-    #   !! This needs better reconcilition ultimately, as it is not coupled with sv_method inspection !!
-    attr_accessor :has_fix
+    # @return [Symbol, nil]
+    #  the name of the method that will fix this issue 
+    attr_accessor :fix
+
+    # @return [Boolean]
+    #   flagged methods are not executed by default
+    attr_accessor :flagged
 
     # @param [Hash] args
     def initialize(options)
@@ -43,7 +42,7 @@ module SoftValidation
       options.each do |k,v|
         send("#{k}=", v)
       end
-      @has_fix = true if @has_fix.nil?
+
     end
 
     # @param [Array] v
@@ -73,9 +72,13 @@ module SoftValidation
     end
 
     # @return [Boolean]
-    #   alias for has_fix 
     def fixable?
-      has_fix
+      @fix.kind_of?(Symbol)
+    end
+
+    # @return [Boolean]
+    def flagged? 
+      @flagged == true
     end
 
     # @return[String]
@@ -83,6 +86,18 @@ module SoftValidation
     def to_s
       [(name.blank? ? "#{method} (temporary name)" : name), (description.blank? ? '(no description provided)' : description)].join(': ')
     end
+
+    private
+
+    # @param fixable [Boolean, nil] 
+    #   nil - either, else matching
+    def matches?(fixable, is_flagged)
+      a = fixable.nil? ? true : (fixable? == fixable)
+      b = is_flagged == true ? flagged? == true : true
+
+      a && b
+    end
+    
   end
 
 end

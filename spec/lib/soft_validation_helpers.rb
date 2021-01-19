@@ -1,9 +1,10 @@
-require 'rails_helper'
+require_relative '../../lib/soft_validation'
+# require 'rails_helper'
 
 # Stub class for testing. Mimics only
 # the ActiveRecord Model methods we need to test, 
 # but see also FakeTable for future refactoring.
-class Softy 
+class Softy
   include SoftValidation
 
   # stub AR ancestors method

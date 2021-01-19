@@ -72,7 +72,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_validate_parent_rank
       if self.rank_class && self.id == self.cached_valid_taxon_name_id
-        if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
+        if rank_string == 'NomvnclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
           soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'", resolution: 'path_to_edit_protomy')
@@ -1018,15 +1018,20 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    # @proceps: this is not fixable given this logic only
     def sv_missing_author
       if self.author_string.nil? && is_available?
-        soft_validations.add(:verbatim_author, 'Author is missing', fix: :sv_fix_missing_author, success_message: 'Author was updated')
+        soft_validations.add(
+          :verbatim_author, 'Author is missing',
+          #  fix: :sv_fix_missing_author,
+          success_message: 'Author was updated')
       end
     end
 
+    # @proceps: TODO: was not fixable
     def sv_missing_year
       if self.year_integer.nil? && is_available?
-        soft_validations.add(:year_of_publication, 'Year is missing', fix: :sv_fix_missing_year, success_message: 'Year was updated')
+        soft_validations.add(:year_of_publication, 'Year is missing', success_message: 'Year was updated')
       end
     end
 
@@ -1064,8 +1069,11 @@ module Protonym::SoftValidationExtensions
 
     def sv_protonym_to_combination
       if convertable_to_combination?
-        soft_validations.add(:base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
-                             fix: :becomes_combination, success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", fix_trigger: :requested)
+        soft_validations.add(
+          :base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
+          fix: :becomes_combination,
+          success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination",
+          fix_trigger: :requested)
       end
     end
 
@@ -1077,7 +1085,11 @@ module Protonym::SoftValidationExtensions
 
     def sv_year_is_not_required
       if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
-        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', fix: :sv_fix_year_is_not_required, success_message: 'Year of publication was deleted')
+        soft_validations.add(
+          :year_of_publication, 'Year of publication is not required, it is derived from the source',
+          fix: :sv_fix_year_is_not_required,
+          success_message: 'Year of publication was deleted'
+        )
       end
     end
 
@@ -1088,7 +1100,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_author_is_not_required
       if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
-        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', fix: :sv_fix_author_is_not_required, success_message: 'Taxon name verbatim author was deleted')
+        soft_validations.add(
+          :verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles',
+          fix: :sv_fix_author_is_not_required,
+          success_message: 'Taxon name verbatim author was deleted')
       end
     end
 
@@ -1099,7 +1114,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_misspelling_roles_are_not_required
       if !self.roles.empty? && self.source && (has_misspelling_relationship? || name_is_misapplied?)
-        soft_validations.add(:base, 'Taxon name author role is not required for misspellings and misapplications', fix: :sv_fix_misspelling_roles_are_not_required, success_message: 'Roles were deleted')
+        soft_validations.add(
+          :base, 'Taxon name author role is not required for misspellings and misapplications',
+          fix: :sv_fix_misspelling_roles_are_not_required,
+          success_message: 'Roles were deleted')
       end
     end
 
@@ -1112,7 +1130,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_misspelling_author_is_not_required
       if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
-        soft_validations.add(:verbatim_author, 'Verbatim author is not required for misspellings and misapplications', fix: :sv_fix_misspelling_author_is_not_required, success_message: 'Verbatim author was deleted')
+        soft_validations.add(
+          :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
+          fix: :sv_fix_misspelling_author_is_not_required,
+          success_message: 'Verbatim author was deleted')
       end
     end
 
@@ -1123,7 +1144,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_misspelling_year_is_not_required
       if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
-        soft_validations.add(:year_of_publication, 'Year is not required for misspellings and misapplications', fix: :sv_fix_misspelling_year_is_not_required, success_message: 'Year was deleted')
+        soft_validations.add(
+          :year_of_publication, 'Year is not required for misspellings and misapplications',
+          fix: :sv_fix_misspelling_year_is_not_required,
+          success_message: 'Year was deleted')
       end
     end
 
@@ -1131,7 +1155,6 @@ module Protonym::SoftValidationExtensions
       self.update_column(:year_of_publication, nil)
       return true
     end
-
 
     #  def sv_fix_add_relationship(method, object_id)
     #    begin

@@ -27,12 +27,15 @@ module SoftValidation
       @soft_validations = []
     end
 
-    # @param [Symbol] attribute a column attribute or :base
-    # @param [String] message a message describing the soft validation to the user, i.e. what has gone wrong
-    # @param [Hash{fix: :method_name, success_message: String, failure_message: String }] options the method identified by :fix should fully resolve the SoftValidation.
+    # @param attribute [Symbol]
+    #   a column attribute or :base
+    # @param message [String] 
+    #   a message describing the soft validation to the user, i.e. what has gone wrong
+    # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
+    #   the method identified by :fix should fully resolve the SoftValidation.
     def add(attribute, message,  options = {})
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
-      raise SoftValidationError, 'invalid :fix_trigger' if !options[:fix_trigger].blank? && ![:all, :automatic, :requested].include?(options[:fix_trigger])
+      # raise SoftValidationError, 'invalid :fix_trigger' if !options[:fix_trigger].blank? && ![:all, :automatic, :requested].include?(options[:fix_trigger])
       return false if attribute.nil? || message.nil? || message.length == 0
       return false if (options[:success_message] || options[:failure_message]) && !options[:fix]
 
@@ -40,18 +43,14 @@ module SoftValidation
       options[:message] = message
 
       options[:resolution] = resolution_for(options[:resolution_with])
+
+      # TODO: FIX?! shouldn't be used ... 
       options.delete(:resolution_with)
 
       sv = SoftValidation.new(options)
-      sv.fix_trigger ||= :automatic
 
       @soft_validations << sv
     end
-
-    #  def soft_validations(scope = :all)
-    #    set = ( scope == :all ? [:automatic, :requested] : [scope] )
-    #    @soft_validations.select{|v| set.include?(v.fix_trigger)}
-    #  end
 
     # @return [Boolean]
     #   soft validations have been run
@@ -85,7 +84,7 @@ module SoftValidation
       if fixes_run?
         soft_validations.each do |v|
           messages[v.attribute] ||= []
-          messages[v.attribute] << (v.result_message)
+          messages[v.attribute].push << v.result_message
         end
       end
       messages
