@@ -64,7 +64,6 @@ export default {
         }]
       }
       Object.assign(configs, this.configs)
-      console.log(configs)
       configs.element = configs.element || this.$refs.markdown.firstElementChild
       configs.initialValue = configs.initialValue || this.value
       this.simplemde = new EasyMDE(configs)
@@ -119,7 +118,6 @@ export default {
       const codemirror = this.simplemde.codemirror
       const keys = codemirror.getOption('extraKeys')
       const key = GetOSKey().charAt(0).toUpperCase() + GetOSKey().slice(1)
-      console.log(key)
       keys[`Shift-${key}-L`] = () => {
         this.openCustomLinks()
       }

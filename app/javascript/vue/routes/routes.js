@@ -10,6 +10,8 @@ const RouteNames = {
   BrowseNomenclature: '/tasks/nomenclature/browse',
   NomenclatureStats: '/tasks/nomenclature/stats',
   TypeMaterial: '/tasks/type_material/edit_type_material',
+  NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+  PrintLabel: '/tasks/labels/print_labels',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key'
 }
 

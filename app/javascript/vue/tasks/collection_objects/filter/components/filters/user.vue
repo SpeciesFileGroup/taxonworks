@@ -54,9 +54,9 @@
             v-model="user.user_date_end">
           <button
             type="button"
-            :disabled="!user.user_date_start"
             class="button normal-input button-default margin-small-left"
-            @click="setActualDate">
+            @click="setActualDateStart"
+            @dblclick="setActualDateEnd">
             Now
           </button>
         </div>
@@ -132,7 +132,10 @@ export default {
     }
   },
   methods: {
-    setActualDate () {
+    setActualDateStart () {
+      this.user.user_date_start = new Date().toISOString().split('T')[0]
+    },
+    setActualDateEnd () {
       this.user.user_date_end = new Date().toISOString().split('T')[0]
     }
   }

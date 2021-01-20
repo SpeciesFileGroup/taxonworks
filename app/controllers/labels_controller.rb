@@ -48,7 +48,7 @@ class LabelsController < ApplicationController
     respond_to do |format|
       if @label.save
         format.html { redirect_to @label, notice: 'Label was successfully created.' }
-        format.json { render :show, status: :created, location: @label }
+        format.json { render :show, status: :created, location: @label.metamorphosize }
       else
         format.html { render :new }
         format.json { render json: @label.errors, status: :unprocessable_entity }
@@ -62,7 +62,7 @@ class LabelsController < ApplicationController
     respond_to do |format|
       if @label.update(label_params)
         format.html { redirect_to @label, notice: 'Label was successfully updated.' }
-        format.json { render :show, status: :ok, location: @label }
+        format.json { render :show, status: :ok, location: @label.metamorphosize }
       else
         format.html { render :edit }
         format.json { render json: @label.errors, status: :unprocessable_entity }
@@ -92,7 +92,8 @@ class LabelsController < ApplicationController
 
     def label_params
       params.require(:label).permit(
-        :text, :total, :style, :is_copy_edited, :is_printed, :label_object_id, :label_object_type,
+        :text, :total, :style, :is_copy_edited, :is_printed, :type,
+        :label_object_id, :label_object_type,
         :annotated_global_entity
       )
     end

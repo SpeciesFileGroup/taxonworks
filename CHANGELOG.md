@@ -7,16 +7,80 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Route linting specs
+- New collecting event task [#1530]
+- "Quick" collection objects options from new collecting event task
+- New WKT georeference inputs
+- Generate label (alpha), pastes values into print label input 
+- Collecting event navigation options (next/previous with/out <many things>
+- Nested_attributes for Labels
+- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
+- Collection object/and collecting event navigation options/bridges
+- `/collecting_events/preview?<filter_params>` a preview look for brief tables
+- Subclasses for labels:`Label::QrCode`, `Label::Code128`
+- Include `rqrcode`, `barby` for barcode rendering
+- Add `label` attribute to Label JSON response that renders QR code
+- Add accomodation for printing pages of barcode-based labels
+- Add `Georeference::Wkt` an anonymous WKT based georeference assertion
+- Add option to disable namecasing when Person is created from `/people/new` [#1967] 
+- Full CASTOR (taxon names batch load) example template, CASTOR preview notices
+- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
+- Add image attributions, original citation and editor options in image viewer [#1978]
+
 ### Changed
-- `protonym.has_misspelling_relationship?` is pure SQL
+- Some tasks route names were "malformed" and renamed
+- ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
+- Setting `Identifier#cached` uses a build getter to enable Label building
+- Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
+- Tweak to how `pinned?` is calculated trying to eliminate database calls
+- Minor cleanup of batch preview layouts
+- Changed softvalidation message for names being on Official ICZN lists
 - Fetch codecov, seedback and closure_tree gems from RubyGems.
 - Updated gems (`bundle update` without altering `Gemfile`).
+- Remove `no_leaves`= true from taxon name on filter images task [#1953]
+- Turn off autocomplete feature on vue autocomplete [#1956]
+- Limited CoLDP exports runtime to 1 hour and 2 attemps.
+- Turn off autocomplete on new taxon name task
+- Replaced display name attribute for object_label in parent autocomplete on New taxon name task
+- Filter task by name only [#1962]
+- Search geographic area by verbatim coordinates on new collecting event
+- Show coordinates from verbatim georeference
+- Parsed verbatim label to fields
+- Parsed EXIF coordinates to verbatim fields
 
 ### Fixed
 - CoLDP [sic], errant chresonym, and basionym ids for misspellings
+- Loan items reference proper housekeeping in table
+- Line links of batch-preview results
+- broken API download link for exported references [#1908]
+- removed BASIS task stub [#1716]
+- `/api/v1/notes` project scoping [#1958]
+- `is_community?` reporting `false` for some models without `project_id`
+- New source after cloning not display changes on authors / editors lists
+- Edit taxon name firing multiple updates when updating gender [#1970]
+- Correct image size on image viewer
+- Save pages before clone person [#1977]
+- Correct count display of attributions [#1979]
+- Uncheck collecting event option [#1980]
+
+[#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
+[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
+[#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
+[#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
+[#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
+[#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
+[#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
+[#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
+[#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
 
 ## [0.15.1] - 2020-12-14
 ### Added
+- `Person` can not be active for > 119 years
 - Show buffered values in `Task - Browse collection objects` [#1931]
 - Default pin button on Uniquify people task
 - Checkbox to Select/unselect all match people on Uniquify people task [#1921]

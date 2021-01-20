@@ -34,15 +34,31 @@ class Label < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Depictions
+  include Shared::PolymorphicAnnotator
   include Shared::IsData
 
-  include Shared::PolymorphicAnnotator
   polymorphic_annotates('label_object')
 
   ignore_whitespace_on(:text)
 
+  attr_accessor :text_method
+
+  before_validation :stub_text, if: Proc.new { |c| c.text_method.present? }
+
+  after_save :set_text, if: Proc.new { |c| c.text_method.present? }
+
   validates_presence_of :text, :total
 
   scope :unprinted, -> { where(is_printed: false) }
+
+  protected
+
+  def set_text
+    update_column(:text, label_object.reload.send(text_method.to_sym))
+  end
+
+  def stub_text
+    assign_attributes(text:  'STUB')
+  end
 
 end

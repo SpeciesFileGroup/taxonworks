@@ -1,12 +1,13 @@
 <h2> Batch preview </h2>
-
 <% if @result.valid? -%>
-    <p> To complete this batch import, select the file again and click create:
-      <%= content_for :batch_form -%>
-    </p>
+  <div><span class="feedback feedback-info"> To complete this batch import, select the file again and click create.</span></div>
+  <h3> Batch form </h3> 
+  <%= content_for :batch_form -%>
 <% end %>
 
+<hr>
 <%= render partial: 'shared/data/all/batch_load/import_file_properties' %>
+<hr>
 
 <h3> Line breakdown </h3>
 <% if content_for?(:line_breakdown) -%>
@@ -18,8 +19,8 @@
         <th class="four_character_width">line</th>
         <th class="four_character_width">data count</th>
         <th class="four_character_width">valid count*</th>
-        <th class="one_third_width"> data errors</th>
-        <th> parse errors</th>
+        <th class="one_third_width">data errors</th>
+        <th>parse errors</th>
       </tr>
 
       <% @result.sorted_processed_rows.each do |i, rp| -%>
@@ -32,7 +33,6 @@
           </tr>
       <% end -%>
     </table>
-
 <% end %>
 
 <h3> Input file </h3>

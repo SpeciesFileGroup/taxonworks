@@ -27,7 +27,7 @@ gem 'rmagick', '~> 4.0'
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 2.1'
+gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 2.0'
 gem 'postgresql_cursor', '~> 0.6.1'
@@ -59,7 +59,7 @@ gem 'shortener', '~> 0.8.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '>= 4.0.x'
+gem 'webpacker', '~> 5.2', '>= 5.2.1'
 gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.3.3'
@@ -87,7 +87,11 @@ gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
-gem 'rgb'
+gem 'rgb', '~> 0.1'
+
+# Drawing
+gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
+gem 'barby', '~> 0.6.8'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
@@ -130,7 +134,7 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
-  gem 'better_errors', '~> 2.4'
+  gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
@@ -150,7 +154,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.2.13'
+  gem 'codecov', '~> 0.3.0'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'

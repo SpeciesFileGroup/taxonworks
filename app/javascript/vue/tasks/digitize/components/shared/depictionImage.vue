@@ -7,16 +7,14 @@
       <h3 slot="header">View</h3>
       <div slot="body">
         <template>
-          <div class="img-box">
+          <div class="img-box image-container">
             <img
               class="img-maxsize img-fullsize"
               v-if="fullSizeImage"
               @click="fullSizeImage = false"
               :src="depiction.svg_view_box != null ? 
                 getImageUrl(depiction.image.id, depiction.svg_view_box, depiction.image.width, depiction.image.height) : 
-                depiction.image.image_display_url"
-              :height="depiction.image.height"
-              :width="depiction.image.width">
+                depiction.image.image_display_url">
             <img
               v-else
               class="img-maxsize img-normalsize"
@@ -154,9 +152,6 @@ export default {
 </script>
 <style lang="scss">
   .depiction-thumb-container {
-    .modal-container {
-     max-width: 100vh;
-    }
     margin: 4px;
     .img-thumb {
       cursor: pointer;
