@@ -115,7 +115,7 @@ module Export::Coldp::Files::Taxon
       }
 
       otus.each do |o|
-        next unless o.taxon_name && o.taxon_name.is_valid?
+        next unless o.taxon_name_id && o.taxon_name.is_valid?
 
         # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU ?
 

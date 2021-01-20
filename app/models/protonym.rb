@@ -645,6 +645,7 @@ class Protonym < TaxonName
     s.blank? ? nil : s
   end
 
+  # @return [Hash]
   #
   # {
   #  genus: ["", 'Aus' ],
@@ -706,12 +707,13 @@ class Protonym < TaxonName
   end
 
   # @return [[rank_name, name], nil]
+  #   Used in ColDP export
   def original_combination_infraspecific_element(elements = nil)
     elements ||= original_combination_elements
 
     # TODO: consider plants/other codes?
     [:form, :variety, :subspecies].each do |r|
-      return [r.to_s, original_combination_elements[r].last] if original_combination_elements[r]
+      return [r.to_s, elements[r].last] if elements[r]
     end
     nil
   end

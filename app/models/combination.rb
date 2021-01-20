@@ -165,7 +165,7 @@ class Combination < TaxonName
   soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates, has_fix: false)
   soft_validate(:sv_source_not_older_than_protonyms, set: :dates, has_fix: false)
 
-# @return [Protonym Scope]
+  # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery

@@ -35,7 +35,14 @@ module Export::Coldp::Files::Name
         ::TaxonName::NOMEN_VALID[taxon_name.nomenclatural_code]
       else
         c = taxon_name.taxon_name_classifications_for_statuses.order_by_youngest_source_first.first
-        c ? c.class::NOMEN_URI : nil # We should also infer status from TaxonNameRelationship see
+
+        # We should also infer status from TaxonNameRelationship and be more specific, but if CoL doesn't
+        # use NOMEN this won't mean much
+        #
+        # Note: We supply `nil` when relationship is used here because it is declared in synonym table.
+        # Note: This means that the *type* of synonym is lost (e.g. Misspelling)
+
+        c ? c.class::NOMEN_URI : nil
       end
     end
   end
@@ -47,13 +54,24 @@ module Export::Coldp::Files::Name
     e = t.original_combination_elements
 
     infraspecific_element = t.original_combination_infraspecific_element(e)
-    rank = infraspecific_element ? infraspecific_element.first : t.rank
+
+    rank = nil
+    if infraspecific_element
+      infraspecific_element.first
+    else
+      [:subspecies, :species, :subgenus, :genus].each do |r|
+        if e[r]
+          rank = r
+          break
+        end
+      end
+    end
 
     genus, subgenus, species = nil, nil, nil
 
     if e[:genus]
       if e[:genus][1] =~ /NOT SPECIFIED/
-        genus = nil 
+        genus = nil
       else
         genus = e[:genus][1]
       end
@@ -61,7 +79,7 @@ module Export::Coldp::Files::Name
 
     if e[:subgenus]
       if e[:subgenus][1] =~ /NOT SPECIFIED/
-        subgenus = nil 
+        subgenus = nil
       else
         subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
       end
@@ -69,7 +87,7 @@ module Export::Coldp::Files::Name
 
     if e[:species]
       if e[:species][1] =~ /NOT SPECIFIED/
-        species = nil 
+        species = nil
       else
         species = e[:species][1]
       end
@@ -131,8 +149,8 @@ module Export::Coldp::Files::Name
 
       # why we getting double
       unique = {}
-     
-      otu.taxon_name.self_and_descendants.each do |name|
+
+      otu.taxon_name.self_and_descendants.that_is_valid.each do |name|
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
         #
@@ -144,61 +162,63 @@ module Export::Coldp::Files::Name
         #
         # infragenericEpithet needs to handle subsection (NomenclaturalRank::Icn::GenusGroup::Subsection)
 
-        if name.is_valid?
+        name_total += 1
 
-          name_total += 1
-          data = ::Catalog::Nomenclature::Entry.new(name)
+        #data = ::Catalog::Nomenclature::Entry.new(name)
 
-          data.names.each do |t|
-            source = t.source
+        #data.names.each do |t|
+        name.historical_taxon_names.each do |t|
+          origin_citation = t.origin_citation
 
-            original = Export::Coldp.original_field(t) # Protonym, no parens
-            higher = !t.is_combination? && !t.is_species_rank?
+          original = Export::Coldp.original_field(t) # Protonym, no parens
+          higher = !t.is_combination? && !t.is_species_rank?
 
-            elements = t.full_name_hash if !higher
+          elements = t.full_name_hash if !higher
 
-            basionym_id = t.reified_id
+          basionym_id = t.reified_id
 
-            # higher, valid, combination and not added
-            if higher || t.is_valid? || t.is_combination? # && unique[basionym_id].nil?
-              # unique[basionym_id] = true
-              csv << [
-                t.id,                                               # ID
-                basionym_id,                                        # basionymID
-                t.cached,                                           # scientificName
-                t.cached_author_year,                               # authorship
-                t.rank,                                             # rank
-                (higher ? t.cached : nil),                          # uninomial
-                (higher ? nil : elements['genus']&.last),           # genus and below - IIF species or lower
-                (higher ? nil : elements['subgenus']&.last),        # infragenericEpithet
-                (higher ? nil : elements['species']&.last),         # specificEpithet
-                (higher ? nil : elements['subspecies']&.last),      # infraspecificEpithet
-                source&.id,                                         # publishedInID
-                source&.pages,                                      # publishedInPage
-                t.year_of_publication,                              # publishedInYear
-                original,                                           # original
-                code_field(t),                                      # code
-                nom_status_field(t),                                # nomStatus
-                nil,                                                # link (probably TW public or API)
-                remarks_field(t),                                   # remarks
-              ]
-            end
+          name_string =  higher ? t.name : t.cached
 
-            if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) && unique[basionym_id].nil?
-              unique[basionym_id] = true
-              name_total += 1
-              add_original_combination(t, csv)
-            end
 
-            Export::Coldp::Files::Reference.add_reference_rows([source].compact, reference_csv) if reference_csv && source
+          # higher, valid, combination and not added
+          if higher || t.is_valid? || t.is_combination? # && unique[basionym_id].nil?
+            # unique[basionym_id] = true
+            csv << [
+              t.id,                                               # ID
+              basionym_id,                                        # basionymID
+              name_string,                                        # scientificName
+              t.cached_author_year,                               # authorship
+              t.rank,                                             # rank
+              (higher ? name_string : nil),                          # uninomial
+              (higher ? nil : elements['genus']&.last),           # genus and below - IIF species or lower
+              (higher ? nil : elements['subgenus']&.last),        # infragenericEpithet
+              (higher ? nil : elements['species']&.last),         # specificEpithet
+              (higher ? nil : elements['subspecies']&.last),      # infraspecificEpithet
+              origin_citation&.source_id,                         # publishedInID
+              origin_citation&.pages,                             # publishedInPage
+              t.year_of_publication,                              # publishedInYear
+              original,                                           # original
+              code_field(t),                                      # code
+              nom_status_field(t),                                # nomStatus
+              nil,                                                # link (probably TW public or API)
+              remarks_field(t),                                   # remarks
+            ]
           end
+
+          if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) && unique[basionym_id].nil?
+            unique[basionym_id] = true
+            name_total += 1
+            add_original_combination(t, csv)
+          end
+
+          Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv) if reference_csv && origin_citation
         end
       end
-   
+
       # byebug
       puts Rainbow("----------TOTAL: #{name_total}------").red.bold
- 
+
     end
- end 
+ end
 
 end

@@ -26,9 +26,8 @@ module Export
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
-      
-      a = o.taxon_name.self_and_descendants
-      ::Otu.joins(:taxon_name).where(taxon_name: a)
+
+      ::Otu.joins(taxon_name: [:ancestor_hierarchies]).where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
     end
 
     def self.export(otu_id)
@@ -48,7 +47,6 @@ module Export
 
         zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate( Otu.find(otu_id), ref_csv) }
         zipfile.get_output_stream('Taxon.csv') { |f| f.write Export::Coldp::Files::Taxon.generate( otus, otu_id, ref_csv) }
-
 
         # Sort the refs by full citation string
         sorted_refs = ref_csv.values.sort{|a,b| a[1] <=> b[1]}
