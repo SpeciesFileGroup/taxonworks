@@ -9,14 +9,7 @@ module TaxonWorks
     #
     module Biodiversity
       
-      RANK_MAP = {
-        genus: :uninomial, #  :genus,
-        subgenus: :infragenericEpithet,
-        species: :specificEpithet,
-        subspecies: :infraspecificEpithets,
-        variety: :infraspecificEpithets,
-        form: :infraspecificEpithets
-      }.freeze
+      RANKS = %i{genus subgenus species subspecies variety form}.freeze
 
       class Result
         # query string
@@ -97,7 +90,7 @@ module TaxonWorks
 
         # @return [Boolean]
         def parseable
-          @parseable = parse_result[:parsed] && parse_result[:unparsedTail].blank? if @parseable.nil?
+          @parseable = parse_result[:parsed] && parse_result[:tail].blank? if @parseable.nil?
           @parseable 
         end
 
@@ -109,27 +102,22 @@ module TaxonWorks
 
         # @return [Hash]
         def detail
-          if parseable 
-            return parse_result[:details].first if parse_result[:details]
-          end
-          {}
+          parse_result[:details] || {}
         end
 
         # @return [String, nil]
         def genus
-          (detail[:genus] && detail[:genus][:value]) || (detail[:uninomial] && detail[:uninomial][:value])
+          parse_result[:words]&.detect { |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil] 
         def subgenus
-          detail[:infragenericEpithet] && detail[:infragenericEpithet][:value]
+          (parse_result[:words] || [])[1..]&.detect { |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil]
         def species
-          a = detail
-          (a[:specificEpithet] && a[:specificEpithet][:value]) ||
-            (a[:annotation_identification] && a[:specificEpithet] && a[:specificEpithet][:specificEpithet] && a[:specificEpithet][:specificEpithet][:value]) || nil
+          parse_result[:words]&.detect { |w| 'SPECIES' == w[:wordType] }&.dig(:normalized)
         end
 
         # @return [String, nil]
@@ -149,23 +137,18 @@ module TaxonWorks
 
         # @return [String, nil]
         def infraspecies(biodiversity_rank)
-          if m = detail[:infraspecificEpithets]
-            m.each do |n|
-              return n[:value] if n[:rank] == biodiversity_rank
-            end
-          end
-          nil 
+          detail.dig(:infraSpecies, :infraSpecies)&.detect { |e| e[:rank] == biodiversity_rank }&.dig(:value)
         end
 
         # @return [Integer]
         #   the total monomials in the epithet
         def name_count 
-          detail.keys.count
+          (detail[detail.keys.first].keys - [:authorship]).count
         end
 
         # @return [Symbol, nil] like `:genus`
         def finest_rank
-          RANK_MAP.keys.reverse.each do |k|
+          RANKS.reverse_each do |k|
             return k if send(k)
           end
           nil
@@ -174,10 +157,7 @@ module TaxonWorks
         # @return [Hash, nil]
         #   the Biodiversity authorship hash
         def authorship
-          d = detail[RANK_MAP[finest_rank]]
-          d = d.last if d.kind_of?(Array)
-          return nil unless d && d[:authorship]
-          d[:authorship][:basionymAuthorship]
+          parse_result.dig(:authorship, :originalAuth)
         end
 
         # @return [String, nil]
@@ -196,9 +176,8 @@ module TaxonWorks
         # @return [String, nil]
         def year
           if a = authorship
-            return a[:year][:value] if a[:year]
+            return a.dig(:year, :year)
           end
-          nil
         end
 
         # return only references to ambiguous protonyms
@@ -209,7 +188,7 @@ module TaxonWorks
         # @return [Boolean]
         #   true if for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             if !send(r).nil?
               return false unless !send(r).nil? && !unambiguous_at?(r).nil?
             end
@@ -331,7 +310,7 @@ module TaxonWorks
         def protonym_result
           return @protonym_result if @protonym_result
           h = {}
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             h[r] = protonyms(r).to_a
           end
           @protonym_result = h
@@ -344,7 +323,7 @@ module TaxonWorks
             author: author,
             year: year
           }
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             h[r] = send(r)
           end
           h
@@ -375,7 +354,7 @@ module TaxonWorks
 
         def set_combination
           c = Combination.new
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             c.send("#{r}=", unambiguous_at?(r))
           end
           c
@@ -392,8 +371,8 @@ module TaxonWorks
         end
 
         def author_word_position 
-          if a = parse_result[:positions]
-            b = (a.detect { |v| v[0] == 'authorWord'})&.at(1)
+          if a = parse_result[:words]
+            b = (a.detect { |v| v[:wordType] == 'AUTHOR_WORD'})&.dig(:start)
             p = [name.length, b].compact.min
           end
         end
