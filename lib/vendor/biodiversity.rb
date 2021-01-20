@@ -9,14 +9,7 @@ module TaxonWorks
     #
     module Biodiversity
       
-      RANK_MAP = {
-        genus: :uninomial, #  :genus,
-        subgenus: :infragenericEpithet,
-        species: :specificEpithet,
-        subspecies: :infraspecificEpithets,
-        variety: :infraspecificEpithets,
-        form: :infraspecificEpithets
-      }.freeze
+      RANKS = %i{genus subgenus species subspecies variety form}.freeze
 
       class Result
         # query string
@@ -114,12 +107,12 @@ module TaxonWorks
 
         # @return [String, nil]
         def genus
-          parse_result[:words]&.detect { |w| %{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+          parse_result[:words]&.detect { |w| %w{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil] 
         def subgenus
-          (parse_result[:words] || [])[1..]&.detect { |w| %{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
+          (parse_result[:words] || [])[1..]&.detect { |w| %w{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil]
@@ -155,7 +148,7 @@ module TaxonWorks
 
         # @return [Symbol, nil] like `:genus`
         def finest_rank
-          RANK_MAP.keys.reverse.each do |k|
+          RANKS.reverse_each do |k|
             return k if send(k)
           end
           nil
@@ -195,7 +188,7 @@ module TaxonWorks
         # @return [Boolean]
         #   true if for each parsed piece of there name there is 1 and only 1 result
         def is_unambiguous?
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             if !send(r).nil?
               return false unless !send(r).nil? && !unambiguous_at?(r).nil?
             end
@@ -317,7 +310,7 @@ module TaxonWorks
         def protonym_result
           return @protonym_result if @protonym_result
           h = {}
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             h[r] = protonyms(r).to_a
           end
           @protonym_result = h
@@ -330,7 +323,7 @@ module TaxonWorks
             author: author,
             year: year
           }
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             h[r] = send(r)
           end
           h
@@ -361,7 +354,7 @@ module TaxonWorks
 
         def set_combination
           c = Combination.new
-          RANK_MAP.each_key do |r|
+          RANKS.each do |r|
             c.send("#{r}=", unambiguous_at?(r))
           end
           c
