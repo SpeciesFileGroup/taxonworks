@@ -16,7 +16,7 @@
             v-model="namespace"
             @selected="setNamespace"
           />
-          <template v-if="collectingEvent.tripCode.namespace_id && namespace">
+          <template v-if="tripCode.namespace_id && namespace">
             <div class="middle separate-top">
               <span data-icon="ok" />
               <p
@@ -24,7 +24,7 @@
                 v-html="namespace.name"
               />
               <span
-                v-if="collectingEvent.tripCode.id"
+                v-if="tripCode.id"
                 @click="removeIdentifier"
                 class="circle-button btn-delete"/>
               <span
@@ -41,7 +41,7 @@
         <div class="horizontal-left-content field">
           <input
             type="text"
-            v-model="collectingEvent.tripCode.identifier"
+            v-model="tripCode.identifier"
           >
         </div>
       </div>
@@ -54,6 +54,8 @@
 import SmartSelector from 'components/smartSelector.vue'
 import extendCE from '../mixins/extendCE'
 import { GetNamespace, RemoveIdentifier } from '../../request/resources'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   mixins: [extendCE],
@@ -61,8 +63,16 @@ export default {
     SmartSelector
   },
   computed: {
+    tripCode: {
+      get () {
+        return this.$store.getters[GetterNames.GetIdentifier]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetIdentifier, value)
+      }
+    },
     namespace_id () {
-      return this.collectingEvent.tripCode.namespace_id
+      return this.tripCode.namespace_id
     }
   },
   data () {
@@ -81,15 +91,15 @@ export default {
   },
   methods: {
     setNamespace (namespace) {
-      this.collectingEvent.tripCode.namespace_id = namespace.id
+      this.tripCode.namespace_id = namespace.id
     },
     unsetIdentifier () {
-      this.collectingEvent.tripCode.namespace_id = undefined
-      this.collectingEvent.tripCode.identifier = undefined
+      this.tripCode.namespace_id = undefined
+      this.tripCode.identifier = undefined
       this.namespace = undefined
     },
     removeIdentifier () {
-      RemoveIdentifier(this.collectingEvent.tripCode.id).then(() => {
+      RemoveIdentifier(this.tripCode.id).then(() => {
         this.unsetIdentifier()
       })
     }

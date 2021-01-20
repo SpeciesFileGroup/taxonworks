@@ -865,9 +865,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify ' orders objects by distance from passed object' do
-            expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-                     .limit(3).to_a)
-              .to eq([new_box_e, new_box_b, new_box_a])
+            subject = GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3).limit(3).to_a
+            expect(subject[0..1]).to contain_exactly(new_box_e, new_box_b) # Both boxes are at same distance from p3
+            expect(subject[2..]).to eq([new_box_a])
           end
 
           specify ' orders objects by distance from passed object' do

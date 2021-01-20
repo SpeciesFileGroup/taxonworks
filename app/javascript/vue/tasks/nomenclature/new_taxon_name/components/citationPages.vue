@@ -1,45 +1,38 @@
 <template>
   <input
     type="text"
-    :disabled="!getCitation(citation)"
+    :disabled="!isCitationExist"
     class="pages"
-    @input="autoSave(citation)"
-    :value="getPages(citation)"
+    @input="updatePages(false)"
+    @blur="updatePages(true)"
+    :value="pages"
     placeholder="Pages">
 </template>
 
 <script>
 export default {
   props: ['citation'],
-  data: function () {
-    return {
-      autosave: undefined
+  computed: {
+    pages () {
+      return this.citation?.origin_citation ? this.citation.origin_citation.pages : ''
+    },
+    isCitationExist () {
+      return this.citation?.origin_citation
     }
   },
   methods: {
-    autoSave (item) {
-      this.setPages(this.$el.value, item)
-    },
-    getPages (item) {
-      return (item.hasOwnProperty('origin_citation') ? item.origin_citation.pages : '')
-    },
-    setPages (value, item) {
-      if (item['origin_citation'] == undefined) return
-
-      let citation = {
-        id: item.id,
-        origin_citation_attributes: {
-          id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.id : null),
-          source_id: (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.id : null),
-          pages: value
-        }
+    updatePages (immediate) {
+      if (!this.citation?.origin_citation) return
+      const eventName = immediate ? 'save' : 'setPages'
+      const item = this.citation
+      const newCitation = {
+        id: (item?.origin_citation ? item.origin_citation.id : null),
+        source_id: (item?.origin_citation ? item.origin_citation.source.id : null),
+        pages: this.$el.value
       }
-      if (this.getCitation(this.citation)) {
-        this.$emit('setPages', citation)
+      if (this.isCitationExist) {
+        this.$emit(eventName, newCitation)
       }
-    },
-    getCitation: function (item) {
-      return (item.hasOwnProperty('origin_citation') ? item.origin_citation.source.object_tag : undefined)
     }
   }
 }

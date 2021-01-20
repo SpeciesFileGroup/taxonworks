@@ -8,7 +8,7 @@ const CreateIdentifier = (identifier) => ajaxCall('post', '/identifiers.json', {
 
 const CreateGeoreference = (data) => ajaxCall('post', '/georeferences.json', { georeference: data })
 
-const CreateLabel = data => ajaxCall('post', '/labels.json', data)
+const CreateLabel = data => ajaxCall('post', '/labels.json', { label: data })
 
 const CreateTaxonDetermination = (data) => ajaxCall('post', '/taxon_determinations.json', { taxon_determination: data })
 
@@ -27,6 +27,8 @@ const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects.js
 const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
 const GetCollectingEvents = (params) => ajaxCall('get', '/collecting_events.json', { params: params })
+
+const GetGeoreferences = (id) => ajaxCall('get', '/georeferences.json', { params: { collecting_event_id: id } })
 
 const GetNamespace = (id) => ajaxCall('get', `/namespaces/${id}.json`)
 
@@ -60,7 +62,7 @@ const UpdateDepiction = (id, depiction) => ajaxCall('patch', `/depictions/${id}.
 
 const UpdateIdentifier = (identifier) => ajaxCall('patch', `/identifiers/${identifier.id}.json`, { identifier: identifier })
 
-const UpdateLabel = (id, data) => ajaxCall('patch', `/labels/${id}.json`, data)
+const UpdateLabel = (data) => ajaxCall('patch', `/labels/${data.id}.json`, { label: data })
 
 const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 
@@ -93,6 +95,7 @@ export {
   GetCollectingEvent,
   GetCollectingEvents,
   GetGeographicArea,
+  GetGeoreferences,
   GetLabelsFromCE,
   GetNamespace,
   GetRecentCollectingEvents,

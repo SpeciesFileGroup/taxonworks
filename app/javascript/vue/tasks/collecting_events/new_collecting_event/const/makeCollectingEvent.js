@@ -1,6 +1,3 @@
-import makeLabel from './label'
-import makeTripIdentifier from './makeTripIdentifier'
-
 export default () => {
   return {
     id: undefined,
@@ -45,11 +42,6 @@ export default () => {
     field_notes: undefined,
     units: undefined,
     roles_attributes: [],
-    identifiers_attributes: [],
-    georeferences: [],
-    queueGeoreferences: [],
-    label: makeLabel(),
-    geographicArea: undefined,
-    tripCode: makeTripIdentifier()
+    identifiers_attributes: []
   }
 }
