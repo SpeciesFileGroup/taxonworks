@@ -366,7 +366,7 @@ module Queries
 
       # @return [String]
       def authorship
-        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :originalAuth)
+        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :normalized)
       end
 
       # Note this overwrites the commonly used Geo parent/child!
