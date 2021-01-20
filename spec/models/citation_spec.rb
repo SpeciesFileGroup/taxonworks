@@ -70,56 +70,56 @@ describe Citation, type: :model, group: [:annotators, :citations] do
 
     specify 'no pages' do
       c1.pages = nil
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation pages are not provided')
     end
 
     specify 'one page in range 1' do
       c1.pages = '25'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages).empty?).to be_truthy
     end
 
     specify 'one page in range 2' do
       c1.pages = '25-26'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages).empty?).to be_truthy
     end
 
     specify 'page in out of range 1' do
       c1.pages = '55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
     end
 
     specify 'page in out of range 2' do
       c1.pages = '15'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
     end
 
     specify 'page in out of range 3' do
       c1.pages = '15-25'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
     end
 
     specify 'page in out of range 4' do
       c1.pages = '25-55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
     end
 
     specify 'page in out of range 5' do
       c1.pages = '15-55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
     end
   end

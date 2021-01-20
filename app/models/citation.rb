@@ -1,4 +1,4 @@
-# A Citation is an assertion that the subject (i.e. citation object/record/data instance), 
+# A Citation is an assertion that the subject (i.e. citation object/record/data instance),
 # or some attribute of it, was referenced or originated in a Source.
 #
 # @!attribute citation_object_type
@@ -22,9 +22,9 @@
 #     a specific location/localization for the data in the Source, if you lead with an integer seperated by space or punctation that
 #     integer will be returned as the "first" page and usable in direct linkouts to Documents if available
 #
-# @!attribute is_original 
+# @!attribute is_original
 #   @return [Boolean]
-#     is this the first citation in which the data were observed? 
+#     is this the first citation in which the data were observed?
 #
 class Citation < ApplicationRecord
 
@@ -86,7 +86,7 @@ class Citation < ApplicationRecord
   #    the first integer in the string, as a string
   def first_page
     /(?<i>\d+)/ =~ pages
-    i 
+    i
   end
 
   # @return [Integer, nil]
@@ -140,9 +140,9 @@ class Citation < ApplicationRecord
           vn = t.get_valid_taxon_name
 
           t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
-              cached_valid_taxon_name_id: vn.id)
+            cached: t.get_full_name,
+            cached_html: t.get_full_name_html,
+            cached_valid_taxon_name_id: vn.id)
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
@@ -162,25 +162,24 @@ class Citation < ApplicationRecord
   end
 
   def sv_page_range
-      if pages.blank?
-        soft_validations.add(:pages, 'Citation pages are not provided')
-      elsif !source.pages.blank?
-        matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
-        if matchdata1
-          citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
-          citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
-          matchdata = source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
-          if citMinP && citMaxP && matchdata
-            minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
-            maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
-            minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(source.bibtex_type)
-            unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
-              soft_validations.add(:pages, 'Citation is out of the source page range')
-            end
+    if pages.blank?
+      soft_validations.add(:pages, 'Citation pages are not provided')
+    elsif !source.pages.blank?
+      matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+      if matchdata1
+        citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i
+        citMaxP = matchdata1[2] ? matchdata1[2].to_i : matchdata1[3].to_i
+        matchdata = source.pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
+        if citMinP && citMaxP && matchdata
+          minP = matchdata[1] ? matchdata[1].to_i : matchdata[3].to_i
+          maxP = matchdata[2] ? matchdata[2].to_i : matchdata[3].to_i
+          minP = 1 if minP == maxP && %w{book booklet manual mastersthesis phdthesis techreport}.include?(source.bibtex_type)
+          unless (maxP && minP && minP <= citMinP && maxP >= citMaxP)
+            soft_validations.add(:pages, 'Citation is out of the source page range')
           end
         end
       end
+    end
   end
-
 
 end
