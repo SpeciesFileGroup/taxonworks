@@ -18,11 +18,8 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       catalog_numbers_namespaces: []
     })
 
-    parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
-
-    core_records = records[:core].each_with_index.map do |record, index|
+    core_records = records[:core].map do |record|
       {
-        parse_results: parse_results[index],
         src_data: record,
         basisOfRecord: record["basisOfRecord"]
       }

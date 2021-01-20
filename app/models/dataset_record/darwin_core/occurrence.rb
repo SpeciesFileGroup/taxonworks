@@ -7,22 +7,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        parse_details = metadata.dig("parse_results", "details")&.first
+        parse_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
 
         raise DarwinCore::InvalidData.new({ "scientificName": ["Unable to parse scientific name. Please make sure it is correctly spelled."] }) unless parse_details
 
         names = DWC_CLASSIFICATION_TERMS.map { |t| [t, get_field_value(t)] }
 
-        uninomial = parse_details.dig("uninomial")
-
-        unless uninomial
-          names << ["genus", parse_details.dig("genus", "value")]
-          names << ["subgenus", parse_details.dig("infragenericEpithet", "value")]
-          names << ["species", parse_details.dig("specificEpithet", "value")]
-          names << ["subspecies", parse_details["infraspecificEpithets"]&.first&.dig("value")]
+        unless parse_details[:uninomial]
+          names << ["genus", parse_details[:genus]]
+          names << ["subgenus", parse_details[:subGenus]] # TODO: Change to subgenus when fixed in biodiversity gem
+          names << ["species", parse_details[:species]]
+          names << ["subspecies", parse_details[:infraSpecies]&.first&.dig(:value)] # TODO: Might require change to infraspecies when biodiversity gem get updated
         else
-          names << ["genus", uninomial["parent"]] if uninomial["parent"]
-          names << [/subgen/ =~ uninomial["rank"] ? "subgenus" : nil, uninomial["value"]]
+          names << ["genus", parse_details[:parent]] if parse_details[:parent]
+          names << [/subgen/ =~ parse_details[:rank] ? "subgenus" : nil, parse_details[:uninomial]]
         end
 
         names.reject! { |v| v[1].nil? }
@@ -128,9 +126,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       end
 
       self.save!
-    elsif name == 'scientificName'
-      self.metadata['parse_results'] = Biodiversity::Parser.parse(value || "" )
-      self.save!
     end
   end
 
@@ -165,7 +160,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       Person.where(attributes).joins(:related_origin_relationships).merge(
         OriginRelationship.where(old_object: self.import_dataset)
       ).first ||
-      Person::Unvetted.create!(attributes.merge({ # TODO: If name is used multiple times on dataset it changes to Person::Vetted (by vet_person in models/person.rb I guess). Is it OK? How can it be prevented?
+      Person::Unvetted.create!(attributes.merge({
         related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
       }))
     end

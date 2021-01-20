@@ -13,7 +13,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
       nomenclature_code: "ICN"
     })
 
-    parse_results = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
+    parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
     records_lut = { }
 
     core_records = records[:core].each_with_index.map do |record, index|
@@ -26,12 +26,11 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
         is_hybrid: nil,
         is_synonym: nil,
         parent: record["parentNameUsageID"],
-        parse_results: parse_results[index],
         src_data: record
       }
     end
 
-    core_records.each do |record|
+    core_records.each_with_index do |record, index|
       acceptedNameUsage = records_lut[record[:src_data]["acceptedNameUsageID"]]
 
       if acceptedNameUsage
@@ -44,14 +43,14 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
       record[:parent] = nil if record[:parent].blank?
 
-      parse_results = record[:parse_results]
+      parse_results = parse_results_ary[index]
 
-      record[:is_hybrid] = parse_results[:hybrid]
+      record[:is_hybrid] = !!parse_results[:hybrid]
 
       if not parse_results[:details]
         record[:type] = :unknown
         record[:invalid] = "Name could not be parsed"
-      elsif (parse_results[:authorship] || "")[0] == "("
+      elsif (parse_results.dig(:authorship, :normalized) || "")[0] == "("
         record[:type] = :combination
       else
         record[:type] = :protonym

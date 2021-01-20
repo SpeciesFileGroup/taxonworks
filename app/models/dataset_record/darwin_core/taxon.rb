@@ -1,9 +1,12 @@
 class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
-  KNOWN_KEYS_COMBINATIONS = [
-    ["uninomial"],
-    ["genus", "specificEpithet"],
-    ["genus", "specificEpithet", "infraspecificEpithets"]
+  KNOWN_KEYS_COMBINATIONS = [ # TODO: Review subGenus/infraSpecies when biodiversity gem is updated
+    %i{uninomial},
+    %i{uninomial rank parent},
+    %i{genus species},
+    %i{genus species infraSpecies},
+    %i{genus subGenus species},
+    %i{genus subGenus species infraSpecies}
   ]
 
   def import
@@ -13,18 +16,18 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         
         unless metadata["is_synonym"]
           nomenclature_code = import_dataset.metadata["nomenclature_code"].downcase.to_sym
-          parse_results_details = metadata["parse_results"]["details"].first
+          parse_results_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
 
-          raise "UNKNOWN NAME DETAILS COMBINATION" unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys)
+          raise "UNKNOWN NAME DETAILS COMBINATION" unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
 
-          name_key = parse_results_details.keys.last
+          name_key = (parse_results_details.keys - [:authorship]).last
           name_details = parse_results_details[name_key]
-          name_details = name_details.first if name_details.kind_of?(Array)
 
-          name = name_details["value"]
-          authorship = name_details.dig("authorship", "value")
+          name = name_details.kind_of?(Array) ? name_details.first[:value] : name_details
+
+          authorship = parse_results_details.dig(:authorship, :normalized)
           rank = data_fields[fields_mapping["taxonRank"]]["value"]
-          is_hybrid = metadata["is_hybrid"]
+          is_hybrid = metadata["is_hybrid"] # TODO: NO...
 
           if metadata["parent"].nil?
             parent = project.root_taxon_name
@@ -81,6 +84,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
       end
     rescue StandardError => e
+      raise if Rails.env.development?
       self.status = "Failed"
       self.metadata[:error_data] = {
         exception: {
