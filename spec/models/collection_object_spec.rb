@@ -204,8 +204,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-
-
     context 'soft validation' do
       let(:o) { Specimen.new }
       let(:p) { Person.new }
@@ -213,13 +211,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       context 'accession fields are missing' do
         specify 'accessioned_at is missing' do
           o.accession_provider = p
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:accessioned_at).count).to eq(1)
         end
 
         specify 'accession_recipient is missing' do
           o.accessioned_at = '12/12/2014'
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
 
@@ -227,22 +225,22 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       context 'deaccession fields are missing' do
         specify 'deaccession_reason is missing' do
-          o.deaccessioned_at      = '12/12/2014'
+          o.deaccessioned_at = '12/12/2014'
           o.deaccession_recipient = p
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
 
         end
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
         end
 
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
-          o.deaccessioned_at   = '12/12/2014'
-          o.soft_validate(:missing_deaccession_fields)
+          o.deaccessioned_at = '12/12/2014'
+          o.soft_validate(only_sets: [:missing_deaccession_fields])
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
       end
@@ -301,7 +299,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           specify 'should find 2 records' do
             [co_m2, co_p1b, co_m1a]
             collection_objects = CollectionObject.in_date_range(search_start_date: '1974-03-01',
-                                                                 search_end_date:   '1975-06-30')
+                                                                search_end_date:   '1975-06-30')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b)
           end
         end
@@ -444,7 +442,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       let!(:s1) {Specimen.create}
       let!(:s2) {Specimen.create}
 
-      let!(:i1) { 
+      let!(:i1) {
         FactoryBot.create(
           :identifier_local_import,
           identifier_object: s1,
@@ -509,8 +507,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         expect(sp_4.previous_by_identifier).to eq(sp_2)
       end
 
-      specify '#next_by_identifier, no identifier' do 
-        collection_object.update!(total: 1) 
+      specify '#next_by_identifier, no identifier' do
+        collection_object.update!(total: 1)
         expect(collection_object.next_by_identifier).to eq(nil)
       end
 
@@ -559,7 +557,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       describe 'with sorted identifiers' do
         specify 'without restriction' do
-          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id).sort.reverse ) 
+          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id).sort.reverse )
         end
       end
 
