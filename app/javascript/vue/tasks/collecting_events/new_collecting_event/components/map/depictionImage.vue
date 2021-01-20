@@ -148,9 +148,7 @@ export default {
 </script>
 <style lang="scss">
   .depiction-thumb-container {
-    .modal-container {
-     max-width: 100vh;
-    }
+
     margin: 4px;
     .img-thumb {
       cursor: pointer;

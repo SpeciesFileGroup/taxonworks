@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add option to disable namecasing when Person is created from `/people/new` [#1967] 
 - Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
+- Add image attributions, original citation and editor options in image viewer [#1978]
 
 ### Changed
 - Some tasks route names were "malformed" and renamed
@@ -59,6 +60,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit taxon name firing multiple updates when updating gender [#1970]
 - Correct image size on image viewer
 - Save pages before clone person [#1977]
+- Correct count display of attributions [#1979]
+- Uncheck collecting event option [#1980]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
 [#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
@@ -70,6 +73,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
 [#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
 [#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
+[#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
+[#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
+[#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
 
 ## [0.15.1] - 2020-12-14
 ### Added

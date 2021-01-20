@@ -61,7 +61,7 @@ gem 'shortener', '~> 0.8.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '>= 4.0.x'
+gem 'webpacker', '~> 5.2', '>= 5.2.1'
 gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.3.3'
@@ -98,9 +98,9 @@ gem 'barby', '~> 0.6.8'
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
-gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul' #'~> 1.1.1'
 gem 'dwc_agent', '~> 1.5'
-gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
+gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
+gem 'biodiversity', '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
@@ -157,7 +157,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.2.13'
+  gem 'codecov', '~> 0.3.0'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
