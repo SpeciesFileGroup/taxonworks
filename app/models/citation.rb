@@ -132,6 +132,7 @@ class Citation < ApplicationRecord
     end
   end
 
+  # TODO: This *should only fire on creation, right?!.  Page changes never matter?
   def set_cached_names_for_taxon_names
     if citation_object_type == 'TaxonNameRelationship' && TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(citation_object.try(:type_name))
       begin
