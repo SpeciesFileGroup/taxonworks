@@ -26,9 +26,23 @@ namespace :tw do
             end
           end
         end
-
       end
-    end
 
+      # rake tw:development:linting:list_models_with_soft_validations
+      desc 'list models with soft validations'
+      task  list_models_with_soft_validations: [:environment] do |t|
+        Rails.application.eager_load!
+
+        annotations = []
+        ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|
+          annotations.push d.name if d.respond_to?(:soft_validations) # TODO: not tested && !d.soft_validation_methods[d.name].empty?
+        end
+
+        annotations.each do |a|
+          puts Rainbow(a).bold.blue
+        end
+      end
+
+    end
   end
 end
