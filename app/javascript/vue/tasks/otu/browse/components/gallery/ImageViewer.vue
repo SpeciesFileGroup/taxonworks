@@ -68,8 +68,13 @@
             <template v-for="(attribution, index) in attributionsList">
               <ul class="no_bullets">
                 <li v-for="persons in attribution"><span v-html="persons"/></li>
+                <li v-if="attributions[index].copyright_year">
+                  Copyright year: <b>{{ attributions[index].copyright_year }}</b>
+                </li>
+                <li v-if="attributions[index].license">
+                  License: <b>{{ attributions[index].license }}</b>
+                </li>
               </ul>
-              License: <b>{{ attributions[index].license }}</b>
             </template>
           </div>
           <div>
@@ -160,9 +165,9 @@ export default {
   .depiction-thumb-image {
     display: flex;
     align-items: center;
-    background-color: black;
     width: 100px;
     height: 100px;
+    border: 1px solid black;
   }
 
   .depiction-thumb-container {
@@ -202,7 +207,6 @@ export default {
     .image-container {
       display: flex;
       justify-content: center;
-      background-color: black;
     }
   }
 </style>
