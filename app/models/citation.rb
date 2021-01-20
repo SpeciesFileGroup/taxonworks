@@ -65,7 +65,7 @@ class Citation < ApplicationRecord
   after_save :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
-  soft_validate(:sv_page_range, set: :page_range, has_fix: false)
+  soft_validate(:sv_page_range, set: :page_range)
 
   # TODO: deprecate
   # @return [Scope of matching sources]

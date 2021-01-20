@@ -1,61 +1,61 @@
 module Protonym::SoftValidationExtensions
-
   module Klass
 
     VALIDATIONS = {
       sv_validate_parent_rank: {
         set:         :validate_parent_rank,
-        resolution:  [],
         name:        'Validate parent rank',
-        description: 'Validates parent rank.'
+        description: 'Validates parent rank.',
+        # fix: nil,
+        # resolution:  [],
       },
 
-      sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_missing_original_genus: { set: :missing_relationships, has_fix: false},
-      sv_missing_type_species: { set: :missing_relationships, has_fix: false},
-      sv_missing_type_genus: { set: :missing_relationships, has_fix: false},
-      sv_missing_substitute_name: { set: :missing_relationships, has_fix: false},
-      sv_missing_part_of_speach: { set: :missing_classifications, has_fix: false},
-      sv_missing_gender: { set: :missing_classifications, has_fix: false},
-      sv_species_gender_agreement: { set: :species_gender_agreement, has_fix: false},
-      sv_species_gender_agreement_not_required: { set: :species_gender_agreement, has_fix: false},
-      sv_type_placement: { set: :type_placement, has_fix: false},
-      sv_type_placement1: { set: :type_placement, has_fix: false},
-      sv_primary_types: { set: :primary_types, has_fix: false},
-      sv_primary_types_repository: { set: :primary_types, has_fix: false},
-#      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_source: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_author: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_year: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_gender: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_part_of_speach: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_genus: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_subgenus: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_species: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_subspecies: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_variety: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_original_form: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_type_species: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_type_species_type: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_type_genus: { set: :validate_coordinated_names, has_fix: true},
-      sv_validate_coordinated_names_type_specimen: { set: :validate_coordinated_names, has_fix: true},
-      sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
-      sv_parent_priority: { set: :parent_priority, has_fix: false},
-      sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
-      sv_family_is_invalid: { set: :family_is_invalid, has_fix: false},
-      sv_family_is_invalid_no_substitute: { set: :family_is_invalid, has_fix: false},
-      sv_source_not_older_then_description: { set: :dates, has_fix: false},
-      sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
-      sv_extant_children: { set: :extant_children, has_fix: false},
-      sv_protonym_to_combination: { set: :protonym_to_combination, has_fix: false},
-      sv_missing_roles: { set: :missing_roles, has_fix: false},
-      sv_year_is_not_required: { set: :year_is_not_required, has_fix: true },
-      sv_author_is_not_required: { set: :author_is_not_required, has_fix: true },
-      sv_misspelling_roles_are_not_required: { set: :roles_are_not_required, has_fix: true },
-      sv_misspelling_author_is_not_required: { set: :roles_are_not_required, has_fix: true },
-      sv_misspelling_year_is_not_required: { set: :roles_are_not_required, has_fix: true }
+      sv_potential_family_homonyms: { set: :potential_homonyms},
+      sv_potential_genus_homonyms: { set: :potential_homonyms},
+      sv_potential_species_homonyms: { set: :potential_homonyms},
+      sv_missing_original_genus: { set: :missing_relationships},
+      sv_missing_type_species: { set: :missing_relationships},
+      sv_missing_type_genus: { set: :missing_relationships},
+      sv_missing_substitute_name: { set: :missing_relationships},
+      sv_missing_part_of_speach: { set: :missing_classifications},
+      sv_missing_gender: { set: :missing_classifications},
+      sv_species_gender_agreement: { set: :species_gender_agreement},
+      sv_species_gender_agreement_not_required: { set: :species_gender_agreement},
+      sv_type_placement: { set: :type_placement},
+      sv_type_placement1: { set: :type_placement},
+      sv_primary_types: { set: :primary_types},
+      sv_primary_types_repository: { set: :primary_types},
+#      sv_validate_coordinated_names: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_source: { set: :validate_coordinated_names, fix: :sv_fix_coordinated_names_source},
+      sv_validate_coordinated_names_author: { set: :validate_coordinated_names, fix: true}, # @proceps: move the fix from the method below here
+      sv_validate_coordinated_names_year: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_gender: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_part_of_speach: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_genus: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_subgenus: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_species: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_subspecies: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_variety: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_original_form: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_type_species: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_type_species_type: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_type_genus: { set: :validate_coordinated_names, fix: true},
+      sv_validate_coordinated_names_type_specimen: { set: :validate_coordinated_names, fix: true},
+      sv_single_sub_taxon: { set: :single_sub_taxon, fix: true},
+      sv_parent_priority: { set: :parent_priority},
+      sv_homotypic_synonyms: { set: :homotypic_synonyms},
+      sv_family_is_invalid: { set: :family_is_invalid},
+      sv_family_is_invalid_no_substitute: { set: :family_is_invalid},
+      sv_source_not_older_then_description: { set: :dates},
+      sv_original_combination_relationships: { set: :original_combination_relationships},
+      sv_extant_children: { set: :extant_children},
+      sv_protonym_to_combination: { set: :protonym_to_combination},
+      sv_missing_roles: { set: :missing_roles},
+      sv_year_is_not_required: { set: :year_is_not_required, fix: true },
+      sv_author_is_not_required: { set: :author_is_not_required, fix: true },
+      sv_misspelling_roles_are_not_required: { set: :roles_are_not_required, fix: true },
+      sv_misspelling_author_is_not_required: { set: :roles_are_not_required, fix: true },
+      sv_misspelling_year_is_not_required: { set: :roles_are_not_required, fix: true }
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -214,7 +214,7 @@ module Protonym::SoftValidationExtensions
       s = self.source
       list_of_coordinated_names.each do |t|
         if ((s && t.source && s.id != t.source.id) || (s.nil? && t.source))
-          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_source, success_message: 'Original publication was updated')
+          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinate #{t.rank_class.rank_name}", success_message: 'Original publication was updated')
         end
       end
     end
