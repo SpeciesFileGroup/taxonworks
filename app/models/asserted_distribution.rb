@@ -125,7 +125,7 @@ class AssertedDistribution < ApplicationRecord
         presence = AssertedDistribution.without_is_absent.with_geographic_area_id(self.geographic_area_id)
         soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
       else
-        areas    = [ga.level0_id, ga.level1_id, ga.level2_id].compact
+        areas = [ga.level0_id, ga.level1_id, ga.level2_id].compact
         presence = AssertedDistribution.with_is_absent.with_geographic_area_array(areas)
         soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
       end
