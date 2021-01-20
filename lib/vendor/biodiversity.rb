@@ -114,19 +114,17 @@ module TaxonWorks
 
         # @return [String, nil]
         def genus
-          parse_result[:words]&.detect {|w| %{UNINOMIAL GENUS}.include?(w[:wordType])}&.dig(:normalized)
+          parse_result[:words]&.detect { |w| %{UNINOMIAL GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil] 
         def subgenus
-          detail[:infragenericEpithet] && detail[:infragenericEpithet][:value]
+          (parse_result[:words] || [])[1..]&.detect { |w| %{UNINOMIAL INFRA_GENUS}.include?(w[:wordType]) }&.dig(:normalized)
         end
 
         # @return [String, nil]
         def species
-          a = detail
-          (a[:specificEpithet] && a[:specificEpithet][:value]) ||
-            (a[:annotation_identification] && a[:specificEpithet] && a[:specificEpithet][:specificEpithet] && a[:specificEpithet][:specificEpithet][:value]) || nil
+          parse_result[:words]&.detect { |w| 'SPECIES' == w[:wordType] }&.dig(:normalized)
         end
 
         # @return [String, nil]
@@ -152,7 +150,7 @@ module TaxonWorks
         # @return [Integer]
         #   the total monomials in the epithet
         def name_count 
-          detail.keys.count
+          (detail[detail.keys.first].keys - [:authorship]).count
         end
 
         # @return [Symbol, nil] like `:genus`
@@ -166,10 +164,7 @@ module TaxonWorks
         # @return [Hash, nil]
         #   the Biodiversity authorship hash
         def authorship
-          d = detail[RANK_MAP[finest_rank]]
-          d = d.last if d.kind_of?(Array)
-          return nil unless d && d[:authorship]
-          d[:authorship][:basionymAuthorship]
+          parse_result.dig(:authorship, :originalAuth)
         end
 
         # @return [String, nil]
@@ -188,9 +183,8 @@ module TaxonWorks
         # @return [String, nil]
         def year
           if a = authorship
-            return a[:year][:value] if a[:year]
+            return a.dig(:year, :year)
           end
-          nil
         end
 
         # return only references to ambiguous protonyms
