@@ -12,8 +12,8 @@ describe 'SoftValidation (instance)', group: :soft_validation do
       expect(soft_validation).to respond_to(:message)
     end
 
-    specify 'fix' do
-      expect(soft_validation).to respond_to(:fix)
+    specify 'soft_validation_method' do
+      expect(soft_validation).to respond_to(:soft_validation_method)
     end
 
     specify 'resolution' do

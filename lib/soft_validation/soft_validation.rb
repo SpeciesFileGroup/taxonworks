@@ -27,12 +27,10 @@ module SoftValidation
     #     Optional.  Requires a fix method.  A short message describing the message provided when the soft validation was NOT successfully fixed.
     attr_accessor :failure_message
 
-    # @!attribute fix
-    #   @return [Symbol]
-    #     Optional. Identifies a method that fixes the soft validation in question.  I.e. the method
-    #     when run should eliminate subsequent identical soft validation warnings from being generated.
-    #     Fix methods should return true or false.
-    attr_accessor :fix 
+    # @return [Symbol]
+    # contains the calling method, and therefor pointer to the rest of the metadata for this fix, 
+    #   TODO: once all messages are moved to instantiation this will not be required, it's janky
+    attr_accessor :soft_validation_method
 
     # @return [String, nil]
     #   Optional. A named route that points to where the issue can be resolved, nil if `:fix` is provided

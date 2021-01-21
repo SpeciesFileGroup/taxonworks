@@ -25,7 +25,7 @@ class Softy
   end
 
   def haz_cheezburgers?
-    soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if @hungry
+    soft_validations.add(:base, 'hungry!', success_message: 'no longer hungry, cooked a cheezeburger', failure_message: 'missed my mouth') if @hungry
   end
 
   def needs_moar_cheez? 

@@ -34,14 +34,17 @@ module SoftValidation
     # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
     #   the method identified by :fix should fully resolve the SoftValidation.
     def add(attribute, message, options = {})
+      source = caller[0][/`([^']*)'/, 1].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
+    
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
-     
-      return false if attribute.nil? || message.nil? || message.length == 0
-      return false if options[:fix].kind_of?(Symbol) && (options[:success_message].nil? || options[:failure_message].nil?) 
+      raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
+      raise SoftValidationError, 'if one of :success_message or :failure_message provided both must be' if (!options[:success_message].nil? || !options[:failure_message].nil?) && ( options[:success_message].nil? || options[:failure_message].nil? )
 
       options[:attribute] = attribute
       options[:message] = message
+      options[:soft_validation_method] = source
 
+      # TODO: why resolution_with
       options[:resolution] = resolution_for(options[:resolution_with])
 
       # TODO: FIX?! shouldn't be used ... 
@@ -62,7 +65,7 @@ module SoftValidation
     # @return [Array]
     def resolution_for(method)
       return [] if method.nil?
-      self.instance.class.soft_validation_methods[self.instance.class.name][method].resolution
+      self.instance.class.soft_validation_methods[method].resolution
     end
 
     # @return [Boolean]

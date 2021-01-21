@@ -6,8 +6,8 @@ module Protonym::SoftValidationExtensions
         set:         :validate_parent_rank,
         name:        'Inappropriate parent rank',
         description: 'Validates parent rank, for example suggesting "Incertae sedis" relationship for the species which has family as a parent taxon',
+        resolution:  [:new_taxon_name_task],
         # fix: nil,
-        # resolution:  [],
       },
 
       sv_potential_family_homonyms: { set: :potential_homonyms,
@@ -70,15 +70,19 @@ module Protonym::SoftValidationExtensions
                                      name: 'Primary type repository is not selected',
                                      description: 'Species-group name has a primary type selected, but is does not have type repository' },
 
-      sv_validate_coordinated_names_source: { set: :validate_coordinated_names,
-                                              fix: :sv_fix_coordinated_names_source,
-                                              name: 'Matching original source of coordinated names',
-                                              description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same original source. When the source is not set for one of the names, it could be automatically set using the Fix' },
+      sv_validate_coordinated_names_source: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_source,
+        name: 'Matching original source of coordinated names',
+        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same original source. When the source is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-      sv_validate_coordinated_names_author: { set: :validate_coordinated_names,
-                                              fix: :sv_fix_coordinated_names_author,
-                                              name: 'Matching author of coordinated names',
-                                              description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim_author. When the author is not set for one of the names, it could be automatically set using the Fix' },
+      sv_validate_coordinated_names_author: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_author,
+        name: 'Matching author of coordinated names',
+        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim_author. When the author is not set for one of the names, it could be automatically set using the Fix'
+      },
 
       sv_validate_coordinated_names_year: { set: :validate_coordinated_names,
                                             fix: :sv_fix_coordinated_names_year,
@@ -231,7 +235,7 @@ module Protonym::SoftValidationExtensions
         if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
-          soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'", resolution: 'path_to_edit_protomy')
+          soft_validations.add(:rank_class, "The rank #{self.rank_class.rank_name} is not compatible with the rank of parent (#{self.parent.rank_class.rank_name}). The name should be marked as 'Incertae sedis'")
         end
       end
     end

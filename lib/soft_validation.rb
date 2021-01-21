@@ -123,22 +123,16 @@ module SoftValidation
     attr_accessor :soft_validation_result
 
     # @return [Hash]
-    #   An index of soft validation methods by ClassName
-    #   ' { ClassName' => { method_name: @method_instance, ... }, ... }
+    #   An index of soft validation methods, keys are all methods
+    #    `{ method_name: @method_instance, ... }`
     class_attribute :soft_validation_methods, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
-
-    self.soft_validation_methods = {self.name => {}}
+    self.soft_validation_methods = {}
 
     # @return [Hash]
     #   An index of soft validation methods by ClassName by set
     #   ' { ClassName' => { set: [ :method_name, ], ...}
     class_attribute :soft_validation_sets, instance_writer: false
     self.soft_validation_sets = { self.name =>  { default: []} }
-
-    # @return [Array]
-    #   An index of softvalidation methods
-    class_attribute :soft_validation_method_names
-    self.soft_validation_method_names = []
   end
 
   module ClassMethods
@@ -160,10 +154,8 @@ module SoftValidation
     # @param [Hash] options
     # @return [SoftValidationMethod]
     def add_method(method, options)
-      self.soft_validation_method_names.push method
-      n = self.name
-      self.soft_validation_methods[n] ||= {}
-      self.soft_validation_methods[n][method] = SoftValidationMethod.new(options)
+      self.soft_validation_methods ||= {} # where here?
+      self.soft_validation_methods[method] = SoftValidationMethod.new(options)
     end
 
     # @param [Hash] method
@@ -192,9 +184,16 @@ module SoftValidation
     # @return [Boolean]
     #    true if at least on soft_validate() exists in *this* class
     def has_self_soft_validations?
-      self.soft_validation_method_names.any?
+      soft_validation_methods_on_self.any?
+
       #  self.soft_validation_methods[self.name].any? # donesn't include superclass !?
       #  self.soft_validation_sets[self.name] && self.soft_validation_sets[self.name].keys.count > 0 # [:all].count > 0 any set indicates at least one
+    end
+
+    # @return [Array]
+    #   all methods from all sets from self (not superclasses)
+    def soft_validation_methods_on_self
+      soft_validation_sets[name].keys.collect{|s| soft_validation_sets[name][s] }.flatten
     end
 
     # @return [Hash]
@@ -256,7 +255,7 @@ module SoftValidation
 
         a = []
         if sets.empty? && only_sets.empty? && except_sets.empty? # no sets provided, default to all methods
-          a = self.soft_validation_method_names
+          a = self.soft_validation_methods.keys # self.soft_validation_method_names
         else
           sets.each do |s|
             a += self.soft_validation_sets[self.name][s]
@@ -267,7 +266,7 @@ module SoftValidation
  #        byebug if self.soft_validation_methods[self.name][b].nil?
  #      end
 
-        a.delete_if{|n| !self.soft_validation_methods[self.name][n].send(:matches?, fixable, include_flagged) }
+        a.delete_if{|n| !self.soft_validation_methods[n].send(:matches?, fixable, include_flagged) }
         methods += a
       end
 
@@ -287,9 +286,8 @@ module SoftValidation
     private
 
     def reset_soft_validation!
-      self.soft_validation_methods = {self.name => {}}
+      self.soft_validation_methods = { }
       self.soft_validation_sets = { self.name => { default: []}}
-      self.soft_validation_method_names = []
     end
 
     def get_sets(only_sets = [], except_sets = [])
@@ -344,8 +342,9 @@ module SoftValidation
     return false if !soft_validated?
 
     soft_validations.soft_validations.each do |v|
-      if v.fix
-          if self.send(v.fix)
+      
+      if fix =  fix_for(v.soft_validation_method)
+          if self.send(fix)
             v.fixed = :fixed
           else
             v.fixed = :fix_error
@@ -371,6 +370,10 @@ module SoftValidation
   # @return [Boolean]
   def soft_valid?
     soft_validations.complete?
+  end
+
+  def fix_for(soft_validation_method)
+    soft_validation_methods[soft_validation_method]&.fix
   end
 
 end
