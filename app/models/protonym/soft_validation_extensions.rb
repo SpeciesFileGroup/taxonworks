@@ -4,58 +4,214 @@ module Protonym::SoftValidationExtensions
     VALIDATIONS = {
       sv_validate_parent_rank: {
         set:         :validate_parent_rank,
-        name:        'Validate parent rank',
-        description: 'Validates parent rank.',
+        name:        'Inappropriate parent rank',
+        description: 'Validates parent rank, for example suggesting "Incertae sedis" relationship for the species which has family as a parent taxon',
         # fix: nil,
         # resolution:  [],
       },
 
-      sv_potential_family_homonyms: { set: :potential_homonyms},
-      sv_potential_genus_homonyms: { set: :potential_homonyms},
-      sv_potential_species_homonyms: { set: :potential_homonyms},
-      sv_missing_original_genus: { set: :missing_relationships},
-      sv_missing_type_species: { set: :missing_relationships},
-      sv_missing_type_genus: { set: :missing_relationships},
-      sv_missing_substitute_name: { set: :missing_relationships},
-      sv_missing_part_of_speach: { set: :missing_classifications},
-      sv_missing_gender: { set: :missing_classifications},
-      sv_species_gender_agreement: { set: :species_gender_agreement},
-      sv_species_gender_agreement_not_required: { set: :species_gender_agreement},
-      sv_type_placement: { set: :type_placement},
-      sv_type_placement1: { set: :type_placement},
-      sv_primary_types: { set: :primary_types},
-      sv_primary_types_repository: { set: :primary_types},
-#      sv_validate_coordinated_names: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_source: { set: :validate_coordinated_names, fix: :sv_fix_coordinated_names_source},
-      sv_validate_coordinated_names_author: { set: :validate_coordinated_names, fix: true}, # @proceps: move the fix from the method below here
-      sv_validate_coordinated_names_year: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_gender: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_part_of_speach: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_genus: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_subgenus: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_species: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_subspecies: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_variety: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_original_form: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_type_species: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_type_species_type: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_type_genus: { set: :validate_coordinated_names, fix: true},
-      sv_validate_coordinated_names_type_specimen: { set: :validate_coordinated_names, fix: true},
-      sv_single_sub_taxon: { set: :single_sub_taxon, fix: true},
-      sv_parent_priority: { set: :parent_priority},
-      sv_homotypic_synonyms: { set: :homotypic_synonyms},
-      sv_family_is_invalid: { set: :family_is_invalid},
-      sv_family_is_invalid_no_substitute: { set: :family_is_invalid},
-      sv_source_not_older_then_description: { set: :dates},
-      sv_original_combination_relationships: { set: :original_combination_relationships},
-      sv_extant_children: { set: :extant_children},
-      sv_protonym_to_combination: { set: :protonym_to_combination},
-      sv_missing_roles: { set: :missing_roles},
-      sv_year_is_not_required: { set: :year_is_not_required, fix: true },
-      sv_author_is_not_required: { set: :author_is_not_required, fix: true },
-      sv_misspelling_roles_are_not_required: { set: :roles_are_not_required, fix: true },
-      sv_misspelling_author_is_not_required: { set: :roles_are_not_required, fix: true },
-      sv_misspelling_year_is_not_required: { set: :roles_are_not_required, fix: true }
+      sv_potential_family_homonyms: { set: :potential_homonyms,
+                                      name: 'Potential family-group name homonyms',
+                                      description: 'Detect potential homonyms or duplicates in the family-group names' },
+
+      sv_potential_genus_homonyms: { set: :potential_homonyms,
+                                     name: 'Potential genus-group name homonyms',
+                                     description: 'Detect potential homonyms or duplicates in the genus-group names' },
+
+      sv_potential_species_homonyms: { set: :potential_homonyms,
+                                       name: 'Potential species-group name homonyms',
+                                       description: 'Detect potential homonyms or duplicates in the species-group names' },
+
+      sv_missing_original_genus: { set: :missing_relationships,
+                                   name: 'Missing original genus',
+                                   description: 'Get notification if the original genus is not set for the genus or species-group name' },
+
+      sv_missing_type_species: { set: :missing_relationships,
+                                 name: 'Missing type species',
+                                 description: 'Get notification if the type species is not set for the genus-group name' },
+
+      sv_missing_type_genus: { set: :missing_relationships,
+                               name: 'Missing type genus',
+                               description: 'Get notification if the type genus is not set for the family-group name' },
+
+      sv_missing_substitute_name: { set: :missing_relationships,
+                                    name: 'Missing substitute name',
+                                    description: 'Get notification if the taxon is a homonym, but a synonym relationship is not provided' },
+
+      sv_missing_part_of_speach: { set: :missing_classifications,
+                                   name: 'Missing part of speach',
+                                   description: 'Part of speach is not set for the species-group name' },
+
+      sv_missing_gender: { set: :missing_classifications,
+                           name: 'Missing grammatical gender',
+                           description: 'Grammatical gender is not set for the genus-group name' },
+
+      sv_species_gender_agreement: { set: :species_gender_agreement,
+                                     name: 'Species gender agreement',
+                                     description: 'Species-group names is set as declinable, but the form of name is not provided, or the ending of the name is incorrect' },
+
+      sv_species_gender_agreement_not_required: { set: :species_gender_agreement,
+                                                  name: 'Species gender agreement not required',
+                                                  description: 'Species-group name is not declanable, alternative forms are not required' },
+
+      sv_type_placement: { set: :type_placement,
+                           name: 'Type placement',
+                           description: 'Notify if the type is classified outside the taxon. For example, the type species of the genus is not included in this genus' },
+
+      sv_type_placement1: { set: :type_placement,
+                            name: 'Type outside of nominal taxon',
+                            description: 'Notify if the taxon is a type, but not classified in the taxon, for which it is a type. For example, the type species of the genus is not included in this genus' },
+
+      sv_primary_types: { set: :primary_types,
+                          name: 'Primary type is not selected',
+                          description: 'Primary type is not selected for a species-group taxon' },
+
+      sv_primary_types_repository: { set: :primary_types,
+                                     name: 'Primary type repository is not selected',
+                                     description: 'Species-group name has a primary type selected, but is does not have type repository' },
+
+      sv_validate_coordinated_names_source: { set: :validate_coordinated_names,
+                                              fix: :sv_fix_coordinated_names_source,
+                                              name: 'Matching original source of coordinated names',
+                                              description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same original source. When the source is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_author: { set: :validate_coordinated_names,
+                                              fix: :sv_fix_coordinated_names_author,
+                                              name: 'Matching author of coordinated names',
+                                              description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim_author. When the author is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_year: { set: :validate_coordinated_names,
+                                            fix: :sv_fix_coordinated_names_year,
+                                            name: 'Matching year of coordinated names',
+                                            description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim. When the year is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_gender: { set: :validate_coordinated_names,
+                                              fix: :sv_fix_coordinated_names_gender,
+                                              name: 'Matching gender of coordinated names',
+                                              description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same grammatical gender. When the gender is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_part_of_speach: { set: :validate_coordinated_names,
+                                                      fix: :sv_fix_coordinated_names_part_of_speach,
+                                                      name: 'Matching part of speach of coordinated names',
+                                                      description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same part of speach. When the part of speach is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_genus: { set: :validate_coordinated_names,
+                                                      fix: :sv_fix_coordinated_names_original_genus,
+                                                      name: 'Matching original genus of coordinated names',
+                                                      description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original genus. When the original genus is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_subgenus: { set: :validate_coordinated_names,
+                                                         fix: :sv_fix_coordinated_names_original_subgenus,
+                                                         name: 'Matching original subgenus of coordinated names',
+                                                         description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subgenus. When the original subgenus is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_species: { set: :validate_coordinated_names,
+                                                        fix: :sv_fix_coordinated_names_original_species,
+                                                        name: 'Matching original species of coordinated names',
+                                                        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original species. When the original species is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_subspecies: { set: :validate_coordinated_names,
+                                                           fix: :sv_fix_coordinated_names_original_subspecies,
+                                                           name: 'Matching original subspecies of coordinated names',
+                                                           description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subspecies. When the original subspecies is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_variety: { set: :validate_coordinated_names,
+                                                        fix: :sv_fix_coordinated_names_original_variety,
+                                                        name: 'Matching original variety of coordinated names',
+                                                        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original variety. When the original variety is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_original_form: { set: :validate_coordinated_names,
+                                                     fix: :sv_fix_coordinated_names_original_form,
+                                                     name: 'Matching original form of coordinated names',
+                                                     description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original form. When the original form is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_type_species: { set: :validate_coordinated_names,
+                                                    fix: :sv_fix_coordinated_names_type_species,
+                                                    name: 'Matching type species of coordinated names',
+                                                    description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species. When the type species is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_type_species_type: { set: :validate_coordinated_names,
+                                                         fix: :sv_fix_coordinated_names_type_species_type,
+                                                         name: 'Matching type species designation of coordinated names',
+                                                         description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species designation. When the type species designation does not match with the coordinated name, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_type_genus: { set: :validate_coordinated_names,
+                                                  fix: :sv_fix_coordinated_names_type_genus,
+                                                  name: 'Matching type genus of coordinated names',
+                                                  description: 'Two coordinated family-group names (for example a family and nominotypical subfamily) should have the same type genus. When the type genus is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_validate_coordinated_names_type_specimen: { set: :validate_coordinated_names,
+                                                     fix: :sv_fix_coordinated_names_type_specimen,
+                                                     name: 'Matching type specimen of coordinated names',
+                                                     description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same type specimens. When the type specimen is not set for one of the names, it could be automatically set using the Fix' },
+
+      sv_single_sub_taxon: { set: :single_sub_taxon,
+                             fix: :sv_fix_add_nominotypical_sub,
+                             name: 'Single sub-taxon',
+                             description: 'When the name is a sub-taxon (for example a subgenus in genus) the parent taxon should have a nominotypical sub-taxon. When the nominotypical sub-taxon is missing, it could be automatically created using the Fix' },
+
+      sv_parent_priority: { set: :parent_priority,
+                            name: 'Higher rank priority',
+                            description: 'In the same rank-group (for example, genus-group), the parent should be the oldest taxon' },
+
+      sv_homotypic_synonyms: { set: :homotypic_synonyms,
+                               name: 'Missing homotypic synonym relationship',
+                               description: 'Two taxa should be homotypic synonyms if they share the same type' },
+
+      sv_family_is_invalid: { set: :family_is_invalid,
+                              name: 'Invalid family',
+                              description: 'Family is invalid due to the homonymy or suppression of its type genus' },
+
+      sv_family_is_invalid_no_substitute: { set: :family_is_invalid,
+                                            name: 'No substitute for invalid family',
+                                            description: 'Family is marked as invalid, but no synonym relationship is created' },
+
+      sv_source_not_older_then_description: { set: :dates,
+                                              name: 'Source year does not match Taxon verbatim_year',
+                                              description: 'Source year does not match Taxon verbatim_year' },
+
+      sv_original_combination_relationships: { set: :original_combination_relationships,
+                                               name: 'Self original combination relationship',
+                                               description: 'Taxon istself should be present as a lowest original combination relationship' },
+
+      sv_extant_children: { set: :extant_children,
+                            name: 'Extinct taxon has extant children taxa',
+                            description: 'Extinct taxon has extant children taxa' },
+
+      sv_protonym_to_combination: { set: :protonym_to_combination,
+                                    fix: :becomes_combination,
+                                    flagged: true,
+                                    name: 'Invalid protonym could be converted into a combination',
+                                    description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger' },
+
+      sv_missing_roles: { set: :missing_roles,
+                          name: 'Missing taxon author roles',
+                          description: 'Taxon author roles are not set' },
+
+      sv_year_is_not_required: { set: :year_is_not_required,
+                                 fix: :sv_fix_year_is_not_required,
+                                 name: 'Verbatim year is not required',
+                                 description: 'Verbatim year is not required if the origina source is set and the source has year of publication. The Fix will delete the verbatim_year' },
+
+      sv_author_is_not_required: { set: :author_is_not_required,
+                                   fix: :sv_fix_author_is_not_required,
+                                   name: 'Verbatim author is not required',
+                                   description: 'Verbatim author is not required if the author roles are set. The Fix will delete the verbatim_author' },
+
+      sv_misspelling_roles_are_not_required: { set: :roles_are_not_required,
+                                               fix: :sv_fix_misspelling_roles_are_not_required,
+                                               name: 'Author roles are not required for misspelling',
+                                               description: 'Author roles are not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the roles' },
+
+      sv_misspelling_author_is_not_required: { set: :roles_are_not_required,
+                                               fix: :sv_fix_misspelling_author_is_not_required,
+                                               name: 'Verbatim author is not required for misspelling',
+                                               description: 'Verbatim author is not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the author' },
+
+      sv_misspelling_year_is_not_required: { set: :roles_are_not_required,
+                                             fix: :sv_fix_misspelling_year_is_not_required,
+                                             name: 'Verbatim year is not required for misspelling',
+                                             description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year' }
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -243,7 +399,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_author
       s = self.verbatim_author
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_author, success_message: 'Author was updated') unless s == t.verbatim_author
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinate #{t.rank_class.rank_name}", success_message: 'Author was updated') unless s == t.verbatim_author
       end
     end
 
@@ -261,7 +417,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_year
       s = self.year_of_publication
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_year, success_message: 'Year was updated') unless s == t.year_of_publication
+        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinate #{t.rank_class.rank_name}", success_message: 'Year was updated') unless s == t.year_of_publication
       end
     end
 
@@ -282,7 +438,7 @@ module Protonym::SoftValidationExtensions
       s = self.gender_class
       list_of_coordinated_names.each do |t|
         if s != t.gender_class
-          soft_validations.add(:base, "The gender status does not match with that of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_gender, success_message: 'Gender was updated')
+          soft_validations.add(:base, "The gender status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Gender was updated')
         end
       end
     end
@@ -303,7 +459,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
         if self.part_of_speech_class != t.part_of_speech_class
-          soft_validations.add(:base, "The part of speech status does not match with that of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_part_of_speach, success_message: 'Part of speech was updated')
+          soft_validations.add(:base, "The part of speech status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Part of speech was updated')
         end
       end
     end
@@ -323,7 +479,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_genus_or_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if self.original_genus.try(:name) != t.original_genus.try(:name)
-          soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_genus, success_message: 'Original genus was updated')
+          soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", success_message: 'Original genus was updated')
         end
       end
     end
@@ -353,7 +509,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_genus_or_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subgenus.try(:name) != t.original_subgenus.try(:name)
-          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subgenus, success_message: 'Original subgenus was updated')
+          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinate #{t.rank_class.rank_name}", success_message: 'Original subgenus was updated')
         end
       end
     end
@@ -383,7 +539,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_species.try(:name) != t.original_species.try(:name)
-          soft_validations.add(:base, "The original species does not match with the original species of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_species, success_message: 'Original species was updated')
+          soft_validations.add(:base, "The original species does not match with the original species of coordinate #{t.rank_class.rank_name}", success_message: 'Original species was updated')
         end
       end
     end
@@ -413,7 +569,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subspecies.try(:name) != t.original_subspecies.try(:name)
-          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subspecies, success_message: 'Original subspecies was updated')
+          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinate #{t.rank_class.rank_name}", success_message: 'Original subspecies was updated')
         end
       end
     end
@@ -443,7 +599,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_variety.try(:name) != t.original_variety.try(:name)
-          soft_validations.add(:base, "The original variety does not match with the original variety of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_variety, success_message: 'Original variety was updated')
+          soft_validations.add(:base, "The original variety does not match with the original variety of coordinate #{t.rank_class.rank_name}", success_message: 'Original variety was updated')
         end
       end
     end
@@ -473,7 +629,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_form.try(:name) != t.original_form.try(:name)
-          soft_validations.add(:base, "The original form does not match with the original form of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_form, success_message: 'Original form was updated')
+          soft_validations.add(:base, "The original form does not match with the original form of coordinate #{t.rank_class.rank_name}", success_message: 'Original form was updated')
         end
       end
     end
@@ -504,7 +660,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_genus_rank?
       list_of_coordinated_names.each do |t|
         if self.type_species != t.type_species
-          soft_validations.add(:base, "The type species does not match with the type species of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species, success_message: 'Type species was updated')
+          soft_validations.add(:base, "The type species does not match with the type species of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species was updated')
         end
       end
     end
@@ -537,7 +693,7 @@ module Protonym::SoftValidationExtensions
       list_of_coordinated_names.each do |t|
         tttnr = t.type_taxon_name_relationship
         if !tttnr.nil? && sttnr.type != tttnr.type
-          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species_type, success_message: 'Type species relationship was updated')
+          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species relationship was updated')
         end
       end
     end
@@ -570,7 +726,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_family_rank?
       list_of_coordinated_names.each do |t|
         if self.type_genus != t.type_genus
-          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_genus, success_message: 'Type genus was updated')
+          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinate #{t.rank_class.rank_name}", success_message: 'Type genus was updated')
         end
       end
     end
@@ -600,7 +756,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if !self.has_same_primary_type(t)
-          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_specimen, success_message: 'The type specimen was updated')
+          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", success_message: 'The type specimen was updated')
         end
       end
     end
@@ -796,7 +952,7 @@ module Protonym::SoftValidationExtensions
             # do nothing
           elsif !sister_names.include?(self.parent.name) && !sisters.empty?
             soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
-                                 fix: :sv_fix_add_nominotypical_sub, success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
+                                 success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
           end
         end
       end
@@ -1071,9 +1227,7 @@ module Protonym::SoftValidationExtensions
       if convertable_to_combination?
         soft_validations.add(
           :base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
-          fix: :becomes_combination,
-          success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination",
-          fix_trigger: :requested)
+          success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination")
       end
     end
 
@@ -1085,10 +1239,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_year_is_not_required
       if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
-        soft_validations.add(
-          :year_of_publication, 'Year of publication is not required, it is derived from the source',
-          fix: :sv_fix_year_is_not_required,
-          success_message: 'Year of publication was deleted'
+        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', success_message: 'Year of publication was deleted'
         )
       end
     end
@@ -1100,10 +1251,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_author_is_not_required
       if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
-        soft_validations.add(
-          :verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles',
-          fix: :sv_fix_author_is_not_required,
-          success_message: 'Taxon name verbatim author was deleted')
+        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', success_message: 'Taxon name verbatim author was deleted')
       end
     end
 
@@ -1116,7 +1264,6 @@ module Protonym::SoftValidationExtensions
       if !self.roles.empty? && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
-          fix: :sv_fix_misspelling_roles_are_not_required,
           success_message: 'Roles were deleted')
       end
     end
@@ -1132,7 +1279,6 @@ module Protonym::SoftValidationExtensions
       if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
-          fix: :sv_fix_misspelling_author_is_not_required,
           success_message: 'Verbatim author was deleted')
       end
     end
@@ -1146,7 +1292,6 @@ module Protonym::SoftValidationExtensions
       if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :year_of_publication, 'Year is not required for misspellings and misapplications',
-          fix: :sv_fix_misspelling_year_is_not_required,
           success_message: 'Year was deleted')
       end
     end
