@@ -37,11 +37,26 @@ class TaxonNameClassification < ApplicationRecord
   scope :with_type_base, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_classifications.type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "%#{base_string}%" ) }
+  proper_classification
+  soft_validate(:sv_proper_classification,
+                set: :proper_classification,
+                name: 'Applicable status',
+                description: 'Check the status applicability.' )
 
-  soft_validate(:sv_proper_classification, set: :proper_classification, has_fix: false)
-  soft_validate(:sv_proper_year, set: :proper_classification, has_fix: false)
-  soft_validate(:sv_validate_disjoint_classes, set: :validate_disjoint_classes, has_fix: false)
-  soft_validate(:sv_not_specific_classes, set: :not_specific_classes, has_fix: false)
+  soft_validate(:sv_proper_year,
+                set: :proper_classification,
+                name: 'Applicable protonym year',
+                description: 'Check that the status is compatible with the year of publication of taxon.' )
+
+  soft_validate(:sv_validate_disjoint_classes,
+                set: :validate_disjoint_classes,
+                name: 'Conflicting status',
+                description: 'Taxon has two conflicting statuses' )
+
+  soft_validate(:sv_not_specific_classes,
+                set: :not_specific_classes,
+                name: 'Not specific status',
+                description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
 
   after_save :set_cached
   after_destroy :set_cached

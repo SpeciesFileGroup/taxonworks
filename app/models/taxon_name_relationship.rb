@@ -79,18 +79,68 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
-  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships, has_fix: false)
-  soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships, has_fix: false)
-  soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object, has_fix: false)
-  soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject, has_fix: false)
-  soft_validate(:sv_specific_relationship, set: :specific_relationship, has_fix: false) # some do, some don't
-  soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship, has_fix: false)
-  soft_validate(:sv_synonym_relationship, set: :synonym_relationship, has_fix: false)
-  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship, has_fix: true)
-  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name, has_fix: true)
-  soft_validate(:sv_validate_priority, set: :validate_priority, has_fix: false)
-  soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa, has_fix: true)
-  soft_validate(:sv_coordinated_taxa_object, set: :coordinated_taxa, has_fix: true)
+  soft_validate(:sv_validate_required_relationships,
+                set: :validate_required_relationships,
+                name: 'Required relationships',
+                description: 'Required relationships' )
+
+  soft_validate(:sv_validate_disjoint_relationships,
+                set: :validate_disjoint_relationships,
+                name: 'Conflicting relationships',
+                description: 'Detect conflicting relationships' )
+
+  soft_validate(:sv_validate_disjoint_object,
+                set: :validate_disjoint_object,
+                name: 'Conflicting object taxon',
+                description: 'Object taxon has a status conflicting with the relationship' )
+
+  soft_validate(:sv_validate_disjoint_subject,
+                set: :validate_disjoint_subject,
+                name: 'Conflicting subject taxon',
+                description: 'Subject taxon has a status conflicting with the relationship' )
+
+  soft_validate(:sv_specific_relationship,
+                set: :specific_relationship,
+                name: 'validate relationship',
+                description: 'Validate integrity of the relationship, for example, the year applicability range' )
+
+  soft_validate(:sv_objective_synonym_relationship,
+                set: :objective_synonym_relationship,
+                name: 'Objective synonym relationship',
+                description: 'Objective synonyms should have the same type' )
+
+  soft_validate(:sv_synonym_relationship,
+                set: :synonym_relationship,
+                name: 'Synonym relationship',
+                description: 'Validate integrity of synonym relationship' )
+
+  soft_validate(:sv_not_specific_relationship,
+                set: :not_specific_relationship,
+                name: 'Not specific relationship',
+                description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".' )
+
+  soft_validate(:sv_synonym_linked_to_valid_name,
+                set: :synonym_linked_to_valid_name,
+                fix: :sv_fix_subject_parent_update,
+                name: 'Synonym not linked to valid taxon',
+                description: 'Synonyms should be linked to valid taxon.' )
+
+  soft_validate(:sv_validate_priority,
+                set: :validate_priority,
+                name: 'Priority validation',
+                description: 'Junior synonym should be younger than senior synonym' )
+
+  soft_validate(:sv_coordinated_taxa,
+                set: :coordinated_taxa,
+                fix: :sv_fix_coordinated_subject_taxa,
+                name: 'Move relationship to coordinate taxon',
+                description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated authomatically with the Fix.' )
+
+  soft_validate(:sv_coordinated_taxa_object,
+                set: :coordinated_taxa,
+                fix: :sv_fix_coordinated_object_taxa,
+                name: 'Move object relationship to coordinate taxon',
+                description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated authomatically with the Fix.')
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -606,7 +656,7 @@ class TaxonNameRelationship < ApplicationRecord
       subj = self.subject_taxon_name
         if subj.rank_class.try(:nomenclatural_code) == :iczn && obj.parent_id != subj.parent_id &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
         soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
-                             fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
+                             success_message: 'The parent was updated')
       end
     end
   end
@@ -689,7 +739,7 @@ class TaxonNameRelationship < ApplicationRecord
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
       soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
-                           fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
     end
   end
 
@@ -699,7 +749,7 @@ class TaxonNameRelationship < ApplicationRecord
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
-                           fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
     end
   end
 
