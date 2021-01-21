@@ -262,9 +262,9 @@ module SoftValidation
           end
         end
 
- #      a.each do |b|
- #        byebug if self.soft_validation_methods[self.name][b].nil?
- #      end
+        #  a.each do |b|
+        #    byebug if self.soft_validation_methods[self.name][b].nil?
+        #  end
 
         a.delete_if{|n| !self.soft_validation_methods[n].send(:matches?, fixable, include_flagged) }
         methods += a
@@ -322,6 +322,7 @@ module SoftValidation
     clear_soft_validations
     soft_validations
 
+
     soft_validators(**options).each do |sv_method|
       self.send(sv_method)
     end
@@ -342,13 +343,14 @@ module SoftValidation
     return false if !soft_validated?
 
     soft_validations.soft_validations.each do |v|
-      
+
+
       if fix =  fix_for(v.soft_validation_method)
-          if self.send(fix)
-            v.fixed = :fixed
-          else
-            v.fixed = :fix_error
-          end
+        if self.send(fix)
+          v.fixed = :fixed
+        else
+          v.fixed = :fix_error
+        end
       else
         v.fixed = :no_fix_available
       end

@@ -115,12 +115,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @species.soft_validate(only_sets: :missing_fields)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
+      
       specify 'author and year are missing' do
         @kingdom.soft_validate(only_sets: :missing_fields)
         expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
         expect(@kingdom.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
+
       specify 'missing role' do
         @species.soft_validate(only_sets: :missing_roles)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey

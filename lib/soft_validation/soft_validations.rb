@@ -38,7 +38,7 @@ module SoftValidation
     
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
       raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
-      raise SoftValidationError, 'if one of :success_message or :failure_message provided both must be' if (!options[:success_message].nil? || !options[:failure_message].nil?) && ( options[:success_message].nil? || options[:failure_message].nil? )
+      # raise SoftValidationError, 'if one of :success_message or :failure_message provided both must be' if (!options[:success_message].nil? || !options[:failure_message].nil?) && ( options[:success_message].nil? || options[:failure_message].nil? )
 
       options[:attribute] = attribute
       options[:message] = message

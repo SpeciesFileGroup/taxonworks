@@ -17,9 +17,9 @@ describe 'SoftValidations', group: :soft_validation do
     expect(soft_validations.soft_validations.count).to eq(1)
   end
 
-  specify 'add with success/fail message without the other Raises' do
-    expect{ soft_validations.add(:base, 'no cheezburgahz!', success_message: 'cook_a_burgah')}.to raise_error(SoftValidation::SoftValidationError, / :success_message or :failure_message/)
-  end
+  # specify 'add with success/fail message without the other Raises' do
+  #   expect{ soft_validations.add(:base, 'no cheezburgahz!', success_message: 'cook_a_burgah')}.to raise_error(SoftValidation::SoftValidationError, / :success_message or :failure_message/)
+  # end
 
   specify 'add(:attribute, "message", success_message: "win",  failure_message: "fail")' do
     expect(soft_validations.add(:base, 'no cheezburgahz!', success_message: 'haz cheezburger', failure_message: 'no cheezburger')).to be_truthy
