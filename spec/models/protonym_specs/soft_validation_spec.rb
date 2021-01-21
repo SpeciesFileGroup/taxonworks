@@ -129,16 +129,21 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @species.soft_validate(only_sets: :missing_roles)
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
       end
+
       specify 'year is not required' do
         @genus.verbatim_author = @genus.source.authority_name
         @genus.year_of_publication = @genus.source.year
         @genus.save
         @genus.soft_validate(only_sets: :year_is_not_required)
+        
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
+
         @genus.fix_soft_validations
+
         @genus.soft_validate(only_sets: :year_is_not_required)
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
+      
       specify 'author is not required' do
         @genus.verbatim_author = 'Green'
         person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')

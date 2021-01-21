@@ -33,11 +33,11 @@ module SoftValidation
     #   a message describing the soft validation to the user, i.e. what has gone wrong
     # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
     #   the method identified by :fix should fully resolve the SoftValidation.
-    def add(attribute, message,  options = {})
+    def add(attribute, message, options = {})
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
-      # raise SoftValidationError, 'invalid :fix_trigger' if !options[:fix_trigger].blank? && ![:all, :automatic, :requested].include?(options[:fix_trigger])
+     
       return false if attribute.nil? || message.nil? || message.length == 0
-      return false if (options[:success_message] || options[:failure_message]) && !options[:fix]
+      return false if options[:fix].kind_of?(Symbol) && (options[:success_message].nil? || options[:failure_message].nil?) 
 
       options[:attribute] = attribute
       options[:message] = message
