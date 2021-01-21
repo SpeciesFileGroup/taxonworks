@@ -399,11 +399,13 @@ class TaxonName < ApplicationRecord
 
   soft_validate(:sv_not_synonym_of_self,
                 set: :not_synonym_of_self,
-                name: 'Two conflicting relationships',
+                name: 'Not synonym of self',
                 description: 'Taxon has two conflicting relationships (invalidating and validating).' )
 
   soft_validate(:sv_two_unresolved_alternative_synonyms,
-                set: :two_unresolved_alternative_synonyms, has_fix: false)
+                set: :two_unresolved_alternative_synonyms,
+                name: 'Two conflicting relationships',
+                description: 'Taxon has two conflicting relationships.' )
 
   soft_validate(:sv_incomplete_combination,
                 set: :incomplete_combination,

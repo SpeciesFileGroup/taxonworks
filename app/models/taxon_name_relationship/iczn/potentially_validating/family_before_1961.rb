@@ -2,8 +2,8 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000042'.freeze
 
-  soft_validate(:sv_year_of_description, set: :specific_relationship, has_fix: false)
-  soft_validate(:sv_source_after_1960, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_year_of_description, set: :specific_relationship)
+  soft_validate(:sv_source_after_1960, set: :specific_relationship)
 
   # left_side
   def self.valid_subject_ranks

@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typification
 
-  soft_validate(:sv_matching_type_genus, set: :matching_type_genus, has_fix: false)
+  soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
 
   # left side
   def self.valid_subject_ranks

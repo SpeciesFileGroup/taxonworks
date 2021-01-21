@@ -2,9 +2,21 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000289'.freeze
 
-  soft_validate(:sv_validate_total_suppression, set: :validate_homonym_relationships, has_fix: false)
-  soft_validate(:sv_missing_nomen_novum, set: :validate_homonym_relationships, has_fix: false)
-  soft_validate(:sv_missing_replacement_name, set: :validate_homonym_relationships, has_fix: false)
+  soft_validate(:sv_validate_total_suppression,
+                set: :validate_homonym_relationships,
+                name: 'Validate total suppression',
+                description: 'Taxon should not be treated as homonym, since the related taxon is totally suppressed.' )
+
+  soft_validate(:sv_missing_nomen_novum,
+                set: :validate_homonym_relationships,
+                name: 'Substitute name is not selected',
+                description: 'Please select a replacement or substitute name.' )
+
+  soft_validate(:sv_missing_replacement_name,
+                set: :validate_homonym_relationships,
+                fix: :sv_fix_add_synonym_for_homonym,
+                name: 'Missing replacement name',
+                description: 'Please select a valid name using synonym relationships.' )
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
@@ -73,14 +85,14 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
 
   def sv_missing_nomen_novum
     if self.subject_taxon_name.iczn_set_as_synonym_of.nil? && self.subject_taxon_name.iczn_replacement_names.empty?
-      soft_validations.add(:type, 'Please select a nomen novum and/or valid name')
+      soft_validations.add(:type, 'Please select a replacement or substitute name')
     end
   end
 
   def sv_missing_replacement_name
     if self.subject_taxon_name.iczn_set_as_synonym_of.nil? && !self.subject_taxon_name.iczn_replacement_names.empty?
       soft_validations.add(:type, 'Please select a valid name using synonym relationships',
-                           fix: :sv_fix_add_synonym_for_homonym, success_message: 'Synonym relationship was added')
+                           success_message: 'Synonym relationship was added')
     end
   end
 
