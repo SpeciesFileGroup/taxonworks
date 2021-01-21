@@ -90,6 +90,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
 - Start date needs to be set before set end date on Housekeeping facet
 - Bump node package `ini` from 1.3.5 to 1.3.7
+- Moved buttons in collecting event on comprehensive task [#1986]
 
 ### Fixed
 - CVT smart selectors/pinboard scope broken [#1940] [#1941]
