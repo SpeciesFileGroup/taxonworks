@@ -360,18 +360,55 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
-  soft_validate(:sv_validate_name, set: :validate_name, has_fix: false)
-  soft_validate(:sv_missing_confidence_level, set: :missing_fields, has_fix: false)
-  soft_validate(:sv_missing_original_publication, set: :missing_fields, has_fix: false)
-  soft_validate(:sv_missing_author, set: :missing_fields, has_fix: true)
-  soft_validate(:sv_missing_year, set: :missing_fields, has_fix: true)
-  soft_validate(:sv_missing_etymology, set: :missing_fields, has_fix: false)
-  soft_validate(:sv_parent_is_valid_name, set: :parent_is_valid_name, has_fix: true)
-  soft_validate(:sv_conflicting_subordinate_taxa, set: :parent_is_valid_name, has_fix: false)
-  soft_validate(:sv_cached_names, set: :cached_names, has_fix: true) # some do, some don't
-  soft_validate(:sv_not_synonym_of_self, set: :not_synonym_of_self, has_fix: false)
-  soft_validate(:sv_two_unresolved_alternative_synonyms, set: :two_unresolved_alternative_synonyms, has_fix: false)
-  soft_validate(:sv_incomplete_combination, set: :incomplete_combination, has_fix: false)
+  soft_validate(:sv_validate_name,
+                set: :validate_name,
+                name: 'Name validation',
+                description: 'Name validation' )
+
+  soft_validate(:sv_missing_confidence_level,
+                set: :missing_fields,
+                name: 'Missing confidence level',
+                description: 'To remaind that the taxon spelling have to be compared to the original source' )
+
+  soft_validate(:sv_missing_original_publication,
+                set: :missing_fields,
+                name: 'Missing original source',
+                description: 'Original source is not selected' )
+
+  soft_validate(:sv_missing_etymology,
+                set: :missing_fields,
+                name: 'Missing etymology',
+                description: 'Etymology is not defined' )
+
+  soft_validate(:sv_parent_is_valid_name,
+                set: :parent_is_valid_name,
+                fix: :sv_fix_parent_is_valid_name,
+                name: 'Parent should be a valid taxon',
+                description: 'When the parent taxon (for example a genus) is treated as a synonym, all subordinate taxa from this taxon should be transferred to the valid taxon' )
+
+  soft_validate(:sv_conflicting_subordinate_taxa,
+                set: :parent_is_valid_name,
+                name: 'Conflicting subordinate taxa',
+                description: 'Unavailable or invalid taxon should not have subordinate taxa' )
+
+  soft_validate(:sv_cached_names,
+                set: :cached_names,
+                fix: :sv_fix_cached_names,
+                name: 'Cached names',
+                description: 'Check if cached values need to be updated' )
+
+  soft_validate(:sv_not_synonym_of_self,
+                set: :not_synonym_of_self,
+                name: 'Two conflicting relationships',
+                description: 'Taxon has two conflicting relationships (invalidating and validating).' )
+
+  soft_validate(:sv_two_unresolved_alternative_synonyms,
+                set: :two_unresolved_alternative_synonyms, has_fix: false)
+
+  soft_validate(:sv_incomplete_combination,
+                set: :incomplete_combination,
+                name: 'Incomplete combination',
+                description: 'Intermediate ranks are missing in combination (either original or subsequent)' )
 
   # @return [Array of TaxonName]
   #   ordered by rank, a scope-like hack
@@ -1427,43 +1464,9 @@ class TaxonName < ApplicationRecord
     true # see Protonym
   end
 
-  def sv_fix_missing_author
-    if self.source
-      unless self.source.author.blank?
-        self.verbatim_author = self.source.authority_name
-        begin
-          TaxonName.transaction do
-            self.save
-            return true
-          end
-        rescue
-          return false
-        end
-      end
-    end
-    false
-  end
-
-  def sv_fix_missing_year
-    if self.source
-      if self.source.year
-        self.year_of_publication = self.source.year
-        begin
-          TaxonName.transaction do
-            self.save
-            return true
-          end
-        rescue
-          return false
-        end
-      end
-    end
-    false
-  end
-
   def sv_parent_is_valid_name
     if !parent.nil? && parent.unavailable_or_invalid?
-      soft_validations.add(:parent_id, 'Parent should be a valid taxon', fix: :sv_fix_parent_is_valid_name, success_message: 'Parent was updated')
+      soft_validations.add(:parent_id, 'Parent should be a valid taxon', success_message: 'Parent was updated')
     end
   end
 
@@ -1514,7 +1517,6 @@ class TaxonName < ApplicationRecord
     false
   end
 
-  # TODO: does this make sense now, with #valid_taxon_name_id in place?
   def sv_not_synonym_of_self
     if list_of_invalid_taxon_names.include?(self)
       soft_validations.add(:base, "Taxon has two conflicting relationships (invalidating and validating). To resolve a conflict, add a status 'Valid' to a valid taxon.")

@@ -1174,23 +1174,6 @@ module Protonym::SoftValidationExtensions
       end
     end
 
-    # @proceps: this is not fixable given this logic only
-    def sv_missing_author
-      if self.author_string.nil? && is_available?
-        soft_validations.add(
-          :verbatim_author, 'Author is missing',
-          #  fix: :sv_fix_missing_author,
-          success_message: 'Author was updated')
-      end
-    end
-
-    # @proceps: TODO: was not fixable
-    def sv_missing_year
-      if self.year_integer.nil? && is_available?
-        soft_validations.add(:year_of_publication, 'Year is missing', success_message: 'Year was updated')
-      end
-    end
-
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
         z = TaxonName.
@@ -1313,6 +1296,28 @@ module Protonym::SoftValidationExtensions
     #  false
     #  end
 
+  end
+
+  def sv_cached_names
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if is_cached && cached_html != get_full_name_html ||
+        cached_misspelling != get_cached_misspelling ||
+        cached_original_combination != get_original_combination ||
+        cached_original_combination_html != get_original_combination_html ||
+        cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        rank_string =~ /Species/ &&
+            (cached_secondary_homonym != get_genus_species(:current, :self) ||
+                cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+      is_cached = false
+    end
+
+    soft_validations.add(
+        :base, 'Cached values should be updated',
+        fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+    ) if !is_cached
   end
 end
 

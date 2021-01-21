@@ -160,10 +160,25 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
-  soft_validate(:sv_combination_duplicates, set: :combination_duplicates, has_fix: false)
-  soft_validate(:sv_year_of_publication_matches_source, set: :dates, has_fix: false)
-  soft_validate(:sv_year_of_publication_not_older_than_protonyms, set: :dates, has_fix: false)
-  soft_validate(:sv_source_not_older_than_protonyms, set: :dates, has_fix: false)
+  soft_validate(:sv_combination_duplicates,
+                set: :combination_duplicates,
+                name: 'Duplicate combination',
+                description: 'Combination is a duplicate' )
+
+  soft_validate(:sv_year_of_publication_matches_source,
+                set: :dates,
+                name: 'Year of publication does not match the source',
+                description: 'The published date of the combination is not the same as provided by the original publication' )
+
+  soft_validate(:sv_year_of_publication_not_older_than_protonyms,
+                set: :dates,
+                name: 'Varbatim year in combination older than in protonyms',
+                description: 'The varbatim year in combination is older than in protonyms in the combination' )
+
+  soft_validate(:sv_source_not_older_than_protonyms,
+                set: :dates,
+                name: 'Combination older than protonyms',
+                description: 'The combination is older than protonyms in the combination' )
 
 # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
@@ -394,7 +409,6 @@ class Combination < TaxonName
     end
   end
 
-  # TODO: this is a TaxonName level validation, it doesn't belong here
   def sv_year_of_publication_matches_source
     source_year = source.nomenclature_year if source
     if year_of_publication && source_year
@@ -406,7 +420,7 @@ class Combination < TaxonName
     source_year = source.try(:nomenclature_year)
     target_year = earliest_protonym_year
     if source_year && target_year
-      soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the name in the combination (#{target_year}") if source_year < target_year
+      soft_validations.add(:base, "The combination (#{source_year}) is older than protonyms in the combination (#{target_year}") if source_year < target_year
     end
   end
 
