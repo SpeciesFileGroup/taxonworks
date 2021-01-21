@@ -37,7 +37,7 @@ class TaxonNameClassification < ApplicationRecord
   scope :with_type_base, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "#{base_string}%" ) }
   scope :with_type_array, -> (base_array) {where('taxon_name_classifications.type IN (?)', base_array ) }
   scope :with_type_contains, -> (base_string) {where('taxon_name_classifications.type LIKE ?', "%#{base_string}%" ) }
-  proper_classification
+
   soft_validate(:sv_proper_classification,
                 set: :proper_classification,
                 name: 'Applicable status',
