@@ -1224,7 +1224,6 @@ module Protonym::SoftValidationExtensions
       if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
         soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', success_message: 'Year of publication was deleted')
       end
-      self
     end
 
     def sv_fix_year_is_not_required
