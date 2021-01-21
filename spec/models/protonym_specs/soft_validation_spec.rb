@@ -354,7 +354,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       specify 'possible gender' do
         g = FactoryBot.create(:relationship_genus, name: 'Cyclops', parent: @family)
-        g.soft_validate(:missing_classifications)
+        g.soft_validate(only_sets: [:missing_classifications])
         expect(g.soft_validations.messages_on(:base).first =~ /masculine/).to be_truthy
       end
 
