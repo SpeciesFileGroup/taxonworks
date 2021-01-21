@@ -255,13 +255,17 @@ module SoftValidation
       if has_self_soft_validations?
 
         a = []
-        if sets.empty?
+        if sets.empty? && only_sets.empty? && except_sets.empty? # no sets provided, default to all methods
           a = self.soft_validation_method_names
         else
           sets.each do |s|
             a += self.soft_validation_sets[self.name][s]
           end
         end
+
+ #      a.each do |b|
+ #        byebug if self.soft_validation_methods[self.name][b].nil?
+ #      end
 
         a.delete_if{|n| !self.soft_validation_methods[self.name][n].send(:matches?, fixable, include_flagged) }
         methods += a
