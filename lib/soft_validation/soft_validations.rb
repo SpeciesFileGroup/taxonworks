@@ -34,8 +34,8 @@ module SoftValidation
     # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
     #   the method identified by :fix should fully resolve the SoftValidation.
     def add(attribute, message, options = {})
-      source = caller[0][/`([^']*)'/, 1].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
-    
+      source = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
+
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
       raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
       # raise SoftValidationError, 'if one of :success_message or :failure_message provided both must be' if (!options[:success_message].nil? || !options[:failure_message].nil?) && ( options[:success_message].nil? || options[:failure_message].nil? )

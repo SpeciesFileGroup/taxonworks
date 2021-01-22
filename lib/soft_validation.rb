@@ -341,11 +341,8 @@ module SoftValidation
   # access in controller) defined the scope.
   def fix_soft_validations
     return false if !soft_validated?
-
     soft_validations.soft_validations.each do |v|
-
-
-      if fix =  fix_for(v.soft_validation_method)
+      if fix = fix_for(v.soft_validation_method)
         if self.send(fix)
           v.fixed = :fixed
         else
