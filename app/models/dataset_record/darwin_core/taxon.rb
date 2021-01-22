@@ -1,12 +1,12 @@
 class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
-  KNOWN_KEYS_COMBINATIONS = [ # TODO: Review subGenus/infraSpecies when biodiversity gem is updated
+  KNOWN_KEYS_COMBINATIONS = [
     %i{uninomial},
     %i{uninomial rank parent},
     %i{genus species},
-    %i{genus species infraSpecies},
-    %i{genus subGenus species},
-    %i{genus subGenus species infraSpecies}
+    %i{genus species infraspecies},
+    %i{genus subgenus species},
+    %i{genus subgenus species infraspecies}
   ]
 
   def import

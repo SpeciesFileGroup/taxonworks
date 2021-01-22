@@ -15,9 +15,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         unless parse_details[:uninomial]
           names << ["genus", parse_details[:genus]]
-          names << ["subgenus", parse_details[:subGenus]] # TODO: Change to subgenus when fixed in biodiversity gem
+          names << ["subgenus", parse_details[:subgenus]]
           names << ["species", parse_details[:species]]
-          names << ["subspecies", parse_details[:infraSpecies]&.first&.dig(:value)] # TODO: Might require change to infraspecies when biodiversity gem get updated
+          names << ["subspecies", parse_details[:infraspecies]&.first&.dig(:value)]
         else
           names << ["genus", parse_details[:parent]] if parse_details[:parent]
           names << [/subgen/ =~ parse_details[:rank] ? "subgenus" : nil, parse_details[:uninomial]]
