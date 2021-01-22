@@ -2,7 +2,7 @@
   <div class="panel separate-bottom">
     <div
       class="content"
-      :class="{ 'feedback-warning': taxonName && taxonName.id != taxonName.cached_valid_taxon_name_id }">
+      :class="{ 'feedback-warning': isInvalid }">
       <ul
         v-if="navigation"
         class="breadcrumb_list">
@@ -53,6 +53,13 @@
             :global-id="otu.global_id"
             type="annotations"/>
           <quick-forms :global-id="otu.global_id"/>
+          <button
+            v-if="isInvalid"
+            v-help.section.header.validButton
+            class="button button-default normal-input"
+            @click="openValid">
+            Browse current OTU
+          </button>
         </div>
       </div>
       <span
@@ -86,6 +93,7 @@ import getOSKey from 'helpers/getMacKey.js'
 import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import componentNames from '../const/componentNames.js'
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -107,6 +115,9 @@ export default {
   computed: {
     taxonName () {
       return this.$store.getters[GetterNames.GetTaxonName]
+    },
+    isInvalid () {
+      return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
     }
   },
   data () {
@@ -152,6 +163,9 @@ export default {
       const rankGroup = componentSection.rankGroup
 
       return rankGroup ? this.taxonName ? ShowForThisGroup(rankGroup, this.taxonName) : componentSection.otu : true
+    },
+    openValid () {
+      window.open(`${RouteNames.BrowseOtu}?taxon_name_id=${this.taxonName.cached_valid_taxon_name_id}`)
     }
   }
 

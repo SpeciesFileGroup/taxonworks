@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 - Add image attributions, original citation and editor options in image viewer [#1978]
+- Browse current OTU button in Browse OTU
 
 ### Changed
 - Some tasks route names were "malformed" and renamed
