@@ -137,7 +137,7 @@ module TaxonWorks
 
         # @return [String, nil]
         def infraspecies(biodiversity_rank)
-          detail.dig(:infraSpecies, :infraSpecies)&.detect { |e| e[:rank] == biodiversity_rank }&.dig(:value)
+          detail.dig(:infraspecies, :infraspecies)&.detect { |e| e[:rank] == biodiversity_rank }&.dig(:value)
         end
 
         # @return [Integer]
