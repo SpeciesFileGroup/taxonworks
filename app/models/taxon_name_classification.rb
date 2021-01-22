@@ -247,9 +247,9 @@ class TaxonNameClassification < ApplicationRecord
         end
       end
     rescue ActiveRecord::RecordInvalid
-      # should return false here, right?
+      false
     end
-#    false # TODO: why false, success == true?
+    true
   end
 
   #region Validation

@@ -374,7 +374,7 @@ module Protonym::SoftValidationExtensions
       s = self.source
       list_of_coordinated_names.each do |t|
         if ((s && t.source && s.id != t.source.id) || (s.nil? && t.source))
-          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinate #{t.rank_class.rank_name}", success_message: 'Original publication was updated')
+          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinate #{t.rank_class.rank_name}", success_message: 'Original publication was updated', failure_message:  'Failed to update original publication')
         end
       end
     end
@@ -403,7 +403,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_author
       s = self.verbatim_author
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinate #{t.rank_class.rank_name}", success_message: 'Author was updated') unless s == t.verbatim_author
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinate #{t.rank_class.rank_name}", success_message: 'Author was updated', failure_message:  'Failed to update author') unless s == t.verbatim_author
       end
     end
 
@@ -421,7 +421,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_year
       s = self.year_of_publication
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinate #{t.rank_class.rank_name}", success_message: 'Year was updated') unless s == t.year_of_publication
+        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinate #{t.rank_class.rank_name}", success_message: 'Year was updated', failure_message:  'Failed to update year') unless s == t.year_of_publication
       end
     end
 
@@ -442,7 +442,7 @@ module Protonym::SoftValidationExtensions
       s = self.gender_class
       list_of_coordinated_names.each do |t|
         if s != t.gender_class
-          soft_validations.add(:base, "The gender status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Gender was updated')
+          soft_validations.add(:base, "The gender status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Gender was updated', failure_message:  'Failed to update gender')
         end
       end
     end
@@ -463,7 +463,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
         if self.part_of_speech_class != t.part_of_speech_class
-          soft_validations.add(:base, "The part of speech status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Part of speech was updated')
+          soft_validations.add(:base, "The part of speech status does not match with that of the coordinate #{t.rank_class.rank_name}", success_message: 'Part of speech was updated', failure_message:  'Failed to update part of speech')
         end
       end
     end
@@ -483,7 +483,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_genus_or_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if self.original_genus.try(:name) != t.original_genus.try(:name)
-          soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", success_message: 'Original genus was updated')
+          soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", success_message: 'Original genus was updated', failure_message:  'Failed to update original genus')
         end
       end
     end
@@ -513,7 +513,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_genus_or_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subgenus.try(:name) != t.original_subgenus.try(:name)
-          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinate #{t.rank_class.rank_name}", success_message: 'Original subgenus was updated')
+          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinate #{t.rank_class.rank_name}", success_message: 'Original subgenus was updated', failure_message:  'Failed to update original subgenus')
         end
       end
     end
@@ -543,7 +543,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_species.try(:name) != t.original_species.try(:name)
-          soft_validations.add(:base, "The original species does not match with the original species of coordinate #{t.rank_class.rank_name}", success_message: 'Original species was updated')
+          soft_validations.add(:base, "The original species does not match with the original species of coordinate #{t.rank_class.rank_name}", success_message: 'Original species was updated', failure_message:  'Failed to update original species')
         end
       end
     end
@@ -573,7 +573,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subspecies.try(:name) != t.original_subspecies.try(:name)
-          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinate #{t.rank_class.rank_name}", success_message: 'Original subspecies was updated')
+          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinate #{t.rank_class.rank_name}", success_message: 'Original subspecies was updated', failure_message:  'Failed to update original subspecies')
         end
       end
     end
@@ -603,7 +603,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_variety.try(:name) != t.original_variety.try(:name)
-          soft_validations.add(:base, "The original variety does not match with the original variety of coordinate #{t.rank_class.rank_name}", success_message: 'Original variety was updated')
+          soft_validations.add(:base, "The original variety does not match with the original variety of coordinate #{t.rank_class.rank_name}", success_message: 'Original variety was updated', failure_message:  'Failed to update original variety')
         end
       end
     end
@@ -633,7 +633,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_form.try(:name) != t.original_form.try(:name)
-          soft_validations.add(:base, "The original form does not match with the original form of coordinate #{t.rank_class.rank_name}", success_message: 'Original form was updated')
+          soft_validations.add(:base, "The original form does not match with the original form of coordinate #{t.rank_class.rank_name}", success_message: 'Original form was updated', failure_message:  'Failed to update original form')
         end
       end
     end
@@ -664,7 +664,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_genus_rank?
       list_of_coordinated_names.each do |t|
         if self.type_species != t.type_species
-          soft_validations.add(:base, "The type species does not match with the type species of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species was updated')
+          soft_validations.add(:base, "The type species does not match with the type species of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species was updated', failure_message:  'Failed to update type species')
         end
       end
     end
@@ -697,7 +697,7 @@ module Protonym::SoftValidationExtensions
       list_of_coordinated_names.each do |t|
         tttnr = t.type_taxon_name_relationship
         if !tttnr.nil? && sttnr.type != tttnr.type
-          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species relationship was updated')
+          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinate #{t.rank_class.rank_name}", success_message: 'Type species relationship was updated', failure_message:  'Failed to update type species relationship')
         end
       end
     end
@@ -730,7 +730,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_family_rank?
       list_of_coordinated_names.each do |t|
         if self.type_genus != t.type_genus
-          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinate #{t.rank_class.rank_name}", success_message: 'Type genus was updated')
+          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinate #{t.rank_class.rank_name}", success_message: 'Type genus was updated', failure_message:  'Failed to update type genus')
         end
       end
     end
@@ -760,7 +760,7 @@ module Protonym::SoftValidationExtensions
       return true if !is_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if !self.has_same_primary_type(t)
-          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", success_message: 'The type specimen was updated')
+          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", success_message: 'Type specimen was updated', failure_message:  'Failed to update type specimen')
         end
       end
     end
@@ -956,7 +956,7 @@ module Protonym::SoftValidationExtensions
             # do nothing
           elsif !sister_names.include?(self.parent.name) && !sisters.empty?
             soft_validations.add(:base, "The parent #{self.parent.rank_class.rank_name} #{self.parent.cached_html} of this #{self.rank_class.rank_name} does not contain nominotypical #{self.rank_class.rank_name} #{self.parent.name}",
-                                 success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}")
+                                 success_message: "Nominotypical #{self.rank_class.rank_name} #{self.parent.name} was added to nominal #{self.parent.rank_class.rank_name} #{self.parent.name}", failure_message:  'Failed to create nomynotypical taxon')
           end
         end
       end
@@ -1214,7 +1214,7 @@ module Protonym::SoftValidationExtensions
       if convertable_to_combination?
         soft_validations.add(
           :base, "Invalid #{self.cached_original_combination_html} could be converted into a Combination",
-          success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination")
+          success_message: "Protonym #{self.cached_original_combination_html} was successfully converted into a combination", failure_message:  'Failed to convert protonym into combination')
       end
     end
 
@@ -1226,7 +1226,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_year_is_not_required
       if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
-        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', success_message: 'Year of publication was deleted')
+        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', success_message: 'Year was deleted', failure_message: 'Failed to delete year')
       end
     end
 
@@ -1237,7 +1237,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_author_is_not_required
       if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
-        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', success_message: 'Taxon name verbatim author was deleted')
+        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', success_message: 'Verbatim author was deleted', failure_message:  'Failed to delete verbatim author')
       end
     end
 
@@ -1250,7 +1250,7 @@ module Protonym::SoftValidationExtensions
       if !self.roles.empty? && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
-          success_message: 'Roles were deleted')
+          success_message: 'Roles were deleted', failure_message:  'Fail to delete roles')
       end
     end
 
@@ -1265,7 +1265,7 @@ module Protonym::SoftValidationExtensions
       if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
-          success_message: 'Verbatim author was deleted')
+          success_message: 'Verbatim author was deleted', failure_message:  'Failed to delete verbatim author')
       end
     end
 
@@ -1278,7 +1278,7 @@ module Protonym::SoftValidationExtensions
       if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :year_of_publication, 'Year is not required for misspellings and misapplications',
-          success_message: 'Year was deleted')
+          success_message: 'Year was deleted', failure_message:  'Failed to delete year')
       end
     end
 
@@ -1319,7 +1319,7 @@ module Protonym::SoftValidationExtensions
 
     soft_validations.add(
         :base, 'Cached values should be updated',
-        fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
+        success_message: 'Cached values were updated', failure_message:  'Failed to update cached values'
     ) if !is_cached
   end
 end

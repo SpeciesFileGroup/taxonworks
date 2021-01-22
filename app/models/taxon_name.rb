@@ -1468,7 +1468,7 @@ class TaxonName < ApplicationRecord
 
   def sv_parent_is_valid_name
     if !parent.nil? && parent.unavailable_or_invalid?
-      soft_validations.add(:parent_id, 'Parent should be a valid taxon', success_message: 'Parent was updated')
+      soft_validations.add(:parent_id, 'Parent should be a valid taxon', success_message: 'Parent was updated', failure_message:  'Failed to update parent')
     end
   end
 

@@ -656,7 +656,7 @@ class TaxonNameRelationship < ApplicationRecord
       subj = self.subject_taxon_name
         if subj.rank_class.try(:nomenclatural_code) == :iczn && obj.parent_id != subj.parent_id &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
         soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
-                             success_message: 'The parent was updated')
+                             success_message: 'Parent was updated', failure_message:  'Failed to update parent')
       end
     end
   end
@@ -739,7 +739,7 @@ class TaxonNameRelationship < ApplicationRecord
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
       soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
-                           success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
 
@@ -749,7 +749,7 @@ class TaxonNameRelationship < ApplicationRecord
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
-                           success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
 

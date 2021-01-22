@@ -137,11 +137,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @genus.year_of_publication = @genus.source.year
         @genus.save
         @genus.soft_validate(only_sets: :year_is_not_required)
-        
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_falsey
-
         @genus.fix_soft_validations
-
         @genus.soft_validate(only_sets: :year_is_not_required)
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end

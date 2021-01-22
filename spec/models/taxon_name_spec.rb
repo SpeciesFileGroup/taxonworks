@@ -321,10 +321,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             specify 'missing cached values' do
               @s.save
               @s.update_column(:cached_original_combination, 'aaa')
-              @s.soft_validate(:cached_names)
+              @s.soft_validate(only_sets: :cached_names)
               expect(@s.soft_validations.messages_on(:base).count).to eq(1)
               @s.fix_soft_validations
-              @s.soft_validate(:cached_names)
+              @s.soft_validate(only_sets: :cached_names)
               expect(@s.soft_validations.messages_on(:base).empty?).to be_truthy
             end
           end
@@ -515,15 +515,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           c1 = FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-          s.soft_validate(:parent_is_valid_name)
-          g.soft_validate(:parent_is_valid_name)
+          s.soft_validate(only_sets: :parent_is_valid_name)
+          g.soft_validate(only_sets: :parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
 
           # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
 
           s.fix_soft_validations
-          s.soft_validate(:parent_is_valid_name)
+          s.soft_validate(only_sets: :parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).empty?).to be_truthy
         end
 
@@ -532,10 +532,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           b  = FactoryBot.create(:relationship_genus, name: 'Bus', parent: @family)
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
           r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: b, object_taxon_name: a)
-          a.soft_validate(:not_synonym_of_self)
+          a.soft_validate(only_sets: :not_synonym_of_self)
           expect(a.soft_validations.messages_on(:base).count).to eq(1)
           s = TaxonNameClassification::Iczn::Available::Valid.create(taxon_name: a)
-          a.soft_validate(:not_synonym_of_self)
+          a.soft_validate(only_sets: :not_synonym_of_self)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)
         end
 
@@ -548,13 +548,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: b)
           r2 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create(subject_taxon_name: a, object_taxon_name: c)
 
-          a.soft_validate(:two_unresolved_alternative_synonyms)
+          a.soft_validate(only_sets: :two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(1)
           r1.source = s1
           r1.save
 
           a.reload
-          a.soft_validate(:two_unresolved_alternative_synonyms)
+          a.soft_validate(only_sets: :two_unresolved_alternative_synonyms)
           expect(a.soft_validations.messages_on(:base).count).to eq(0)
         end
       end
