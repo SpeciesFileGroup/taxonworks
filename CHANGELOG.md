@@ -49,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show coordinates from verbatim georeference
 - Parsed verbatim label to fields
 - Parsed EXIF coordinates to verbatim fields
+- Changed autocomplete label [#1988]
 
 ### Fixed
 - Loan items reference proper housekeeping in table
@@ -77,6 +78,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
 [#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
 [#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
+[#1988]: https://github.com/SpeciesFileGroup/taxonworks/issues/1988
 
 ## [0.15.1] - 2020-12-14
 ### Added

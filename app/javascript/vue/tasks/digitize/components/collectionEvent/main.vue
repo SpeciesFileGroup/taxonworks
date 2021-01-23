@@ -32,7 +32,7 @@
             Modifying existing ({{ alreadyUsed }} uses)
           </span>
           <span v-else>
-            New record
+            New CE record.
           </span>
         </div>
         <div
