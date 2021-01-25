@@ -29,11 +29,6 @@
     <nav-bar>
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
-          <span
-            class="word_break"
-            v-if="collectingEvent.id"
-            v-html="collectingEvent.object_tag"/>
-          <span v-else>New record</span>
           <template v-if="collectingEvent.id">
             <pin-component
               :object-id="collectingEvent.id"
@@ -41,6 +36,13 @@
             <radial-annotator :global-id="collectingEvent.global_id"/>
             <radial-object :global-id="collectingEvent.global_id"/>
           </template>
+          <span
+            v-if="collectingEvent.id"
+            class="margin-small-left"
+            v-html="collectingEvent.object_tag"/>
+          <span
+            class="margin-small-left"
+            v-else>New record</span>
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content">

@@ -1,10 +1,26 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      :disabled="!ceId"
-      @click="showModal = true">Add/Current ({{ list.length }})</button>
+    <div>
+      <spinner-component
+        v-if="isLoading"
+        legend="Loading"
+        spinner-position="left"
+        :legend-style="{
+          fontSize: '14px'
+        }"
+        :logo-size="{
+          width: '14px',
+          height: '14px',
+          marginRight: '4px'
+        }"
+      />
+      <button
+        type="button"
+        class="button normal-input button-default"
+        :disabled="!ceId"
+        @click="showModal = true">
+        Add/Current ({{ list.length }})</button>
+    </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
