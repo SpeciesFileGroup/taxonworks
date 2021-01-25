@@ -21,12 +21,22 @@ module CollectingEventsHelper
       collecting_event_collectors_tag(collecting_event),
       collecting_event_coordinates_tag(collecting_event),
       collecting_event_method_habitat_tag(collecting_event),
+      collecting_event_uses_tag(collecting_event)
     ].compact.join(join_string).html_safe
   end
 
+ def collecting_event_uses_tag(collecting_event)
+    return nil if collecting_event.nil?
+    if collecting_event.collection_objects.any?
+      content_tag(:span, 'Uses: ' + collecting_event.collection_objects.count.to_s, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
+    else
+      nil
+    end
+ end
+
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
-    if i = collecting_event.identifiers.first
+    if i = collecting_event.identifiers.load.first
       collecting_event.identifiers.collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
       }.join

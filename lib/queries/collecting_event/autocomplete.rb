@@ -17,7 +17,7 @@ module Queries
 
       def autocomplete_verbatim_label_md5
         return nil if query_string.length < 4
-        md5 = Utilities::Strings.generate_md5(query_string) 
+        md5 = Utilities::Strings.generate_md5(query_string)
         base_query.where( table[:md5_of_verbatim_label].eq(md5)).limit(3)
       end
 
@@ -26,8 +26,8 @@ module Queries
         matching_person_cached(:collector).limit(20)
       end
 
-      def autocomplete_start_date_wild_card(field = :verbatim_locality) 
-        a = with_start_date 
+      def autocomplete_start_date_wild_card(field = :verbatim_locality)
+        a = with_start_date
         b = fragments
         return nil if a.nil? || b.empty? || field.nil?
         base_query.where( a.and(table[field].matches(b.join)).to_sql).limit(20)
@@ -66,7 +66,7 @@ module Queries
       end
 
       def autocomplete_verbatim_locality_wildcard_end_starting_year
-        a = years 
+        a = years
         return nil if query_string.length < 7 || a.empty?
         base_query.where(
           table[:start_date_year].eq_any(a).
@@ -86,7 +86,7 @@ module Queries
           autocomplete_identifier_cached_like.limit(4),
           autocomplete_verbatim_trip_identifier_match,
           autocomplete_start_or_end_date,
-          autocomplete_start_date_wild_card(:verbatim_locality), 
+          autocomplete_start_date_wild_card(:verbatim_locality),
           autocomplete_start_date_wild_card(:cached),
           autocomplete_matching_collectors,
           autocomplete_verbatim_latitude_or_longitude,
@@ -95,18 +95,18 @@ module Queries
           autocomplete_verbatim_habitat,
           autocomplete_verbatim_locality_wildcard_end,
           autocomplete_verbatim_locality_wildcard_end_starting_year,
-          
+
           autocomplete_cached_wildcard_anywhere,
         ]
 
         queries.compact!
 
-        return [] if queries.nil?
+        return [] if queries.empty?
         updated_queries = []
 
         queries.each_with_index do |q ,i|
           a = q.where(project_id: project_id) if project_id
-          a ||= q 
+          a ||= q
           updated_queries[i] = a
         end
 
@@ -114,7 +114,7 @@ module Queries
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 39 
+          break if result.count > 29
         end
         result[0..39]
       end
