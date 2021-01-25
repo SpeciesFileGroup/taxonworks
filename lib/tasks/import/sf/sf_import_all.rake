@@ -125,7 +125,9 @@ namespace :tw do
 
           'specimens:set_dwc_occurrence',
 
-          'citations:soft_validation_fixes'
+          'citations:soft_validation_fixes',
+
+          'media:image_data'
         ]
 
         tasks.each.with_index(1) do |task, index|
