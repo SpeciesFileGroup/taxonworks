@@ -62,56 +62,6 @@ namespace :tw do
 
         desc 'time rake tw:project_import:sf_import:media:image_data user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define image_data: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
-          # TODO: SourceID not imported!
-
-          # Images table (15 col)
-          # id
-          # user_file_name
-          # height
-          # width
-          # image_file_fingerprint
-          # image_file_file_name
-          # image_file_content_type
-          # image_file_file_size
-          # image_file_updated_at
-          # image_file_meta
-          # housekeeping (including project_id)
-          #
-          # Depictions table (12 columns)
-          # id
-          # depiction_object_type/id (collection_object, otu)
-          # image_id
-          # position
-          # caption
-          # figure_label
-          # housekeeping (including project_id)
-
-          # SF.tblImages
-          # ImageID
-          # TrueID
-          # FileID
-          # SeqNum
-          # TaxonNameID
-          # Status
-          # ImageTypeID
-          # MIME
-          # SexID
-          # Description
-          # SourceID
-          # Figure
-          # SpecimenID
-          # Thumb
-          # Xsize
-          # Ysize
-          # Image
-          # AccessCode
-          # (housekeeping)
-
-          # have 187,172 taxon determinations (biological_collection_object_id, otu_id)
-
-          # have 92,692 collection objects (collecting_event_id)
-
-
           import = Import.find_or_create_by(name: 'SpeciesFileData')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
           get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
@@ -123,11 +73,6 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
-          # otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id]  # used for taxon_determination
-          # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id (assign to all objects within a container)
-          #
-          #
-
           CSV.foreach(@args[:data_directory] + 'tblImages.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
             image = Image.joins(:identifiers).merge(
               Identifier.where(identifier: image_identifier(get_project_website_name[get_tw_project_id[row['FileID']].to_i], row['ImageID']))
@@ -138,62 +83,59 @@ namespace :tw do
               next
             end
 
+            tw_taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # may not exist
             specimen_id = row['SpecimenID']
 
-            tw_taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # may not exist
             otu_id = get_taxon_name_otu_id[tw_taxon_name_id].to_i
-            collection_object_id = get_tw_collection_object_id[specimen_id] || []
+            collection_object_ids = get_tw_collection_object_id[specimen_id] || []
 
-            if collection_object_id.length > 1
-              # Not dealing with SpecimenIDs split into multiple CollectionObjects at this time
-              logger.warn "Skipping ImageID = #{row['ImageID']}, collection_object_id = #{collection_object_id}, SpecimenID = #{specimen_id}"
-              next
-            end
+            depiction_objects = collection_object_ids.empty? ? [Otu.find_by(id: otu_id)] : CollectionObject.where(id: collection_object_ids).all
 
-            collection_object_id = collection_object_id.first
-            depiction_object = collection_object_id.nil? ? Otu.find_by(id: otu_id) : CollectionObject.find(collection_object_id)
-
-            unless depiction_object
+            if depiction_objects.compact.empty?
               logger.error "Depiction object not found for ImageID = #{row['ImageID']}, TaxonNameID = #{row['TaxonNameID']}, SpecimenID = #{row['SpecimenID']}"
               next
             end
 
-            depiction = Depiction.create({
-              depiction_object: depiction_object,
-              figure_label: row['Figure'],
-              caption: row['Description'],
-              image: image,
-              created_at: image.created_at,
-              updated_at: image.updated_at,
-              created_by_id: image.created_by_id,
-              updated_by_id: image.updated_by_id,
-              project_id: image.project_id
-            })
-
-            logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
-
-            unless row['SourceID'] == '0'
-              source = get_sf_source_metadata[row['SourceID']]
-              ref_id = source["ref_id"]
-
-              if ref_id == '0'
-                logger.warn "Skipping SourceID = #{row['SourceID']} without RefID"
-                next
-              end
-
-              logger.warn "Source description not imported" unless row['SourceID'].empty?
-              
-              citation = Citation.create({
-                is_original: true,
-                source_id: get_tw_source_id[ref_id],
-                citation_object: image,
+            depiction_objects.each do |depiction_object|
+              depiction = Depiction.create({
+                depiction_object: depiction_object,
+                figure_label: row['Figure'],
+                caption: row['Description'],
+                image: image,
                 created_at: image.created_at,
                 updated_at: image.updated_at,
                 created_by_id: image.created_by_id,
                 updated_by_id: image.updated_by_id,
                 project_id: image.project_id
               })
-              logger.error "Error saving ImageID = #{row['ImageID']}, SourceID = #{row['SourceID']}: #{citation.errors.full_messages}" unless citation.errors.empty?
+
+              logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
+
+              unless row['SourceID'] == '0'
+                source = get_sf_source_metadata[row['SourceID']]
+                ref_id = source["ref_id"]
+
+                if ref_id == '0'
+                  logger.warn "Skipping SourceID = #{row['SourceID']} without RefID"
+                  next
+                end
+
+                logger.warn "Source description not imported" unless row['SourceID'].empty?
+
+                citation = Citation.create({
+                  is_original: true,
+                  source_id: get_tw_source_id[ref_id],
+                  citation_object: image,
+                  created_at: image.created_at,
+                  updated_at: image.updated_at,
+                  created_by_id: image.created_by_id,
+                  updated_by_id: image.updated_by_id,
+                  project_id: image.project_id
+                })
+
+                logger.error "Error saving ImageID = #{row['ImageID']}, SourceID = #{row['SourceID']}: #{citation.errors.full_messages}" unless citation.errors.empty?
+              end
+
             end
 
           end
