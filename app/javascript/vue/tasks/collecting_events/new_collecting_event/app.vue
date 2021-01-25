@@ -32,7 +32,7 @@
           <span
             class="word_break"
             v-if="collectingEvent.id"
-            v-html="collectingEvent.cached"/>
+            v-html="collectingEvent.object_tag"/>
           <span v-else>New record</span>
           <template v-if="collectingEvent.id">
             <pin-component
