@@ -44,21 +44,6 @@
         </div>
         <ul class="context-menu no_bullets">
           <li class="horizontal-right-content">
-            <span class="margin-small-right">Collection object:</span>
-            <button
-              type="button"
-              class="button normal-input button-default margin-small-right"
-              @click="openComprehensive"
-              :disabled="!collectingEvent.id">
-              New
-            </button>
-            <collection-objects-table
-              class="margin-small-right"
-              :ce-id="collectingEvent.id"/>
-            <parse-data
-              @onParse="setCollectingEvent"/>
-          </li>
-          <li class="horizontal-right-content">
             <span
               v-if="isUnsaved"
               class="medium-icon margin-small-right"
@@ -113,11 +98,30 @@
         :sortable="settings.sortable"
         :soft-validation="validation"
         class="full_width" />
-      <right-section
-        :value="collectingEvent"
-        :soft-validation="validation"
-        @select="loadCollectingEvent($event.id)"
-        class="separate-left" />
+      <div class="margin-medium-left">
+        <div class="panel content">
+          <h3>Collection object</h3>
+          <div class="horizontal-left-content">
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-right"
+              @click="openComprehensive"
+              :disabled="!collectingEvent.id">
+              New
+            </button>
+            <collection-objects-table
+              class="margin-small-right"
+              :ce-id="collectingEvent.id"/>
+            <parse-data
+              @onParse="setCollectingEvent"/>
+          </div>
+        </div>
+        <right-section
+          :value="collectingEvent"
+          :soft-validation="validation"
+          @select="loadCollectingEvent($event.id)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -149,7 +153,6 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
 import { GetCollectionObject } from './request/resources'
-import updateLastChange from './store/mutations/updateLastChange'
 
 export default {
   components: {
@@ -250,5 +253,9 @@ export default {
 <style scoped>
   .button-size {
     width: 100px;
+  }
+
+  /deep/ .vue-autocomplete {
+    width: 600px;
   }
 </style>

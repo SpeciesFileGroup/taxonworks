@@ -187,7 +187,7 @@ export default {
     }
   },
   methods: {
-    createCOs (index = 0) {
+    async createCOs (index = 0) {
       this.index = index + 1
       this.isSaving = true
       if (index < this.count) {
@@ -212,19 +212,19 @@ export default {
             }] : undefined
           }] : undefined
         }
-
-        CreateCollectionObject(co).then(response => {
+        const promises = []
+        await CreateCollectionObject(co).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
-            CreateTaxonDetermination(determination)
+            promises.push(CreateTaxonDetermination(determination))
           })
           this.biocurations.forEach(biocurationId => {
-            CreateBiocurationClassification({
+            promises.push(CreateBiocurationClassification({
               biocuration_classification: {
                 biocuration_class_id: biocurationId,
                 biological_collection_object_id: response.body.id
               }
-            })
+            }))
           })
         }, (error) => {
           this.noCreated.unshift({
@@ -234,7 +234,9 @@ export default {
           })
         }).finally(() => {
           index++
-          this.createCOs(index)
+          Promise.all(promises).then(() => {
+            this.createCOs(index)
+          })
         })
       } else {
         this.isSaving = false

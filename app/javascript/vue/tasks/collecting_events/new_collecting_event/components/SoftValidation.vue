@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="softValidation.length"
-    class="panel content soft-validation-box separate-top validation-warning">
+    class="panel content soft-validation-box validation-warning">
     <div class="margin-medium-left">
       <h3>Soft validation</h3>
     </div>
