@@ -44,8 +44,7 @@ namespace :tw do
                   updated_at: row['LastUpdate'],
                   identifiers: [
                     Identifier::Global.new(
-                      identifier: "http://#{get_project_website_name[project_id]}.speciesfile.org/" +
-                                  "Common/basic/ShowImage.aspx?ImageID=#{row['ImageID']}",
+                      identifier: image_identifier(get_project_website_name[project_id], row['ImageID']),
                       project_id: project_id,
                       created_by_id: get_tw_user_id[row['CreatedBy']],
                       updated_by_id: get_tw_user_id[row['ModifiedBy']]
@@ -61,10 +60,8 @@ namespace :tw do
 
         end
 
-        # NOTE: Use argument 'no_images=1' if you want to create depictions without "uploading" the actual images (works much faster)
-        desc 'time rake tw:project_import:sf_import:media:images user_id=1 data_directory=~/src/onedb2tw/working/'
-        LoggedTask.define images: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
-          raise 'TASK NEEDS TO BE REIMPLEMENTED FROM SCRATCH'
+        desc 'time rake tw:project_import:sf_import:media:image_data user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define image_data: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           # TODO: SourceID not imported!
 
           # Images table (15 col)
@@ -116,242 +113,90 @@ namespace :tw do
 
 
           import = Import.find_or_create_by(name: 'SpeciesFileData')
-          skipped_file_ids = import.get('SkippedFileIDs')
-          excluded_taxa = import.get('ExcludedTaxa')
-          # get_sf_file_id = import.get('SFTaxonNameIDToSFFileID')
-          get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
           get_tw_project_id = import.get('SFFileIDToTWProjectID')
-          # get_tw_person_id = import.get('SFPersonIDToTWPersonID')
-          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_sf_taxon_name_id = import.get('SFSpecimenIDToSFTaxonNameID')
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
           get_taxon_name_otu_id = import.get('TWTaxonNameIDToOtuID')
           get_tw_collection_object_id = import.get('SFSpecimenIDToCollObjID')
           get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID') # an ill-formed SF taxon name
+          get_sf_source_metadata = import.get('SFSourceMetadata')
+          get_tw_source_id = import.get('SFRefIDToTWSourceID')
+          get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
           # otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id]  # used for taxon_determination
           # get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id (assign to all objects within a container)
           #
           #
 
-          path_to_images = @args[:data_directory] + 'images/'
-          counter = 0
-          no_coll_count = 0
-          no_otu_count = 0
+          CSV.foreach(@args[:data_directory] + 'tblImages.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            image = Image.joins(:identifiers).merge(
+              Identifier.where(identifier: image_identifier(get_project_website_name[get_tw_project_id[row['FileID']].to_i], row['ImageID']))
+            ).first
+            
+            unless image
+              logger.info "ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}, Status = #{row['Status']} not found"
+              next
+            end
 
-          path = @args[:data_directory] + 'tblImages.txt'
-          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+            specimen_id = row['SpecimenID']
 
-          skipped_file_ids << 0
+            tw_taxon_name_id = get_tw_taxon_name_id[row['TaxonNameID']] # may not exist
+            otu_id = get_taxon_name_otu_id[tw_taxon_name_id].to_i
+            collection_object_id = get_tw_collection_object_id[specimen_id] || []
 
-          default_images = {}
+            if collection_object_id.length > 1
+              # Not dealing with SpecimenIDs split into multiple CollectionObjects at this time
+              logger.warn "Skipping ImageID = #{row['ImageID']}, collection_object_id = #{collection_object_id}, SpecimenID = #{specimen_id}"
+              next
+            end
 
-          file.each_with_index do |row, i|
-            begin
-              if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0
-                # HLP: Lets start by not exposing data that could potentially be part of a manuscript for now.
-                # Emit a warning to remind us in the future of the missing images.
-                logger.warn "Skipping ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}, Status = #{row['Status']}"
+            collection_object_id = collection_object_id.first
+            depiction_object = collection_object_id.nil? ? Otu.find_by(id: otu_id) : CollectionObject.find(collection_object_id)
+
+            unless depiction_object
+              logger.error "Depiction object not found for ImageID = #{row['ImageID']}, TaxonNameID = #{row['TaxonNameID']}, SpecimenID = #{row['SpecimenID']}"
+              next
+            end
+
+            depiction = Depiction.create({
+              depiction_object: depiction_object,
+              figure_label: row['Figure'],
+              caption: row['Description'],
+              image: image,
+              created_at: image.created_at,
+              updated_at: image.updated_at,
+              created_by_id: image.created_by_id,
+              updated_by_id: image.updated_by_id,
+              project_id: image.project_id
+            })
+
+            logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
+
+            unless row['SourceID'] == '0'
+              source = get_sf_source_metadata[row['SourceID']]
+              ref_id = source["ref_id"]
+
+              if ref_id == '0'
+                logger.warn "Skipping SourceID = #{row['SourceID']} without RefID"
                 next
               end
 
-              sf_file_id = row['FileID']
-              next if skipped_file_ids.include? sf_file_id.to_i
-
-              sf_taxon_name_id = row['TaxonNameID']
-              next if excluded_taxa.include? sf_taxon_name_id
-
-              specimen_id = row['SpecimenID']
-              project_id = get_tw_project_id[sf_file_id]
-
-              #logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id}"
-
-              # not yet in db:collection_object_id = get_tw_collection_object_id[specimen_id] if specimen_id.to_i > 0
-
-              tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id] # may not exist
-              otu_id = get_taxon_name_otu_id[tw_taxon_name_id].to_i
-              collection_object_id = get_tw_collection_object_id[specimen_id] || []
-
-              if collection_object_id.length > 1
-                # Not dealing with SpecimenIDs split into multiple CollectionObjects at this time
-                logger.warn "Skipping ImageID = #{row['ImageID']}, collection_object_id = #{collection_object_id}, SpecimenID = #{specimen_id}"
-                next
-              end
-
-              collection_object_id = collection_object_id.first
-
-              logger.info "ImageID = #{row['ImageID']}, SpecimenID = #{specimen_id}, SF.TaxonNameID = #{sf_taxon_name_id}, FileID = #{sf_file_id}" if otu_id.nil?
-
-              # HLP: By the AccessCode contraint above, otu_id is never nil
-              # if otu_id.nil?
-              #  if specimen_id.to_i > 0
-              #     otu_id = get_tw_otu_id[get_sf_taxon_name_id[specimen_id]]
-              #  else  # assume there is a sf_taxon_name_id
-              #      otu_id = get_tw_otu_id[sf_taxon_name_id]
-              #  end
-              # end
-
-
-              logger.info "Working on SF.TaxonNameID = #{sf_taxon_name_id}, tw.taxon_name_id = #{tw_taxon_name_id}, SF.SpecimenID = #{specimen_id}, collection_object_id = #{collection_object_id}, otu_id = #{otu_id}, project_id = #{project_id}, counter = #{counter += 1}"
-              logger.info "ImageID = #{row['ImageID']}, TrueID = #{row['TrueID']}, no_coll_count = #{no_coll_count}, no_otu_count = #{no_otu_count}"
-
-              #if specimen_id.to_i > 0 && collection_object_id.nil? # 3895/124,719
-              #  logger.warn "No collection object, counter = #{no_coll_count += 1}"
-              #end
-              #if otu_id.nil? # 347/124,719
-              #  logger.warn "No otu, counter = #{no_otu_count += 1}"
-              #end
-
-              depiction_object = collection_object_id.nil? ? Otu.find(otu_id) : CollectionObject.find(collection_object_id)
-
-              # depiction object: if collection_object_id not nil, use it, otherwise use otu_id
-              depiction_attributes = {
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                  project_id: get_tw_project_id[row['FileID']],
-                  depiction_object: depiction_object
-              }
-              project_id = get_tw_project_id[row['FileID']].to_i
-              depiction = nil
-
-              if ENV['no_images'].nil?
-                File.open("#{@args[:data_directory]}/images/#{row['ImageID']}") do |file|
-                  depiction = Depiction.create(
-                      depiction_attributes.merge(
-                          image_attributes: {image_file: file, project_id: project_id}
-                      )
-                  )
-                end
-              else
-                image = default_images[project_id] ||
-                    (default_images[project_id] = Image.create!({
-                                                                    image_file: File.open('public/images/missing.jpg'),
-                                                                    project_id: project_id
-                                                                }))
-                # Separate instances will be absolutely required later when adding attributions and other relations that may appear
-                image = image.dup
-                image.save!
-
-                depiction = Depiction.create(depiction_attributes.merge({ image: image }))
-
-                ##### Symlink image file from original Image to avoid broken <img> [WARNING: Deleting Image instance causes all of them to get broken]
-                path = ('%09d' % image.id).scan /.{3}/
-                FileUtils.mkdir_p 'public/system/images/image_files/' + path[0..1].join('/')
-                FileUtils.ln_s(
-                    '../../' + (('%09d' % default_images[project_id].id).scan /.{3}/).join('/'),
-                    'public/system/images/image_files/' + path.join('/')
-                )
-                #####
-              end
-              logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
-
-                # can have temporary name w/o OTU via taxon_name_id:  Find OTU via SF.TaxonNameID to TW.otu: if no SF.TaxonNameID, must be SF.SpecimenID, therefore get TW.TaxonNameID via SpecimenID and get the OTU that way.
-                # Some no_otus have collection objects but still need otu whether co or not.
-                # Have SFTaxonNameIDToTWOtuID  for ill-formed SF taxon names but need a look up from SF.SpecimenID to SF.TaxonNameID
-
-
-                # if sf_taxon_name_id.to_i == 0
-                #   puts "No SF.TaxonNameID"
-                # end
-                # if specimen_id.to_i == 0
-                #   puts "No SF.SpecimenID"
-                # end
-
-
-                # object_ids = []
-                # object_type = nil
-                # determination_otu = nil
-            rescue => exception
-              logger.error "Unhandled exception ocurred while processing ImageID = #{row['ImageID']}\n\t#{exception.class}: #{exception.message}"
+              logger.warn "Source description not imported" unless row['SourceID'].empty?
+              
+              citation = Citation.create({
+                is_original: true,
+                source_id: get_tw_source_id[ref_id],
+                citation_object: image,
+                created_at: image.created_at,
+                updated_at: image.updated_at,
+                created_by_id: image.created_by_id,
+                updated_by_id: image.updated_by_id,
+                project_id: image.project_id
+              })
+              logger.error "Error saving ImageID = #{row['ImageID']}, SourceID = #{row['SourceID']}: #{citation.errors.full_messages}" unless citation.errors.empty?
             end
 
           end
-
-
-          # path_to_images = '/something'
-          #
-          #
-          # rows.each do |row|
-          #
-          # project_id = .... something ...
-          #
-          # image_filename = row['SOMEThing']
-          #
-          # path = path_to_images + image_file_name
-          # break if !File.exists?(path)
-          #
-          # image = File.read(path)
-          #
-          # a = get_tw_collection_object_id[row['SpecimenID']] # specimen  (tw CollectionObject)
-          # b = get_tw_taxon_name_id[row['TaxonNameID']] taxon name (tw TaxonName)
-          # c = get_taxon_name_otu_id[b] #  OTU from b
-          #
-          #
-          #begin
-          # Image.transaction do
-          # i = Image.create!(image_file: image, ... creator etc ...)
-          #
-          # object_ids = []  #  the id of the depcition object
-          # object_type = nil #
-          #
-          # determination_otu = nil
-          #
-          # if a && b && c
-          #
-          #   # Add the depiction to a
-          #    object_ids = a
-          #    object_type = 'CollectionObject'
-          #
-          #   # Maybe add a determination to the specimen with the
-          #   # OTU that matches the taxon name if it doesn't exist
-          #    if !TaxonDermination.where(collection_object_id: a, otu_id: c, project_id: project_id).any?
-          #       determination_otu = c
-          #    end
-          #
-          # elsif a && b
-          #   object_ids = a
-          #   object_type = 'CollectionObject'
-          #
-          #
-          #   # could be simplified if every taxon name has an otu
-          # o = Otu.where(taxon_name_id: b, project_id: project_id)
-          # if o.any?
-          #    if  !TaxonDermination.where(collection_object_id: a, otu_id: o.first.id, project_id: project_id).any?
-          #       determination_otu = o.first.id
-          #    end
-          # else
-          #   determination_otu = Otu.create!(taxon_name_id: b, project_id: project_id, ...).id
-          # end
-          #
-          # elsif a
-          #     ... there should be a c ... so it's OTU
-          # elsif b  # (impossible, there is "always an a")
-          #
-          #   ... never should be hit, no code here
-          #
-          #
-          #
-          # else
-          #    puts "error!"
-          #    break
-          # end
-          #
-          # object_ids.each do |id|
-          #   Depiction.create!(depiction_object_id: id, depiction_object_type: object_type, 'image: i, .... creator etc. ...)
-          # end
-          #
-          #  TaxonDetermination.create!(collection_object_id: a, otu_id: determination_otu, project_id: project_id) if determination_otu
-          #
-          #
-          # end
-          #
-          # rescue ActiveRecord::RecordInvalid
-          #   ...something
-          # end
-          #
-          # end
-
 
         end
 
@@ -566,6 +411,9 @@ namespace :tw do
           ap tw_language_hash
         end
 
+        def image_identifier(website_name, image_id)
+          "http://#{website_name}.speciesfile.org/Common/basic/ShowImage.aspx?ImageID=#{image_id}"
+        end
 
       end
     end
