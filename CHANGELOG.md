@@ -52,6 +52,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Parsed verbatim label to fields
 - Parsed EXIF coordinates to verbatim fields
 - Changed autocomplete label [#1988]
+- Using newer biodiversity gem from official source
+- Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
 - Loan items reference proper housekeeping in table
