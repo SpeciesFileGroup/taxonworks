@@ -15,7 +15,13 @@ on:
 
 jobs:
   deliver:
-    if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
+    if: |
+      !(
+        contains(github.event.head_commit.message, '[ci skip]') ||
+        contains(github.event.head_commit.message, '[ci-skip]') ||
+        contains(github.event.head_commit.message, '[skip ci]') ||
+        contains(github.event.head_commit.message, '[skip-ci]')
+      )
     env:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
