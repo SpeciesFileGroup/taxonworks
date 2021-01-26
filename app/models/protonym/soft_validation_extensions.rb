@@ -215,7 +215,12 @@ module Protonym::SoftValidationExtensions
       sv_misspelling_year_is_not_required: { set: :roles_are_not_required,
                                              fix: :sv_fix_misspelling_year_is_not_required,
                                              name: 'Verbatim year is not required for misspelling',
-                                             description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year' }
+                                             description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year' },
+
+    sv_cached_names: { set: :cached_names,
+                       fix: :sv_fix_cached_names,
+                       name: 'Cached names',
+                       description: 'Check if cached values need to be updated' }
     }.freeze
 
     VALIDATIONS.each_key do |k|

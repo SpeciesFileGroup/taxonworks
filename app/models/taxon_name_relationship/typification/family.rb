@@ -1,6 +1,8 @@
 class TaxonNameRelationship::Typification::Family < TaxonNameRelationship::Typification
 
-  soft_validate(:sv_matching_type_genus, set: :matching_type_genus)
+  soft_validate(:sv_matching_type_genus,
+                set: :matching_type_genus,
+                description: 'Check if the type genus start with the same letter as the family' )
 
   # left side
   def self.valid_subject_ranks
