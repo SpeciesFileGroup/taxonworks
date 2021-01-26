@@ -228,7 +228,7 @@ class Protonym < TaxonName
   end
 
   def is_available?(refresh = false)
-    if !@refresh
+    if !refresh
       @is_available ||= !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
     else
       @is_available = !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
