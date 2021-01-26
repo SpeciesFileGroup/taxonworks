@@ -8,19 +8,19 @@
       @close="show = false">
       <h3 slot="header">Create georeference</h3>
       <div slot="body">
-        <div class="field">
+        <div class="field label-above">
           <label>Latitude</label>
           <input
             type="text"
             v-model="shape.lat">
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>Longitude</label>
           <input 
             type="text"
             v-model="shape.long">
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>Range distance</label>
           <label
             v-for="range in ranges"

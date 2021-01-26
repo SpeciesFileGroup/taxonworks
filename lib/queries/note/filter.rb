@@ -17,11 +17,14 @@ module Queries
 
       attr_accessor :object_global_id
 
+      attr_accessor :project_id
+
       def initialize(params)
         @text = params[:text]
         @note_object_type = params[:note_object_type]
         @note_object_id = params[:note_object_id]
         @object_global_id = params[:object_global_id]
+        @project_id = params[:project_id]
       end
 
       def note_object_id
@@ -76,12 +79,16 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
-      def all
+      def all 
+        q = nil
         if a = and_clauses
-          ::Note.where(and_clauses)
+          q = ::Note.where(and_clauses)
         else
-          ::Note.none
+          q = ::Note.all
         end
+
+        q = q.where(project_id: project_id) if !project_id.blank?
+        q
       end
     end
   end

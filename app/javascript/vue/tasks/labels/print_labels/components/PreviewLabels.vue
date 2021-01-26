@@ -53,7 +53,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-  @import '../stylesheets/ce.css';
-</style>

@@ -37,6 +37,7 @@ Parameters:
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
+      autocomplete="off"
       :autofocus="autofocus"
       :disabled="disabled"
       :class="{'ui-autocomplete-loading' : spinner, 'vue-autocomplete-input-search' : !spinner }">

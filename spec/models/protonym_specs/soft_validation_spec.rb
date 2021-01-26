@@ -262,8 +262,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         end
 
         specify 'adds soft validation warnings' do
-          expect(@species.soft_validations.messages_on(:base)).to include('The type specimen does not match with the type specimen of the coordinated subspecies')
-          expect(@ssp1.soft_validations.messages_on(:base)).to include('The type specimen does not match with the type specimen of the coordinated species')
+          expect(@species.soft_validations.messages_on(:base)).to include('The type specimen does not match with the type specimen of the coordinate subspecies')
+          expect(@ssp1.soft_validations.messages_on(:base)).to include('The type specimen does not match with the type specimen of the coordinate species')
         end
 
         specify 'is fixable' do
@@ -476,7 +476,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         @genus.reload
         @subgenus.reload
         @genus.soft_validate(:validate_coordinated_names)
-        #The type species does not match with the type species of the coordinated subgenus
+        #The type species does not match with the type species of the coordinate subgenus
         expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
         @genus.fix_soft_validations
         @genus.soft_validate(:validate_coordinated_names)

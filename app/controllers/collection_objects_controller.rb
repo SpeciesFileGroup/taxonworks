@@ -88,6 +88,11 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
+  # /collection_objects/preview?<filter params>
+  def preview
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+  end
+
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
@@ -365,7 +370,19 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [
+        :id,
+        :_destroy,
+        :identifier,
+        :namespace_id,
+        :type,
+        labels_attributes: [
+          :text,
+          :type,
+          :text_method,
+          :total
+        ]
+      ]
     )
   end
 

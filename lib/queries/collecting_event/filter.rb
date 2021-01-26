@@ -30,6 +30,7 @@ module Queries
       # @return [True, nil]
       attr_accessor :recent
 
+      # A spatial representation in well known text
       attr_accessor :wkt
 
       # Integer in Meters

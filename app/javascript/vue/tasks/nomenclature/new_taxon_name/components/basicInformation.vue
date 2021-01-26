@@ -28,6 +28,7 @@
               ref="inputTaxonname"
               class="taxonName-input"
               type="text"
+              autocomplete="off"
               name="name"
               v-model="taxonName">
           </hard-validation>

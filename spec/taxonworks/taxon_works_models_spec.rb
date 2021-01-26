@@ -1,14 +1,14 @@
 require 'rspec'
 require 'rails_helper'
 
-# These are meta-model tests, to c
+# These are meta-model tests
 #
 #
-describe TaxonWorks do
+describe TaxonWorks, group: :lint do
   # Since Rails doesn't load classes unless it needs them, so you must eager load them to get all the models.
   Rails.application.eager_load!
 
-  context 'model includes/attributes' do
+  context 'model includes/attributes', lint: true do
     ApplicationRecord.descendants.each {|model|
       if model < Shared::AlternateValues
         it "#{model} should define the array ALTERNATE_VALUES_FOR" do
@@ -26,11 +26,11 @@ describe TaxonWorks do
         end
       end
 
-    # if model <= Shared::Annotates
-    #   it "#{model} should define an #annotated_object method" do
-    #     expect(model.new).to respond_to(:annotated_object)
-    #   end
-    # end
+      # if model <= Shared::Annotates
+      #   it "#{model} should define an #annotated_object method" do
+      #     expect(model.new).to respond_to(:annotated_object)
+      #   end
+      # end
 
       if model.column_names.include?('project_id') && !model.name == 'ProjectMember'
         it "#{model} should include Housekeeping::Projects" do

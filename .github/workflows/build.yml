@@ -17,7 +17,13 @@ on:
 
 jobs:
   build:
-    if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
+    if: |
+      !(
+        contains(github.event.head_commit.message, '[ci skip]') ||
+        contains(github.event.head_commit.message, '[ci-skip]') ||
+        contains(github.event.head_commit.message, '[skip ci]') ||
+        contains(github.event.head_commit.message, '[skip-ci]')
+      )
     env:
       PGHOST: 127.0.0.1
       PGUSER: postgres
