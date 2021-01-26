@@ -73,6 +73,9 @@ namespace :tw do
           get_tw_source_id = import.get('SFRefIDToTWSourceID')
           get_project_website_name = Project.all.map { |p| [p.id, p.name.scan(/^[^_]+/).first] }.to_h
 
+          source_reports = Set[]
+          verbatim_sources = {}
+
           CSV.foreach(@args[:data_directory] + 'tblImages.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
             image = Image.joins(:identifiers).merge(
               Identifier.where(identifier: image_identifier(get_project_website_name[get_tw_project_id[row['FileID']].to_i], row['ImageID']))
@@ -96,6 +99,9 @@ namespace :tw do
               next
             end
 
+            ###
+            ### Create depictions
+            ###
             depiction_objects.each do |depiction_object|
               depiction = Depiction.create({
                 depiction_object: depiction_object,
@@ -110,36 +116,57 @@ namespace :tw do
               })
 
               logger.error "Error saving ImageID = #{row['ImageID']}: #{depiction.errors.full_messages}" unless depiction.errors.empty?
+            end
 
-              unless row['SourceID'] == '0'
-                source = get_sf_source_metadata[row['SourceID']]
-                ref_id = source["ref_id"]
+            ###
+            ### Create image source
+            ###
+            source_id = row['SourceID']
+            unless source_id == '0'
+              source = get_sf_source_metadata[row['SourceID']]
+              ref_id = source["ref_id"]
+              source_id = nil
 
-                if ref_id == '0'
-                  logger.warn "Skipping SourceID = #{row['SourceID']} without RefID"
-                  next
+              if ref_id == '0'
+                unless source['description'].empty?
+                  source_id = (verbatim_sources[source_id] |= Source::Verbatim.create!(verbatim: source['description']).id)
+                else
+                  source_reports << { reason: 'Empty description and no RefID', source: source }
+                  next ###
                 end
-
-                logger.warn "Source description not imported" unless row['SourceID'].empty?
-
-                citation = Citation.create({
-                  is_original: true,
-                  source_id: get_tw_source_id[ref_id],
-                  citation_object: image,
-                  created_at: image.created_at,
-                  updated_at: image.updated_at,
-                  created_by_id: image.created_by_id,
-                  updated_by_id: image.updated_by_id,
-                  project_id: image.project_id
-                })
-
-                logger.error "Error saving ImageID = #{row['ImageID']}, SourceID = #{row['SourceID']}: #{citation.errors.full_messages}" unless citation.errors.empty?
+              else
+                source_id = get_tw_source_id[ref_id]
+                unless source['description'].empty?
+                  Note.create!({
+                    text: source['description'],
+                    note_object: image,
+                    created_at: image.created_at,
+                    updated_at: image.updated_at,
+                    created_by_id: image.created_by_id,
+                    updated_by_id: image.updated_by_id,
+                    project_id: image.project_id
+                  })
+                  source_reports << { reason: 'Description imported as note', source: source }
+                end
               end
 
+              citation = Citation.create({
+                is_original: true,
+                source_id: source_id,
+                citation_object: image,
+                created_at: image.created_at,
+                updated_at: image.updated_at,
+                created_by_id: image.created_by_id,
+                updated_by_id: image.updated_by_id,
+                project_id: image.project_id
+              })
+
+              logger.error "Error saving ImageID = #{row['ImageID']}, SourceID = #{row['SourceID']}: #{citation.errors.full_messages}" unless citation.errors.empty?
             end
 
           end
 
+          logger.warn "Source reports", source_reports
         end
 
         # Following section now executed in sf_specimens.rake
