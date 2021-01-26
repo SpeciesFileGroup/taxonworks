@@ -1,7 +1,7 @@
 require 'soft_validation/soft_validation'
 require 'soft_validation/soft_validations'
 require 'soft_validation/soft_validation_method'
-require_relative 'utilities/params'
+require 'utilities/params'
 require "active_support/all"
 
 # TODO: REMOVE
@@ -193,7 +193,9 @@ module SoftValidation
     # @return [Array]
     #   all methods from all sets from self (not superclasses)
     def soft_validation_methods_on_self
-      soft_validation_sets[name].keys.collect{|s| soft_validation_sets[name][s] }.flatten
+      a = soft_validation_sets[name]&.keys 
+      return [] if a.nil?
+      a.collect{|s| soft_validation_sets[name][s] }.flatten
     end
 
     # @return [Hash]
@@ -236,15 +238,15 @@ module SoftValidation
     #
     #  An internal accessor for self.soft_validation_methods.  If nothing is provided all possible specs, excluding those flagged are returned.
     def soft_validators(only_sets: [], except_sets: [], only_methods: [], except_methods: [], include_flagged: false, fixable: nil, include_superclass: true)
-      only_methods = ::Utilities::Params.arrayify(only_methods)
+      only_methods = Utilities::Params.arrayify(only_methods)
       return only_methods if !only_methods.empty?
 
-      except_methods = ::Utilities::Params.arrayify(except_methods)
+      except_methods = Utilities::Params.arrayify(except_methods)
 
       # Get sets
       sets = get_sets(
-        ::Utilities::Params.arrayify(only_sets),
-        ::Utilities::Params.arrayify(except_sets)
+        Utilities::Params.arrayify(only_sets),
+        Utilities::Params.arrayify(except_sets)
       )
 
       methods = []
@@ -291,7 +293,8 @@ module SoftValidation
     end
 
     def get_sets(only_sets = [], except_sets = [])
-      all_sets = soft_validation_sets[name].keys
+      all_sets = soft_validation_sets[name]&.keys
+      return [] if all_sets.nil?
       a = (all_sets - except_sets)
       only_sets.empty? ? a : a & only_sets
     end

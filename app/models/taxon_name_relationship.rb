@@ -134,13 +134,13 @@ class TaxonNameRelationship < ApplicationRecord
                 set: :coordinated_taxa,
                 fix: :sv_fix_coordinated_subject_taxa,
                 name: 'Move relationship to coordinate taxon',
-                description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated authomatically with the Fix.' )
+                description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.' )
 
   soft_validate(:sv_coordinated_taxa_object,
                 set: :coordinated_taxa,
                 fix: :sv_fix_coordinated_object_taxa,
                 name: 'Move object relationship to coordinate taxon',
-                description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated authomatically with the Fix.')
+                description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.')
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
