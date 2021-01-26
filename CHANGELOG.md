@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
+### Fixed
+- Missing `depiction_object_type` on New image task [#1995]
 
-\-
+[#1995]: https://github.com/SpeciesFileGroup/taxonworks/issues/1995
 
 ## [0.16.0] - 2021-01-25
 ### Added
