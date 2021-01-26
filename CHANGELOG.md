@@ -8,7 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 ### Fixed
 - Missing `depiction_object_type` on New image task [#1995]
+- Sort case-insensitive [#1985]
 
+[#1985]: https://github.com/SpeciesFileGroup/taxonworks/issues/1985
 [#1995]: https://github.com/SpeciesFileGroup/taxonworks/issues/1995
 
 ## [0.16.0] - 2021-01-25
