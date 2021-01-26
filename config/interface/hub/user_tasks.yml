@@ -622,3 +622,12 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+paper_catalog_preview_task:
+  hub: true
+  name: 'Paper catalog preview'
+  related:
+  categories:
+    - nomenclature
+    - export
+  status: prototype
+  description: 'Experimenting with rendering nomenclature as a paper catalog'

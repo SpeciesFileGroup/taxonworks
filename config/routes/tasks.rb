@@ -317,6 +317,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+      scope :paper_catalog, controller: 'tasks/nomenclature/paper_catalog' do
+        get 'index', as: 'paper_catalog_preview_task'
+      end
+
     scope :match, controller: 'tasks/nomenclature/match' do
       get :index, as: 'match_nomenclature_task'
     end

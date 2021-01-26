@@ -1,0 +1,9 @@
+
+<% if !@taxon_name %>
+  To set taxon name use ?taxon_name_id=123 in the URL.
+<% else %>
+  <%= link_to('up', paper_catalog_preview_task_path(taxon_name_id: @taxon_name.parent_id)) -%><br>
+<% end %>
+
+
+<%= recursive_catalog_tag(@taxon_name) -%>

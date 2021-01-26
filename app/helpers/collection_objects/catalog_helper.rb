@@ -13,7 +13,7 @@ module CollectionObjects::CatalogHelper
   end
 
   def collection_object_history_row(item)
-    content_tag(:tr, class: Catalog::CollectionObject::FILTER_MAP[item.type]) do 
+    content_tag(:tr, class: ::Catalog::CollectionObject::FILTER_MAP[item.type]) do 
       content_tag(:td, item.type.to_s.humanize ) +
         content_tag(:td, collection_object_catalog_date_range(item) ) +
         content_tag(:td, item.object_class_name ) + 
