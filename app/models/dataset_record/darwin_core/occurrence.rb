@@ -308,11 +308,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # occurrenceStatus: [Not mapped]
 
-    # preparations: [Find or create by name. Might be best to raise exception if doesn't exist yet and request the user to create it. Review]
-    preparation = get_field_value(:preparations)
-    set_hash_val(res[:specimen], :preparation_type, PreparationType.create_with({
-      definition: "'#{preparation}' [CREATED FROM DWC-A IMPORT IN #{project.name} PROJECT]"
-    }).find_or_create_by!(name: preparation)) if preparation
+    # preparations: [Match PreparationType by name (case insensitive)]
+    preparation_name = get_field_value(:preparations)
+    if preparation_name
+      preparation_type = PreparationType.where(PreparationType.arel_table[:name].matches(preparation_name)).first
+
+      raise DarwinCore::InvalidData.new({
+        "preparations": ["Unknown preparation \"#{preparation_name}\". If it is correct please add it to preparation types and retry."]
+      }) unless preparation_type
+
+      set_hash_val(res[:specimen], :preparation_type, preparation_type)
+    end
 
     clear_empty_sub_hashes(res)
 
