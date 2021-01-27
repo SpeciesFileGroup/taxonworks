@@ -9,7 +9,9 @@
 <template>
   <transition name="fade">
     <div class="middle box-spinner mx-spinner" :style="cssProperties">
-      <div class="tw-spinner">
+      <div
+        class="tw-spinner"
+        :class="[`tw-spinner-${spinnerPosition}`]">
         <svg version="1.1" id="tw-spinner-logo" v-if="showSpinner" :style="logoSize" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
              viewBox="0 0 194.6 200" style="enable-background:new 0 0 194.6 200;" xml:space="preserve">
           <path class="st0" id="LeftTop" d="M14.2,63.1C24.3,63.1,28,76.3,28,76.3s5,15.5,15.3,15.5c7.7,0,9.4-6.3,9.8-9.1c0-0.1,0-0.2,0-0.4s0-0.5,0.1-0.8
@@ -92,13 +94,17 @@ export default {
       type: Boolean,
       default: true
     },
+    spinnerPosition: {
+      type: String,
+      default: 'top'
+    },
     logoSize: {
       type: Object,
       default: function () {
         return {
           width: '50px',
           height: '50px'
-				 	}
+			  }
       }
     }
   },
@@ -184,15 +190,34 @@ export default {
 }
 </script>
 <style>
-	.tw-spinner {
-		margin: 0 auto;
-		height: auto;
-		width: auto;
-	}
-	.fade-enter-active, .fade-leave-active {
-	  transition: opacity .5s
-	}
-	.fade-enter, .fade-leave-to {
-	  opacity: 0
-	}
+  .tw-spinner {
+    display: flex;
+    margin: 0 auto;
+    height: auto;
+    width: auto;
+    align-items: center;
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0
+  }
+
+  .tw-spinner-left {
+    flex-direction: row;
+  }
+
+  .tw-spinner-right {
+    flex-direction: row-reverse;
+  }
+
+  .tw-spinner-top {
+    flex-direction: column;
+  }
+
+  .tw-spinner-bottom {
+    flex-direction: column-reverse;
+  }
+
 </style>

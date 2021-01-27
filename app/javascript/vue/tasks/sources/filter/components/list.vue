@@ -120,15 +120,13 @@ export default {
   },
   methods: {
     sortTable (sortProperty) {
-      let that = this
-      function compare (a,b) {
-        if (a[sortProperty] < b[sortProperty])
-          return (that.ascending ? -1 : 1)
-        if (a[sortProperty] > b[sortProperty])
-          return (that.ascending ? 1 : -1)
+      this.list.sort((a, b) => {
+        if (a[sortProperty].toLowerCase() < b[sortProperty].toLowerCase())
+          return (this.ascending ? -1 : 1)
+        if (a[sortProperty].toLowerCase() > b[sortProperty].toLowerCase())
+          return (this.ascending ? 1 : -1)
         return 0
-      }
-      this.list.sort(compare)
+      })
       this.ascending = !this.ascending
     }
   }

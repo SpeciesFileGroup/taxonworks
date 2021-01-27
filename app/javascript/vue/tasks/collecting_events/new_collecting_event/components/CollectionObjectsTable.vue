@@ -1,10 +1,26 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      :disabled="!ceId"
-      @click="showModal = true">Add/Current ({{ list.length }})</button>
+    <div>
+      <spinner-component
+        v-if="isLoading"
+        legend="Loading"
+        spinner-position="left"
+        :legend-style="{
+          fontSize: '14px'
+        }"
+        :logo-size="{
+          width: '14px',
+          height: '14px',
+          marginRight: '4px'
+        }"
+      />
+      <button
+        type="button"
+        class="button normal-input button-default"
+        :disabled="!ceId"
+        @click="showModal = true">
+        Add/Current ({{ list.length }})</button>
+    </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
@@ -187,7 +203,7 @@ export default {
     }
   },
   methods: {
-    createCOs (index = 0) {
+    async createCOs (index = 0) {
       this.index = index + 1
       this.isSaving = true
       if (index < this.count) {
@@ -212,19 +228,19 @@ export default {
             }] : undefined
           }] : undefined
         }
-
-        CreateCollectionObject(co).then(response => {
+        const promises = []
+        await CreateCollectionObject(co).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
-            CreateTaxonDetermination(determination)
+            promises.push(CreateTaxonDetermination(determination))
           })
           this.biocurations.forEach(biocurationId => {
-            CreateBiocurationClassification({
+            promises.push(CreateBiocurationClassification({
               biocuration_classification: {
                 biocuration_class_id: biocurationId,
                 biological_collection_object_id: response.body.id
               }
-            })
+            }))
           })
         }, (error) => {
           this.noCreated.unshift({
@@ -234,7 +250,9 @@ export default {
           })
         }).finally(() => {
           index++
-          this.createCOs(index)
+          Promise.all(promises).then(() => {
+            this.createCOs(index)
+          })
         })
       } else {
         this.isSaving = false
