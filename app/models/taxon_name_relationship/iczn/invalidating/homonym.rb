@@ -18,6 +18,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
                 name: 'Missing replacement name',
                 description: 'Please select a valid name using synonym relationships.' )
 
+  #  soft_validate(:sv_not_specific_relationship,
+  #              set: :not_specific_relationship,
+  #              fix: :sv_fix_not_specific_relationship,
+  #              name: 'Not specific homonym relationship',
+  #              description: 'Check if homonymy could be defined as primary or secondary.' )
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage) +
@@ -109,11 +115,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
   def sv_not_specific_relationship
       if SPECIES_RANK_NAMES_ICZN.include?(self.subject_taxon_name.rank_string)
         soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
-                             fix: :sv_fix_specify_homonymy_type, success_message: 'Homonym updated to being primary or secondary')
+                             success_message: 'Homonym updated to being primary or secondary',
+                             failure_message:  'Failed to update the homonym relationship')
       end
   end
 
-  def sv_fix_specify_homonymy_type
+  def sv_fix_not_specific_relationship
     subject_original_genus = self.subject_taxon_name.original_genus
     object_original_genus = self.object_taxon_name.original_genus
     subject_genus = self.subject_taxon_name.ancestor_at_rank('genus')

@@ -533,41 +533,41 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
       specify 'errors on family synonym before 1961' do
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: f1, object_taxon_name: f2, source: source, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961')
-        r.soft_validate('specific_relationship')
+        r.soft_validate(only_sets: :specific_relationship)
         expect(r.soft_validations.messages_on(:type).size).to eq(1)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'synonym should have a source' do
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: f2, object_taxon_name: f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r.soft_validate('synonym_relationship')
+        r.soft_validate(only_sets: :synonym_relationship)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'source should not be older than synonym' do
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: f2, object_taxon_name: f1, source: source, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-        r.soft_validate('synonym_relationship')
+        r.soft_validate(only_sets: :synonym_relationship)
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
       specify 'homonym and totally suppressed' do
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression::Total')
         r2 = TaxonNameRelationship::Iczn::Invalidating::Homonym.new(subject_taxon_name: genus, object_taxon_name: g2, source: source)
-        r2.soft_validate('validate_homonym_relationships')
+        r2.soft_validate(only_sets: :validate_homonym_relationships)
         expect(r2.soft_validations.messages_on(:type)).to include('Taxon should not be treated as homonym, since the related taxon is totally suppressed')
       end
 
       specify 'homonym without nomen novum' do
         r1 = TaxonNameRelationship::Iczn::Invalidating::Homonym.create(subject_taxon_name: g2, object_taxon_name: g1)
-        r1.soft_validate('validate_homonym_relationships')
+        r1.soft_validate(only_sets: :validate_homonym_relationships)
 
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
 
         r2 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: genus, object_taxon_name: g2, type: 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName')
-        r1.soft_validate('validate_homonym_relationships')
+        r1.soft_validate(only_sets: :validate_homonym_relationships)
         expect(r1.soft_validations.messages_on(:type).size).to eq(1)
         r1.fix_soft_validations
-        r1.soft_validate('validate_homonym_relationships')
+        r1.soft_validate(only_sets: :validate_homonym_relationships)
         expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
       end
 
@@ -575,11 +575,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         gen1 = FactoryBot.create(:relationship_genus, name: 'Aus')
         r3 = TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation.create(subject_taxon_name: species, object_taxon_name: gen1)
         expect(r3.save).to be_truthy
-        r3.soft_validate('described_after_1930')
+        r3.soft_validate(only_sets: :described_after_1930)
         expect(r3.soft_validations.messages_on(:type).empty?).to be_truthy
         r3.object_taxon_name.year_of_publication = 1950
         expect(r3.save).to be_truthy
-        r3.soft_validate('described_after_1930')
+        r3.soft_validate(only_sets: :described_after_1930)
         expect(r3.soft_validations.messages_on(:type).size).to eq(1)
       end
 
@@ -597,7 +597,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         end
 
         specify 'specify_relationship validation adds message' do
-          r1.soft_validate('specific_relationship')
+          r1.soft_validate(only_sets: :specific_relationship)
           expect(r1.soft_validations.messages_on(:base)).to include(message)
         end
 
@@ -606,7 +606,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
           expect(c.save!).to be_truthy
           s1.reload
           species.save
-          r1.soft_validate('specific_relationship')
+          r1.soft_validate(only_sets: :specific_relationship)
           expect(r1.soft_validations.messages_on(:base)).to_not include(message)
         end
       end

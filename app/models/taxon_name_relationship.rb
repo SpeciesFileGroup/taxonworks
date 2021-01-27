@@ -116,6 +116,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   soft_validate(:sv_not_specific_relationship,
                 set: :not_specific_relationship,
+                fix: :sv_fix_add_synonym_for_homonym,
                 name: 'Not specific relationship',
                 description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".' )
 
