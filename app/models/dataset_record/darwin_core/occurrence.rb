@@ -48,7 +48,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes = parse_record_level_class
         attributes.deep_merge!(parse_occurrence_class)
         attributes.deep_merge!(parse_event_class)
-        attributes.deep_merge!(parse_location)
+        attributes.deep_merge!(parse_location_class)
+        attributes.deep_merge!(parse_identification_class)
 
         specimen = Specimen.create!({
           no_dwc_occurrence: true
@@ -63,12 +64,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         specimen.taxon_determinations.create!({
-          otu: otu,
-          determiners: parse_people("identifiedBy"),
-          year_made: get_field_value("dateIdentified")
-        })
+          otu: otu
+        }.merge(attributes[:taxon_determination]))
 
-        #TODO: If all attributes are equal assume it is the same event and share it with other specimens?
+        # TODO: If all attributes are equal assume it is the same event and share it with other specimens?
         collecting_event = CollectingEvent.create!({
           collection_objects: [specimen],
           no_dwc_occurrence: true
@@ -100,7 +99,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           message: e.message,
           backtrace: e.backtrace
         }
-
       }
     ensure
       save!
@@ -164,6 +162,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
       }))
     end
+  end
+
+  def parse_iso_date(field_name)
+    date = get_field_value(field_name)&.split('/', 2)
+
+    begin
+      start_date, end_date = date.map { |d| DateTime.iso8601(d) if d }
+    rescue Date::Error
+      raise DarwinCore::InvalidData.new(
+        { "#{field_name}":
+          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
+        }
+      )
+    end if date
   end
 
   def set_hash_val(hsh, key, value)
@@ -282,11 +294,17 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       set_hash_val(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: sex_biocuration)])
     end
 
+    # lifeStage: [Not mapped]
+
     # reproductiveCondition: [Not mapped]
 
     # behavior: [Not mapped]
 
     # establishmentMeans: [Not mapped]
+
+    # degreeOfEstablishment [Not mapped]
+
+    # pathway [Not mapped]
 
     # occurrenceStatus: [Not mapped]
 
@@ -323,17 +341,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # fieldNumber: verbatim_trip_identifier
     set_hash_val(collecting_event, :verbatim_trip_identifier, get_field_value(:fieldNumber))
 
-    eventDate = get_field_value(:eventDate)&.split('/', 2)
-
-    begin
-      start_date, end_date = eventDate.map { |d| DateTime.iso8601(d) if d }
-    rescue Date::Error
-      raise DarwinCore::InvalidData.new(
-        { "eventDate":
-          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
-        }
-      )
-    end if eventDate
+    start_date, end_date = parse_iso_date(:eventDate)
 
     year = get_integer_field_value(:year)
     month = get_integer_field_value(:month)
@@ -424,7 +432,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     { collecting_event: collecting_event }
   end
 
-  def parse_location
+  def parse_location_class
     collecting_event = {}
 
     # locationID: [Not mapped]
@@ -454,16 +462,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # locality: [Not mapped]
 
     # verbatimLocality: [verbatim_locality]
-    set_hash_val(collecting_event, :verbatim_locality, get_field_value("verbatimLocality"))
+    set_hash_val(collecting_event, :verbatim_locality, get_field_value(:verbatimLocality))
 
     # minimumElevationInMeters: [Not mapped]
-    set_hash_val(collecting_event, :minimum_elevation, get_field_value("minimumElevationInMeters"))
+    set_hash_val(collecting_event, :minimum_elevation, get_field_value(:minimumElevationInMeters))
 
     # maximumElevationInMeters: [Not mapped]
-    set_hash_val(collecting_event, :maximum_elevation, get_field_value("maximumElevationInMeters"))
+    set_hash_val(collecting_event, :maximum_elevation, get_field_value(:maximumElevationInMeters))
 
     # verbatimElevation: [Not mapped]
-    set_hash_val(collecting_event, :verbatim_elevation, get_field_value("verbatimElevation"))
+    set_hash_val(collecting_event, :verbatim_elevation, get_field_value(:verbatimElevation))
 
     # minimumDepthInMeters: [Not mapped. REVISIT]
 
@@ -480,16 +488,16 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # locationRemarks: [Not mapped. REVISIT]
 
     # decimalLatitude: [verbatim_latitude]
-    set_hash_val(collecting_event, :verbatim_latitude, get_field_value("decimalLatitude"))
+    set_hash_val(collecting_event, :verbatim_latitude, get_field_value(:decimalLatitude))
 
     # decimalLongitude: [verbatim_longitude]
-    set_hash_val(collecting_event, :verbatim_longitude, get_field_value("decimalLongitude"))
+    set_hash_val(collecting_event, :verbatim_longitude, get_field_value(:decimalLongitude))
 
     # geodeticDatum: [verbatim_datum]
-    set_hash_val(collecting_event, :verbatim_datum, get_field_value("geodeticDatum"))
+    set_hash_val(collecting_event, :verbatim_datum, get_field_value(:geodeticDatum))
 
     # coordinateUncertaintyInMeters: [verbatim_geolocation_uncertainty]
-    set_hash_val(collecting_event, :verbatim_geolocation_uncertainty, get_field_value("coordinateUncertaintyInMeters")&.send(:+, 'm'))
+    set_hash_val(collecting_event, :verbatim_geolocation_uncertainty, get_field_value(:coordinateUncertaintyInMeters)&.send(:+, 'm'))
 
     # coordinatePrecision: [Not mapped. Fail import if claimed precision is incorrect? Round to precision?]
 
@@ -524,6 +532,40 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # georeferenceRemarks: [Not mapped. REVISIT]
 
     { collecting_event: collecting_event }
+  end
+
+  def parse_identification_class
+    taxon_determination = {}
+
+    # identificationID: [Not mapped]
+
+    # identificationQualifier: [Not mapped]
+
+    # typeStatus: [Not mapped]
+
+    # identifiedBy: determiners of taxon determination
+    set_hash_val(taxon_determination, :determiners, parse_people(:identifiedBy))
+
+    # dateIdentified: {year,month,day}_made of taxon determination
+    start_date, end_date = parse_iso_date(:dateIdentified)
+
+    raise DarwinCore::InvalidData.new({ "dateIdentified": ["Date range for taxon determination is not supported."] }) if end_date
+
+    if start_date
+      set_hash_val(taxon_determination, :year_made, start_date.year)
+      set_hash_val(taxon_determination, :month_made, start_date.month)
+      set_hash_val(taxon_determination, :day_made, start_date.day)
+    end
+
+    # identificationReferences: [Not mapped. Can they be imported as citations without breaking semantics?]
+
+    # identificationVerificationStatus: [Not mapped]
+
+    # identificationRemarks: Note for taxon determination
+    note = get_field_value(:identificationRemarks)
+    taxon_determination[:notes_attributes] = [{text: note}] if note
+
+    { taxon_determination: taxon_determination }
   end
 
 end
