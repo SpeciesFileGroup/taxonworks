@@ -215,7 +215,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     verbatimFieldsWithData () {
-      return (this.taxon.verbatim_author || this.taxon.year_of_publication)
+      return this.taxon.verbatim_author
     },
     isAlreadyClone () {
       if (this.citation.source.author_roles.length === 0) return true

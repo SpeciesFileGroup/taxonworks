@@ -7,7 +7,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Checkmark on verbatim should visible only
+
+### Fix
+- Generate label button [#2002]
+
+[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 
 ## [0.16.1] - 2021-01-26
 
