@@ -1,6 +1,6 @@
 json.data do
   json.protonyms do
-    TaxonWorks::Vendor::Biodiversity::RANK_MAP.each_key do |r|
+    TaxonWorks::Vendor::Biodiversity::RANKS.each do |r|
       json.set! r do
         json.array! @result[:protonyms][r] do |t|
           json.partial! '/taxon_names/base_attributes', taxon_name: t

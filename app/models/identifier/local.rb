@@ -48,8 +48,12 @@ class Identifier::Local < Identifier
     [a, ' '].compact.first
   end
 
+  def build_cached
+    [namespace.verbatim_short_name, namespace.short_name].compact.first + delimiter + identifier.to_s
+  end
+
   def set_cached
-    update_column(:cached, [namespace.verbatim_short_name, namespace.short_name].compact.first + delimiter + identifier.to_s)
+    update_column(:cached, build_cached)
   end
 
 end

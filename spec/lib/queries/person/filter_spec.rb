@@ -1,5 +1,7 @@
 require 'rails_helper'
 
+# These specs also contain the canonical specs for Queries::Concerns::Users.
+
 describe Queries::Person::Filter, type: :model, group: :people do
 
   let!(:p1) { Person.create!(
@@ -210,9 +212,92 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
 
-  specify 'user hooks' do
-    query.user_id = Current.user_id
-    expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p3.id, p4.id)
+
+  context 'user (Queries::Concerns::Users)' do
+
+    specify '#user_id' do
+      query.user_id = Current.user_id
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p3.id, p4.id)
+    end
+
+    specify '#user_start_date 1' do
+      query.user_date_start = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id)
+    end
+
+    specify '#user_start_date 2' do
+      query.user_date_start = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(created_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id)
+    end
+
+    specify '#user_start_date 3' do
+      query.user_date_start = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(created_at: '1999-01-01')
+      p2.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+    end
+
+    specify '#user_end_date 1' do
+      query.user_date_end = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id)
+    end
+
+    specify '#user_end_date 2' do
+      query.user_date_end = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(created_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id)
+    end
+
+    specify '#user_end_date 3' do
+      query.user_date_end = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(created_at: '1999-01-01')
+      p2.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+    end
+
+    specify '#user_start_date, #user_end_date' do
+      query.user_date_start = '1998-01-01'
+      query.user_date_end = '1999-01-01'
+      query.user_id = Current.user_id
+      p1.update!(created_at: '1998-01-01')
+      p2.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+    end
+
+    specify '#user_start_date, #user_end_date, #user_target' do
+      query.user_date_start = '1998-01-01'
+      query.user_date_end = '1999-01-01'
+      query.user_id = Current.user_id
+      query.user_target = 'updated'
+      p1.update!(created_at: '1998-01-01')
+      p2.update!(updated_at: '1999-01-01')
+      expect(query.all.map(&:id)).to contain_exactly(p2.id)
+    end
+
+    specify '#user_id, #user_target 1' do
+      u = FactoryBot.create(:valid_user)
+      query.user_id = u.id
+      query.user_target = 'updated'
+      p1.update!(updated_by_id: u.id)
+      expect(query.all.map(&:id)).to contain_exactly(p1.id)
+    end
+
+    specify '#user_id, #user_target 2' do
+      u = FactoryBot.create(:valid_user)
+      query.user_id = u.id
+      query.user_target = 'created'
+      p2.update!(created_by_id: u.id)
+      expect(query.all.map(&:id)).to contain_exactly(p2.id)
+    end
   end
 
 end

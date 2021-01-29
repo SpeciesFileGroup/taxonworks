@@ -44,7 +44,7 @@ scope :tasks do
 
   scope :citations do
     scope :otus, controller: 'tasks/citations/otus' do
-      get 'index', as: 'cite_otus_task_task'
+      get '', as: 'cite_otus_task', action: :index
     end
   end
 
@@ -89,7 +89,7 @@ scope :tasks do
 
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
-      get :index, as: 'index_print_labels_task'
+      get '/',  as: 'print_labels_task', action: :index
     end
   end
 
@@ -137,6 +137,10 @@ scope :tasks do
   end
 
   scope :collecting_events do
+      scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
+        get '/', action: :index, as: 'new_collecting_event_task'
+      end
+
     scope :browse, controller: 'tasks/collecting_events/browse' do
       get '/', action: :index, as: 'browse_collecting_events_task'
     end
@@ -318,7 +322,7 @@ scope :tasks do
     end
 
     scope :stats, controller: 'tasks/nomenclature/stats' do
-      get '', action: :index, as: 'index_stats_task'
+      get '', action: :index, as: 'nomenclature_stats_task'
     end
 
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
@@ -329,24 +333,18 @@ scope :tasks do
       get '', action: :index, as: 'new_taxon_name_task'
     end
 
-    scope :catalog do
-      scope :basis, controller: 'tasks/nomenclature/catalog/basis' do
-        get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
-      end
-    end
-
     scope :browse, controller: 'tasks/nomenclature/browse' do
       get '', action: :index, as: 'browse_nomenclature_task'
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
-      get '/', action: :index, as: 'nomenclature_by_source_task'
+      get '', action: :index, as: 'nomenclature_by_source_task'
     end
   end
 
   scope :observation_matrices do
     scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
-      get :index, as: 'index_dashboard_task'
+      get '', as: 'observation_matrices_dashboard_task', action: :index
     end
 
     scope :view, controller: 'tasks/observation_matrices/view' do
@@ -354,7 +352,7 @@ scope :tasks do
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
-      get 'index', as: 'observation_matrices_hub_task' # 'index_observation_matrix_hub_task'
+      get '', as: 'observation_matrices_hub_task', action: :index
       post 'copy_observations', as: 'observation_matrix_hub_copy_observations', defaults: {format: :json}
     end
 
@@ -417,7 +415,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do
-      get :index, as: 'index_filter_task'
+      get '/', as: 'filter_taxon_names_task', action: :index
     end
   end
 

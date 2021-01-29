@@ -1297,7 +1297,7 @@ class TaxonName < ApplicationRecord
 
   def validate_parent_is_set
     if !(rank_class == NomenclaturalRank) && !(type == 'Combination')
-      errors.add(:parent_id, 'is not selected') if !parent_is_set?  # parent_id.blank? && (parent.blank? || !parent.persisted?)
+      errors.add(:parent_id, 'is not selected') if !parent_is_set?
     end
   end
 
@@ -1308,9 +1308,9 @@ class TaxonName < ApplicationRecord
   end
 
   def validate_one_root_per_project
-    if new_record? || project_id_changed?
+    if new_record? || parent_id_changed? # project_id !?@
       if !parent_is_set? && TaxonName.where(parent_id: nil, project_id: project_id).count > 0
-        errors.add(:parent_id, 'The parent should not be empty (only one root is allowed per project)')
+        errors.add(:parent_id, 'should not be empty/only one root is allowed per project')
       end
     end
   end

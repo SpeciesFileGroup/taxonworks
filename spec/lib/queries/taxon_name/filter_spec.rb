@@ -233,6 +233,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(species.id)
   end
 
+  # TODO: deprecate for User concern
   specify '#updated_since' do
     species.update(updated_at: '2050/1/1')
     query.updated_since = '2049-12-01'

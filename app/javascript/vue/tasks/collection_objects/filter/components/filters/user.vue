@@ -49,12 +49,14 @@
         <div class="horizontal-left-content">
           <input
             type="date"
+            :disabled="!user.user_date_start"
             class="date-input"
             v-model="user.user_date_end">
           <button
             type="button"
             class="button normal-input button-default margin-small-left"
-            @click="setActualDate">
+            @click="setActualDateStart"
+            @dblclick="setActualDateEnd">
             Now
           </button>
         </div>
@@ -77,12 +79,15 @@ export default {
   },
   computed: {
     user: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
+    },
+    startDate () {
+      return this.user.user_date_start
     }
   },
   data () {
@@ -104,6 +109,13 @@ export default {
       ]
     }
   },
+  watch: {
+    startDate (newVal) {
+      if (!newVal) {
+        this.user.user_date_end = undefined
+      }
+    }
+  },
   mounted () {
     GetUsers().then(response => {
       this.users = response.body
@@ -120,7 +132,10 @@ export default {
     }
   },
   methods: {
-    setActualDate () {
+    setActualDateStart () {
+      this.user.user_date_start = new Date().toISOString().split('T')[0]
+    },
+    setActualDateEnd () {
       this.user.user_date_end = new Date().toISOString().split('T')[0]
     }
   }

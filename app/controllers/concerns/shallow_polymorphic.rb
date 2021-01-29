@@ -9,7 +9,8 @@ module ShallowPolymorphic
     def shallow_object_global_param
       u = request.fullpath
       n = self.class.controller_name
-      if u =~ /\d+\/#{n}$(\..+)?/ && params.permit(:object_global_id).to_h.empty?
+
+      if u =~ /\/\d+\/#{n}(\..+)?(\.json)?$/ && params.permit(:object_global_id).to_h.empty?
 
         s = u.split('/')
         k = s[1].singularize.camelize

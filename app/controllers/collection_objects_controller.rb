@@ -88,6 +88,11 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
+  # /collection_objects/preview?<filter params>
+  def preview
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+  end
+
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
@@ -365,7 +370,19 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [
+        :id,
+        :_destroy,
+        :identifier,
+        :namespace_id,
+        :type,
+        labels_attributes: [
+          :text,
+          :type,
+          :text_method,
+          :total
+        ]
+      ]
     )
   end
 
@@ -428,13 +445,16 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
-      biological_relationship_ids: []
-
+      biological_relationship_ids: [],
+      #  user_id: []
+      
       #  collecting_event: {
       #   :recent,
       #   keyword_ids: []
       # }
     )
+
+    # TODO: check user_id: []
 
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
@@ -480,7 +500,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
-      biological_relationship_ids: []
+      biological_relationship_ids: [],
 
       #  collecting_event: {
       #   :recent,

@@ -84,6 +84,7 @@ class Person < ApplicationRecord
   validate :not_active_after_death
   validate :not_active_before_birth
   validate :not_gandalf
+  validate :not_balrog
 
   before_validation :namecase_names, unless: Proc.new {|n| n.no_namecase }
 
@@ -511,9 +512,14 @@ class Person < ApplicationRecord
   end
 
   # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
-  # @return [Ignored]
   def not_gandalf
     errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 119
+  end
+
+
+  # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
+  def not_balrog
+    errors.add(:base, 'nobody is that active') if year_active_start && year_active_end && (year_active_end - year_active_start > 119)
   end
 
   # TODO: deprecate this, always set explicitly

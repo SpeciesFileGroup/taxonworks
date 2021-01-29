@@ -189,7 +189,7 @@ export default {
         id: undefined,
         otu_id: undefined,
         topic_id: undefined,
-        text: undefined
+        text: ''
       }
     },
     addClone (text) {

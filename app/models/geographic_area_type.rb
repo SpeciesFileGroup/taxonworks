@@ -9,6 +9,7 @@ class GeographicAreaType < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::IsData
+  include Shared::IsApplicationData
 
   COUNTRY_LEVEL_TYPES = %w(Country Governorate).freeze
   STATE_LEVEL_TYPES   = %w(State Province District Prefecture Region Territory Republic Area Oblast Krai).freeze

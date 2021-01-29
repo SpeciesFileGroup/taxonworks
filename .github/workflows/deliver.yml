@@ -15,7 +15,13 @@ on:
 
 jobs:
   deliver:
-    if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
+    if: |
+      !(
+        contains(github.event.head_commit.message, '[ci skip]') ||
+        contains(github.event.head_commit.message, '[ci-skip]') ||
+        contains(github.event.head_commit.message, '[skip ci]') ||
+        contains(github.event.head_commit.message, '[skip-ci]')
+      )
     env:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
@@ -102,7 +108,7 @@ jobs:
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: 'github-actions-${{steps.docker_tag.outputs.result}}'
+        DOCKER_TAG: '${{steps.docker_tag.outputs.result}}'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG

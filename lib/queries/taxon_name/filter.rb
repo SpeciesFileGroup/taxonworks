@@ -24,6 +24,9 @@ module Queries
       #   true if matching must be exact, false if partial matches are allowed.
       attr_accessor :exact
 
+      # 
+      # TODO: deprecate for Queries::Concerns::User
+      #
       # @param updated_since [String] in format yyyy-mm-dd
       #  Names updated (.modified_at) since this date.
       attr_accessor :updated_since
@@ -172,8 +175,7 @@ module Queries
         @taxon_name_author_ids = params[:taxon_name_author_ids].blank? ? [] : params[:taxon_name_author_ids]
         @taxon_name_author_ids_or = (params[:taxon_name_author_ids_or]&.downcase == 'true' ? true : false) if !params[:taxon_name_author_ids_or].nil?
 
-        @keyword_ids ||= []
-
+        set_tags_params(params)
         set_user_dates(params)
       end
 

@@ -1,5 +1,6 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
 
@@ -148,7 +149,7 @@ class ImagesController < ApplicationController
 
   def filter_params
     params.permit(
-      :ancestor_id,
+      :taxon_name_id,
       :ancestor_id_target,
       :otu_id,
       :collection_object_id,
@@ -165,6 +166,7 @@ class ImagesController < ApplicationController
       :identifier_exact,
       :identifier_start,
       keyword_ids: [],
+      taxon_name_id: [],
       sled_image_id: [],
       biocuration_class_id: [],
       image_id: [],

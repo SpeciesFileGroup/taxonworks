@@ -14,6 +14,7 @@ import getDepiction from './getDepiction'
 import getCitations from './getCitations'
 import getTags from './getTags'
 import getDataAttributes from './getDataAttributes'
+import getPixels from './getPixels'
 
 const GetterNames = {
   GetLicense: 'getLicense',
@@ -31,7 +32,8 @@ const GetterNames = {
   GetDepiction: 'getDepiction',
   GetCitations: 'getCitations',
   GetTags: 'getTags',
-  GetDataAttributes: 'getDataAttributes'
+  GetDataAttributes: 'getDataAttributes',
+  GetPixels: 'getPixels'
 }
 
 const GetterFunctions = {
@@ -50,7 +52,8 @@ const GetterFunctions = {
   [GetterNames.GetDepiction]: getDepiction,
   [GetterNames.GetCitations]: getCitations,
   [GetterNames.GetTags]: getTags,
-  [GetterNames.GetDataAttributes]: getDataAttributes
+  [GetterNames.GetDataAttributes]: getDataAttributes,
+  [GetterNames.GetPixels]: getPixels
 }
 
 export {

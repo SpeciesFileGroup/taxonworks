@@ -35,7 +35,8 @@
               class="button button-circle"
               v-if="item.id"
               :object-id="item.id"
-              :type="`${item.type}`"
+              :section="`${item.type}s`"
+              type="ControlledVocabularyTerm"
             />
           </td>
           <td>
@@ -77,10 +78,10 @@ export default {
   watch: {
     type: {
       handler(newVal, oldVal) {
-        if(newVal != oldVal) {
+        if (newVal !== oldVal) {
           this.isLoading = true
-          GetControlledVocabularyTerms({ 'type[]': newVal}).then(response => {
-            this.list = response.body,
+          GetControlledVocabularyTerms({ 'type[]': newVal }).then(response => {
+            this.list = response.body
             this.isLoading = false
           })
         }
@@ -89,11 +90,11 @@ export default {
     }
   },
   methods: {
-    editItem(index) {
+    editItem (index) {
       this.$emit('edit', this.list[index])
     },
-    removeCTV(index) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+    removeCTV (index) {
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
         this.isLoading = true
         DestroyControlledVocabularyTerm(this.list[index].id).then(response => {
           this.list.splice(index, 1)
@@ -104,23 +105,22 @@ export default {
     addCTV (item) {
       const index = this.list.findIndex(ctv => { return ctv.id === item.id })
 
-      if(index > -1) {
+      if (index > -1) {
         this.$set(this.list, index, item)
-      }
-      else {
+      } else {
         this.list.unshift(item)
       }
     },
     sortTable (sortProperty) {
-      let that = this
-      function compare (a,b) {
-        if (a[sortProperty] < b[sortProperty])
-          return (that.ascending ? -1 : 1)
-        if (a[sortProperty] > b[sortProperty])
-          return (that.ascending ? 1 : -1)
+      this.list.sort((a, b) => {
+        if (a[sortProperty] < b[sortProperty]) {
+          return (this.ascending ? -1 : 1)
+        }
+        if (a[sortProperty] > b[sortProperty]) {
+          return (this.ascending ? 1 : -1)
+        }
         return 0
-      }
-      this.list.sort(compare)
+      })
       this.ascending = !this.ascending
     }
   }

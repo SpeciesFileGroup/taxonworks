@@ -8,12 +8,146 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Changed
-- `db:seed` displays password for created users and adds admin to Default project [#1913]
-### Fixed
-- `tw:db:load` task not handling settings reliably. [#1914]
+- Checkmark on verbatim should visible only
 
+### Fix
+- Generate label button [#2002]
+
+[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
+
+## [0.16.1] - 2021-01-26
+
+### Fixed
+- Missing `depiction_object_type` on New image task [#1995]
+- Sort case-insensitive [#1985]
+
+[#1985]: https://github.com/SpeciesFileGroup/taxonworks/issues/1985
+[#1995]: https://github.com/SpeciesFileGroup/taxonworks/issues/1995
+
+## [0.16.0] - 2021-01-25
+### Added
+- New collecting event task [#1530]
+- "Quick" collection objects options from new collecting event task
+- New WKT georeference inputs
+- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
+- Route linting specs
+- Generate label (alpha), pastes values into print label input 
+- Collecting event navigation options (next/previous with/out <many things>
+- Nested_attributes for Labels
+- Collection object/and collecting event navigation options/bridges
+- `/collecting_events/preview?<filter_params>` a preview look for brief tables
+- Subclasses for labels:`Label::QrCode`, `Label::Code128`
+- Include `rqrcode`, `barby` for barcode rendering
+- Add `label` attribute to Label JSON response that renders QR code
+- Add accommodation for printing pages of barcode-based labels
+- Add `Georeference::Wkt` an anonymous WKT based georeference assertion
+- Add option to disable name-casing when Person is created from `/people/new` [#1967] 
+- Full CASTOR (taxon names batch load) example template, CASTOR preview notices
+- New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
+- Add image attributions, original citation and editor options in image viewer [#1978]
+- Browse current OTU button in Browse OTU
+
+### Changed
+- Moved buttons in collecting event on comprehensive task [#1986]
+- Improved collecting event status in smart selector on comprehensive digitization
+- Some tasks route names were "malformed" and renamed
+- ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
+- Setting `Identifier#cached` uses a build getter to enable Label building
+- Georeference validation requires CollectingEvent (enabled by proper use of `:inverse_of`)
+- Tweak to how `pinned?` is calculated trying to eliminate database calls
+- Minor cleanup of batch preview layouts
+- Changed softvalidation message for names being on Official ICZN lists
+- Fetch codecov, seedback and closure_tree gems from RubyGems.
+- Updated gems (`bundle update` without altering `Gemfile`).
+- Remove `no_leaves`= true from taxon name on filter images task [#1953]
+- Turn off autocomplete feature on vue autocomplete [#1956]
+- Limited CoLDP exports runtime to 1 hour and 2 attemps.
+- Turn off autocomplete on new taxon name task
+- Replaced display name attribute for object_label in parent autocomplete on New taxon name task
+- Filter task by name only [#1962]
+- Search geographic area by verbatim coordinates on new collecting event
+- Show coordinates from verbatim georeference
+- Parsed verbatim label to fields
+- Parsed EXIF coordinates to verbatim fields
+- Changed autocomplete label [#1988]
+- Using newer biodiversity gem from official source
+- Updated gems (`bundle update` without altering `Gemfile`)
+
+### Fixed
+- Loan items reference proper housekeeping in table
+- Line links of batch-preview results
+- broken API download link for exported references [#1908]
+- removed BASIS task stub [#1716]
+- `/api/v1/notes` project scoping [#1958]
+- `is_community?` reporting `false` for some models without `project_id`
+- New source after cloning not display changes on authors / editors lists
+- Edit taxon name firing multiple updates when updating gender [#1970]
+- Correct image size on image viewer
+- Save pages before clone person on new taxon name [#1977]
+- Correct count display of attributions [#1979]
+- Uncheck collecting event option [#1980]
+- Trip Code/Identifier not visible in header of Edit collecting event [#1990]
+
+[#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
+[#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
+[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
+[#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
+[#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
+[#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
+[#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
+[#1977]: https://github.com/SpeciesFileGroup/taxonworks/issues/1977
+[#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
+[#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
+[#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
+[#1986]: https://github.com/SpeciesFileGroup/taxonworks/issues/1986
+[#1988]: https://github.com/SpeciesFileGroup/taxonworks/issues/1988
+[#1990]: https://github.com/SpeciesFileGroup/taxonworks/issues/1990
+
+## [0.15.1] - 2020-12-14
+### Added
+- `Person` can not be active for > 119 years
+- Show buffered values in `Task - Browse collection objects` [#1931]
+- Default pin button on Uniquify people task
+- Checkbox to Select/unselect all match people on Uniquify people task [#1921]
+- Pixels to centimeter on new image task
+
+### Changed
+- Clean timeline display in `Task - Browse collection objects`
+- `db:seed` displays password for created users and adds admin to Default project [#1913]
+- Start date needs to be set before set end date on Housekeeping facet
+- Bump node package `ini` from 1.3.5 to 1.3.7
+
+### Fixed
+- CVT smart selectors/pinboard scope broken [#1940] [#1941]
+- Image filter `ancestor_id` was to be `taxon_name_id` or `taxon_name_id[]` [#1916]
+- Bad Image select_option sort [#1930] 
+- Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
+- ShallowPolymorphic called in `.json` form [#1928]
+- Documentation of param names, examples, for the "CASTOR" taxon name batch load [#1926]
+- `tw:db:load` task not handling settings reliably. [#1914]
+- Set `pulse` attribute true on radial annotator for object with annotations on data views and Browse nomenclature task
+- Invalid attribute `:note` in Note API result view.
+- Malformed PDF exception handling in Document model.
+- Clipboard copy shortcut
+- Source hub link on Citations by source task
+- Clean content editor after change a topic
+
+
+[#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
+[#1940]: https://github.com/SpeciesFileGroup/taxonworks/issues/1940
+[#1916]: https://github.com/SpeciesFileGroup/taxonworks/issues/1916
+[#1931]: https://github.com/SpeciesFileGroup/taxonworks/issues/1931
+[#1930]: https://github.com/SpeciesFileGroup/taxonworks/issues/1930
+[#1920]: https://github.com/SpeciesFileGroup/taxonworks/issues/1920
+[#1928]: https://github.com/SpeciesFileGroup/taxonworks/issues/1928
+[#1926]: https://github.com/SpeciesFileGroup/taxonworks/issues/1926
 [#1913]: https://github.com/SpeciesFileGroup/taxonworks/issues/1913
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
+[#1921]: https://github.com/SpeciesFileGroup/taxonworks/issues/1921
+
 ## [0.15.0] - 2020-11-30
 
 ### Added
@@ -705,7 +839,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...development
+[0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...v0.16.0
+[0.15.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.13.0...v0.14.0

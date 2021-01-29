@@ -10,13 +10,20 @@
     </div>
     <p v-if="displayCount">{{ foundPeople.length }} people found</p>
     <div>
-      <autocomplete
-        url="/people/autocomplete"
-        param="term"
-        label="label_html"
-        placeholder="Search a person..."
-        clear-after
-        @getItem="addToList"/>
+      <div class="horizontal-left-content">
+        <autocomplete
+          class="full_width"
+          url="/people/autocomplete"
+          param="term"
+          label="label_html"
+          placeholder="Search a person..."
+          clear-after
+          @getItem="addToList"/>
+        <default-pin
+          type="Person"
+          section="People"
+          @getItem="addToList"/>
+      </div>
       <table class="full_width">
         <thead>
           <tr>
@@ -90,12 +97,14 @@
 </template>
 <script>
 
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import DefaultPin from 'components/getDefaultPin.vue'
 import { GetPeople } from '../request/resources'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    DefaultPin
   },
   props: {
     value: {
