@@ -79,10 +79,9 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 import ListEntrys from './listEntrys.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import showForThisGroup from '../helpers/showForThisGroup'
 
 export default {
   components: {

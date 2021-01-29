@@ -1,5 +1,5 @@
 <template>
-  <div class="panel basic-information">
+  <div class="panel block-layout">
     <spinner-component
       :show-spinner="false"
       :show-legend="false"
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import ExpandComponent  from './expand.vue'
+import ExpandComponent from './expand.vue'
 import SpinnerComponent from './spinner.vue'
 
 export default {
@@ -63,3 +63,37 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.block-layout {
+  border-top-left-radius: 0px;
+  transition: all 1s;
+  .validation-warning {
+    border-left: 4px solid #ff8c00 !important;
+  }
+  .create-button {
+    min-width: 100px;
+  }
+
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  .header {
+    border-left:4px solid green;
+    h3 {
+    font-weight: 300;
+  }
+  padding: 1em;
+  padding-left: 1.5em;
+  border-bottom: 1px solid #f5f5f5;
+  }
+  .body {
+    padding: 2em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+  .taxonName-input,#error_explanation {
+    width: 300px;
+  }
+}
+</style>

@@ -6,14 +6,15 @@
 }
 
 .panel h2, h3, h4, .subtitle {
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .panel {
   display: flex;
   flex-direction:column;
   justify-content:flex-start;
-  box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.2);
+  box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  border-radius: .9rem;
   background-color: $panel_background;
   a {
     text-decoration: none;

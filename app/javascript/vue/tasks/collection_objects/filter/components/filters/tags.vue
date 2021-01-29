@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Tags</h2>
+    <h3>Tags</h3>
     <smart-selector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{'type[]' : 'Keyword'}"
