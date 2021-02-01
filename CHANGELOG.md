@@ -7,12 +7,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- `papertrail.json?object_global_id=`
+
 ### Changed
 - Checkmark on verbatim should visible only
 
 ### Fix
 - Generate label button [#2002]
 
+[#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
 [#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 
 ## [0.16.1] - 2021-01-26
