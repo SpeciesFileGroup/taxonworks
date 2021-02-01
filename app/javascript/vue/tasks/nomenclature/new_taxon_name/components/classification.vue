@@ -1,7 +1,8 @@
 <template>
   <block-layout
     anchor="classification"
-    :warning="checkValidation">
+    :warning="checkValidation"
+    :spinner="!taxon.id">
     <h3 slot="header">Classification</h3>
     <div
       slot="body">
@@ -90,8 +91,8 @@ export default {
     BlockLayout
   },
   computed: {
-    taxonLabel() {
-      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    taxonLabel () {
+      return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
@@ -111,7 +112,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]

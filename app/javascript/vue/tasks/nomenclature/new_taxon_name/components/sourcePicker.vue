@@ -2,6 +2,7 @@
   <block-layout
     anchor="author"
     v-help.section.author.container
+    :spinner="!taxon.id"
   >
     <h3 slot="header">
       Author
@@ -187,7 +188,7 @@ import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
