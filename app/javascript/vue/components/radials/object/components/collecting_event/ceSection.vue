@@ -1,25 +1,34 @@
 <template>
-  <section>
-    <autocomplete
-      v-if="collectingEvent"
-      url="/collecting_events/autocomplete"
-      param="term"
-      label="label_html"
-      placeholder="Search a collecting event"
-      @getItem="setCE"/>
-    <span
+  <div>
+    <h3
+      v-if="!!collectingEvent"
+      class="middle">
+      <span v-html="collectingEvent.object_tag"/>
+      <button
+        type="button"
+        class="button circle-button btn-undo button-default"
+        @click="setCE({})"/>
+    </h3>
+    <smart-selector
       v-else
-      v-html="collectingEvent.object_tag"/>
-  </section>
+      class="full_width"
+      ref="smartSelector"
+      model="collecting_events"
+      target="CollectionObject"
+      klass="CollectionObject"
+      pin-section="CollectingEvents"
+      pin-type="CollectingEvent"
+      @selected="setCE"/>
+  </div>
 </template>
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   components: {
-    Autocomplete
+    SmartSelector
   },
   props: {
     collectingEvent: {
