@@ -149,7 +149,8 @@ export default {
       moveInput: '',
       saving: false,
       preSelected: [],
-      isLoading: false
+      isLoading: false,
+      maxSelect: 10
     }
   },
   watch: {
@@ -184,7 +185,7 @@ export default {
       }
     },
     confirmSave() {
-      if(this.selected.length >= 10) {
+      if(this.selected.length >= this.maxSelect) {
         this.showModal = true
       } else {
         if(window.confirm(`Are you sure you want to proceed?`)) {

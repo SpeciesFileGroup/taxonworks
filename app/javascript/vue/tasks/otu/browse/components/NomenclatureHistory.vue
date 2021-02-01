@@ -20,7 +20,7 @@
     </div>
     <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => { return { [item.key]: !item.value } }))">
       <h3>Citations ({{ filteredList.length }})</h3>
-      <ul class="taxonomic_history tree">
+      <ul class="taxonomic_history">
         <template v-for="item in filteredList">
           <li v-if="item.label_html">
             <span v-html="item.label_html"/>
