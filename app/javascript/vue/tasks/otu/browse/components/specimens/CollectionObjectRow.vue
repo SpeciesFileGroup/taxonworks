@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="panel margin-small-bottom">
     <div
       @click="expand = !expand"
       class="cursor-pointer inline">
       <div
-        :data-icon="expand ? 'w_less' : 'w_plus'"
+        :data-icon="expand ? 'w-arrow-down' : 'w-arrow-right'"
         class="expand-box button-circle button-default separate-right"/>
       <span>{{ ceLabel }}</span>
     </div>

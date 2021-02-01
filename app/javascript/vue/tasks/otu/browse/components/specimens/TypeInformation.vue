@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="panel margin-small-bottom">
     <div
       @click="expand = !expand"
       class="cursor-pointer inline">
       <div
-        :data-icon="expand ? 'w_less' : 'w_plus'"
+        :data-icon="expand ? 'w-arrow-down' : 'w-arrow-right'"
         class="expand-box circle-button button-default separate-right"/>
       <span>[<span v-html="types.map(type => `${type.type_type} of ${type.original_combination}`).join('; ')"/>] <span>{{ ceLabel }}</span></span>
     </div>

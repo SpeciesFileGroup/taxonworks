@@ -219,6 +219,7 @@ export default {
     }
     .section-title {
       text-transform: uppercase;
+      font-size: 14px;
     }
     .expand-box {
       width: 24px;

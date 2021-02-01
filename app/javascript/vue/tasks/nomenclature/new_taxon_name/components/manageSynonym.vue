@@ -144,7 +144,6 @@ export default {
     return {
       childrenList: [],
       selected: [],
-      expanded: true,
       validTaxon: undefined,
       showModal: false,
       moveInput: '',
