@@ -80,9 +80,13 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag public
+  # TODO: flag/exclude ! is_public
   def self.remarks(otu)
-    otu.notes.pluck(:text).join('|')
+    if otu.notes.load.any?
+      otu.notes.pluck(:text).join('|')
+    else
+      nil
+    end
   end
 
   # "supporting the taxonomic concept"

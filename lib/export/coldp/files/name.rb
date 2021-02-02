@@ -102,7 +102,7 @@ module Export::Coldp::Files::Name
     csv << [
       id,                                                                         # ID
       basionym_id,                                                                # basionymID (can't be invalid
-      t.cached_original_combination.gsub(/\s+\[sic\]/, ''),                       # scientificName
+      t.cached_original_combination&.gsub(/\s+\[sic\]/, ''),                       # scientificName # TODO: once cache is fixed remove &. check
       authorship_field(t, true),                                                  # authorship
       rank,                                                                       # rank
       nil,                                                                        # uninomial
@@ -148,9 +148,12 @@ module Export::Coldp::Files::Name
       }
 
       # why we getting double
-      unique = {}
+      #  unique = {}
 
-      otu.taxon_name.self_and_descendants.that_is_valid.each do |name|
+      otu.taxon_name.self_and_descendants.that_is_valid
+        .pluck(:id, :cached)
+        .each do |name|
+        
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
         #
@@ -164,10 +167,11 @@ module Export::Coldp::Files::Name
 
         name_total += 1
 
-        #data = ::Catalog::Nomenclature::Entry.new(name)
+        TaxonName
+          .where(cached_valid_taxon_name_id: name[0]) # == .historical_taxon_names
+          .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", name[1]) # This eliminates Combinations that are identical to the current placement.
+          .find_each do |t|
 
-        #data.names.each do |t|
-        name.historical_taxon_names.each do |t|
           origin_citation = t.origin_citation
 
           original = Export::Coldp.original_field(t) # Protonym, no parens
@@ -177,19 +181,16 @@ module Export::Coldp::Files::Name
 
           basionym_id = t.reified_id
 
-          name_string =  higher ? t.name : t.cached
+          name_string = higher ? t.name : t.cached
 
-
-          # higher, valid, combination and not added
-          if higher || t.is_valid? || t.is_combination? # && unique[basionym_id].nil?
-            # unique[basionym_id] = true
+          if higher || t.is_valid? || t.is_combination?
             csv << [
               t.id,                                               # ID
               basionym_id,                                        # basionymID
               name_string,                                        # scientificName
               t.cached_author_year,                               # authorship
               t.rank,                                             # rank
-              (higher ? name_string : nil),                          # uninomial
+              (higher ? name_string : nil),                       # uninomial
               (higher ? nil : elements['genus']&.last),           # genus and below - IIF species or lower
               (higher ? nil : elements['subgenus']&.last),        # infragenericEpithet
               (higher ? nil : elements['species']&.last),         # specificEpithet
@@ -205,8 +206,8 @@ module Export::Coldp::Files::Name
             ]
           end
 
-          if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) && unique[basionym_id].nil?
-            unique[basionym_id] = true
+          if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) # TODO: Confirm unnecessary: && unique[basionym_id].nil?
+            # unique[basionym_id] = true
             name_total += 1
             add_original_combination(t, csv)
           end
@@ -215,10 +216,8 @@ module Export::Coldp::Files::Name
         end
       end
 
-      # byebug
       puts Rainbow("----------TOTAL: #{name_total}------").red.bold
-
     end
- end
+  end
 
 end

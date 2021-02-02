@@ -1332,7 +1332,8 @@ class TaxonName < ApplicationRecord
   #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
   # mental note- consider combinatoin - is_current_placement?
   def reified_id
-    target = (is_combination? ? finest_protonym : self)
+    return id if is_combination?
+    target = self # (is_combination? ? finest_protonym : self)
     return target.id.to_s unless target.has_alternate_original?
     target.id.to_s + '-' + Digest::MD5.hexdigest(target.cached_original_combination) # missing spec to catch when chached original combination nil
   end

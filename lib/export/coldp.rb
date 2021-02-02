@@ -54,12 +54,11 @@ module Export
         d = CSV.generate(col_sep: "\t") do |csv|
           csv << %w{ID citation	doi} # author year source details
           sorted_refs.each do |r|
-            csv << r 
+            csv << r
           end
         end
 
         zipfile.get_output_stream('References.csv') { |f| f.write d }
-
       end
 
       zip_file_path
@@ -103,7 +102,7 @@ module Export
     end
 
     # @param taxon_name [a valid Protonym or a Combination]
-    #   see also exclusion of OTUs/Names based on Ranks not handled 
+    #   see also exclusion of OTUs/Names based on Ranks not handled
     def self.basionym_id(taxon_name)
       if taxon_name.type == 'Protonym'
         taxon_name.reified_id
@@ -115,7 +114,17 @@ module Export
       end
     end
 
+    # Replicate TaxonName.refified_id without having to use AR
+    def self.reified_id(taxon_name_id, cached, cached_original_combination)
+      # Protonym#has_alternate_original?
+      if cached_original_combination && (cached != cached_original_combination)
+        taxon_name_id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
+      else
+        taxon_name_id
+      end
+    end
+
     # Reification spec
-    # Duplicate Combination check -> is the Combination in question already represented int he current *classification* 
+    # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
   end
 end
