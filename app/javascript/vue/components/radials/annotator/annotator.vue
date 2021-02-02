@@ -35,9 +35,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentAnnotator.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -354,10 +354,7 @@ export default {
 
   .radial-annotator {
     position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
+
     .modal-close {
       top: 30px;
       right: 20px;

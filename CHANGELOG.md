@@ -8,27 +8,52 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Route linting specs
+- `papertrail.json?object_global_id=`
+
+### Changed
+- Checkmark on verbatim should visible only
+
+### Fix
+- Generate label button [#2002]
+
+[#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
+[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
+
+## [0.16.1] - 2021-01-26
+
+### Fixed
+- Missing `depiction_object_type` on New image task [#1995]
+- Sort case-insensitive [#1985]
+
+[#1985]: https://github.com/SpeciesFileGroup/taxonworks/issues/1985
+[#1995]: https://github.com/SpeciesFileGroup/taxonworks/issues/1995
+
+## [0.16.0] - 2021-01-25
+### Added
 - New collecting event task [#1530]
 - "Quick" collection objects options from new collecting event task
 - New WKT georeference inputs
+- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
+- Route linting specs
 - Generate label (alpha), pastes values into print label input 
 - Collecting event navigation options (next/previous with/out <many things>
 - Nested_attributes for Labels
-- Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
 - Collection object/and collecting event navigation options/bridges
 - `/collecting_events/preview?<filter_params>` a preview look for brief tables
 - Subclasses for labels:`Label::QrCode`, `Label::Code128`
 - Include `rqrcode`, `barby` for barcode rendering
 - Add `label` attribute to Label JSON response that renders QR code
-- Add accomodation for printing pages of barcode-based labels
+- Add accommodation for printing pages of barcode-based labels
 - Add `Georeference::Wkt` an anonymous WKT based georeference assertion
-- Add option to disable namecasing when Person is created from `/people/new` [#1967] 
+- Add option to disable name-casing when Person is created from `/people/new` [#1967] 
 - Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 - Add image attributions, original citation and editor options in image viewer [#1978]
+- Browse current OTU button in Browse OTU
 
 ### Changed
+- Moved buttons in collecting event on comprehensive task [#1986]
+- Improved collecting event status in smart selector on comprehensive digitization
 - Some tasks route names were "malformed" and renamed
 - ENV variable`TAXONWORKS_TEST_LINTING=true` must now be `true`, not anything, to trigger linting specs
 - Setting `Identifier#cached` uses a build getter to enable Label building
@@ -48,6 +73,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show coordinates from verbatim georeference
 - Parsed verbatim label to fields
 - Parsed EXIF coordinates to verbatim fields
+- Changed autocomplete label [#1988]
+- Using newer biodiversity gem from official source
+- Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
 - CoLDP [sic], errant chresonym, and basionym ids for misspellings
@@ -60,23 +88,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New source after cloning not display changes on authors / editors lists
 - Edit taxon name firing multiple updates when updating gender [#1970]
 - Correct image size on image viewer
-- Save pages before clone person [#1977]
+- Save pages before clone person on new taxon name [#1977]
 - Correct count display of attributions [#1979]
 - Uncheck collecting event option [#1980]
+- Trip Code/Identifier not visible in header of Edit collecting event [#1990]
 
 [#1530]: https://github.com/SpeciesFileGroup/taxonworks/issues/1530
-[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
-[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
-[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
 [#1716]: https://github.com/SpeciesFileGroup/taxonworks/issues/1716
-[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
+[#1908]: https://github.com/SpeciesFileGroup/taxonworks/issues/1908
+[#1949]: https://github.com/SpeciesFileGroup/taxonworks/issues/1949
 [#1953]: https://github.com/SpeciesFileGroup/taxonworks/issues/1953
 [#1956]: https://github.com/SpeciesFileGroup/taxonworks/issues/1956
+[#1958]: https://github.com/SpeciesFileGroup/taxonworks/issues/1958
 [#1963]: https://github.com/SpeciesFileGroup/taxonworks/issues/1963
+[#1967]: https://github.com/SpeciesFileGroup/taxonworks/issues/1967
 [#1970]: https://github.com/SpeciesFileGroup/taxonworks/issues/1970
+[#1977]: https://github.com/SpeciesFileGroup/taxonworks/issues/1977
 [#1978]: https://github.com/SpeciesFileGroup/taxonworks/issues/1978
 [#1979]: https://github.com/SpeciesFileGroup/taxonworks/issues/1979
 [#1980]: https://github.com/SpeciesFileGroup/taxonworks/issues/1980
+[#1986]: https://github.com/SpeciesFileGroup/taxonworks/issues/1986
+[#1988]: https://github.com/SpeciesFileGroup/taxonworks/issues/1988
+[#1990]: https://github.com/SpeciesFileGroup/taxonworks/issues/1990
 
 ## [0.15.1] - 2020-12-14
 ### Added
@@ -811,7 +844,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...development
+[0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...v0.16.0
 [0.15.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.14.0...v0.14.1

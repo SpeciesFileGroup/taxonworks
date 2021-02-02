@@ -95,8 +95,4 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .fieldset {
-    margin: 0px;
-  }
-</style>
+

@@ -4,8 +4,8 @@
     <div class="flex-separate separate-bottom middle">
       <div>
         <button
-          disabled="true"
-          class="button normal-input button-default margin-small-right">
+          class="button normal-input button-default margin-small-right"
+          @click="generateLabel">
           Generate
         </button>
         <button 
@@ -24,10 +24,10 @@
           v-model="que"
           type="number">
       </label>
-      <a 
+      <a
         v-if="label.id && que > 0"
         target="blank"
-        href="/tasks/labels/print_labels">Preview
+        :href="`/tasks/labels/print_labels?label_id=${label.id}`">Preview
       </a>
     </div>
     <textarea
@@ -45,6 +45,8 @@
 <script>
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
+import { parsedProperties } from 'tasks/collecting_events/new_collecting_event/helpers/parsedProperties.js'
+import { verbatimProperties } from 'tasks/collecting_events/new_collecting_event/helpers/verbatimProperties.js'
 
 export default {
   computed: {
@@ -77,11 +79,32 @@ export default {
     },
     verbatimLabel() {
       return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
+    },
+    collectingEvent () {
+      return this.$store.getters[GetterNames.GetCollectionEvent]
+    },
+    preferences () {
+      return this.$store.getters[GetterNames.GetPreferences]
+    },
+    componentsOrder () {
+      return this.preferences.layout['tasks::collectingEvent::componentsOrder']
+    },
+    tripCode () {
+      return this.$store.getters[GetterNames.GetCollectingEventIdentifier]
     }
   },
   methods: {
-    copyLabel() {
+    copyLabel () {
       this.printLabel = this.verbatimLabel
+    },
+    generateVerbatimLabel () {
+      return this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+    },
+    generateParsedLabel () {
+      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
+    },
+    generateLabel () {
+      this.printLabel = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
     }
   }
 }

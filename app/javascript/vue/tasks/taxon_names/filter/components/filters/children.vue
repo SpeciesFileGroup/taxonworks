@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Children</h2>
+    <h3>Children</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

@@ -26,16 +26,31 @@
         @click="searchDepictions">
         Search
       </button>
-      <otus-component v-model="params.base.otu_id"/>
-      <scope-component v-model="params.base.taxon_name_id"/>
+      <otus-component
+        class="margin-large-bottom"
+        v-model="params.base.otu_id"/>
+      <scope-component
+        class="margin-large-bottom"
+        v-model="params.base.taxon_name_id"/>
       <ancestor-target
+        class="margin-large-bottom"
         v-model="params.base.ancestor_id_target"
         :taxon-name="params.base.taxon_name_id"/>
-      <collection-object-component v-model="params.base.collection_object_id"/>
-      <biocurations-component v-model="params.base.biocuration_class_id"/>
-      <identifier-component v-model="params.identifier"/>
-      <tags-component v-model="params.base.keyword_ids"/>
-      <users-component v-model="params.user"/>
+      <collection-object-component
+        class="margin-large-bottom"
+        v-model="params.base.collection_object_id"/>
+      <biocurations-component
+        class="margin-large-bottom"
+        v-model="params.base.biocuration_class_id"/>
+      <identifier-component
+        class="margin-large-bottom"
+        v-model="params.identifier"/>
+      <tags-component
+        class="margin-large-bottom"
+        v-model="params.base.keyword_ids"/>
+      <users-component
+        class="margin-large-bottom"
+        v-model="params.user"/>
     </div>
   </div>
 </template>

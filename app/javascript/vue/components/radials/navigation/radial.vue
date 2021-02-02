@@ -33,9 +33,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentView">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentView.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentView ? currentView + 'Component' : undefined)"

@@ -31,9 +31,9 @@ export default function({ state, commit }) {
       })
       state.collection_object.tags_attributes = state.tags.map(tag => { return { keyword_id: tag.id }})
       promises.push(CreateCollectionObject(state.collection_object).then(response => {
-        let data = {
+        const data = {
           depiction_object_id: response.body.id,
-          depiction_object_type: response.body.base_class,
+          depiction_object_type: 'CollectionObject',
           image_id: item.id,
           caption: state.depiction.caption.length ? state.depiction.caption : undefined,
           sqed_depiction_attributes: (validateSqed(state.sqed) ? state.sqed : undefined)
@@ -43,7 +43,7 @@ export default function({ state, commit }) {
           determination.biological_collection_object_id = response.body.id
           CreateTaxonDetermination(determination)
         })
-        
+
         createdCount++
         CreateDepiction(data).then(response => {
           commit(MutationNames.AddDepiction, response.body)

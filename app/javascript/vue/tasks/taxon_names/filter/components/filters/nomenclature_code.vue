@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Nomenclature code</h2>
+    <h3>Nomenclature code</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

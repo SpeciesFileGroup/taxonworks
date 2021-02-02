@@ -100,7 +100,7 @@ post '/send_password_reset', to: 'users#send_password_reset', as: 'send_password
 get '/password_reset/:token', to: 'users#password_reset', as: 'password_reset'
 patch '/set_password/:token', to: 'users#set_password', as: 'set_password'
 
-match '/papertrail', to: 'papertrail#papertrail', via: :get
+match '/papertrail', to: 'papertrail#index', via: :get
 match '/papertrail/compare/', to: 'papertrail#compare', as: 'papertrail_compare', via: :get
 match '/papertrail/:id', to: 'papertrail#show', as: 'paper_trail_version', via: :get
 match '/papertrail/update/', to: 'papertrail#update', as: 'papertrail_update', via: :put

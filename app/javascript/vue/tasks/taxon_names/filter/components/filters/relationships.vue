@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Relationships</h2>
+    <h3>Relationships</h3>
     <smart-selector
       v-if="taxon"
       class="separate-bottom"

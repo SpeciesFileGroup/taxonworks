@@ -366,19 +366,7 @@ module Queries
 
       # @return [String]
       def authorship
-        parser = ::Biodiversity::Parser
-        a = parser.parse(query_string)
-        b = a
-        return nil if b.nil? or b[:details].nil?
-
-        b[:details].each do |detail|
-          detail.each_value do |v|
-            if v.kind_of?(Hash) && v[:authorship]
-              return v[:authorship][:value]
-            end
-          end
-        end
-        nil
+        ::Biodiversity::Parser.parse(query_string).dig(:authorship, :normalized)
       end
 
       # Note this overwrites the commonly used Geo parent/child!

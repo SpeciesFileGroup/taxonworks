@@ -1,7 +1,8 @@
 <template>
   <block-layout
     :warning="checkValidation"
-    anchor="status">
+    anchor="status"
+    :spinner="!taxon.id">
     <h3 slot="header">
       Status
     </h3>
@@ -81,7 +82,7 @@ import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 import SwitchComponent from 'components/switch'
 
 export default {
@@ -113,7 +114,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)).length
     },
     getStatusCreated () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {

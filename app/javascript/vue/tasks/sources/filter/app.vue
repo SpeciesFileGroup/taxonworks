@@ -108,10 +108,10 @@
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
-        <h2
+        <h3
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.
-        </h2>
+        </h3>
       </div>
     </div>
   </div>

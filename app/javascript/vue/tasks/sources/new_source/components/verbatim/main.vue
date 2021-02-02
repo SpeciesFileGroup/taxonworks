@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>Verbatim</h2>
+    <h3>Verbatim</h3>
     <div class="field">
       <textarea v-model="verbatim">
       </textarea>

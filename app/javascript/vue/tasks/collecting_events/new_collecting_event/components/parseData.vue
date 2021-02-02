@@ -2,7 +2,7 @@
   <div>
     <button
       class="button normal-input button-default"
-      @click="setModalView(true)">Parse form
+      @click="setModalView(true)">Parse from
     </button>
     <modal-component
       v-if="showModal"

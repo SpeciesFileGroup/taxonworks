@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>By records with</h2>
+    <h3>By records with</h3>
     <ul class="no_bullets">
       <li v-for="(item, key) in params">
         <label class="capitalize">
