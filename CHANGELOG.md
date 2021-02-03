@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - `papertrail.json?object_global_id=`
+- Quick label on collection object quick form [#2003]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -16,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fix
 - Generate label button [#2002]
 
+[#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
 [#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
 [#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 
