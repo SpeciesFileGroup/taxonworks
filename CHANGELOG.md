@@ -16,10 +16,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fix
 - Generate label button [#2002]
+- Save collectors in new collecting event task [#2016]
 
+[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 [#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
 [#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
-[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
+[#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
 
 ## [0.16.1] - 2021-01-26
 
