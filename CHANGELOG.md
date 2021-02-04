@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fix
 - Generate label button [#2002]
 - Save collectors in new collecting event task [#2016]
+- Fix image viewer on filter image task
 
 [#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 [#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
