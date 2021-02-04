@@ -6,7 +6,9 @@
       @onSelect="addCollectingEvent"/>
     <div v-if="collectingEvent">
       <h3>Print label</h3>
-      <ul class="no_bullets context-menu">
+      <ul
+        v-if="identifier"
+        class="no_bullets context-menu">
         <li
           v-for="(value, key) in labelTypes"
           :key="value">
