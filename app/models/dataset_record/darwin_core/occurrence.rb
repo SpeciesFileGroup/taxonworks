@@ -311,7 +311,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # preparations: [Match PreparationType by name (case insensitive)]
     preparation_name = get_field_value(:preparations)
     if preparation_name
-      preparation_type = PreparationType.where(PreparationType.arel_table[:name].matches(preparation_name)).first
+      preparation_type = PreparationType.find_by(PreparationType.arel_table[:name].matches(preparation_name))
 
       raise DarwinCore::InvalidData.new({
         "preparations": ["Unknown preparation \"#{preparation_name}\". If it is correct please add it to preparation types and retry."]
@@ -391,10 +391,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     endDayOfYear = get_integer_field_value(:endDayOfYear)
 
-    year = end_date&.year
-    month = end_date&.month
-    day = end_date&.day
-
     if endDayOfYear
       raise DarwinCore::InvalidData.new({ "endDayOfYear": ["Missing year value"] }) if year.nil?
 
@@ -409,6 +405,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
       raise DarwinCore::InvalidData.new({ "eventDate": ["Conflicting values. Please check year and endDayOfYear match eventDate"] }) if end_date &&
       (year && end_date.year != year || month && end_date.month != month || day && end_date.day != day)
+    else
+      year = end_date&.year
+      month = end_date&.month
+      day = end_date&.day
     end
 
     set_hash_val(collecting_event, :end_date_year, year)
