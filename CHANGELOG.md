@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Checkmark on verbatim should visible only
+- Updated gems (`bundle update` without altering `Gemfile`).
 
 ### Fix
 - Generate label button [#2002]
