@@ -95,8 +95,8 @@ module Export
     # TODO - perhaps a utilities file --
 
     # @return [Boolean]
-    #   true if no parens in cached_author_year
-    #   false if parens in cached_author_year
+    #  `true` if no parens in `cached_author_year`
+    #  `false` if parens in `cached_author_year`
     def self.original_field(taxon_name)
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end

@@ -175,6 +175,7 @@ module Export::Coldp::Files::Name
           origin_citation = t.origin_citation
 
           original = Export::Coldp.original_field(t) # Protonym, no parens
+
           higher = !t.is_combination? && !t.is_species_rank?
 
           elements = t.full_name_hash if !higher
@@ -187,7 +188,7 @@ module Export::Coldp::Files::Name
             csv << [
               t.id,                                               # ID
               basionym_id,                                        # basionymID
-              name_string,                                        # scientificName
+              name_string,                                        # scientificName  # should just be t.cached
               t.cached_author_year,                               # authorship
               t.rank,                                             # rank
               (higher ? name_string : nil),                       # uninomial
@@ -206,7 +207,11 @@ module Export::Coldp::Files::Name
             ]
           end
 
+         
+
           if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) # TODO: Confirm unnecessary: && unique[basionym_id].nil?
+            # subgenera not hitting here
+
             # unique[basionym_id] = true
             name_total += 1
             add_original_combination(t, csv)
