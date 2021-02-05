@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Collecting Event</h2>
+    <h3>Collecting Event</h3>
     <h3>Date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">

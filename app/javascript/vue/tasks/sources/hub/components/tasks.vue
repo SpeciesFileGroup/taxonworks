@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>All tasks</h2>
+    <h3>All tasks</h3>
     <div class="flex-wrap-row">
       <a
         v-for="task in tasks"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Biocurations</h2>
+    <h3>Biocurations</h3>
     <ul class="no_bullets">
       <li
         v-for="item in biocurations"

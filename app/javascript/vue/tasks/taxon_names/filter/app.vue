@@ -129,7 +129,7 @@ export default {
       this.alreadySearch = false
       this.list = []
       this.urlRequest = ''
-      history.pushState(null, null, '/tasks/taxon_names/filter/index')
+      history.pushState(null, null, '/tasks/taxon_names/filter')
     },
     loadList(newList) {
       if(this.append) {

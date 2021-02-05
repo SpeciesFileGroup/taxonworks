@@ -142,7 +142,7 @@ export default {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/taxon_names/filter/index?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/taxon_names/filter?${urlParams.toString()}`)
       }, () => {
         this.searching = false
       })

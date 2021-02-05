@@ -1,7 +1,8 @@
 <template>
   <block-layout
     anchor="original-combination"
-    :warning="softValidation.length"
+    :warning="softValidation.length > 0"
+    :spinner="!taxon.id"
     v-help.section.originalCombination.container>
     <h3 slot="header">Original combination and rank</h3>
     <div
@@ -106,7 +107,7 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 
 export default {
   components: {
@@ -114,7 +115,7 @@ export default {
     OriginalCombination,
     BlockLayout
   },
-  data: function () {
+  data () {
     return {
       taxonOriginal: [],
       genusGroup: {

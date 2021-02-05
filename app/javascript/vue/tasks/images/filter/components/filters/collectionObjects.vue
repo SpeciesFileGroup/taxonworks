@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Collection objects</h2>
+    <h3>Collection objects</h3>
     <autocomplete
       url="/collection_objects/autocomplete"
       param="term"

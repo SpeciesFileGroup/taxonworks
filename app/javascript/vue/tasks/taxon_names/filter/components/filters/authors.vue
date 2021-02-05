@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Authors</h2>
+    <h3>Authors</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">
