@@ -1,15 +1,16 @@
 <template>
-  <div>
+  <div class="panel margin-small-bottom">
     <div
       @click="expand = !expand"
       class="cursor-pointer inline">
       <div
-        :data-icon="expand ? 'w_less' : 'w_plus'"
-        class="expand-box button-default separate-right"/>
+        :data-icon="expand ? 'w-arrow-down' : 'w-arrow-right'"
+        class="expand-box button-circle button-default separate-right"/>
       <span>{{ ceLabel }}</span>
     </div>
     <template v-if="expand">
       <specimen-information
+        class="species-information-container"
         v-if="expand"
         :specimen="specimen"/>
     </template>
@@ -47,3 +48,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .species-information-container {
+    margin-left: 20px;
+  }
+</style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Etymology</h2>
+    <h3>Etymology</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

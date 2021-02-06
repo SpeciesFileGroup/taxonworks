@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>Person</h2>
+    <h3>Person</h3>
     <div class="field">
       <label>Source source</label>
       <role-picker

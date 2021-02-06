@@ -4,9 +4,9 @@
   position: relative;
   cursor: pointer;
   color: #444;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: none;
   background-color: $navigation-background;
-  border-radius: 3px;
+  border-radius: 8px;
   &:disabled {
     color: #999;
     background-color: $color-button-disabled !important;

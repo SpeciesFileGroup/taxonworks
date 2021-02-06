@@ -172,7 +172,31 @@
 
     [data-icon="arrow-left"] {
       background-image: image-url("arrow-left.svg");
-    }          
+    }
+    
+    [data-icon="arrow-up"] {
+      background-image: image-url("arrow-up.svg");
+    }
+
+    [data-icon="arrow-down"] {
+      background-image: image-url("arrow-down.svg");
+    }
+
+    [data-icon="w-arrow-right"] {
+      background-image: image-url("w-arrow-right.svg");
+    }     
+
+    [data-icon="w-arrow-left"] {
+      background-image: image-url("w-arrow-left.svg");
+    }
+    
+    [data-icon="w-arrow-up"] {
+      background-image: image-url("w-arrow-up.svg");
+    }
+
+    [data-icon="w-arrow-down"] {
+      background-image: image-url("w-arrow-down.svg");
+    }
 
     [data-icon="recent"] {
       background-image: image-url("recent.svg");
@@ -192,15 +216,7 @@
 
     [data-icon="data"] {
       background-image: image-url("data.svg");
-    }     
-
-    [data-icon="arrow-up"] {
-      background-image: image-url("arrow-up.svg");
-    }     
-
-    [data-icon="arrow-down"] {
-      background-image: image-url("arrow-down.svg");
-    }          
+    }            
 
     [data-icon="related"] {
       background-image: image-url("related.svg");

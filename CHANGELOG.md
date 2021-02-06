@@ -7,7 +7,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- `/ap1/v1/stats` endpoint [#1871]
+- `papertrail.json?object_global_id=`
+- Quick label on collection object quick form [#2003]
+
+### Changed
+- Checkmark on verbatim should visible only
+- Updated gems (`bundle update` without altering `Gemfile`).
+
+### Fix
+- Fix help tip of pinboard navigator shortcut
+- Generate label button [#2002]
+- Save collectors in new collecting event task [#2016]
+- Fix image viewer on filter image task
+
+[#1871]: https://github.com/SpeciesFileGroup/taxonworks/issues/1871
+[#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
+[#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
+[#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
+[#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
 
 ## [0.16.1] - 2021-01-26
 

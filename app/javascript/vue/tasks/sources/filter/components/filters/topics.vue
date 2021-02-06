@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Topics</h2>
+    <h3>Topics</h3>
     <fieldset>
       <legend>Topics</legend>
       <smart-selector

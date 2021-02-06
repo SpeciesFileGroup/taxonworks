@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Identifiers</h2>
+    <h3>Identifiers</h3>
     <div class="field">
       <label>Identifier</label>
       <br>

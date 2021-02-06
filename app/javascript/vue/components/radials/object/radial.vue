@@ -34,9 +34,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentAnnotator.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -81,6 +81,7 @@ import contentsAnnotator from './components/contents/main.vue'
 import biocuration_classificationsAnnotator from './components/biocurations/biocurations'
 import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
 import observation_matricesAnnotator from './components/observation_matrices/main.vue'
+import collecting_eventAnnotator from './components/collecting_event/main.vue'
 
 import Icons from './images/icons.js'
 
@@ -98,7 +99,8 @@ export default {
     contentsAnnotator,
     biocuration_classificationsAnnotator,
     taxon_determinationsAnnotator,
-    observation_matricesAnnotator
+    observation_matricesAnnotator,
+    collecting_eventAnnotator
   },
   props: {
     reload: {

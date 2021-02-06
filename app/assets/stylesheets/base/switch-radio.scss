@@ -24,7 +24,7 @@
     font-size: 12px;
     background-color: $color-secondary-2-4;
     color: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
     font-weight: normal;
     text-align: center;
     padding: 6px 14px;
@@ -48,6 +48,7 @@
   }
 
   label:first-of-type {
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 3px 0 0 3px;
   }
 

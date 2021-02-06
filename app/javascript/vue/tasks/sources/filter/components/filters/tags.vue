@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Tags</h2>
+    <h3>Tags</h3>
     <fieldset>
       <legend>Keywords</legend>
       <smart-selector

@@ -33,9 +33,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentView">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentView.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentView ? currentView + 'Component' : undefined)"
@@ -374,8 +374,6 @@ export default {
         } else {
           window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
         }
-      }, () => {
-        TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')
       })
     }
   }

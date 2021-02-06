@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Name type</h2>
+    <h3>Name type</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

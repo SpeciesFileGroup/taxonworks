@@ -27,24 +27,25 @@
         Search
       </button>
       <with-component
-        class="margin-medium-bottom"
+        class="margin-large-bottom margin-medium-top"
         title="In project"
         name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
         param="in_project"
         v-model="params.source.in_project"
       />
-      <title-component v-model="params.source"/>
-      <type-component v-model="params.source.source_type"/>
-      <authors-component v-model="params.source"/>
-      <date-component v-model="params.source"/>
-      <serials-component v-model="params.source.serial_ids"/>
-      <tags-component v-model="params.source.keyword_ids"/>
-      <topics-component v-model="params.source.topic_ids"/>
-      <identifier-component v-model="params.identifier"/>
-      <citation-types-component v-model="params.source.citation_object_type"/>
-      <users-component v-model="params.user"/>
+      <title-component class="margin-large-bottom" v-model="params.source"/>
+      <type-component class="margin-large-bottom" v-model="params.source.source_type"/>
+      <authors-component class="margin-large-bottom" v-model="params.source"/>
+      <date-component class="margin-large-bottom" v-model="params.source"/>
+      <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
+      <tags-component class="margin-large-bottom" v-model="params.source.keyword_ids"/>
+      <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
+      <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
+      <citation-types-component class="margin-large-bottom" v-model="params.source.citation_object_type"/>
+      <users-component class="margin-large-bottom" v-model="params.user"/>
       <with-component
+        class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
         :key="key"
         :title="key"
