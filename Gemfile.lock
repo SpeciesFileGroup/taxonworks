@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/LocoDelAssembly/biodiversity.git
-  revision: 2df7888ca8cf1792ba30e9d8e243a84bed8d5528
+  revision: e6f20b4c40bdad37c56f140049d7dbb6de1a4567
   branch: gnparser-v1.0.0
   specs:
     biodiversity (5.1.2)
