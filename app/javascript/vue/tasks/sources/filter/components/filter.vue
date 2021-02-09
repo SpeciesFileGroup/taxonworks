@@ -44,6 +44,10 @@
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
       <citation-types-component class="margin-large-bottom" v-model="params.source.citation_object_type"/>
       <users-component class="margin-large-bottom" v-model="params.user"/>
+      <some-value-component
+        class="margin-large-bottom"
+        model="sources"
+        v-model="params.source.empty"/>
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -71,6 +75,7 @@ import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import SomeValueComponent from 'tasks/sources/filter/components/filters/SomeValue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
@@ -88,7 +93,8 @@ export default {
     TypeComponent,
     UsersComponent,
     TopicsComponent,
-    SerialsComponent
+    SerialsComponent,
+    SomeValueComponent
   },
   computed: {
     getMacKey () {
@@ -166,7 +172,8 @@ export default {
           keyword_ids: [],
           topic_ids: [],
           users: [],
-          serial_ids: []
+          serial_ids: [],
+          empty: []
         },
         byRecordsWith: {
           citations: undefined,
