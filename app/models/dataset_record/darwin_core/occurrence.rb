@@ -1,13 +1,15 @@
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
+  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
   def import
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        parse_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
+        parse_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]
+        parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
 
         raise DarwinCore::InvalidData.new({ "scientificName": ["Unable to parse scientific name. Please make sure it is correctly spelled."] }) unless parse_details
 
