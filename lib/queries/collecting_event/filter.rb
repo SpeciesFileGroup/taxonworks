@@ -9,7 +9,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
 
-      # TODO: likely move to model
+      # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
       ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
       ATTRIBUTES.each do |a|

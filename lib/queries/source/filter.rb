@@ -2,8 +2,16 @@ module Queries
   module Source
     class Filter < Queries::Query
 
+      # TODO: likely move to model (replicated in Source too)
+      # Params exists for all CollectingEvent attributes except these
+      ATTRIBUTES = (::Source.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
+      ATTRIBUTES.each do |a|
+        class_eval { attr_accessor a.to_sym }
+      end
+
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
+      include Queries::Concerns::Empty
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
@@ -122,6 +130,8 @@ module Queries
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
+
+        set_empty_params(params)
       end
 
       # @return [Arel::Table]
@@ -323,6 +333,8 @@ module Queries
           identifier_facet,
           identifier_namespace_facet,
           created_updated_facet, # See Queries::Concerns::Users
+          empty_fields_facet, # See Queries::Concerns::Empty
+          not_empty_fields_facet,
         ].compact
 
         return nil if clauses.empty?

@@ -71,6 +71,13 @@ class SourcesController < ApplicationController
     @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
+  def attributes
+    render json: ::Source.columns.select{
+      |a| Queries::Source::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
+  end
+
   # GET /sources/citation_object_types.json
   def citation_object_types
     render json: Source.joins(:citations)
@@ -278,7 +285,9 @@ class SourcesController < ApplicationController
       ids: [],
       keyword_ids: [],
       topic_ids: [],
-      serial_ids: []
+      serial_ids: [],
+      empty: [],
+      not_empty: []
     )
   end
 
@@ -319,7 +328,9 @@ class SourcesController < ApplicationController
       citation_object_type: [],
       keyword_ids: [],
       topic_ids: [],
-      serial_ids: []
+      serial_ids: [],
+      empty: [],
+      not_empty: []
     )
   end
 
