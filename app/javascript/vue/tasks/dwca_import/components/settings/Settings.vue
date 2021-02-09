@@ -67,7 +67,7 @@ export default {
       return this.$store.getters[GetterNames.GetDataset]
     },
     catalogueNumbers () {
-      return this.dataset.metadata.catalog_numbers_namespaces
+      return this.dataset.metadata?.catalog_numbers_namespaces || []
     }
   },
   data () {
