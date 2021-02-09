@@ -27,6 +27,7 @@
 
 import AjaxCall from 'helpers/ajaxCall'
 import DisplayList from 'components/displayList'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -61,7 +62,9 @@ export default {
     }
   },
   async created () {
+    const urlParams = URLParamsToJSON(location.href)
     this.attributes = (await AjaxCall('get', `/${this.model}/attributes`)).body
+    this.selected = urlParams?.empty || []
   },
   methods: {
     addAttribute (event) {

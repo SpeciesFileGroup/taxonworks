@@ -42,6 +42,7 @@
       <tags-component class="margin-large-bottom" v-model="params.source.keyword_ids"/>
       <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
+      <taxon-name-component class="margin-large-bottom" v-model="params.nomenclature"/>
       <citation-types-component class="margin-large-bottom" v-model="params.source.citation_object_type"/>
       <users-component class="margin-large-bottom" v-model="params.user"/>
       <some-value-component
@@ -75,7 +76,8 @@ import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
-import SomeValueComponent from 'tasks/sources/filter/components/filters/SomeValue'
+import SomeValueComponent from './filters/SomeValue'
+import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
@@ -94,7 +96,8 @@ export default {
     UsersComponent,
     TopicsComponent,
     SerialsComponent,
-    SomeValueComponent
+    SomeValueComponent,
+    TaxonNameComponent
   },
   computed: {
     getMacKey () {
@@ -127,7 +130,7 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
 
       this.getSources(params)
     },
@@ -190,6 +193,10 @@ export default {
           identifiers_start: undefined,
           identifiers_end: undefined,
           identifier_exact: undefined
+        },
+        nomenclature: {
+          ancestor_id: undefined,
+          citations_on_otus: undefined
         },
         user: {
           user_id: undefined,
