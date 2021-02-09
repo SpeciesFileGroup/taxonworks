@@ -17,11 +17,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`).
 
 ### Fix
+- TaxonName#name allowed spaces [#2009]
 - Fix help tip of pinboard navigator shortcut
 - Generate label button [#2002]
 - Save collectors in new collecting event task [#2016]
 - Fix image viewer on filter image task
 
+[#2009]: https://github.com/SpeciesFileGroup/taxonworks/issues/2009
 [#1871]: https://github.com/SpeciesFileGroup/taxonworks/issues/1871
 [#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 [#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
