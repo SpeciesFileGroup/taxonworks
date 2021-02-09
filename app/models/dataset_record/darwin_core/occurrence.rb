@@ -169,15 +169,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   def parse_iso_date(field_name)
     date = get_field_value(field_name)&.split('/', 2)
 
-    begin
-      start_date, end_date = date.map { |d| DateTime.iso8601(d) if d }
-    rescue Date::Error
-      raise DarwinCore::InvalidData.new(
-        { "#{field_name}":
-          ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
-        }
-      )
-    end if date
+    start_date, end_date = date.map do |date|
+      if date
+        named_captures = date.match(%r{^
+          (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
+          (
+            T(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(Z)? # Optional time, only THH:MM:SS(Z)? allowed.
+          )?
+        $}x)&.named_captures&.transform_values! { |v| v&.to_i } # Not (&:to_i) because it would replace nil with 0
+
+        raise DarwinCore::InvalidData.new(
+          { "#{field_name}":
+            ["Invalid date. Please make sure it conforms to ISO 8601 date format (yyyy-mm-ddThh:mm:ss). If expressing interval separate dates with '/'. Examples: 1972-05; 1983-10-25; 2020-09-22T15:30; 2020-11-30/2020-12-04"]
+          }
+        ) unless named_captures
+
+        OpenStruct.new(named_captures)
+      end
+    end
   end
 
   def set_hash_val(hsh, key, value)
