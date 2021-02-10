@@ -14,7 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Checkmark on verbatim should visible only
-- Updated gems (`bundle update` without altering `Gemfile`).
+- Updated gems (`bundle update` without altering `Gemfile`)
+- Updated node packages (`npm update` without altering `packages.json`)
 
 ### Fix
 - TaxonName#name allowed spaces [#2009]
