@@ -277,8 +277,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # recordNumber: [Not mapped]
 
-    # recordedBy: [collecting_event.collectors]
+    # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
     set_hash_val(res[:collecting_event], :collectors, parse_people(:recordedBy))
+    set_hash_val(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
     set_hash_val(res[:specimen], :total, get_field_value(:individualCount) || 1)
