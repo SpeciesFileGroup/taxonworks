@@ -57,10 +57,10 @@
           class="button circle-button btn-undo button-default"
         />
       </div>
-      <div class="horizontal-left-content middle margin-small-top">
+      <div class="horizontal-left-content middle margin-small-top flexbox">
         <input
           v-model="replace"
-          class="full_width margin-small-right"
+          class="margin-small-right item"
           placeholder="Replace"
           type="text"
           :disabled="!value">
