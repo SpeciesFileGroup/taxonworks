@@ -45,7 +45,7 @@ module Queries
       # @params parent_id[] [Array]
       #   An array of taxon_name_id.
       # @return
-      #   Return all immediate children to any of these parent names
+      #   Return the taxon names with this/these parent_ids
       attr_accessor :parent_id
 
       # @param descendants [Boolean]

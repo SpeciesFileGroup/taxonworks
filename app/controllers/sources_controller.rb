@@ -87,7 +87,6 @@ class SourcesController < ApplicationController
       .pluck(:citation_object_type).sort
   end
 
-
   # GET /sources/csl_types.json
   def csl_types
     render json: ::CSL_STYLES
@@ -294,10 +293,12 @@ class SourcesController < ApplicationController
   def api_params
     params[:project_id] = sessions_current_project_id
     params.permit(
+      :ancestor_id,
       :author,
       :author_ids_or,
       :citations,
-      # :documents,
+      :citations_on_otus,
+      # :documents
       :exact_author,
       :exact_title,
       :identifier,

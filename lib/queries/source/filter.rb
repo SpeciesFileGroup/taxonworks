@@ -4,10 +4,10 @@ module Queries
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
-      ATTRIBUTES = (::Source.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
-      ATTRIBUTES.each do |a|
-        class_eval { attr_accessor a.to_sym }
-      end
+      ATTRIBUTES = (::Source.column_names - %w{id project_id created_by_id updated_by_id created_at updated_at cached})
+      #  ATTRIBUTES.each do |a|
+      #    class_eval { attr_accessor a.to_sym }
+      #  end
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
@@ -97,6 +97,16 @@ module Queries
       # @params author [Array of Integer, Serial#id]
       attr_accessor :serial_ids
 
+      # @return [Protonym.id, nil]
+      #   return all sources in Citations linked to this name or descendants
+      #   to this TaxonName
+      attr_accessor :ancestor_id
+
+      # @return [Boolean]
+      # @params citations_on_otus ['false', 'true']
+      #   ignored if ancestor_id is not provided; if true then also include sources linked to OTUs that are in the scope of ancestor_id
+      attr_accessor :citations_on_otus
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
@@ -125,6 +135,9 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
         @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
+
+        @citations_on_otus = (params[:citations_on_otus]&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
+        @ancestor_id = params[:ancestor_id]
 
         build_terms
         set_identifier(params)
@@ -158,6 +171,71 @@ module Queries
         else
           nil
         end
+      end
+
+      # Return all citations on Taxon names and descendants,
+      # and optionally OTUs.
+      #
+      # Slighly janky, will need to ultimately be extended,
+      # at that time likely switch to UNION
+      def ancestors_facet
+        return nil if ancestor_id.nil?
+
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        h1 = h.alias('ho_')
+
+        c = ::Citation.arel_table
+        c1 = c.alias('hoc_')
+
+        o = ::Otu.arel_table
+
+        s = table.alias('saf')
+
+        select = [ 
+          s[:id].as('source_id'),
+          c[:id].as('c_id'),
+          h[:ancestor_id].as('h_anc_id'),
+        ]
+
+        if citations_on_otus
+          select += [
+            c1[:id].as('c1_id'),
+            h1[:ancestor_id].as('h1_anc_id')
+          ] 
+        end
+
+        q = table.project(*select).from(s)
+
+        # On taxon names
+        q = q.join(c, Arel::Nodes::OuterJoin).on(
+          s[:id].eq(c[:source_id]).and(c[:citation_object_type].eq('TaxonName'))
+        ).join( h, Arel::Nodes::OuterJoin).on(
+          c[:citation_object_id].eq(h[:descendant_id])
+        )
+
+        if citations_on_otus
+          q = q.join(c1, Arel::Nodes::OuterJoin).on(
+            s[:id].eq(c1[:source_id]).and(c1[:citation_object_type].eq('Otu'))
+          ).join(o, Arel::Nodes::OuterJoin).on(
+            o[:id].eq(c1[:citation_object_id])
+          ).join(h1, Arel::Nodes::OuterJoin).on(
+            o[:taxon_name_id].eq(h1[:descendant_id])
+          )
+        end
+
+        # puts ::Source.connection.execute(q.to_sql).to_a
+
+        q = q.as('source1')
+
+        w = ( q[:h_anc_id].eq(ancestor_id).and(q[:c_id].not_eq(nil)) )
+
+        if citations_on_otus
+          w = w.or( q[:h1_anc_id].eq(ancestor_id).and( q[:c1_id].not_eq(nil) ))
+        end
+
+        ::Source.joins(Arel::Nodes::InnerJoin.new(q, Arel::Nodes::On.new(q[:source_id].eq(table[:id]))))
+          .where(w)
+          .distinct
       end
 
       def source_type_facet
@@ -317,6 +395,7 @@ module Queries
 
       def merge_clauses
         clauses = [
+          ancestors_facet,
           author_ids_facet,
           topic_ids_facet,
           citation_facet,

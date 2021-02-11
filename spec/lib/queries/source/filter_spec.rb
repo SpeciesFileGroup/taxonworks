@@ -11,6 +11,48 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
+  specify '#ancestor_id' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id)
+  end
+
+  specify '#ancestor_id, omits in scope sources on OTUs' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+
+    c2 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_descriptor))
+    c3 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_otu, taxon_name: t))
+
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id)
+  end
+
+  specify '#citations_on_otus' do
+    o = Otu.create!(taxon_name: FactoryBot.create(:valid_taxon_name))
+    c = FactoryBot.create(:valid_citation, citation_object: o)
+
+    FactoryBot.create(:valid_citation, citation_object: Otu.create!(name: 'ancestor no'))
+
+    query.citations_on_otus = true
+    query.ancestor_id = o.taxon_name_id
+
+    expect(query.all.map(&:id)).to contain_exactly(c.source.id)
+  end
+
+  specify '#citations_on_otus (and taxon names)' do
+    o = Otu.create!(taxon_name: FactoryBot.create(:valid_taxon_name))
+    c1 = FactoryBot.create(:valid_citation, citation_object: o)
+
+    c2 = FactoryBot.create(:valid_citation, citation_object: o.taxon_name)
+
+    query.citations_on_otus = true
+    query.ancestor_id = o.taxon_name_id
+
+    expect(query.all.map(&:id)).to contain_exactly(c1.source.id, c2.source.id )
+  end
+
   specify '#source_type' do
     query.source_type = 'Source::Verbatim'
     expect(query.all.map(&:id)).to contain_exactly( s1.id, s6.id )
@@ -102,7 +144,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
     expect(query.all.map(&:id)).to_not contain_exactly()
   end
-
 
   specify '#with_doi 1' do
     Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi)
@@ -228,6 +269,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   specify '#query_term' do
     q = Queries::Source::Filter.new(query_term: 'Unintelligible')
+
     expect(q.all.map(&:id)).to contain_exactly(s1.id)
   end
 

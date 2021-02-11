@@ -46,10 +46,9 @@ module Queries::Concerns::Empty
   end
 
   def not_empty_fields_facet
-    return nil if empty.empty?
-
+    return nil if not_empty.empty?
     a = base_query
-    empty.each do |f|
+    not_empty.each do |f|
       a = a.where.not(f => nil)
     end
     a
