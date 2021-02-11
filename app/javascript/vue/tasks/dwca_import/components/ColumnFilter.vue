@@ -32,7 +32,8 @@
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
           :add-params="{
             field: field,
-            per: per
+            per: per,
+            ...paramsFilter
           }"
           :send-label="value"
           :autofocus="true"

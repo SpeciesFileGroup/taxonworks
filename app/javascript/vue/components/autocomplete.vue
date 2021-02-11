@@ -52,7 +52,7 @@ Parameters:
         @mouseover="itemActive(index)"
         @click.prevent="itemClicked(index)">
         <span
-          v-if="typeof label !== 'function'"
+          v-if="(typeof label !== 'function')"
           v-html="getNested(item, label)"/>
         <span
           v-else
@@ -71,6 +71,7 @@ Parameters:
 <script>
 
 import AjaxCall from 'helpers/ajaxCall'
+import Qs from 'qs'
 
 export default {
   data: function () {
@@ -292,16 +293,7 @@ export default {
       var tempUrl = this.url + '?' + this.param + '=' + encodeURIComponent(this.type)
       var params = ''
       if (Object.keys(this.addParams).length) {
-        Object.keys(this.addParams).forEach((key) => {
-          if(Array.isArray(this.addParams[key])) {
-            this.addParams[key].forEach((param) => {
-              params += `&${key}=${encodeURIComponent(param)}`
-            })
-          }
-          else {
-            params += `&${key}=${encodeURIComponent(this.addParams[key])}`
-          }
-        })
+        params = `&${Qs.stringify(this.addParams, { arrayFormat: 'brackets' })}`
       }
       return tempUrl + params
     },
