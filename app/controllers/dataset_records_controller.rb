@@ -48,7 +48,7 @@ class DatasetRecordsController < ApplicationController
 
   # PATCH/PUT /dataset_records/set_field_value
   def set_field_value
-    filtered_records.in_batches(of: 10000) { |r| r.set_data_field(Integer(params[:field]), params[:value]) } unless params[:filter].blank?
+    filtered_records.find_each(batch_size: 10000) { |r| r.set_data_field(Integer(params[:field]), params[:value]) } unless params[:filter].blank?
 
     render json: true, status: :ok
   end
