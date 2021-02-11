@@ -47,8 +47,7 @@ class DatasetRecordsController < ApplicationController
   end
 
   # PATCH/PUT /dataset_records/set_field_value
-  def update_field_value
-
+  def set_field_value
     filtered_records.find_each(size: 10000) { |r| r.set_data_field(Integer(params[:field]), params[:value]) } unless params[:filter].blank?
 
     render json: true, status: :ok
