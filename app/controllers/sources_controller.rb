@@ -251,8 +251,10 @@ class SourcesController < ApplicationController
     params[:project_id] = sessions_current_project_id
     params.permit(
       :author,
+      :ancestor_id,
       :author_ids_or,
       :citations,
+      :citations_on_otus,
       :documents,
       :exact_author,
       :exact_title,
