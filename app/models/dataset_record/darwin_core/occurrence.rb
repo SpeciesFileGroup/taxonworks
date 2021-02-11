@@ -167,9 +167,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_iso_date(field_name)
-    date = get_field_value(field_name)&.split('/', 2)
-
-    start_date, end_date = date.map do |date|
+    get_field_value(field_name)&.split('/', 2)&.map do |date|
       if date
         named_captures = date.match(%r{^
           (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
