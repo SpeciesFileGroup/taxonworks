@@ -184,7 +184,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
   def get_normalized_dwc_term(field)
     # TODO: Think what to do about complex namespaces like "/std/Iptc4xmpExt/2008-02-29/" (currently returning the full URI as header)
-    term = field[:term].match(/\/([^\/]+)\/terms\/([^\/]+)\/?$/)
+    term = field[:term].match(/\/([^\/]+)\/terms\/.*(?<=\/)([^\/]+)\/?$/)
     #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
     term ? term[2] : field[:term]
   end
