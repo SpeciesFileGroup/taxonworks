@@ -114,6 +114,9 @@ export default {
     },
     importId () {
       return this.$store.getters[GetterNames.GetDataset].id
+    },
+    pagination () {
+      return this.$store.getters[GetterNames.GetPagination]
     }
   },
   data () {
@@ -150,7 +153,7 @@ export default {
     async replaceField ({ columnIndex, replaceValue, currentValue }) {
       const ok = await this.$refs.confirmation.show({
         title: this.datasetHeaders[columnIndex],
-        message: `<i>${currentValue}</i> will be replaced with <i>${replaceValue}</i> in ${this.datasetRecords.length} records.`,
+        message: `<i>${currentValue}</i> will be replaced with <i>${replaceValue}</i> in ${this.pagination.total} records.`,
         typeButton: 'submit'
       })
       if (ok) {
