@@ -8,6 +8,9 @@
       ref="table"
       @update="getPages">
       <template slot-scope="{ items }">
+        <spinner-component
+          legend="Updating records..."
+          v-if="isSaving"/>
         <spinner-component v-if="isLoading"/>
         <table
           class="dwca-table">
@@ -26,6 +29,7 @@
                 :title="item"
                 :disabled="disabled"
                 :column-index="index"
+                @replace="replaceField"
                 class="position-sticky margin-medium-left"
                 v-model="params.filter[index]"
                 :field="index"/>
@@ -51,6 +55,7 @@
         </table>
       </template>
     </virtual-scroller>
+    <confirmation-modal ref="confirmation"/>
   </div>
 </template>
 
@@ -59,6 +64,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import { UpdateColumnField } from '../request/resources'
 import VirtualScroller from './VirtualScroller.vue'
 import SpinnerComponent from 'components/spinner'
 
@@ -66,9 +72,11 @@ import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
 import StatusFilter from './StatusFilter'
 import VirtualPaginationComponent from './VirtualPagination'
+import ConfirmationModal from 'components/ConfirmationModal'
 
 export default {
   components: {
+    ConfirmationModal,
     VirtualScroller,
     RowComponent,
     ColumnFilter,
@@ -103,11 +111,15 @@ export default {
     },
     currentVirtualPage () {
       return this.$store.getters[GetterNames.GetCurrentVirtualPage]
+    },
+    importId () {
+      return this.$store.getters[GetterNames.GetDataset].id
     }
   },
   data () {
     return {
-      isLoading: false
+      isLoading: false,
+      isSaving: false
     }
   },
   watch: {
@@ -134,6 +146,24 @@ export default {
     getPages (indexes) {
       const pages = [Math.floor(indexes.endIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
       this.loadPage(pages)
+    },
+    async replaceField ({ columnIndex, replaceValue, currentValue }) {
+      const ok = await this.$refs.confirmation.show({
+        title: 'Update fields',
+        message: `<i>${currentValue}</i> will be replaced with <i>${replaceValue}</i> in ${this.datasetRecords.length} records.`,
+        typeButton: 'submit'
+      })
+      if (ok) {
+        this.isSaving = true
+        UpdateColumnField(this.importId, Object.assign({}, {
+          field: columnIndex,
+          value: replaceValue
+        }, this.params)).then(() => {
+          this.$set(this.params.filter, columnIndex, replaceValue)
+        }).finally(() => {
+          this.isSaving = false
+        })
+      }
     }
   }
 }

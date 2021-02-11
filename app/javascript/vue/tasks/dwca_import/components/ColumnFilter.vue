@@ -24,10 +24,7 @@
       v-if="show && !disabled"
       class="panel content filter-container"
     >
-      <div
-        v-if="!value"
-        class="horizontal-left-content"
-      >
+      <div class="horizontal-left-content" >
         <autocomplete
           :url="`/import_datasets/${importId}/dataset_records/autocomplete_data_fields.json`"
           :add-params="{
@@ -39,20 +36,12 @@
           :autofocus="true"
           param="value"
           @getItem="applyFilter"
+          :disabled="!!value"
           placeholder="Search"
           type="text"
         />
-      </div>
-      <div
-        v-else
-        class="flex-separate middle"
-      >
-        <input
-          type="text"
-          class="full_width"
-          :value="value"
-          disabled>
         <span
+          v-if="value"
           @click="unselect"
           class="button circle-button btn-undo button-default"
         />
@@ -68,7 +57,7 @@
           type="button"
           class="button normal-input button-default"
           :disabled="!value || !replace.length"
-          @click="replaceField">
+          @click="emitReplace">
           OK
         </button>
       </div>
@@ -80,7 +69,6 @@
 
 import Autocomplete from 'components/autocomplete'
 import { GetterNames } from '../store/getters/getters'
-import { UpdateColumnField } from '../request/resources'
 import ColumnMixin from './shared/columnMixin.js'
 
 export default {
@@ -128,18 +116,15 @@ export default {
   methods: {
     applyFilter (value) {
       this.filter = value
-      this.show = false
     },
     unselect () {
       this.filter = undefined
     },
-    replaceField () {
-      UpdateColumnField(this.importId, Object.assign({}, {
-        field: this.columnIndex,
-        value: this.replace
-      }, this.paramsFilter)).then(() => {
-        this.filter = this.replace
-        this.replace = ''
+    emitReplace () {
+      this.$emit('replace', {
+        columnIndex: this.columnIndex,
+        replaceValue: this.replace,
+        currentValue: this.value
       })
     }
   }
