@@ -59,8 +59,7 @@ class DatasetRecordsController < ApplicationController
   def autocomplete_data_fields
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
-    values = ImportDataset.find(params[:import_dataset_id])
-      .core_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field].to_i)
+    values = filtered_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field].to_i)
       .select("data_fields -> #{params[:field].to_i} ->> 'value' AS value").distinct
       .page(params[:page]).per(params[:per] || 10)
       .map { |x| x.value }
