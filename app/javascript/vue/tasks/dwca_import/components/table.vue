@@ -25,6 +25,7 @@
                 :key="index"
                 :title="item"
                 :disabled="disabled"
+                :column-index="index"
                 class="position-sticky margin-medium-left"
                 v-model="params.filter[index]"
                 :field="index"/>

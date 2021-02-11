@@ -38,7 +38,7 @@
           :autofocus="true"
           param="value"
           @getItem="applyFilter"
-          placeholder="Type to search..."
+          placeholder="Search"
           type="text"
         />
       </div>
@@ -46,11 +46,30 @@
         v-else
         class="flex-separate middle"
       >
-        <span>{{ value }}</span>
+        <input
+          type="text"
+          class="full_width"
+          :value="value"
+          disabled>
         <span
           @click="unselect"
-          class="button circle-button btn-delete button-default"
+          class="button circle-button btn-undo button-default"
         />
+      </div>
+      <div class="horizontal-left-content middle margin-small-top">
+        <input
+          v-model="replace"
+          class="full_width margin-small-right"
+          placeholder="Replace"
+          type="text"
+          :disabled="!value">
+        <button
+          type="button"
+          class="button normal-input button-default"
+          :disabled="!value || !replace.length"
+          @click="replaceField">
+          OK
+        </button>
       </div>
     </div>
   </th>
@@ -60,6 +79,7 @@
 
 import Autocomplete from 'components/autocomplete'
 import { GetterNames } from '../store/getters/getters'
+import { UpdateColumnField } from '../request/resources'
 import ColumnMixin from './shared/columnMixin.js'
 
 export default {
@@ -68,6 +88,10 @@ export default {
     Autocomplete
   },
   props: {
+    columnIndex: {
+      type: Number,
+      required: true
+    },
     field: {
       type: Number,
       required: true
@@ -88,12 +112,16 @@ export default {
   computed: {
     importId () {
       return this.$store.getters[GetterNames.GetDataset].id
+    },
+    paramsFilter () {
+      return this.$store.getters[GetterNames.GetParamsFilter]
     }
   },
   data () {
     return {
       per: 25,
-      show: false
+      show: false,
+      replace: ''
     }
   },
   methods: {
@@ -103,6 +131,15 @@ export default {
     },
     unselect () {
       this.filter = undefined
+    },
+    replaceField () {
+      UpdateColumnField(this.importId, Object.assign({}, {
+        field: this.columnIndex,
+        value: this.replace
+      }, this.paramsFilter)).then(() => {
+        this.filter = this.replace
+        this.replace = ''
+      })
     }
   }
 }
