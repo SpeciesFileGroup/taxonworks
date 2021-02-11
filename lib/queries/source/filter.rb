@@ -183,9 +183,13 @@ module Queries
 
         h = Arel::Table.new(:taxon_name_hierarchies)
         h1 = h.alias('ho_')
+        h2 = h.alias('ho2_')
 
         c = ::Citation.arel_table
         c1 = c.alias('hoc_')
+        c2 = c.alias('hoc2_')
+
+        tnc = ::TaxonNameClassification.arel_table
 
         o = ::Otu.arel_table
 
@@ -193,8 +197,14 @@ module Queries
 
         select = [ 
           s[:id].as('source_id'),
+
+          # taxon name itself
           c[:id].as('c_id'),
           h[:ancestor_id].as('h_anc_id'),
+
+          # classifications
+          c2[:id].as('c2_id'),
+          h2[:ancestor_id].as('h2_anc_id')
         ]
 
         if citations_on_otus
@@ -213,6 +223,16 @@ module Queries
           c[:citation_object_id].eq(h[:descendant_id])
         )
 
+        # On taxon name classifications
+        q = q.join(c2, Arel::Nodes::OuterJoin).on(
+          s[:id].eq(c2[:source_id]).and(c2[:citation_object_type].eq('TaxonNameClassification'))
+        ).join( tnc, Arel::Nodes::OuterJoin).on(
+          c2[:citation_object_id].eq(tnc[:id])
+        ).join( h2, Arel::Nodes::OuterJoin).on(
+          tnc[:taxon_name_id].eq(h2[:descendant_id])
+        )
+
+
         if citations_on_otus
           q = q.join(c1, Arel::Nodes::OuterJoin).on(
             s[:id].eq(c1[:source_id]).and(c1[:citation_object_type].eq('Otu'))
@@ -223,11 +243,12 @@ module Queries
           )
         end
 
-        # puts ::Source.connection.execute(q.to_sql).to_a
+        puts ::Source.connection.execute(q.to_sql).to_a
 
         q = q.as('source1')
 
         w = ( q[:h_anc_id].eq(ancestor_id).and(q[:c_id].not_eq(nil)) )
+        w = w.or( q[:h2_anc_id].eq(ancestor_id).and(q[:c2_id].not_eq(nil)) )
 
         if citations_on_otus
           w = w.or( q[:h1_anc_id].eq(ancestor_id).and( q[:c1_id].not_eq(nil) ))

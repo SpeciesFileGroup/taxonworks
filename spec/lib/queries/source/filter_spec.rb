@@ -29,6 +29,17 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     expect(query.all.map(&:id)).to contain_exactly( c.source.id)
   end
 
+  specify '#ancestor_id, includes TaxonNameClassifications' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+
+    byebug
+    c1 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_taxon_name_classification, taxon_name: t))
+
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id, c1.source.id)
+  end
+
   specify '#citations_on_otus' do
     o = Otu.create!(taxon_name: FactoryBot.create(:valid_taxon_name))
     c = FactoryBot.create(:valid_citation, citation_object: o)
