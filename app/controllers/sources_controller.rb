@@ -284,6 +284,8 @@ class SourcesController < ApplicationController
       author_ids: [],
       citation_object_type: [],
       ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       keyword_ids: [],
       topic_ids: [],
       serial_ids: [],

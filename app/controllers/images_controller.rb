@@ -165,6 +165,8 @@ class ImagesController < ApplicationController
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      keyword_id_and: [],
+      keyword_id_or: [],
       keyword_ids: [],
       taxon_name_id: [],
       sled_image_id: [],
