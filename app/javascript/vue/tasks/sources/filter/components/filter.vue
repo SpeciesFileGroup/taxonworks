@@ -48,7 +48,7 @@
       <some-value-component
         class="margin-large-bottom"
         model="sources"
-        v-model="params.source.empty"/>
+        v-model="params.attributes"/>
       <with-component
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
@@ -76,11 +76,16 @@ import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
-import SomeValueComponent from './filters/SomeValue'
+import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
+
+const parseAttributeParams = (attributes) => ({
+  empty: attributes.filter(item => item.empty).map(item => item.name),
+  not_empty: attributes.filter(item => !item.empty).map(item => item.name)
+})
 
 export default {
   components: {
@@ -130,7 +135,7 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, parseAttributeParams(this.params.attributes), this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
 
       this.getSources(params)
     },
@@ -175,9 +180,9 @@ export default {
           keyword_ids: [],
           topic_ids: [],
           users: [],
-          serial_ids: [],
-          empty: []
+          serial_ids: []
         },
+        attributes: [],
         byRecordsWith: {
           citations: undefined,
           roles: undefined,
@@ -223,7 +228,7 @@ export default {
     loadPage (page) {
       this.params.settings.page = page
       this.searchSources()
-    },
+    }
   }
 }
 </script>
