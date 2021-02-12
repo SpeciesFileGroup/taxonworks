@@ -14,19 +14,43 @@
         :custom-list="tags"
         @selected="addKeyword"/>
     </fieldset>
-    <display-list
-      :list="keywords"
-      label="object_tag"
-      :delete-warning="false"
-      @deleteIndex="removeKeyword"
-    />
+    <table
+      v-if="keywords.length"
+      class="vue-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <transition-group
+        name="list-complete"
+        tag="tbody">
+        <template
+          v-for="(item, index) in keywords"
+          class="table-entrys-list">
+          <row-item
+            class="list-complete-item"
+            :key="index"
+            :item="item"
+            :options="{
+              AND: true,
+              OR: false
+            }"
+            v-model="item.and"
+            @remove="removeKeyword(index)"
+          />
+        </template>
+      </transition-group>
+    </table>
   </div>
 </template>
 
 <script>
 
 import SmartSelector from 'components/smartSelector'
-import DisplayList from 'components/displayList'
+import RowItem from './shared/RowItem'
 import { GetKeyword } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import ajaxCall from 'helpers/ajaxCall.js'
@@ -34,12 +58,12 @@ import ajaxCall from 'helpers/ajaxCall.js'
 export default {
   components: {
     SmartSelector,
-    DisplayList
+    RowItem
   },
   props: {
     value: {
-      type: Array,
-      default: () => { return [] }
+      type: Object,
+      default: () => ({})
     }
   },
   computed: {
@@ -60,39 +84,56 @@ export default {
   },
   watch: {
     value (newVal, oldVal) {
-      if (!newVal.length && oldVal.length) {
-        this.keywords = []
+      if (!newVal?.keyword_id_and.length && oldVal?.keyword_id_or.length) {
+        // this.keywords = newVal
       }
     },
     keywords: {
-      handler (newVal) {
-        this.params = this.keywords.map(keyword => { return keyword.id })
+      handler () {
+        this.params = {
+          keyword_id_and: this.keywords.filter(keyword => keyword.and).map(keyword => keyword.id),
+          keyword_id_or: this.keywords.filter(keyword => !keyword.and).map(keyword => keyword.id)
+        }
       },
       deep: true
     }
   },
-  mounted () {
+  created () {
     const urlParams = URLParamsToJSON(location.href)
-    this.loadTags('Keyword')
-    if (urlParams.keyword_ids) {
-      urlParams.keyword_ids.forEach(id => {
-        GetKeyword(id).then(response => {
-          this.addKeyword(response.body)
-        })
+    const {
+      keyword_id_and = [],
+      keyword_id_or = []
+    } = urlParams
+
+    console.log(urlParams)
+
+    this.loadTags()
+
+    keyword_id_and.forEach(id => {
+      GetKeyword(id).then(response => {
+        this.addKeyword(response.body, true)
       })
-    }
+    })
+
+    keyword_id_or.forEach(id => {
+      GetKeyword(id).then(response => {
+        this.addKeyword(response.body, false)
+      })
+    })
   },
   methods: {
-    addKeyword (keyword) {
-      if (!this.params.includes(keyword.id)) {
-        this.keywords.push(keyword)
+    addKeyword (keyword, and = true) {
+      if (!this.keywords.find(item => item.id === keyword.id)) {
+        this.keywords.push({ ...keyword, and })
       }
     },
+
     removeKeyword (index) {
       this.keywords.splice(index, 1)
     },
-    loadTags (type) {
-      ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
+
+    loadTags () {
+      ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=Keyword').then(response => {
         this.tags = { all: response.body }
       })
     }

@@ -47,7 +47,7 @@
 
 import AjaxCall from 'helpers/ajaxCall'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import RowItem from './RowItem'
+import RowItem from '../shared/RowItem'
 
 export default {
   components: {

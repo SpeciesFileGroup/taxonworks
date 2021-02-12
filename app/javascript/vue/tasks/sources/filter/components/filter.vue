@@ -39,7 +39,7 @@
       <authors-component class="margin-large-bottom" v-model="params.source"/>
       <date-component class="margin-large-bottom" v-model="params.source"/>
       <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
-      <tags-component class="margin-large-bottom" v-model="params.source.keyword_ids"/>
+      <tags-component class="margin-large-bottom" v-model="params.keywords"/>
       <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
       <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
       <taxon-name-component class="margin-large-bottom" v-model="params.nomenclature"/>
@@ -135,7 +135,7 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, parseAttributeParams(this.params.attributes), this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, parseAttributeParams(this.params.attributes), this.params.keywords, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
 
       this.getSources(params)
     },
@@ -177,10 +177,13 @@ export default {
           in_project: true,
           source_type: undefined,
           citation_object_type: [],
-          keyword_ids: [],
           topic_ids: [],
           users: [],
           serial_ids: []
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         attributes: [],
         byRecordsWith: {

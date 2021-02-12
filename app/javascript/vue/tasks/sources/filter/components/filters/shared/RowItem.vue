@@ -5,22 +5,16 @@
     </td>
     <td>
       <div class="horizontal-center-content">
-        <label>
-          <input
-            type="radio"
-            v-model="isEmpty"
-            :value="true"
-          >
-          Empty
-        </label>
-        <label>
-          <input
-            type="radio"
-            v-model="isEmpty"
-            :value="false"
-          >
-          Filled
-        </label>
+        <template v-for="(value, key) in options">
+          <label :key="key">
+            <input
+              type="radio"
+              v-model="fieldValue"
+              :value="value"
+            >
+            {{ key }}
+          </label>
+        </template>
       </div>
     </td>
     <td>
@@ -43,10 +37,17 @@ export default {
     value: {
       type: Boolean,
       default: false
+    },
+    options: {
+      type: Object,
+      default: () => ({
+        Empty: true,
+        Filled: false
+      })
     }
   },
   computed: {
-    isEmpty: {
+    fieldValue: {
       get () {
         return this.value
       },

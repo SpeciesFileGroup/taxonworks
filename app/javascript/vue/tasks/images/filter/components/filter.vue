@@ -47,7 +47,7 @@
         v-model="params.identifier"/>
       <tags-component
         class="margin-large-bottom"
-        v-model="params.base.keyword_ids"/>
+        v-model="params.base.keywords"/>
       <users-component
         class="margin-large-bottom"
         v-model="params.user"/>
@@ -113,7 +113,7 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.keywords, this.params.base, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },
@@ -144,7 +144,6 @@ export default {
           taxon_name_id: [],
           biocuration_class_id: [],
           collection_object_id: [],
-          keyword_ids: [],
           ancestor_id_target: undefined
         },
         identifier: {
@@ -153,6 +152,10 @@ export default {
           identifier_start: undefined,
           identifier_end: undefined,
           namespace_id: undefined
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         depictions: {},
         collectingEvent: {},

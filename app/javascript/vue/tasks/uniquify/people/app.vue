@@ -105,7 +105,7 @@
             <role-types
               v-model="params.base.role"/>
           </div>
-          <keywords-component v-model="params.base.keyword_ids" />
+          <keywords-component v-model="params.base.keywords" />
           <users-component v-model="params.user"/>
         </div>
       </div>
@@ -244,6 +244,10 @@ export default {
           person_wildcard: [],
           used_in_project_id: []
         },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
+        },
         active: {
           active_before_year: undefined,
           active_after_year: undefined
@@ -272,7 +276,7 @@ export default {
     },
     findPerson (event) {
       event.preventDefault()
-      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.keywords, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
 
       this.clearFoundData()
 
