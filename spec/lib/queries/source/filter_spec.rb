@@ -33,7 +33,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
 
-    byebug
     c1 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_taxon_name_classification, taxon_name: t))
 
     query.ancestor_id = t.id
