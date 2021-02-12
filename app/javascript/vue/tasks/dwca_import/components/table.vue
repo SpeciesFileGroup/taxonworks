@@ -174,7 +174,7 @@ export default {
 
 <style lang="scss">
 .dwca-vscroll {
-  height: calc(100vh - 250px);
+  height: calc(100vh - 260px);
   overflow: auto;
   overflow-anchor: none;
 }

@@ -3,9 +3,9 @@
     v-if="!editing"
     style="height: 40px"
     @click="setEdit(true)">
-    <div
-      v-html="text"
-      class="dwc-table-cell"/>
+    <div class="dwc-table-cell">
+      {{ text }}
+    </div>
   </td>
   <td v-else>
     <div class="dwc-table-cell">
