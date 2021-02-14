@@ -59,7 +59,8 @@ class DatasetRecordsController < ApplicationController
   def autocomplete_data_fields
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
-    values = filtered_records.where("data_fields -> ? ->> 'value' ILIKE '#{params[:value]}%'", params[:field].to_i)
+    values = filtered_records
+      .where("data_fields -> ? ->> 'value' ILIKE ?", params[:field].to_i, "#{params[:value].gsub(/([%_\[\\])/, '\\\\\1')}%")
       .select("data_fields -> #{params[:field].to_i} ->> 'value' AS value").distinct
       .page(params[:page]).per(params[:per] || 10)
       .map { |x| x.value }
