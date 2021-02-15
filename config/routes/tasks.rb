@@ -1,4 +1,10 @@
 scope :tasks do
+    scope :extracts do
+      scope :new_extract, controller: 'tasks/extracts/new_extract' do
+        get :index, as: 'index_new_extract_task'
+      end
+    end
+
   scope :asserted_distributions do
     scope :basic_endemism, controller: 'tasks/asserted_distributions/basic_endemism' do
       get '/', action: :index, as: 'asserted_distributions_basic_endemism_task'
