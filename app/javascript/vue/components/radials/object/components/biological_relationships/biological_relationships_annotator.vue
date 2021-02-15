@@ -15,9 +15,9 @@
           <br>
         </template>
         <h3 v-html="metadata.object_tag"/>
-        <h3 v-if="biologicalRelationship" class="relationship-title">
+        <h3 v-if="biologicalRelationship" class="relationship-title middle">
           <template v-if="flip">
-            <span 
+            <span
               v-for="item in biologicalRelationship.object_biological_properties"
               :key="item.id"
               class="separate-right background-info"
@@ -52,8 +52,8 @@
           </button>
           <span
             @click="biologicalRelationship = undefined; flip = false"
-            class="separate-left"
-            data-icon="reset"/>
+            class="margin-small-left button button-default circle-button btn-undo"/>
+          <lock-component v-model="lockRelationship"/>
         </h3>
         <h3
           class="subtle relationship-title"
@@ -63,12 +63,11 @@
       <template>
         <h3
           v-if="biologicalRelation"
-          class="relation-title">
+          class="relation-title middle">
           <span v-html="displayRelated"/>
           <span
             @click="biologicalRelation = undefined"
-            class="separate-left"
-            data-icon="reset"/>
+            class="margin-small-left button button-default circle-button btn-undo"/>
         </h3>
         <h3
           v-else
@@ -79,7 +78,7 @@
     <biological
       v-if="!biologicalRelationship"
       class="separate-bottom"
-      @select="biologicalRelationship = $event"/>
+      @select="setBiologicalRelationship"/>
     <related
       v-if="!biologicalRelation"
       class="separate-bottom separate-top"
@@ -115,11 +114,14 @@ import Biological from './biological.vue'
 import Related from './related.vue'
 import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
+import LockComponent from 'components/lock'
+import { convertType } from 'helpers/types'
 
 export default {
   mixins: [CRUD, AnnotatorExtend],
   components: {
     Biological,
+    LockComponent,
     Related,
     NewCitation,
     TableList
@@ -129,12 +131,7 @@ export default {
       return this.biologicalRelationship && this.biologicalRelation
     },
     displayRelated () {
-      if(this.biologicalRelation) {
-        return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
-      }
-      else {
-        return undefined
-      }
+      return this.biologicalRelation?.object_tag || this.biologicalRelation?.label_html
     },
     alreadyExist () {
       return this.list.find(item => item.biological_relationship_id === this.biologicalRelationship.id && item.biological_association_object_id === this.biologicalRelation.id)
@@ -149,13 +146,37 @@ export default {
       citation: undefined,
       flip: false,
       lockSource: false,
+      lockRelationship: false,
       urlList: `/biological_associations.json?subject_global_id=${encodeURIComponent(this.globalId)}`
     }
   },
+  watch: {
+    lockRelationship (newVal) {
+      sessionStorage.setItem('radialObject::biologicalRelationship::lock', newVal)
+    }
+  },
+  created () {
+    const value = convertType(sessionStorage.getItem('radialObject::biologicalRelationship::lock'))
+    if (value !== null) {
+      this.lockRelationship = value === true
+    }
+
+    if (this.lockRelationship) {
+      const relationshipId = convertType(sessionStorage.getItem('radialObject::biologicalRelationship::id'))
+      console.log(relationshipId)
+      if (relationshipId) {
+        this.getList(`/biological_relationships/${relationshipId}.json`).then(response => {
+          this.biologicalRelationship = response.body
+        })
+      }
+    }
+  },
   methods: {
-    reset() {
+    reset () {
+      if (!this.lockRelationship) {
+        this.biologicalRelationship = undefined
+      }
       this.biologicalRelation = undefined
-      this.biologicalRelationship = undefined
       this.flip = false
       this.edit = undefined
       if (!this.lockSource) {
@@ -209,6 +230,10 @@ export default {
       this.biologicalRelationship = bioRelation.biological_relationship
       this.biologicalRelation = bioRelation.object
       this.flip = (bioRelation.object.id === this.metadata.object_id)
+    },
+    setBiologicalRelationship (item) {
+      this.biologicalRelationship = item
+      sessionStorage.setItem('radialObject::biologicalRelationship::id', item.id)
     }
   }
 }
