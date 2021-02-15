@@ -1,7 +1,7 @@
 <template>
   <tr>
     <td>
-      <span v-html="item.name"/>
+      <span v-html="item[label]"/>
     </td>
     <td>
       <div class="horizontal-center-content">
@@ -34,10 +34,17 @@ export default {
       type: Object,
       required: true
     },
+
+    label: {
+      type: String,
+      default: 'object_tag'
+    },
+
     value: {
       type: Boolean,
       default: false
     },
+
     options: {
       type: Object,
       default: () => ({

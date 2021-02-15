@@ -11,7 +11,7 @@
         klass="CollectionObject"
         pin-section="Keywords"
         pin-type="Keyword"
-        :custom-list="tags"
+        :custom-list="allFiltered"
         @selected="addKeyword"/>
     </fieldset>
     <table
@@ -34,6 +34,7 @@
             class="list-complete-item"
             :key="index"
             :item="item"
+            label="object_tag"
             :options="{
               AND: true,
               OR: false
@@ -74,18 +75,22 @@ export default {
       set (value) {
         this.$emit('input', value)
       }
+    },
+    allFiltered () {
+      const keywordsId = this.keywords.map(({ id }) => id)
+      return { all: this.tags.all.filter(item => !keywordsId.includes(item.id)) }
     }
   },
   data () {
     return {
       keywords: [],
-      tags: undefined
+      tags: { all: [] }
     }
   },
   watch: {
-    value (newVal, oldVal) {
-      if (!newVal?.keyword_id_and.length && oldVal?.keyword_id_or.length) {
-        // this.keywords = newVal
+    value (newVal) {
+      if (!newVal.keyword_id_and.length && !newVal.keyword_id_and.length && this.keywords.length) {
+        this.keywords = []
       }
     },
     keywords: {
