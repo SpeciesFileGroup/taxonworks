@@ -163,7 +163,7 @@ export default {
 
     if (this.lockRelationship) {
       const relationshipId = convertType(sessionStorage.getItem('radialObject::biologicalRelationship::id'))
-      console.log(relationshipId)
+
       if (relationshipId) {
         this.getList(`/biological_relationships/${relationshipId}.json`).then(response => {
           this.biologicalRelationship = response.body
