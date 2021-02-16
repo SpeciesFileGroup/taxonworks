@@ -8,10 +8,7 @@
             @click="sortTable('name')">Name</th>
           <th
             :class="classSort('verbatim_author')"
-            @click="sortTable('verbatim_author')">Author</th>
-          <th
-            :class="classSort('year_of_publication')"
-            @click="sortTable('year_of_publication')">Year</th>
+            @click="sortTable('verbatim_author')">Author and year</th>
           <th
             :class="classSort('original_combination')"
             @click="sortTable('original_combination')">Original combination</th>
@@ -32,8 +29,7 @@
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
               v-html="item.cached_html"/>
           </td>
-          <td>{{item.verbatim_author}}</td>
-          <td>{{ item.year_of_publication }}</td>
+          <td>{{item.cached_author_year}}</td>
           <td v-html="item.original_combination"></td>
           <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
           <td>{{ item.rank }}</td>
@@ -103,7 +99,7 @@ export default {
       else {
         this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
       }
-      this.list.sort(compare);      
+      this.list.sort(compare)
     },
     classSort(value) {
       if(this.sortColumns[value] == true) { return 'headerSortDown' }
