@@ -97,7 +97,7 @@ gem 'barby', '~> 0.6.8'
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
 gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
-gem 'biodiversity', '~> 5.1', '>= 5.1.1'
+gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
