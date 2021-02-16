@@ -1,9 +1,10 @@
 GIT
-  remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 3fe82d8a66824fb2dbb6b36bb5303e2f3fb066ea
-  branch: pipe_approach
+  remote: https://github.com/LocoDelAssembly/biodiversity.git
+  revision: 492a975cd91f847c7ceb9055216a38187f26f9cf
+  branch: no-concurrency
   specs:
     biodiversity (5.1.2)
+      ffi (~> 1.14)
 
 GIT
   remote: https://github.com/LocoDelAssembly/geckodriver-helper.git
