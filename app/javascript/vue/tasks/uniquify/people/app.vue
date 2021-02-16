@@ -158,7 +158,7 @@ import FoundPeople from './components/found_people'
 import MatchPeople from './components/match_people'
 import CompareComponent from './components/compare.vue'
 import Spinner from 'components/spinner.vue'
-import KeywordsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
 import NameField from './components/filters/nameField.vue'
@@ -240,7 +240,6 @@ export default {
           last_name: '',
           first_name: '',
           role: [],
-          keyword_ids: [],
           person_wildcard: [],
           used_in_project_id: []
         },
