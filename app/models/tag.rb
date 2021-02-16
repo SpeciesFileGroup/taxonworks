@@ -31,7 +31,6 @@ class Tag < ApplicationRecord
   include Shared::IsData
   include Shared::AttributeAnnotations
 
-
   include Shared::MatrixHooks::Dynamic # Must preceed Tag::MatrixHooks
   include Tag::MatrixHooks # Must come after Shared::MatrixHooks::Dynamic 
 
@@ -49,7 +48,7 @@ class Tag < ApplicationRecord
 
   validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
 
-  accepts_nested_attributes_for :keyword, reject_if: :reject_keyword, allow_destroy: true
+  accepts_nested_attributes_for :keyword, reject_if: :reject_keyword # , allow_destroy: true
 
   def self.tag_objects(objects, keyword_id = nil)
     return nil if keyword_id.nil? or objects.empty?

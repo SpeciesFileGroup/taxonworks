@@ -1,12 +1,28 @@
-# Helpers for queries that reference Tags
-# Assumes `def table` in included record
+# Helpers and facets for queries that reference Tags.
+#
+# Test coverage is currently in spec/lib/queries/source/filter_spec.rb.
+#
+# You must define
+#
+#    def table
+#      :;Model.arel_table
+#    end
+#
+# in including modules.
+#
 module Queries::Concerns::Tags
 
   extend ActiveSupport::Concern
 
   included do
+
     # @return [Array]
-    attr_accessor :keyword_ids
+    # @params keyword_id_and [:keyword_id_and | [keyword_id_and, .. ] ]
+    attr_accessor :keyword_id_and
+
+    # @return [Array]
+    # @params keyword_id_or [:keyword_id_or | [keyword_id_or, .. ] ]
+    attr_accessor :keyword_id_or
 
     # @return [Boolean, nil]
     # @params tags ['true', 'false', nil]
@@ -14,8 +30,18 @@ module Queries::Concerns::Tags
   end
 
   def set_tags_params(params)
-    @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
-    @wtags = (params[:wtags]&.downcase == 'true' ? true : false) if !params[:wtags].nil?
+    @keyword_id_and = params[:keyword_id_and].blank? ? [] : params[:keyword_id_and]
+    @keyword_id_or = params[:keyword_id_or].blank? ? [] : params[:keyword_id_or]
+
+    @tags = (params[:tags]&.downcase == 'true' ? true : false) if !params[:tags].nil?
+  end
+
+  def keyword_id_and
+    [@keyword_id_and].flatten
+  end
+
+  def keyword_id_or
+    [@keyword_id_or].flatten
   end
 
   # @return [Arel::Table]
@@ -27,19 +53,67 @@ module Queries::Concerns::Tags
     @keyword_ids = value
   end
 
-  # a merge
-  def matching_keyword_ids
-    return nil if keyword_ids.empty?
+  # @return
+  #   all sources that match all _and ids OR any OR id
+  def keyword_id_facet
+    return nil if keyword_id_or.empty? && keyword_id_and.empty?
+
+    a = matching_keyword_id_or
+    b = matching_keyword_id_and
+
+    if a.nil?
+      b
+    elsif b.nil?
+      a
+    else
+      ::Source.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as sources")
+    end
+  end
+
+  # merge
+  def matching_keyword_id_or
+    return nil if keyword_id_or.empty?
     k = table.name.classify.safe_constantize
     t = ::Tag.arel_table
-    k.where(
-      ::Tag.where(
-        t[:tag_object_id].eq(table[:id]).and(
-          t[:tag_object_type].eq(table.name.classify)).and(
-            t[:keyword_id].eq_any(keyword_ids)
-          )
-      ).arel.exists
-    )
+
+    w = t[:tag_object_id].eq(table[:id]).and( t[:tag_object_type].eq(table.name.classify))
+    w = w.and( t[:keyword_id].eq_any(keyword_id_or) ) if keyword_id_or.any? 
+
+    k.where( ::Tag.where(w).arel.exists )
+  end
+
+  # merge
+  def matching_keyword_id_and
+    return nil if keyword_id_and.empty?
+    k = table.name.classify.safe_constantize
+    t = ::Tag.arel_table
+
+    a = table.alias("mkwia")
+
+    b = table.project(a[Arel.star]).from(a)
+      .join(t)
+      .on(
+        t[:tag_object_id].eq(a[:id]),
+        t[:tag_object_type].eq(k.name)
+      )
+
+    i = 0
+
+    keyword_id_and.each do |j|
+      t_a = t.alias("mkwia_#{i}")
+      b = b.join(t_a).on(
+        t_a['tag_object_id'].eq(a['id']),
+        t_a[:tag_object_type].eq(k),
+        t_a[:keyword_id].eq(j)
+      )
+
+      i += 1
+    end
+
+    b = b.group(a[:id]).having(t[:keyword_id].count.gteq(keyword_id_and.count))
+    b = b.as("aiwk")
+
+    k.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b[:id].eq(table[:id]))))
   end
 
   def tag_facet

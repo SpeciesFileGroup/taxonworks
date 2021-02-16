@@ -143,8 +143,6 @@ class Sequence < ApplicationRecord
     h
   end
 
-
-
   protected
 
   def build_relationships

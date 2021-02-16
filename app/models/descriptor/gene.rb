@@ -34,6 +34,7 @@ class Descriptor::Gene < Descriptor
   
   validate :gene_attribute_logic_matches_gene_attributes, if: :gene_attribute_logic_changed?
 
+  # TODO: use common cache/set_cache pattern
   after_save :cache_gene_attribute_logic_sql, if: -> {
     saved_change_to_gene_attribute_logic? && valid?
   }
@@ -269,7 +270,7 @@ class Descriptor::Gene < Descriptor
       queries.push Descriptor::Gene.sequences_for_gene_attributes(id, target_attributes, "uq#{i}")
     end
 
-    queries.collect {|q| "(#{q.to_sql})"}.join(' UNION ')
+    queries.collect{|q| "(#{q.to_sql})"}.join(' UNION ')
   end
 
   def cache_gene_attribute_logic_sql

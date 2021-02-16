@@ -244,7 +244,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
-          matching_keyword_ids,
+          keyword_id_facet, 
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,
