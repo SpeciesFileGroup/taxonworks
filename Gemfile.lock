@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 3fe82d8a66824fb2dbb6b36bb5303e2f3fb066ea
+  revision: a5d5920432bf2df49bcc5f29ad31686d2b569fc9
   branch: pipe_approach
   specs:
     biodiversity (5.1.2)
@@ -440,7 +440,7 @@ GEM
     rubocop-rspec (1.44.1)
       rubocop (~> 0.87)
       rubocop-ast (>= 0.7.1)
-    ruby-prof (1.4.2)
+    ruby-prof (1.4.3)
     ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
     ruby-units (2.3.2)
