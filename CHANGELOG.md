@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Checkmark on verbatim should visible only
 - Updated gems (`bundle update` without altering `Gemfile`)
 - Updated node packages (`npm update` without altering `packages.json`)
+- Changed `verbatim author` for `cached_author_year` in filter nomenclature
 
 ### Fix
 - TaxonName#name allowed spaces [#2009]
