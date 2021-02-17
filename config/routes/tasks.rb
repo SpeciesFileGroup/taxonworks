@@ -55,6 +55,10 @@ scope :tasks do
   end
 
   scope :content do
+      scope :by_nomenclature, controller: 'tasks/content/by_nomenclature' do
+        get '/', action: :index, as: 'content_by_nomenclature_task'
+      end
+
     scope :editor, controller: 'tasks/content/editor' do
       get 'index', as: 'index_editor_task'
       get 'recent_topics', as: 'content_editor_recent_topics_task'

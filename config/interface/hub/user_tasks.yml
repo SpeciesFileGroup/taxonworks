@@ -622,3 +622,10 @@ export_taxonworks_project_task:
   categories:
   status: prototype
   description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+content_by_nomenclature_task:
+  hub: true
+  name: 'Content by nomenclature ("Brock")'
+  related:
+  categories:
+  status: prototype
+  description: 'Report a content block in a taxon name table.'
