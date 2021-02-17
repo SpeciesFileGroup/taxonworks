@@ -71,8 +71,6 @@ module Queries
         @geo_json = params[:geo_json]
         @radius = params[:radius].blank? ? 100 : params[:radius] 
 
-        @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
-
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
@@ -89,6 +87,7 @@ module Queries
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
+        set_tags_params(params)
         set_attributes(params)
         set_dates(params)
       end
