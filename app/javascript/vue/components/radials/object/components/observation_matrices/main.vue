@@ -62,6 +62,9 @@
 
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
+import SpinnerComponent from 'components/spinner'
+import DefaultPin from 'components/getDefaultPin'
+
 import {
   GetObservationMatrices,
   GetObservationRow,
@@ -71,6 +74,10 @@ import {
 
 export default {
   mixins: [CRUD, annotatorExtend],
+  components: {
+    DefaultPin,
+    SpinnerComponent
+  },
   computed: {
     alreadyInMatrices () {
       return this.matrices.filter(item => {
@@ -95,11 +102,11 @@ export default {
       types: {
         Otu: {
           propertyName: 'otu_id',
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         },
         CollectionObject: {
           propertyName: 'collection_object_id',
-          type: 'ObservationMatrixRowItem::SingleCollectionObject'
+          type: 'ObservationMatrixRowItem::Single::CollectionObject'
         }
       }
     }

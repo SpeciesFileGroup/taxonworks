@@ -11,10 +11,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `/ap1/v1/stats` endpoint [#1871]
 - `papertrail.json?object_global_id=`
 - Quick label on collection object quick form [#2003]
+- Lock biological relationship in radial object [#2036]
 
 ### Changed
 - Checkmark on verbatim should visible only
-- Updated gems (`bundle update` without altering `Gemfile`).
+- Updated gems (`bundle update` without altering `Gemfile`)
+- Updated node packages (`npm update` without altering `packages.json`)
+- Changed `verbatim author` for `cached_author_year` in filter nomenclature
 
 ### Fix
 - TaxonName#name allowed spaces [#2009]
