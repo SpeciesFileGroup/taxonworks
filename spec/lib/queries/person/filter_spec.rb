@@ -208,7 +208,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
   specify 'tag hooks' do
     k = FactoryBot.create(:valid_keyword)
     p1.tags << Tag.new(keyword: k)
-    query.keyword_ids = [k.id] # TODO: singularize when standardized
+    query.keyword_id_and = [k.id]
     expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
 
