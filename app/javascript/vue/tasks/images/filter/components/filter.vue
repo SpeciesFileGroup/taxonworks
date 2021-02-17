@@ -47,7 +47,7 @@
         v-model="params.identifier"/>
       <tags-component
         class="margin-large-bottom"
-        v-model="params.base.keywords"/>
+        v-model="params.keywords"/>
       <users-component
         class="margin-large-bottom"
         v-model="params.user"/>
@@ -61,7 +61,7 @@ import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
-import TagsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
