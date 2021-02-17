@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Generate label button [#2002]
 - Save collectors in new collecting event task [#2016]
 - Fix image viewer on filter image task
+- Image caption modal size [#2030]
 
 [#2009]: https://github.com/SpeciesFileGroup/taxonworks/issues/2009
 [#1871]: https://github.com/SpeciesFileGroup/taxonworks/issues/1871
@@ -33,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
 [#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
 [#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
+[#2030]: https://github.com/SpeciesFileGroup/taxonworks/issues/2030
 [#2045]: https://github.com/SpeciesFileGroup/taxonworks/issues/2045
 
 ## [0.16.1] - 2021-01-26
