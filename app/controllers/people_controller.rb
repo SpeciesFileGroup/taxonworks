@@ -165,7 +165,6 @@ class PeopleController < ApplicationController
       used_in_project_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
-      keyword_ids: [],
       role: [],
       person_wildcard: [],
       user_id: []
@@ -192,7 +191,8 @@ class PeopleController < ApplicationController
       :user_target,
       :tags,
       # user_id: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       role: [],
       person_wildcard: []
     )

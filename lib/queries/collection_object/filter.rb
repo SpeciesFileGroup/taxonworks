@@ -287,7 +287,7 @@ module Queries
           type_material_facet,
           type_material_type_facet,
           ancestors_facet,
-          matching_keyword_ids,   # See Queries::Concerns::Tags
+          keyword_id_facet,       # See Queries::Concerns::Tags
           created_updated_facet,  # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,

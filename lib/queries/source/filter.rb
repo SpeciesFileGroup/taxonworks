@@ -359,7 +359,7 @@ module Queries
           nomenclature_facet,
           role_facet,
           with_doi_facet,
-          keyword_id_facet,  # TODO: replace all: matching_keyword_ids,
+          keyword_id_facet,
           tag_facet,
           note_facet,
           identifier_between_facet,
