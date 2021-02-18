@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Quick label on collection object quick form [#2003]
 - Lock biological relationship in radial object [#2036]
 - Confirmation popup to delete a type material in comprehensive
+- Tag facet to filter nomenclature [#2047]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
 [#2030]: https://github.com/SpeciesFileGroup/taxonworks/issues/2030
 [#2045]: https://github.com/SpeciesFileGroup/taxonworks/issues/2045
+[#2047]: https://github.com/SpeciesFileGroup/taxonworks/issues/2047
 
 ## [0.16.1] - 2021-01-26
 
