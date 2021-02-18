@@ -38,7 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix image viewer on filter image task
 - Image caption modal size [#2030]
 - Set created loan object [#2042]
-- [#2044]
+- Refactor edit load items [#2044]
 
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
