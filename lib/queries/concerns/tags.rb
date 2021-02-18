@@ -57,6 +57,8 @@ module Queries::Concerns::Tags
   #   all sources that match all _and ids OR any OR id
   def keyword_id_facet
     return nil if keyword_id_or.empty? && keyword_id_and.empty?
+    k = table.name.classify.safe_constantize
+    
 
     a = matching_keyword_id_or
     b = matching_keyword_id_and
@@ -66,7 +68,7 @@ module Queries::Concerns::Tags
     elsif b.nil?
       a
     else
-      ::Source.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as sources")
+      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as sources")
     end
   end
 
