@@ -241,7 +241,7 @@ module Queries
       end
     end
 
-    # TODO: rename :cached_matches or similar
+    # !!TODO: rename :cached_matches or similar (this is problematic !!)
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached

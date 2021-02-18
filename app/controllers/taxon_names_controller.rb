@@ -277,61 +277,72 @@ class TaxonNamesController < ApplicationController
 
   def filter_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
       :ancestors,
+      :author,
+      :authors,
+      :citations,
       :descendants,
       :descendants_max_depth,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
       :etymology,
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+      :page,
+      :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :user_date_end,
+      :user_date_start,
       :user_id,
       :user_target,
-      :user_date_start,
-      :user_date_end,
-      :per,
-      :page,
-      type: [],
-      taxon_name_id: [],
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
       # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def api_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
+      :ancestors,
+      :author,
+      :authors,
+      :citations,
       :descendants,
       :descendants_max_depth,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
       :etymology,
-      type: [],
-      taxon_name_id: [],
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+#     :page, # TODO: yes or no?
+#     :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
 
     # TODO: see config in collection objects controller

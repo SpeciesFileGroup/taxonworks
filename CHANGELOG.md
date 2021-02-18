@@ -8,29 +8,52 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Fields with/out some value facet for Source filter [#2023]
+- Keyword params to TaxonName API
+- Adds database index to Sour title, year, author
+- Keyword and/or logic in Tag facets (throughout) [#2026], [#2032]
 - `/ap1/v1/stats` endpoint [#1871]
 - `papertrail.json?object_global_id=`
 - Quick label on collection object quick form [#2003]
 - Lock biological relationship in radial object [#2036]
+- Confirmation popup to delete a type material in comprehensive
+- Tag facet to filter nomenclature [#2047]
 
 ### Changed
 - Checkmark on verbatim should visible only
 - Updated gems (`bundle update` without altering `Gemfile`)
 - Updated node packages (`npm update` without altering `packages.json`)
+- Changed `verbatim author` for `cached_author_year` in filter nomenclature
+- Keywords styled after choice in Tag facet
+- Keywords removed from all list after choice in Tag facet
 
 ### Fix
+- Model LoanItem - Tagged batch adds tag, not object [#2051]
+- Prevent non-loanable things being loaned [#2043]
+- `ancestors` param properly permitted TaxonName api/filter
 - TaxonName#name allowed spaces [#2009]
 - Fix help tip of pinboard navigator shortcut
 - Generate label button [#2002]
 - Save collectors in new collecting event task [#2016]
 - Fix image viewer on filter image task
+- Image caption modal size [#2030]
+- Set created loan object [#2042]
 
+[#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
+[#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
+[#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
+[#2026]: https://github.com/SpeciesFileGroup/taxonworks/issues/2026
+[#2023]: https://github.com/SpeciesFileGroup/taxonworks/issues/2023
 [#2009]: https://github.com/SpeciesFileGroup/taxonworks/issues/2009
 [#1871]: https://github.com/SpeciesFileGroup/taxonworks/issues/1871
 [#2002]: https://github.com/SpeciesFileGroup/taxonworks/issues/2002
 [#2003]: https://github.com/SpeciesFileGroup/taxonworks/issues/2003
 [#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
 [#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
+[#2030]: https://github.com/SpeciesFileGroup/taxonworks/issues/2030
+[#2042]: https://github.com/SpeciesFileGroup/taxonworks/issues/2042
+[#2045]: https://github.com/SpeciesFileGroup/taxonworks/issues/2045
+[#2047]: https://github.com/SpeciesFileGroup/taxonworks/issues/2047
 
 ## [0.16.1] - 2021-01-26
 

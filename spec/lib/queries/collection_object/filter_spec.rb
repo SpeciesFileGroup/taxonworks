@@ -80,19 +80,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
 
-    # Concerns
-    specify '#keyword_ids' do
-      t = FactoryBot.create(:valid_tag, tag_object: co1)
-      query.keyword_ids = [t.keyword.id]
-      expect(query.all.map(&:id)).to contain_exactly(co1.id)
-    end
-
-    # See spec/lib/queries/person/filter_spec.rb for specs.
-    specify 'user hooks' do
-      query.user_id = Current.user_id
-      expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
-    end
-
     context 'determinations, types and hierarchical search' do
       let!(:co3) { Specimen.create! } # only determination
 
@@ -234,25 +221,6 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.map(&:id)).to contain_exactly(co2.id)
     end
 
-    specify '#tags on collection_object' do
-      t = FactoryBot.create(:valid_tag, tag_object: co1)
-      query.keyword_ids = [t.keyword_id]
-      expect(query.all.map(&:id)).to contain_exactly(co1.id)
-    end
-
-    specify '#tags on collecting_event' do
-      t = FactoryBot.create(:valid_tag, tag_object: ce1)
-      query.collecting_event_query.keyword_ids = [t.keyword_id]
-      expect(query.all.map(&:id)).to contain_exactly(co1.id)
-    end
-
-    specify '#tags on collection_object 2' do
-      t = FactoryBot.create(:valid_tag, tag_object: co1)
-      p = {keyword_ids: [t.keyword_id]}
-      q = Queries::CollectionObject::Filter.new(p)
-      expect(q.all.map(&:id)).to contain_exactly(co1.id)
-    end
-
     context 'biological_relationships' do
       let!(:co3) { Specimen.create! }
       let!(:br) { FactoryBot.create(:valid_biological_association, biological_association_subject: co1) }
@@ -383,13 +351,40 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
       end
     end
-    
+
+    # Concerns
+
+    specify '#tags on collecting_event' do
+      t = FactoryBot.create(:valid_tag, tag_object: ce1)
+      query.collecting_event_query.keyword_id_and = [t.keyword_id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#tags on collection_object 2' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      p = {keyword_id_and: [t.keyword_id]}
+      q = Queries::CollectionObject::Filter.new(p)
+      expect(q.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    specify '#keyword_id_and' do
+      t = FactoryBot.create(:valid_tag, tag_object: co1)
+      query.keyword_id_and = [t.keyword.id]
+      expect(query.all.map(&:id)).to contain_exactly(co1.id)
+    end
+
+    # See spec/lib/queries/person/filter_spec.rb for specs.
+    specify 'user hooks' do
+      query.user_id = Current.user_id
+      expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
+    end
+
   end
 
-# context 'with properly built collection of objects' do
-#   include_context 'stuff for complex geo tests'
+  # context 'with properly built collection of objects' do
+  #   include_context 'stuff for complex geo tests'
 
-#   before { [co_a, co_b, gr_a, gr_b].each }
+  #   before { [co_a, co_b, gr_a, gr_b].each }
 
 #   context 'area search' do
 #     context 'named area' do

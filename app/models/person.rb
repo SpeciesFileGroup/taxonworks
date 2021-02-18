@@ -174,11 +174,15 @@ class Person < ApplicationRecord
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
+  #   
+  # No person is destroyed, see `hard_merge`.  self is intended to be kept.
+  # 
   # r_person is merged into l_person (self)
   #
   def merge_with(person_id)
     return false if person_id == id
-    if r_person = Person.find(person_id) # get the person to merge to this person
+
+    if r_person = Person.find(person_id) # get the person to merge to into self
       begin
         ApplicationRecord.transaction do
           # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
@@ -205,7 +209,7 @@ class Person < ApplicationRecord
                 av_list.each do |av|
                   if av.value == r_person.first_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
-                      av.alternate_value_object_attribute == 'first_name' # &&
+                        av.alternate_value_object_attribute == 'first_name' # &&
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
                     end
