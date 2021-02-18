@@ -11,7 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
-- Keyword and/or logic in Tag facets (throughout) [#2026]
+- Keyword and/or logic in Tag facets (throughout) [#2026], [#2032]
 - `/ap1/v1/stats` endpoint [#1871]
 - `papertrail.json?object_global_id=`
 - Quick label on collection object quick form [#2003]
@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix image viewer on filter image task
 - Image caption modal size [#2030]
 
+[#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
 [#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
 [#2026]: https://github.com/SpeciesFileGroup/taxonworks/issues/2026
