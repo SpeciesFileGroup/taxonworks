@@ -8,6 +8,7 @@ export default function ({ commit }, object) {
       response.body.forEach((element) => {
         commit(MutationNames.AddLoanItem, element)
       })
+      TW.workbench.alert.create('Loan item(s) was successfully created.', 'notice')
     }
     commit(MutationNames.SetLoading, false)
   })
