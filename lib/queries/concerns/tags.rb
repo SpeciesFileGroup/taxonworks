@@ -85,10 +85,11 @@ module Queries::Concerns::Tags
   # merge
   def matching_keyword_id_and
     return nil if keyword_id_and.empty?
-    k = table.name.classify.safe_constantize
+    l = table.name
+    k = l.classify.safe_constantize
     t = ::Tag.arel_table
 
-    a = table.alias("mkwia")
+    a = table.alias("k_#{l}")
 
     b = table.project(a[Arel.star]).from(a)
       .join(t)
@@ -100,7 +101,7 @@ module Queries::Concerns::Tags
     i = 0
 
     keyword_id_and.each do |j|
-      t_a = t.alias("mkwia_#{i}")
+      t_a = t.alias("tk_#{l[0..5]}_#{i}")
       b = b.join(t_a).on(
         t_a['tag_object_id'].eq(a['id']),
         t_a[:tag_object_type].eq(k),
@@ -111,7 +112,7 @@ module Queries::Concerns::Tags
     end
 
     b = b.group(a[:id]).having(t[:keyword_id].count.gteq(keyword_id_and.count))
-    b = b.as("aiwk")
+    b = b.as("#{l}_ai")
 
     k.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b[:id].eq(table[:id]))))
   end

@@ -199,7 +199,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     query.role = ['SourceEditor']
     query.last_name_starts_with = p3.last_name[0..3]
-   expect(query.all.map(&:id)).to contain_exactly(p3.id)
+    expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
   #
@@ -211,7 +211,6 @@ describe Queries::Person::Filter, type: :model, group: :people do
     query.keyword_id_and = [k.id]
     expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
-
 
   context 'user (Queries::Concerns::Users)' do
 
