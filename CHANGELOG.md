@@ -37,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Save collectors in new collecting event task [#2016]
 - Fix image viewer on filter image task
 - Image caption modal size [#2030]
+- Set created loan object [#2042]
 
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
@@ -50,6 +51,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2012]: https://github.com/SpeciesFileGroup/taxonworks/issues/2012
 [#2016]: https://github.com/SpeciesFileGroup/taxonworks/issues/2016
 [#2030]: https://github.com/SpeciesFileGroup/taxonworks/issues/2030
+[#2042]: https://github.com/SpeciesFileGroup/taxonworks/issues/2042
 [#2045]: https://github.com/SpeciesFileGroup/taxonworks/issues/2045
 [#2047]: https://github.com/SpeciesFileGroup/taxonworks/issues/2047
 
