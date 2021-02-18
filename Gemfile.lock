@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: a5d5920432bf2df49bcc5f29ad31686d2b569fc9
+  revision: 0358bd88bd47462d0550cd9dc18a96a07203ecef
   branch: pipe_approach
   specs:
     biodiversity (5.1.2)
@@ -369,7 +369,7 @@ GEM
     rb-fsevent (0.10.4)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rdf (3.1.11)
+    rdf (3.1.12)
       hamster (~> 3.0)
       link_header (~> 0.0, >= 0.0.8)
     rdoc (6.3.0)
