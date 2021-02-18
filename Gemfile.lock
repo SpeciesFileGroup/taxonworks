@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/GlobalNamesArchitecture/biodiversity.git
-  revision: 0358bd88bd47462d0550cd9dc18a96a07203ecef
+  revision: 701c024f015a25bc674611f1c2051617d149f42e
   branch: pipe_approach
   specs:
     biodiversity (5.1.2)
