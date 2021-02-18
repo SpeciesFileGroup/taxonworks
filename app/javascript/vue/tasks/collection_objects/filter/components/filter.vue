@@ -48,7 +48,7 @@
         v-model="params.user"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords.keyword_ids" />
+        v-model="params.keywords" />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
@@ -77,7 +77,7 @@ import OtuComponent from './filters/otu'
 import CollectingEvent from './filters/collectingEvent/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
-import KeywordsComponent from './filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from './filters/identifier'
 import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
@@ -119,7 +119,8 @@ export default {
         !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_ids.length &&
+        !this.params.keywords.keyword_id_and.length &&
+        !this.params.keywords.keyword_id_or.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
@@ -217,7 +218,8 @@ export default {
           namespace_id: undefined
         },
         keywords: {
-          keyword_ids: []
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         determination: {
           otu_ids: [],

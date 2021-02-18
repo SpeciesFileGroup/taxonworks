@@ -441,7 +441,8 @@ class CollectionObjectsController < ApplicationController
       :wkt,
       is_type: [],
       otu_ids: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
@@ -450,7 +451,7 @@ class CollectionObjectsController < ApplicationController
       
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 
@@ -496,7 +497,8 @@ class CollectionObjectsController < ApplicationController
       :wkt,
       is_type: [],
       otu_ids: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
@@ -504,7 +506,7 @@ class CollectionObjectsController < ApplicationController
 
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 

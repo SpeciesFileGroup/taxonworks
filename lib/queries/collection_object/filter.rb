@@ -123,10 +123,11 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-
-
-        # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
+        # Only CollectingEvent fields are permitted now.
+        # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(
+          params.select{|a,b| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(a.to_s) }
+        )
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
 
@@ -289,8 +290,8 @@ module Queries
           type_material_facet,
           type_material_type_facet,
           ancestors_facet,
-          matching_keyword_ids,   # See Queries::Concerns::Tags
-          created_updated_facet, # See Queries::Concerns::Users
+          keyword_id_facet,       # See Queries::Concerns::Tags
+          created_updated_facet,  # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,

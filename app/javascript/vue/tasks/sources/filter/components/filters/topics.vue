@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3>Topics</h3>
+    <h3>Citation topics</h3>
     <fieldset>
       <legend>Topics</legend>
       <smart-selector
