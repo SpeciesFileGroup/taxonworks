@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_20_170753) do
+ActiveRecord::Schema.define(version: 2021_02_09_231509) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -1652,6 +1652,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.text "cached"
     t.text "cached_author_string"
     t.date "cached_nomenclature_date"
+    t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
@@ -1659,8 +1660,10 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"
     t.index ["language_id"], name: "index_sources_on_language_id"
     t.index ["serial_id"], name: "index_sources_on_serial_id"
+    t.index ["title"], name: "index_sources_on_title"
     t.index ["type"], name: "index_sources_on_type"
     t.index ["updated_by_id"], name: "index_sources_on_updated_by_id"
+    t.index ["year"], name: "index_sources_on_year"
   end
 
   create_table "sqed_depictions", id: :serial, force: :cascade do |t|

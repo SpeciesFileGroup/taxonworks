@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>In relationship</h2>
+    <h3>In relationship</h3>
     <div class="separate-bottom">
       <ul class="no_bullets">
         <li

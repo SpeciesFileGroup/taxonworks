@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Determinations</h2>
+    <h3>Determinations</h3>
     <h3>Taxon name</h3>
     <div>
       <autocomplete

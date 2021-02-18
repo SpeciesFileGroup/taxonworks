@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Geographic area</h2>
+    <h3>Geographic area</h3>
     <switch-component 
       class="separate-bottom"
       v-model="view"

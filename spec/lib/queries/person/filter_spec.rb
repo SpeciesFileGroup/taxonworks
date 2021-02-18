@@ -199,7 +199,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     query.role = ['SourceEditor']
     query.last_name_starts_with = p3.last_name[0..3]
-   expect(query.all.map(&:id)).to contain_exactly(p3.id)
+    expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
   #
@@ -208,10 +208,9 @@ describe Queries::Person::Filter, type: :model, group: :people do
   specify 'tag hooks' do
     k = FactoryBot.create(:valid_keyword)
     p1.tags << Tag.new(keyword: k)
-    query.keyword_ids = [k.id] # TODO: singularize when standardized
+    query.keyword_id_and = [k.id]
     expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
-
 
   context 'user (Queries::Concerns::Users)' do
 

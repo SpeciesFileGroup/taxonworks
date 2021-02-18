@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h2>Keywords</h2>
+    <h3>Text in</h3>
     <div class="field label-above">
-      <label>Search text</label>
+      <label>Full citation</label>
       <input
         type="text"
         class="full_width"

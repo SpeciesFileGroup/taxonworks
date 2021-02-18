@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Otus</h2>
+    <h3>Otus</h3>
     <autocomplete
       url="/otus/autocomplete"
       param="term"

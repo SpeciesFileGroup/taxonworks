@@ -1,5 +1,5 @@
 <template>
-  <div class="panel flex-wrap-row">
+  <div class="panel flex-wrap-row padding-small">
     <image-component
       v-for="image in list"
       class="margin-small"

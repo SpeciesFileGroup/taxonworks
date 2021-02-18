@@ -2,6 +2,7 @@
   <block-layout
     anchor="type"
     :warning="checkValidation"
+    :spinner="!taxon.id"
     v-help.section.type.container>
     <h3 slot="header">Type</h3>
     <div
@@ -113,7 +114,7 @@
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
@@ -156,14 +157,13 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
     taxonRelation: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonType]
       },
       set (value) {
-        // this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonType, value)
       }
     },

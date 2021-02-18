@@ -210,9 +210,11 @@ class TaxonName < ApplicationRecord
     :validate_source_type,
     :validate_one_root_per_project
 
+  # TODO: remove, this is handled natively
   validates_presence_of :type, message: 'is not specified'
 
-  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
+  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
+  validates :name, format: { without: /\s/ }
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -271,10 +273,10 @@ class TaxonName < ApplicationRecord
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     scoping do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-  end
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }

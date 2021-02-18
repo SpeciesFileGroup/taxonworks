@@ -25,6 +25,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameHierarchy.delete_all
     end
 
+    specify '#name without space' do
+      taxon_name.name = 'with space'
+      taxon_name.valid?
+      expect(taxon_name.errors[:name]).to_not be_empty
+    end
+
     context '#year_of_publication' do
       specify 'format 1' do
         taxon_name.year_of_publication = 123

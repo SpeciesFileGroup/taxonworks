@@ -73,7 +73,7 @@
           tag_ids.push(tag.id)
         });
         let params = {
-          keyword_ids: tag_ids
+          keyword_id_and: tag_ids
         };
         this.isLoading = true;
         AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {

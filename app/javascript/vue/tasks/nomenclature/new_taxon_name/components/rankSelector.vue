@@ -45,6 +45,7 @@
       </ul>
       <button
         type="button"
+        class="button normal-input button-default"
         @click="showModal = true">Show all
       </button>
     </div>

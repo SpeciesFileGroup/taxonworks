@@ -1,12 +1,18 @@
 class PapertrailController < ApplicationController
   before_action :require_sign_in_and_project_selection
 
-  # GET /papertrail
-  def papertrail
-    redirect_to hub_path, notice: 'You requested a papertrail for nothing.' and return if params[:object_type].blank?
-    klass = whitelist_constantize(params.require(:object_type))
-    @object = klass.find(params[:object_id])
-    record_not_found if invalid_object(@object)
+  def index
+    respond_to do |format|
+      format.html {
+        redirect_to hub_path, notice: 'You requested a papertrail for nothing.' and return if params[:object_type].blank?
+        klass = whitelist_constantize(params.require(:object_type))
+        @object = klass.find(params[:object_id])
+        record_not_found if invalid_object(@object)
+        render :papertrail
+      }
+      # Oldest is *first*, newest last.
+      format.json { @versions = papertrail_versions }
+    end
   end
 
   def show
@@ -68,11 +74,21 @@ class PapertrailController < ApplicationController
       record_not_found
     else
       @result = TaxonWorks::Vendor::Papertrail.compare(@object, compare_params)
-      @result ? render('compare') : record_not_found 
+      @result ? render('compare') : record_not_found
     end
   end
 
   protected
+
+  def papertrail_versions
+    if o = GlobalID::Locator.locate(params.require(:object_global_id))
+      render head 404, "content_type" => 'text/plain' if o.respond_to?(:project_id) && o.project_id != sessions_current_project_id
+      o.versions
+    else
+      []
+    end
+  end
+
 
   def compare_params
     params.permit(:version_a, :version_b)

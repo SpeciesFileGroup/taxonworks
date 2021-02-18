@@ -2,6 +2,7 @@
   <block-layout
     anchor="relationship"
     :warning="checkValidation"
+    :spinner="!taxon.id"
     v-help.section.relationship.container>
     <h3 slot="header">Relationship</h3>
     <div
@@ -117,7 +118,7 @@ import ListCommon from './commonList.vue'
 import Autocomplete from 'components/autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from './blockLayout'
+import BlockLayout from 'components/blockLayout'
 
 export default {
   components: {
@@ -129,8 +130,8 @@ export default {
     BlockLayout
   },
   computed: {
-    taxonLabel() {
-      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    taxonLabel () {
+      return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
     treeList () {
       return this.$store.getters[GetterNames.GetRelationshipList]
@@ -157,7 +158,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]

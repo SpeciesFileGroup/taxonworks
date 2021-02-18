@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Date</h2>
+    <h3>Date</h3>
     <div class="horizontal-left-content">
       <div class="field label-above margin-medium-right">
         <label>Start year</label>

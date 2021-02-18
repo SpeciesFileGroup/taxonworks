@@ -34,20 +34,39 @@
         Search
       </button>
       <geographic-component
+        class="margin-large-bottom margin-medium-top"
         v-model="params.geographic"/>
-      <otu-component v-model="params.determination"/>
+      <otu-component
+        class="margin-large-bottom"
+        v-model="params.determination"/>
       <collecting-event
+        class="margin-large-bottom"
         v-model="params.collectingEvents"/>
-      <user-component 
+      <user-component
+        class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <keywords-component v-model="params.keywords.keyword_ids" />
-      <repository-component v-model="params.repository.repository_id"/>
-      <identifier-component v-model="params.identifier"/>
-      <types-component v-model="params.types"/>
-      <loan-component v-model="params.loans"/>
-      <in-relationship v-model="params.relationships.biological_relationship_ids"/>
-      <biocurations-component v-model="params.biocurations.biocuration_class_ids"/>
+      <keywords-component
+        class="margin-large-bottom"
+        v-model="params.keywords" />
+      <repository-component
+        class="margin-large-bottom"
+        v-model="params.repository.repository_id"/>
+      <identifier-component
+        class="margin-large-bottom"
+        v-model="params.identifier"/>
+      <types-component
+        class="margin-large-bottom"
+        v-model="params.types"/>
+      <loan-component
+        class="margin-large-bottom"
+        v-model="params.loans"/>
+      <in-relationship
+        class="margin-large-bottom"
+        v-model="params.relationships.biological_relationship_ids"/>
+      <biocurations-component
+        class="margin-large-bottom"
+        v-model="params.biocurations.biocuration_class_ids"/>
     </div>
   </div>
 </template>
@@ -58,7 +77,7 @@ import OtuComponent from './filters/otu'
 import CollectingEvent from './filters/collectingEvent/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
-import KeywordsComponent from './filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from './filters/identifier'
 import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
@@ -100,7 +119,8 @@ export default {
         !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_ids.length &&
+        !this.params.keywords.keyword_id_and.length &&
+        !this.params.keywords.keyword_id_or.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
@@ -198,7 +218,8 @@ export default {
           namespace_id: undefined
         },
         keywords: {
-          keyword_ids: []
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         determination: {
           otu_ids: [],

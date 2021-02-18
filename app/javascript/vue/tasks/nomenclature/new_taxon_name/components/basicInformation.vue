@@ -1,65 +1,56 @@
 <template>
-  <form
-    class="panel basic-information"
-    >
-    <a
-      name="basic-information"
-      class="anchor"/>
-    <div class="header flex-separate middle">
-      <h3
-      v-help.section.basic.container
-      >Basic information</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
+  <block-layout
+    class="basic-information"
+    anchor="basic-information">
+    <h3 slot="header">Basic information</h3>
     <div
-      class="body horizontal-left-content align-start"
-      v-show="expanded">
-      <div class="column-left">
-        <div class="field separate-right label-above">
-          <label
-            v-help.section.basic.name
-            for="taxon-name">Name</label>
-          <hard-validation field="name">
-            <input
-              id="taxon-name"
-              slot="body"
-              ref="inputTaxonname"
-              class="taxonName-input"
-              type="text"
-              autocomplete="off"
-              name="name"
-              v-model="taxonName">
-          </hard-validation>
+      slot="body">
+      <div class="horizontal-left-content align-start">
+        <div class="column-left">
+          <div class="field separate-right label-above">
+            <label
+              v-help.section.basic.name
+              for="taxon-name">Name</label>
+            <hard-validation field="name">
+              <input
+                id="taxon-name"
+                slot="body"
+                ref="inputTaxonname"
+                class="taxonName-input"
+                type="text"
+                autocomplete="off"
+                name="name"
+                v-model="taxonName">
+            </hard-validation>
+          </div>
+          <div class="field separate-top">
+            <label
+              v-help.section.basic.parent
+              for="parent-name">Parent</label>
+            <parent-picker/>
+          </div>
+          <rank-selector v-if="validateInfo"/>
+          <hard-validation field="rank_class"/>
         </div>
-        <div class="field separate-top">
-          <label
-            v-help.section.basic.parent
-            for="parent-name">Parent</label>
-          <parent-picker/>
+        <div class="column-right item">
+          <check-exist
+            :max-results="0"
+            :taxon="taxon"
+            class="separate-left"
+            url="/taxon_names/autocomplete"
+            label="label_html"
+            :search="taxon.name"
+            param="term"
+            :add-params="{ exact: true, 'type[]': 'Protonym' }"/>
         </div>
-        <rank-selector v-if="validateInfo"/>
-        <hard-validation field="rank_class"/>
       </div>
-      <div class="column-right item">
-        <check-exist
-          :max-results="0"
-          :taxon="taxon"
-          class="separate-left"
-          url="/taxon_names/autocomplete"
-          label="label_html"
-          :search="taxon.name"
-          param="term"
-          :add-params="{ exact: true, 'type[]': 'Protonym' }"/>
+      <div
+        v-if="!taxon.id"
+        class="margin-large-top">
+        <save-taxon-name class="normal-input button button-submit create-button"/>
       </div>
     </div>
-    <div
-      class="body"
-      v-if="!taxon.id">
-      <save-taxon-name class="normal-input button button-submit create-button"/>
-    </div>
-    <modal-component 
+    <modal-component
       v-if="showModal"
       @close="showModal = false">
       <h3 slot="header">Non latinized name</h3>
@@ -73,7 +64,7 @@
         </button>
       </div>
     </modal-component>
-  </form>
+  </block-layout>
 </template>
 
 <script>
@@ -84,21 +75,21 @@ import { ActionNames } from '../store/actions/actions'
 
 import SaveTaxonName from './saveTaxonName.vue'
 import ParentPicker from './parentPicker.vue'
-import Expand from './expand.vue'
 import CheckExist from './findExistTaxonName.vue'
 import RankSelector from './rankSelector.vue'
 import HardValidation from './hardValidation.vue'
 import ModalComponent from 'components/modal'
+import BlockLayout from 'components/blockLayout'
 
 export default {
   components: {
     ParentPicker,
-    Expand,
     RankSelector,
     CheckExist,
     SaveTaxonName,
     HardValidation,
-    ModalComponent
+    ModalComponent,
+    BlockLayout
   },
   computed: {
     parent () {
@@ -121,7 +112,6 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetTaxonName, value)
-        // this.$store.commit(MutationNames.UpdateLastChange)
       }
     },
     errors () {
@@ -130,7 +120,6 @@ export default {
   },
   data: function () {
     return {
-      expanded: true,
       showModal: false
     }
   },
@@ -196,6 +185,9 @@ export default {
 
 <style lang="scss">
   .basic-information {
+    .vue-autocomplete-input {
+      width: 300px;
+    }
     transition: all 1s;
     .validation-warning {
       border-left: 4px solid #ff8c00 !important;
