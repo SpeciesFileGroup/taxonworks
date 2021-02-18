@@ -1,5 +1,4 @@
 require 'rails_helper'
-
 require_relative "shared_context"
 
 describe Queries::Source::Filter, type: :model, group: [:sources] do
@@ -10,6 +9,59 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let(:query) {  Queries::Source::Filter.new({})  }
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
+
+
+  specify '#ancestor_id' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id)
+  end
+
+  specify '#ancestor_id, omits in scope sources on OTUs' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+
+    c2 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_descriptor))
+    c3 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_otu, taxon_name: t))
+
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id)
+  end
+
+  specify '#ancestor_id, includes TaxonNameClassifications' do
+    t = FactoryBot.create(:valid_taxon_name)
+    c = FactoryBot.create(:valid_citation, citation_object: t)
+
+    c1 = FactoryBot.create(:valid_citation, citation_object: FactoryBot.create(:valid_taxon_name_classification, taxon_name: t))
+
+    query.ancestor_id = t.id
+    expect(query.all.map(&:id)).to contain_exactly( c.source.id, c1.source.id)
+  end
+
+  specify '#citations_on_otus' do
+    o = Otu.create!(taxon_name: FactoryBot.create(:valid_taxon_name))
+    c = FactoryBot.create(:valid_citation, citation_object: o)
+
+    FactoryBot.create(:valid_citation, citation_object: Otu.create!(name: 'ancestor no'))
+
+    query.citations_on_otus = true
+    query.ancestor_id = o.taxon_name_id
+
+    expect(query.all.map(&:id)).to contain_exactly(c.source.id)
+  end
+
+  specify '#citations_on_otus (and taxon names)' do
+    o = Otu.create!(taxon_name: FactoryBot.create(:valid_taxon_name))
+    c1 = FactoryBot.create(:valid_citation, citation_object: o)
+
+    c2 = FactoryBot.create(:valid_citation, citation_object: o.taxon_name)
+
+    query.citations_on_otus = true
+    query.ancestor_id = o.taxon_name_id
+
+    expect(query.all.map(&:id)).to contain_exactly(c1.source.id, c2.source.id )
+  end
 
   specify '#source_type' do
     query.source_type = 'Source::Verbatim'
@@ -32,12 +84,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   end
   # end should be in identifiers concern
 
-
-  specify '#keyword_ids 1' do
-    k = Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
-    query.keyword_ids = [k.keyword.id]
-    expect(query.all.map(&:id)).to contain_exactly(s1.id)
-  end
 
   specify '#with_note 1' do
     Note.create!(text: 'my note', note_object: s1)
@@ -102,7 +148,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name), topics: [topic])
     expect(query.all.map(&:id)).to_not contain_exactly()
   end
-
 
   specify '#with_doi 1' do
     Identifier::Global::Doi.create!(identifier_object: s1, identifier: doi)
@@ -228,6 +273,7 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
 
   specify '#query_term' do
     q = Queries::Source::Filter.new(query_term: 'Unintelligible')
+
     expect(q.all.map(&:id)).to contain_exactly(s1.id)
   end
 
@@ -260,4 +306,56 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
       expect(q.map(&:id)).to contain_exactly()
     end
   end
+
+  # 
+  # Specs covering lib/queries/concerns/tags.rb
+  #
+
+  context 'keyword_id' do
+    specify '#keyword_id_and' do
+      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+      t2 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+
+      query.keyword_id_and = [t1.keyword_id, t2.keyword_id]
+      expect(query.matching_keyword_id_and.map(&:id)).to contain_exactly(s1.id)
+    end
+
+    specify '#keyword_id_or' do
+      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+      t2 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
+
+      query.keyword_id_or = [t1.keyword_id, t2.keyword_id]
+      expect(query.matching_keyword_id_or.map(&:id)).to contain_exactly(s1.id, s2.id)
+    end
+
+    specify '#keyword_id_or, #keyword_id_and 1' do
+      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+      t2 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+
+      t3 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
+
+      # not this
+      t4 = Tag.create!(tag_object: s3, keyword: t1.keyword)
+
+      query.keyword_id_and = [t1.keyword_id, t2.keyword_id]
+      query.keyword_id_or = [t3.keyword_id]
+
+      expect(query.all.map(&:id)).to contain_exactly(s1.id, s2.id)
+    end
+
+    specify '#keyword_id_or, #keyword_id_and 2 (one AND is an OR)' do
+      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
+      t2 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
+
+      # not this
+      t3 = Tag.create!(tag_object: s3, keyword: FactoryBot.create(:valid_keyword))
+
+      query.keyword_id_and = [t1.keyword_id]
+      query.keyword_id_or = [t2.keyword_id]
+
+      expect(query.all.map(&:id)).to contain_exactly(s1.id, s2.id)
+    end
+
+  end
+
 end

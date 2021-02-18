@@ -68,7 +68,7 @@ export default {
     },
     label: {
       type: [String, Array],
-      required: true
+      default: undefined
     },
     setKey: {
       type: String,
@@ -109,6 +109,7 @@ export default {
   },
   methods: {
     displayName (item) {
+      if (!this.label) return item
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {

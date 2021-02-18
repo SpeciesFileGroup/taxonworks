@@ -19,7 +19,6 @@
             pin-type="Otu"
             :autocomplete="false"
             :otu-picker="true"
-            :custom-list="smartList"
             target="TaxonDetermination"
             @selected="setOtu"
           />
@@ -249,10 +248,7 @@ export default {
   data () {
     return {
       view: undefined,
-      otuSelected: undefined,
-      smartList: {
-        quick: []
-      }
+      otuSelected: undefined
     }
   },
   watch: {
@@ -290,11 +286,11 @@ export default {
           if (response.body.length === 1) {
             this.setOtu(response.body[0])
           }
-          this.smartList.quick = response.body
+          this.$refs.smartSelector.addToList('quick', response.body[0])
         } else {
           CreateOtu(taxonId).then(otu => {
             this.setOtu(otu)
-            this.smartList.quick.push(otu.body)
+            this.$refs.smartSelector.addToList('quick', otu.body)
           })
         }
       })
