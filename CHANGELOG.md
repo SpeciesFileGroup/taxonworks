@@ -8,10 +8,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Fields with/out some value facet for Source filter #2023
+- Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
-- Keyword and/or logic in Tag facets (throughout) #2026
+- Keyword and/or logic in Tag facets (throughout) [#2026]
 - `/ap1/v1/stats` endpoint [#1871]
 - `papertrail.json?object_global_id=`
 - Quick label on collection object quick form [#2003]
@@ -27,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Keywords removed from all list after choice in Tag facet
 
 ### Fix
+- Model LoanItem - Tagged batch adds tag, not object [#2051]
+- Prevent non-loanable things being loaned [#2043]
 - `ancestors` param properly permitted TaxonName api/filter
 - TaxonName#name allowed spaces [#2009]
 - Fix help tip of pinboard navigator shortcut
@@ -35,6 +37,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix image viewer on filter image task
 - Image caption modal size [#2030]
 
+[#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
+[#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
 [#2026]: https://github.com/SpeciesFileGroup/taxonworks/issues/2026
 [#2023]: https://github.com/SpeciesFileGroup/taxonworks/issues/2023
 [#2009]: https://github.com/SpeciesFileGroup/taxonworks/issues/2009
