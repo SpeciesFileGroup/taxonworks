@@ -8,44 +8,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        parse_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]
-        parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
+        names, origins = parse_taxon_class
 
-        raise DarwinCore::InvalidData.new({ "scientificName": ["Unable to parse scientific name. Please make sure it is correctly spelled."] }) unless parse_details
-
-        names = DWC_CLASSIFICATION_TERMS.map { |t| [t, get_field_value(t)] }
-
-        unless parse_details[:uninomial]
-          names << ["genus", parse_details[:genus]]
-          names << ["subgenus", parse_details[:subgenus]]
-          names << ["species", parse_details[:species]]
-          names << ["subspecies", parse_details[:infraspecies]&.first&.dig(:value)]
-        else
-          names << ["genus", parse_details[:parent]] if parse_details[:parent]
-          names << [/subgen/ =~ parse_details[:rank] ? "subgenus" : nil, parse_details[:uninomial]]
+        innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
+          Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+            raise DarwinCore::InvalidData.new({ origins[name.object_id] => protonym.errors.messages.values.flatten }) unless protonym.persisted?
+          end
         end
-
-        names.reject! { |v| v[1].nil? }
-
-        raise DarwinCore::InvalidData.new({ "Taxon name": ["Unable to find or create a taxon name with supplied data"] }) if names.empty?
-
-        rank = get_field_value("taxonRank")
-
-        names.last[0] = rank unless rank.blank?
-
-        # TODO: In case of existing duplicate protonyms this may contribute with duplication even further by traversing names by incorrect parent.
-        # TODO2: Re-evaluate use of TaxonWorks::Vendor::Biodiversity::Result
-        names.map! do |name|
-          { rank_class: Ranks.lookup(:iczn, name[0]), name: name[1] }
-        end
-        names.last.merge!({ verbatim_author: get_field_value("scientificNameAuthorship") })
-
-        parent = project.root_taxon_name
-        names.each do |name|
-          parent = Protonym.create_with(also_create_otu: true).find_or_create_by!(name.merge({ parent: parent }))
-        end
-
-        otu = parent.otus.first # TODO: Might require select-and-confirm functionality
 
         attributes = parse_record_level_class
         attributes.deep_merge!(parse_occurrence_class)
@@ -66,7 +35,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         specimen.taxon_determinations.create!({
-          otu: otu
+          otu: innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens?
@@ -582,6 +551,136 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     taxon_determination[:notes_attributes] = [{text: note}] if note
 
     { taxon_determination: taxon_determination }
+  end
+
+  def parse_taxon_class
+    names = []
+    origins = {}
+    # taxonID: [Not mapped. Usually alias of core id]
+
+    # scientificNameID: [Not mapped. Could be mapped with type detection into LSID identifier or global ID]
+
+    # acceptedNameUsageID: [N/A for occurrences]
+
+    # parentNameUsageID: [N/A for occurrences]
+
+    # originalNameUsageID: [N/A for occurrences]
+
+    # nameAccordingToID: [Not mapped]
+
+    # namePublishedInID: [Not mapped]
+
+    # taxonConceptID: [Not mapped]
+
+    # acceptedNameUsage: [Not mapped. Review]
+
+    # parentNameUsage: [N/A for occurrences]
+
+    # originalNameUsage: [Not mapped. Review]
+
+    # nameAccordingTo: [Not mapped]
+
+    # namePublishedIn: [Not mapped]
+
+    # namePublishedInYear: [Not mapped]
+
+    # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
+    code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || :iczn
+
+    # higherClassification: [Not mapped]
+
+    # kingdom: [Kingdom protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "kingdom"), name: get_field_value(:kingdom)}.tap { |h| names << h }.object_id
+    ] = :kingdom
+
+    # phylum: [Phylum protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "phylum"), name: get_field_value(:phylum)}.tap { |h| names << h }.object_id
+    ] = :phylum
+
+    # class: [Class protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "class"), name: get_field_value(:class)}.tap { |h| names << h }.object_id
+    ] = :class
+
+    # order: [Order protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "order"), name: get_field_value(:order)}.tap { |h| names << h }.object_id
+    ] = :order
+
+    # family: [Family protonym]
+    origins[
+      {rank_class: Ranks.lookup(code, "family"), name: get_field_value(:family)}.tap { |h| names << h }.object_id
+    ] = :family
+
+    # genus: [Not mapped, extracted from scientificName instead]
+
+    # subgenus: [Not mapped, extracted from scientificName instead]
+
+    # specificEpithet: [Not mapped, extracted from scientificName instead]
+
+    # infraspecificEpithet: [Not mapped, extracted from scientificName instead]
+
+    # scientificName: [Parsed with biodiversity and mapped into several protonyms]
+    parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || "")
+    parse_details = parse_results[:details]
+    parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
+
+    raise DarwinCore::InvalidData.new({
+      "scientificName": parse_results[:qualityWarnings] ?
+        parse_results[:qualityWarnings].map { |q| q[:warning] } :
+        ["Unable to parse scientific name. Please make sure it is correctly spelled."]
+    }) unless (1..3).include?(parse_results[:quality]) && parse_details
+
+    unless parse_details[:uninomial]
+      origins[
+        {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:genus]}.tap { |h| names << h }.object_id
+      ] = :scientificName
+      origins[
+        {rank_class: Ranks.lookup(code, "subgenus"), name: parse_details[:subgenus]}.tap { |h| names << h }.object_id
+      ] = :scientificName
+      origins[
+        {rank_class: Ranks.lookup(code, "species"), name: parse_details[:species]}.tap { |h| names << h }.object_id
+      ] = :scientificName
+      origins[
+        {rank_class: Ranks.lookup(code, "subspecies"), name: parse_details[:infraspecies]&.map{ |d| d.dig(:value) }&.join(' ') }.tap { |h| names << h }.object_id
+      ] = :scientificName
+    else
+      origins[
+        {rank_class: Ranks.lookup(code, "genus"), name: parse_details[:parent]}.tap { |h| names << h }.object_id
+      ] = :scientificName if parse_details[:parent]
+      origins[
+        {
+          rank_class: /subgen/ =~ parse_details[:rank] ? Ranks.lookup(code, "subgenus") : nil,
+          name: parse_details[:uninomial]
+        }.tap { |h| names << h }.object_id
+      ] = :scientificName if parse_details[:parent]
+    end
+
+    names.reject! { |v| v[:name].nil? }
+
+    # taxonRank: [Rank of innermost protonym]
+    rank = get_field_value(:taxonRank)
+    if rank
+      names.last[:rank_class] = Ranks.lookup(code, rank)
+      raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
+    end
+
+    # verbatimTaxonRank: [Not mapped]
+
+    # scientificNameAuthorship: [verbatim_author of innermost protonym]
+    names.last.merge!({ verbatim_author: get_field_value("scientificNameAuthorship") })
+
+    # vernacularName: [Not mapped]
+
+    # taxonomicStatus: [Not mapped. Review]
+
+    # nomenclaturalStatus: [Not mapped. Review]
+
+    # taxonRemarks: [Not mapped]
+
+    [names, origins]
   end
 
 end
