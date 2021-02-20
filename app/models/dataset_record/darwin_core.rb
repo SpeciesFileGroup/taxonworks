@@ -14,7 +14,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     index = get_fields_mapping[field_name.to_s]
 
     value = data_fields[index]&.dig("value") if index
-    value&.strip!
+    value&.gsub!(/^[[:space:]]+|[[:space:]]+$/, '') # strip method doesn't deal with https://en.wikipedia.org/wiki/Non-breaking_space
     value&.squeeze!(" ")
 
     value unless value.blank?
