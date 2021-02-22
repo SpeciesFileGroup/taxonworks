@@ -130,6 +130,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     save!
   end
 
+  def containerize_dup_cat_no?
+    !!self.metadata.dig("import_settings", "containerize_dup_cat_no")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)

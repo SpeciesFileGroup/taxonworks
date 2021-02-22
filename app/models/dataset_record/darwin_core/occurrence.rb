@@ -29,9 +29,22 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
           attributes.dig(:catalog_number, :identifier)&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name) if namespace
-          specimen.identifiers.create!({
-            type: Identifier::Local::CatalogNumber
-          }.merge!(attributes[:catalog_number]))
+
+          identifier = Identifier::Local::CatalogNumber
+                      .create_with(identifier_object: specimen)
+                      .find_or_create_by!(attributes[:catalog_number])
+          object = identifier.identifier_object
+
+          unless object == specimen
+            raise DarwinCore::InvalidData.new({ "catalogNumber" => ["Is already in use"] }) unless self.import_dataset.containerize_dup_cat_no?
+            if object.is_a?(Container)
+              object.add_container_items([specimen])
+            else
+              identifier.update!(
+                identifier_object: Container::Virtual.containerize([object, specimen])
+              )
+            end
+          end
         end
 
         specimen.taxon_determinations.create!({

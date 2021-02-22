@@ -118,6 +118,13 @@ class ImportDataset::DarwinCore < ImportDataset
     end
   end
 
+  # Sets import settings for this dataset
+  def set_import_settings(import_settings)
+    metadata["import_settings"] = import_settings
+    save!
+    metadata["import_settings"]
+  end
+
   protected
 
   def get_records(source)

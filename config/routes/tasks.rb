@@ -3,6 +3,7 @@ scope :tasks do
     get :index, as: 'index_dwca_import_task'
     post 'upload'
     post 'update_catalog_number_namespace'
+    post 'set_import_settings'
   end
 
   scope :asserted_distributions do

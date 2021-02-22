@@ -19,8 +19,17 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
   end
 
   # POST
+  def set_import_settings
+    render json: ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id]).set_import_settings(params[:import_settings])
+  end
+
+  # POST
   def update_catalog_number_namespace
-    ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id]).update_catalog_number_namespace(params[:institutionCode], params[:collectionCode], params[:namespace_id])
+    ImportDataset::DarwinCore::Occurrences
+      .find(params[:import_dataset_id])
+      .update_catalog_number_namespace(params[:institutionCode], params[:collectionCode], params[:namespace_id])
+
+    render json: {success: true}
   end
 
 private
