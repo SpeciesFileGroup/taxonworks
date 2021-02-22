@@ -15,6 +15,7 @@
       }">
       <h3 slot="header">Settings</h3>
       <div slot="body">
+        <containerize-checbox/>
         <h3>Catalog number namespace mapping</h3>
         <table class="full_width">
           <thead>
@@ -42,15 +43,16 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
-
+import ModalComponent from 'components/modal'
 import RowComponent from './Row'
+import ContainerizeChecbox from './Containerize'
 
 export default {
   components: {
+    ContainerizeChecbox,
     ModalComponent,
     RowComponent
   },

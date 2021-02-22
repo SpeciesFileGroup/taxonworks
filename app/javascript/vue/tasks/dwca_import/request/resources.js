@@ -1,5 +1,4 @@
 import AjaxCall from 'helpers/ajaxCall'
-import Qs from 'qs'
 
 const GetDataset = (id) => AjaxCall('get', `/import_datasets/${id}.json`)
 
@@ -13,6 +12,8 @@ const UpdateRow = (importId, rowId, data) => AjaxCall('patch', `/import_datasets
 
 const UpdateCatalogueNumber = (data) => AjaxCall('post', '/tasks/dwca_import/update_catalog_number_namespace', data)
 
+const UpdateImportSettings = (data) => AjaxCall('post', '/tasks/dwca_import/set_import_settings', data)
+
 const UpdateColumnField = (importId, params) => AjaxCall('patch', `/import_datasets/${importId}/dataset_records/set_field_value`, params)
 
 const ImportRows = (datasetId, params) => AjaxCall('post', `/import_datasets/${datasetId}/import.json`, params)
@@ -25,5 +26,6 @@ export {
   ImportRows,
   UpdateRow,
   UpdateCatalogueNumber,
-  UpdateColumnField
+  UpdateColumnField,
+  UpdateImportSettings
 }

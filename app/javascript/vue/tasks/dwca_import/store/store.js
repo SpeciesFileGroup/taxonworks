@@ -22,6 +22,7 @@ function makeInitialState () {
     temporary: {
       downloadingPages: []
     },
+    startRow: undefined,
     dataset: {},
     datasetRecords: [],
     selectedRowIds: [],
