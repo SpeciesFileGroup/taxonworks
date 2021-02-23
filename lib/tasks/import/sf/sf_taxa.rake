@@ -824,13 +824,6 @@ namespace :tw do
               project_id: project_id, uri: 'https://api.catalogue.life/datapackage#Taxon.extinct'
             )
 
-           # For distribution
-            distribution = row['Distribution']
-            distribution_text = ''
-            if distribution.present?
-              distribution_text = "* Distribution text: #{distribution}"
-            end
-
             logger.info "Working with TW.project_id: #{project_id} = SF.FileID #{row['FileID']}, SF.TaxonNameID #{sf_taxon_name_id}, use_this_ref_id #{use_this_ref_id}, add_different_authors #{add_different_authors} (count #{count_found += 1}) \n"
 
             animalia_id = get_animalia_id[project_id.to_s]
@@ -923,6 +916,7 @@ namespace :tw do
                 ) unless row['NameStatus'] == '7' # Value ignored per docs: http://help.speciesfile.org/index.php/Taxa
 
                 # distribution text for otu only
+                distribution_text = row['Distribution'] || ''
                 logger.info "Distribution: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', otu_id = '#{otu.id}, SF.FileID = '#{row['FileID']}', distribution_text = '#{distribution_text}' \n"
 
                 if distribution_text.present?
