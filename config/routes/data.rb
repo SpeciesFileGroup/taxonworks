@@ -235,6 +235,9 @@ end
 
 resources :extracts do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :geographic_areas, only: [:index, :show] do
