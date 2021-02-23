@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_20_170753) do
+ActiveRecord::Schema.define(version: 2021_02_09_231509) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -486,6 +486,24 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
   end
 
+  create_table "dataset_records", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.jsonb "data_fields", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
+    t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
+    t.index ["import_dataset_id", "type"], name: "index_dataset_records_on_import_dataset_id_and_type"
+    t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
+    t.index ["project_id"], name: "index_dataset_records_on_project_id"
+    t.index ["updated_by_id"], name: "index_dataset_records_on_updated_by_id"
+  end
+
   create_table "delayed_jobs", id: :serial, force: :cascade do |t|
     t.integer "priority", default: 0, null: false
     t.integer "attempts", default: 0, null: false
@@ -695,7 +713,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.integer "individualCount"
+    t.string "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -800,8 +818,6 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string "identifiedByID"
-    t.string "recordedByID"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -990,6 +1006,25 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
     t.index ["project_id"], name: "index_images_on_project_id"
     t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
+  end
+
+  create_table "import_datasets", force: :cascade do |t|
+    t.string "type", null: false
+    t.string "status", null: false
+    t.string "description", null: false
+    t.jsonb "metadata"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.string "source_file_name"
+    t.string "source_content_type"
+    t.bigint "source_file_size"
+    t.datetime "source_updated_at"
+    t.index ["created_by_id"], name: "index_import_datasets_on_created_by_id"
+    t.index ["project_id"], name: "index_import_datasets_on_project_id"
+    t.index ["updated_by_id"], name: "index_import_datasets_on_updated_by_id"
   end
 
   create_table "imports", id: :serial, force: :cascade do |t|
@@ -1652,6 +1687,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.text "cached"
     t.text "cached_author_string"
     t.date "cached_nomenclature_date"
+    t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
@@ -1659,8 +1695,10 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"
     t.index ["language_id"], name: "index_sources_on_language_id"
     t.index ["serial_id"], name: "index_sources_on_serial_id"
+    t.index ["title"], name: "index_sources_on_title"
     t.index ["type"], name: "index_sources_on_type"
     t.index ["updated_by_id"], name: "index_sources_on_updated_by_id"
+    t.index ["year"], name: "index_sources_on_year"
   end
 
   create_table "sqed_depictions", id: :serial, force: :cascade do |t|
@@ -1881,9 +1919,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
-    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
-    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2003,6 +2039,8 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_records", "import_datasets"
+  add_foreign_key "dataset_records", "projects"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
@@ -2053,6 +2091,7 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
   add_foreign_key "images", "projects", name: "images_project_id_fkey"
   add_foreign_key "images", "users", column: "created_by_id", name: "images_created_by_id_fkey"
   add_foreign_key "images", "users", column: "updated_by_id", name: "images_updated_by_id_fkey"
+  add_foreign_key "import_datasets", "projects"
   add_foreign_key "labels", "projects"
   add_foreign_key "labels", "users", column: "created_by_id", name: "labels_created_by_id_fk"
   add_foreign_key "labels", "users", column: "updated_by_id", name: "labels_updated_by_id_fk"
@@ -2225,7 +2264,6 @@ ActiveRecord::Schema.define(version: 2020_12_20_170753) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
-  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

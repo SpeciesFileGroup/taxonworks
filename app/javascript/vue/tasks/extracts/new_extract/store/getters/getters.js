@@ -1,6 +1,12 @@
-const GetterNames = {}
+import getSettings from './getSettings'
 
-const GetterFunctions = {}
+const GetterNames = {
+  GetSettings: 'getSettings'
+}
+
+const GetterFunctions = {
+  [GetterNames.GetSettings]: getSettings
+}
 
 export {
   GetterNames,

@@ -4,15 +4,21 @@
     <div class="horizontal-left-content align-end">
       <div class="label-above margin-small-right">
         <label>Day</label>
-        <input type="text">
+        <input
+          type="text"
+          v-model="extract.day_made">
       </div>
       <div class="label-above margin-small-right">
         <label>Month</label>
-        <input type="text">
+        <input
+          type="text"
+          v-model="extract.year_made">
       </div>
       <div class="label-above">
         <label>Year</label>
-        <input type="text">
+        <input
+          type="text"
+          v-model="extract.month_made">
       </div>
       <div class="horizontal-left-content align-end">
         <button
@@ -30,14 +36,22 @@
           class="button normal-input button-default">
           This year
         </button>
+        <lock-component/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {
 
+import props from './mixins/props'
+import LockComponent from 'components/lock'
+
+export default {
+  mixins: [props],
+  components: {
+    LockComponent
+  }
 }
 </script>
 

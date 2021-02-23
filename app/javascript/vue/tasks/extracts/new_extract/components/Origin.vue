@@ -5,8 +5,20 @@
       class="margin-small-bottom"
       v-model="tabSelected"
       :options="tabsOptions"/>
+    <lock-component v-model="settings.lock.origin"/>
     <smart-selector
       :model="smartConfig.model"/>
+    <label>
+      <input
+        type="checkbox">
+      Substract from origin
+    </label>
+    <label>
+      Verbatim anatomical origin
+      <input
+        type="text"
+        v-model="extract.verbatim_anatomical_origin">
+    </label>
   </div>
 </template>
 
@@ -14,6 +26,8 @@
 
 import SmartSelector from 'components/smartSelector'
 import SwitchComponent from 'components/switch'
+import LockComponent from 'components/lock'
+import props from './mixins/props'
 
 const smartTypes = [{
   label: 'Collection Object',
@@ -25,7 +39,9 @@ const smartTypes = [{
 }]
 
 export default {
+  mixins: [props],
   components: {
+    LockComponent,
     SmartSelector,
     SwitchComponent
   },
