@@ -32,7 +32,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
         ### Check all files are readable
         [dwc.core, *dwc.extensions].each do |table|
-          table.read { |data, errors| raise RuntimeError("Errors found when reading data") unless errors.empty? }
+          table.read { |data, errors| raise "Errors found when reading data" unless errors.empty? }
         end
       else
         if path =~ /\.(xlsx?|ods)\z/i
