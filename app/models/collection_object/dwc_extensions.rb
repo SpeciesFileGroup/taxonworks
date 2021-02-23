@@ -108,13 +108,29 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_event_time
-    a = collecting_event.try(:time_range)
-    a ? a.join('-') : nil
+    return unless collecting_event
+
+    %w{start_time end_time}
+      .map { |t| %w{hour minute second}
+        .map { |p| collecting_event["#{t}_#{p}"] }
+        .map { |p| "%02d" % p if p } # At least two digits
+      }
+      .map { |t| t.compact.join(':') }
+      .reject(&:blank?)
+      .join("/")
   end
 
   def dwc_event_date
-    a = collecting_event.try(:date_range)
-    a ? a.join('-') : nil
+    return unless collecting_event
+
+    %w{start_date end_date}
+      .map { |d| %w{year month day}
+        .map { |p| collecting_event["#{d}_#{p}"] }
+        .map { |p| "%02d" % p if p } # At least two digits
+      }
+      .map { |d| d.compact.join('-') }
+      .reject(&:blank?)
+      .join("/")
   end
 
   def dwc_preparations
