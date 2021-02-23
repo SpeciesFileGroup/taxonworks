@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- `eventDate`/`eventTime` not being to ISO8601-compliant format [#1939]
+
+[#1939] https://github.com/SpeciesFileGroup/taxonworks/issues/1939
 
 ## [0.16.2] - 2021-02-18
 
