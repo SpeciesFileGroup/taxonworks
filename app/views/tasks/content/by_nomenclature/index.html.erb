@@ -1,17 +1,17 @@
 
 
-<% @taxon_names = TaxonName.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).limit(200).uniq %>
+<% @taxon_names = TaxonName.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).limit(5000).uniq %>
 
 <% @topic = Topic.where(project_id: sessions_current_project_id).first -%>
 
 <h2>Topic: <%= @topic.name -%> </h2>
 
 <table>
-  <tr> 
-    <td> Order </td> 
-    <td> Family </td> 
+  <tr>
+    <td> Order </td>
+    <td> Family </td>
     <td> Name
-    <td> Author year </td> 
+    <td> Author year </td>
 
     <td> Some content </td>
   </tr>
@@ -25,7 +25,7 @@
     <td> <%= n.cached -%> </td>
     <td> <%= n.cached_author_year -%> </td>
 
-    <td> <%= n.otus&.first&.contents&.where(topic_id: Topic.first)&.first&.text %> </td>
+    <td> <%= n.otus&.first&.contents&.where(topic_id: 6)&.first&.text %> </td>
   </tr>
 
 
