@@ -71,6 +71,13 @@ class SourcesController < ApplicationController
     @sources = Source.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:klass])
   end
 
+  def attributes
+    render json: ::Source.columns.select{
+      |a| Queries::Source::Filter::ATTRIBUTES.include?(
+        a.name)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
+  end
+
   # GET /sources/citation_object_types.json
   def citation_object_types
     render json: Source.joins(:citations)
@@ -79,7 +86,6 @@ class SourcesController < ApplicationController
       .distinct
       .pluck(:citation_object_type).sort
   end
-
 
   # GET /sources/csl_types.json
   def csl_types
@@ -245,8 +251,10 @@ class SourcesController < ApplicationController
     params[:project_id] = sessions_current_project_id
     params.permit(
       :author,
+      :ancestor_id,
       :author_ids_or,
       :citations,
+      :citations_on_otus,
       :documents,
       :exact_author,
       :exact_title,
@@ -276,19 +284,24 @@ class SourcesController < ApplicationController
       author_ids: [],
       citation_object_type: [],
       ids: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       topic_ids: [],
-      serial_ids: []
+      serial_ids: [],
+      empty: [],
+      not_empty: []
     )
   end
 
   def api_params
     params[:project_id] = sessions_current_project_id
     params.permit(
+      :ancestor_id,
       :author,
       :author_ids_or,
       :citations,
-      # :documents,
+      :citations_on_otus,
+      # :documents
       :exact_author,
       :exact_title,
       :identifier,
@@ -317,9 +330,12 @@ class SourcesController < ApplicationController
       ids: [],
       author_ids: [],
       citation_object_type: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       topic_ids: [],
-      serial_ids: []
+      serial_ids: [],
+      empty: [],
+      not_empty: []
     )
   end
 
