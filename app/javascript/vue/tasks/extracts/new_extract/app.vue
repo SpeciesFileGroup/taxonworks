@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h1>New extract</h1>
+    <div>
+      <h1>New extract</h1>
+      <label>
+        <input
+          type="checkbox"
+          v-model="settings.sortable">
+        Sort fields
+      </label>
+    </div>
     <navbar-component>
       <div class="flex-separate middle">
         New
@@ -23,25 +31,70 @@
         </div>
       </div>
     </navbar-component>
-    <origin-component/>
-    <made-component/>
-    <repository-component/>
+    <div class="flexbox">
+      <div class="item">
+        <draggable
+          class="full_width"
+          v-model="componentsOrder"
+          @end="updatePreferences"
+          :disabled="!settings.sortable">
+          <component
+            class="panel content margin-medium-bottom"
+            v-for="componentName in componentsOrder"
+            :key="componentName"
+            :is="componentName"/>
+        </draggable>
+      </div>
+      <div class="item">
+        <soft-validation/>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
+import { VueComponent } from './const/components'
+
 import NavbarComponent from 'components/navBar'
 import OriginComponent from './components/Origin'
 import MadeComponent from './components/Made'
 import RepositoryComponent from './components/Repository'
+import Draggable from 'vuedraggable'
+import SoftValidation from './components/SoftValidation.vue'
 
 export default {
   components: {
+    Draggable,
     NavbarComponent,
     OriginComponent,
     MadeComponent,
-    RepositoryComponent
+    RepositoryComponent,
+    SoftValidation,
+    ...VueComponent
+  },
+
+  data () {
+    return {
+      componentsOrder: Object.keys(VueComponent)
+    }
+  },
+
+  computed: {
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    }
+  },
+
+  methods: {
+    updatePreferences () {}
   }
 }
 </script>

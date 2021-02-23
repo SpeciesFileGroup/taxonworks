@@ -14,7 +14,8 @@ const makeInitialState = () => {
         date: false,
         lock: false,
         protocol: false
-      }
+      },
+      sortable: false
     },
     extract: {
       quantity_value: undefined,
@@ -25,7 +26,8 @@ const makeInitialState = () => {
       year_made: undefined,
       month_made: undefined,
       day_made: undefined
-    }
+    },
+    softValidation: []
   }
 }
 

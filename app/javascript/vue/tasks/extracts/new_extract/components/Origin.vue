@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Origin</h2>
     <switch-component
       class="margin-small-bottom"
@@ -27,7 +27,7 @@
 import SmartSelector from 'components/smartSelector'
 import SwitchComponent from 'components/switch'
 import LockComponent from 'components/lock'
-import props from './mixins/props'
+import componentExtend from './mixins/componentExtend'
 
 const smartTypes = [{
   label: 'Collection Object',
@@ -39,7 +39,7 @@ const smartTypes = [{
 }]
 
 export default {
-  mixins: [props],
+  mixins: [componentExtend],
   components: {
     LockComponent,
     SmartSelector,

@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Repository</h2>
     <fieldset class="fieldset">
       <legend>Repository</legend>

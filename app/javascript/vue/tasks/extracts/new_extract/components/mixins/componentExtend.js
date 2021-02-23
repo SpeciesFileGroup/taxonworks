@@ -2,19 +2,13 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
-  props: {
-    value: {
-      type: Object,
-      required: true
-    }
-  },
   computed: {
     extract: {
       get () {
-        return this.value
+        return this.$store.getters[GetterNames.GetExtract]
       },
       set (value) {
-        this.$emit('input', value)
+        this.$store.commit(MutationNames.SetExtract, value)
       }
     },
 
