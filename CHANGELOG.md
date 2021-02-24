@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock biological relationship in radial object [#2036]
 - Confirmation popup to delete a type material in comprehensive
 - Tag facet to filter nomenclature [#2047]
+- Warn about unsaved changes on Accession metadata [#1858]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
 
+[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
 [#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
