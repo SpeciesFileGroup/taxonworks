@@ -839,7 +839,7 @@ class TaxonName < ApplicationRecord
     n = nil if is_combination?
 
     update_columns(cached_html: get_full_name_html(n),
-                   cached_nomenclature_date: i.nomenclature_date)
+                   cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
 
