@@ -8,7 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Fixed
-- `eventDate`/`eventTime` not being to ISO8601-compliant format [#1939]
+- `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
 
 [#1939] https://github.com/SpeciesFileGroup/taxonworks/issues/1939
 
@@ -49,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
 - Some value label in Filter sources
+- Dropzone error message
 
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
