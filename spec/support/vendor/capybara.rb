@@ -26,6 +26,7 @@ Capybara.register_driver :selenium do |app|
 
 
   when 'chrome'
+    require 'webdrivers/chromedriver'
 
    # !! Untested !!
 
@@ -50,6 +51,7 @@ Capybara.register_driver :selenium do |app|
 
 
   when 'firefox'
+    require 'webdrivers/geckodriver'
     # https://github.com/SeleniumHQ/selenium/wiki/Ruby-Bindings#Tweaking_Firefox_preferences.md
     #
     # update config/application_settings test should look _LIKE_ (YRMV):
