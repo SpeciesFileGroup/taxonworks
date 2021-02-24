@@ -57,7 +57,8 @@ module Export::Coldp::Files::Name
 
     rank = nil
     if infraspecific_element
-      infraspecific_element.first
+      rank = infraspecific_element.first
+      rank = 'forma' if rank == 'form' # CoL preferred string
     else
       [:subspecies, :species, :subgenus, :genus].each do |r|
         if e[r]
@@ -67,45 +68,52 @@ module Export::Coldp::Files::Name
       end
     end
 
-    genus, subgenus, species = nil, nil, nil
-
-    if e[:genus]
-      if e[:genus][1] =~ /NOT SPECIFIED/
-        genus = nil
-      else
-        genus = e[:genus][1]
-      end
-    end
-
-    if e[:subgenus]
-      if e[:subgenus][1] =~ /NOT SPECIFIED/
-        subgenus = nil
-      else
-        subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
-      end
-    end
-
-    if e[:species]
-      if e[:species][1] =~ /NOT SPECIFIED/
-        species = nil
-      else
-        species = e[:species][1]
-      end
-    end
-
     id = t.reified_id
-
     basionym_id = t.has_misspelling_relationship? ? t.valid_taxon_name.reified_id : id # => t.reified_id
     # case 1 - original combination difference
     # case 2 - misspelling (same combination)
 
+    genus, subgenus, species = nil, nil, nil
+
+    uninomial = nil
+
+    if rank == :genus
+      uninomial =  e[:genus][1]
+
+    else
+      if e[:genus]
+        if e[:genus][1] =~ /NOT SPECIFIED/
+          genus = nil
+        else
+          genus = e[:genus][1]
+        end
+      end
+
+      if e[:subgenus]
+        if e[:subgenus][1] =~ /NOT SPECIFIED/
+          subgenus = nil
+        else
+          subgenus = e[:subgenus][1]&.gsub(/[\)\(]/, '')
+        end
+      end
+
+      if e[:species]
+        if e[:species][1] =~ /NOT SPECIFIED/
+          species = nil
+        else
+          species = e[:species][1]
+        end
+      end   
+
+    end
+
     csv << [
       id,                                                                         # ID
       basionym_id,                                                                # basionymID (can't be invalid
-      t.cached_original_combination&.gsub(/\s+\[sic\]/, ''),                       # scientificName # TODO: once cache is fixed remove &. check
+      clean_sic(t.cached_original_combination),                                   # scientificName # TODO: once cache is fixed remove &. check
       authorship_field(t, true),                                                  # authorship
       rank,                                                                       # rank
-      nil,                                                                        # uninomial
+      uninomial,                                                                  # uninomial
       genus,                                                                      # genus
       subgenus,                                                                   # subgenus (no parens) # TODO - optimize to not have to strip these
       species,                                                                    # species
@@ -119,6 +127,10 @@ module Export::Coldp::Files::Name
       nil,                                                                        # link (probably TW public or API)
       remarks_field(t),                                                           # remarks
     ]
+  end
+
+  def self.clean_sic(name)
+    name&.gsub(/\s+\[sic\]/, '') # TODO: remove & once cached_original_combination is re-indexed
   end
 
   # @params otu [Otu]
@@ -176,40 +188,62 @@ module Export::Coldp::Files::Name
 
           original = Export::Coldp.original_field(t) # Protonym, no parens
 
-          higher = !t.is_combination? && !t.is_species_rank?
-
-          elements = t.full_name_hash if !higher
-
           basionym_id = t.reified_id
 
-          name_string = higher ? t.name : t.cached
+          is_genus_species = t.is_genus_or_species_rank?
 
-          if higher || t.is_valid? || t.is_combination?
+          # TODO: combinations never uninomial, right? (only case is subgenus treated as genus, but that should be ClassifiedAs)
+          is_col_uninomial = !t.is_combination? && ((t.rank == 'genus') || !is_genus_species)
+
+          higher = !t.is_combination? && !is_genus_species
+
+          # TODO: consider faster ways to check for misspellings
+          name_string = clean_sic(t.cached) # if higher and misspelling, then it's in name too
+          
+          uninomial = nil
+          generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil
+          
+          if !is_col_uninomial
+            elements = t.full_name_hash
+
+            generic_epithet = clean_sic(elements['genus']&.last)
+            infrageneric_epithet = clean_sic(elements['subgenus']&.last)
+            specific_epithet = clean_sic(elements['species']&.last)
+            infraspecific_epithet = clean_sic(elements['subspecies']&.last)
+          else
+            uninomial = name_string
+          end
+
+          # TODO: Combinations don't have rank BUT CoL importer can interpret
+          # * possible solutions 
+          rank = t.rank
+
+          # Set is: valid or invalid higher, valid lower, past combinations
+          if higher || t.is_valid? || t.is_combination? 
             csv << [
-              t.id,                                               # ID
-              basionym_id,                                        # basionymID
-              name_string,                                        # scientificName  # should just be t.cached
-              t.cached_author_year,                               # authorship
-              t.rank,                                             # rank
-              (higher ? name_string : nil),                       # uninomial
-              (higher ? nil : elements['genus']&.last),           # genus and below - IIF species or lower
-              (higher ? nil : elements['subgenus']&.last),        # infragenericEpithet
-              (higher ? nil : elements['species']&.last),         # specificEpithet
-              (higher ? nil : elements['subspecies']&.last),      # infraspecificEpithet
-              origin_citation&.source_id,                         # publishedInID
-              origin_citation&.pages,                             # publishedInPage
-              t.year_of_publication,                              # publishedInYear
-              original,                                           # original
-              code_field(t),                                      # code
-              nom_status_field(t),                                # nomStatus
-              nil,                                                # link (probably TW public or API)
-              remarks_field(t),                                   # remarks
+              t.id,                                     # ID
+              basionym_id,                              # basionymID
+              name_string,                              # scientificName  # should just be t.cached
+              t.cached_author_year,                     # authorship
+              rank,                                     # rank
+              uninomial,                                # uninomial   <- if genus here
+              generic_epithet,                          # genus and below - IIF species or lower
+              infrageneric_epithet,                     # infragenericEpithet
+              specific_epithet,                         # specificEpithet
+              infraspecific_epithet,                    # infraspecificEpithet
+              origin_citation&.source_id,               # publishedInID
+              origin_citation&.pages,                   # publishedInPage
+              t.year_of_publication,                    # publishedInYear
+              original,                                 # original
+              code_field(t),                            # code
+              nom_status_field(t),                      # nomStatus
+              nil,                                      # link (probably TW public or API)
+              remarks_field(t),                         # remarks
             ]
           end
 
-         
-
-          if (!higher && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) # TODO: Confirm unnecessary: && unique[basionym_id].nil?
+          # Here we truly want no higher
+          if (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) # TODO: Confirm unnecessary: && unique[basionym_id].nil?
             # subgenera not hitting here
 
             # unique[basionym_id] = true
