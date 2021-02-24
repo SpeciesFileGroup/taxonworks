@@ -49,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
 - Some value label in Filter sources
+- Dropzone error message
 
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
