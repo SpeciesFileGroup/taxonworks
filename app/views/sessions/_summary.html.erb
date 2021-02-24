@@ -4,10 +4,18 @@
       <div id="taxonworks">
         <%= link_to(content_tag(:div, '', class: :logo), root_path) -%> 
       </div>
-      <div class="horizontal-left-content">
-        <%= taxonworks_version_tag -%>
-        <%= sandbox_details_tag -%>
-      </div>
+      <ul class="horizontal_navbar no_bullets"
+        id="taxonworks_left">
+        <li><%= taxonworks_version_tag -%></li>
+        <li><%= sandbox_details_tag -%></li>
+        <li>
+          <a
+            href="https://github.com/SpeciesFileGroup/taxonworks/issues"
+            target="_blank">
+            Issues
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 

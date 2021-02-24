@@ -19,16 +19,25 @@
     }
   }
 
+  #taxonworks_left {
+    line-height: $font_small;
+    li {
+      padding-left: $standard_padding * 0.5;
+    }
+  }
+
   #taxonworks_version {
     color: White;
     font-size: $font_small;
-    line-height: $font_small;
     text-decoration: none;
     padding: 0;
   }
 
   #session_nav {
     flex-grow: 0;
+  }
+
+  .horizontal_navbar {
     a {
       padding: 0px;
       color: #FFF;
