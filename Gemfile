@@ -22,7 +22,7 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 4.1.0.rc2'
+gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'

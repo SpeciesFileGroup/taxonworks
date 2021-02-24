@@ -392,7 +392,7 @@ GEM
       rgeo (>= 1.0.0)
     rgeo-proj4 (2.0.1)
       rgeo (~> 2.0)
-    rmagick (4.1.2)
+    rmagick (4.2.2)
     rqrcode_core (0.2.0)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -633,7 +633,7 @@ DEPENDENCIES
   rgeo (~> 2.2)
   rgeo-geojson (~> 2.1, >= 2.1.1)
   rgeo-proj4 (~> 2.0)
-  rmagick (~> 4.1.0.rc2)
+  rmagick (~> 4.2, >= 4.2.2)
   rqrcode!
   rspec (~> 3.6)
   rspec-activemodel-mocks (~> 1.1.0)
