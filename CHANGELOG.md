@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed `verbatim author` for `cached_author_year` in filter nomenclature
 - Keywords styled after choice in Tag facet
 - Keywords removed from all list after choice in Tag facet
+- Pagination in Filter sources
 
 ### Fix
 - Model LoanItem - Tagged batch adds tag, not object [#2051]
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image caption modal size [#2030]
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
+- Some value label in Filter sources
 
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
