@@ -105,7 +105,10 @@ jobs:
     - name: Install apt packages
       run: |
         sudo apt-get update
-        sudo apt-get install -y imagemagick tesseract-ocr libgeos-dev libproj-dev
+        sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev
+
+    - name: Install imagemagick
+      run: ./install-imagemagick7.sh
 
     - name: Set up TaxonWorks config files
       run: |
