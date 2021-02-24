@@ -825,7 +825,8 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
-      cached_original_combination: nil
+      cached_original_combination: nil,
+      cached_nomenclature_date: nil
     )
     save if update
   end
@@ -837,7 +838,8 @@ class TaxonName < ApplicationRecord
     # We can't use the in-memory cache approach for combination names, force reload each time
     n = nil if is_combination?
 
-    update_column(:cached_html, get_full_name_html(n))
+    update_columns(cached_html: get_full_name_html(n),
+                   cached_nomenclature_date: i.nomenclature_date)
 
     set_cached_valid_taxon_name_id
 
@@ -855,6 +857,7 @@ class TaxonName < ApplicationRecord
     update_columns(
       cached:  NO_CACHED_MESSAGE,
       cached_author_year:  NO_CACHED_MESSAGE,
+      cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
       cached_html:  NO_CACHED_MESSAGE
     )

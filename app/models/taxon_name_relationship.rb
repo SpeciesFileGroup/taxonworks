@@ -388,13 +388,15 @@ class TaxonNameRelationship < ApplicationRecord
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
             t.update_columns(
                 cached_author_year: t.get_author_and_year,
+                cached_nomenclature_date: t.nomenclature_date,
                 cached_original_combination: t.get_original_combination,
                 cached_original_combination_html: t.get_original_combination_html
             )
           end
 
           if type_name =~/Misapplication/
-            t.update_column( :cached_author_year, t.get_author_and_year)
+            t.update_columns( cached_author_year: t.get_author_and_year,
+                              cached_nomenclature_date: t.nomenclature_date)
           end
 
           vn = t.get_valid_taxon_name
