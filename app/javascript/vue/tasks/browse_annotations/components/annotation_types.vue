@@ -30,6 +30,7 @@
 <script>
 
   import Spinner from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -49,7 +50,7 @@
       }
     },
     mounted: function () {
-      this.$http.get('/annotations/types').then(response => {
+      AjaxCall('get', '/annotations/types').then(response => {
         this.typesList = response.body.types
         this.loading = false
       })

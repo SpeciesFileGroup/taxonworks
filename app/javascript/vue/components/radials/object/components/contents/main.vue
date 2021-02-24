@@ -39,11 +39,16 @@
     <table-list
       :header="['Text', 'Topic', '']"
       :attributes="['text', ['topic', 'name']]"
-      :list="list"
+      :list="shortList"
       @delete="removeItem"
-      class="list"/>
+      class="list">
+      <template v-slot:options="slotProps">
+        <a
+          class="circle-button btn-edit"
+          :href="`/tasks/content/editor/index?otu_id=${slotProps.item.otu_id}&topic_id=${slotProps.item.topic_id}`"></a>
+      </template>
+    </table-list>
   </div>
-  
 </template>
 
 <script>
@@ -53,6 +58,7 @@ import annotatorExtend from '../../components/annotatorExtend.js'
 import SmartSelector from 'components/switch.vue'
 import TopicItem from '../citations/topicItem.vue'
 import TableList from 'components/table_list.vue'
+import { shorten } from 'helpers/strings.js'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -62,8 +68,14 @@ export default {
     TableList
   },
   computed: {
-    validate() {
+    validate () {
       return (this.content.text.length > 1 && this.content.topic_id != undefined)
+    },
+    shortList () {
+      return this.list.map(content => {
+        content.text = shorten(content.text, 150)
+        return content
+      })
     }
   },
   data() {

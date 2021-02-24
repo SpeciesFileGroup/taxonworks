@@ -14,6 +14,8 @@ export default function ({ commit, state }, args) {
 
   const payload = makeBasePayload()
 
+  if (observation.type === ObservationTypes.FreeText) { setupFreeTextPayload(payload) }
+
   if (observation.type === ObservationTypes.Qualitative) { setupQualitativePayload(payload) }
 
   if (observation.type === ObservationTypes.Presence) { setupPresencePayload(payload) }
@@ -30,7 +32,7 @@ export default function ({ commit, state }, args) {
       })
 
       commit(MutationNames.SetDescriptorSavedOnce, args.descriptorId)
-      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }    
+      if (isValidResponseData(responseData)) { commit(MutationNames.SetObservationId, makeObservationIdArgs(responseData.id, responseData.global_id)) }
       return true
     }, response => {
       commit(MutationNames.SetDescriptorSaving, {
@@ -48,6 +50,10 @@ export default function ({ commit, state }, args) {
     return Object.assign({}, args, { observationId, global_id })
   }
 
+  function setupFreeTextPayload (payload) {
+    return Object.assign(payload, { description: observation.description })
+  }
+
   function setupQualitativePayload (payload) {
     return Object.assign(payload, { character_state_id: args.characterStateId })
   }
@@ -57,7 +63,7 @@ export default function ({ commit, state }, args) {
   }
 
   function setupContinuosPayload (payload) {
-    return Object.assign(payload, { 
+    return Object.assign(payload, {
       continuous_value: observation.continuousValue,
       continuous_unit: observation.continuousUnit
     })

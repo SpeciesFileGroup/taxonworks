@@ -1,16 +1,7 @@
 require 'rails_helper'
 require 'material'
 
-describe 'Material' do
-
-  before(:all) {
-    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
-  }
-
-  after(:all) {
-    ProjectsAndUsers.clean_slate
-  }
-
+describe 'Material', type: :model do
   context '#create_quick_verbatim' do
     before(:each) {
       @one_object_stub = {'collection_objects' => {}}
@@ -142,23 +133,14 @@ describe 'Material' do
   end
 end
 
-describe Material::QuickVerbatimResponse do
-
-  before(:all) {
-    ProjectsAndUsers.spin_up_projects_users_and_housekeeping
-  }
-
-  after(:all) {
-    ProjectsAndUsers.clean_slate
-  }
-
+describe Material::QuickVerbatimResponse, type: :model do
   let(:response)  { Material::QuickVerbatimResponse.new() }
 
   specify '#collection_object' do
     expect(response.collection_object.class).to eq(Material::QuickVerbatimObject)
   end
 
-  specify  '#locks_object' do
+  specify '#locks_object' do
     expect(response.locks.class).to eq(Forms::FieldLocks)
   end
 

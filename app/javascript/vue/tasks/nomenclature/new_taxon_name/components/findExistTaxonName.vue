@@ -24,6 +24,7 @@
 <script>
 
 import Spinner from 'components/spinner.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -110,13 +111,8 @@ export default {
       if (this.search.length < Number(this.min)) return
       this.spinner = true
       this.clearResults()
-      this.$http.get(this.ajaxUrl(), {
-        before (request) {
-          if (this.previousRequest) {
-            this.previousRequest.abort()
-          }
-          this.previousRequest = request
-        }
+      AjaxCall('get', this.ajaxUrl(), {
+        requestId: 'findTaxon'
       }).then(response => {
         this.json = response.body
         if(Array.isArray(response.body))
@@ -171,8 +167,7 @@ export default {
     }
 
     li {
-      white-space: nowrap;
-      margin-bottom: 8px; 
+      margin-bottom: 8px;
     }
 
     li a {

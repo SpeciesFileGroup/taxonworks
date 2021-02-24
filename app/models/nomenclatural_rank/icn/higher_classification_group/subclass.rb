@@ -11,6 +11,10 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Subclass < Nomenclatura
     taxon_name.errors.add(:name, 'name must not end in -viridae') if (taxon_name.name =~ /.*viridae\Z/)
   end
 
+  def self.valid_name_ending
+    'idae'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icn::HigherClassificationGroup::ClassRank.to_s]
   end

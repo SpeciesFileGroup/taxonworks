@@ -80,6 +80,7 @@
   import ModeSwitch from './mode_switch'
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -111,8 +112,7 @@
         isLoading: false,
         newFeatures:  [],
         lightMapFeatures:  0,
-        geojsonFeatures: [    // trans-antimeridian polygon test features
-        ]
+        geojsonFeatures: []    // trans-antimeridian polygon test features
       }
     },
     watch: {
@@ -142,9 +142,9 @@
           spatial_geographic_areas: true
         }
         
-        this.$http.get('/collecting_events.json', {params: params}).then(response => {
+        AjaxCall('get', '/collecting_events.json', {params: params}).then(response => {
           this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.url)
+          this.$emit('jsonUrl', response.request.responseURL)
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
@@ -156,9 +156,9 @@
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
         let params = {shape: shapeText};  // take only last shape pro tem
-        this.$http.get('/collecting_events.json', {params: params}).then(response => {
+        AjaxCall('get', '/collecting_events.json', {params: params}).then(response => {
           let foundEvents = response.body;
-          this.$emit('jsonUrl', response.url)
+          this.$emit('jsonUrl', response.request.responseURL)
           if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;

@@ -56,13 +56,12 @@
           klass: (type == 'total' ? undefined : type)
         }
         CreateRowBatchLoad(object).then((response) => {
-          this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+          this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
         })
       },
       removeKeyword(id, type) {
         BatchRemoveKeyword(id, type).then(response => {
-          console.log(response)
-          this.$store.dispatch(ActionNames.GetMatrixObservationRows, this.matrixId)
+          this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
         })
       }
     }

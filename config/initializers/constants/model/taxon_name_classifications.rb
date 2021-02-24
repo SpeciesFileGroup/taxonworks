@@ -20,7 +20,7 @@ ICNP_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnp.descendants
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
 
 # Array of all ICTV TaxonNameClassifications classes, as Strings
-ICTV_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Ictv.descendants.collect { |d| d.to_s }.freeze
+ICTV_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
 
 ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
@@ -47,6 +47,8 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Iczn::Unavailable.descendants,
   TaxonNameClassification::Iczn::Available::Invalid,
   TaxonNameClassification::Iczn::Available::Invalid.descendants,
+  TaxonNameClassification::Iczn::CollectiveGroup,
+  TaxonNameClassification::Iczn::Fossil::Ichnotaxon,
   TaxonNameClassification::Icn::NotEffectivelyPublished,
   TaxonNameClassification::Icn::NotEffectivelyPublished.descendants,
   TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
@@ -59,9 +61,9 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants,
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Illegitimate,
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Illegitimate.descendants,
-  TaxonNameClassification::Ictv::Invalid,
-  TaxonNameClassification::Ictv::Invalid.descendants,
-  TaxonNameClassification::Ictv::Valid::Unaccepted
+  TaxonNameClassification::Icvcn::Invalid,
+  TaxonNameClassification::Icvcn::Invalid.descendants,
+  TaxonNameClassification::Icvcn::Valid::Unaccepted
 ].flatten.map(&:to_s).freeze
 
 TAXON_NAME_CLASS_NAMES_VALID = [
@@ -69,20 +71,21 @@ TAXON_NAME_CLASS_NAMES_VALID = [
   TaxonNameClassification::Iczn::Available::Valid.descendants,
   TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
   TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants,
-  TaxonNameClassification::Ictv::Valid::Accepted,
-  TaxonNameClassification::Ictv::Valid::Accepted.descendants,
+  TaxonNameClassification::Icvcn::Valid::Accepted,
+  TaxonNameClassification::Icvcn::Valid::Accepted.descendants,
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
 
 EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
-    'TaxonNameClassification::Iczn::Unavailable::NotLatin',
-    'TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters',
-    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899',
-    'TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted',
-    'TaxonNameClassification::Iczn::Unavailable::NonBinomial',
-    'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin'
-].freeze
+    TaxonNameClassification::Iczn::Unavailable::NotLatin,
+    TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
+    TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
+    TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
+    TaxonNameClassification::Iczn::Unavailable::NonBinomial,
+    TaxonNameClassification::Iczn::Unavailable::NonBinomial.descendants,
+    TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
+].flatten.map(&:to_s).freeze
 
 
 # JSON supporting
@@ -138,9 +141,9 @@ TAXON_NAME_CLASSIFICATION_JSON = {
       TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Candidatus
     ])
   },
-    ictv: {
-    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Ictv),
-    all: TaxonNameClassificationsHelper::descendants_collection(TaxonNameClassification::Ictv),
+    icvcn: {
+    tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Icvcn),
+    all: TaxonNameClassificationsHelper::descendants_collection(TaxonNameClassification::Icvcn),
     common: TaxonNameClassificationsHelper.collection([
 
     ])

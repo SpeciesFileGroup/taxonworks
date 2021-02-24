@@ -21,6 +21,9 @@ class SledImage < ApplicationRecord
   # Stubs coming from UI
   attr_accessor :collection_object_params # note, tag, deterimination
 
+  # Stubs coming from UI
+  attr_accessor :depiction_params # for is_metadata_depiction
+
   # @param step_identifier [String]
   #  defaults to 'column', used only to compute object identifiers
   attr_accessor :step_identifier_on #row, column
@@ -214,7 +217,8 @@ class SledImage < ApplicationRecord
               svg_clip: svg_clip(i),
               svg_view_box: svg_view_box(i),
               sled_image_x_position: i['column'],
-              sled_image_y_position: i['row']
+              sled_image_y_position: i['row'],
+              is_metadata_depiction: is_metadata_depiction?
             }
           ]
         )
@@ -222,12 +226,14 @@ class SledImage < ApplicationRecord
         j = identifier_for(i)
 
         # Check to see if object exists
-        if j && k = Identifier::Local::CatalogNumber.where(p[:identifiers_attributes].first.merge(identifier: j)).first
+        if j && k = Identifier::Local::CatalogNumber.find_by(p[:identifiers_attributes].first.merge(identifier: j, identifier_object_type: 'CollectionObject'))
           # Remove the identifier attributes, identifier exists
           p.delete :identifiers_attributes
           p.delete :tags_attributes
           p.delete :notes_attributes
           p.delete :taxon_determinations_attributes
+          p.delete :data_attributes_attributes
+          p.delete :total
 
           k.identifier_object.update!(p)
         else
@@ -236,7 +242,6 @@ class SledImage < ApplicationRecord
           if c.identifiers.first
             c.identifiers.first.identifier = identifier_for(i)
           end
-
           c.save!
         end
 
@@ -299,6 +304,17 @@ class SledImage < ApplicationRecord
   def svg_clip(section)
     x, y, h, w = view_box_values(section)
     "<rect x=\"#{x}\" y=\"#{y}\" width=\"#{h}\" height=\"#{w}\" />"
+  end
+
+  private
+
+  def is_metadata_depiction?
+    if depiction_params && !depiction_params.empty?
+      a = depiction_params[:is_metadata_depiction]
+      ((a == 'true') || (a == true)) ? true : false
+    else
+      false
+    end
   end
 
 end

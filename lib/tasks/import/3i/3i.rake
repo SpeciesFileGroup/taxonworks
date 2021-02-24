@@ -2,7 +2,7 @@ require 'fileutils'
 
 ### rake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
 ### rake tw:db:restore backup_directory=/Users/proceps/src/sf/import/3i/pg_dumps/ file=localhost_2018-05-15_200847UTC.dump
-# ./bin/webpack-dev-serverrake tw:project_import:access3i:import_all data_directory=/Users/proceps/src/sf/import/3i/TXT/ no_transaction=true
+# ./bin/webpack-dev-server
 
 # clean dump "localhost_2018-08-06_190510UTC.dump"
 # 3i + odonata dump "localhost_2018-08-14_171558UTC.dump"
@@ -120,7 +120,7 @@ namespace :tw do
 
         @relationship_classes = {
             0 => '', ### valid
-            1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',   #### ::Homotypic or ::Heterotypic
+            1 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',   #### ::Homotypic or ::Heterotypic
             2 => '', ### Original combination
             3 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary',
             4 => 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary', #### or 'Secondary::Secondary1961'
@@ -129,7 +129,7 @@ namespace :tw do
             7 => '', ###common name
             8 => '', ##### 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm', #### combination => Combination
             9 => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnjustifiedEmendation',
+            10 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
             11 => 'TaxonNameRelationship::Iczn::Invalidating', #### misaplication
             12 => '', #### nomen dubium
             13 => 'TaxonNameRelationship::Iczn::Invalidating', #### nomen nudum
@@ -145,7 +145,7 @@ namespace :tw do
             23 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             24 => 'TaxonNameRelationship::Iczn::Invalidating', ### not available
             25 => 'TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction', #### justified emendation
-            26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::SynonymicHomonym',
+            26 => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::SynonymicHomonym',
             27 => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             28 => 'TaxonNameRelationship::Iczn::Invalidating', ### invalid
             29 => 'TaxonNameRelationship::Iczn::Invalidating', ### infrasubspecific
@@ -160,16 +160,16 @@ namespace :tw do
             'subsequent monotypy' => 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy',
             'Incorrect original spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling',
             'Incorrect subsequent spelling' => 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
-            'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic',
-            'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
-            'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
+            'Junior objective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
+            'Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+            'Junior subjective Synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
             'Misidentification' => 'TaxonNameRelationship::Iczn::Invalidating::Misapplication',
             'Nomen nudum: Published as synonym and not validated before 1961' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Homotypic replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic',
-            'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnnecessaryReplacementName',
+            'Homotypic replacement name: Junior subjective synonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+            'Unnecessary replacement name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName',
             'Suppressed name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression',
             'Unavailable name: pre-Linnean' => 'TaxonNameRelationship::Iczn::Invalidating',
-            'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnjustifiedEmendation',
+            'Unjustified emendation' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
             'Homotypic replacement name: Valid Name' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
             'Hybrid' => '',
             'Junior homonym' => 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
@@ -1025,6 +1025,7 @@ namespace :tw do
             end
             unless row['KeyN'].blank?
               row['KeyN'].gsub(' ', '').split(',').each do |kn|
+                # CLASS NAME HAS NOW CHANGED
                 a = ObservationMatrixRowItem::SingleOtu.create(observation_matrix_id: @data.keyn[kn], otu_id: taxon.otus.first.id)
                 byebug if a.id.nil?
               end
@@ -1124,9 +1125,9 @@ namespace :tw do
             if !row['NomenNovumFor'].blank?
               source = row['Key3'].blank? ? nil : @data.publications_index[row['Key3']]
               if row['YearRem'].to_s.include?('unneded n.nov.')
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::UnnecessaryReplacementName')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['NomenNovumFor']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName')
               else
-                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Homotypic::ReplacedHomonym')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: find_taxon_3i(row['NomenNovumFor']), object_taxon_name: taxon, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
               end
               if !source.blank? && !tnr.id.nil?
                 tnr.citations.create(source_id: source, pages: row['Page'], is_original: true)
@@ -1143,7 +1144,7 @@ namespace :tw do
             end
             if homonym_statuses.include?(row['Status']) && row['Rank'] == '0'
               if TaxonNameRelationship.where_subject_is_taxon_name(taxon.id).with_type_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').first.nil?
-                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Heterotypic')
+                tnr = TaxonNameRelationship.create(subject_taxon_name: taxon, object_taxon_name: find_taxon_3i(row['Parent']), type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
                 byebug if !tnr.nil? && tnr.id.nil?
               end
             end

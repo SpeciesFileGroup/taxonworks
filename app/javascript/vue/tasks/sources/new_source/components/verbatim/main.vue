@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
-    <h2>Verbatim</h2>
-    <div class="field"> 
+    <h3>Verbatim</h3>
+    <div class="field">
       <textarea v-model="verbatim">
       </textarea>
     </div>
@@ -15,6 +15,9 @@ import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
   computed: {
+    source () {
+      return this.$store.getters[GetterNames.GetSource]
+    },
     verbatim: {
       get () {
         return this.$store.getters[GetterNames.GetVerbatim]

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Status</h2>
+    <h3>Status</h3>
     <smart-selector
       class="separate-bottom"
       :options="options"
@@ -62,6 +62,7 @@ import TreeDisplay from '../treeDisplay'
 import { GetStatusMetadata } from '../../request/resources.js'
 import Autocomplete from 'components/autocomplete'
 import DisplayList from 'components/displayList.vue'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const OPTIONS = {
   common: 'common',
@@ -86,7 +87,7 @@ export default {
       return OPTIONS
     }
   },
-  data() {
+  data () {
     return {
       options: Object.values(OPTIONS),
       lists: [],
@@ -108,10 +109,17 @@ export default {
       this.$emit('input', newVal.map(status => { return status.type }))
     }
   },
-  mounted() {
+  mounted () {
     GetStatusMetadata().then(response => {
       this.statusList = response.body
       this.merge()
+
+      const params = URLParamsToJSON(location.href)
+      if (params.taxon_name_classification) {
+        params.taxon_name_classification.forEach(classification => {
+          this.addStatus(this.mergeLists.all[classification])
+        })
+      }
     })
   },
   methods: {

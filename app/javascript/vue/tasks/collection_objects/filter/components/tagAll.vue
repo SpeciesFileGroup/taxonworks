@@ -27,6 +27,10 @@ export default {
     ids: {
       type: Array,
       default: () => { return [] }
+    },
+    type: {
+      type: String,
+      required: true
     }
   },
   data () {
@@ -50,8 +54,9 @@ export default {
     },
     tagAll() {
       this.showSpinner = true
-      CreateTags(this.keywordId, this.ids).then(response => {
+      CreateTags(this.keywordId, this.ids, this.type).then(response => {
         this.showSpinner = false
+        TW.workbench.alert.create('Tags was successfully created', 'notice')
       })
     }
   }

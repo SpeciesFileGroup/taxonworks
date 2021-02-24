@@ -16,12 +16,12 @@ module Queries
   class Query
     include Arel::Nodes
 
-    include Queries::Concerns::Identifiers 
+    include Queries::Concerns::Identifiers
 
     # @return [String, nil]
     #   the initial, unparsed value
     attr_accessor :query_string
-    
+
     attr_accessor :terms
     attr_accessor :project_id
 
@@ -62,7 +62,10 @@ module Queries
 
     # @return [Array]
     def terms
-      @terms ||= build_terms
+      if @terms.nil? || (@terms == [] && !@query_string.blank?)
+        @terms = build_terms 
+      end
+      @terms
     end
 
     def no_terms?
@@ -167,6 +170,19 @@ module Queries
     # generic multi-use bits
     #   table is defined in each query, it is the class of instances being returned
 
+    # params attribute [Symbol]
+    #   a facet for use when params include, `author`, and `exact_author` combinations
+    #   See queries/source/filter.rb for example use
+    def attribute_exact_facet(attribute = nil)
+      a = attribute.to_sym
+      return nil if send(a).blank?
+      if send("exact_#{a}".to_sym)
+        table[a].eq(send(a).strip)
+      else
+        table[a].matches('%' + send(a).strip.gsub(/\s+/, '%') + '%')
+      end
+    end
+
     # @return [Scope]
     def parent_child_join
       table.join(parent).on(table[:parent_id].eq(parent[:id])).join_sources # !! join_sources ftw
@@ -225,7 +241,7 @@ module Queries
       end
     end
 
-    # TODO: rename :cached_matches or similar
+    # !!TODO: rename :cached_matches or similar (this is problematic !!)
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
@@ -271,6 +287,12 @@ module Queries
         a = a.or(b)
       end
       a
+    end
+
+    def levenshtein_distance(attribute, value)
+      value = "'" + value.gsub(/'/, "''") + "'"
+      a = ApplicationRecord.sanitize_sql(value)
+      Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
 
     #
@@ -324,6 +346,28 @@ module Queries
     def autocomplete_named
       return nil if no_terms?
       base_query.where(named.to_sql).limit(5)
+    end
+
+    def common_name_table
+      ::CommonName.arel_table
+    end
+
+    def common_name_name
+      common_name_table[:name].eq(query_string)
+    end
+
+    def common_name_wild_pieces
+      common_name_table[:name].matches(wildcard_pieces)
+    end
+
+    def autocomplete_common_name_exact
+      return nil if no_terms?
+      query_base.joins(:common_names).where(common_name_name.to_sql).limit(1)
+    end
+
+    def autocomplete_common_name_like
+      return nil if no_terms?
+      query_base.joins(:common_names).where(common_name_wild_pieces.to_sql).limit(5)
     end
 
   end

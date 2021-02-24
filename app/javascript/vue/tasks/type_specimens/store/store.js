@@ -5,6 +5,8 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
+import Identifier from '../const/identifier'
+
 Vue.use(Vuex)
 
 function makeInitialState () {
@@ -12,7 +14,8 @@ function makeInitialState () {
     settings: {
       loading: false,
       saving: false,
-      materialTab: 'new'
+      materialTab: 'new',
+      saveIdentifier: false
     },
     taxon_name: undefined,
     type_material: {
@@ -37,6 +40,7 @@ function makeInitialState () {
       },
       type_designator_roles: []
     },
+    identifier: Identifier(),
     type_materials: [],
     softValidation: []
   }

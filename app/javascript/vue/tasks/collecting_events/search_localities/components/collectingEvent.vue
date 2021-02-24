@@ -131,6 +131,7 @@
   import lMap from './leafletMap.vue'
   import CsvButton from 'components/csvButton.vue'
   import ListCe from './list.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   const TABS = {
     attribute: 'By attribute',
@@ -311,7 +312,7 @@
       },
       makePromise(params) {
         return new Promise((resolve, reject) => {
-          this.$http.get('/georeferences.json', {params: params}).then(response => {
+          AjaxCall('get', '/georeferences.json', {params: params}).then(response => {
             // put these geometries on the map as features
             let newFeatures = response.body.map(georeference => {
               georeference.geo_json.properties["collecting_event_id"] = georeference.collecting_event_id;
@@ -326,7 +327,7 @@
       },
     },
     mounted: function () {
-      this.$http.get('/collecting_events/select_options').then(response => {
+      AjaxCall('get', '/collecting_events/select_options').then(response => {
         this.tabs = Object.keys(response.body);
         this.list = response.body;
         if (this.tabs.length) {

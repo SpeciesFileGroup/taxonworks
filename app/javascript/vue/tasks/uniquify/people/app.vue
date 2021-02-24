@@ -7,8 +7,16 @@
           <label>
             <input
               type="checkbox"
+              v-model="activeJSONRequest">
+            Show JSON request
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="showSearch">
-            Show search
+            Show filter
           </label>
         </li>
         <li>
@@ -39,69 +47,100 @@
     <spinner
       v-if="isLoading || isSaving"
       :full-screen="true"
-      :legend="isLoading ? 'Loading...' : 'Merging...'"
+      :legend="isLoading ? 'Loading...' : `Merging... ${this.mergeList.length} persons remaining...`"
       :logo-size="{ width: '100px', height: '100px'}"/>
-    <div class="horizontal-left-content">
-      <div class="flexbox">
-        <div
-          v-show="showSearch"
-          class="first-column">
-          <div class="last_name separate-right">
-            <h2>Search</h2>
-            <h3>Last Name</h3>
-            <last-name v-model="lastName"/>
+    <div
+      v-show="activeJSONRequest"
+      class="panel content separate-bottom">
+      <div class="flex-separate middle">
+        <span>
+          JSON Request: {{ urlRequest }}
+        </span>
+      </div>
+    </div>
+    <div class="horizontal-left-content align-start">
+      <div
+        v-if="showSearch"
+        class="panel vue-filter-container">
+        <div class="flex-separate content middle action-line">
+          <span>Filter</span>
+        </div>
+        <div class="content">
+          <div class="field">
+            <button
+              class="button normal-input button-default full_width"
+              @click="findPerson"
+              type="button">Search
+            </button>
+            <button
+              class="button normal-input button-default full_width margin-medium-top"
+              type="button"
+              :disabled="!selectedPerson"
+              @click="getMatchPeople()">
+              Update match people
+            </button>
           </div>
-          <div class="first_name">
-            <h3>First Name</h3>
-            <first-name
-              v-model="firstName"/>
-          </div>
-          <div class="role_types">
-            <h3>Roles</h3>
+          <in-project v-model="params.base.used_in_project_id"/>
+          <h3>Person</h3>
+          <name-field
+            title="Name"
+            param="name"
+            v-model="params.base"/>
+          <name-field
+            title="Last name"
+            param="last_name"
+            :disabled="levenshteinCuttoff > 0"
+            v-model="params.base"/>
+          <name-field
+            title="First name"
+            param="first_name"
+            :disabled="levenshteinCuttoff > 0"
+            v-model="params.base"/>
+          <active-filter v-model="params.active"/>
+          <born-filter v-model="params.born"/>
+          <died-filter v-model="params.died"/>
+          <levenshtein-cuttoff v-model="params.base.levenshtein_cuttoff"/>
+          <div class="field">
+            <label>Roles</label>
             <role-types
-              v-model="selectedRoles"/>
+              v-model="params.base.role"/>
           </div>
-          <br>
-          <br>
-          <br>
-          <button
-            class="button normal-input button-default"
-            @click="findPerson"
-            :disabled="!enableFindPerson"
-            type="submit">Find Person
-          </button>
+          <keywords-component v-model="params.base.keywords" />
+          <users-component v-model="params.user"/>
         </div>
-        <div
-          v-show="showFound"
-          class="found_people separate-right separate-left second-column">
-          <h2>Select person</h2>
-          <found-people
-            ref="foundPeople"
-            v-model="selectedPerson"
-            @addToList="foundPeople.push($event)"
-            :found-people="foundPeople"
-            :display-count="displayCount"
-          />
-        </div>
-        <div
-          v-show="showMatch"
-          class="match_people separate-right separate-left" >
-          <h2>Match people</h2>
-          <match-people
-            ref="matchPeople"
-            v-model="mergePerson"
-            :selected-person="selectedPerson"
-            @matchPeople="matchPeople = $event"
-          />
-        </div>
-        <div 
-          class="flex-separate top">
-          <div>
-            <compare-component
-              @flip="flipPerson"
-              @merge="mergePeople"
-              :selected="selectedPerson"
-              :merge="mergePerson"/>
+      </div>
+      <div class="full_width">
+        <div class="horizontal-left-content align-start">
+          <div class="margin-medium-right margin-medium-left">
+            <div v-show="showFound">
+              <found-people
+                ref="foundPeople"
+                v-model="selectedPerson"
+                @expand="expandPeople = $event"
+                @addToList="foundPeople.push($event)"
+                :expanded="expandPeople"
+                :found-people="foundPeople"
+                :display-count="displayCount"
+              />
+            </div>
+            <div v-show="showMatch">
+              <match-people
+                @addToList="matchPeople.push($event)"
+                v-model="mergeList"
+                :match-people="matchPeople"
+                :selected-person="selectedPerson"
+              />
+            </div>
+          </div>
+          <div
+            class="flex-separate top">
+            <div>
+              <compare-component
+                @flip="flipPerson"
+                @merge="mergePeople"
+                :selected="selectedPerson"
+                :merge-list="mergeList"/>
+            </div>
           </div>
         </div>
       </div>
@@ -110,162 +149,228 @@
 </template>
 
 <script>
-// TODO:  Revise queries to bias toward last name
-//        Add alternate values for names
-  import LastName from './components/last_name'
-  import FirstName from './components/first_name'
-  import RoleTypes from './components/role_types'
-  import FoundPeople from './components/found_people'
-  import MatchPeople from './components/match_people'
-  import CompareComponent from './components/compare.vue'
 
-  import Spinner from '../../../components/spinner.vue'
+import ActiveFilter from './components/filters/active.vue'
+import BornFilter from './components/filters/born.vue'
+import DiedFilter from './components/filters/died.vue'
+import RoleTypes from './components/role_types'
+import FoundPeople from './components/found_people'
+import MatchPeople from './components/match_people'
+import CompareComponent from './components/compare.vue'
+import Spinner from 'components/spinner.vue'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
+import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
+import NameField from './components/filters/nameField.vue'
+import InProject from './components/filters/inProject.vue'
 
-  export default {
-    components: {
-      LastName,
-      FirstName,
-      RoleTypes,
-      FoundPeople,
-      MatchPeople,
-      CompareComponent,
-      Spinner
-    },
-    computed: {
-      enableFindPerson() {
-        return ((this.lastName.length > 0) || (this.firstName.length > 0))
-      },
-    },
-    data() {
-      return {
-        lastName: '',
-        firstName: '',
-        selectedRoles: {},
-        isLoading: false,
-        isSaving: false,
-        foundPeople: [],
-        selectedPerson: {},
-        matchPeople: [],
-        mergePerson: {},
-        displayCount: false,
-        haltWatcher: false,
-        showMatch: true,
-        showFound: true,
-        showSearch: true
+import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
+
+export default {
+  components: {
+    ActiveFilter,
+    BornFilter,
+    DiedFilter,
+    InProject,
+    RoleTypes,
+    FoundPeople,
+    MatchPeople,
+    CompareComponent,
+    UsersComponent,
+    KeywordsComponent,
+    LevenshteinCuttoff,
+    NameField,
+    Spinner
+  },
+  computed: {
+    levenshteinCuttoff () {
+      return this.params.base.levenshtein_cuttoff
+    }
+  },
+  data () {
+    return {
+      activeJSONRequest: false,
+      urlRequest: undefined,
+      expandPeople: true,
+      isLoading: false,
+      isSaving: false,
+      foundPeople: [],
+      selectedPerson: undefined,
+      matchPeople: [],
+      mergeList: [],
+      mergePerson: {},
+      displayCount: false,
+      haltWatcher: false,
+      showMatch: true,
+      showFound: true,
+      showSearch: true,
+      params: this.initParams()
+    }
+  },
+  watch: {
+    levenshteinCuttoff (newVal) {
+      if (newVal !== 0) {
+        this.params.base.first_name = undefined
+        this.params.base.last_name = undefined
       }
     },
-    watch: {
-      selectedPerson() {
-        if(this.haltWatcher) {
-          this.haltWatcher = false
-        }
-        else {
-          this.mergePerson = {};
-          this.isLoading = true;
-        }
-      },
-      matchPeople() {
-        if(this.haltWatcher) {
-          this.haltWatcher = false
-        }
-        else {
-        this.isLoading = false;
-        }
-      }
-    },
-    methods: {
-      flipPerson() {
-        this.haltWatcher = true
-        let tmp = this.selectedPerson
-        this.selectedPerson = this.mergePerson
-        this.mergePerson = tmp
-      },
-      findPerson() {
-        let params = {
-          last_name_starts_with: this.lastName,
-          first_name: this.firstName,
-          per: 100,
-          roles: Object.keys(this.selectedRoles)
-        }
-
-        if(!params.first_name.length) {
-          delete params.first_name
-        }
-        
-        this.isLoading = true;
-        this.clearFoundData();
-        this.displayCount = true;
-        let that = this;
-        this.$http.get('/people.json', {params: params}).then(response => {
-          this.foundPeople = response.body;
-          that.isLoading = false
-        })
-      },
-      getPerson(id) {
-        this.isLoading = true
-        this.$http.get(`/people/${id}.json`,).then(response => {
-          this.foundPeople = [response.body]
-          this.selectedPerson = response.body
-          this.isLoading = false
-        })
-      },
-      mergePeople() {
-        let params = {
-          person_to_destroy: this.mergePerson.id // this.selectedPerson.id
-        };
-        this.isSaving = true
-        this.$http.post('/people/' + this.selectedPerson.id.toString() + '/merge', params).then(response => {
-          this.$refs.matchPeople.removeFromList(this.mergePerson.id)    // remove the merge person from the matchPerson list
-          this.$refs.foundPeople.removeFromList(this.mergePerson.id)   // remove the merge person from the foundPerson list
-          this.mergePerson = {};
-          this.selectedPerson = response.body
-          this.isSaving = false
-        })
-      },
-      resetApp() {
-        this.clearSearchData();
-        this.clearMatchData();
-      },
-      clearSearchData() {
-        this.lastName = '';
-        this.firstName = '';
-        this.selectedRoles = {};
-        this.clearFoundData();
-      },
-      clearFoundData() {
-        this.displayCount = false;
-        this.selectedPerson = {};
-        this.foundPeople = [];
-        this.$refs.foundPeople.clearSelectedPerson()
-      },
-      clearMatchData() {
-        this.foundPeople = [];
-        this.selectedPerson = {};
-        this.matchPeople = [];
-        this.mergePerson = {};
-      },
-    },
-    mounted: function() {   // accepts only last_name param in links from other pages
-      let urlParams = new URLSearchParams(window.location.search)
-      let lastName = urlParams.get('last_name')
-      let personId = urlParams.get('person_id')
-
-      if (/^\d+$/.test(personId)) {
-        this.getPerson(personId)
-      }
-      else if (lastName) {
-        this.lastName = lastName
-        this.findPerson()
+    selectedPerson (newVal) {
+      if (newVal) {
+        this.getMatchPeople({ name: newVal.cached, levenshtein_cuttoff: 3 })
       }
     }
+  },
+  methods: {
+    filterEmptyParams (object) {
+      const keys = Object.keys(object)
+      keys.forEach(key => {
+        if (object[key] === '' || object[key] === undefined || (Array.isArray(object[key]) && !object[key].length)) {
+          delete object[key]
+        }
+      })
+      return object
+    },
+    initParams () {
+      return {
+        settings: {
+          per: 100
+        },
+        base: {
+          levenshtein_cuttoff: undefined,
+          last_name: '',
+          first_name: '',
+          role: [],
+          person_wildcard: [],
+          used_in_project_id: []
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
+        },
+        active: {
+          active_before_year: undefined,
+          active_after_year: undefined
+        },
+        born: {
+          born_before_year: undefined,
+          born_after_year: undefined
+        },
+        died: {
+          died_before_year: undefined,
+          died_after_year: undefined
+        },
+        user: {
+          user_id: undefined,
+          user_target: undefined,
+          user_date_start: undefined,
+          user_date_end: undefined
+        }
+      }
+    },
+    flipPerson (personIndex) {
+      this.haltWatcher = true
+      const tmp = this.selectedPerson
+      this.selectedPerson = this.mergeList[personIndex]
+      this.$set(this.mergeList, personIndex, tmp)
+    },
+    findPerson (event) {
+      event.preventDefault()
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.keywords, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+
+      this.clearFoundData()
+
+      this.isLoading = true
+      this.clearFoundData()
+      this.displayCount = true
+      this.expandPeople = true
+
+      GetPeopleList(params).then(response => {
+        this.foundPeople = response.body
+        this.urlRequest = response.request.responseURL
+        this.isLoading = false
+      })
+    },
+    getPerson (id) {
+      this.isLoading = true
+      GetPeople(id).then(response => {
+        this.foundPeople = [response.body]
+        this.selectedPerson = response.body
+        this.isLoading = false
+      })
+    },
+    mergePeople () {
+      this.processMerge(this.mergeList)
+    },
+    processMerge (mergeList) {
+      const mergePerson = mergeList.pop()
+      this.isSaving = true
+      const params = {
+        person_to_destroy: mergePerson.id
+      }
+      PersonMerge(this.selectedPerson.id, params).then(({ body }) => {
+        const personIndex = this.foundPeople.findIndex(person => person.id === this.selectedPerson.id)
+
+        this.selectedPerson = body
+        this.foundPeople = this.foundPeople.filter(people => mergePerson.id !== people.id)
+        this.matchPeople = this.matchPeople.filter(people => mergePerson.id !== people.id)
+
+        if (personIndex > -1) {
+          this.$set(this.foundPeople, personIndex, this.selectedPerson)
+        }
+        if (mergeList.length) {
+          this.processMerge(mergeList)
+        } else {
+          this.isSaving = false
+        }
+      })
+    },
+    resetApp () {
+      this.clearSearchData()
+      this.clearMatchData()
+    },
+    clearSearchData () {
+      this.params = this.initParams()
+      this.clearFoundData()
+    },
+    clearFoundData () {
+      this.displayCount = false
+      this.expandPeople = true
+      this.selectedPerson = undefined
+      this.foundPeople = []
+      this.matchPeople = []
+      this.mergeList = []
+    },
+    clearMatchData () {
+      this.foundPeople = []
+      this.selectedPerson = undefined
+      this.matchPeople = []
+      this.mergeList = []
+    },
+    getMatchPeople (params) {
+      const data = params || this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+      this.mergeList = []
+      GetPeopleList(data).then(response => {
+        this.matchPeople = response.body
+      })
+    }
+  },
+  mounted () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const lastName = urlParams.get('last_name')
+    const personId = urlParams.get('person_id')
+
+    if (/^\d+$/.test(personId)) {
+      this.getPerson(personId)
+    } else if (lastName) {
+      this.params.base.last_name = lastName
+      this.findPerson()
+    }
   }
+}
 </script>
 
 <style lang="scss">
 #vue-people-uniquify {
-  .first-column, .second-column {
-    width: 200px;
-  }
   .merge-column {
     width: 150px;
   }

@@ -121,6 +121,6 @@ class TaxonDeterminationsController < ApplicationController
     end
 
     def filter_params
-      params.permit(:collection_object_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
+      params.permit(:collection_object_id, :otu_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
     end
 end

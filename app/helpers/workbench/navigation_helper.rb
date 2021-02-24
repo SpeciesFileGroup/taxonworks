@@ -1,6 +1,12 @@
-# Methods for 1) generating paths; or 2) generating links.
+# Methods for 1) generating paths; or 2) generating links
+# For helper methods that return individual instances based on some parameters see corresponding
+# helpers.
 module Workbench::NavigationHelper
-  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag Citation Identifier DataAttribute AlternateValue GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+  
+  NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag
+  Citation Identifier DataAttribute AlternateValue
+  GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
   # Slideout panels
@@ -136,6 +142,10 @@ module Workbench::NavigationHelper
     send(edit_object_path_string(object), object)
   end
 
+  # Determine wether an edit or destroy route exists
+  # Custom routes can be added per Class by adding
+  # a corresponding `_string` postfixed method.
+  # @return String
   def edit_object_path_string(object)
     default  = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
     specific = default + '_string'
@@ -148,28 +158,17 @@ module Workbench::NavigationHelper
 
   # return [Boolean]
   #   true if there is a route to edit for the object (some objects are not editable, like Tags)
-  def is_editable?(object)
+  def has_route_for_edit?(object)
     self.respond_to?(edit_object_path_string(object))
   end
 
   # return [Boolean]
-  #  true if the current user has permissions to edit the object in question (does not test whether it is actually editable)
-  def user_can_edit?(object)
-    #  sessions_current_user.is_administrator? || user_is_creator?(object)
-    # TODO review
-    true
-  end
-
-  # return [Boolean]
-  #  true if the current user created this object
-  def user_is_creator?(object)
-    object.created_by_id == sessions_current_user_id
-  end
+  #   true if there is a route to edit for the object (some objects are not editable, like Tags)
 
   # return [A tag, nil]
   #   a link, or disabled link
   def edit_object_link(object)
-    if is_editable?(object) && user_can_edit?(object)
+    if has_route_for_edit?(object) && object.is_editable?(sessions_current_user)
       link_to(content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), edit_object_path(metamorphosize_if(object)), class: 'navigation-item')
     else
       content_tag(:div, content_tag(:span, 'Edit', 'data-icon' => 'edit', class: 'small-icon'), class: 'navigation-item disable')
@@ -177,10 +176,10 @@ module Workbench::NavigationHelper
   end
 
   def destroy_object_link(object)
-    if (!sessions_current_user.is_administrator?) && (@is_shared_data_model)
-      content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
+    if object.is_destroyable?(sessions_current_user)
+      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')     
     else
-      link_to(content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), object.metamorphosize, method: :delete, data: {confirm: 'Are you sure?'}, class: 'navigation-item')
+      content_tag(:div, content_tag(:span, 'Destroy', 'data-icon' => 'trash', class: 'small-icon'), class: 'navigation-item disable')
     end
   end
 
@@ -224,12 +223,8 @@ module Workbench::NavigationHelper
     content_tag(:li, link_to('Related data', send(p, object))) if controller.respond_to?(p)
   end
 
-  def a_to_z_range
-    ('A'..'Z')
-  end
-
   def a_to_z_links(targets = [])
-    letters = targets.empty? ? a_to_z_range : a_to_z_range.to_a & targets
+    letters = targets.empty? ? ('A'..'Z') : ('A'..'Z').to_a & targets
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
       content_tag(:ul, class: 'left_justified_navbar context-menu') do
         letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe

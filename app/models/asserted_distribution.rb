@@ -24,11 +24,11 @@ class AssertedDistribution < ApplicationRecord
   include Housekeeping
   include Shared::Notes
   include SoftValidation
-  include Shared::IsData
   include Shared::Tags
   include Shared::DataAttributes
   include Shared::Citations
   include Shared::Confidences
+  include Shared::IsData
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
@@ -46,7 +46,7 @@ class AssertedDistribution < ApplicationRecord
   validates :geographic_area, presence: true
   validates :otu, presence: true
 
-  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id], message: 'record for this geographic_area/otu combination already exists'
+  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
 
   validate :new_records_include_citation
 
@@ -139,9 +139,10 @@ class AssertedDistribution < ApplicationRecord
     result = []
     options[:geographic_areas].each do |ga|
       result.push(
-        AssertedDistribution.new(otu_id:                     options[:otu_id],
-                                 geographic_area:            ga,
-                                 origin_citation_attributes: {source_id: options[:source_id]})
+        AssertedDistribution.new(
+          otu_id: options[:otu_id],
+          geographic_area: ga,
+          origin_citation_attributes: {source_id: options[:source_id]})
       )
     end
     result

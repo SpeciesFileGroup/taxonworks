@@ -87,7 +87,7 @@ class Loan < ApplicationRecord
 
   after_initialize :clone_attributes, if: Proc.new{|l| l.clone_from.present? && l.new_record? }
 
-  has_many :loan_items, dependent: :restrict_with_error
+  has_many :loan_items, dependent: :restrict_with_error, inverse_of: :loan
 
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
   has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object
@@ -95,7 +95,7 @@ class Loan < ApplicationRecord
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
-  # THis is not defined in HasRoles
+  # This is not defined in HasRoles
   has_many :people, through: :roles
 
   not_super = lambda {!supervisor_email.blank?}
@@ -166,41 +166,40 @@ class Loan < ApplicationRecord
 
   # @return [Scope]
   #   the max 10 most recently used loans 
-  def self.used_recently
+  def self.used_recently(project_id)
     t = LoanItem.arel_table
     k = Loan.arel_table 
 
     # i is a select manager
     i = t.project(t['loan_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 3.weeks.ago ))
-      .order(t['created_at'])
-      .take(10)
-      .distinct
+      .where(t['project_id'].eq(project_id))
+      .order(t['created_at'].desc)
 
     # z is a table alias 
     z = i.as('recent_t')
 
     Loan.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['loan_id'].eq(k['id'])))
-    )
+    ).pluck(:loan_id).uniq
   end
 
   def self.select_optimized(user_id, project_id)
+    r = used_recently(project_id)
     h = {
-      recent: (
-        Loan.where(project_id: project_id, created_by_id: user_id, created_at: 1.day.ago..Time.now)
-        .limit(5)
-        .order(:created_at).to_a +
-      Loan.joins(:loan_items)
-        .where(project_id: project_id) # !! do not scope to person, multiple people might work on same loan?
-        .used_recently.limit(5)
-        .distinct
-      ).uniq, 
-
-      pinboard: Loan.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: Loan.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    if r.empty?
+      h[:quick] = Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = Loan.where(id: r.first(10)).to_a
+      h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          Loan.where(id: r.first(4)).to_a).uniq
+    end
+
     h
   end
 

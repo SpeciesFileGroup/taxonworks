@@ -14,6 +14,7 @@
           <th> </th> 
           <th> </th> 
           <th> </th> 
+          <th> </th>
         </tr>
       </thead>
       <tbody>
@@ -24,7 +25,11 @@
           <td> <%= om.observation_matrix_columns.count -%> </td> 
           <td> <%= link_to('View', observation_matrix_view_task_path(observation_matrix_id: om.id)) -%> </td> 
           <td> <%= link_to('Edit', new_matrix_task_path(observation_matrix_id: om.id)) -%> </td>
-          <td> <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%> </td>
+          <td>
+            <%= link_to('Image matrix', index_matrix_image_task_path(observation_matrix_id: om.id)) if om.is_media_matrix? -%>
+            <%= link_to('Interactive key', interactive_key_task_path(observation_matrix_id: om.id)) unless om.is_media_matrix? -%>
+          </td>
+          <td> <%= pin_item_to_pinboard_link(om, sessions_current_user) -%></td>
         <% end %>
       <% end %>
       </tbody>

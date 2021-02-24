@@ -16,6 +16,14 @@ class Catalog::EntryItem
   # See also citation_date
   attr_accessor :nomenclature_date
 
+  # @return [String]
+  # Source.year_suffix
+  attr_accessor :year_suffix
+
+  # @return [String]
+  # Source.pages
+  attr_accessor :pages
+
   # @return [Symbol]
   #   a pointer to a method in /app/helpers 
   attr_accessor :to_html_method
@@ -36,11 +44,13 @@ class Catalog::EntryItem
   attr_accessor :matches_current_target
 
   # @param [Hash] args
-  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, current_target: nil)
+  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, year_suffix: nil, pages: nil, citation_date: nil, current_target: nil)
     raise if object.nil?
     @object = object
     @base_object = base_object 
     @nomenclature_date = nomenclature_date
+    @year_suffix = citation.try(:source).try(:year_suffix)
+    @pages =  citation.try(:source).try(:pages)
     @citation = citation
     @matches_current_target = current_target
   end

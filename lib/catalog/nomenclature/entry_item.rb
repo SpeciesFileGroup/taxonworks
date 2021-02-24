@@ -1,6 +1,6 @@
 class Catalog::Nomenclature::EntryItem < ::Catalog::EntryItem
 
-  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, citation_date: nil, current_target: nil)
+  def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, year_suffix: nil, pages: nil, citation_date: nil, current_target: nil)
     @matches_current_target = current_target
     super
   end

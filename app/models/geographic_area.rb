@@ -408,56 +408,66 @@ class GeographicArea < ApplicationRecord
   # @param used_on [String] one of `CollectingEvent` (default) or `AssertedDistribution`
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) geographic_areas, as used `use_on`
-  def self.used_recently(used_on = 'CollectingEvent')
+  def self.used_recently(user_id, project_id, used_on = 'CollectingEvent')
 
-    t = case used_on
-          when 'CollectingEvent'
-            CollectingEvent.arel_table
-          when 'AssertedDistribution'
-            AssertedDistribution.arel_table
-        end
+    case used_on
+        when 'CollectingEvent'
+          t = CollectingEvent.arel_table
+          # i is a select manager
+          i = t.project(t['geographic_area_id'], t['created_at']).from(t)
+                  .where(t['created_at'].gt(1.weeks.ago))
+                  .where(t['created_by_id'].eq(user_id))
+                  .where(t['project_id'].eq(project_id))
+                  .order(t['created_at'].desc)
 
-    p = GeographicArea.arel_table
+          # z is a table alias
+          z = i.as('recent_t')
+          p = GeographicArea.arel_table
+          GeographicArea.joins(
+              Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
+          ).pluck(:geographic_area_id).uniq
+        when 'AssertedDistribution'
+          t = Citation.arel_table
+          # i is a select manager
+          i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
+                  .where(t['created_at'].gt(1.weeks.ago))
+                  .where(t['created_by_id'].eq(user_id))
+                  .where(t['project_id'].eq(project_id))
+                  .order(t['created_at'].desc)
 
-    # i is a select manager
-    i = t.project(t['geographic_area_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .order(t['created_at'])
-      .take(10)
-      .distinct
+          # z is a table alias
+          z = i.as('recent_t')
+          p = AssertedDistribution.arel_table
 
-    # z is a table alias
-    z = i.as('recent_t')
-
-    GeographicArea.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['geographic_area_id'].eq(p['id'])))
-    )
+           ad = AssertedDistribution.joins(
+              Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+              ).pluck(:geographic_area_id).uniq
+    end
   end
 
   # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
+    r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      recent: []
     }
 
-    case target
-    when 'CollectingEvent'
-      h[:recent] = GeographicArea.joins(:collecting_events).where(collecting_events: {project_id: project_id, updated_by_id: user_id}).
-        used_recently('CollectingEvent').
-        limit(10).distinct.to_a
-    when 'AssertedDistribution'
-      h[:recent] = GeographicArea.joins(:asserted_distributions).
-        where(asserted_distributions: {project_id: project_id, updated_by_id: user_id}).
-        used_recently('AssertedDistribution').
-        limit(10).distinct.to_a
+    if r.empty?
+      h[:quick] = GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+    else
+      case target
+        when 'CollectingEvent'
+          h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
+        when 'AssertedDistribution'
+          h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
+      end
+      h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+          GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
 
-    h[:recent] ||= []
-
-    # TODO: stupid, loop the array from above
-    h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
     h
   end
 

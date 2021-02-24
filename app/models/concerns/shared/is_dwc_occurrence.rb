@@ -63,6 +63,7 @@ module Shared::IsDwcOccurrence
   # @return [DwcOccurrence]
   #   does not rebuild if exists
   def get_dwc_occurrence
+    # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?
       dwc_occurrence
     else

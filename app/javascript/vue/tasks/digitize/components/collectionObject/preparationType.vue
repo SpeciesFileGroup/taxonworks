@@ -64,7 +64,12 @@
     },
     mounted() {
       GetPreparationTypes().then(response => {
-        this.coTypes = response
+        this.coTypes = response.body
+        this.coTypes.unshift(
+          {
+            id: null,
+            name: 'None'
+          })
       })
     }
   }

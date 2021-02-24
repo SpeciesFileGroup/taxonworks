@@ -56,7 +56,7 @@ class Namespace < ApplicationRecord
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
-  scope :used_recently, -> { joins(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ) }
+  scope :used_recently, -> { joins(:identifiers).includes(:identifiers).where(identifiers: { created_at: 1.weeks.ago..Time.now } ).order('"identifiers"."created_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:identifiers).where( identifiers: { project_id: project_id } ) }
 
   def self.select_optimized(user_id, project_id, klass)
@@ -66,7 +66,7 @@ class Namespace < ApplicationRecord
         .where(identifiers: {updated_by_id: user_id})
         .used_in_project(project_id)
         .used_recently
-        .limit(6).distinct.to_a + 
+        .distinct.limit(6).to_a +
       Namespace.where(created_by_id: user_id, created_at: (3.hours.ago..Time.now)).limit(5)).uniq,
       pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).to_a
     }

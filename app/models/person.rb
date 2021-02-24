@@ -55,6 +55,7 @@ class Person < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
+  include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
   include Shared::IsData
@@ -83,6 +84,7 @@ class Person < ApplicationRecord
   validate :not_active_after_death
   validate :not_active_before_birth
   validate :not_gandalf
+  validate :not_balrog
 
   before_validation :namecase_names, unless: Proc.new {|n| n.no_namecase }
 
@@ -105,7 +107,7 @@ class Person < ApplicationRecord
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', dependent: :restrict_with_error, inverse_of: :person
   has_many :georeferencer_roles, class_name: 'Georeferencer', dependent: :restrict_with_error, inverse_of: :person
 
-  # has_many :sources, through: :roles # TODO: test and confirm dependent
+  has_many :sources, through: :roles, source: :role_object, source_type: 'Source' # Editor or Author or Person
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors
@@ -171,11 +173,15 @@ class Person < ApplicationRecord
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
+  #   
+  # No person is destroyed, see `hard_merge`.  self is intended to be kept.
+  # 
   # r_person is merged into l_person (self)
   #
   def merge_with(person_id)
     return false if person_id == id
-    if r_person = Person.find(person_id) # get the person to merge to this person
+
+    if r_person = Person.find(person_id) # get the person to merge to into self
       begin
         ApplicationRecord.transaction do
           # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
@@ -202,7 +208,7 @@ class Person < ApplicationRecord
                 av_list.each do |av|
                   if av.value == r_person.first_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
-                      av.alternate_value_object_attribute == 'first_name' # &&
+                        av.alternate_value_object_attribute == 'first_name' # &&
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
                     end
@@ -431,48 +437,54 @@ class Person < ApplicationRecord
   # @param role_type [String] one of the Role types
   # @return [Scope]
   #    the max 10 most recently used (1 week, could parameterize) people 
-  def self.used_recently(role_type = 'SourceAuthor')
+  def self.used_recently(user_id, role_type = 'SourceAuthor')
     t = Role.arel_table
     p = Person.arel_table
 
     # i is a select manager
-    i = t.project(t['person_id'], t['created_at']).from(t)
+    i = t.project(t['person_id'], t['type'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
+      .where(t['created_by_id'].eq(user_id))
       .where(t['type'].eq(role_type))
-      .order(t['created_at'])
-      .take(10)
-      .distinct
+      .order(t['created_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')
 
     Person.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
-    )
+    ).pluck(:person_id).uniq
   end
 
   # @params Role [String] one the available roles
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
+#    role_params = { updated_by_id: user_id }
 
-#    byebug if role_type == 'Determiner'
+#    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
+#      role_params[:project_id] = project_id
+#    end
 
+    r = used_recently(user_id, role_type)
     h = {
-      quick: [],
-      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a
+        quick: [],
+        pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+        recent: []
     }
 
-    role_params = { updated_by_id: user_id }
-
-    unless %w{SourceAuthor SourceEditor SourceSource}.include?(role_type)
-      role_params[:project_id] = project_id
+    if r.empty?
+      h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+    else
+      h[:recent] = Person.where('"people"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+          Person.where('"people"."id" IN (?)', r.first(4) ).to_a).uniq
     end
+#    h[:recent] =
+#    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
+#     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
 
-    h[:recent] = (
-      Person.joins(:roles).where(roles: role_params).used_recently(role_type).limit(10).distinct.to_a +
-      Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
-
-    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a + h[:recent][0..3]).uniq
+#    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+#        h[:recent][0..3]).uniq
     h
   end
 
@@ -504,9 +516,14 @@ class Person < ApplicationRecord
   end
 
   # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
-  # @return [Ignored]
   def not_gandalf
     errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 119
+  end
+
+
+  # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
+  def not_balrog
+    errors.add(:base, 'nobody is that active') if year_active_start && year_active_end && (year_active_end - year_active_start > 119)
   end
 
   # TODO: deprecate this, always set explicitly
@@ -520,12 +537,6 @@ class Person < ApplicationRecord
     update_column(:cached, bibtex_name)
     set_role_object_cached
   end
-
-  # def set_cached_for_related(role)
-  #   byebug
-  #   role.check_for_last
-  #   set_role_object_cached
-  # end
 
   # @return [Ignored]
   def set_role_object_cached

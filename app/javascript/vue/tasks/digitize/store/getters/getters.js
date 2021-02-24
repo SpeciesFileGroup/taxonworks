@@ -27,6 +27,7 @@ import getTmpData from './getTmpData'
 import getCollectingEventIdentifier from './getCollectingEventIdentifier'
 import getGeographicArea from './getGeographicArea'
 import getProjectPreferences from './getProjectPreferences'
+import getLastSave from './getLastSave'
 
 const GetterNames = {
   IsSaving: 'isSaving',
@@ -57,7 +58,8 @@ const GetterNames = {
   GetNamespaceSelected: 'getNamespaceSelected',
   GetSubsequentialUses: 'getSubsequentialUses',
   GetTmpData: 'getTmpData',
-  GetProjectPreferences: 'getProjectPreferences'
+  GetProjectPreferences: 'getProjectPreferences',
+  GetLastSave: 'getLastSave'
 }
 
 const GetterFunctions = {
@@ -89,7 +91,8 @@ const GetterFunctions = {
   [GetterNames.GetNamespaceSelected]: getNamespaceSelected,
   [GetterNames.GetSubsequentialUses]: getSubsequentialUses,
   [GetterNames.GetTmpData]: getTmpData,
-  [GetterNames.GetProjectPreferences]: getProjectPreferences
+  [GetterNames.GetProjectPreferences]: getProjectPreferences,
+  [GetterNames.GetLastSave]: getLastSave
 }
 
 export {

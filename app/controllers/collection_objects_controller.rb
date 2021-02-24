@@ -3,7 +3,8 @@ class CollectionObjectsController < ApplicationController
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :containerize,
-    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications]
+    :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
+    :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
@@ -23,9 +24,14 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
+  # GET /collection_objects/1
+  # GET /collection_objects/1.json
+  def show
+  end
+
   def biocuration_classifications
     @biocuration_classifications = @collection_object.biocuration_classifications
-   render '/biocuration_classifications/index' 
+   render '/biocuration_classifications/index'
   end
 
   # DEPRECATED
@@ -38,8 +44,8 @@ class CollectionObjectsController < ApplicationController
   # Render DWC fields *only*
   def dwc_index
     objects = filtered_collection_objects.includes(:dwc_occurrence).all
-    assign_pagination(objects) 
-      
+    assign_pagination(objects)
+
     @objects = objects.pluck( ::CollectionObject.dwc_attribute_vector  )
     @klass = ::CollectionObject
     render '/dwc_occurrences/dwc_index'
@@ -52,9 +58,9 @@ class CollectionObjectsController < ApplicationController
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
         # get does not rebuild
-        o.set_dwc_occurrence 
+        o.set_dwc_occurrence
       else
-        o.get_dwc_occurrence 
+        o.get_dwc_occurrence
       end
     end
     render json: o.dwc_occurrence_attribute_values
@@ -68,23 +74,23 @@ class CollectionObjectsController < ApplicationController
 
       if params[:rebuild] == 'true'
         # get does not rebuild
-        o.set_dwc_occurrence 
+        o.set_dwc_occurrence
       else
-        o.get_dwc_occurrence 
+        o.get_dwc_occurrence
       end
     end
     render json: o.dwc_occurrence_attributes
   end
 
   # Intent is DWC fields + quick summary fields for reports
-  # !! As currently implemented rebuilds DWC all 
+  # !! As currently implemented rebuilds DWC all
   def report
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
-  # GET /collection_objects/1
-  # GET /collection_objects/1.json
-  def show
+  # /collection_objects/preview?<filter params>
+  def preview
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
   # GET /collection_objects/depictions/1
@@ -109,6 +115,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/by_identifier/ABCD
+  # TODO: remove for filter
   def by_identifier
     @identifier = params.require(:identifier)
     @request_project_id = sessions_current_project_id
@@ -293,6 +300,40 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
+  def autocomplete
+    @collection_objects = Queries::CollectionObject::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id
+    ).autocomplete
+  end
+
+  # GET /api/v1/collection_objects
+  def api_index
+    @collection_objects = Queries::CollectionObject::Filter.new(api_params).all.where(project_id: sessions_current_project_id)
+      .order('collection_objects.id')
+      .page(params[:page]).per(params[:per])
+    render '/collection_objects/api/v1/index'
+  end
+
+  # GET /api/v1/collection_objects/:id
+  def api_show
+    render '/collection_objects/api/v1/show'
+  end
+
+  def api_autocomplete
+    render json: {} and return if params[:term].blank?
+    @collection_objects = Queries::CollectionObject::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    render '/collection_objects/api/v1/autocomplete'
+  end
+
+  # GET /collection_objects/api/v1/123/dwc
+  def api_dwc
+    ActiveRecord::Base.connection_pool.with_connection do
+      @collection_object.get_dwc_occurrence
+      render json: @collection_object.dwc_occurrence_attributes
+    end
+  end
+
   private
 
   def destroy_redirect
@@ -329,7 +370,19 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [
+        :id,
+        :_destroy,
+        :identifier,
+        :namespace_id,
+        :type,
+        labels_attributes: [
+          :text,
+          :type,
+          :text_method,
+          :total
+        ]
+      ]
     )
   end
 
@@ -356,51 +409,111 @@ class CollectionObjectsController < ApplicationController
     a = params.permit(
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :ancestor_id,
       :collection_object_type,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :geo_json,
-      :wkt,
-      :radius,
-      :start_date,
-      :end_date,
-      :partial_overlap_dates,
-      :ancestor_id, 
       :current_determinations,
-      :validity,
-      :user_id,
-      :user_target,
-      :user_date_start,
-      :user_date_end,
+      :depicted,
+      :end_date,
+      :geo_json,
       :identifier,
-      :identifier_start,
       :identifier_end,
       :identifier_exact,
-      :namespace_id,
-      :sled_image_id,
-      :depicted,
-      :never_loaned,
+      :identifier_start,
+      :in_labels,
+      :in_verbatim_locality,
       :loaned,
+      :md5_verbatim_label,
+      :namespace_id,
+      :never_loaned,
       :on_loan,
-      :type_specimen_taxon_name_id,
+      :partial_overlap_dates,
+      :radius,
+      :repository_id,
+      :sled_image_id,
       :spatial_geographic_areas,
+      :start_date,
+      :type_specimen_taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :wkt,
+      is_type: [],
       otu_ids: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       collecting_event_ids: [],
       geographic_area_ids: [],
       biocuration_class_ids: [],
-      biological_relationship_ids: []
+      biological_relationship_ids: [],
+      #  user_id: []
       
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
+      # }
+    )
+
+    # TODO: check user_id: []
+
+    a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    a
+  end
+
+  def api_params
+    a = params.permit(
+      :recent,
+      Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :ancestor_id,
+      :collection_object_type,
+      :current_determinations,
+      :depicted,
+      :end_date,
+      :geo_json,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :in_labels,
+      :in_verbatim_locality,
+      :loaned,
+      :md5_verbatim_label,
+      :namespace_id,
+      :never_loaned,
+      :on_loan,
+      :partial_overlap_dates,
+      :radius,
+      :repository_id,
+      :sled_image_id,
+      :spatial_geographic_areas,
+      :start_date,
+      :type_specimen_taxon_name_id,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :wkt,
+      is_type: [],
+      otu_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      collecting_event_ids: [],
+      geographic_area_ids: [],
+      biocuration_class_ids: [],
+      biological_relationship_ids: [],
+
+      #  collecting_event: {
+      #   :recent,
+      #   keyword_id_and: []
       # }
     )
 
     a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
     a
-  end 
+  end
+
 
 end
 

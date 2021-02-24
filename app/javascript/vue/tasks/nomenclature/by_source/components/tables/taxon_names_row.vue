@@ -6,94 +6,72 @@
         type="text"
         placeholder="Pages"
         @input="updatePage"
-        v-model="citation.pages">
+        v-model="citation.pages"
+      >
     </td>
     <td>
-      <input 
+      <input
         v-model="citation.is_original"
         @change="updateCitation"
-        type="checkbox">
+        type="checkbox"
+      >
     </td>
     <td>
-      <span>
-        <a
-          v-html="citation.citation_object.object_tag"
-          :href="showObject()"/> 
-        {{ legend }}
-        <span 
-          v-if="isInvalid"
-          data-icon="warning"
-          title="Invalid"/>
-      </span>
+      <a
+        v-html="citation.citation_object.original_combination"
+        :href="`/tasks/nomenclature/browse?taxon_name_id=${citation.citation_object_id}`"
+      />
+      <span v-html="isInvalid" />
     </td>
     <td>
-      <span v-html="citation.citation_object.type"/>
+      <span v-html="citation.citation_object.type" />
     </td>
     <td>
-      <radial-annotator :global-id="citation.citation_object.global_id"/>
+      <confidence-button :global-id="citation.citation_object.global_id" />
+    </td>
+    <td>
+      <radial-annotator :global-id="citation.citation_object.global_id" />
     </td>
     <td>
       <span
         class="button circle-button btn-delete"
-        @click="removeMe()"/>
+        @click="removeMe()"
+      />
     </td>
   </tr>
 </template>
 
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator'
-  import OtuRadial from 'components/otu/otu'
-  import extendedRow from './extendedRow.js'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import ConfidenceButton from 'components/defaultConfidence.vue'
+import extendedRow from './extendedRow.js'
 
-  export default {
-    mixins: [extendedRow],
-    components: {
-      RadialAnnotator,
-      OtuRadial
-    },
-    props: {
-      citation: {
-        type: Object,
-        required: true
-      }
-    },
-    data() {
-      return {
-        pages: undefined,
-        autoSave: undefined,
-        time: 3000,
-        legend: '',
-        nameStatus: ''
-      }
-    },
-    computed: {
-      isInvalid() {
-        return (this.nameStatus == 'invalid')
-      }
-    },
-    mounted() {
-      this.nameAuthorYear();
-      this.nameValidity();
-    },
-    methods: {
-      showObject() {
-        return `/tasks/nomenclature/browse?taxon_name_id=${this.citation.citation_object_id}`
-      },
-      nameAuthorYear() {
-          let taxon = this.citation.citation_object;
-          let authorYear = ' ' + taxon.cached_author_year;
-          if (taxon.cached_author_year == null) {
-            authorYear = '';
-          }
-        this.legend = authorYear;
-        },
-      nameValidity() {
-        let taxon = this.citation.citation_object;
-        this.nameStatus = (taxon.id == taxon.cached_valid_taxon_name_id) ? 'valid' : 'invalid';
-      }
+export default {
+  mixins: [extendedRow],
+  components: {
+    RadialAnnotator,
+    ConfidenceButton
+  },
+  props: {
+    citation: {
+      type: Object,
+      required: true
+    }
+  },
+  data () {
+    return {
+      pages: undefined,
+      autoSave: undefined,
+      time: 3000
+    }
+  },
+  computed: {
+    isInvalid () {
+      return (this.citation.citation_object.id === this.citation.citation_object.cached_valid_taxon_name_id) ? '✓' : '❌'
     }
   }
+}
 </script>
 <style lang="scss" module>
   .pages {

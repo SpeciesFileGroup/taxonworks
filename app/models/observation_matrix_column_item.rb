@@ -18,9 +18,9 @@
 class ObservationMatrixColumnItem < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Notes
   include Shared::Tags
+  include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
@@ -28,20 +28,29 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_column_items
 
-  # TODO: remove from subclasses
-  belongs_to :descriptor, inverse_of: :observation_matrix_column_items
-  belongs_to :controlled_vocabulary_term
-
-  #  belongs_to :controlled_vocabulary_term (belongs elsewhere)
-
+  # TODO: remove from subclasses WHY does this need to be here
+  # belongs_to :descriptor, inverse_of: :observation_matrix_column_items
+  
+  # See above and corresponding questions
+  # belongs_to :controlled_vocabulary_term, inverse_of: :observation_matrix_column_items
+ 
   validates_presence_of :observation_matrix
-  validate :type_is_subclassed
-  validate :other_subclass_attributes_not_set
+  validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
 
   after_save :update_matrix_columns
   after_destroy :cleanup_matrix_columns
 
+  # @return [Array]
+  #   of all objects this row references
+  def column_objects
+    objects = []
+
+    objects.push *descriptors if descriptors 
+    objects
+  end 
+
   def cleanup_matrix_columns
+    return true unless descriptors.size > 0
     ObservationMatrixColumn.where(descriptor_id: descriptors.map(&:id), observation_matrix: observation_matrix).each do |mc|
       cleanup_single_matrix_column(mc.descriptor_id, mc)
     end
@@ -59,8 +68,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
       descriptor_id: descriptor_id, 
       observation_matrix: observation_matrix
     ).first
-
-    decrement_matrix_column_reference_count(mc)
+    decrement_matrix_column_reference_count(mc) if !mc.nil?
   end
 
   def decrement_matrix_column_reference_count(mc)
@@ -69,20 +77,27 @@ class ObservationMatrixColumnItem < ApplicationRecord
       mc.delete
     else
       mc.update_columns(reference_count: current)
-      mr.update_columns(cached_observation_matrix_column_item_id: nil) if current == 1 && type =~ /Single/ # we've deleted the only single, so the last must be a Dynamic/Tagged
+      mc.update_columns(cached_observation_matrix_column_item_id: nil) if current == 1 && type =~ /Single/ # we've deleted the only single, so the last must be a Dynamic/Tagged
     end
   end
 
-  def update_single_matrix_column(descriptor)
-    mc = ObservationMatrixColumn.find_or_create_by(
+  def find_or_build_column(descriptor)
+    ObservationMatrixColumn.find_or_initialize_by(
       observation_matrix: observation_matrix, 
       descriptor: descriptor)
+  end
+
+  # creates or finds and updates count, always
+  def update_single_matrix_column(descriptor)
+    mc = find_or_build_column(descriptor)
+    mc.save! if !mc.persisted?
+
     increment_matrix_column_reference_count(mc)
   end
 
   def increment_matrix_column_reference_count(mc)
     mc.update_columns(reference_count: (mc.reference_count || 0) + 1)
-    mc.update_columns(cached_observation_matrix_column_item_id: id)  if type =~ /Single/
+    mc.update_columns(cached_observation_matrix_column_item_id: id) if type =~ /Single/
   end 
 
   def self.human_name
@@ -125,12 +140,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
           end
         else
           created += create_for_tags(
-            Tag.where(keyword_id: keyword_id, tag_object_type: 'Descriptor').all,
-            observation_matrix_id
+            Tag.where(
+              keyword_id: keyword_id,
+              tag_object_type: 'Descriptor').all,
+             observation_matrix_id
           )       
         end
       rescue ActiveRecord::RecordInvalid => e
-        return false
+        raise # return false
       end
     end
     return created
@@ -180,7 +197,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   # @param pinboard_item_scope [PinboardItem Scope]
   # @return [Array]
-  #   create observation matrix row items for all scope items
+  #   create observation matrix column items for all scope items
   def self.create_for_pinboard_items(pinboard_item_scope, observation_matrix_id)
     a = []
     pinboard_item_scope.each do |o|
@@ -190,22 +207,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
   end
 
   def self.create_for(object, observation_matrix_id)
-    ObservationMatrixColumnItem.create!(
+    ObservationMatrixColumnItem::Single::Descriptor.create!(
       observation_matrix_id: observation_matrix_id,
-      descriptor_id: object.id,
-      type: 'ObservationMatrixColumnItem::SingleDescriptor'
-    )
+      descriptor: object)
   end
 
   def other_subclass_attributes_not_set
     (ALL_STI_ATTRIBUTES - self.class.subclass_attributes).each do |atr|
       errors.add(atr, 'is not valid for this type of observation matrix column item') if !send(atr).blank?
-    end
-  end
-
-  def type_is_subclassed
-    if !MATRIX_COLUMN_ITEM_TYPES[type]
-      errors.add(:type, 'type must be a valid subclass')
     end
   end
 

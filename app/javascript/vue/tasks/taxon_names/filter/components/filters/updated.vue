@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Updated</h2>
+    <h3>Updated</h3>
     <datalist id="days">
       <option
         v-for="(option, index) in options"
@@ -23,6 +23,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -63,6 +66,16 @@ export default {
           label: '365'
         }
       ]
+    }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    if (params.updated_since) {
+      const date = new Date(params.updated_since)
+      const today = new Date()
+      const diffInTyme = today.getTime() - date.getTime()
+      const dffInDay = diffInTyme / (1000 * 3600 * 24)
+      this.$emit('input', Math.floor(dffInDay))
     }
   }
 }

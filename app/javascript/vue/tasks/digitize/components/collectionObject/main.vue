@@ -5,7 +5,7 @@
         <h3>Collection Object</h3>
       </div>
       <div
-        v-shortkey="[getMacKey(), 't']"
+        v-shortkey="[getMacKey(), 'e']"
         @shortkey="openBrowse"
         slot="options"
         v-if="collectionObject.id"
@@ -16,7 +16,7 @@
         <default-tag
           classs="separate-right"
           :global-id="collectionObject.global_id"/>
-        <radial-object 
+        <radial-object
           v-if="collectionObject.id"
           :global-id="collectionObject.global_id"/>
       </div>
@@ -56,7 +56,7 @@
             object-type="CollectionObject"
             @create="createDepictionForAll"
             @delete="removeAllDepictionsByImageId"
-            default-message="Drop images here<br> to add collection object figures"
+            default-message="Drop images or click here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
           <div class="middle">
             <expand-component
@@ -73,6 +73,10 @@
           <spinner-component
             v-if="!collectionObject.id"
             :show-spinner="false"
+            :legend-style="{
+              color: '#444',
+              textAlign: 'center'
+            }"
             legend="Locked until first save"/>
           <predicates-component
             v-if="projectPreferences"
@@ -198,7 +202,7 @@
       },
       updatePreferences(key, value) {
         UpdateUserPreferences(this.preferences.id, { [key]: value }).then(response => {
-          this.preferences.layout = response.preferences.layout
+          this.preferences.layout = response.body.preferences.layout
         })
       },
       getMacKey: function () {
@@ -248,8 +252,8 @@
           depiction_object_type: 'CollectionObject',
           image_id: depiction.image_id
         }
-        CreateDepiction(newDepiction).then(createdDepiction => {
-          this.depictions.push(createdDepiction)
+        CreateDepiction(newDepiction).then(response => {
+          this.depictions.push(response.body)
         })
       },
       createDepictionForAll(depiction) {

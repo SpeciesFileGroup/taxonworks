@@ -60,7 +60,7 @@ export default {
       this.url = RouteNames.NewTaxonName
     },
     loadWithParent() {
-      return ((this.getParent && this.getParent.hasOwnProperty('id')) ? `${RouteNames.NewTaxonName}?parentId=${this.getParent.id}` : RouteNames.NewTaxonName)
+      return ((this.getParent && this.getParent.hasOwnProperty('id')) ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName)
     },
     createNew (newUrl = this.url) {
       this.url = newUrl
@@ -71,10 +71,10 @@ export default {
       }
     },
     createNewWithChild() {
-      this.createNew((this.getTaxon.id ? `${RouteNames.NewTaxonName}?parentId=${this.getTaxon.id}` : RouteNames.NewTaxonName))
+      this.createNew((this.getTaxon.id ? `${RouteNames.NewTaxonName}?parent_id=${this.getTaxon.id}` : RouteNames.NewTaxonName))
     },
     createNewWithParent() {
-      this.createNew((this.getParent && this.getParent.hasOwnProperty('id') ? `${RouteNames.NewTaxonName}?parentId=${this.getParent.id}` : RouteNames.NewTaxonName))
+      this.createNew((this.getParent && this.getParent.hasOwnProperty('id') ? `${RouteNames.NewTaxonName}?parent_id=${this.getParent.id}` : RouteNames.NewTaxonName))
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

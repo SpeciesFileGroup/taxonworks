@@ -30,7 +30,7 @@ module ControlledVocabularyTermsHelper
     when 'BiologicalProperty'
       BiocurationClassification.where(biocuration_class: controlled_vocabulary_term).where(a).count
     when 'Predicate'
-      InternalAttribute.where(controlled_vocabulary_term: controlled_vocabulary_term).where(a).count
+      InternalAttribute.where(predicate: controlled_vocabulary_term).where(a).count
     when 'ConfidenceLevel'
       Confidence.where(confidence_level: controlled_vocabulary_term).where(a).count
     else

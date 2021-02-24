@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Precision</h2>
+    <h3>Precision</h3>
     <label>
       <input
         v-model="optionValue"
@@ -11,6 +11,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -19,17 +22,17 @@ export default {
   },
   computed: {
     optionValue: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
     }
   },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.optionValue = params.exact
+  }
 }
 </script>
-
-<style>
-
-</style>

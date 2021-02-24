@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Name type</h2>
+    <h3>Name type</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">
@@ -17,9 +17,13 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
+      type: String,
       default: undefined
     }
   },
@@ -50,6 +54,9 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    this.optionValue = URLParamsToJSON(location.href).taxon_name_type
   }
 }
 </script>

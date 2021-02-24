@@ -62,16 +62,17 @@
     data() {
       return {
         componentsOrder: [
-          'VerbatimColectors', 
-          'VerbatimLabel', 
-          'VerbatimDate', 
-          'VerbatimElevation', 
-          'VerbatimGeolocation', 
-          'VerbatimHabitat',
+          'VerbatimLabel',
+          'VerbatimLocality',
           'VerbatimLatitude',
           'VerbatimLongitude',
-          'VerbatimLocality',
-          'VerbatimMethod'],
+          'VerbatimGeolocation',
+          'VerbatimElevation',
+          'VerbatimHabitat',
+          'VerbatimDate',
+          'VerbatimColectors',
+          'VerbatimMethod'
+        ],
         keyStorage: 'tasks::digitize::verbatimOrder'
       }
     },
@@ -83,7 +84,7 @@
     label {
       display: block;
     }
-    input, textarea {
+    input[type="text"], textarea {
       width: 100%;
     }
   }

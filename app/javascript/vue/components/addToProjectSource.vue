@@ -1,54 +1,60 @@
 <template>
-  <button
-      v-if="!createdSourceID"
-      @click="create"
-      type="button"
-      class="button normal-input button-submit">
+  <span
+    v-if="!createdSourceID"
+    @click="create"
+    title="Add to project"
+    class="button circle-button button-submit btn-add-to-project">
     Add to project
-  </button>
-  <button
-      v-else
-      @click="remove"
-      type="button"
-      class="button normal-input button-delete">
+  </span>
+  <span
+    v-else
+    @click="remove"
+    title="Remove from project"
+    class="button circle-button button-delete btn-remove-from-project">
     Remove from project
-  </button>
-
+  </span>
 </template>
 
 <script>
-  export default {
-    props: {
-      id: {                           // this is a Source ID
-        type: [Number, String],
-        required: true
-      },
-      project_source_id: {
-        type: [Number, String],
-      }
+
+import AjaxCall from 'helpers/ajaxCall'
+
+export default {
+  props: {
+    id: {
+      type: [Number, String],
+      required: true
     },
-    data() {
-      return {
-        project_source: {
-          source_id: this.id          // this is a Source ID
-        },
-        createdSourceID: undefined    // this is a ProjectSource ID
-      }
-    },
-    methods: {
-      create() {
-        this.$http.post('/project_sources.json', {project_source: this.project_source}).then(response => {
-          this.createdSourceID = response.body.id
-        })
-      },
-      remove() {
-        this.$http.delete(`/project_sources/${this.createdSourceID}.json`).then(response => {
-          this.createdSourceID = undefined;
-        })
-      }
-    },
-    mounted: function () {
-      this.createdSourceID = this.project_source_id;
+    projectSourceId: {
+      type: [Number, String]
     }
+  },
+  data () {
+    return {
+      project_source: {
+        source_id: this.id
+      },
+      createdSourceID: undefined
+    }
+  },
+  methods: {
+    create () {
+      AjaxCall('post', '/project_sources.json', {project_source: this.project_source}).then(response => {
+        this.createdSourceID = response.body.id
+        TW.workbench.alert.create('Source was added to project successfully', 'notice')
+      })
+    },
+    remove () {
+      AjaxCall('delete', `/project_sources/${this.createdSourceID}.json`).then(response => {
+        this.createdSourceID = undefined
+        TW.workbench.alert.create('Source was removed from project successfully', 'notice')
+      }, (response) => {
+
+      })
+    }
+  },
+  mounted: function () {
+    this.createdSourceID = this.projectSourceId
   }
+}
 </script>

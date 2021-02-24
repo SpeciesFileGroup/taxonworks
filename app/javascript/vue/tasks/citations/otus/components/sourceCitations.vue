@@ -17,6 +17,8 @@
 
   import { GetterNames } from '../store/getters/getters'
   import { MutationNames } from '../store/mutations/mutations'
+  import AjaxCall from 'helpers/ajaxCall'
+
   export default {
     computed: {
       items() {
@@ -25,13 +27,13 @@
     },
     methods: {
       removeCitation(item) {
-        this.$http.delete('/citations/' + item.id).then(() => {
+        AjaxCall('delete', '/citations/' + item.id).then(() => {
           this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
           this.$store.commit(MutationNames.RemoveOtuFormCitationList, item.id)
         })
       },
       setOtu(item) {
-        this.$http.get(`/otus/${item.citation_object_id}.json`).then(response => {
+        AjaxCall('get', `/otus/${item.citation_object_id}.json`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
         })
       }

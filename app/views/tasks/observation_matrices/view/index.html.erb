@@ -15,7 +15,10 @@
   <%= content_tag(:li, link_to('NeXML', nexml_observation_matrix_path(@observation_matrix, format: :text))) -%>
 </ul>
 
-<br> 
+<br>
+<br>
+<br>
+<br>
 <% if @observation_matrix.cell_count < 10000 %>
 
 <table id="observation_matrices">
@@ -35,7 +38,7 @@
   </thead>
 
   <tbody>
-    <% @observation_matrix.observation_matrix_rows.each_with_index do |row, i| -%>
+    <% @observation_matrix.observation_matrix_rows.order(:position).each_with_index do |row, i| -%>
       <tr>
         <%= content_tag(:td, (i + 1).to_s) -%>
         <%= content_tag(:td, link_to('code', index_row_coder_task_path(observation_matrix_row_id: row.id) , class: ['circle-button', 'btn-row-coder'] )) -%>

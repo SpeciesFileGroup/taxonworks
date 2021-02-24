@@ -2,62 +2,55 @@
   <div>
     <h2>Catalog number</h2>
     <div
-      class="flex-wrap-column middle align-start">
-      <div class="separate-right">
+      class="flex-wrap-column middle align-start full_width"
+    >
+      <div class="separate-right full_width">
         <div
           v-if="identifiers > 1"
-          class="separate-bottom">
+          class="separate-bottom"
+        >
           <span data-icon="warning">More than one identifier exists! Use annotator to edit others.</span>
         </div>
         <fieldset>
           <legend>Namespace</legend>
-          <div class="horizontal-left-content middle field separate-bottom">
+          <div class="horizontal-left-content align-start separate-bottom">
             <smart-selector
-              v-model="view"
-              class="separate-right item"
-              :options="options"/>
-            <lock-component v-model="locked.identifier"/>
+              class="full_width"
+              ref="smartSelector"
+              model="namespaces"
+              input-id="namespace-autocomplete"
+              target="CollectionObject"
+              klass="CollectionObject"
+              pin-section="Namespaces"
+              pin-type="Namespace"
+              @selected="setNamespace"/>
+            <div class="horizontal-right-content">
+              <lock-component
+                class="circle-button-margin"
+                v-model="locked.identifier" />
+            </div>
+            <a 
+              class="margin-small-top margin-small-left"
+              href="/namespaces/new">New</a>
           </div>
-          <autocomplete
-            input-id="namespace-autocomplete"
-            v-show="view == 'search'"
-            class="separate-right"
-            url="/namespaces/autocomplete"
-            min="2"
-            @getItem="namespace = $event.id; namespaceSelected = $event.label_html; checkIdentifier()"
-            :clear-after="true"
-            label="label_html"
-            placeholder="Select a namespace"
-            ref="autocomplete"
-            param="term"/>
           <template v-if="namespace">
             <div class="middle separate-top">
-              <span data-icon="ok"/>
-              <p class="separate-right" v-html="namespaceSelected"/>
+              <span data-icon="ok" />
+              <p
+                class="separate-right"
+                v-html="namespaceSelected"
+              />
               <span
                 class="circle-button button-default btn-undo"
-                @click="namespace = undefined"/>
+                @click="namespace = undefined"
+              />
             </div>
           </template>
-          <ul 
-            class="no_bullets"
-            v-if="view != 'search'">
-            <li
-              v-for="item in lists[view]"
-              :key="item.id">
-              <label>
-                <input
-                  type="radio"
-                  :checked="item.id == namespace"
-                  @click="namespace = item.id; namespaceSelected = item.object_tag; checkIdentifier()"
-                  :value="item.id">
-                <span v-html="item.object_tag"/>
-              </label>
-            </li>
-          </ul>
         </fieldset>
       </div>
-      <div class="separate-top">
+      <div
+        v-help.sections.collectionObject.identifier
+        class="separate-top">
         <label>Identifier</label>
         <div class="horizontal-left-content field">
           <input
@@ -65,25 +58,35 @@
             :class="{ 'validate-identifier': existingIdentifier }"
             type="text"
             @input="checkIdentifier"
-            v-model="identifier">
+            v-model="identifier"
+          >
           <label>
             <input
               v-model="settings.increment"
-              type="checkbox">
+              type="checkbox"
+            >
             Increment
           </label>
           <validate-component
             v-if="namespace"
             class="separate-left"
             :show-message="checkValidation"
-            legend="Namespace and identifier needs to be set to be save."/> 
+            legend="Namespace and identifier needs to be set to be saved."
+          />
         </div>
-        <span 
+        <span
           v-if="!namespace && identifier && identifier.length"
-          style="color: red">Namespace is needed.</span>
-        <span 
-          v-if="existingIdentifier"
-          style="color: red">Identifier already exists, and it won't be saved.</span>
+          style="color: red"
+        >Namespace is needed.</span>
+        <template v-if="existingIdentifier">
+          <span
+            style="color: red"
+          >Identifier already exists, and it won't be saved:</span>
+          <a
+            :href="existingIdentifier.identifier_object.object_url"
+            v-html="existingIdentifier.identifier_object.object_tag"
+          />
+        </template>
       </div>
     </div>
   </div>
@@ -91,156 +94,112 @@
 
 <script>
 
-  import SmartSelector from 'components/switch.vue'
-  import Autocomplete from '../../../../components/autocomplete.vue'
-  import { GetterNames } from '../../store/getters/getters'
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { ActionNames } from '../../store/actions/actions'
-  import { CheckForExistingIdentifier, GetNamespacesSmartSelector } from '../../request/resources.js'
-  import validateComponent from '../shared/validate.vue'
-  import validateIdentifier from '../../validations/namespace.js'
-  import incrementIdentifier from '../../helpers/incrementIdentifier.js'
-  import LockComponent from 'components/lock.vue'
+import SmartSelector from 'components/smartSelector.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations.js'
 
-  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
-  import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
+import { CheckForExistingIdentifier } from '../../request/resources.js'
+import validateComponent from '../shared/validate.vue'
+import validateIdentifier from '../../validations/namespace.js'
+import incrementIdentifier from '../../helpers/incrementIdentifier.js'
+import LockComponent from 'components/lock.vue'
+import refreshSmartSelector from '../shared/refreshSmartSelector'
 
-  export default {
-    components: {
-      Autocomplete,
-      validateComponent,
-      LockComponent,
-      SmartSelector
+export default {
+  mixins: [refreshSmartSelector],
+  components: {
+    validateComponent,
+    LockComponent,
+    SmartSelector
+  },
+  computed: {
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    computed: {
-      collectionObject () {
-        return this.$store.getters[GetterNames.GetCollectionObject]
+    identifiers () {
+      return this.$store.getters[GetterNames.GetIdentifiers]
+    },
+    locked: {
+      get () {
+        return this.$store.getters[GetterNames.GetLocked]
       },
-      collectionObjects() {
-        return this.$store.getters[GetterNames.GetCollectionObjects]
-      },
-      identifiers() {
-        return this.$store.getters[GetterNames.GetIdentifiers]
-      },
-      locked: {
-        get() {
-          return this.$store.getters[GetterNames.GetLocked]
-        },
-        set(value) {
-          this.$store.commit([MutationNames.SetLocked, value])
-        }
-      },
-      settings: {
-        get() {
-          return this.$store.getters[GetterNames.GetSettings]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetSettings, value)
-        }        
-      },
-      namespace: {
-        get() {
-          return this.$store.getters[GetterNames.GetIdentifier].namespace_id
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
-        },
-      },
-      identifier: {
-        get() {
-          return this.$store.getters[GetterNames.GetIdentifier].identifier
-        },
-        set(value) {
-          return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
-        }
-      },
-      coTypes: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObjectTypes]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectTypes, value)
-        }
-      },
-      checkValidation() {
-        return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
-      },
-      namespaceSelected: {
-        get() {
-          return this.$store.getters[GetterNames.GetNamespaceSelected]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetNamespaceSelected, value)
-        }
+      set (value) {
+        this.$store.commit([MutationNames.SetLocked, value])
       }
     },
-    data() {
-      return {
-        existingIdentifier: false,
-        delay: 1000,
-        saveRequest: undefined,
-        options: [],
-        lists: [],
-        view: 'search'
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     },
-    watch: {
-      namespace(newVal) {
-        if(!newVal) {
-          this.$refs.autocomplete.cleanInput()
-        }
+    namespace: {
+      get () {
+        return this.$store.getters[GetterNames.GetIdentifier].namespace_id
       },
-      collectionObject(newVal, oldVal) {
-        if (!newVal.id || newVal.id == oldVal.id) return
-        this.loadSmartSelector()
-      },
-      existingIdentifier(newVal) {
-        this.settings.saveIdentifier = !newVal
+      set (value) {
+        this.$store.commit(MutationNames.SetIdentifierNamespaceId, value)
       }
     },
-    mounted() {
-      this.loadSmartSelector()
+    identifier: {
+      get () {
+        return this.$store.getters[GetterNames.GetIdentifier].identifier
+      },
+      set (value) {
+        return this.$store.commit(MutationNames.SetIdentifierIdentifier, value)
+      }
     },
-    methods: {
-      loadSmartSelector() {
-        GetNamespacesSmartSelector().then(response => {
-          this.options = orderSmartSelector(Object.keys(response))
-          this.options.push('search')
-          this.lists = response
-          this.view = selectFirstSmartOption(response, this.options)
-        })
+    checkValidation () {
+      return !validateIdentifier({ namespace_id: this.namespace, identifier: this.identifier })
+    },
+    namespaceSelected: {
+      get () {
+        return this.$store.getters[GetterNames.GetNamespaceSelected]
       },
-      increment() {
-        this.identifier = incrementIdentifier(this.identifier)
-      },
-      getMacKey: function () {
-        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-      },
-      newDigitalization() {
-        this.$store.dispatch(ActionNames.NewCollectionObject)
-        this.$store.dispatch(ActionNames.NewIdentifier)
-        this.$store.commit(MutationNames.NewTaxonDetermination)
-        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      },
-      saveCollectionObject() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-        })
-      },
-      checkIdentifier() {
-        let that = this
+      set (value) {
+        this.$store.commit(MutationNames.SetNamespaceSelected, value)
+      }
+    }
+  },
+  data () {
+    return {
+      existingIdentifier: undefined,
+      delay: 1000,
+      saveRequest: undefined
+    }
+  },
+  watch: {
+    existingIdentifier (newVal) {
+      this.settings.saveIdentifier = !newVal
+    }
+  },
+  methods: {
+    increment () {
+      this.identifier = incrementIdentifier(this.identifier)
+    },
+    checkIdentifier () {
+      const that = this
 
-        if(this.saveRequest) {
-          clearTimeout(this.saveRequest)
-        }
-        this.saveRequest = setTimeout(() => { 
+      if (this.saveRequest) {
+        clearTimeout(this.saveRequest)
+      }
+      if (this.identifier) {
+        this.saveRequest = setTimeout(() => {
           CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
-            that.existingIdentifier = (response.length > 0)
+            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
           })
         }, this.delay)
       }
+    },
+    setNamespace (namespace) {
+      this.namespace = namespace.id
+      this.namespaceSelected = namespace.name
+      this.checkIdentifier()
     }
   }
+}
 </script>
 
 <style scoped>

@@ -38,6 +38,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import Autocomplete from 'components/autocomplete.vue'
 import Modal from 'components/modal.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   data: function () {
@@ -56,7 +57,7 @@ export default {
   },
   methods: {
     loadSource: function (item) {
-      this.$http.get(`/sources/${item.id}.json`).then(response => {
+      AjaxCall('get', `/sources/${item.id}.json`).then(response => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
         this.showModal = false
       })

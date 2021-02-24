@@ -35,7 +35,7 @@ import { GetDepictions, DestroyDepiction } from '../request/resources'
 
 import dropzone from 'components/dropzone.vue'
 import spinner from 'components/spinner.vue'
-import depictionImage from './depictionImage.vue'
+import depictionImage from 'components/depictions/depictionImage.vue'
 
 export default {
   components: {
@@ -74,7 +74,7 @@ export default {
         if(newVal.id != oldVal.id) {
           this.$refs.depiction.setOption('autoProcessQueue', true)
           GetDepictions(newVal.collection_object.id).then(response => {
-            this.figuresList = response
+            this.figuresList = response.body
           })
         }
       } else {

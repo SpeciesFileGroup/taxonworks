@@ -112,7 +112,7 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.update!(
         metadata: metadata,
         image: image,
-        collection_object_params: collection_object_params
+        collection_object_params: collection_object_params,
       )
     end
 
@@ -244,6 +244,11 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.collection_object_params[:identifiers_attributes][0][:identifier] = 997
       expect(sled_image.send(:_identifier_matrix)).to contain_exactly([997,998,999], [1000,1001,1002], [1003,1004,1005])
     end
+  end
+
+  specify '#depiction_params / #is_metadata_depiction?' do
+    sled_image.update(metadata: [], image: image, depiction_params: {is_metadata_depiction: 'true'})
+    expect(sled_image.send(:is_metadata_depiction?)).to eq(true)
   end
 
   specify '#metadata (update, Array)' do

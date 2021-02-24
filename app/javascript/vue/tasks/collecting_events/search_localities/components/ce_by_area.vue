@@ -48,6 +48,7 @@
 <script>
   import Autocomplete from 'components/autocomplete'
   import Spinner from 'components/spinner'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -58,7 +59,7 @@
       return {
         geographicAreaList: [],
         collectingEventList: [],
-        isLoading: false,
+        isLoading: false
       }
     },
     methods: {
@@ -66,17 +67,17 @@
         this.isLoading = true;
         let geo_ids = this.geographicAreaList.map(area => { return area.id })
         let params = {
-          'geographic_area_ids[]': geo_ids,
+          geographic_area_ids: geo_ids,
           spatial_geographic_areas: true
         }
 
-        this.$http.get('/collecting_events.json', { params: params }).then(response => {
+        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
           this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.url)
+          this.$emit('jsonUrl', response.request.responseURL)
           if (this.collectingEventList) {
             this.$emit('collectingEventList', this.collectingEventList)
           }
-          this.isLoading = false;
+          this.isLoading = false
         });
       },
       addGeographicArea(item) {

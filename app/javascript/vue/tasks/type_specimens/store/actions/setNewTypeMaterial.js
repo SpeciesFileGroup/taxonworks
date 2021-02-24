@@ -1,4 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
+import Identifier from '../../const/identifier'
 
 export default function ({ commit, state }) {
   const type_material = {
@@ -22,9 +23,10 @@ export default function ({ commit, state }) {
       source_id: undefined,
       pages: undefined
     },
-    origin_citation: undefined
+    origin_citation: undefined,
   }
   commit(MutationNames.SetMaterialTab, 'new')
   commit(MutationNames.SetTypeMaterial, type_material)
+  commit(MutationNames.SetIdentifier, Identifier())
   commit(MutationNames.SetSoftValidation, [])
 }

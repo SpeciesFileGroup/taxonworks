@@ -12,10 +12,9 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
   def set_gender_in_taxon_name
     t = taxon_name
     if t.masculine_name.blank? && t.feminine_name.blank? && t.neuter_name.blank?
-      n = t.name
       m_name, f_name, n_name = nil, nil, nil
 
-      case n
+      case t.name
       when /is$/
         m_name, f_name, n_name = t.name, t.name, t.name[0..-3] + 'e'
       when /e$/
@@ -27,12 +26,13 @@ class TaxonNameClassification::Latinized::PartOfSpeech < TaxonNameClassification
       when /(um|rum)$/
         m_name, f_name, n_name = t.name[0..-3] + 'us', t.name[0..-3] + 'a', t.name
       when /ra$/
-        m_name, f_name, n_name = t.name[0..-3] + 'er', t.name, t.name[0..-3] + 'rum'
+        m_name, f_name, n_name = t.name[0..-4] + 'er', t.name, t.name[0..-2] + 'um'
       when /a$/
         m_name, f_name, n_name = t.name[0..-2] + 'us', t.name, t.name[0..-2] + 'um'
       when /or$/
         # TODO: Move check for names ending in `or` to soft valdiation vs. Partciple/Adjective (combination shouldn't exist) 
       else
+        m_name, f_name, n_name = t.name, t.name, t.name
       end
 
       t.update_columns(

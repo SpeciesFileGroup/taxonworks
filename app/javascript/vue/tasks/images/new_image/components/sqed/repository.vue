@@ -1,13 +1,21 @@
 <template>
   <fieldset>
     <legend>Repository</legend>
-    <autocomplete
-      url="/repositories/autocomplete"
-      param="term"
-      placeholder="Search a repository"
-      label="label"
-      :clear-after="true"
-      @getItem="setRepository"/>
+    <div class="horizontal-left-content">
+      <autocomplete
+        class="margin-small-right"
+        url="/repositories/autocomplete"
+        param="term"
+        placeholder="Search a repository"
+        label="label"
+        :clear-after="true"
+        @getItem="setRepository"/>
+      <default-pin
+        class="button-circle margin-small-left"
+        type="Repository"
+        @getItem="setRepository({ id: $event.id, label: $event.label })"
+        section="Repositories"/>
+    </div>
     <p 
       v-if="label"
       class="horizontal-left-content middle">
@@ -24,10 +32,12 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import Autocomplete from 'components/autocomplete'
+import DefaultPin from 'components/getDefaultPin.vue'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    DefaultPin
   },
   computed: {
     collectionObject: {

@@ -13,12 +13,10 @@ Contributors include:
 ```
 Ed DeWalt
 David Maddison
-Maria Marta Cigliano
 John Noyes
 John Heraty
 Andrea Thomer
 Mike Twidale
 Kenney Guo
-István Mikó
 Chris Dietrich
  ```

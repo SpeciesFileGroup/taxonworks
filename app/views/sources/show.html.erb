@@ -5,7 +5,7 @@
 <% end %> 
 
 <%= content_for :report do %>
-  <%= content_tag(:li, link_to('Citations by source', nomenclature_by_source_task_path(@source))) -%>
+  <%= content_tag(:li, link_to('Citations by source', nomenclature_by_source_task_path(source_id: @source))) -%>
 <% end %> 
 
 <%= content_for :tasks do %>
@@ -17,7 +17,10 @@
 
   <% if @source.documentation.where('documents.project_id = ?', sessions_current_project_id) -%>
     <h3> Documents </h3>
-   <%= documentation_links(@source) -%>
+    <div class="horizontal-left-content">
+    <%= documentation_links(@source) -%>
+    <%= document_viewer_buttons(@source) %>
+    </div>
   <% end %>
 
   <% if source_in_other_project?(@source) -%>

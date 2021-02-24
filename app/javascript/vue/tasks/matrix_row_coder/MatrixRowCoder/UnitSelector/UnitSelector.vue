@@ -2,12 +2,13 @@
   <label class="unit-selector separate-left">
     Unit:
     <select @change="unitSelected">
+      <option :value="null">-- none --</option>
       <option
         v-for="(conversion, unit) in units"
+        :key="unit"
         :value="unit"
         :selected="value === unit">
-
-        {{ unit }}
+        {{ unit }}: {{ conversion }}
       </option>
     </select>
   </label>
@@ -18,6 +19,8 @@
 <script>
 const vModelChangeEventName = 'change'
 
+import { GetterNames } from '../../store/getters/getters'
+
 export default {
   name: 'UnitSelector',
   model: {
@@ -27,9 +30,9 @@ export default {
   props: {
     value: String
   },
-  data: function () {
-    return {
-      units: require('../../constants/units.json')
+  computed: {
+    units () {
+      return this.$store.getters[GetterNames.GetUnits]
     }
   },
   methods: {

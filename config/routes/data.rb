@@ -20,7 +20,7 @@ end
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
 end
-match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} 
+match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
@@ -114,6 +114,7 @@ resources :collection_objects do
     get :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    get :preview, defaults: {format: :json}
   end
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
@@ -133,11 +134,13 @@ resources :collecting_events do
   member do
     get :card
     post :clone
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
     get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :parse_verbatim_label, defaults: {format: :json}
 
     post :preview_castor_batch_load
     post :create_castor_batch_load
@@ -172,9 +175,6 @@ end
 
 resources :contents do
   concerns [:data_routes]
-  collection do
-    get :filter
-  end
 end
 
 resources :controlled_vocabulary_terms do
@@ -229,7 +229,7 @@ resources :downloads, except: [:edit, :new, :create] do
     get 'list'
   end
   member do
-    get 'download_file'
+    get 'file'
   end
 end
 
@@ -250,7 +250,7 @@ resources :geographic_areas, only: [:index, :show] do
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
   end
-  
+
   member do
     get 'related'
   end
@@ -286,7 +286,7 @@ resources :identifiers, except: [:show] do
     get :identifier_types, {format: :json}
   end
 
-  member do 
+  member do
     get :show, defaults: {format: :json}
   end
 end
@@ -299,6 +299,9 @@ resources :images do
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
+  end
+  collection do
+    get :select_options, defaults: {format: :json}
   end
 end
 
@@ -321,7 +324,7 @@ resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
   end
-  collection do 
+  collection do
     get :select_options, defaults: {format: :json}
   end
 end
@@ -364,16 +367,16 @@ resources :observation_matrices do
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
-  member do 
+  member do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
-   #  get :csv
-   #  get :biom
+    #  get :csv
+    #  get :biom
 
-   get :reorder_rows, defaults: {format: :json}
-   get :reorder_columns, defaults: {format: :json}
-  end 
+    get :reorder_rows, defaults: {format: :json}
+    get :reorder_columns, defaults: {format: :json}
+  end
 
 end
 
@@ -425,6 +428,7 @@ resources :otus do
   resources :biological_associations, shallow: true, only: [:index], defaults: {format: :json}
   resources :asserted_distributions, shallow: true, only: [:index], defaults: {format: :json}
   resources :common_names, shallow: true, only: [:index], defaults: {format: :json}
+  resources :taxon_determinations, shallow: true, only: [:index], defaults: {format: :json}
 
   resources :contents, only: [:index]
 
@@ -452,6 +456,7 @@ resources :otus do
     get :timeline, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
+    get :coordinate, defaults: {format: :json}
   end
 
 end
@@ -488,7 +493,6 @@ resources :people do
   end
 
   member do
-    get :similar, defaults: {format: :json}
     get :roles
     get :details
     post :merge, defaults: {format: :json}
@@ -550,7 +554,7 @@ resources :sequences do
 
   collection do
     get :select_options, defaults: {format: :json}
-    
+
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 
@@ -577,10 +581,14 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
     get :parse, defaults: {format: :json}
+    get :citation_object_types, defaults: {format: :json}
+    get :csl_types, defaults: {format: :json}
+    get :generate, defaults: {format: :json}
   end
 
   member do
@@ -632,13 +640,12 @@ resources :taxon_names do
     get :random
 
     get :rank_table, defaults: {format: :json}
+    get :predicted_rank, {format: :json}
+
   end
 
   member do
-    get :browse
     get :original_combination, defaults: {format: :json}
-
-    get :catalog, defaults: {format: :json}
   end
 end
 

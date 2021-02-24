@@ -1,6 +1,8 @@
 <template>
-  <section-panel title="Specimen records">
-    <a name="specimen-records"/>
+  <section-panel
+    :status="status"
+    :name="title"
+    :title="`${title} (${collectionObjects.length})`">
     <div
       v-if="collectionObjects.length"
       class="separate-top">
@@ -10,9 +12,7 @@
           v-for="(co, index) in collectionObjects"
           v-if="index < max || showAll"
           :key="co.id">
-          <specimen-information
-            :otu="otu"
-            :specimen="co"/>
+          <collection-object-row :specimen="co"/>
         </li>
       </ul>
       <p v-if="collectionObjects.length > max">
@@ -34,13 +34,15 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import SpecimenInformation from './specimens/Information'
-import { GetCollectionObjects, GetTypeMaterials } from '../request/resources'
+import CollectionObjectRow from './specimens/CollectionObjectRow'
+import extendSection from './shared/extendSections'
+import { GetCollectionObjects } from '../request/resources'
 
 export default {
+  mixins: [extendSection],
   components: {
     SectionPanel,
-    SpecimenInformation
+    CollectionObjectRow
   },
   props: {
     otu: {
@@ -59,6 +61,7 @@ export default {
     otu: {
       handler (newVal) {
         if(newVal) {
+          console.log(newVal)
           GetCollectionObjects({ otu_ids: [newVal.id], current_determinations: true }).then(response => {
             this.collectionObjects = response.body.data.map((item, index) => { return this.createObject(response.body, index) })
           })

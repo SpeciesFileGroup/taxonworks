@@ -5,7 +5,23 @@
       maxHeight: '80vh',
       overflowY: 'scroll'
   }">
-    <div 
+    <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+      <manually-component
+        class="margin-small-right"
+        @create="saveGeoreference"/>
+      <geolocate-component
+        class="margin-small-right"
+        @create="createGEOLocate"/>
+      <button
+        type="button"
+        v-if="verbatimLat && verbatimLng"
+        :disabled="verbatimGeoreferenceAlreadyCreated"
+        @click="createVerbatimShape"
+        class="button normal-input button-submit">
+        Create georeference from verbatim
+      </button>
+    </div>
+    <div
       :style="{
         height: height,
         width: width
@@ -13,7 +29,7 @@
       <spinner-component
         v-if="showSpinner || !collectingEventId"
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>
-      <map-component 
+      <map-component
         ref="leaflet"
         v-if="show"
         :height="height"
@@ -43,8 +59,8 @@
         v-if="verbatimLat && verbatimLng"
         :disabled="verbatimGeoreferenceAlreadyCreated"
         @click="createVerbatimShape"
-        class="button normal-input button-submit separate-bottom separate-top">
-        Create georeference from verbatim 
+        class="button normal-input button-submit">
+        Create georeference from verbatim
       </button>
     </div>
     <display-list
@@ -63,6 +79,7 @@ import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
 import ManuallyComponent from './manuallyComponent'
 import GeolocateComponent from './geolocateComponent'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -95,6 +112,10 @@ export default {
       required: false,
       default: 0
     },
+    geolocationUncertainty: {
+      type: [String, Number],
+      default: undefined
+    },
     verbatimLng: {
       type: [Number, String],
       default: 0
@@ -118,11 +139,7 @@ export default {
   },
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
-      return this.georeferences.find(item => {
-        return item.geo_json.geometry.type === 'Point' &&
-          Number(item.geo_json.geometry.coordinates[0]) === Number(this.verbatimLng) &&
-          Number(item.geo_json.geometry.coordinates[1]) === Number(this.verbatimLat)
-      })
+      return this.georeferences.find(item => { return item.type === 'Georeference::VerbatimData' })
     }
   },
   data () {
@@ -133,7 +150,8 @@ export default {
       shapes: {
         type: "FeatureCollection",
         features: []
-      }
+      },
+      creatingShape: false
     }
   },
   watch: {
@@ -157,7 +175,7 @@ export default {
       }
       this.showSpinner = true
      
-      this.$http.patch(`/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
+      AjaxCall('patch', `/georeferences/${shape.id}.json`, { georeference: georeference }).then(response => {
         this.showSpinner = false
         this.$emit('updated', response.body)
         this.getGeoreferences()
@@ -176,7 +194,7 @@ export default {
         }
       }
       this.showSpinner = true
-      this.$http.post('/georeferences.json', data).then(response => {
+      AjaxCall('post', '/georeferences.json', data).then(response => {
         this.showSpinner = false
         if(response.body.error_radius) {
           response.body.geo_json.properties.radius = response.body.error_radius
@@ -201,7 +219,7 @@ export default {
 
       this.showSpinner = true
      
-      this.$http.patch(`/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
+      AjaxCall('patch', `/georeferences/${georeference.id}.json`, { georeference: georeference }).then(response => {
         const index = this.georeferences.findIndex(geo => { return geo.id == response.body.id })
         this.showSpinner = false
         this.georeferences[index] = response.body
@@ -212,7 +230,7 @@ export default {
       
     },
     getGeoreferences() {
-      this.$http.get(`/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
+      AjaxCall('get', `/georeferences.json?collecting_event_id=${this.collectingEventId}`).then(response => {
         this.georeferences = response.body
         this.populateShapes()
         this.$emit('onGeoreferences', this.georeferences)
@@ -231,7 +249,7 @@ export default {
       })
     },
     removeGeoreference(geo) {
-      this.$http.delete(`/georeferences/${geo.id}.json`).then(() => {
+      AjaxCall('delete', `/georeferences/${geo.id}.json`).then(() => {
         this.georeferences.splice(this.georeferences.findIndex((item => {
           return item.id === geo.id
         })), 1)
@@ -239,7 +257,9 @@ export default {
         this.populateShapes()
       })
     },
-    createVerbatimShape() {
+    createVerbatimShape () {
+      if (this.verbatimGeoreferenceAlreadyCreated || this.creatingShape) return
+      this.creatingShape = true
       const shape = {
         type: 'Feature',
         properties: {},
@@ -252,28 +272,31 @@ export default {
         georeference: {
           geographic_item_attributes: { shape: JSON.stringify(shape) },
           collecting_event_id: this.collectingEventId,
-          type: 'Georeference::VerbatimData'
+          type: 'Georeference::VerbatimData',
+          error_radius: this.geolocationUncertainty
         }
       }
       this.showSpinner = true
-      this.$http.post('/georeferences.json', data).then(response => {
+      AjaxCall('post', '/georeferences.json', data).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()
         this.$emit('created', response.body)
+        TW.workbench.alert.create('Georeference was successfully created.', 'notice')
+        this.creatingShape = false
       }, response => {
         this.showSpinner = false
+        this.creatingShape = false
         TW.workbench.alert.create(response.bodyText, 'error')
       })
     },
     createGEOLocate(iframe_data) {
-
       this.showSpinner = true
-      this.$http.post('/georeferences.json', { georeference: {
-          iframe_response: iframe_data,
-          collecting_event_id: this.collectingEventId,
-          type: 'Georeference::GeoLocate'
-        }}).then(response => {
+      AjaxCall('post', '/georeferences.json', { georeference: {
+        iframe_response: iframe_data,
+        collecting_event_id: this.collectingEventId,
+        type: 'Georeference::GeoLocate'
+      }}).then(response => {
         this.showSpinner = false
         this.georeferences.push(response.body)
         this.populateShapes()

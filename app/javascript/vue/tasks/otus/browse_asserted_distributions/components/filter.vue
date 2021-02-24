@@ -70,7 +70,7 @@ export default {
       GetOtuAssertedDistribution(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
-        this.$emit('urlRequest', response.url)
+        this.$emit('urlRequest', response.request.responseURL)
         this.searching = false
         if(this.result.length == 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')

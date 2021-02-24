@@ -2,6 +2,9 @@ require 'rails_helper'
 
 describe Source::Bibtex, type: :model, group: :sources do
 
+  # TODO: shouldn't be needed ultimately
+  after(:all) { Source.destroy_all }
+
   let(:bibtex) { FactoryBot.build(:source_bibtex) }
 
   let(:gem_bibtex_entry1) {
@@ -20,15 +23,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-  after(:all) { Source.destroy_all }
-
   context '#clone' do
     before do
-      bibtex.update(title: 'This is verbatim', bibtex_type: :article)
-    end
-
-    specify 'persists' do
-      expect(bibtex.clone.persisted?).to be_truthy
+      bibtex.update!(title: 'This is verbatim', bibtex_type: :article)
     end
 
     specify 'labeled' do
@@ -230,7 +227,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           src.journal = nil
           src.soft_validate()
           expect(src.soft_validations.messages).to include 'This article is missing a journal name.'
-          src.update(serial: serial1)
+          src.update!(serial: serial1)
           src.soft_validate(:sv_missing_required_bibtex_fields)
           expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
@@ -348,9 +345,9 @@ describe Source::Bibtex, type: :model, group: :sources do
       #  Registrant using SICI: doi:10.4567/0361-9230(1997)42:<OaEoSR>2.0.TX;2-B
       #  Registrant using internal scheme: doi:10.6789/JoesPaper56
 
-      identifier                = '10.2345/S1384107697000225'
+      identifier = '10.2345/S1384107697000225'
       valid_gem_bibtex_book.doi = identifier
-      s                         = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s  = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -360,6 +357,25 @@ describe Source::Bibtex, type: :model, group: :sources do
   end
 
   context 'validation' do
+
+    specify 'title italics 1' do
+      bibtex.title = '<i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_truthy
+    end
+
+    specify 'title italics 2' do
+      bibtex.title = '</i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_truthy
+    end
+
+    specify 'title italics 3' do
+      bibtex.title = '<i> asdfa</i> foo'
+      bibtex.valid?
+      expect(bibtex.errors.include?(:title)).to be_falsey
+    end
+
     specify 'must have a valid bibtex_type' do
       local_src = FactoryBot.build(:valid_source_bibtex)
       expect(local_src.valid?).to be_truthy
@@ -385,8 +401,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     context 'test date related fields' do
       let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
 
+      # TODO: break to individual tests
       specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg          = 'must be an integer greater than 999 and no more than 2 years in the future'
+        error_msg = 'must be an integer greater than 999 and no more than 2 years in the future'
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
@@ -558,7 +575,7 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             specify 'multiple authors' do
               source_bibtex.author = 'Thomas, D. and Fowler, Chad and Hunt, Andy'
-              source_bibtex.save
+              source_bibtex.save!
               expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
             end
@@ -573,9 +590,23 @@ describe Source::Bibtex, type: :model, group: :sources do
 
             specify 'SourceAuthor role' do
               a = Person.parse_to_people('Dmitriev, D.A.').first
-              a.save
+              a.save!
               SourceAuthor.create!(person_id: a.id, role_object: source_bibtex)
               expect(source_bibtex.cached_author_string).to eq('Dmitriev')
+            end
+
+            specify 'multiple updates' do
+              a = Person.parse_to_people('Dmitriev, D.A.').first
+              b = Person.parse_to_people('Yoder, M.J.').first
+              a.save!
+              b.save!
+              source_bibtex.update!(roles_attributes: [{person_id: a.id, type: 'SourceAuthor'}])
+              expect(source_bibtex.cached_author_string).to eq('Dmitriev')
+              expect(source_bibtex.author).to eq('Dmitriev, D.A.')
+              source_bibtex.update!(roles_attributes: [{id: source_bibtex.roles.first.id}, {person_id: b.id, type: 'SourceAuthor'}])
+
+              expect(source_bibtex.reload.cached_author_string).to eq('Dmitriev & Yoder')
+              expect(source_bibtex.reload.author).to eq('Dmitriev, D.A. and Yoder, M.J.')
             end
           end
 
@@ -1108,43 +1139,17 @@ describe Source::Bibtex, type: :model, group: :sources do
                            month:       'jul')
       }
 
-      context '#identical' do
-        specify 'full matching' do
-          [bib1, bib2, bib3, bib4, bib1a]
-          expect(Source.identical(bib1.attributes).ids).to contain_exactly(bib2.id, bib1.id, bib1a.id)
-        end
+      specify '#identical, full matchine' do
+        [bib1, bib2, bib3, bib4, bib1a]
+        expect(Source.identical(bib1.attributes).ids).to contain_exactly(bib2.id, bib1.id, bib1a.id)
       end
 
-      context '#similar' do
-        specify 'full matching' do
-          [bib1, bib2, bib3, bib4, bib1a]
-          expect(Source.similar(trial.attributes).ids).to contain_exactly(bib3.id, bib4.id)
-        end
+      specify '#similar, full matching' do
+        [bib1, bib2, bib3, bib4, bib1a]
+        expect(Source.similar(trial.attributes).ids).to contain_exactly(bib3.id, bib4.id)
       end
     end
   end
-
-=begin
-  context 'supporting libs' do
-    # TODO support for a zotero bibliography
-    context 'if I have a zotero bibliography' do
-      context 'and I import it to TW' do
-        context 'when I update a record in zotero' do
-          specify 'then TW should be aware and notify me of discrepancies' do
-            skip 'not implemented yet'
-          end
-        end
-      end
-    end
-
-    context 'Hackathon requirements' do
-      # TODO: code lib/bibtex   - round trip a file?
-      # note that we've determined that some fields won't round trip properly (notes)
-      skip 'Should be able to round trip data a whole file '
-      #(e.g. import a BibTex file, then output a BibTex file and have them be the same.)
-    end
-  end
-=end
 
   context 'soft validations' do
     let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }
@@ -1238,7 +1243,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       context 'creates new author role with existing person' do
         let(:params) { required_params.merge(one_author_params) }
         specify 'update adds role' do
-          expect(b.update(params)).to be_truthy
+          expect(b.update!(params)).to be_truthy
           expect(b.roles.reload.size).to eq(1)
         end
       end
@@ -1254,14 +1259,14 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context 'deletes existing author role' do
-        before { b.update(one_author_params) }
+        before { b.update!(one_author_params) }
         context 'verify existing person is not deleted' do
           let(:params) { {
             author_roles_attributes: [{id: b.roles.first.id, _destroy: 1}]
           } }
           specify 'update destroys role' do
             expect(b.roles.reload.size).to eq(1)
-            expect(b.update(params)).to be_truthy
+            expect(b.update!(params)).to be_truthy
             expect(b.roles.reload.size).to eq(0)
           end
         end
@@ -1292,19 +1297,19 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
 
       context 'authors (roles) are rearranged according to specified position' do
-        before { b.update(three_author_params) }
+        before { b.update!(three_author_params) }
         let(:params) { {
           author_roles_attributes: [{id: b.roles.second.id, position: 1}, {id: b.roles.third.id, position: 2}, {id: b.roles.first.id, position: 3}]
         } }
+
         specify 'update updates position' do
-          expect(b.authors.reload.count).to eq(3)
           expect(b.authority_name).to eq('Un, Deux & Trois')
-          b.update(params)
-          expect(b.authors.reload.collect { |a| a.last_name }).to eq(%w{Deux Trois Un})
-          expect(b.authors.count).to eq(3)
-          expect(b.authority_name).to eq('Deux, Trois & Un')
+          b.update!(params)
+          expect(b.reload.authority_name).to eq('Deux, Trois & Un')
+          expect(b.authors.collect{|a| a.last_name }).to eq(%w{Deux Trois Un})
         end
       end
+
     end
   end
 

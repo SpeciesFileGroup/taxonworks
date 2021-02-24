@@ -1,4 +1,4 @@
-//  New taxon name
+//  New source task
 //  language: en
 
 export default {
@@ -17,7 +17,12 @@ export default {
       month: 'Values are in format of legal BibTeX.',
       editors: 'Find people, or create-new ones inline, assigning them to the role of SourceEditor. You can drag drop people to reorder them.',
       crosslinks: 'These data are from BibTeX but variously automatically translated to normalized values in TW.',
-      attributes: 'These are not BibTeX attributes. They are largely used in imports and are reflections of past databases.  Currently you should use Documentation for content, and Tags for keywords.'
+      attributes: 'These are not BibTeX attributes. They are largely used in imports and are reflections of past databases.  Currently you should use Documentation for content, and Tags for keywords.',
+      serial: 'Serials are repeated publications, most will know these as Journals.',
+
+    },
+    navBar: {
+      crossRef: 'Use the DOI to get a semi-automated approach through Crossref to get parsed values of the source you are looking for.'
     }
   }
 }

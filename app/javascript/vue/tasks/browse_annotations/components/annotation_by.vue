@@ -12,6 +12,8 @@
 </template>
 
 <script>
+  import AjaxCall from 'helpers/ajaxCall'
+
   export default {
     props: {
       value: {
@@ -31,7 +33,7 @@
       }
     },
     mounted: function () {
-      this.$http.get('/project_members.json').then(response => {
+      AjaxCall('get', '/project_members.json').then(response => {
         this.membersList = response.body
       })
     },

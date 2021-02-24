@@ -87,27 +87,7 @@
   }
 </script>
 <style lang="scss" scoped>
-
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
+  /deep/ .otu_tag_taxon_name {
+    white-space: normal !important;
   }
 </style>

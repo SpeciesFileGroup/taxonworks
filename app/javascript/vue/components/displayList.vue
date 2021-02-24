@@ -8,15 +8,21 @@
       :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
-      <span
-        class="list-item"
-        v-html="displayName(item)"/>
+      <span>
+        <span
+          class="list-item"
+          v-html="displayName(item)"/>
+        <soft-validation
+          v-if="validations"
+          class="margin-small-left"
+          :global-id="item.global_id"/>
+      </span>
       <div class="list-controls">
         <slot
           name="options"
           :item="item"/>
         <a
-          v-if="download" 
+          v-if="download"
           class="btn-download circle-button"
           :href="getPropertyValue(item, download)"
           download/>
@@ -44,10 +50,12 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
+import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    SoftValidation
   },
   props: {
     list: {
@@ -60,7 +68,7 @@ export default {
     },
     label: {
       type: [String, Array],
-      required: true
+      default: undefined
     },
     setKey: {
       type: String,
@@ -89,6 +97,10 @@ export default {
     deleteWarning: {
       type: Boolean,
       default: true
+    },
+    validations: {
+      type: Boolean,
+      default: false
     }
   },
   beforeCreate() {
@@ -97,6 +109,7 @@ export default {
   },
   methods: {
     displayName (item) {
+      if (!this.label) return item
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {

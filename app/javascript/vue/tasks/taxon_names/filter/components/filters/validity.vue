@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Validity</h2>
+    <h3>Validity</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">
@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -25,31 +28,35 @@ export default {
   },
   computed: {
     optionValue: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
     }
   },
-  data() {
+  data () {
     return {
       options: [
         {
           label: 'in/valid',
-          value: undefined 
+          value: undefined
         },
-        { 
+        {
           label: 'only valid',
           value: true
         },
-        { 
+        {
           label: 'only invalid',
           value: false
         }
       ]
     }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.optionValue = params.validity
   }
 }
 </script>

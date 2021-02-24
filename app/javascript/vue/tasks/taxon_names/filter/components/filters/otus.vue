@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>OTUs</h2>
+    <h3>OTUs</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">
@@ -17,6 +17,9 @@
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -38,7 +41,7 @@ export default {
       options: [
         {
           label: 'With/out OTU',
-          value: undefined 
+          value: undefined
         },
         { 
           label: 'With OTUs',
@@ -50,6 +53,9 @@ export default {
         }
       ]
     }
+  },
+  mounted () {
+    this.optionValue = URLParamsToJSON(location.href).otus
   }
 }
 </script>

@@ -1,6 +1,6 @@
 class TaxonNameClassification::Iczn::Available::Invalid::HomonymyOfTypeGenus < TaxonNameClassification::Iczn::Available::Invalid
 
-  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_Temporary1_to_be_replaced'.freeze
+  NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000119'.freeze
 
   def classification_label
     'invalid due to homonymy of type genus'

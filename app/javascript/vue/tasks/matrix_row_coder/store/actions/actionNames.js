@@ -8,12 +8,13 @@ const ActionNames = {
   RequestObservationDepictions: 'requestObservationDepictions',
   RequestObservationConfidences: 'requestObservationConfidences',
   RequestObservationCitations: 'requestObservationCitations',
+  RequestUnits: 'requestUnits',
   RemoveObservation: 'removeObservation',
   RemoveObservationsRow: 'removeObservationsRow',
   UpdateObservation: 'updateObservation',
   CreateObservation: 'createObservation',
   CreateClone: 'createClone',
-  SaveObservationsFor: `saveObservationsFor`
+  SaveObservationsFor: 'saveObservationsFor'
 }
 
 export default ActionNames

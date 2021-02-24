@@ -22,6 +22,10 @@ $viewport_width: 1024px;
   width: 100%;
 }
 
+.width-auto {
+  width: auto !important;
+}
+
 .one_tenth_width {
   width: 10%;
 }
@@ -34,7 +38,7 @@ $viewport_width: 1024px;
   width: 20%;
 }
 
-.one_third_width {
+.one_third_width, .width-30 {
   width: 30%;
 }
 
@@ -48,6 +52,10 @@ $viewport_width: 1024px;
 
 .four_character_width {
   width: 4em;
+}
+
+.width-40 {
+  width: 40%;
 }
 
 

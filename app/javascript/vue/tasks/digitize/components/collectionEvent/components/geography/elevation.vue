@@ -25,12 +25,16 @@
         Unit
         <label>
           <input
+            v-model="collectingEvent.units"
             type="radio"
+            :value="undefined"
             name="elevation">
           Meters
         </label>
         <label>
           <input
+            v-model="collectingEvent.units"
+            value="ft"
             type="radio"
             name="elevation">
           Feet
@@ -47,6 +51,14 @@
 
   export default {
     computed: {
+      collectingEvent: {
+        get () {
+          return this.$store.getters[GetterNames.GetCollectionEvent]
+        },
+        set (value) {
+          this.$store.commit(MutationNames.SetCollectionEvent, value)
+        }
+      },
       minimum_elevation: {
         get() {
           return this.$store.getters[GetterNames.GetCollectionEvent].minimum_elevation

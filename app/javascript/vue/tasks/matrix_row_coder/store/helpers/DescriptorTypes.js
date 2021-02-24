@@ -1,7 +1,8 @@
 export default {
-  Qualitative: 'Descriptor::Qualitative',
   Continuous: 'Descriptor::Continuous',
+  FreeText: 'Descriptor::Working',
+  Media: 'Descriptor::Media',
   Sample: 'Descriptor::Sample',
   Presence: 'Descriptor::PresenceAbsence',
-  Media: 'Descriptor::Media'
+  Qualitative: 'Descriptor::Qualitative'
 }

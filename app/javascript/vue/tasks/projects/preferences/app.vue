@@ -44,7 +44,7 @@ export default {
   },
   mounted() {
     GetProjectPreferences().then(response => {
-      this.preferences = response
+      this.preferences = response.body
     })
   },
   methods: {
@@ -52,13 +52,12 @@ export default {
       this.model = model.value
     },
     updatePredicatePreferences(newPreferences) {
-      if(!this.model) return 
-      
-      let data = this.preferences.model_predicate_sets
+      if (!this.model) return
+      const data = this.preferences.model_predicate_sets
       data[this.model] = newPreferences
 
       UpdateProjectPreferences(this.preferences.id, { model_predicate_sets: data }).then(response => {
-        this.preferences = response.preferences
+        this.preferences = response.body.preferences
         this.preferences.id = response.id
       })
     }

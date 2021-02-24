@@ -1,18 +1,49 @@
+# A ObservationMatrixRow is a row in an Observation matrix representing an Otu or a CollectionObject
+#
+# @!attribute observation_matrix_id 
+#   @return [Integer] 
+#     id of the matrix the row is in 
+# 
+# @!attribute otu_id 
+#   @return [Integer, nil]
+#     id of the OTU or nil
+#
+# @!attribute collection_object_id
+#   @return [Integer, nil] id of the collecton_object or nil
+#
+# @!attribute reference_count
+#   Indicates the total number of times this row is referened via some row_item
+#   @return [Integer]  
+#
+# @!attribute cached_observation_matrix_row_item_id
+#   @return [Integer] if the column item is derived from a ::Single::<FOO> subclass, the id of that instance
+#
+# @!attribute name 
+#   @return [String, nil]  
+#     TEMPORARY value. Allows for a temporary generated/custom name for the row, useful for example when generating labels for phylogenetic trees.
+#     This value is NOT persisted and NOT intended for provenance purposes, it is strictly utilitarian.  Consider using custom OTUs to track provenance.
+#
+# @!attribute position
+#   @return [Integer] from acts as list 
+#
 class ObservationMatrixRow < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
 
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
-  belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
   belongs_to :otu, inverse_of: :observation_matrix_rows
   belongs_to :collection_object, inverse_of: :observation_matrix_rows
+  belongs_to :observation_matrix, inverse_of: :observation_matrix_rows
 
   attr_accessor :row_object_global_id
+
+  #list of rows with otu_ids in format '1|3|5'
+  scope :with_otu_ids, -> (otu_ids) { where('(observation_matrix_rows.otu_id IN (?))', otu_ids.to_s.split('|').map(&:to_i)).order(:position) }
 
   def observation_matrix_columns
     ObservationMatrixColumn.where(observation_matrix_id: observation_matrix_id)
@@ -70,6 +101,15 @@ class ObservationMatrixRow < ApplicationRecord
       row_object.taxon_name
     when 'CollectionObject'
       row_object.current_taxon_name
+    end
+  end
+
+  def current_otu
+    case row_object_class_name
+    when 'Otu'
+      row_object
+    when 'CollectionObject'
+      row_object.current_otu
     end
   end
 

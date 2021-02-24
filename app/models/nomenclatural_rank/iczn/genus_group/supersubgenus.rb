@@ -9,7 +9,7 @@ class NomenclaturalRank::Iczn::GenusGroup::Supersubgenus < NomenclaturalRank::Ic
   end
 
   def self.abbreviation
-    '' 
+    'supersubgen.'
   end
 
   def self.typical_use

@@ -80,10 +80,6 @@ class CollectionProfile < ApplicationRecord
   scope :with_container_id, -> (container) {where(container_id: container)}
   scope :with_otu_id, -> (otu) {where(otu_id: otu)}
 
-  # Use shared scopes lib/housekeeping/timestamps for this
-  # deprecated for timestamps#created_before_date
-  # scope :created_before_date, -> (date) { where('"collection_profiles"."id" in (SELECT DISTINCT ON (id) id FROM collection_profiles WHERE created_at < ? ORDER BY id, created_at DESC)', "#{date}")}
-
   validates :conservation_status,
             :processing_state,
             :container_condition,

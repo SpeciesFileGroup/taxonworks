@@ -44,13 +44,11 @@ import { MutationNames } from '../../../../store/mutations/mutations'
 import CloneLabel from './cloneLabel'
 import { GetCEMd5Label } from '../../../../request/resources'
 import ModalComponent from 'components/modal'
-import TableComponent from 'components/table_list'
 
 export default {
   components: {
     CloneLabel,
-    ModalComponent,
-    TableComponent
+    ModalComponent
   },
   computed: {
     label: {
@@ -60,6 +58,9 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)
       }
+    },
+    collectingEvent () {
+      return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
   data () {
@@ -70,11 +71,13 @@ export default {
   },
   methods: {
     searchCE () {
-      if(this.label) {
+      if (this.label) {
         GetCEMd5Label(this.label).then(response => {
-          if(response.length) {
-            this.CEFounded = response
-            this.showModal = true
+          if (response.body.length) {
+            this.CEFounded = response.body
+            if (!response.body.find(item => { return item.id === this.collectingEvent.id })) {
+              this.showModal = true
+            }
           }
         })
       }

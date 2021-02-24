@@ -1,6 +1,6 @@
 <template>
   <div v-if="taxonName">
-    <h2>Select ranks</h2>
+    <h3>Select ranks</h3>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
       <div
@@ -59,7 +59,7 @@ export default {
         return this.value
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('input', this.orderRanks(value))
       }
     },
     ranks: {
@@ -96,6 +96,27 @@ export default {
     LoadRanks().then(response => {
       this.ranks = response.body
     })
+  },
+  methods: {
+    orderRanks (ranks) {
+      const rankNames = [...new Set(this.getRankNames(this.ranks))]
+      const ranksOrder = rankNames.filter(rank => {
+        return ranks.includes(rank)
+      })
+      return ranksOrder
+    },
+    getRankNames (list, nameList = []) {
+      for (var key in list) {
+        if (typeof list[key] === 'object') {
+          this.getRankNames(list[key], nameList)
+        } else {
+          if (key === 'name') {
+            nameList.push(list[key])
+          }
+        }
+      }
+      return nameList
+    },
   }
 }
 </script>

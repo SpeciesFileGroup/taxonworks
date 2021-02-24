@@ -55,6 +55,7 @@ export default {
   },
   methods: {
     activeModal: function (value) {
+      this.$emit('close', true)
       this.$store.commit(MutationNames[this.mutationNameModal], value)
     }
   }

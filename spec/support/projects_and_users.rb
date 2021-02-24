@@ -16,7 +16,7 @@ module ProjectsAndUsers
     # Order matters 
     FactoryBot.create(:valid_user, id: 1, self_created: true)
     Current.user_id = 1
-    
+
     FactoryBot.create(:valid_project, id: 1, without_root_taxon_name: true)
     Current.project_id = 1
     FactoryBot.create(:project_member, user_id: 1, project_id: 1)

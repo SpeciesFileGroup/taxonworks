@@ -45,6 +45,7 @@
       </ul>
       <button
         type="button"
+        class="button normal-input button-default"
         @click="showModal = true">Show all
       </button>
     </div>
@@ -56,6 +57,7 @@ import Modal from 'components/modal.vue'
 import childOfParent from '../helpers/childOfParent'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { GetPredictedRank } from '../request/resources'
 
 export default {
   components: {
@@ -82,34 +84,63 @@ export default {
         this.$store.commit(MutationNames.SetRankClass, value)
         this.$store.commit(MutationNames.UpdateLastChange)
       }
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
     }
   },
   data: function () {
     return {
       childOfParent: childOfParent,
       showModal: false,
-      defaultRanks: ['family', 'genus', 'species']
+      defaultRanks: ['family', 'genus', 'species'],
+      timer: undefined
     }
   },
   watch: {
     ranks: {
       handler: function (val, oldVal) {
-        this.refresh()
+        //this.refresh()
       },
       deep: true,
       immediate: true
     },
     parent: {
-      handler: function (val, oldVal) {
-        if(oldVal) {
-          if(!this.taxon.id) {
+      handler: function (newVal, oldVal) {
+        if (oldVal) {
+          if (!this.taxon.id) {
             this.rankClass = undefined
           }
-          this.refresh()
+        }
+        if (newVal && !this.taxon.id) {
+          GetPredictedRank(newVal.id, this.taxon.name).then(response => {
+            if (response.body.predicted_rank.length) {
+              this.rankClass = response.body.predicted_rank
+            } else {
+              //this.refresh()
+            }
+          })
         }
       },
       deep: true,
       immediate: true
+    },
+    taxonName: {
+      handler (newVal, oldVal) {
+        if (!this.taxon.id && this.parent && newVal.length && newVal !== oldVal) {
+          clearTimeout(this.timer)
+
+          const that = this
+          this.timer = setTimeout(() => {
+            GetPredictedRank(that.parent.id, that.taxon.name).then(response => {
+              if (response.body.predicted_rank.length) {
+                that.rankClass = response.body.predicted_rank
+              }
+            })
+          }, 500)
+        }
+      },
+      deep: true
     }
   },
   methods: {

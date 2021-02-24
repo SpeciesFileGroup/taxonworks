@@ -1,5 +1,5 @@
 <template>
-  <nav-bar>
+  <nav-bar style="z-index: 1001">
     <div class="flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
@@ -145,8 +145,8 @@
             if(!this.loadingNavigation) {
               this.loadingNavigation = true
               AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
-                this.navigation.next = response.headers.map['navigation-next']
-                this.navigation.previous = response.headers.map['navigation-previous']
+                this.navigation.next = response.headers['navigation-next']
+                this.navigation.previous = response.headers['navigation-previous']
                 this.loadingNavigation = false
               })
             }

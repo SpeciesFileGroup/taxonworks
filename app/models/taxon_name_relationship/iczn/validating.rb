@@ -14,12 +14,7 @@ class TaxonNameRelationship::Iczn::Validating < TaxonNameRelationship::Iczn
   end
 
   def self.disjoint_object_classes
-    self.parent.disjoint_object_classes +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Available::Valid) +
-        self.collect_to_s(TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology,
-            TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology,
-            TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
-
+    self.parent.disjoint_object_classes
   end
 
   def subject_status_connector_to_object

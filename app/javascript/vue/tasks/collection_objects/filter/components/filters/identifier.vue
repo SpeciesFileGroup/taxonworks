@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Identifiers</h2>
+    <h3>Identifiers</h3>
     <div class="field">
       <label>Identifier</label>
       <br>
@@ -43,39 +43,18 @@
       </div>
     </div>
     <h3>Namespace</h3>
-    <switch-component
-      :options="options"
-      v-model="view"
-    />
-    <div class="separate-top">
-      <autocomplete
-        v-if="view === 'search'"
-        url="/namespaces/autocomplete"
-        param="term"
-        placeholder="Search a namespace"
-        :clear-after="true"
-        @getItem="setNamespace"
-        label="label_html"/>
-      <ul
-        v-else
-        class="no_bullets">
-        <li
-          v-for="item in smartLists[view]"
-          :key="item.id">
-          <label>
-            <input 
-              type="radio"
-              @click="setNamespace(item)">
-            {{ item.object_tag }}
-          </label>
-        </li>
-      </ul>
-    </div>
+    <smart-selector
+      class="margin-medium-top"
+      model="namespaces"
+      klass="CollectionObject"
+      pin-section="Namespaces"
+      pin-type="Namespace"
+      @selected="setNamespace"/>
     <div
       v-if="namespace"
       class="middle flex-separate separate-top">
-      <span v-html="namespace.object_tag"/>
-      <span 
+      <span v-html="namespace.name"/>
+      <span
         class="button button-circle btn-undo button-default"
         @click="unsetNamespace"/>
     </div>
@@ -84,14 +63,13 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import SwitchComponent from 'components/switch'
-import { GetNamespacesSmartSelector } from '../../request/resources'
+import SmartSelector from 'components/smartSelector'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetNamespace } from '../../request/resources'
 
 export default {
   components: {
-    Autocomplete,
-    SwitchComponent
+    SmartSelector
   },
   props: {
     value: {
@@ -138,22 +116,23 @@ export default {
     }
   },
   mounted () {
-    GetNamespacesSmartSelector().then(response => {
-      this.options = Object.keys(response.body)
-      this.smartLists = response.body
-      this.options.push('search')
-
-    })
+    const urlParams = URLParamsToJSON(location.href)
+    this.identifier.identifier = urlParams.identifier
+    this.identifier.identifier_exact = urlParams.identifier_exact
+    this.identifier.identifier_start = urlParams.identifier_start
+    this.identifier.identifier_end = urlParams.identifier_end
+    if (urlParams.namespace_id) {
+      GetNamespace(urlParams.namespace_id).then(response => {
+        this.setNamespace(response.body)
+      })
+    }
   },
   methods: {
-    setNamespace(namespace) {
-      if(namespace.hasOwnProperty('label_html')) {
-        namespace.object_tag = namespace.label_html
-      }
+    setNamespace (namespace) {
       this.namespace = namespace
       this.identifier.namespace_id = namespace.id
     },
-    unsetNamespace() {
+    unsetNamespace () {
       this.namespace = undefined
       this.identifier.namespace_id = undefined
     }

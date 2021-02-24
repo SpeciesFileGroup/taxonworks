@@ -26,7 +26,7 @@ Object.assign(TW.views.shared.show, {
 
     if(!$('#validation-panel li').length) {
       $('#validation-panel').hide();
-    }  
+    }
 
     $('.panel').each( function() {
       if($(this).find('.information-panel').length) {
@@ -35,7 +35,7 @@ Object.assign(TW.views.shared.show, {
         }
       }
     }); 
-    this.bindShortcut();      
+    this.bindShortcut();
   },
 
   bindShortcut: function() {
@@ -49,7 +49,13 @@ Object.assign(TW.views.shared.show, {
       if($('[data-button="next"]').is('a')) {
         document.querySelector('[data-button="next"]').click();
       }
-    });    
+    });
+    TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+p', "Pinboard", "Add to pinboard", function() {
+      var element = document.querySelector('.pin-button') || document.querySelector('.unpin-button');
+      if (element) {
+        element.click();
+      }
+    });
     /*
     TW.workbench.keyboard.createShortcut(getOSKey + "up", "Go to ancestor", "Taxon names browse", function() {
       if($('[data-arrow="back"]').is('a')) {

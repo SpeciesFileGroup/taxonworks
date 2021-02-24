@@ -17,7 +17,7 @@
           </a>
           <radial-annotator
             v-if="typeMaterial.id"
-            :global-id="typeMaterial.collection_object.global_id" 
+            :global-id="typeMaterial.collection_object.global_id"
           />
           <expand v-model="displayBody" />
         </div>
@@ -70,12 +70,15 @@
               </div>
             </template>
           </div>
-          <div
-            class="field"
-            v-if="protonymId"
-          >
-            <label>Depiction</label>
-            <depictions-section />
+          <div class="margin-medium-left">
+            <div
+              class="field"
+              v-if="protonymId"
+            >
+              <label>Depiction</label>
+              <depictions-section />
+              <catalog-number/>
+            </div>
           </div>
         </div>
       </div>
@@ -105,6 +108,7 @@ import Spinner from 'components/spinner.vue'
 import Expand from './expand.vue'
 import CollectionObject from './collectionObject.vue'
 import DepictionsSection from './depictions.vue'
+import CatalogNumber from './catalogNumber'
 
 import { RouteNames } from 'routes/routes'
 
@@ -115,7 +119,8 @@ export default {
     Autocomplete,
     Expand,
     RadialAnnotator,
-    Spinner
+    Spinner,
+    CatalogNumber
   },
   computed: {
     typeMaterial () {

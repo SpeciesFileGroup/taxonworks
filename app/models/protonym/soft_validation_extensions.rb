@@ -10,6 +10,9 @@ module Protonym::SoftValidationExtensions
         description: 'Validates parent rank.'
       },
 
+      sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
       sv_missing_original_genus: { set: :missing_relationships, has_fix: false},
       sv_missing_type_species: { set: :missing_relationships, has_fix: false},
       sv_missing_type_genus: { set: :missing_relationships, has_fix: false},
@@ -41,9 +44,8 @@ module Protonym::SoftValidationExtensions
       sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
       sv_parent_priority: { set: :parent_priority, has_fix: false},
       sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
-      sv_potential_family_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_potential_genus_homonyms: { set: :potential_homonyms, has_fix: false},
-      sv_potential_species_homonyms: { set: :potential_homonyms, has_fix: false},
+      sv_family_is_invalid: { set: :family_is_invalid, has_fix: false},
+      sv_family_is_invalid_no_substitute: { set: :family_is_invalid, has_fix: false},
       sv_source_not_older_then_description: { set: :dates, has_fix: false},
       sv_original_combination_relationships: { set: :original_combination_relationships, has_fix: false},
       sv_extant_children: { set: :extant_children, has_fix: false},
@@ -69,7 +71,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_parent_rank
-      if self.rank_class
+      if self.rank_class && self.id == self.cached_valid_taxon_name_id
         if rank_string == 'NomenclaturalRank' || self.parent.rank_string == 'NomenclaturalRank' || !!self.iczn_uncertain_placement_relationship
           true
         elsif !self.rank_class.valid_parents.include?(self.parent.rank_string)
@@ -93,14 +95,30 @@ module Protonym::SoftValidationExtensions
     def sv_missing_substitute_name
       if !self.iczn_set_as_homonym_of.nil? || !TaxonNameClassification.where_taxon_name(self).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty?
         if self.iczn_set_as_synonym_of.nil? && is_available?
-          soft_validations.add(:base, 'Missing relationship: The name is a homonym, but the substitute name is not selected')
+          soft_validations.add(:base, 'Missing relationship: The name is a homonym, but a substitute name is not selected')
         end
       end
     end
 
     def sv_missing_part_of_speach
       if is_species_rank? && self.part_of_speech_class.nil? && !has_misspelling_relationship? && is_available?
-        soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+
+        z = TaxonNameClassification.
+            joins(:taxon_name).
+            where(taxon_names: { name: name, project_id: project_id }).
+            where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::PartOfSpeech%'").
+            group(:type).
+            count(:type)
+
+        if z.empty?
+          soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
+        else
+          l = []
+          z.each do |key, value|
+            l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
+          end
+          soft_validations.add(:base, 'Part of speech is not specified. The name was previously used' + l.join('; '))
+        end
       end
     end
 
@@ -196,7 +214,7 @@ module Protonym::SoftValidationExtensions
       s = self.source
       list_of_coordinated_names.each do |t|
         if ((s && t.source && s.id != t.source.id) || (s.nil? && t.source))
-          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_source, success_message: 'Original publication was updated')
+          soft_validations.add(:base, "The original publication does not match with the original publication of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_source, success_message: 'Original publication was updated')
         end
       end
     end
@@ -225,7 +243,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_author
       s = self.verbatim_author
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_author, success_message: 'Author was updated') unless s == t.verbatim_author
+        soft_validations.add(:verbatim_author, "The author does not match with the author of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_author, success_message: 'Author was updated') unless s == t.verbatim_author
       end
     end
 
@@ -243,7 +261,7 @@ module Protonym::SoftValidationExtensions
     def sv_validate_coordinated_names_year
       s = self.year_of_publication
       list_of_coordinated_names.each do |t|
-        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_year, success_message: 'Year was updated') unless s == t.year_of_publication
+        soft_validations.add(:year_of_publication, "The year of publication does not match with the year of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_year, success_message: 'Year was updated') unless s == t.year_of_publication
       end
     end
 
@@ -264,7 +282,7 @@ module Protonym::SoftValidationExtensions
       s = self.gender_class
       list_of_coordinated_names.each do |t|
         if s != t.gender_class
-          soft_validations.add(:base, "The gender status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_gender, success_message: 'Gender was updated')
+          soft_validations.add(:base, "The gender status does not match with that of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_gender, success_message: 'Gender was updated')
         end
       end
     end
@@ -285,7 +303,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
         if self.part_of_speech_class != t.part_of_speech_class
-          soft_validations.add(:base, "The part of speech status does not match with that of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names, success_message: 'Part of speech was updated')
+          soft_validations.add(:base, "The part of speech status does not match with that of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_part_of_speach, success_message: 'Part of speech was updated')
         end
       end
     end
@@ -302,10 +320,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_genus
-      return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_genus_or_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if self.original_genus.try(:name) != t.original_genus.try(:name)
-          soft_validations.add(:base, "The original genus does not match with the original genus of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_genus, success_message: 'Original genus was updated')
+          soft_validations.add(:base, "The original genus does not match with the original genus of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_genus, success_message: 'Original genus was updated')
         end
       end
     end
@@ -332,10 +350,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subgenus
-      return true if !is_genus_or_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_genus_or_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subgenus.try(:name) != t.original_subgenus.try(:name)
-          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subgenus, success_message: 'Original subgenus was updated')
+          soft_validations.add(:base, "The original subgenus does not match with the original subgenus of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subgenus, success_message: 'Original subgenus was updated')
         end
       end
     end
@@ -362,10 +380,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_species
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_species.try(:name) != t.original_species.try(:name)
-          soft_validations.add(:base, "The original species does not match with the original species of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_species, success_message: 'Original species was updated')
+          soft_validations.add(:base, "The original species does not match with the original species of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_species, success_message: 'Original species was updated')
         end
       end
     end
@@ -392,10 +410,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_subspecies
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_subspecies.try(:name) != t.original_subspecies.try(:name)
-          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subspecies, success_message: 'Original subspecies was updated')
+          soft_validations.add(:base, "The original subspecies does not match with the original subspecies of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_subspecies, success_message: 'Original subspecies was updated')
         end
       end
     end
@@ -422,10 +440,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_variety
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_variety.try(:name) != t.original_variety.try(:name)
-          soft_validations.add(:base, "The original variety does not match with the original variety of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_variety, success_message: 'Original variety was updated')
+          soft_validations.add(:base, "The original variety does not match with the original variety of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_variety, success_message: 'Original variety was updated')
         end
       end
     end
@@ -452,10 +470,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_original_form
-      return true if !is_species_rank? && !self.iczn_set_as_incorrect_original_spelling_of_relationship.blank?
+      return true if !is_species_rank? || has_misspelling_relationship?
       list_of_coordinated_names.each do |t|
         if self.original_form.try(:name) != t.original_form.try(:name)
-          soft_validations.add(:base, "The original form does not match with the original form of coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_form, success_message: 'Original form was updated')
+          soft_validations.add(:base, "The original form does not match with the original form of coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_original_form, success_message: 'Original form was updated')
         end
       end
     end
@@ -486,7 +504,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_genus_rank?
       list_of_coordinated_names.each do |t|
         if self.type_species != t.type_species
-          soft_validations.add(:base, "The type species does not match with the type species of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species, success_message: 'Type species was updated')
+          soft_validations.add(:base, "The type species does not match with the type species of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species, success_message: 'Type species was updated')
         end
       end
     end
@@ -519,7 +537,7 @@ module Protonym::SoftValidationExtensions
       list_of_coordinated_names.each do |t|
         tttnr = t.type_taxon_name_relationship
         if !tttnr.nil? && sttnr.type != tttnr.type
-          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species_type, success_message: 'Type species relationship was updated')
+          soft_validations.add(:base, "The type species relationship does not match with the type species relationship of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_species_type, success_message: 'Type species relationship was updated')
         end
       end
     end
@@ -552,7 +570,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_family_rank?
       list_of_coordinated_names.each do |t|
         if self.type_genus != t.type_genus
-          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_genus, success_message: 'Type genus was updated')
+          soft_validations.add(:base, "The type genus does not match with the type genus of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_genus, success_message: 'Type genus was updated')
         end
       end
     end
@@ -579,10 +597,10 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_validate_coordinated_names_type_specimen
-      return true unless is_species_rank?
+      return true if !is_species_rank? || !is_available?
       list_of_coordinated_names.each do |t|
         if !self.has_same_primary_type(t)
-          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinated #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_specimen, success_message: 'The type specimen was updated')
+          soft_validations.add(:base, "The type specimen does not match with the type specimen of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_type_specimen, success_message: 'The type specimen was updated')
         end
       end
     end
@@ -728,7 +746,7 @@ module Protonym::SoftValidationExtensions
     def sv_type_placement1
       # this taxon is a type, but not included in nominal taxon
       if !!self.type_of_taxon_names
-        self.type_of_taxon_names.find_each do |t|
+        self.type_of_taxon_names.each do |t|
           soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
         end
       end
@@ -822,7 +840,7 @@ module Protonym::SoftValidationExtensions
         rank_group = self.rank_class.parent
         parent = self.parent
 
-        if parent && rank_group == parent.rank_class.parent
+        if !is_higher_rank? && parent && rank_group == parent.rank_class.parent
           unless unavailable_or_invalid?
             date1 = self.nomenclature_date
             date2 = parent.nomenclature_date
@@ -888,7 +906,30 @@ module Protonym::SoftValidationExtensions
  #           end
           end
         end
+      end
+    end
 
+    def sv_family_is_invalid
+      if persisted? && is_family_rank? && is_available?
+        tg = type_genus
+        if tg && (!TaxonNameRelationship.where_subject_is_taxon_name(tg).homonym_or_suppressed.empty? ||
+            !TaxonNameClassification.where_taxon_name(tg).with_type_string('TaxonNameClassification::Iczn::Available::Invalid::Homonym').empty? )
+          if self.id == self.lowest_rank_coordinated_taxon.id
+            if TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Iczn::Available::Invalid').empty?
+              soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} is invalid due to the homonymy or suppression of its type genus")
+            end
+          end
+        end
+      end
+    end
+
+    def sv_family_is_invalid_no_substitute
+      if persisted? && is_family_rank? && self.id == self.lowest_rank_coordinated_taxon.id
+        if !TaxonNameClassification.where_taxon_name(self).with_type_base('TaxonNameClassification::Iczn::Available::Invalid').empty?
+          if self.iczn_set_as_synonym_of.nil?
+            soft_validations.add(:base, 'Missing relationship: The name is invalid, but a substitute name is not selected')
+          end
+        end
       end
     end
 
@@ -968,7 +1009,7 @@ module Protonym::SoftValidationExtensions
         relationships = relationships.sort_by{|r| r.type_class.order_index }
         ids = relationships.collect{|r| r.subject_taxon_name_id}
         if !ids.include?(self.id)
-          if (list_of_coordinated_names.each{|r| r.id} & ids).empty?
+          if (list_of_coordinated_names.collect{|r| r.id} & ids).empty?
             soft_validations.add(:base, "Missing relationship: The original rank of #{self.cached_html} is not specified in the original combination.")
           end
         elsif ids.last != self.id
@@ -991,7 +1032,18 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
-        soft_validations.add(:etymology, 'Etymology is missing')
+        z = TaxonName.
+            where(name: name, project_id: project_id).where.not(etymology: nil).
+            group(:etymology).
+            count(:etymology)
+
+        if z.empty?
+          soft_validations.add(:etymology, 'Etymology is missing')
+        else
+          z1 = z.sort_by {|k, v| -v}
+          t = z1[0][1] == 1 ? 'time' : 'times'
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+        end
       end
     end
 
@@ -1001,8 +1053,8 @@ module Protonym::SoftValidationExtensions
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
-            taxa.find_each do |t|
-              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && z == 0
+            taxa.each do |t|
+              soft_validations.add(:base, "Extinct taxon #{self.cached_html} has extant children") if !t.is_fossil? && t.id == t.cached_valid_taxon_name_id && z == 0
               z = 1
             end
           end

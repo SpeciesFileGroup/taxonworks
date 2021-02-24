@@ -12,28 +12,6 @@ function makeInitialState () {
     settings: {
       saving: false
     },
-    objectsForDepictions: [],
-    depictionsCreated: [],
-    imagesCreated: [],
-    attributionsCreated: [],
-    people: {
-      editors: [],
-      owners: [],
-      authors: [],
-      copyrightHolder: []
-    },
-    yearCopyright: undefined,
-    license: undefined,
-    sqed: {
-      id: undefined,
-      boundary_color: undefined,
-      boundary_finder: 'Sqed::BoundaryFinder::ColorLineFinder',
-      has_border: false, 
-      layout: undefined,
-      metadata_map: []
-    },
-    taxon_determinations: [],
-    newCOForSqed: true,
     collection_object: {
       total: 1,
       repository_id: undefined,
@@ -42,10 +20,33 @@ function makeInitialState () {
     depiction: {
       caption: ''
     },
+    people: {
+      editors: [],
+      owners: [],
+      authors: [],
+      copyrightHolder: []
+    },
+    license: undefined,
+    sqed: {
+      id: undefined,
+      boundary_color: undefined,
+      boundary_finder: 'Sqed::BoundaryFinder::ColorLineFinder',
+      has_border: false,
+      layout: undefined,
+      metadata_map: []
+    },
+    newCOForSqed: true,
     source: undefined,
+    pixels_to_centimeter: undefined,
+    yearCopyright: undefined,
+    attributionsCreated: [],
     citations: [],
+    data_attributes: [],
+    depictionsCreated: [],
+    imagesCreated: [],
+    objectsForDepictions: [],
     tags: [],
-    data_attributes: []
+    taxon_determinations: []
   }
 }
 

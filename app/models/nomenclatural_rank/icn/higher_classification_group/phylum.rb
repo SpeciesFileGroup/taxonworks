@@ -10,4 +10,8 @@ class NomenclaturalRank::Icn::HigherClassificationGroup::Phylum < NomenclaturalR
     taxon_name.errors.add(:name, 'name must end in -phyta, -phycota, or -mycota') if not (taxon_name.name =~ /.*phyta|phycota|mycota\Z/)
   end
 
+  def self.valid_name_ending
+    'ta'
+  end
+
 end

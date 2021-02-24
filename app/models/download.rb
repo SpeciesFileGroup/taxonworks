@@ -86,7 +86,7 @@ class Download < ApplicationRecord
 
   private
 
-  STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', 'downloads').freeze
+  STORAGE_PATH = Rails.root.join(Rails.env.test? ? 'tmp' : '', "downloads#{ENV['TEST_ENV_NUMBER']}").freeze
 
   def dir_path
     str = id.to_s.rjust(9, '0')

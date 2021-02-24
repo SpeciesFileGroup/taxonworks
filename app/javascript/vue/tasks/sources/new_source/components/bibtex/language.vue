@@ -1,6 +1,6 @@
 <template>
-  <div class="field">
-    <label>Language</label><br>
+  <div class="field label-above">
+    <label>Language</label>
     <input
       type="text"
       v-model="source.language"/>

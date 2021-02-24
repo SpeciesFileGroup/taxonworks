@@ -168,7 +168,7 @@ module Settings
 
     settings[:exception_recipients] = settings[:exception_recipients].split(',') unless settings[:exception_recipients].class == Array || settings[:exception_recipients].blank?
 
-    settings[:sections] = %w{github_link request session environment backtrace}
+    settings[:sections] = %w{github_link request session environment backtrace full_backtrace}
 
     raise Error, ':exception_recipients must be an Array' unless settings[:exception_recipients].class == Array
 

@@ -1,22 +1,27 @@
 <template>
   <fieldset>
     <legend>Collecting Event</legend>
-    <smart-selector
-      model="collecting_events"
-      klass="CollectingEvent"
-      pin-section="CollectingEvents"
-      pin-type="CollectingEvent"
-      @selected="setValue"/>
-      <p
-        v-if="collectingEvent"
-        class="middle">
-        <span
-          class="margin-small-right"
-          v-html="label"/>
-        <span
-          class="button-circle button-default btn-undo"
-          @click="removeCE"/>
-      </p>
+    <div class="align-start">
+      <smart-selector
+        model="collecting_events"
+        klass="CollectingEvent"
+        pin-section="CollectingEvents"
+        pin-type="CollectingEvent"
+        @selected="setValue"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="lock.collecting_event_id"/>
+    </div>
+    <p
+      v-if="collectingEvent"
+      class="middle">
+      <span
+        class="margin-small-right"
+        v-html="label"/>
+      <span
+        class="button-circle button-default btn-undo"
+        @click="removeCE"/>
+    </p>
   </fieldset>
 </template>
 
@@ -25,8 +30,11 @@
 import SmartSelector from 'components/smartSelector'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
+import { GetCollectingEvent } from '../../request/resource'
+import SharedComponent from '../shared/lock.js'
 
 export default {
+  mixins: [SharedComponent],
   components: {
     SmartSelector
   },
@@ -50,6 +58,13 @@ export default {
       lists: undefined,
       view: undefined,
       collectingEvent: undefined
+    }
+  },
+  mounted () {
+    if (this.collectionObject.collecting_event_id) {
+      GetCollectingEvent(this.collectionObject.collecting_event_id).then(response => {
+        this.collectingEvent = response.body
+      })
     }
   },
   methods: {

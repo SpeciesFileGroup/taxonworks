@@ -76,22 +76,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
       redirect_to biological_association_graph_path(params[:id])
     end
   end
-
-  def autocomplete
-    @biological_associations_graphs = BiologicalAssociationsGraph.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
-    data = @biological_associations_graphs.collect do |t|
-      {id: t.id,
-       label: ApplicationController.helpers.biological_associations_graph_tag(t),
-       response_values: {
-           params[:method] => t.id
-       },
-       label_html: ApplicationController.helpers.biological_associations_graph_autocomplete_selected_tag(t)
-      }
-    end
-
-    render json: data
-  end
-
+  
   private
   
   def set_biological_associations_graph

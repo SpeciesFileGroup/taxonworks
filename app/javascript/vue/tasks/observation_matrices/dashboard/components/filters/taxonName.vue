@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Taxon name</h2>
+    <h3>Taxon name</h3>
     <div class="field">
       <autocomplete
         class="fill_width"
@@ -32,6 +32,8 @@ import Autocomplete from 'components/autocomplete'
 import { GetTaxonName } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
@@ -41,6 +43,12 @@ export default {
   },
   components: {
     Autocomplete
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    if (params.ancestor_id) {
+      this.getTaxon({ id: params.ancestor_id })
+    }
   },
   methods: {
     getTaxon (event) {

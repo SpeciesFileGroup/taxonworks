@@ -145,9 +145,9 @@ export default {
   },
   mounted: function () {
     GetBiocurationsGroupTypes().then(response => {
-      this.biocurationsGroups = response
+      this.biocurationsGroups = response.body
       GetBiocurationsTypes().then(response => {
-        this.biocutarionsType = response
+        this.biocutarionsType = response.body
         this.splitGroups()
       })
     })
@@ -172,7 +172,7 @@ export default {
       this.biocurationsGroups.forEach((item, index) => {
         GetBiocurationsTags(item.id).then(response =>{
           let tmpArray = []
-          response.forEach(item => {
+          response.body.forEach(item => {
             that.biocutarionsType.forEach(itemClass => {
               if(itemClass.id == item.tag_object_id) {
                 tmpArray.push(itemClass)

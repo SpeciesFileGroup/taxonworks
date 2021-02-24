@@ -2,6 +2,7 @@ class TaxonNameRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name_relationship, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:taxon_name_relationships) }, only: [:index], if: :json_request?
 
   # GET /taxon_name_relationships
   # GET /taxon_name_relationships.json
@@ -13,8 +14,7 @@ class TaxonNameRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = TaxonNameRelationship.where(filter_sql)
-                                      .with_project_id(sessions_current_project_id)
+        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -121,9 +121,13 @@ class TaxonNameRelationshipsController < ApplicationController
     )
   end
 
-  def filter_sql
-    h = params.permit(:taxon_name_id, :as_object, :as_subject, of_type: []).to_h.symbolize_keys
-    Queries::TaxonNameRelationshipsFilterQuery.new(**h).where_sql
+  def filter_params
+    params.permit(
+      :taxon_name_id,
+      :as_object, :as_subject,
+      taxon_name_relationship_type: [],
+      taxon_name_relationship_set: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
 end

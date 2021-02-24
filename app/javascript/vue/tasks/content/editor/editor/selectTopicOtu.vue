@@ -34,68 +34,68 @@
 </template>
 
 <script>
-  import { GetterNames } from '../store/getters/getters'
-  import { MutationNames } from '../store/mutations/mutations'
-  import Modal from 'components/modal.vue'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import Modal from 'components/modal.vue'
 
-  export default {
-    data: function () {
-      return {
-        showModal: true,
-        selectedPanel: ''
-      }
+export default {
+  name: 'SelectTopicOtu',
+  components: {
+    Modal
+  },
+  data () {
+    return {
+      showModal: true,
+      selectedPanel: ''
+    }
+  },
+  computed: {
+    topic () {
+      return this.$store.getters[GetterNames.GetTopicSelected]
     },
-    name: 'SelectTopicOtu',
-    components: {
-      Modal
-    },
-    computed: {
-      topic() {
-        return this.$store.getters[GetterNames.GetTopicSelected]
-      },
-      otu() {
-        return this.$store.getters[GetterNames.GetOtuSelected]
-      }
-    },
-    watch: {
-      topic: function (val, oldVal) {
-        if (val !== oldVal) {
-          if (this.otu) {
-            this.showModal = false
-          }
-        }
-        this.closeAll()
-      },
-      otu: function (val, oldVal) {
-        if (val !== oldVal) {
-          if (this.topic) {
-            this.showModal = false
-          }
-        }
-        this.closeAll()
-      }
-    },
-    methods: {
-      closeAll: function () {
-        TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="recent_list"]')
-        TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="topic_list"]')
-        this.$store.commit(MutationNames.OpenOtuPanel, false)
-      },
-      topicPanel: function () {
-        TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="topic_list"]')
-      },
-      recentPanel: function () {
-        TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="recent_list"]')
-      },
-      otuPanel: function () {
-        this.$store.commit(MutationNames.OpenOtuPanel, true)
-      },
-      closeModal: function () {
-        this.closeAll()
-        if (this.otu && this.topic) {
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
+    }
+  },
+  watch: {
+    topic (val, oldVal) {
+      if (val !== oldVal) {
+        if (this.otu) {
           this.showModal = false
         }
       }
+      this.closeAll()
+    },
+    otu (val, oldVal) {
+      if (val !== oldVal) {
+        if (this.topic) {
+          this.showModal = false
+        }
+      }
+      this.closeAll()
+    }
+  },
+  methods: {
+    closeAll () {
+      TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="recent_list"]')
+      TW.views.shared.slideout.closeSlideoutPanel('[data-panel-name="topic_list"]')
+      this.$store.commit(MutationNames.OpenOtuPanel, false)
+    },
+    topicPanel () {
+      TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="topic_list"]')
+    },
+    recentPanel () {
+      TW.views.shared.slideout.openSlideoutPanel('[data-panel-name="recent_list"]')
+    },
+    otuPanel () {
+      this.$store.commit(MutationNames.OpenOtuPanel, true)
+    },
+    closeModal () {
+      this.closeAll()
+      if (this.otu && this.topic) {
+        this.showModal = false
+      }
     }
   }
+}
 </script>

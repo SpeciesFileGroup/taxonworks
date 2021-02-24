@@ -3,33 +3,39 @@
     :id="id"
     :taxon-name="taxonName"
     :redirect="redirect"
-    :taxon-id="taxonId"/>
+    :object-id="objectId"
+    :klass="klass"
+  />
 </template>
 <script>
 
-  import OtuButton from 'components/otu/otu.vue'
+import OtuButton from 'components/otu/otu.vue'
 
-  export default {
-    components: {
-      OtuButton
+export default {
+  components: {
+    OtuButton
+  },
+  props: {
+    id: {
+      type: String,
+      required: true
     },
-    props: {
-      id: {
-        type: String,
-        required: true
-      },
-      taxonId: {
-        type: String,
-        required: true
-      },
-      taxonName: {
-        type: String,
-        required: true
-      },
-      redirect: {
-        type: Boolean,
-        required: true
-      }
+    objectId: {
+      type: String,
+      required: true
+    },
+    taxonName: {
+      type: String,
+      required: true
+    },
+    redirect: {
+      type: Boolean,
+      required: true
+    },
+    klass: {
+      type: String,
+      default: ''
     }
   }
+}
 </script>

@@ -86,6 +86,13 @@ module Queries
       # @return [Protonym#id, nil]
       attr_accessor :type_specimen_taxon_name_id
 
+      # @return [Repository#id, nil]
+      attr_accessor :repository_id
+
+      # @return [Array]
+      #   of type_materials
+      attr_accessor :is_type
+
       # @return [SledImage#id, nil]
       attr_accessor :sled_image_id
 
@@ -95,9 +102,11 @@ module Queries
 
         @recent = params[:recent].blank? ? false : true
 
-        @collecting_event_ids = params[:collecting_event_id].blank? ? [] : params[:collecting_event_id]
+        @collecting_event_ids = params[:collecting_event_ids] || []
 
         @otu_ids = params[:otu_ids] || []
+        @is_type = params[:is_type] || []
+
         @otu_descendants = (params[:otu_descendants]&.downcase == 'true' ? true : false) if !params[:otu_descendants].nil?
 
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
@@ -114,10 +123,11 @@ module Queries
 
         @biological_relationship_ids = params[:biological_relationship_ids] || []
 
-
-
-        # This needs to be params[:collecting_event], for now, exclude keyword_ids ... (and!?)
-        @collecting_event_query = Queries::CollectingEvent::Filter.new(params.select{|a,b| a.to_sym != :keyword_ids} )
+        # Only CollectingEvent fields are permitted now.
+        # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
+        @collecting_event_query = Queries::CollectingEvent::Filter.new(
+          params.select{|a,b| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(a.to_s) }
+        )
 
         @dwc_indexed =  (params[:dwc_indexed]&.downcase == 'true' ? true : false) if !params[:dwc_indexed].nil?
 
@@ -125,6 +135,8 @@ module Queries
 
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
         @depicted = (params[:depicted]&.downcase == 'true' ? true : false) if !params[:depicted].nil?
+
+        @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
 
         set_identifier(params)
         set_tags_params(params)
@@ -137,7 +149,7 @@ module Queries
       end
 
       def base_query
-        ::CollectionObject.select('*')
+        ::CollectionObject.select('collection_objects.*')
       end
 
       # @return [Arel::Table]
@@ -218,6 +230,11 @@ module Queries
         table[:collecting_event_id].eq_any(collecting_event_ids)
       end
 
+      def repository_facet
+        return nil if repository_id.blank?
+        table[:repository_id].eq(repository_id)
+      end
+
       def collecting_event_merge_clauses
         c = []
 
@@ -257,7 +274,8 @@ module Queries
 
         clauses += [
           collecting_event_ids_facet,
-          type_facet
+          type_facet,
+          repository_facet
         ]
         clauses.compact!
         clauses
@@ -270,9 +288,10 @@ module Queries
         clauses += [
           otus_facet,
           type_material_facet,
+          type_material_type_facet,
           ancestors_facet,
-          matching_keyword_ids,   # See Queries::Concerns::Tags
-          created_updated_facet, # See Queries::Concerns::Users
+          keyword_id_facet,       # See Queries::Concerns::Tags
+          created_updated_facet,  # See Queries::Concerns::Users
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
@@ -321,11 +340,23 @@ module Queries
       end
 
       # @return [Scope]
-      def type_material_facet 
+      def type_material_facet
         return nil if type_specimen_taxon_name_id.nil?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
           .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+
+        ::CollectionObject.where(
+          ::TypeMaterial.where(w).arel.exists
+        )
+      end
+
+      # @return [Scope]
+      def type_material_type_facet
+        return nil if is_type.empty?
+
+        w = type_materials_table[:collection_object_id].eq(table[:id])
+          .and( type_materials_table[:type_type].eq_any(is_type) )
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists

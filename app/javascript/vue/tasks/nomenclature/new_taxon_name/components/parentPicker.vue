@@ -6,13 +6,13 @@
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
-        event-send="parentSelected"
+        @getItem="parentSelected($event.id)"
         display="label"
         :add-params="{
           'type[]': 'Protonym',
           valid: true
         }"
-        :send-label="parent.name"
+        :send-label="parent.object_label"
         param="term"/>
       <default-taxon
         section="TaxonNames"
@@ -60,6 +60,7 @@ import Autocomplete from 'components/autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -101,11 +102,6 @@ export default {
       validParent: undefined
     }
   },
-  mounted: function () {
-    this.$on('parentSelected', function (item) {
-      this.parentSelected(item.id)
-    })
-  },
   watch: {
     getInitLoad(newVal) {
       if(newVal)
@@ -113,7 +109,7 @@ export default {
     },
     parent(newVal) {
       if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-        this.$http.get(`/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
+        AjaxCall('get', `/taxon_names/${newVal.cached_valid_taxon_name_id}.json`).then(response => {
           this.validParent = response.body
         })
       }
@@ -122,7 +118,7 @@ export default {
   methods: {
     loadWithParentID() {
       var url = new URL(window.location.href);
-      var parentId = url.searchParams.get("parentId");
+      var parentId = url.searchParams.get("parent_id");
       if(parentId != null && Number.isInteger(Number(parentId)))
         this.parentSelected(parentId)
     },
@@ -132,7 +128,7 @@ export default {
     },
     parentSelected(id, saveToo = false) {
       this.$store.commit(MutationNames.SetParentId, id)
-      this.$http.get(`/taxon_names/${id}.json`).then(response => {
+      AjaxCall('get', `/taxon_names/${id}.json`).then(response => {
         if (response.body.parent_id != null) {
           this.$store.commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
           this.setParentRank(response.body)

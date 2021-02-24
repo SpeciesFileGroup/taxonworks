@@ -4,11 +4,7 @@
   padding-right: $standard_padding;
   align-items: center;
   background-color: $color-header;
-  height: 50px;
-
-  a {
-    padding: $standard_padding;
-  }
+  height: 60px;
 
   #taxonworks {
     .logo {
@@ -23,12 +19,19 @@
     }
   }
 
+  #taxonworks_version {
+    color: White;
+    font-size: $font_small;
+    line-height: $font_small;
+    text-decoration: none;
+    padding: 0;
+  }
+
   #session_nav {
     flex-grow: 0;
     a {
       padding: 0px;
       color: #FFF;
-
     }
     li {
       padding-left: $standard_padding;

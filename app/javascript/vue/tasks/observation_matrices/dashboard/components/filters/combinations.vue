@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Combinations</h2>
+    <h3>Combinations</h3>
     <label>
       <input
         type="checkbox"
@@ -12,17 +12,20 @@
 
 <script>
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
 export default {
+  props: {
+    value: {
+      type: Boolean,
+      default: undefined
+    }
+  },
   computed: {
     combination: {
       get () {
-        return this.$store.getters[GetterNames.GetCombinations]
+        return this.value
       },
       set (value) {
-        this.$store.commit(MutationNames.SetCombinations, value)
+        this.$emit('input', value)
       }
     }
   }

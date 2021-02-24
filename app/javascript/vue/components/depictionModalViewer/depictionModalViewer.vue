@@ -6,22 +6,22 @@
       :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
       <h3 slot="header">View</h3>
       <div slot="body">
-        <template>
-          <img
-            class="img-maxsize img-fullsize"
-            v-if="fullSizeImage"
-            @click="fullSizeImage = false"
-            :src="depiction.image.image_file_url"
-            :height="depiction.image.height"
-            :width="depiction.image.width">
-          <img
-            v-else
-            class="img-maxsize img-normalsize"
-            @click="fullSizeImage = true"
-            :src="depiction.image.alternatives.medium.image_file_url"
-            :height="depiction.image.alternatives.medium.height"
-            :width="depiction.image.alternatives.medium.width">
-        </template>
+        <div class="image-container">
+          <template>
+            <img
+              class="img-maxsize img-fullsize"
+              v-if="fullSizeImage"
+              @click="fullSizeImage = false"
+              :src="depiction.image.image_file_url">
+            <img
+              v-else
+              class="img-maxsize img-normalsize"
+              @click="fullSizeImage = true"
+              :src="depiction.image.alternatives.medium.image_file_url"
+              :height="depiction.image.alternatives.medium.height"
+              :width="depiction.image.alternatives.medium.width">
+          </template>
+        </div>
         <div class="field separate-top">
           <input
             v-model="depiction.figure_label"
@@ -62,6 +62,8 @@
         v-if="radialDepiction"
         :global-id="depiction.global_id"/>
       <default-citation
+        :is-original="isOriginal"
+        :citations="depiction.image.citations"
         :global-id="depiction.image.global_id"/>
       <span
         class="circle-button btn-delete"
@@ -94,6 +96,10 @@ export default {
     radialImage: {
       type: Boolean,
       default: true
+    },
+    isOriginal: {
+      type: Boolean,
+      default: false
     }
   },
   data: function () {
@@ -145,6 +151,12 @@ export default {
       input, textarea {
         width: 100%
       }
+    }
+
+    .image-container {
+      display: flex;
+      justify-content: center;
+      background-color: black;
     }
   }
 </style>

@@ -71,7 +71,7 @@ export default {
   },
   mounted: function () {
     GetBiocurationsTypes().then(response => {
-      this.biocutarionsType = response
+      this.biocutarionsType = response.body
     })
   },
   watch: {
@@ -84,7 +84,7 @@ export default {
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
           GetBiocurationsCreated(newVal).then(response => {
-            this.createdBiocutarions = response
+            this.createdBiocutarions = response.body
           })
         }
       },
@@ -108,7 +108,7 @@ export default {
     processQueue () {
       this.addQueue.forEach((id) => {
         CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
-          this.createdBiocutarions.push(response)
+          this.createdBiocutarions.push(response.body)
         })
         this.addQueue = []
       })
@@ -128,7 +128,7 @@ export default {
     getCreatedBiocurations () {
       this.biocutarionsType.forEach((biocuration) => {
         GetBiocuration().then((response) => {
-          response.forEach((item) => {
+          response.body.forEach((item) => {
             this.createdBiocutarions.push(item)
           })
         })

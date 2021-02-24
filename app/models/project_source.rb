@@ -24,8 +24,9 @@ class ProjectSource < ApplicationRecord
 
   def check_for_use
     if source.citations.where(citations: {project: project_id}).any?
-      errors.add(:base, 'source is still used in project')
+      errors.add(:base, 'Source can not be removed, it is used in this project')
       throw(:abort)
     end
   end
+
 end

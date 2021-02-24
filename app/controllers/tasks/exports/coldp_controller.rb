@@ -13,7 +13,7 @@ class Tasks::Exports::ColdpController < ApplicationController
       else
         download = ::Export::Coldp.download_async(@otu, request.url)
       end
-      redirect_to download_file_download_path(download)
+      redirect_to file_download_path(download)
     else
       redirect_to export_coldp_task_path, notice: 'Please select an OTU that is linked to the nomenclature (has a taxon name).'
     end

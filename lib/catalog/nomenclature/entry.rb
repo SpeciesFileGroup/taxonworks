@@ -26,6 +26,8 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
           base_object: t,
           citation: nil,
           nomenclature_date: t.nomenclature_date,
+          year_suffix: nil,
+          pages: nil,
           current_target: matches_target)
       end
 
@@ -35,10 +37,12 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
           base_object: t,
           citation: c,
           nomenclature_date: c.source.cached_nomenclature_date,
+          year_suffix: c.source.year_suffix,
+          pages: c.source.pages,
           current_target: matches_target)
       end
 
-      ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES).each do |r|
+      ::TaxonNameRelationship.where_subject_is_taxon_name(t).with_type_array(STATUS_TAXON_NAME_RELATIONSHIP_NAMES + TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION).each do |r|
 
         matches_target = entry_item_matches_target?(r.subject_taxon_name, object) # maybe 'v'
 
@@ -48,6 +52,8 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
             base_object: r.subject_taxon_name,
             citation: nil,
             nomenclature_date: r.subject_taxon_name.nomenclature_date,
+            year_suffix: nil,
+            pages: nil,
             current_target: matches_target
           )
         end
@@ -58,6 +64,8 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
             base_object: r.subject_taxon_name,
             citation: c,
             nomenclature_date: (c.try(:source).try(:cached_nomenclature_date) || r.subject_taxon_name.nomenclature_date),
+            year_suffix: (c.try(:source).try(:year_suffix) || nil),
+            pages: (c.try(:source).try(:pages) || nil),
             current_target: matches_target
           )
         end
@@ -93,7 +101,7 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
   #   sorted by date, then taxon name name as rendered for this item
   def ordered_by_nomenclature_date
     now = Time.now
-    items.sort{|a,b| [(a.nomenclature_date || now), a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.object_class, b.base_object.cached_original_combination.to_s ] }
+    items.sort{|a,b| [(a.nomenclature_date || now), a.year_suffix.to_s + 'z', a.pages.to_s + 'z', a.object_class, a.base_object.cached_original_combination.to_s ] <=> [(b.nomenclature_date || now), b.year_suffix.to_s + 'z', b.pages.to_s + 'z', b.object_class, b.base_object.cached_original_combination.to_s ] }
   end
 
   # @return [Array]
@@ -112,12 +120,13 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
 
   # @return [Array of TaxonName]
   #   a summary of all names referenced in this entry 
+  #
   def all_names
     n = [ object ]
     items.each do |i|
       n.push item_names(i)
     end
-    n.flatten.uniq.sort_by!(&:cached)
+    n = n.flatten.uniq.sort_by!(&:cached)
     n
   end
 
@@ -125,7 +134,6 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
   #   as extracted for all EntryItems, orderd alphabetically by full citation
   def all_sources
     s  = items.collect{|i| i.source}
-
     if !object.nil?
       relationship_items.each do |i|
         s << i.object.object_taxon_name.origin_citation.try(:source) if i.object.subject_taxon_name != object  # base_object?
@@ -136,6 +144,12 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
     # This is here because they are cross-referenced in HTML rendering
     s += ::TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.
       collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+
+    s += TaxonNameRelationship::Typification.where(object_taxon_name_id: all_protonyms.collect{|p| p.object}).all.
+        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+
+    s += TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
+        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
     s.compact.uniq.sort_by{|s| s.cached}
   end

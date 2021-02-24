@@ -44,7 +44,6 @@
         class="separate-right"
         ref="filterComponent"
         v-show="activeFilter"
-        @newSearch="newSearch"
         @urlRequest="urlRequest = $event"
         @result="loadList"
         @pagination="pagination = getPagination($event)"
@@ -73,27 +72,36 @@
               Select all
             </button>
           </div>
-          <div>
-            <select v-model="per">
-              <option
-                v-for="records in maxRecords"
-                :key="records" 
-                :value="records">
-                {{ records }}
-              </option>
-            </select>
-            records per page.
+        </div>
+        <div
+          class="flex-separate margin-medium-bottom"
+          v-if="pagination">
+          <pagination-component
+            v-if="pagination"
+            @nextPage="loadPage"
+            :pagination="pagination"/>
+          <div class="horizontal-left-content">
+            <span
+              v-if="list.data.length"
+              class="horizontal-left-content">{{ list.data.length }} records.
+            </span>
+            <div class="margin-small-left">
+              <select v-model="per">
+                <option
+                  v-for="records in maxRecords"
+                  :key="records"
+                  :value="records">
+                  {{ records }}
+                </option>
+              </select>
+              records per page.
+            </div>
           </div>
         </div>
         <list-component
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
-        <pagination-component
-          class="margin-large-bottom"
-          v-if="pagination"
-          @nextPage="loadPage"
-          :pagination="pagination"/>
         <h2
           v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.
@@ -108,7 +116,6 @@
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import CsvButton from './components/csvDownload'
-import TagAll from './components/tagAll'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 
@@ -117,8 +124,7 @@ export default {
     PaginationComponent,
     FilterComponent,
     ListComponent,
-    CsvButton,
-    TagAll
+    CsvButton
   },
   computed: {
     csvFields () {
@@ -159,16 +165,17 @@ export default {
     }
   },
   methods: {
-    resetTask() {
+    resetTask () {
       this.alreadySearch = false
       this.list = {}
       this.urlRequest = ''
       this.pagination = undefined
+      history.pushState(null, null, '/tasks/collection_objects/filter')
     },
     loadList(newList) {
       if(this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
-              
+
         concat = concat.filter((item, index, self) =>
           index === self.findIndex((i) => (
             i[0] === item[0]
@@ -181,11 +188,6 @@ export default {
         this.list = newList
       }
       this.alreadySearch = true
-    },
-    newSearch() {
-      if(!this.append) {
-        this.list = {}
-      }
     },
     loadPage(event) {
       this.$refs.filterComponent.loadPage(event.page)

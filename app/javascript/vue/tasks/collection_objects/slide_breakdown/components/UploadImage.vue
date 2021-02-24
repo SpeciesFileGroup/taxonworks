@@ -31,6 +31,7 @@ export default {
         uploadMultiple: false,
         autoProcessQueue: true,
         parallelUploads: 1,
+        timeout: 600000,
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },

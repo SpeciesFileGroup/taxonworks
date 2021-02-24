@@ -21,18 +21,17 @@
 #    
 class ObservationMatrixColumn < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
+  include Shared::IsData
+
+  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_columns
   belongs_to :descriptor, inverse_of: :observation_matrix_columns
-
   has_many :observations, foreign_key: :descriptor_id
 
   after_initialize :set_reference_count
-
-  acts_as_list scope: [:observation_matrix_id, :project_id]
 
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]

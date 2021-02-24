@@ -9,3 +9,4 @@ test:
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: travis 
   password:
+  port: <%= ENV['PGPORT'] %>

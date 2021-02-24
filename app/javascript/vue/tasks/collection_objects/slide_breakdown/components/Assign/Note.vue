@@ -1,11 +1,15 @@
 <template>
   <fieldset>
     <legend>Note</legend>
-    <textarea
-      v-model="text"
-      class="full_width"
-      rows="5">
-    </textarea>
+    <div class="align-start">
+      <textarea
+        v-model="text"
+        class="full_width margin-small-right"
+        rows="5">
+      </textarea>
+      <lock-component
+        v-model="lock.notes_attributes"/>
+    </div>
     <button
       @click="addNote"
       :disabled="!text"
@@ -25,8 +29,10 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import ListComponent from 'components/displayList'
+import SharedComponent from '../shared/lock.js'
 
 export default {
+  mixins: [SharedComponent],
   components: {
     ListComponent
   },

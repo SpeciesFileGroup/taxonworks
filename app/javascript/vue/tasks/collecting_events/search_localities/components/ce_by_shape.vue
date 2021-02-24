@@ -37,6 +37,7 @@
   
   import Spinner from 'components/spinner'
   import lMap from './leafletMap.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -47,8 +48,8 @@
       return {
         geographicAreaList: [],
         collectingEventList: [],
-        shapes: [],   // intended for eventual multiple shapes paradigm
-        isLoading: false,
+        shapes: [], // intended for eventual multiple shapes paradigm
+        isLoading: false
       }
     },
     methods: {
@@ -61,20 +62,20 @@
         this.$refs.leaflet.clearFound()
         this.isLoading = true;
         let shapeText = this.shapes[this.shapes.length - 1];
-        let params = {shape: shapeText};  // take only last shape pro tem
-        this.$http.get('/collecting_events.json', {params: params}).then(response => {
-          this.$emit('jsonUrl', response.url)
+        let params = { geo_json: JSON.stringify({ type: "MultiPolygon", coordinates: [shapeText.geometry.coordinates] })};  // take only last shape pro tem
+        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
+          this.$emit('jsonUrl', response.request.responseURL)
           this.collectingEventList = response.body
           this.$emit('collectingEventList', this.collectingEventList);
           this.isLoading = false;
         });
-        this.$emit("searchShape", JSON.parse(this.shapes[this.shapes.length - 1]))
+        this.$emit("searchShape", this.shapes[this.shapes.length - 1])
       },
       editedShape(shape) {
-        this.shapes.push(JSON.stringify(shape))
+        this.shapes.push(shape)
       },
       addShape(newShapes) {
-        this.shapes.push(JSON.stringify(newShapes))
+        this.shapes.push(newShapes)
         this.$refs.leaflet.removeLayers()
       }
     },

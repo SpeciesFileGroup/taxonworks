@@ -28,9 +28,7 @@ const vueAnnotator = {
     }
   },
   mounted: function () {
-    this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
-      this.list = response.body
-    })
+    this.loadObjectsList()
   },
   watch: {
     list: {
@@ -56,6 +54,11 @@ const vueAnnotator = {
     },
     updateCount () {
       this.$emit('updateCount', this.list.length)
+    },
+    loadObjectsList () {
+      this.getList((typeof this.urlList == 'undefined') ? `${this.url}/${this.type}.json` : this.urlList).then(response => {
+        this.list = response.body
+      })
     }
   }
 }

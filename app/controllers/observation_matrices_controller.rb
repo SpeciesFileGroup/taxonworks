@@ -8,7 +8,6 @@ class ObservationMatricesController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-
         @recent_objects = ObservationMatrix.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
@@ -29,7 +28,7 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/new
   def new
-    @observation_matrix = ObservationMatrix.new
+    redirect_to new_matrix_task_path, notice: 'Redirecting to new task.'
   end
 
   # GET /observation_matrices/1/edit
@@ -89,7 +88,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def autocomplete
-    @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name ilike ?', "#{params[:term]}%")
+    @observation_matrices = ObservationMatrix.where(project_id: sessions_current_project_id).where('name ilike ?', "%#{params[:term]}%")
   end
 
   def search
@@ -159,14 +158,14 @@ class ObservationMatricesController < ApplicationController
       include_matrix: 'true', 
       include_trees: 'false',
       rdf: false }.merge!(
-        params.permit( 
-                      :include_otus,
-                      :include_collection_objects,
-                      :include_descriptors,
-                      :include_matrix,
-                      :include_trees,
-                      :rdf
-                     ).to_h
+        params.permit(
+          :include_otus,
+          :include_collection_objects,
+          :include_descriptors,
+          :include_matrix,
+          :include_trees,
+          :rdf
+        ).to_h
       )
   end
 

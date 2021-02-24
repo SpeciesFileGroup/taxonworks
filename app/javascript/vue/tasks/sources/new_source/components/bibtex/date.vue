@@ -11,6 +11,8 @@
       <select
         class="normal-input"
         v-model="source.month">
+        <option 
+          :value="null"/>
         <option
           v-for="(month, index) in months"
           :value="month.substring(0,3).toLowerCase()"

@@ -3,6 +3,7 @@
     <div class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -10,7 +11,7 @@
           <span v-html="title" />
           <span
             v-if="metadata"
-            class="separate-right"> 
+            class="separate-right">
             {{ metadata.object_type }}
           </span>
         </h3>
@@ -33,9 +34,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentAnnotator.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -79,6 +80,8 @@ import common_namesAnnotator from './components/common_names/main.vue'
 import contentsAnnotator from './components/contents/main.vue'
 import biocuration_classificationsAnnotator from './components/biocurations/biocurations'
 import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
+import observation_matricesAnnotator from './components/observation_matrices/main.vue'
+import collecting_eventAnnotator from './components/collecting_event/main.vue'
 
 import Icons from './images/icons.js'
 
@@ -95,7 +98,9 @@ export default {
     common_namesAnnotator,
     contentsAnnotator,
     biocuration_classificationsAnnotator,
-    taxon_determinationsAnnotator
+    taxon_determinationsAnnotator,
+    observation_matricesAnnotator,
+    collecting_eventAnnotator
   },
   props: {
     reload: {
@@ -143,7 +148,13 @@ export default {
       title: 'Otu radial',
       menuOptions: [],
       defaultTag: undefined,
-      tagCreated: false
+      tagCreated: false,
+      hardcodeSections: [
+        {
+          section: 'observation_matrices',
+          objectTypes: ['Otu', 'CollectionObject']
+        }
+      ]
     }
   },
   computed: {
@@ -234,6 +245,7 @@ export default {
       const that = this
       this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         that.metadata = response.body
+        that.metadata.endpoints = Object.assign({}, that.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
         that.title = response.body.object_tag
         that.menuOptions = that.createMenuOptions(response.body.endpoints)
         that.url = response.body.url
@@ -297,73 +309,12 @@ export default {
         this.defaultTag = undefined
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })
+    },
+    addHardcodeSections (type) {
+      return this.hardcodeSections.filter(item => item.objectTypes.includes(type)).map(item => {
+        return { [item.section]: { total: 0 } }
+      })
     }
   }
 }
 </script>
-<style lang="scss">
-
-  .radial-annotator {
-    position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
-    .modal-close {
-      top: 30px;
-      right: 20px;
-    }
-    .modal-mask {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
-    .modal-container {
-      box-shadow: none;
-      background-color: transparent;
-    }
-    .modal-container {
-      min-width: 1024px;
-      width: 1200px;
-    }
-    .radial-annotator-template {
-      border-radius: 3px;
-      background: #FFFFFF;
-      padding: 1em;
-      width: 100%;
-      max-width: 100%;
-      min-height: 600px;
-    }
-    .radial-annotator-container {
-      display: flex;
-      height: 600px;
-      flex-direction: column;
-      overflow-y: scroll;
-    }
-    .radial-annotator-menu {
-      padding-top: 1em;
-      padding-bottom: 1em;
-      width: 700px;
-      min-height: 650px;
-    }
-    .annotator-buttons-list {
-      overflow-y: scroll;
-    }
-    .save-annotator-button {
-      width: 100px;
-    }
-    .circle-count {
-      bottom: -6px;
-    }
-  }
-
-  .tag_button {
-    padding-left: 12px;
-    padding-right: 8px;
-    width: auto !important;
-    min-width: auto !important;
-    cursor: pointer;
-    margin: 2px;
-    border: none;
-    border-top-left-radius: 15px;
-    border-bottom-left-radius: 15px;
-  }
-</style>

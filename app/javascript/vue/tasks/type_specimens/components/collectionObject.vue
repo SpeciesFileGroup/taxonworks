@@ -1,51 +1,67 @@
 <template>
   <div>
-    <div class="field types_field">
+    <div class="field label-above">
       <label>Buffered collecting event</label>
       <textarea
+        class="full_width"
         rows="5"
         v-model="bufferedEvent"/>
     </div>
-    <div class="field types_field">
+    <div class="field label-above">
       <label>Buffered determinations</label>
       <textarea
+        class="full_width"
         rows="5"
         v-model="bufferedDeterminations"/>
     </div>
-    <div class="field types_field">
+    <div class="field label-above">
       <label>Buffered other labels</label>
       <textarea
+        class="full_width"
         rows="5"
         v-model="bufferedLabels"/>
     </div>
-    <div class="field">
-      <label>Total</label>
-      <input
-        type="number"
-        v-model="total">
+    <div class="horizontal-left-content">
+      <div class="field label-above">
+        <label>Total</label>
+        <input
+          class="input-xsmall-width"
+          type="number"
+          v-model="total">
+      </div>
+      <div class="field label-above margin-small-left full_width">
+        <label>Preparation type</label>
+        <select
+          v-model="preparationId"
+          class="normal-input full_width">
+          <option
+            class="full_width"
+            v-for="item in types"
+            :value="item.id">{{ item.name }}</option>
+        </select>
+      </div>
     </div>
     <div class="field">
-      <label>Preparation type</label>
-      <select
-        v-model="preparationId"
-        class="normal-input">
-        <option
-          v-for="item in types"
-          :value="item.id">{{ item.name }}</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Repository</label>
-      <autocomplete
-        class="types_field"
-        url="/repositories/autocomplete"
-        param="term"
-        label="label_html"
-        :send-label="labelRepository"
-        placeholder="Select a repository"
-        @getItem="repositoryId = $event.id; labelRepository = $event.label"
-        display="label"
-        min="2"/>
+      <fieldset>
+        <legend>Repository</legend>
+        <smart-selector
+          class="full_width"
+          ref="smartSelector"
+          model="repositories"
+          target="CollectionObject"
+          klass="CollectionObject"
+          pin-section="Repositories"
+          pin-type="Repository"
+          @selected="setRepository"/>
+        <p
+          v-if="labelRepository"
+          class="horizontal-left-content">
+          <span v-html="labelRepository"/>
+          <span
+            class="button circle-button btn-delete button-default"
+            @click="unsetRepository"/>
+        </p>
+      </fieldset>
     </div>
     <div class="field">
       <label>Collection event</label>
@@ -68,16 +84,18 @@
 
 <script>
 
-import autocomplete from 'components/autocomplete.vue'
-import toggleSwitch from './toggleSwitch.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import SmartSelector from 'components/smartSelector'
+import ToggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetCollectionEvent, GetRepository, GetPreparationTypes } from '../request/resources'
 
 export default {
   components: {
-    autocomplete,
-    toggleSwitch
+    Autocomplete,
+    ToggleSwitch,
+    SmartSelector
   },
   computed: {
     typeMaterial () {
@@ -170,7 +188,7 @@ export default {
   mounted: function () {
     this.updateLabels()
     GetPreparationTypes().then(response => {
-      this.types = response
+      this.types = response.body
     })
   },
   methods: {
@@ -185,16 +203,24 @@ export default {
     setEventLabel (id) {
       if (id) {
         GetCollectionEvent(id).then(response => {
-          this.labelEvent = response.verbatim_label
+          this.labelEvent = response.body.verbatim_label
         })
       }
     },
     setRepositoryLabel (id) {
       if (id) {
         GetRepository(id).then(response => {
-          this.labelRepository = response.name
+          this.labelRepository = response.body.name
         })
       }
+    },
+    setRepository (repository) {
+      this.labelRepository = repository.name
+      this.repositoryId = repository.id
+    },
+    unsetRepository () {
+      this.labelRepository = null
+      this.repositoryId = null
     }
   }
 }

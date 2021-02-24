@@ -9,12 +9,22 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    settings: {
+      loadingRows: false,
+      loadingColumns: false,
+      sortable: false
+    },
+    configParams: {
+      per: 500
+    },
     matrix: {
       id: undefined,
       name: undefined,
       project_id: undefined,
       global_id: undefined
     },
+    columnFixedPagination: undefined,
+    rowFixedPagination: undefined,
     matrixView: 'row',
     matrixMode: 'fixed',
     matrixRowItems: [],

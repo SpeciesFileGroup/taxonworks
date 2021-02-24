@@ -1,61 +1,69 @@
 <template>
-  <form class="gender">
-    <block-layout
-      anchor="gender"
-      :spinner="saving">
-      <h3 slot="header">Gender and form</h3>
-      <div
-        slot="body"
-        v-if="taxon.id">
-        <ul class="flex-wrap-column no_bullets">
-          <li
-            v-for="item in list">
-            <label class="status-item">
-              <input
-                class="separate-right"
-                type="radio"
-                name="gender"
-                @click="addEntry(item)"
-                :checked="checkExist(item.type)"
-                :value="item.type">
-              <span>{{ item.name }}</span>
-            </label>
-          </li>
-        </ul>
-        <div v-if="inGroup('Species') && adjectiveOrParticiple">
-          <div class="field">
-            <label>Feminine </label><br>
+  <block-layout
+    anchor="gender"
+    :spinner="saving || !taxon.id"
+  >
+    <h3 slot="header">
+      Gender and form
+    </h3>
+    <div
+      slot="body"
+      v-if="taxon.id"
+    >
+      <ul class="flex-wrap-column no_bullets">
+        <li
+          v-for="item in list"
+        >
+          <label class="status-item">
             <input
-              v-model="feminine"
-              type="text">
-          </div>
-          <div class="field">
-            <label>Masculine</label><br>
-            <input
-              v-model="masculine"
-              type="text">
-          </div>
-          <div class="field">
-            <label>Neuter</label><br>
-            <input
-              v-model="neuter"
-              type="text">
-          </div>
+              class="separate-right"
+              type="radio"
+              name="gender"
+              @click="addEntry(item)"
+              :checked="checkExist(item.type)"
+              :value="item.type"
+            >
+            <span>{{ item.name }}</span>
+          </label>
+        </li>
+      </ul>
+      <div v-if="inSpeciesGroup && adjectiveOrParticiple">
+        <div class="field label-above">
+          <label>Masculine</label>
+          <input
+            v-model="masculine"
+            type="text"
+          >
         </div>
-        <list-entrys
-          @delete="removeGender"
-          @addCitation="setCitation"
-          :list="getStatusGender"
-          :display="['object_tag']"/>
+        <div class="field label-above">
+          <label>Feminine </label>
+          <input
+            v-model="feminine"
+            type="text"
+          >
+        </div>
+        <div class="field label-above">
+          <label>Neuter</label>
+          <input
+            v-model="neuter"
+            type="text"
+          >
+        </div>
       </div>
-    </block-layout>
-  </form>
+      <list-entrys
+        @delete="removeGender"
+        @addCitation="setCitation"
+        :list="getStatusGender"
+        :display="['object_tag']"
+      />
+    </div>
+  </block-layout>
 </template>
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import BlockLayout from './blockLayout.vue'
+import BlockLayout from 'components/blockLayout.vue'
 import ListEntrys from './listEntrys.vue'
 
 import getRankGroup from '../helpers/getRankGroup'
@@ -65,22 +73,34 @@ export default {
     BlockLayout,
     ListEntrys
   },
-  data: function () {
+  data () {
     return {
-      radioGender: 'masculine',
       list: [],
       filterList: ['gender', 'part of speech'],
       saving: false,
       types: {
         adjective: 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective',
         participle: 'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
-      }
+      },
+      sortOrder: [
+        'masculine',
+        'feminine',
+        'neuter',
+        'noun in apposition',
+        'noun in genitive case',
+        'adjective',
+        'participle'
+      ]
     }
   },
-  mounted: function () {
+  mounted () {
     this.getList()
   },
   computed: {
+    inSpeciesGroup () {
+      const group = getRankGroup(this.taxon.rank_string)
+      return (group === 'SpeciesAndInfraspecies' || group === 'Species')
+    },
     getStatusGender () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
         return (item.type.split('::')[1] == 'Latinized')
@@ -90,7 +110,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxonStatusList]
     },
     adjectiveOrParticiple () {
-      let find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
+      const find = this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
         return (item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
           item.type == 'TaxonNameClassification::Latinized::PartOfSpeech::Participle')
       })
@@ -132,7 +152,12 @@ export default {
   },
   methods: {
     removeGender: function (item) {
-      this.$store.dispatch(ActionNames.RemoveTaxonStatus, item)
+      this.$store.dispatch(ActionNames.RemoveTaxonStatus, item).then(() => {
+        this.taxon.feminine_name = null
+        this.taxon.masculine_name = null
+        this.taxon.neuter_name = null
+        this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      })
     },
     setCitation: function (item) {
       this.$store.dispatch(ActionNames.UpdateClassification, item)
@@ -143,21 +168,16 @@ export default {
           if (this.filterList.indexOf(this.getStatusList[key].name) < 0) { this.list.push(this.getStatusList[key]) }
         }
       }
+
       this.list.sort((a, b) => {
-        if(a.name > b.name) {
-          return 1
-        }
-        if(a.name < b.name) {
-          return -1
-        }
-        return 0
+        return this.sortOrder.indexOf(a.name) - this.sortOrder.indexOf(b.name)
       })
     },
     checkExist: function (type) {
       return ((this.getStatusCreated.map(function (item) { return item.type })).indexOf(type) > -1)
     },
     searchExisting: function (type) {
-      let list = this.list.map(function (item) { return item.type })
+      const list = this.list.map(function (item) { return item.type })
 
       return this.getStatusCreated.find(function (item) {
         if (list.indexOf(item.type) > -1) {
@@ -165,55 +185,41 @@ export default {
         }
       })
     },
-    cleanNames() {
+    cleanNames () {
       this.masculine = null
       this.feminine = null
       this.neuter = null
     },
-    addEntry: function (item) {
-      let that = this
-      let alreadyStored = this.searchExisting()
+    async addEntry (item) {
+      const alreadyStored = this.searchExisting()
+      const taxon = Object.assign({}, this.taxon)
 
       this.saving = true
-      if(!(item.type == this.types.participle || item.type == this.types.adjective)) {
-        this.cleanNames()
-      }
-      let taxon = this.taxon
-      
-      delete taxon.feminine_name
-      delete taxon.masculine_name
-      delete taxon.neuter_name
-
       if (alreadyStored) {
-        that.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored).then(response => {
-          that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-            that.$store.dispatch(ActionNames.UpdateTaxonName, that.taxon).then(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
-                that.saving = false
-              })
-            })
-          })
-        })
-      } else {
-        that.$store.dispatch(ActionNames.AddTaxonStatus, item).then(response => {
-          that.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(function () {
-            setTimeout(function () {
-              that.$store.dispatch(ActionNames.LoadTaxonName, taxon.id).then(function () {
-                that.saving = false
-              })
-            }, 1000)
-          })
-        })
+        await this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored)
       }
+
+      if (taxon.feminine_name || taxon.masculine_name || taxon.neuter_name) {
+        taxon.feminine_name = null
+        taxon.masculine_name = null
+        taxon.neuter_name = null
+        await this.$store.dispatch(ActionNames.UpdateTaxonName, taxon)
+      }
+
+      this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
+        taxon.feminine_name = undefined
+        taxon.masculine_name = undefined
+        taxon.neuter_name = undefined
+        this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
+          this.saving = false
+        })
+      })
     },
     applicableRank: function (list, type) {
-      let found = list.find(function (item) {
-        if (item == type) { return true }
-      })
-      return (!!found)
+      return !!list.find((item) => item === type)
     },
     inGroup: function (group) {
-      return (getRankGroup(this.taxon.rank_string) == group)
+      return (getRankGroup(this.taxon.rank_string) === group)
     }
   }
 }

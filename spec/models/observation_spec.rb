@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Observation, type: :model, group: :matrix do
+RSpec.describe Observation, type: :model, group: :observation_matrix do
   let(:observation) { Observation.new } 
   
   let(:otu) { FactoryBot.create(:valid_otu) }

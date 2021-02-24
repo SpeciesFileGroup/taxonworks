@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>In relationship</h2>
+    <h3>In relationship</h3>
     <smart-selector
       class="separate-bottom"
       :options="options"
@@ -62,6 +62,7 @@ import TreeDisplay from '../treeDisplay'
 import { GetRelationshipsMetadata } from '../../request/resources.js'
 import Autocomplete from 'components/autocomplete'
 import DisplayList from 'components/displayList.vue'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const OPTIONS = {
   common: 'common',
@@ -108,10 +109,20 @@ export default {
       this.$emit('input', newVal.map(relationship => { return relationship.type }))
     }
   },
-  mounted() {
+  mounted () {
     GetRelationshipsMetadata().then(response => {
       this.relationshipsList = response.body
       this.merge()
+
+      const params = URLParamsToJSON(location.href)
+      if (params.taxon_name_relationship_type) {
+        params.taxon_name_relationship_type.forEach(type => {
+          let data = this.mergeLists.all[type]
+          data.type = type
+          data.name = this.mergeLists.all[type].subject_status_tag
+          this.addRelationship(data)
+        })
+      }
     })
   },
   methods: {

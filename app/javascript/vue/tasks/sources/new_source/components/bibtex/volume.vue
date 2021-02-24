@@ -1,20 +1,19 @@
 <template>
   <div class="horizontal-left-content">
-    <div class="field separate-right">
-      <label>Volume</label><br>
+    <div class="field separate-right label-above">
+      <label>Volume</label>
       <input
-        type="number"
+        type="text"
         v-model="source.volume">
     </div>
-
-    <div class="field separate-right">
-      <label>Number</label><br>
+    <div class="field separate-right label-above">
+      <label>Number</label>
       <input
-        type="number"
+        type="text"
         v-model="source.number">
     </div>
-    <div class="field separate-right">
-      <label>Pages</label><br>
+    <div class="field separate-right label-above">
+      <label>Pages</label>
       <input
         type="text"
         v-model="source.pages">
@@ -40,9 +39,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  input[type="number"] {
-    width: 80px;
-  }
-</style>

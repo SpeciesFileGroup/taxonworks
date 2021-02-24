@@ -15,36 +15,37 @@
 
 <script>
 
-  import Autocomplete from 'components/autocomplete.vue'
-  import { GetterNames } from '../store/getters/getters'
-  import { MutationNames } from '../store/mutations/mutations'
+import Autocomplete from 'components/autocomplete.vue'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { GetOtu } from '../request/resources'
 
-  export default {
-    name: 'PanelTop',
-    components: {
-      Autocomplete
+export default {
+  name: 'PanelTop',
+  components: {
+    Autocomplete
+  },
+  computed: {
+    display () {
+      return this.$store.getters[GetterNames.ActiveOtuPanel]
+    }
+  },
+  mounted () {
+    this.getParams()
+  },
+  methods: {
+    loadOtu (id) {
+      GetOtu(id).then(response => {
+        this.$store.commit(MutationNames.SetOtuSelected, response.body)
+      })
     },
-    computed: {
-      display() {
-        return this.$store.getters[GetterNames.ActiveOtuPanel]
-      }
-    },
-    mounted: function () {
-      this.getParams()
-    },
-    methods: {
-      loadOtu(id) {
-        this.$http.get(`/otus/${id}.json`).then(response => {
-          this.$store.commit(MutationNames.SetOtuSelected, response.body)
-        })        
-      },
-      getParams() {
-        var url = new URL(window.location.href);
-        var otuId = url.searchParams.get("otu_id");
-        if(otuId != null && Number.isInteger(Number(otuId))) {
-          this.loadOtu(otuId)
-        }        
+    getParams() {
+      var url = new URL(window.location.href);
+      var otuId = url.searchParams.get('otu_id');
+      if (otuId != null && Number.isInteger(Number(otuId))) {
+        this.loadOtu(otuId)
       }
     }
   }
+}
 </script>

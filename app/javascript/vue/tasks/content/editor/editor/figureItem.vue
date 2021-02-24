@@ -31,6 +31,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
+import { UpdateDepiction, DeleteDepiction } from '../request/resources.js'
 
 export default {
   props: ['figure'],
@@ -42,34 +43,32 @@ export default {
     }
   },
   watch: {
-    'figure': function (newVal) {
+    figure (newVal) {
       this.depiction = newVal
     }
   },
-  created: function () {
+  created () {
     this.depiction = this.figure
   },
   methods: {
-    deleteDepiction: function () {
-      let ajaxUrl = `/depictions/${this.depiction.id}`
-      this.$http.delete(ajaxUrl).then(() => {
+    deleteDepiction () {
+      DeleteDepiction(this.depiction.id).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
-    editChange: function () {
+    editChange () {
       if (this.edit) {
         this.update()
       }
       this.edit = !this.edit
     },
-    update: function () {
-      let ajaxUrl = `/depictions/${this.depiction.id}`,
-        depiction = {
-          caption: this.depiction.caption,
-          figure_label: this.depiction.figure_label
-        }
+    update () {
+      const depiction = {
+        caption: this.depiction.caption,
+        figure_label: this.depiction.figure_label
+      }
 
-      this.$http.patch(ajaxUrl, depiction).then(() => {
+      UpdateDepiction(this.depiction.id, depiction).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     }

@@ -36,12 +36,9 @@
 class Organization < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-
   include Shared::Notes
   include Shared::Identifiers
-  
   include Shared::HasRoles
-
   include Shared::SharedAcrossProjects
   include Shared::IsData
 

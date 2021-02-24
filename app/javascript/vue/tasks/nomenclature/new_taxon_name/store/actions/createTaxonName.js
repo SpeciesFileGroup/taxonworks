@@ -13,13 +13,18 @@ export default function ({ commit, state, dispatch }, taxon) {
   if(taxon.hasOwnProperty('taxon_name_classifications_attributes')) {
     taxon_name.taxon_name.taxon_name_classifications_attributes = taxon.taxon_name_classifications_attributes
   }
-  createTaxonName(taxon_name).then(response => {
-    history.pushState(null, null, `/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.id}`)
-    commit(MutationNames.SetTaxon, response)
-    commit(MutationNames.SetHardValidation, undefined)
-    dispatch('loadSoftValidation', 'taxon_name')
-    commit(MutationNames.UpdateLastSave)
-  }, response => {
-    commit(MutationNames.SetHardValidation, response)
+  return new Promise((resolve, reject) => {
+    createTaxonName(taxon_name).then(response => {
+      history.pushState(null, null, `/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.body.id}`)
+      TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
+      commit(MutationNames.SetTaxon, response.body)
+      commit(MutationNames.SetHardValidation, undefined)
+      dispatch('loadSoftValidation', 'taxon_name')
+      commit(MutationNames.UpdateLastSave)
+      resolve(response.body)
+    }, response => {
+      commit(MutationNames.SetHardValidation, response.body)
+      reject(response.body)
+    })
   })
 }

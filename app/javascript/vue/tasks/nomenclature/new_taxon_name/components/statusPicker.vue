@@ -1,21 +1,13 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      class="anchor"
-      name="status"/>
+  <block-layout
+    :warning="checkValidation"
+    anchor="status"
+    :spinner="!taxon.id">
+    <h3 slot="header">
+      Status
+    </h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonStatusList.list.length }">
-      <h3
-      v-help.section.status.container
-      >Status</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -24,6 +16,7 @@
         :show-modal="showModal"
         :filter="getStatusCreated"
         valid-property="valid_subject_ranks"
+        @close="view = 'Common'"
         @selected="addEntry"
         mutation-name-add="AddTaxonStatus"
         mutation-name-modal="SetModalStatus"
@@ -40,33 +33,12 @@
             @click="editStatus = undefined"/>
         </p>
       </div>
-      <div class="switch-radio">
-        <input
-          name="status-picker-options"
-          id="status-picker-common"
-          checked
-          type="radio"
-          class="normal-input button-active"
-          @click="showAdvance = false">
-        <label for="status-picker-common">Common</label>
-        <input
-          name="status-picker-options"
-          id="status-picker-advanced"
-          type="radio"
-          class="normal-input"
-          @click="showAdvance = true">
-        <label for="status-picker-advanced">Advanced</label>
-        <input
-          name="status-picker-options"
-          id="status-picker-showall"
-          type="radio"
-          class="normal-input"
-          @click="activeModal(true)">
-        <label for="status-picker-showall">Show all</label>
-      </div>
+      <switch-component
+        v-model="view"
+        :options="tabs"/>
       <div class="separate-top">
         <autocomplete
-          v-if="showAdvance"
+          v-if="view == 'Advanced'"
           :array-list="objectLists.allList"
           label="name"
           min="3"
@@ -76,7 +48,7 @@
           @getItem="addEntry"
           param="term"/>
         <list-common
-          v-if="!showAdvance && taxon.id"
+          v-if="view != 'Advanced' && taxon.id"
           :filter="true"
           :object-lists="objectLists.commonList"
           display="name"
@@ -84,7 +56,7 @@
           :list-created="getStatusCreated"/>
       </div>
       <ul
-        v-if="!getStatusCreated.length"
+        v-if="!getStatusCreated.length && taxon.id === taxon.cached_valid_taxon_name_id"
         class="table-entrys-list">
         <li class="list-complete-item middle">
           <p>Valid as default</p>
@@ -99,7 +71,7 @@
         :list="getStatusCreated"
         :display="['object_tag']"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 
 <script>
@@ -110,15 +82,17 @@ import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import Expand from './expand.vue'
+import BlockLayout from 'components/blockLayout'
+import SwitchComponent from 'components/switch'
 
 export default {
   components: {
     ListEntrys,
-    Expand,
     TreeDisplay,
     ListCommon,
-    Autocomplete
+    Autocomplete,
+    SwitchComponent,
+    BlockLayout
   },
   computed: {
     treeList () {
@@ -137,7 +111,10 @@ export default {
       return this.$store.getters[GetterNames.ActiveModalStatus]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
+    },
+    checkValidation () {
+      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)).length
     },
     getStatusCreated () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {
@@ -147,10 +124,12 @@ export default {
   },
   data: function () {
     return {
+      tabs: ['Common', 'Advanced', 'Show all'],
+      view: 'Common',
       objectLists: this.makeLists(),
       expanded: true,
       showAdvance: false,
-      editStatus: undefined,
+      editStatus: undefined
     }
   },
   watch: {
@@ -160,6 +139,11 @@ export default {
         this.refresh()
       },
       immediate: true
+    },
+    view (newVal) {
+      if (newVal === 'Show all') {
+        this.activeModal(true)
+      }
     }
   },
   methods: {
@@ -184,12 +168,12 @@ export default {
         item.id = this.editStatus.id
         this.$store.dispatch(ActionNames.UpdateTaxonStatus, item).then(() => {
           this.editStatus = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
       else {
         this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
     },

@@ -18,19 +18,27 @@
           <td
             v-for="attr in attributes"
             v-html="getValue(item, attr)"/>
-          <td class="vue-table-options">
-            <radial-annotator
-              v-if="annotator"
-              :global-id="item.global_id"/>
-            <span
-              v-if="edit"
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"/>
-            <span
-              v-if="destroy"
-              class="circle-button btn-delete"
-              @click="deleteItem(item)">Remove
-            </span>
+          <td>
+            <div class="horizontal-right-content">
+              <slot
+                :item="item"
+                name="options"/>
+              <pdf-component
+                v-if="pdf"
+                :pdf="item.document"/>
+              <radial-annotator
+                v-if="annotator"
+                :global-id="item.global_id"/>
+              <span
+                v-if="edit"
+                class="circle-button btn-edit"
+                @click="$emit('edit', Object.assign({}, item))"/>
+              <span
+                v-if="destroy"
+                class="circle-button btn-delete"
+                @click="deleteItem(item)">Remove
+              </span>
+            </div>
           </td>
         </tr>
       </transition-group>
@@ -40,10 +48,12 @@
 <script>
 
   import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+  import PdfComponent from 'components/pdfButton'
 
   export default {
     components: {
-      RadialAnnotator
+      RadialAnnotator,
+      PdfComponent
     },
     props: {
       list: {
@@ -81,9 +91,13 @@
       edit: {
         type: Boolean,
         default: false
+      },
+      pdf: {
+        type: Boolean,
+        default: false
       }
     },
-    mounted() {
+    created() {
       this.$options.components['RadialAnnotator'] = RadialAnnotator
     },
     methods: {
@@ -125,7 +139,6 @@
   .vue-table-container {
     padding: 0px;
     position: relative;
-    word-break: break-all;
   }
 
   .vue-table {

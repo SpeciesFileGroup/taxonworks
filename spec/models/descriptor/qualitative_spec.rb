@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Descriptor::Qualitative, type: :model, group: :matrix do
+RSpec.describe Descriptor::Qualitative, type: :model, group: [:descriptor, :observation_matrix] do
   let(:descriptor) { Descriptor::Qualitative.new }
 
   specify '#character_states' do

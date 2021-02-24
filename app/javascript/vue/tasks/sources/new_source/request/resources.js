@@ -1,15 +1,22 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const GetSerialMatch = (title) => ajaxCall('get', '/serials.json', { params: { name: title } })
+
 const GetSource = (id) => {
   return ajaxCall('get', `/sources/${id}.json`)
 }
 
 const GetRecentSources = () => {
-  return ajaxCall('get', `/sources.json?per=10&recent=true`)
+  return ajaxCall('get', '/sources.json', {
+    params: {
+      per: 10,
+      recent: true
+    }
+  })
 }
 
 const CreateSource = (source) => {
-  return ajaxCall('post', `/sources`, { source: source })
+  return ajaxCall('post', '/sources', { source: source })
 }
 
 const UpdateSource = (source) => {
@@ -35,6 +42,7 @@ const LoadSoftValidation = function (global_id) {
 export {
   GetSource,
   GetRecentSources,
+  GetSerialMatch,
   CreateSource,
   UpdateSource,
   UpdateUserPreferences,

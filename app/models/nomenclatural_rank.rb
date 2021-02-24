@@ -67,7 +67,7 @@ class NomenclaturalRank
   def self.nomenclatural_code
     return :iczn if self.name.to_s =~ /Iczn/
     return :icnp if self.name.to_s =~ /Icnp/
-    return :ictv if self.name.to_s =~ /Ictv/
+    return :icvcn if self.name.to_s =~ /Icvcn/
     return :icn if self.name.to_s =~ /Icn/
     nil
   end
@@ -80,8 +80,8 @@ class NomenclaturalRank
       NomenclaturalRank::Iczn
     when :icnp
       NomenclaturalRank::Icnp
-    when :ictv
-      NomenclaturalRank::Ictv
+    when :icvcn
+      NomenclaturalRank::Icvcn
     when :icn
       NomenclaturalRank::Icn
     else
@@ -118,7 +118,7 @@ class NomenclaturalRank
     []
   end
 
-  def valid_name_ending
+  def self.valid_name_ending
     ''
   end
 

@@ -3,6 +3,9 @@ require_dependency 'application_enumeration'
 # Contains methods used in /config/initializers/constants/ranks.rb to generate Rank Classes
 module Ranks
 
+  # Duplicated somewhere?
+  CODES = [:iczn, :icn, :icnp, :icvcn].freeze
+
   # @return [Boolean] true if rank.to_s is the name of a NomenclaturalRank.
   # @param [String] rank
   def self.valid?(rank)
@@ -15,14 +18,14 @@ module Ranks
   #   Ranks::lookup(:iczn, 'superfamily')   # => 'NomenclaturalRank::Iczn::FamilyGroup::Superfamily'
   def self.lookup(code, rank)
     rank = rank.to_s
-    raise if ![:iczn, :icn, :icnp, :ictv].include?(code)
+    raise "code '#{code}' is not a valid code" if !Ranks::CODES.include?(code)
     r = rank.downcase
     case code
       when :iczn
         ::ICZN_LOOKUP[r]
       when :icnp
         ::ICNP_LOOKUP[r]
-      when :ictv
+      when :icvcn
         ::ICTV_LOOKUP[r]
       when :icn
         ::ICN_LOOKUP[r]

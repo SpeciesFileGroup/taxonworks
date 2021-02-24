@@ -7,5 +7,4 @@ class NomenclaturalRank::Iczn::GenusGroup::Genus < NomenclaturalRank::Iczn::Genu
   def self.abbreviation
     'gen.'
   end
-
 end

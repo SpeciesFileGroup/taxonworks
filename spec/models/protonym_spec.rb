@@ -180,6 +180,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
       specify '#have_latinized_exceptions?' do
         invalid_spelling.taxon_name_classifications << EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS.first.constantize.new
+        invalid_spelling.save
         expect(invalid_spelling.has_latinized_exceptions?).to be_truthy
       end
 

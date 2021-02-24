@@ -13,6 +13,7 @@
 <script>
 
 import TableList from './table.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -63,7 +64,7 @@ export default {
     }
   },
   mounted() {
-    this.$http.get('/project_members.json').then(response => {
+    AjaxCall('get', '/project_members.json').then(response => {
       this.membersList = response.body
     })
   },
@@ -81,7 +82,7 @@ export default {
       return list
     },
     removeItem(item) {
-      this.$http.delete(`${item.object_url}.json`).then(response => {
+      AjaxCall('delete', `${item.object_url}.json`).then(response => {
         let index = this.listWithCreators.findIndex(obj => {
           return (obj.id == item.id && obj.base_class == item.base_class)
         })

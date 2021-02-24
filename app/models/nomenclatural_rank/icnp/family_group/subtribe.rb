@@ -14,6 +14,10 @@ class NomenclaturalRank::Icnp::FamilyGroup::Subtribe < NomenclaturalRank::Icnp::
     [NomenclaturalRank::Icnp::FamilyGroup::Tribe.to_s]
   end
 
+  def self.valid_name_ending
+    'inae'
+  end
+
   def self.abbreviation
     'subtr.'
   end

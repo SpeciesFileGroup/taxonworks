@@ -31,7 +31,7 @@ class Topic < ControlledVocabularyTerm
   # @param used_on [String] one of `Citation` (default) or `Content`
   # @return [Scope]
   #    the max 10 most recently used topics, as used on Content or Citation
-  def self.used_recently(used_on = 'Citation')
+  def self.used_recently(user_id, project_id, klass, used_on = 'Citation')
     t = case used_on
         when 'Citation'
           CitationTopic.arel_table
@@ -44,14 +44,22 @@ class Topic < ControlledVocabularyTerm
     # i is a select manager
     i = t.project(t['topic_id'], t['created_at']).from(t)
       .where(t['created_at'].gt(1.weeks.ago))
-      .order(t['created_at'])
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
+      .order(t['created_at'].desc)
 
     # z is a table alias
     z = i.as('recent_t')
 
-    Topic.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
-    ).distinct.limit(10)
+    if klass.blank?
+      Topic.joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    else
+      Topic.used_on_klass(klass).joins(
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['topic_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
   end
 
   # @params klass [String] if target is `Citation` then if provided limits to those classes with citations,
@@ -60,31 +68,22 @@ class Topic < ControlledVocabularyTerm
   # @params klass [String] like TaxonName, required if target == `Citation`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id, klass, target = 'Citation')
+    r = used_recently(user_id, project_id, klass, target)
     h = {
-      quick: [],
-      pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: Topic.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    case target
-    when 'Citation'
-      h[:recent] = (
-        Topic.where(project_id: project_id, citations: {updated_by_id: user_id})
-        .used_on_klass(klass)
-        .used_recently('Citation')
-        .limit(5).distinct.to_a +
-      Topic.where(
-        project_id: project_id,
-        created_by_id: user_id,
-        updated_at: (3.hours.ago..Time.now)
-        ).limit(5).to_a
-        ).uniq
-    when 'Content'
-      h[:recent] = Topic.joins(:contents)
-        .where(project_id: project_id, contents: {updated_by_id: user_id}).used_recently('Content').limit(10).distinct.to_a
+    if r.empty?
+      h[:quick] = Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:quick] = (Topic.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          Topic.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(5) ).order(:name).to_a +
+          Topic.where(project_id: project_id, created_by_id: user_id, updated_at: (3.hours.ago..Time.now)).limit(5).to_a).uniq
     end
 
-    h[:quick] = (Topic.pinned_by(user_id)
-      .pinboard_inserted.where(project_id: project_id).to_a + h[:recent][0..3]).uniq
     h
   end
 

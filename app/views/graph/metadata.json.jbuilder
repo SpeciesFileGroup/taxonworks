@@ -6,7 +6,11 @@ json.object_id @object.id
 json.endpoints do
   @object.class::GRAPH_ENTRY_POINTS.each do |k|
     json.set! k do
-      json.total @object.send(k).count
+      if @object.send(k).respond_to?(:count)
+        json.total @object.send(k).count
+      else
+        json.total @object.send(k) ? 1 : 0
+      end
     end
   end 
 end

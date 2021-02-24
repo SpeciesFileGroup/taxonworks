@@ -3,9 +3,9 @@
     <button
       type="button"
       class="button normal-input button-submit"
-      :disabled="!taxon.id"
+      :disabled="!taxon.id || isSaving"
       v-shortkey="[getMacKey, 'l']"
-      @shortkey="showModal = taxon.id ? true : false"
+      @shortkey="showModal = taxon.id && !isSaving ? true : false"
       @click="showModal = true">
       Clone
     </button>
@@ -69,6 +69,9 @@ export default {
     },
     getMacKey () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+    },
+    isSaving () {
+      return this.$store.getters[GetterNames.GetSaving]
     }
   },
   data () {

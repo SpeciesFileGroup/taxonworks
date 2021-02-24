@@ -32,57 +32,54 @@
 
 <script>
 
-  import { GetterNames } from '../store/getters/getters'
-  import removeDuplicate from '../helpers/removeDuplicate'
-  import Modal from 'components/modal.vue'
+import Modal from 'components/modal.vue'
+import { GetterNames } from '../store/getters/getters'
+import { GetContents } from '../request/resources'
 
-  export default {
-    data: function () {
-      return {
-        contents: [],
-        showModal: false
-      }
+export default {
+  data () {
+    return {
+      contents: [],
+      showModal: false
+    }
+  },
+  components: {
+    Modal
+  },
+  computed: {
+    topic () {
+      return this.$store.getters[GetterNames.GetTopicSelected]
     },
-    components: {
-      Modal
+    content () {
+      return this.$store.getters[GetterNames.GetContentSelected]
     },
-    computed: {
-      topic() {
-        return this.$store.getters[GetterNames.GetTopicSelected]
-      },
-      content() {
-        return this.$store.getters[GetterNames.GetContentSelected]
-      },
-      disabled() {
-        return (this.$store.getters[GetterNames.GetTopicSelected] == undefined || this.$store.getters[GetterNames.GetOtuSelected] == undefined)
-      }
-    },
-    watch: {
-      'content': function (val, oldVal) {
-        if (val != undefined) {
-          if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-            this.loadContent()
-          }
-        } else {
-          this.contents = []
+    disabled () {
+      return (this.$store.getters[GetterNames.GetTopicSelected] == undefined || this.$store.getters[GetterNames.GetOtuSelected] == undefined)
+    }
+  },
+  watch: {
+    content (val, oldVal) {
+      if (val !== undefined) {
+        if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
+          this.loadContent()
         }
-      }
-    },
-    methods: {
-      loadContent: function () {
-        if (this.disabled) return
-
-        let that = this,
-          ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
-
-        this.$http.get(ajaxUrl).then(response => {
-          that.contents = removeDuplicate(response.body, this.content.id)
-        })
-      },
-      compareContent: function (content) {
-        this.$parent.$emit('showCompareContent', content)
-        this.showModal = false
+      } else {
+        this.contents = []
       }
     }
+  },
+  methods: {
+    loadContent () {
+      if (this.disabled) return
+
+      GetContents({ topic_id: this.topic.id }).then(response => {
+        this.contents = response.body.filter(c => c.id !== this.content.id)
+      })
+    },
+    compareContent: function (content) {
+      this.$emit('showCompareContent', content)
+      this.showModal = false
+    }
   }
+}
 </script>

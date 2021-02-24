@@ -15,7 +15,8 @@ export function makeInitialState (requestModule) {
     matrixRow: undefined,
     descriptors: [],
     observations: [],
-    confidenceLevels: null
+    confidenceLevels: null,
+    units: {}
   }
 }
 

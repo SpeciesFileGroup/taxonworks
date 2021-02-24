@@ -7,6 +7,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.development
+    environment:
+      - WEBPACKER_DEV_SERVER_HOST=webpack
     volumes: # mount root directory from this machine to the container itself (live development, e.g. Rails sees changes to files without rebuilding container0
       - .:/app
     ports: 
@@ -25,12 +27,16 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.development
-    command: bash -c "npm install && /app/bin/webpack-dev-server --host 0.0.0.0"
+    environment:
+      - NODE_ENV=development
+      - RAILS_ENV=development
+      - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    command: bash -c "npm install && /app/bin/webpack-dev-server"
     volumes: 
       - .:/app
       - ./volumes/webpack_build:/mnt/rails/public/webpack
     ports:
-      - '3808:3808'
+      - '3035:3035'
 volumes:
     pg:
       external: false

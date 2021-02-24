@@ -53,6 +53,19 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
             window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self');
         }
       });
+      if (/^\d+$/.test(taxonId)) {
+        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+m", "New type specimen", "Browse nomenclature", function () {
+          window.open('/tasks/nomenclature/new_taxon_name?taxon_name_id=' + taxonId, '_self');
+        });
+
+        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+e", "Comprehensive specimen digitization", "Browse nomenclature", function () {
+          window.open('/tasks/accessions/comprehensive?taxon_name_id=' + taxonId, '_self');
+        });
+
+        TW.workbench.keyboard.createShortcut((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + "+o", "Browse OTU", "Browse nomenclature", function () {
+          window.open('/tasks/otus/browse?taxon_name_id=' + taxonId, '_self');
+        });
+      }
     }
 
     $('.filter .open').on('click', function () {

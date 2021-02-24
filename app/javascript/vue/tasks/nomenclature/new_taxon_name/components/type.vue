@@ -1,23 +1,14 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      name="type"
-      class="anchor"/>
+  <block-layout
+    anchor="type"
+    :warning="checkValidation"
+    :spinner="!taxon.id"
+    v-help.section.type.container>
+    <h3 slot="header">Type</h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3
-      v-help.section.type.container
-      >Type</h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <div v-if="!taxonRelation">
-        <div 
+        <div
           v-if="editType"
           class="horizontal-left-content">
           <span>
@@ -30,31 +21,35 @@
             class="button circle-button btn-undo button-default"
             @click="editType = undefined"/>
         </div>
-        <hard-validation
-          field="type"
-          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)">
-          <quick-taxon-name
-            slot="body"
-            @getItem="addTaxonType"
-            :group="childOfParent[getRankGroup.toLowerCase()]"/>
-        </hard-validation>
+        <quick-taxon-name
+          slot="body"
+          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)"
+          @getItem="addTaxonType"
+          :group="childOfParent[getRankGroup.toLowerCase()]"/>
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
           <ul class="no_bullets context-menu">
             <li>
-              <a :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`">Quick</a>
+              <a 
+                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
+                v-shortkey="[getMacKey(), 'm']"
+                @shortkey="switchTypeMaterial()">Quick</a>
             </li>
             <li>
-              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+              <a
+                :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`"
+                v-shortkey="[getMacKey(), 'e']"
+                @shortkey="switchComprehensive()">Comprehensive</a>
             </li>
           </ul>
-          <hr>
-          <ul class="no_bullets">
+          <ul class="table-entrys-list">
             <li
+              class="flex-separate list-complete-item"
               v-for="typeSpecimen in typeMaterialList"
               :key="typeSpecimen.id">
               <a
                 :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
                 v-html="typeSpecimen.object_tag"/>
+              <a :href="`/tasks/accessions/comprehensive?collection_object_id=${typeSpecimen.collection_object_id}`">Open comprehensive</a>
             </li>
           </ul>
         </template>
@@ -70,7 +65,7 @@
           mutation-name-add="AddTaxonType"
           mutation-name-modal="SetModalType"
           name-module="Types"
-          display-name="object_status_tag"/>
+          display-name="subject_status_tag"/>
         <div class="switch-radio">
           <input
             name="type-picker-options"
@@ -101,7 +96,7 @@
             :object-lists="objectLists.common"
             :filter="true"
             @addEntry="addEntry"
-            display="object_status_tag"
+            display="subject_status_tag"
             :list-created="GetRelationshipsCreated"/>
         </div>
       </div>
@@ -112,13 +107,14 @@
         :list="GetRelationshipsCreated"
         @delete="removeType"
         @edit="setEdit"
-        :display="['object_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
+import BlockLayout from 'components/blockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
@@ -126,24 +122,20 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Expand from './expand.vue'
-import Autocomplete from 'components/autocomplete.vue'
-import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
+import getMacKey from 'helpers/getMacKey.js'
 
 import { GetTypeMaterial } from '../request/resources.js'
 
 export default {
   components: {
     ListEntrys,
-    Autocomplete,
-    Expand,
+    BlockLayout,
     TreeDisplay,
     ListCommon,
-    QuickTaxonName,
-    HardValidation
+    QuickTaxonName
   },
   computed: {
     treeList () {
@@ -156,30 +148,22 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     GetRelationshipsCreated () {
-      var type = []
-      type = this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (item.type.split('::')[1] == 'Typification')
-      })
-      if (!type.length) {
-        if (this.taxon.hasOwnProperty('type_taxon_name_relationship') && this.taxon['type_taxon_name_relationship']) {
-          type.push(this.taxon.type_taxon_name_relationship)
-          return type
-        }
-      }
-      return type
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) => item.type.split('::')[1] === 'Typification')
     },
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
+    },
+    checkValidation () {
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
     taxonRelation: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonType]
       },
       set (value) {
-        this.$store.commit(MutationNames.UpdateLastChange)
         this.$store.commit(MutationNames.SetTaxonType, value)
       }
     },
@@ -193,7 +177,6 @@ export default {
   data: function () {
     return {
       objectLists: this.makeLists(),
-      expanded: true,
       showAdvance: false,
       editType: undefined,
       childOfParent: childOfParent,
@@ -209,16 +192,20 @@ export default {
       immediate: true
     },
     taxon: {
-      handler(newVal) {
-        if(newVal.id) {
+      handler(newVal, oldVal) {
+        if(newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
           GetTypeMaterial(newVal.id).then(response => {
-            this.typeMaterialList = response
+            this.typeMaterialList = response.body
           }) 
         }
       },
       immediate: true,
       deep: true
     }
+  },
+  mounted () {
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
   },
   methods: {
     setEdit(relationship) {
@@ -262,15 +249,13 @@ export default {
       if(this.editType) {
         item.id = this.editType.id
         this.$store.dispatch(ActionNames.UpdateTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
+          this.$store.commit(MutationNames.UpdateLastChange)
           this.editType = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
         })
       }
       else {
         this.$store.dispatch(ActionNames.AddTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
     },
@@ -288,7 +273,14 @@ export default {
       }
       return list
     },
-    showForThisGroup: showForThisGroup
+    switchTypeMaterial () {
+      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`, '_self')
+    },
+    switchComprehensive () {
+      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`, '_self')
+    },
+    showForThisGroup: showForThisGroup,
+    getMacKey: getMacKey
   }
 }
 </script>

@@ -18,7 +18,7 @@ namespace :tw do
         # Stage 1, the backup 
         # Backup the database (always, regardless of whether there are migrations)
         # Aborts the whole process if data can not be dumped 
-        Rake::Task['tw:db:dump'].invoke
+        Rake::Task['tw:db:dump'].invoke unless ENV['TW_DISABLE_DB_BACKUP_AT_DEPLOY_TIME']&.downcase == 'true'
 
         begin
           # Stage 2, the migrations

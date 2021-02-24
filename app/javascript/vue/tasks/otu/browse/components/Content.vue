@@ -1,6 +1,7 @@
 <template>
-  <section-panel title="Content">
-    <a name="content"/>
+  <section-panel
+    :status="status"
+    :title="title">
     <div class="separate-top">
       <ul>
         <li
@@ -9,7 +10,7 @@
           <b><span v-html="content.topic.name"/></b>
           <p 
             class="pre"
-            v-html="content.text"/>
+            v-html="markdownToHtml(content.text)"/>
         </li>
       </ul>
     </div>
@@ -20,10 +21,14 @@
 
 import { GetContent } from '../request/resources.js'
 import SectionPanel from './shared/sectionPanel'
+import extendSection from './shared/extendSections'
+import EasyMDE from 'easymde'
+import DOMPurify from 'dompurify'
 
 export default {
+  mixins: [extendSection],
   components: {
-    SectionPanel
+    SectionPanel,
   },
   props: {
     otu: {
@@ -45,6 +50,12 @@ export default {
         }
       },
       immediate: true
+    }
+  },
+  methods: {
+    markdownToHtml (text) {
+      const markdown = new EasyMDE()
+      return DOMPurify.sanitize(markdown.options.previewRender(text))
     }
   }
 }

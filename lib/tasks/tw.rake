@@ -30,7 +30,8 @@ namespace :tw do
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
   task :database_host do |t|
     @args ||= {}
-    @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
+    @args[:database_host] = ENV['database_host']
+    @args[:database_host] ||= Rails.configuration.database_configuration[Rails.env]['host'] || '0.0.0.0'
   end
 
   desc 'Sets Current.user_id via "user_id=1" option. checks to see it exists.'

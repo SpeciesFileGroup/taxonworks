@@ -2,6 +2,7 @@ class ObservationMatrixColumnsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_observation_matrix_column, only: [:show]
+  after_action -> { set_pagination_headers(:observation_matrix_columns) }, only: [:index], if: :json_request?
 
   # GET /matrix_columns
   # GET /matrix_columns.json
@@ -12,7 +13,10 @@ class ObservationMatrixColumnsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json { 
-        @observation_matrix_columns = ObservationMatrixColumn.where(filter_params).where(project_id: sessions_current_project_id).order('observation_matrix_columns.position')
+        @observation_matrix_columns = ObservationMatrixColumn.where(filter_params)
+          .where(project_id: sessions_current_project_id)
+          .order('observation_matrix_columns.position')
+          .page(params[:page]).per(params[:per])
       }
     end
   end

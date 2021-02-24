@@ -59,7 +59,7 @@ export default {
     this.loadCombination()
     TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' + 's'), 'Save new combination', 'New combination')
     GetLastCombinations().then(response => {
-      this.combinations = response
+      this.combinations = response.body
     })
   },
   methods: {
@@ -106,15 +106,15 @@ export default {
       if (/^\d+$/.test(combinationId)) {
         this.loading = true
         GetCombination(combinationId).then(response => {
-          let keys = Object.keys(response.protonyms)
-          this.accept_taxon_name_ids = keys.map(key => { return response.protonyms[key].id })
-          this.editCombination(response)
+          let keys = Object.keys(response.body.protonyms)
+          this.accept_taxon_name_ids = keys.map(key => { return response.body.protonyms[key].id })
+          this.editCombination(response.body)
           this.loading = false
         }, () => {
           history.pushState(null, null, window.location.href.split('?')[0])
           GetTaxonName(combinationId).then(response => {
-            this.$refs.inputSearch.processString(`${response.parent.name} ${response.name}`)
-            this.accept_taxon_name_ids.push(response.id)
+            this.$refs.inputSearch.processString(`${response.body.parent.name} ${response.body.name}`)
+            this.accept_taxon_name_ids.push(response.body.id)
             this.loading = false
           }, () => {
             this.loading = false

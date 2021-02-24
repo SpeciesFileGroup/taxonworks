@@ -69,5 +69,8 @@ export default {
     label {
       display: block;
     }
+    li label {
+      display: inline;
+    }
   }
 </style>

@@ -2,81 +2,60 @@
   <div>
     <button 
       type="button"
-      class="button normal-input button-default"
+      class="button normal-input button-submit"
+      :class="{ 'button-default': otuSelected }"
       @click="openModal">
-      Select matrix
+      Matrix row coder
     </button>
     <modal-component
       v-if="show"
       @close="reset">
-      <h3 slot="header">Select matrix</h3>
+      <h3 slot="header">Select observation matrix to open MRC or Image matrix</h3>
       <div
         slot="body">
         <spinner-component
           v-if="loading"
           legend="Loading"/>
-        <div v-if="!selectedMatrix">
+        <div>
+          <h3 v-if="!otuSelected">OTU will be created for this taxon name</h3>
           <div
             class="separate-bottom horizontal-left-content">
             <input
               v-model="filterType"
               type="text"
               placeholder="Filter matrix">
-            <default-pin 
+            <default-pin
               section="ObservationMatrices"
               type="ObservationMatrix"
               @getId="setMatrix"/>
           </div>
-          <ul class="no_bullets">
-            <template v-for="item in matrices">
-              <li
-                :key="item.id"
-                v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
-                <label>
-                  <input
-                    @click="loadMatrix(item)"
-                    :value="item"
-                    name="select-matrix"
-                    type="radio">
-                  <span v-html="item.object_tag"/>
-                </label>
-              </li>
-            </template>
-          </ul>
-        </div>
-        <div v-else>
-          <div class="horizontal-left-content middle">
-            <h3 class="separate-right">{{ selectedMatrix.name }}</h3>
-            <span
-              class="button button-circle btn-undo button-default"
-              @click="selectedMatrix = undefined"/>
-          </div>
-          <div v-if="row">
-            <div
-              v-if="!row.length"
-              class="separate-bottom">
-              <label>
-                <input
-                  v-model="create"
-                  type="checkbox">
-                Add to matrix
-              </label>
+          <div class="flex-separate">
+            <div>
+              <ul class="no_bullets">
+                <template v-for="item in alreadyInMatrices">
+                  <li
+                    :key="item.id"
+                    v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
+                    <button
+                      class="button normal-input button-default margin-small-bottom"
+                      @click="loadMatrix(item)"
+                      v-html="item.object_tag"/>
+                  </li>
+                </template>
+              </ul>
+              <ul class="no_bullets">
+                <template v-for="item in matrices">
+                  <li
+                    :key="item.id"
+                    v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
+                    <button
+                      class="button normal-input button-submit margin-small-bottom"
+                      @click="loadMatrix(item)"
+                      v-html="item.object_tag"/>
+                  </li>
+                </template>
+              </ul>
             </div>
-            <button
-              type="button"
-              class="button normal-input button-default"
-              @click="openMatrixRowCoder"
-              :disabled="!create && !row.length">
-              Matrix row coder
-            </button>
-            <button
-              v-if="selectedMatrix.is_media_matrix"
-              type="button"
-              class="button normal-input button-default"
-              :disabled="!create && !row.length"
-              @click="openImageMatrix">
-              Image matrix
-            </button>
           </div>
         </div>
       </div>
@@ -90,7 +69,7 @@ import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
 
-import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix } from '../request/resources'
+import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix, CreateOTU } from '../request/resources'
 
 export default {
   components: {
@@ -102,6 +81,20 @@ export default {
     otuId: {
       type: [String, Number],
       default: undefined
+    },
+    taxonNameId: {
+      type: Number,
+      required: true
+    }
+  },
+  computed: {
+    alreadyInMatrices () {
+      return this.matrices.filter(item => {
+        return this.rows.find(row => { return item.id === row.observation_matrix_id })
+      })
+    },
+    alreadyInCurrentMatrix () {
+      return this.rows.filter(row => { return this.selectedMatrix.id === row.observation_matrix_id })
     }
   },
   data () {
@@ -109,73 +102,106 @@ export default {
       show: false,
       matrices: [],
       selectedMatrix: undefined,
-      row: undefined,
+      rows: [],
       create: false,
       filterType: '',
-      loading: false
+      loading: false,
+      otuSelected: undefined
     }
   },
-  mounted () {
-
+  watch: {
+    otuId: {
+      handler(newVal) {
+        this.otuSelected = newVal
+      },
+      immediate: true
+    }
   },
   methods: {
     loadMatrix (matrix) {
-      return new Promise((resolve, reject) => {
-        this.selectedMatrix = matrix
-        GetObservationRow(matrix.id, this.otuId).then(response => {
-          this.row = response.body
-          return resolve()
-        })
-      })
+      this.selectedMatrix = matrix
+      if (matrix.is_media_matrix) {
+        this.openImageMatrix()
+      } else {
+        this.openMatrixRowCoder()
+      }
     },
     openModal () {
       this.loading = true
       this.show = true
       GetObservationMatrices().then(response => {
-        this.matrices = response.body
+        this.matrices = response.body.sort((a, b) => { 
+          const compareA = a.object_tag
+          const compareB = b.object_tag
+          if (compareA < compareB) {
+            return -1
+          } else if (compareA > compareB) {
+            return 1
+          } else {
+            return 0
+          }
+        })
         this.loading = false
       })
+      if (this.otuSelected) {
+        GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+          this.rows = response.body
+        })
+      }
     },
     reset () {
       this.selectedMatrix = undefined
-      this.row = undefined
+      this.rows = []
       this.create = false
       this.show = false
     },
     createRow () {
       return new Promise((resolve, reject) => {
-        let data = {
-          observation_matrix_id: this.selectedMatrix.id,
-          otu_id: this.otuId,
-          type: 'ObservationMatrixRowItem::SingleOtu'
-        }
-        CreateObservationMatrixRow(data).then(response => {
-          this.loadMatrix(this.selectedMatrix).then(() => {
-            return resolve()
+        if (window.confirm('Are you sure you want to add this otu to this matrix?')) {
+          const promises = []
+
+          if (!this.otuSelected) {
+            promises.push(CreateOTU(this.taxonNameId).then(response => {
+              this.otuSelected = response.body.id
+            }))
+          }
+          Promise.all(promises).then(() => {
+            const data = {
+              observation_matrix_id: this.selectedMatrix.id,
+              otu_id: this.otuSelected,
+              type: 'ObservationMatrixRowItem::Single::Otu'
+            }
+            CreateObservationMatrixRow(data).then(response => {
+              GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+                this.rows = response.body
+                resolve(response)
+              })
+            })
           })
-        })
+        }
       })
     },
     setMatrix (id) {
       GetObservationMatrix(id).then(response => {
         this.selectedMatrix = response.body
+        this.loadMatrix(this.selectedMatrix)
       })
     },
     openMatrixRowCoder () {
-      if (this.row.length) {
-        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.row[0].id}`, '_self')
+      if (this.alreadyInCurrentMatrix.length) {
+        window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.row[0].id}`, '_self')
+          window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
         })
       }
     },
     openImageMatrix () {
-      if (this.row.length) {
-        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.row[0].id}&row_position=${this.row[0].position}`, '_self')
+      if (this.alreadyInCurrentMatrix.length) {
+        window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
       } else {
         this.createRow().then(() => {
-          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.row[0].id}&row_position=${this.row[0].position}`, '_self')
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
         })
       }
     }

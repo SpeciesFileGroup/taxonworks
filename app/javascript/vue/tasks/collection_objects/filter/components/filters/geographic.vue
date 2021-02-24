@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Geographic area</h2>
+    <h3>Geographic area</h3>
     <switch-component 
       class="separate-bottom"
       v-model="view"
@@ -13,7 +13,7 @@
           :clear-after="true"
           placeholder="Search a geographic area"
           param="term"
-          @getItem="addGeoArea"/>
+          @getItem="addGeoArea($event.id)"/>
       </div>
       <label>
         <input 
@@ -27,7 +27,7 @@
             class="middle flex-separate list-complete-item"
             v-for="(geoArea, index) in geographic_areas"
             :key="geoArea.id">
-            <span v-html="geoArea.label"/>
+            <span v-html="geoArea.name"/>
             <span
               class="btn-delete button-circle"
               @click="removeGeoArea(index)"/>
@@ -63,6 +63,8 @@
 import SwitchComponent from 'components/switch'
 import Autocomplete from 'components/autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
+import { GetGeographicArea } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
@@ -99,7 +101,7 @@ export default {
       handler (newVal) {
         if(newVal.length) {
           this.geographic.geographic_area_ids = []
-          if(newVal[0].properties.hasOwnProperty('radius')) {
+          if(newVal[0].properties && newVal[0].properties.hasOwnProperty('radius')) {
             this.geographic.radius = newVal[0].properties.radius
             this.geographic.geo_json = JSON.stringify({ type: "Point", coordinates: newVal[0].geometry.coordinates })
           }
@@ -125,6 +127,20 @@ export default {
       deep: true
     }
   },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      if (urlParams.geographic_area_ids) {
+        urlParams.geographic_area_ids.forEach(id => {
+          this.addGeoArea(id)
+        })
+      }
+      if (urlParams.geo_json) {
+        this.addShape(this.convertGeoJSONParam(urlParams))
+      }
+      this.geographic.spatial_geographic_areas = urlParams.spatial_geographic_areas
+    }
+  },
   methods: {
     addShape (shape) {
       this.geojson = [shape]
@@ -133,14 +149,26 @@ export default {
       this.geographic.geographic_area_ids.splice(index, 1)
       this.geographic_areas.splice(index, 1)
     },
-    addGeoArea (item) {
-      this.geographic.geo_json = undefined
-      this.geographic.radius = undefined
-      this.geographic.geographic_area_ids.push(item.id)
-      this.geographic_areas.push(item)
+    addGeoArea (id) {
+      GetGeographicArea(id).then(response => {
+        this.geographic.geo_json = undefined
+        this.geographic.radius = undefined
+        this.geographic.geographic_area_ids.push(id)
+        this.geographic_areas.push(response.body)
+      })
     },
-    setShape(geojson) {
-      //this.geojson = geojson.length ? 
+    convertGeoJSONParam (urlParams) {
+      const geojson = urlParams.geo_json
+      return {
+        type: 'Feature',
+        geometry: {
+          coordinates: geojson.type === 'Point' ? geojson.coordinates : geojson.coordinates[0],
+          type: geojson.type === 'Point' ? 'Point' : 'Polygon'
+        },
+        properties: {
+          radius: urlParams.radius ? urlParams.radius : undefined
+        }
+      }
     }
   }
 }

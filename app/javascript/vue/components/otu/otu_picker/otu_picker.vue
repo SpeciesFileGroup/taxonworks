@@ -1,69 +1,83 @@
 <template>
   <div class="vue-otu-picker">
-    <div class="horizontal-left-content">
-      <autocomplete
-        :input-id="inputId"
-        url="/otus/autocomplete"
-        class="separate-right"
-        label="label_html"
-        min="2"
-        display="label"
-        @getItem="emitOtu"
-        @getInput="callbackInput"
-        @found="found = $event"
-        :clear-after="clearAfter"
-        placeholder="Select an OTU"
-        param="term"/>
-      <button
+    <autocomplete
+      :input-id="inputId"
+      url="/otus/autocomplete"
+      class="separate-right"
+      label="label_html"
+      min="2"
+      display="label"
+      @getItem="emitOtu"
+      @getInput="callbackInput"
+      @found="found = $event"
+      :clear-after="clearAfter"
+      placeholder="Select an OTU"
+      param="term"/>
+    <div class="flex-wrap-column create-otu-panel">
+      <match-taxon-name
         v-if="!found"
-        class="button normal-input button-default"
-        type="button"
-        @click="create = true">
-        New
-      </button>
-    </div>
-    <div
-      v-if="create"
-      class="new-otu-panel panel content">
-      <span
-        class="close-panel small-icon"
-        data-icon="close"
-        @click="create = false"/>
-      <div class="field">
-        <label>Name</label>
-        <br>
-        <input
-          type="text"
-          v-model="otu.name">
+        class="panel content match-otu-box"
+        @createNew="create = true"
+        :otu-name="otu.name"
+        @selected="createWith"/>
+      <div
+        v-if="create"
+        class="new-otu-panel panel content">
+        <span
+          class="close-panel small-icon"
+          data-icon="close"
+          @click="create = false"/>
+        <div class="field label-above">
+          <label>Name</label>
+          <input
+            type="text"
+            class="full_width"
+            v-model="otu.name">
+        </div>
+        <div class="field label-above">
+          <label>Taxon name</label>
+          <div
+            v-if="taxon"
+            class="flex-separate middle">
+            <span
+              class="margin-small-right"
+              v-html="taxonLabel"/>
+            <span
+              class="button circle-button btn-undo button-default"
+              @click="taxon = undefined"/>
+          </div>
+          <template v-else>
+            <autocomplete
+              url="/taxon_names/autocomplete"
+              :autofocus="true"
+              label="label"
+              min="2"
+              :clear-after="true"
+              @getItem="setTaxon"
+              placeholder="Select a taxon name"
+              param="term"/>
+          </template>
+        </div>
+        <button
+          class="button normal-input button-submit"
+          :disabled="!validateFields"
+          @click="createOtu"
+          type="button">Create
+        </button>
       </div>
-      <div class="field">
-        <label>Taxon name</label>
-        <br>
-        <autocomplete
-          url="/taxon_names/autocomplete"
-          :autofocus="true"
-          label="label"
-          min="2"
-          @getItem="otu.taxon_name_id = $event.id"
-          placeholder="Select a taxon name"
-          param="term"/>
-      </div>
-      <button
-        class="button normal-input button-submit"
-        :disabled="!validateFields"
-        @click="createOtu"
-        type="button">Create
-      </button>
     </div>
   </div>
 </template>
 <script>
 
-import Autocomplete from '../../autocomplete.vue'
+import Autocomplete from 'components/autocomplete.vue'
+import MatchTaxonName from './matchTaxonNames'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    MatchTaxonName
   },
   props: {
     inputId: {
@@ -76,15 +90,19 @@ export default {
     }
   },
   computed: {
-    validateFields() {
+    validateFields () {
       return this.otu.name
+    },
+    taxonLabel () {
+      return this.taxon && this.taxon.hasOwnProperty('label_html') ? this.taxon.label_html : this.taxon['object_tag']
     }
   },
-  data() {
+  data () {
     return {
       found: true,
       create: false,
       type: undefined,
+      taxon: undefined,
       otu: {
         name: undefined,
         taxon_name_id: undefined
@@ -92,7 +110,7 @@ export default {
     }
   },
   watch: {
-    type(newVal, oldVal) {
+    type (newVal, oldVal) {
       if(newVal != oldVal) {
         this.resetPicker()
         this.otu.name = newVal
@@ -102,13 +120,16 @@ export default {
     }
   },
   methods: {
-    resetPicker() {
-      this.otu.name = undefined,
-      this.otu.taxon_name_id = undefined,
+    resetPicker () {
+      this.otu.name = undefined
+      this.otu.taxon_name_id = undefined
       this.create = false
     },
-    createOtu() {
-      this.$http.post('/otus', { otu : this.otu }).then(response => {
+    createOtu () {
+      if (this.taxon) {
+        this.otu.taxon_name_id = this.taxon.id
+      }
+      AjaxCall('post', '/otus', { otu: this.otu }).then(response => {
         this.emitOtu(response.body)
         this.create = false
         this.found = true
@@ -120,6 +141,14 @@ export default {
     callbackInput(event) {
       this.type = event
       this.$emit('getInput', event)
+    },
+    setTaxon (taxon) {
+      this.taxon = taxon
+    },
+    createWith (data) {
+      this.taxon = data.taxon
+      this.otu.name = data.otuName
+      this.createOtu()
     }
   }
 }
@@ -128,7 +157,8 @@ export default {
 .vue-otu-picker {
   position: relative;
   .new-otu-panel {
-    position: absolute;
+    position: relative;
+    display: none;
     z-index: 50;
   }
   .close-panel {
@@ -137,6 +167,23 @@ export default {
     top: 14px;
     right: 14px;
     cursor: pointer;
+  }
+  .create-otu-panel {
+    display: none;
+    position: absolute;
+    top: 30px;
+    z-index: 2001;
+  }
+  .match-otu-box {
+    position: relative;
+  }
+  &:focus-within, &:hover {
+    .create-otu-panel {
+      display: flex;
+    }
+    .new-otu-panel {
+      display: flex;
+    }
   }
 }
 </style>

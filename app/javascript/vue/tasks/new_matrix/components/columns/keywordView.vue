@@ -53,9 +53,7 @@
           batch_type: 'tags',
           klass: 'Descriptor'
         }
-        console.log(object);
         CreateColumnBatchLoad(object).then((response) => {
-          console.log(response);
           this.$store.dispatch(ActionNames.GetMatrixObservationColumns, this.matrixId)
         })
       }

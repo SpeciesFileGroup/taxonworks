@@ -69,8 +69,8 @@ class PinboardItem < ApplicationRecord
       r = PinboardItem.where(project_id: project_id, pinned_object_type: pinned_object_type, user_id: user_id).where.not(id: id)
       if pinned_object_type == 'ControlledVocabularyTerm'
         n = pinned_object.class.name
-        r.find_each do |i| 
-          i.update(is_inserted: false) if i.pinned_object.type == n
+        r.each do |i|
+          i.update_column(:is_inserted, false) if i.pinned_object.type == n
         end 
       else
         r.update_all(is_inserted: false)

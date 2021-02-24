@@ -48,6 +48,9 @@
       <li v-if="collectionObject.repository_id">
         <span>Repository type will be added.</span>
       </li>
+      <li v-if="depiction.is_metadata_depiction">
+        <span>Depictions will be marked as metadata</span>
+      </li>
     </ul>
   </div>
 </template>
@@ -78,6 +81,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
+    },
+    depiction () {
+      return this.$store.getters[GetterNames.GetDepiction]
     },
     identifier: {
       get () {

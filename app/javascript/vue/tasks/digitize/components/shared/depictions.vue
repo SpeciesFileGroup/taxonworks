@@ -29,17 +29,13 @@
 import ActionNames from '../../store/actions/actionNames'
 import { DestroyDepiction } from '../../request/resources.js'
 
-import dropzone from '../../../../components/dropzone.vue'
-import expand from '../../../../components/expand.vue'
-import spinner from '../../../../components/spinner.vue'
+import dropzone from 'components/dropzone.vue'
 import depictionImage from './depictionImage.vue'
 
 export default {
   components: {
     depictionImage,
-    dropzone,
-    expand,
-    spinner
+    dropzone
   },
   props: {
     actionSave: {
@@ -60,7 +56,7 @@ export default {
     },
     defaultMessage: {
       type: String,
-      default: 'Drop images here to add figures'
+      default: 'Drop images or click here to add figures'
     }
   },
   data: function () {
@@ -87,7 +83,7 @@ export default {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.getDepictions(newVal.id).then(response => {
-          this.figuresList = response
+          this.figuresList = response.body
         })
       } else {
         if(!newVal.id) {

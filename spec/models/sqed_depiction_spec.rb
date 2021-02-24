@@ -37,7 +37,7 @@ RSpec.describe SqedDepiction, type: :model do
 
   context '#extraction_metadata' do
     specify ':boundary_finder' do
-      expect(valid_sqed_depiction.extraction_metadata[:boundary_finder]).to eq('Sqed::BoundaryFinder::ColorLineFinder')
+      expect(valid_sqed_depiction.extraction_metadata[:boundary_finder]).to eq(Sqed::BoundaryFinder::ColorLineFinder)
     end
 
     specify ':layout' do

@@ -3,7 +3,7 @@
     v-if="getDefault != undefined"
     type="button"
     title="Use default pinned"
-    class="button circle-button button-data button-default-pin"
+    class="button circle-button btn-pin button-default"
     @click="sendDefault()">
   </span>
 </template>

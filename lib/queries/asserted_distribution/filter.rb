@@ -4,16 +4,31 @@ module Queries
     # !! does not inherit from base query
     class Filter 
 
-      # Boolean 
-      attr_accessor :recent
-
+      # @return [Array]
+      # @param otu_id [Array, Integer, String]
       attr_accessor :otu_id
 
+      # @return [Array]
+      # @param otu_id [Array, Integer, String]
       attr_accessor :geographic_area_id
 
       def initialize(params)
-        @otu_id= params[:otu_id]
-        @geographic_area_id = params[:geographic_area_id] 
+        if p = params[:otu_id]
+          if p.kind_of? Array
+            @otu_id = params[:otu_id]
+          else
+            @otu_id = [params[:otu_id]]
+          end
+        end
+
+        if p = params[:geographic_area_id]
+          if p.kind_of? Array
+            @geographic_area_id = params[:geographic_area_id]
+          else
+            @geographic_area_id = [params[:geographic_area_id]]
+          end
+        end
+
         @recent = params[:recent] ? true : nil
       end
 
@@ -24,7 +39,10 @@ module Queries
 
       def asserted_distribution_attribute_equals(attribute)
         a = send(attribute)
-        a.blank? ? nil : table[attribute].eq(a)
+        if a
+          return a.empty? ? nil : table[attribute].eq_any(a)
+        end
+        nil
       end
 
       # @return [ActiveRecord::Relation]
@@ -61,7 +79,6 @@ module Queries
           q = ::AssertedDistribution.all
         end
 
-        q = q.order(updated_at: :desc) if recent
         q
       end
   

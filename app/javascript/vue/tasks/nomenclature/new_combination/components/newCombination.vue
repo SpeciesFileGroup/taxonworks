@@ -147,9 +147,9 @@ export default {
       this.otherMatches = {}
       if (newVal) {
         this.setRankList(newVal).then(response => {
-          if (response.data.existing_combination_id) {
-            GetCombination(response.data.existing_combination_id).then(response => {
-              this.newCombination = response
+          if (response.body.data.existing_combination_id) {
+            GetCombination(response.body.data.existing_combination_id).then(response => {
+              this.newCombination = response.body
             })
           }
         })
@@ -165,18 +165,27 @@ export default {
       this.rankLists = {}
       this.parseRanks = {}
     },
-    setRankList (literalString) {
+    setRankList (literalString, combination = undefined) {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
         GetParse(literalString).then(response => {
-          this.$emit('onSearchEnd', true)
-          this.rankLists = response.data.protonyms
-          this.parseRanks = response.data.parse
+          if (combination) {
+            let ranks = Object.keys(combination.protonyms)
+            ranks.forEach(rank => {
+              let protonym = combination.protonyms[rank]
+              if (!response.body.data.protonyms[rank].find(item => { item.id === protonym.id })) {
+                response.body.data.protonyms[rank].push(protonym)
+              }
+            })
+          }
+          this.rankLists = response.body.data.protonyms
+          this.parseRanks = response.body.data.parse
           this.searching = false
-          this.otherMatches = response.other_matches
+          this.otherMatches = response.body.other_matches
+          this.$emit('onSearchEnd', true)
           this.$nextTick(() => {
-            if (response.data.unambiguous) {
+            if (response.body.data.unambiguous) {
               this.$refs.saveButton.setFocus()
             }
           })
@@ -189,7 +198,7 @@ export default {
     },
     editCombination (literalString, combination) {
       this.newCombination = combination
-      this.setRankList(literalString)
+      this.setRankList(literalString, combination)
     },
     expandAll () {
       this.$refs.listGroup.forEach(component => {

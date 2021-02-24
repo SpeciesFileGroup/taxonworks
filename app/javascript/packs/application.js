@@ -7,10 +7,13 @@
 // To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
 // layout file, like app/views/layouts/application.html.erb
 
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
 // Styles
 require('../style/application.scss')
 require('leaflet/dist/leaflet.css')
 
+require('../vue/config.js')
 require('../vue/tasks/citations/otus/main.js')
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
@@ -24,6 +27,9 @@ require('../vue/initializers/collection_object_radial/main.js')
 require('../vue/initializers/pdfViewer/main.js')
 require('../vue/initializers/default_confidence/main.js')
 require('../vue/initializers/tagButton/main.js')
+require('../vue/initializers/quick_citation_init/main.js')
+require('../vue/initializers/browse_nomenclature/main.js')
+require('../vue/initializers/pinboard_navigator/main.js')
 require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')
@@ -40,6 +46,7 @@ require('../vue/tasks/labels/print_labels/main.js')
 require('../vue/tasks/projects/preferences/main.js')
 require('../vue/tasks/asserted_distribution/new_asserted_distribution/main.js')
 require('../vue/tasks/images/new_image/main.js')
+require('../vue/tasks/images/filter/main.js')
 require('../vue/tasks/sources/hub/main.js')
 require('../vue/tasks/taxon_names/filter/main.js')
 require('../vue/tasks/matrix_image/matrix_image/main.js')
@@ -55,3 +62,6 @@ require('../vue/tasks/biological_relationships/composer/main.js')
 require('../vue/tasks/nomenclature/match/main.js')
 require('../vue/tasks/controlled_vocabularies/manage/main.js')
 require('../vue/tasks/collection_objects/match/main.js')
+require('../vue/tasks/sources/filter/main.js')
+require('../vue/tasks/collecting_events/new_collecting_event/main.js')
+require('../vue/tasks/interactive_keys/main.js')

@@ -1,35 +1,61 @@
 <template>
   <div>
-    <autocomplete
-      url="/people/autocomplete"
-      min="2"
-      label="label_html"
-      placeholder="Find another person"
-      display="label"
-      @getItem="addToList($event)"
-      param="term"/>
-    <p v-if="Object.keys(selectedPerson).length">{{ matchPeople.length }}  matches found</p>
+    <h2>Match people</h2>
+    <p v-if="selectedPerson">{{ matchList.length }}  matches found</p>
     <div>
-      <ul class="no_bullets list-search">
-        <li v-for="person in matchPeople">
-          <label>
-            <input
-              name="match-people"
-              type="radio"
-              :checked="person.id == selected['id']"
-              :value="person.id"
-              @click="selectMergePerson(person)">
-            <span v-html="person.label_html"/>
-          </label>
-        </li>
-      </ul>
+      <autocomplete
+        url="/people/autocomplete"
+        param="term"
+        label="label_html"
+        placeholder="Search a person..."
+        clear-after
+        @getItem="addToList"/>
+      <table class="full_width">
+        <thead>
+          <tr>
+            <th>
+              <input
+                v-model="selectAll"
+                type="checkbox">
+            </th>
+            <th>Cached</th>
+            <th>Lived</th>
+            <th>Active</th>
+            <th>Used</th>
+            <th>Roles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="person in matchList">
+            <tr :key="person.id">
+              <td>
+                <input
+                  type="checkbox"
+                  :value="person"
+                  v-model="selectedMergePerson">
+              </td>
+              <td>{{ person.cached }}</td>
+              <td>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_born) }} - {{ yearValue(person.year_died) }}</span>
+              </td>
+              <td>
+                <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(person.year_active_start) }} - {{ yearValue(person.year_active_end) }}</span>
+              </td>
+              <td>
+                <span class="feedback feedback-thin feedback-primary">{{ person.roles ? person.roles.length : '?' }}</span>
+              </td>
+              <td>{{ getRoles(person) }}</td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 <script>
-// this is a list for selecting one person from potential matchees
-// only one person can be selected
-import Autocomplete from 'components/autocomplete.vue'
+
+import { GetPeople } from '../request/resources'
+import Autocomplete from 'components/autocomplete'
 
 export default {
   components: {
@@ -37,66 +63,57 @@ export default {
   },
   props: {
     value: {
-      type: Object,
+      type: Array,
       required: true
     },
     selectedPerson: {
       type: Object,
+      default: undefined
+    },
+    matchPeople: {
+      type: Array,
       required: true
     }
   },
-  watch: {
-    selectedPerson(newVal) {
-      this.getMatchPeople(newVal);
+  computed: {
+    selectedMergePerson: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    },
+    selectAll: {
+      get () {
+        return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
+      },
+      set (value) {
+        this.selectedMergePerson = value ? this.matchList : []
+      }
+    },
+    matchList () {
+      return this.matchPeople.filter(person => this.selectedPerson.id !== person.id)
     }
-  },
-  data() {
-    return {
-      matchPeople: [],
-      mergePerson: {},
-      selected: {} // gets populated by the v-model to the value attribute of the radio button input
-    };
   },
   methods: {
-    removeFromList(personId) {
-      let index = this.matchPeople.findIndex(item => {
-        return item.id == personId;
-      });
-
-      if (index > -1) this.matchPeople.splice(index, 1);
-      this.mergePerson = {};
+    addToList (person) {
+      person.cached = person.label
+      GetPeople(person.id).then(response => {
+        if (!this.selectedMergePerson.find(p => p.id === response.body.id)) {
+          this.selectedMergePerson.push(response.body)
+          this.$emit('addToList', response.body)
+        }
+      })
     },
-    addToList(person) {
-      person['cached'] = person.label
-      this.matchPeople.push(person)
-      this.selectMergePerson(person)
-      this.selected = person
+    getRoles (person) {
+      return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : ''
     },
-    selectMergePerson(person) {
-      this.$http.get(`/people/${person.id}.json`).then(response => {
-          this.mergePerson = response.body;
-          this.$emit("input", this.mergePerson);
-        });
-    },
-    getMatchPeople(person) {
-      this.mergePerson = {};
-      this.selected = {};
-      if (person.last_name == undefined && person.last_name == undefined) {
-        this.matchPeople = []; // new search
-        this.mergePerson = {};
-        this.selected = {};
-        return false;
-      }
-      this.$http.get(`/people/${person.id}/similar`).then(response => {
-        this.matchPeople = response.body;
-        this.removeFromList(person.id);
-        this.$emit("matchPeople", this.matchPeople)   // notify app's watcher
-      }, (response) => {
-        this.$emit("matchPeople", {})
-      });
+    yearValue (value) {
+      return value || '?'
     }
   }
-};
+}
 </script>
 
 <style scoped>

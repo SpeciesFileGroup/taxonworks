@@ -9,12 +9,13 @@ module Housekeeping::Timestamps
     # related_class = self.name
     # related_table_name = self.table_name
 
-    scope :created_before_date, ->(date) { where('created_at < ?', "#{date}") }
+    # TODO: Coerce to DateTime in a cheaper way when date param already is either Date, Time or DateTime rather than String.
+    scope :created_before_date, ->(date) { where(self.arel_table[:created_at].lt DateTime.parse(date.to_s)) }
     scope :created_in_date_range, ->(start, c_end) {
-      where(where_dated_string(self.name.tableize, 'cre'), start, c_end)
+      where(created_at: DateTime.parse(start.to_s)..DateTime.parse(c_end.to_s))
     }
     scope :updated_in_date_range, ->(start, u_end) {
-      where(where_dated_string(self.name.tableize, 'upd'), start, u_end)
+      where(updated_at: DateTime.parse(start.to_s)..DateTime.parse(u_end.to_s))
     }
 
     scope :recently_created, -> (range = 1.weeks.ago..Time.now) { where(created_at: range) }
@@ -83,11 +84,6 @@ module Housekeeping::Timestamps
     # @return [Scope]
     def updated_last(number = 10)
       limit(number).order(updated_at: :DESC)
-    end
-
-    # @return [Scope]
-    def where_dated_string(table, type)
-      "#{table}.#{type}ated_at >= ? and #{table}.#{type}ated_at <= ?"
     end
 
   end

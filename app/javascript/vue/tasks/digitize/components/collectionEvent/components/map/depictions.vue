@@ -2,7 +2,7 @@
   <depiction-component
     :object-value="collectionEvent"
     object-type="CollectingEvent"
-    default-message="Drop images here<br> to add collecting event figures"
+    default-message="Drop images or click here<br> to add collecting event figures"
     :get-depictions="GetCollectionEventDepictions"
     action-save="SaveCollectionEvent"/>
 </template>

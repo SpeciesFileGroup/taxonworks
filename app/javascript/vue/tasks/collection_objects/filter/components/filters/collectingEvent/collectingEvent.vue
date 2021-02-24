@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Collecting Event</h2>
+    <h3>Collecting Event</h3>
     <h3>Date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">
@@ -30,36 +30,11 @@
     <div class="field">
       <h3>Select collecting events</h3>
       <smart-selector
-        class="separate-bottom"
-        :options="tabs"
-        v-model="view"
-      />
-      <ul
-        v-if="view !== 'search'"
-        class="no_bullets">
-        <li 
-          v-for="ce in smartLists[view]"
-          :key="ce.id"
-          v-if="!collectingEvents.map(item => { return item.id }).includes(ce.id)">
-          <label>
-            <input 
-              type="radio"
-              @click="addCe(ce)">
-            <span v-html="ce.object_tag"/>
-          </label>
-        </li>
-      </ul>
-      <div v-else>
-        <autocomplete
-          url="/collecting_events/autocomplete"
-          param="term"
-          min="2"
-          :clear-after="true"
-          label="label_html"
-          placeholder="Search a collecting event"
-          @getItem="addCe"
-        />
-      </div>
+        model="collecting_events"
+        klass="CollectionObject"
+        pin-section="CollectingEvents"
+        pin-type="CollectingEvent"
+        @selected="addCe"/>
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
@@ -72,20 +47,22 @@
         </li>
       </ul>
     </div>
-    <add-field @fields="cEvent.fields = $event"/>
+    <add-field 
+      ref="fields"
+      @fields="cEvent.fields = $event"/>
   </div>
 </template>
 
 <script>
-import { GetCollectingEventSmartSelector } from '../../../request/resources'
-import SmartSelector from 'components/switch'
-import Autocomplete from 'components/autocomplete'
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import SmartSelector from 'components/smartSelector'
 import AddField from './addFields'
+import { GetCollectingEvents } from '../../../request/resources'
 
 export default {
   components: {
     SmartSelector,
-    Autocomplete,
     AddField
   },
   props: {
@@ -104,27 +81,37 @@ export default {
       }
     }
   },
+  watch: {
+    cEvent: {
+      handler (newVal) {
+        if (!newVal.fields) {
+          this.$refs.fields.cleanList()
+        }
+      },
+      deep: true
+    }
+  },
   data () {
     return {
-      partial: false,
-      view: undefined,
-      tabs: [],
-      smartLists: {},
       collectingEvents: []
     }
   },
   mounted () {
-    GetCollectingEventSmartSelector().then(response => {
-      this.smartLists = response.body
-      this.tabs = Object.keys(response.body)
-      this.tabs.push('search')
-    })
+    const urlParams = URLParamsToJSON(location.href)
+    if (urlParams.collecting_event_ids) {
+      urlParams.collecting_event_ids.forEach(id => {
+        GetCollectingEvents(id).then(response => {
+          this.addCe(response.body)
+        })
+      })
+    }
+    this.cEvent.start_date = urlParams.start_date
+    this.cEvent.end_date = urlParams.end_date
+    this.cEvent.partial_overlap_dates = urlParams.partial_overlap_dates
   },
   methods: {
     addCe (ce) {
-      if (ce.hasOwnProperty('label_html')) {
-        ce.object_tag = ce.label_html
-      }
+      if (this.cEvent.collecting_event_ids.includes(ce.id)) return
       this.cEvent.collecting_event_ids.push(ce.id)
       this.collectingEvents.push(ce)
     },

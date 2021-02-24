@@ -3,7 +3,7 @@ import DescriptorTypes from '../helpers/DescriptorTypes'
 import ComponentNames from '../helpers/ComponentNames'
 import makeEmptyObservationsFor from '../helpers/makeEmptyObservationsFor'
 
-export default function ({commit, state}, args) {
+export default function ({ commit, state }, args) {
   const {
     rowId,
     otuId
@@ -13,7 +13,6 @@ export default function ({commit, state}, args) {
       const descriptors = response.descriptors.map(transformDescriptorForViewmodel)
       commit(MutationNames.SetDescriptors, descriptors)
       commit(MutationNames.SetMatrixRow, response)
-      console.log(response)
 
       const emptyObservations = makeEmptyObservationsForDescriptors(descriptors)
       emptyObservations.forEach(o => commit(MutationNames.SetObservation, o))
@@ -34,6 +33,7 @@ export default function ({commit, state}, args) {
 function transformDescriptorForViewmodel (descriptorData) {
   const descriptor = makeBaseDescriptor(descriptorData)
   attemptToAddCharacterStates(descriptorData, descriptor)
+  attemptToAddDefaultUnit(descriptorData, descriptor)
   return descriptor
 }
 
@@ -51,11 +51,13 @@ function makeBaseDescriptor (descriptorData) {
     isSaving: false,
     hasSavedAtLeastOnce: false,
     notes: null,
-    depictions: null,
+    depictions: null
   }
 }
 
 const DescriptorTypesToComponentNames = {
+  [DescriptorTypes.FreeText]: ComponentNames.FreeText,
+  [DescriptorTypes.Media]: ComponentNames.Media,
   [DescriptorTypes.Qualitative]: ComponentNames.Qualitative,
   [DescriptorTypes.Continuous]: ComponentNames.Continuous,
   [DescriptorTypes.Sample]: ComponentNames.Sample,
@@ -72,6 +74,10 @@ function getDescription (descriptorData) {
 
 function attemptToAddCharacterStates (descriptorData, descriptor) {
   if (descriptor.componentName === ComponentNames.Qualitative) { descriptor.characterStates = descriptorData.character_states.map(transformCharacterStateForViewmodel) }
+}
+
+function attemptToAddDefaultUnit (descriptorData, descriptor) {
+  if (descriptor.componentName === ComponentNames.Continuous || descriptor.componentName === ComponentNames.Sample) { descriptor.default_unit = descriptorData.default_unit }
 }
 
 function transformCharacterStateForViewmodel (characterStateData) {

@@ -38,6 +38,7 @@
 
 <script>
 import { TippyComponent } from 'vue-tippy'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -101,7 +102,7 @@ export default {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
-      this.$http.get('/tags/exists', { params: params }).then(response => {
+      AjaxCall('get', '/tags/exists', { params: params }).then(response => {
         if (response.body) {
           this.created = true
         } else {
@@ -115,7 +116,7 @@ export default {
         keyword_id: [this.keyId],
         per: 100
       }
-      this.$http.get('/tags', { params: params }).then(response => {
+      AjaxCall('get', '/tags', { params: params }).then(response => {
         this.countTag = response.body.length
       })
     },
@@ -126,7 +127,7 @@ export default {
           annotated_global_entity: this.globalId
         }
       }
-      this.$http.post('/tags', tagItem).then(response => {
+      AjaxCall('post', '/tags', tagItem).then(response => {
         this.tagItem = response.body
         this.created = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
@@ -137,7 +138,7 @@ export default {
 				annotated_global_entity: this.globalId,
 				_destroy: true
 			}
-      this.$http.delete(`/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
+      AjaxCall('delete', `/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
         this.created = false
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })

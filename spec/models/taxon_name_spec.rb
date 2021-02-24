@@ -25,6 +25,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       TaxonNameHierarchy.delete_all
     end
 
+    specify '#name without space' do
+      taxon_name.name = 'with space'
+      taxon_name.valid?
+      expect(taxon_name.errors[:name]).to_not be_empty
+    end
+
     context '#year_of_publication' do
       specify 'format 1' do
         taxon_name.year_of_publication = 123
@@ -33,25 +39,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
 
       specify 'format 2' do
-        taxon_name.year_of_publication = '123' 
+        taxon_name.year_of_publication = '123'
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
       end
 
       specify 'format 3' do
-        taxon_name.year_of_publication = nil 
+        taxon_name.year_of_publication = nil
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
       specify 'format 4' do
-        taxon_name.year_of_publication = 1920 
+        taxon_name.year_of_publication = 1920
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
       specify 'format 4' do
-        taxon_name.year_of_publication = 2999 
+        taxon_name.year_of_publication = 2999
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
       end
@@ -80,13 +86,18 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         expect(variety.root.id).to eq(@species.root.id)
         expect(variety.cached_author_year).to eq('McAtee (1900)')
-        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i> sect. <i>Aus</i> ser. <i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
+        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
 
         basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
         expect(variety.cached_author_year).to eq('(Linnaeus) McAtee (1900)')
+      end
+
+      specify 'ICN author' do
+        t = FactoryBot.create(:icn_kingdom, verbatim_author: '(Seub.) Lowden')
+        expect(t.original_author_year).to eq('(Seub.) Lowden')
       end
     end
 
@@ -239,10 +250,10 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             @subspecies.reload
 
             expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
-            
+
             expect(@subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(@subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
-            expect(@subspecies.get_author_and_year).to eq ('(McAtee, 1900)')
+            expect(@subspecies.get_author_and_year).to eq ('McAtee, 1900')
           end
 
           # What code is this supposed to catch?
@@ -584,25 +595,25 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # This isn't recent!
         let!(:tr2) { TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
-          subject_taxon_name: tribe, 
-          object_taxon_name: subfamily, 
-          created_at: 1.month.ago, 
+          subject_taxon_name: tribe,
+          object_taxon_name: subfamily,
+          created_at: 1.month.ago,
           updated_at: 1.month.ago ) }
 
         let(:user_id) { species.created_by_id }
         let(:project_id) { species.project_id }
 
         specify '.used_recently' do
-          expect(TaxonName.used_recently(project_id, user_id).count).to eq(9)
+          expect(TaxonName.used_recently(user_id, project_id).count).to eq(6)
         end
 
         # everything is recent
         specify '.used_recently_in_classifications' do
-          expect(TaxonName.used_recently_in_classifications(project_id, user_id).map(&:id)).to contain_exactly(species.id)
+          expect(TaxonName.used_recently_in_classifications(user_id, project_id).map(&:id)).to contain_exactly(species.id)
         end
 
         specify '.used_recently_in_relationships' do
-          expect(TaxonName.used_recently_in_relationships(project_id, user_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
+          expect(TaxonName.used_recently_in_relationships(user_id, project_id).map(&:id)).to contain_exactly(subgenus.id, genus.id)
         end
 
         specify '.select_optimized' do
@@ -958,6 +969,73 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       specify 'run all soft validations without error' do
         expect(taxon_name.soft_validate).to be_truthy
       end
+    end
+  end
+
+  # Some observations:
+  #  - reified ids are only for original combinations (for which we have no ID)
+  #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
+  context 'reified ids' do
+
+    let(:root1) { FactoryBot.create(:root_taxon_name) }
+    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
+    let(:genus1) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let(:genus2) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+    let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus2) }
+    let(:species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
+
+
+    # Same as current classification
+    let(:c1) { Combination.create!(genus: genus1, species: species) }
+
+    # Different than current classification
+    let(:c2) { Combination.create!(genus: genus2, species: species) }
+
+    let(:c3) { Combination.create!(genus: genus1, subgenus: genus2, species: species) }
+
+
+
+    specify '#reified_id 1' do
+      expect(family.reified_id).to eq(family.to_param)
+    end
+
+    specify '#reified_id 2' do
+      expect(species.reified_id).to eq(species.to_param)
+    end
+
+    specify '#reified_id 3' do
+      species.update!(verbatim_author: 'Smith')
+      expect(species.reified_id).to eq(species.id.to_param)
+    end
+
+    specify '#reified_id 4' do
+      species.update!(verbatim_author: '(Smith)')
+      expect(species.reified_id).to eq(species.to_param)
+    end
+
+    specify '#reified_id 5' do
+      expect(c1.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id 6' do
+      expect(c2.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id 7' do
+      expect(c3.reified_id).to eq(species.reified_id)
+    end
+
+    specify '#reified_id with original_combination relationship' do
+      species.update!(verbatim_author: 'Smith', original_genus: genus2)
+      a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
+      expect(species.reified_id).to eq(a)
+    end
+
+    specify '#reified_id 1' do
+      species.update!(parent: subgenus, original_genus: genus1)
+      species.reload
+      a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
+      expect(species.reified_id).to eq(a)
     end
 
   end

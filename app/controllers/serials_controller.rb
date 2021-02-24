@@ -6,9 +6,18 @@ class SerialsController < ApplicationController
 
   # GET /serials
   # GET /serials.json
+
   def index
-    @recent_objects = Serial.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Serial.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        #@serials = Serial.order(updated_at: :desc).limit(10)
+        @serials = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   def list
@@ -63,10 +72,15 @@ class SerialsController < ApplicationController
   # DELETE /serials/1
   # DELETE /serials/1.json
   def destroy
-    @serial.destroy!
+    @serial.destroy
     respond_to do |format|
-      format.html { redirect_to serials_url }
-      format.json { head :no_content }
+      if @serial.destroyed?
+        format.html { redirect_to serials_url }
+        format.json { head :no_content }
+      else
+        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; '))}
+        format.json {render json: @serial.errors, status: :unprocessable_entity}
+      end
     end
   end
 
@@ -102,6 +116,19 @@ class SerialsController < ApplicationController
   end
 
   private
+
+  def filter_params
+    params.permit(
+      :name, :id,
+      data_attributes_attributes: [
+        :id,
+        :_destroy,
+        :controlled_vocabulary_term_id,
+        :type,
+        :attribute_subject_id,
+        :attribute_subject_type,
+        :value ])
+  end
 
   def set_serial
     @serial = Serial.find(params[:id])

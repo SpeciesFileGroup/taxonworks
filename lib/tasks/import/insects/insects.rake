@@ -61,7 +61,7 @@ namespace :tw do
 
         def export_to_pg(data_directory) 
           puts "\nExporting snapshot of datababase to all.dump."
-          Support::Database.pg_dump_all('taxonworks_development', data_directory, 'all.dump')
+          Support::Database.pg_dump_all(data_directory, 'all.dump')
         end
       end
 
@@ -2164,7 +2164,7 @@ namespace :tw do
         raise 'Database is not empty, it is not possible to restore from all.dump.' if Project.count > 0
         puts 'Restoring from all.dump (to avoid this use no_dump_load=true when calling the rake task).'
         ApplicationRecord.connection.execute('delete from schema_migrations')
-        Support::Database.pg_restore_all('taxonworks_development', dump_directory(@args[:data_directory]),  'all.dump')
+        Support::Database.pg_restore_all(dump_directory(@args[:data_directory]),  'all.dump')
       end
 
     end

@@ -60,7 +60,7 @@ begin
     ICNP_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnp.descendants.collect{|d| d.to_s}.freeze
 
     # Array of all ICTV TaxonNameRelationship classes, as Strings
-    ICTV_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Ictv.descendants.collect{|d| d.to_s}.freeze
+    ICTV_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icvcn.descendants.collect{|d| d.to_s}.freeze
 
     # Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
     STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNP_TAXON_NAME_RELATIONSHIP_NAMES + ICTV_TAXON_NAME_RELATIONSHIP_NAMES).freeze
@@ -73,7 +73,10 @@ begin
       collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating,
                                           TaxonNameRelationship::Icn::Unaccepting,
                                           TaxonNameRelationship::Icnp::Unaccepting,
-                                          TaxonNameRelationship::Ictv::Unaccepting).freeze
+                                          TaxonNameRelationship::Icvcn::Unaccepting).freeze
+
+    TAXON_NAME_RELATIONSHIP_NAMES_CLASSIFICATION = ['TaxonNameRelationship::Iczn::Validating::UncertainPlacement',
+                                                    'TaxonNameRelationship::SourceClassifiedAs'].freeze
 
     TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM = TaxonNameRelationship.
       collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
@@ -82,18 +85,30 @@ begin
                                           TaxonNameRelationship::Icn::Unaccepting::Usage,
                                           TaxonNameRelationship::Icnp::Unaccepting::Synonym,
                                           TaxonNameRelationship::Icnp::Unaccepting::Usage,
-                                          TaxonNameRelationship::Ictv::Unaccepting) +
+                                          TaxonNameRelationship::Icvcn::Unaccepting) +
                                          ['TaxonNameRelationship::Iczn::Invalidating',
                                           'TaxonNameRelationship::Icn::Unaccepting',
                                           'TaxonNameRelationship::Icnp::Unaccepting',
-                                          'TaxonNameRelationship::Ictv::Unaccepting'].freeze
+                                          'TaxonNameRelationship::Icvcn::Unaccepting'].freeze
 
     TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
 
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+                                                      'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
+                                                      'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
+                                                      'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
+                                                      'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
+
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING +
+                                                ['TaxonNameRelationship::Icn::Unaccepting::Misapplication',
+                                                 'TaxonNameRelationship::Icnp::Unaccepting::Misapplication',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Misapplication']
 
     # TODO: check .assignable property prior to building
 
@@ -154,11 +169,11 @@ begin
         ])
       },
 
-        ictv: {
-        tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Ictv),
-        all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Ictv ),
+        icvcn: {
+        tree: ApplicationEnumeration.nested_subclasses(TaxonNameRelationship::Icvcn),
+        all: TaxonNameRelationshipsConstantHelper::descendants_collection( TaxonNameRelationship::Icvcn ),
         common: TaxonNameRelationshipsConstantHelper.collection([
-          TaxonNameRelationship::Ictv::Unaccepting
+          TaxonNameRelationship::Icvcn::Unaccepting
         ])
       },
 

@@ -27,6 +27,7 @@
   import SpinnerComponent from 'components/spinner.vue'
   import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
   import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -86,10 +87,10 @@
       },
       getSelectOptions(onModel) {
         this.isLoading = true
-        this.$http.get(this.selectOptionsUrl, {params: {klass: this.onModel}}).then(response => {
+        AjaxCall('get', this.selectOptionsUrl, { params: { klass: this.onModel } }).then(response => {
           this.tabs = OrderSmartSelector(Object.keys(response.body))
           this.list = response.body
-          this.$http.get(this.allSelectOptionUrl).then(response => {
+          AjaxCall('get', this.allSelectOptionUrl).then(response => {
             if(response.body.length) {
               this.tabs.push('all')
             }

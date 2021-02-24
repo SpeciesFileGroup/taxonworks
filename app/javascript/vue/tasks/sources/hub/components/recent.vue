@@ -1,7 +1,7 @@
 <template>
   <div class="vue-table-container">
     <h3 class="title-section">Recent</h3>
-    <table class="vue-table">
+    <table class="vue-table word-keep-all">
       <thead>
         <tr>
           <th>Source</th>
@@ -28,7 +28,9 @@
           </td>
           <td> {{ item.year }} </td>
           <td>
-            <citations-count :source-id="item.id"/>
+            <div>
+              <citations-count :source-id="item.id"/>
+            </div>
           </td>
           <td>
             <documents-component :source-id="item.id"/>
@@ -48,7 +50,7 @@
           </td>
           <td>
             <add-to-project-source
-              :project_source_id="item.project_source_id"
+              :project-source-id="item.project_source_id"
               :id="item.id"/>
           </td>
         </tr>
@@ -76,56 +78,15 @@ export default {
     CitationsCount,
     DocumentsComponent
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
-  data() {
+  data () {
     return {
       sources: []
     }
   },
-  mounted() {
+  mounted () {
     GetRecentSources().then(response => {
       this.sources = response.body
     })
-  },
-  methods: {
-    editSource(source) {
-      window.open(`/sources/${source.id}/edit`,'blank')
-    }
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .vue-table-container {
-    overflow-y: scroll;
-    padding: 0px;
-    position: relative;
-  }
-
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
-  }
-
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
-
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
-</style>

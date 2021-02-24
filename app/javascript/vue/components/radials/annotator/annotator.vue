@@ -4,6 +4,7 @@
       class="radial-annotator">
       <modal
         v-if="display"
+        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
         <h3
           slot="header"
@@ -11,7 +12,7 @@
           <span v-html="title" />
           <span
             v-if="metadata"
-            class="separate-right"> 
+            class="separate-right">
             {{ metadata.object_type }}
           </span>
         </h3>
@@ -34,9 +35,9 @@
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentAnnotator.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -54,7 +55,7 @@
         :title="globalId ? `${globalId.split('/')[3]} annotator` : buttonTitle"
         type="button"
         class="circle-button"
-        :class="[buttonClass]"
+        :class="[buttonClass, pulse ? 'pulse-blue' : '']"
         @contextmenu.prevent="loadContextMenu"
         @click="displayAnnotator()">Radial annotator
       </span>
@@ -140,6 +141,10 @@ export default {
       type: Boolean,
       default: false
     },
+    defaultView: {
+      type: String,
+      default: undefined
+    },
     components: {
       type: Object,
       default: () => {
@@ -149,6 +154,10 @@ export default {
     type: {
       type: String,
       default: 'annotations'
+    },
+    pulse: {
+      type: Boolean,
+      default: false
     }
   },
   data: function () {
@@ -166,6 +175,9 @@ export default {
     }
   },
   computed: {
+    metadataLoaded () {
+      return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
+    },
     menuCreated () {
       return this.menuOptions.length > 0
     },
@@ -197,13 +209,28 @@ export default {
       }
     }
   },
+  watch: {
+    metadataLoaded () {
+      if (this.defaultView) {
+        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+      }
+    },
+    display (newVal) {
+      if (newVal && this.metadataLoaded) {
+        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+      }
+    }
+  },
   mounted () {
     if (this.showCount) {
       this.loadMetadata()
     }
   },
   methods: {
-    loadContextMenu() {
+    isComponentExist (componentName) {
+      return this.$options.components[componentName] ? true : false
+    },
+    loadContextMenu () {
       this.showContextMenu = true
       this.loadMetadata()
     },
@@ -246,7 +273,6 @@ export default {
     },
     displayAnnotator: function () {
       this.display = true
-      this.currentAnnotator = undefined
       this.loadMetadata()
       this.alreadyTagged()
     },
@@ -328,20 +354,13 @@ export default {
 
   .radial-annotator {
     position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
+
     .modal-close {
       top: 30px;
       right: 20px;
     }
     .modal-mask {
       background-color: rgba(0, 0, 0, 0.7);
-    }
-    .modal-container {
-      box-shadow: none;
-      background-color: transparent;
     }
     .modal-container {
       min-width: 1024px;
@@ -360,6 +379,7 @@ export default {
       height: 600px;
       flex-direction: column;
       overflow-y: scroll;
+      position: relative;
     }
     .radial-annotator-menu {
       padding-top: 1em;

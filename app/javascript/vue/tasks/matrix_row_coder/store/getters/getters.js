@@ -1,3 +1,4 @@
+import getFreeTextValueFor from './getFreeTextValueFor'
 import getObservationsFor from './getObservationsFor'
 import getContinuousValueFor from './getContinuousValueFor'
 import getContinuousUnitFor from './getContinuousUnitFor'
@@ -15,9 +16,10 @@ import isDescriptorUnsaved from './isDescriptorUnsaved'
 import isDescriptorSaving from './isDescriptorSaving'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
 import getMatrixRow from './getMatrixRow'
-
+import getUnits from './getUnits'
 
 export const GetterNames = {
+  GetFreeTextValueFor: 'getFreeTextValueFor',
   GetObservationsFor: 'getObservationsFor',
   GetContinuousValueFor: 'getContinuousValueFor',
   GetContinuousUnitFor: 'getContinuousUnitFor',
@@ -31,13 +33,15 @@ export const GetterNames = {
   GetSampleStandardError: 'getSampleStandardError',
   GetSampleStandardMean: 'getSampleStandardMean',
   GetMatrixRow: 'getMatrixRow',
-  GetCharacterStateChecked: `getCharacterStateChecked`,
+  GetCharacterStateChecked: 'getCharacterStateChecked',
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   IsDescriptorSaving: 'isDescriptorSaving',
-  DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown'
+  DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown',
+  GetUnits: 'getUnits'
 }
 
 export const GetterFunctions = {
+  [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetContinuousValueFor]: getContinuousValueFor,
   [GetterNames.GetContinuousUnitFor]: getContinuousUnitFor,
@@ -54,5 +58,6 @@ export const GetterFunctions = {
   [GetterNames.GetCharacterStateChecked]: getCharacterStateChecked,
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
   [GetterNames.IsDescriptorSaving]: isDescriptorSaving,
-  [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown
+  [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown,
+  [GetterNames.GetUnits]: getUnits
 }

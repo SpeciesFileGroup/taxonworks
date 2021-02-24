@@ -49,8 +49,13 @@ class SledImagesController < ApplicationController
       ],
       object_layout: {} # todo
     ).merge(
-      collection_object_params: collection_object_params
+      collection_object_params: collection_object_params,
+      depiction_params: depiction_params
     )
+  end
+
+  def depiction_params
+    params[:depiction]&.permit(:is_metadata_depiction) || {}
   end
 
   def collection_object_params

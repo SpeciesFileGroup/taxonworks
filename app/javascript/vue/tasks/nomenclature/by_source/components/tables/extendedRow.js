@@ -1,5 +1,6 @@
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import OtuRadial from 'components/otu/otu'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -32,13 +33,13 @@ export default {
         clearTimeout(this.autoSave)
       }
       this.autoSave = setTimeout(() => {
-        that.$http.patch('/citations/' + this.citation.id  + '.json', { citation: this.citation }).then(response => {
+        AjaxCall('patch', '/citations/' + this.citation.id  + '.json', { citation: this.citation }).then(response => {
           TW.workbench.alert.create('Citation was successfully updated.', 'notice')
         })
       }, this.time)
     },
     updateCitation() {
-      this.$http.patch('/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
+      AjaxCall('patch', '/citations/' + this.citation.id + '.json', {citation: this.citation}).then(response => {
         TW.workbench.alert.create('Citation was successfully updated.', 'notice')
       })
     },
@@ -53,7 +54,7 @@ export default {
     },
     removeMe() {
       if(window.confirm(`You're about to delete this citation record. Are you sure want to proceed?`)) {
-        this.$http.delete('/citations/' + this.citation.id + '.json').then(response => {
+        AjaxCall('delete', '/citations/' + this.citation.id + '.json').then(response => {
           this.$emit('delete', this.citation);
           TW.workbench.alert.create('Citation was successfully destroyed.', 'notice')
         }, reject => {

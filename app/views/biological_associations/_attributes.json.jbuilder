@@ -1,6 +1,6 @@
 json.extract! biological_association, :id, :biological_relationship_id, 
   :biological_association_subject_id, :biological_association_subject_type,
-  :biological_association_object_id, :biological_association_object_type, 
+  :biological_association_object_id, :biological_association_object_type,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
 json.partial! '/shared/data/all/metadata', object: biological_association 
@@ -10,6 +10,10 @@ json.object_global_id biological_association.biological_association_object.to_gl
 
 json.biological_relationship do
   json.partial! '/biological_relationships/attributes', biological_relationship: biological_association.biological_relationship
+end
+
+json.citations do
+  json.array! biological_association.citations.reload, partial: '/citations/attributes', as: :citation
 end
 
 json.subject do

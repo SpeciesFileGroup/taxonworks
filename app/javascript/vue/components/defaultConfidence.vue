@@ -8,7 +8,7 @@
         size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>`">
+        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-submit"
@@ -23,7 +23,7 @@
         size="small"
         :inertia="true"
         :arrow="true"
-        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>`">
+        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
         <template v-slot:trigger>
           <div
             class="default_tag_widget circle-button btn-confidences btn-delete"
@@ -41,6 +41,7 @@
 <script>
 
 import { TippyComponent } from 'vue-tippy'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -102,7 +103,7 @@ export default {
         global_id: this.globalId,
         confidence_level_id: this.keyId
       }
-      this.$http.get('/confidences/exists', { params: params }).then(response => {
+      AjaxCall('get', '/confidences/exists', { params: params }).then(response => {
         if(response.body) {
           this.created = true
           this.confidenceItem = response.body
@@ -118,7 +119,7 @@ export default {
         confidence_level_id: [this.keyId],
         per: 100
       }
-      this.$http.get('/confidences', { params: params }).then(response => {
+      AjaxCall('get', '/confidences', { params: params }).then(response => {
         this.confidenceCount = response.body.length
       })
     },
@@ -129,7 +130,7 @@ export default {
           annotated_global_entity: this.globalId
         }
       }
-      this.$http.post('/confidences', ConfidenceItem).then(response => {
+      AjaxCall('post', '/confidences', ConfidenceItem).then(response => {
         this.confidenceItem = response.body
         this.created = true
         TW.workbench.alert.create('Confidence item was successfully created.', 'notice')
@@ -140,7 +141,7 @@ export default {
 				annotated_global_entity: this.globalId,
 				_destroy: true
 			}
-      this.$http.delete(`/confidences/${this.confidenceItem.id}`, { confidence: confidence }).then(response => {
+      AjaxCall('delete', `/confidences/${this.confidenceItem.id}`, { confidence: confidence }).then(response => {
         this.created = false
         TW.workbench.alert.create('Confidence item was successfully destroyed.', 'notice')
       })

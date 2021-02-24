@@ -11,9 +11,18 @@ Vue.use(Vuex)
 
 function makeInitialState () {
   return {
+    settings: {
+      lock: {
+        notes_attributes: false,
+        tags_attributes: false,
+        repository_id: false,
+        identifier: false,
+        preparation_type_id: false
+      }
+    },
     collection_object: {
       id: undefined,
-      total: 1, 
+      total: 1,
       collecting_event_id: undefined,
       repository_id: undefined,
       preparation_type_id: undefined,
@@ -29,7 +38,7 @@ function makeInitialState () {
       namespace_id: undefined,
       label: undefined,
       identifier: undefined,
-      type: "Identifier::Local::CatalogNumber",
+      type: 'Identifier::Local::CatalogNumber',
       identifier_object_id: undefined,
       identifier_object_type: 'CollectionObject'
     },
@@ -37,6 +46,9 @@ function makeInitialState () {
     navigation: {
       previous: undefined,
       next: undefined
+    },
+    depiction: {
+      is_metadata_depiction: undefined
     }
   }
 }

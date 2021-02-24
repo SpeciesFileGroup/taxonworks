@@ -1,8 +1,8 @@
 class PeopleController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar]
-  after_action -> { set_pagination_headers(:people) }, only: [:index], if: :json_request? 
+  before_action :set_person, only: [:show, :edit, :update, :destroy, :roles, :similar, :api_show]
+  after_action -> { set_pagination_headers(:people) }, only: [:index, :api_index], if: :json_request?
 
   # GET /people
   # GET /people.json
@@ -14,7 +14,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per]) 
+        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
       }
     end
   end
@@ -40,18 +40,13 @@ class PeopleController < ApplicationController
     respond_to do |format|
       if @person.save
         format.html {redirect_to url_for(@person.metamorphosize),
-                                 notice: "Person '#{@person.name}' was successfully created."}
+                     notice: "Person '#{@person.name}' was successfully created."}
         format.json {render action: 'show', status: :created, location: @person}
       else
         format.html {render action: 'new'}
         format.json {render json: @person.errors, status: :unprocessable_entity}
       end
     end
-  end
-
-  def similar
-    @people =  Queries::Person::Filter.new(last_name: @person.last_name, first_name: @person.first_name, levenshtein_cuttoff: 3).levenshtein_similar.order(:last_name, :first_name) 
-    render '/people/index'
   end
 
   # PATCH/PUT /people/1
@@ -134,10 +129,73 @@ class PeopleController < ApplicationController
     render partial: '/people/picker_details', locals: {person: @person}
   end
 
+  # GET /api/v1/people
+  def api_index
+    @people = Queries::Person::Filter.new(api_params).all
+      .order('people.id')
+      .page(params[:page]).per(params[:per])
+    render '/people/api/v1/index'
+  end
+
+  # GET /api/v1/people/:id
+  def api_show
+    render '/people/api/v1/show'
+  end
+
   private
 
   def filter_params
-    params.permit(:last_name, :first_name, :last_name_starts_with, roles: [])
+    params.permit(
+      :name,
+      :last_name,
+      :first_name,
+      :last_name_starts_with,
+      :born_after_year, :born_before_year,
+      :active_after_year, :active_before_year,
+      :died_before_year, :died_after_year,
+      :levenshtein_cuttoff,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      used_in_project_id: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      role: [],
+      person_wildcard: [],
+      user_id: []
+    )
+  end
+
+  def api_params
+    params.permit(
+      :name,
+      :last_name,
+      :first_name,
+      :last_name_starts_with,
+      :born_after_year, :born_before_year,
+      :active_after_year, :active_before_year,
+      :died_before_year, :died_after_year,
+      :role,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :tags,
+      # user_id: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      role: [],
+      person_wildcard: []
+    )
   end
 
   def autocomplete_params
@@ -151,17 +209,18 @@ class PeopleController < ApplicationController
 
   def person_params
     params.require(:person).permit(
-        :type,
-        :last_name, :first_name,
-        :suffix, :prefix,
-        :year_born, :year_died, :year_active_start, :year_active_end
+      :type,
+      :no_namecase,
+      :last_name, :first_name,
+      :suffix, :prefix,
+      :year_born, :year_died, :year_active_start, :year_active_end
     )
   end
 
   def merge_params
     params.require(:person).permit(
-        :old_person_id,
-        :new_person_id
+      :old_person_id,
+      :new_person_id
     )
   end
 end

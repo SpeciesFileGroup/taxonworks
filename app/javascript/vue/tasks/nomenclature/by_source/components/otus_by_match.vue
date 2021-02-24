@@ -19,6 +19,7 @@
 
   import SpinnerComponent from 'components/spinner.vue'
   import TableComponent from './tables/table.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -43,7 +44,7 @@
     },
     watch: {
       sourceID() {
-        this.getCites();
+        this.getCites()
       },
       newTaxon() {
         this.addToList(this.newTaxon)
@@ -52,7 +53,7 @@
     methods: {
       getCites() {
         this.showSpinner = true
-        this.$http.get('/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
+        AjaxCall('get', '/citations.json?citation_object_type=Otu&source_id=' + this.sourceID).then(response => {
           this.showSpinner = false
           this.otu_names_cites_list = response.body;
         })

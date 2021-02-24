@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>Geolocation uncertainty</label>
+    <label>Geolocation uncertainty in meters</label>
     <input
       type="text"
       v-model="geolocationUncertainty">

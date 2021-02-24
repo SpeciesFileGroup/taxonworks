@@ -1,12 +1,12 @@
-json.array! @descriptors do |t|
-  json.id t.id
-  json.label t.name
-  json.gid t.to_global_id.to_s 
-  json.label_html t.name
+json.array! @descriptors do |d|
+  json.id d.id
+  json.label d.name
+  json.gid d.to_global_id.to_s 
+  json.label_html descriptors_autocomplete_tag(d, @term) 
 
   json.response_values do 
     if params[:method]
-      json.set! params[:method], t.id
+      json.set! params[:method], d.id
     end
   end 
 end

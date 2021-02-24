@@ -10,6 +10,14 @@
 #   new: over-ride data->new
 #   home: where requested, use this path rather than show
 #
+# `:tasks` should be ordered consistently when possible:
+#    * hub
+#    * show
+#    * edit
+#    * filter
+#    * most commonly used 1
+#    * most commonly used 2
+#
 ---
 AssertedDistribution:
   tasks:
@@ -30,8 +38,9 @@ CollectionObject:
   tasks:
     - browse_collection_objects_task
     - comprehensive_collection_object_task
-    - browse_collecting_events_task
     - collection_objects_filter_task
+    - browse_collecting_events_task
+    - new_taxon_name_task
     - build_biocuration_groups_task
     - report_dwc_task
   config: 
@@ -41,8 +50,21 @@ CollectionObject:
 CollectingEvent:
   tasks:
     - browse_collecting_events_task
-    - comprehensive_collection_object_task
+    - new_collecting_event_task
     - filter_collecting_events_task
+    - comprehensive_collection_object_task
+  config: 
+    recent: true
+  edit: new_collecting_event_task
+  new: new_collecting_event_task
+Descriptor:
+  tasks:
+    - observation_matrices_hub_task
+  new: new_descriptor_task
+  edit: new_descriptor_task
+Document:
+  tasks:
+    - gnfinder_task
   config: 
     recent: true
 GeographicArea:
@@ -66,12 +88,12 @@ ObservationMatrix:
 Otu:
   tasks:
     - browse_otus_task
-    - comprehensive_collection_object_task
     - otus_filter_task
-    - cite_otus_task_task
+    - comprehensive_collection_object_task
+    - index_editor_task
+    - cite_otus_task
     - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
-    - index_editor_task
   config:
     recent: true
 Person:
@@ -83,21 +105,23 @@ Source:
   tasks:
     - source_hub_task
     - new_source_task
-    - new_bibtex_source_task
-    - find_sources_task
+    - filter_sources_task   
     - nomenclature_by_source_task
+    - gnfinder_task
   new: new_source_task
   edit: new_source_task
   config:
     recent: true
 TaxonName:
   tasks:
-    - browse_nomenclature_task 
-    - new_taxon_name_task 
+    - browse_nomenclature_task
+    - new_taxon_name_task
     - new_combination_task
+    - filter_taxon_names_task
     - edit_type_material_task
+    - comprehensive_collection_object_task
     - browse_otus_task
-    - index_stats_task 
+    - nomenclature_stats_task
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task

@@ -13,13 +13,17 @@
         </label>
       </li>
     </ul>
-    <smart-selector
-      class="margin-medium-top"
-      model="namespaces"
-      klass="CollectionObject"
-      pin-section="Namespaces"
-      pin-type="Namespace"
-      @selected="setValue"/>
+    <div class="align-start margin-medium-top">
+      <smart-selector
+        model="namespaces"
+        klass="CollectionObject"
+        pin-section="Namespaces"
+        pin-type="Namespace"
+        @selected="setValue"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="lock.identifier"/>
+    </div>
     <p
       v-if="identifier.namespace_id"
       class="middle">
@@ -55,8 +59,10 @@
 import SmartSelector from 'components/smartSelector'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import SharedComponent from '../shared/lock.js'
 
 export default {
+  mixins: [SharedComponent],
   components: {
     SmartSelector
   },
@@ -111,11 +117,8 @@ export default {
       ]
     }
   },
-  created () {
-    this.resetIdentifier()
-  },
   methods: {
-    setValue(value) {
+    setValue (value) {
       this.identifier.namespace_id = value.id
       this.identifier.label = value.name
     },
@@ -130,7 +133,7 @@ export default {
         identifier_object_type: 'CollectionObject'
       }
     },
-    removeNamespace() {
+    removeNamespace () {
       this.identifier.namespace_id = undefined
       this.identifier.label = undefined
     }

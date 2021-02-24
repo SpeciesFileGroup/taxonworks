@@ -40,7 +40,7 @@
       <div class="panel separate-right">
 
         <div class="title nav-line">
-          Navigate 
+          Navigate
         </div>
 
         <div class="navigation-controls">
@@ -101,6 +101,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <% if @collection_object.depictions.any? %>
@@ -115,6 +116,30 @@
       <% end %>
 
       <div>
+        <div class="panel content separate-left">
+          <h2>Buffered</h2>
+          <div class="flexbox">
+            <div class="content separate-left column-medium">
+              <h3> Collecting event </h3>
+              <pre><%= @collection_object.buffered_collecting_event -%></pre>
+            </div>
+
+            <div class="content column-medium separate-left">
+              <h3> Determinations </h3>
+              <pre><%= @collection_object.buffered_determinations -%></pre>
+            </div>
+
+            <div class="content column-medium separate-left">
+              <h3> Other labels </h3>
+              <pre><%= @collection_object.buffered_other_labels -%></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div  class="panel content separate-left">
+        <h2> DwC </h2>
         <%= dwc_table([@collection_object]) -%>
       </div>
 

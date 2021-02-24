@@ -1,14 +1,31 @@
 <template>
   <div>
     <div class="horizontal-left-content full_width">
-      <fieldset class="full_width">
+      <fieldset
+        v-help.section.BibTeX.serial
+        class="full_width">
         <legend>Serial</legend>
-        <smart-selector
-          input-id="serials-autocomplete"
-          model="serials"
-          klass="source"
-          label="name"
-          @selected="setSelected"/>
+        <div class="horizontal-left-content align-start">
+          <smart-selector
+            class="full_width"
+            ref="smartSelector"
+            input-id="serials-autocomplete"
+            model="serials"
+            target="Source"
+            klass="Source"
+            label="name"
+            :filter-ids="serialId"
+            pin-section="Serials"
+            pin-type="Serial"
+            @selected="setSelected"/>
+          <lock-component
+            class="circle-button-margin"
+            v-model="settings.lock.serial_id"/>
+          <a
+            class="margin-small-top margin-small-left"
+            target="_blank"
+            href="/serials/new">New</a>
+        </div>
         <div
           class="middle separate-top"
           v-if="selected">
@@ -23,15 +40,6 @@
           </div>
         </div>
       </fieldset>
-      <div class="vertical-content">
-        <lock-component
-          class="circle-button"
-          v-model="settings.lock.serial_id"/>
-        <default-pin
-          section="Serials"
-          type="serial"
-          @getId="getDefault"/>
-      </div>
     </div>
   </div>
 </template>
@@ -43,7 +51,6 @@ import { MutationNames } from '../../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
 import SmartSelector from 'components/smartSelector'
-import DefaultPin from 'components/getDefaultPin'
 import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'
@@ -52,7 +59,6 @@ export default {
   components: {
     SmartSelector,
     LockComponent,
-    DefaultPin,
     RadialObject
   },
   computed: {
@@ -64,6 +70,14 @@ export default {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
+    serialId: {
+      get () {
+        return this.$store.getters[GetterNames.GetSerialId]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSerialId, value)
+      }
+    },
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -71,6 +85,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
     }
   },
   data () {
@@ -79,17 +96,28 @@ export default {
     }
   },
   watch: {
-    source: {
+    serialId: {
       handler(newVal, oldVal) {
-        if(newVal && newVal.serial_id) {
-          if(!oldVal || oldVal.serial_id != newVal.serial_id) {
-            AjaxCall('get', `/serials/${newVal.serial_id}.json`).then(response => {
+        if(newVal) {
+          if(oldVal !== newVal) {
+            AjaxCall('get', `/serials/${newVal}.json`).then(response => {
               this.selected = response.body
             })
           }
         }
+        else {
+          this.selected = undefined
+        }
       },
-      immediate: true
+      immediate: true,
+      deep: true
+    },
+    lastSave: {
+      handler (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$refs.smartSelector.refresh()
+        }
+      }
     }
   },
   methods: {

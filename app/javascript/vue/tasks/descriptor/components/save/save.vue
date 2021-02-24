@@ -2,18 +2,27 @@
   <button
     @click="saveDescriptor"
     class="normal-input button button-submit"
-    type="button">{{ descriptor['id'] ? 'Update' : 'Create' }}</button>
+    type="button"
+    :disabled="validate">
+    {{ descriptor.id ? 'Update' : 'Create' }}
+  </button>
 </template>
 <script>
 
 export default {
   props: {
     descriptor: {
-      type: Object
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    validate () {
+      return !this.descriptor.name
     }
   },
   methods: {
-    saveDescriptor() {
+    saveDescriptor () {
       this.$emit('save')
     }
   }

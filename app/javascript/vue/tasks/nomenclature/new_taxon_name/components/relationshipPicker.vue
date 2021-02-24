@@ -1,21 +1,12 @@
 <template>
-  <form class="panel basic-information">
-    <a
-      name="relationship"
-      class="anchor"/>
+  <block-layout
+    anchor="relationship"
+    :warning="checkValidation"
+    :spinner="!taxon.id"
+    v-help.section.relationship.container>
+    <h3 slot="header">Relationship</h3>
     <div
-      class="header flex-separate middle"
-      :class="{ 'validation-warning' : softValidation.taxonRelationshipList.list.length }">
-      <h3 v-help.section.relationship.container>
-        Relationship
-      </h3>
-      <expand
-        @changed="expanded = !expanded"
-        :expanded="expanded"/>
-    </div>
-    <div
-      class="body"
-      v-if="expanded">
+      slot="body">
       <div v-if="editMode">
         <p class="inline">
           <span class="separate-right">Editing relationship: </span>
@@ -27,28 +18,19 @@
         </p>
       </div>
       <div v-if="!taxonRelation">
-        <hard-validation field="object_taxon_name_id">
-          <div
-            class="horizontal-left-content"
-            slot="body">
-            <autocomplete
-              url="/taxon_names/autocomplete"
-              label="label_html"
-              min="2"
-              @getItem="taxonRelation = $event"
-              event-send="autocompleteTaxonRelationshipSelected"
-              placeholder="Search taxon name for the new relationship..."
-              :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
-              param="term"/>
-            <button
-              v-if="Object.keys(incertaeSedis).includes(nomenclaturalCode)"
-              type="button"
-              class="button normal-input button-default margin-small-left"
-              @click="setInsertaeSedis">
-              Set to parent
-            </button>
-          </div>
-        </hard-validation>
+        <div
+          class="horizontal-left-content"
+          slot="body">
+          <autocomplete
+            url="/taxon_names/autocomplete"
+            label="label_html"
+            min="2"
+            @getItem="taxonRelation = $event"
+            event-send="autocompleteTaxonRelationshipSelected"
+            placeholder="Search taxon name for the new relationship..."
+            :add-params="{ type: 'Protonym', 'nomenclature_group[]': getRankGroup }"
+            param="term"/>
+        </div>
       </div>
       <template v-else>
         <div v-if="isInsertaeSedis">
@@ -76,35 +58,16 @@
             :object-lists="objectLists"
             :show-modal="showModal"
             valid-property="valid_subject_ranks"
+            @close="view = 'Common'"
             @selected="addEntry"
             mutation-name-add="AddTaxonRelationship"
             mutation-name-modal="SetModalRelationship"
             name-module="Relationship"
             display-name="subject_status_tag"/>
-          <div class="switch-radio">
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-common"
-              checked
-              type="radio"
-              class="normal-input button-active"
-              @click="showAdvance = false">
-            <label for="relationship-picker-common">Common</label>
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-advanced"
-              type="radio"
-              class="normal-input"
-              @click="showAdvance = true">
-            <label for="relationship-picker-advanced">Advanced</label>
-            <input
-              name="relationship-picker-options"
-              id="relationship-picker-showall"
-              type="radio"
-              class="normal-input"
-              @click="activeModal(true)">
-            <label for="relationship-picker-showall">Show all</label>
-          </div>
+
+          <switch-component
+            v-model="view"
+            :options="tabs"/>
           <p class="inline">
             <span v-html="taxonLabel"/>
             <span
@@ -115,7 +78,7 @@
           </p>
           <div class="separate-top">
             <autocomplete
-              v-if="showAdvance"
+              v-if="view === 'Advanced'"
               :array-list="objectLists.allList"
               label="subject_status_tag"
               min="3"
@@ -125,7 +88,7 @@
               @getItem="addEntry"
               param="term"/>
             <list-common
-              v-if="!showAdvance"
+              v-else
               :object-lists="objectLists.commonList"
               @addEntry="addEntry"
               display="subject_status_tag"
@@ -142,7 +105,7 @@
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
     </div>
-  </form>
+  </block-layout>
 </template>
 <script>
 
@@ -152,29 +115,23 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Expand from './expand.vue'
 import Autocomplete from 'components/autocomplete.vue'
-import HardValidation from './hardValidation.vue'
 import getRankGroup from '../helpers/getRankGroup'
-import SmartSelector from 'components/switch'
-
-import { GetTaxonNameSmartSelector } from '../request/resources.js'
-import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector'
-import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
+import SwitchComponent from 'components/switch'
+import BlockLayout from 'components/blockLayout'
 
 export default {
   components: {
     ListEntrys,
     Autocomplete,
-    Expand,
     TreeDisplay,
     ListCommon,
-    HardValidation,
-    SmartSelector
+    SwitchComponent,
+    BlockLayout
   },
   computed: {
-    taxonLabel() {
-      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    taxonLabel () {
+      return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
     treeList () {
       return this.$store.getters[GetterNames.GetRelationshipList]
@@ -184,7 +141,11 @@ export default {
     },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (item.type.split('::')[1] != 'OriginalCombination' && item.type.split('::')[1] != 'Typification')
+        return (
+          item.type.split('::')[1] !== 'OriginalCombination' &&
+          item.type.split('::')[1] !== 'Typification' &&
+          !item.type.endsWith('::UncertainPlacement') &&
+          !item.type.endsWith('::SourceClassifiedAs'))
       })
     },
     taxon () {
@@ -194,16 +155,10 @@ export default {
       return this.$store.getters[GetterNames.GetParent]
     },
     softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
-    taxonRelation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonRelationship]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.UpdateLastChange)
-        this.$store.commit(MutationNames.SetTaxonRelationship, value)
-      }
+    checkValidation () {
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
@@ -214,17 +169,18 @@ export default {
   },
   data () {
     return {
+      tabs: ['Common', 'Advanced', 'Show all'],
+      view: 'Common',
       objectLists: this.makeLists(),
-      expanded: true,
+      taxonRelation: undefined,
+      errors: undefined,
       showAdvance: false,
       editMode: undefined,
-      options: [],
       lists: undefined,
-      view: 'search',
       isInsertaeSedis: false,
       incertaeSedis: {
         iczn: { type: 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement' },
-        ictv: { type: 'TaxonNameRelationship::Ictv::Accepting::UncertainPlacement' }
+        icvcn: { type: 'TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement' }
       }
     }
   },
@@ -235,6 +191,11 @@ export default {
         this.refresh()
       },
       immediate: true
+    },
+    view (newVal) {
+      if (newVal === 'Show all') {
+        this.activeModal(true)
+      }
     }
   },
   methods: {
@@ -273,11 +234,6 @@ export default {
         allList: [],
       }
     },
-    filterAlreadyPicked: function (list, type) {
-      return list.find(function (item) {
-        return (item.type == type)
-      })
-    },
     addEntry: function (item) {
       if(this.editMode) {
         let relationship = {
@@ -286,19 +242,21 @@ export default {
           object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
           type: item.type
         }
-        
+
         this.$store.dispatch(ActionNames.UpdateTaxonRelationship, relationship).then(() => {
           this.taxonRelation = undefined
-          this.$store.commit(MutationNames.UpdateLastSave)
           this.editMode = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+          this.$store.commit(MutationNames.UpdateLastChange)
         })
       }
       else {
-        this.$store.dispatch(ActionNames.AddTaxonRelationship, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastSave)
-          this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
-        })
+        this.$store.dispatch(ActionNames.AddTaxonRelationship, {
+          type: item.type,
+          taxonRelationshipId: this.taxonRelation.id
+        }).then(() => {
+          this.taxonRelation = undefined
+          this.$store.commit(MutationNames.UpdateLastChange)
+        }, (errors) => {})
       }
       this.isInsertaeSedis = false
     },

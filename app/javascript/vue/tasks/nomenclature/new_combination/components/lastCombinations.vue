@@ -15,7 +15,7 @@ export default {
   methods: {
     getCombinations () {
       GetLastCombinations().then(response => {
-        this.combinations = response
+        this.combinations = response.body
       })
     }
   }

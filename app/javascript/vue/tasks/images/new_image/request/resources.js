@@ -1,72 +1,42 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const GetLicenses = function () {
-  return ajaxCall('get', '/attributions/licenses')
-}
+const GetLicenses = () => ajaxCall('get', '/attributions/licenses')
 
-const GetCollectingEventSmartSelector = function () {
-  return ajaxCall('get', '/collecting_events/select_options')
-}
+const GetCollectingEventSmartSelector = () => ajaxCall('get', '/collecting_events/select_options')
 
-const GetCollectionObjectSmartSelector = function () {
-  return ajaxCall('get', '/collection_objects/select_options')
-}
+const GetCollectionObjectSmartSelector = () => ajaxCall('get', '/collection_objects/select_options')
 
-const GetOtuSmartSelector = function () {
-  return ajaxCall('get', '/otus/select_options?target=Depiction')
-}
+const GetOtuSmartSelector = () => ajaxCall('get', '/otus/select_options?target=Depiction')
 
-const GetPreparationTypes = function () {
-  return ajaxCall('get', `/preparation_types.json`)
-}
+const GetPreparationTypes = () => ajaxCall('get', '/preparation_types.json')
 
-const GetOtu = function (id) {
-  return ajaxCall('get', `/otus/${id}.json`)
-}
+const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
 
-const GetTaxonDeterminatorSmartSelector = function () {
-  return ajaxCall('get', `/people/select_options?role_type=Determiner`)
-}
+const GetTaxonDeterminatorSmartSelector = () => ajaxCall('get', '/people/select_options?role_type=Determiner')
 
-const GetSqedMetadata = function () {
-  return ajaxCall('get', '/sqed_depictions/metadata_options')
-}
+const GetSqedMetadata = () => ajaxCall('get', '/sqed_depictions/metadata_options')
 
-const GetSourceSmartSelector = function () {
-  return ajaxCall('get', '/sources/select_options')
-}
+const GetSourceSmartSelector = () => ajaxCall('get', '/sources/select_options')
 
-const CreateAttribution = function (data) {
-  return ajaxCall('post', '/attributions.json', { attribution: data })
-}
+const GetUnits = () => ajaxCall('get', '/descriptors/units')
 
-const CreateCitation = function (data) {
-  return ajaxCall('post', '/citations.json', { citation: data })
-}
+const CreateAttribution = (data) => ajaxCall('post', '/attributions.json', { attribution: data })
 
-const CreateDepiction = function (data) {
-  return ajaxCall('post', '/depictions.json', { depiction: data })
-}
+const CreateCitation = (data) => ajaxCall('post', '/citations.json', { citation: data })
 
-const CreateCollectionObject = function (data) {
-  return ajaxCall('post', '/collection_objects.json', { collection_object: data })
-}
+const CreateDepiction = (data) => ajaxCall('post', '/depictions.json', { depiction: data })
 
-const CreateTaxonDetermination = function (data) {
-  return ajaxCall('post', `/taxon_determinations.json`, { taxon_determination: data })
-}
+const CreateCollectionObject = (data) => ajaxCall('post', '/collection_objects.json', { collection_object: data })
 
-const UpdateAttribution = function (data) {
-  return ajaxCall('patch', `/attributions/${data.id}.json`, { attribution: data })
-}
+const CreateTaxonDetermination = (data) => ajaxCall('post', '/taxon_determinations.json', { taxon_determination: data })
 
-const UpdateDepiction = function (data) {
-  return ajaxCall('patch', `/depictions/${data.id}.json`, { depiction: data })
-}
+const UpdateAttribution = (data) => ajaxCall('patch', `/attributions/${data.id}.json`, { attribution: data })
 
-const DestroyImage = function (id) {
-  return ajaxCall('delete', `/images/${id}.json`)
-}
+const UpdateImage = (data) => ajaxCall('patch', `/images/${data.id}.json`, { image: data })
+
+const UpdateDepiction = (data) => ajaxCall('patch', `/depictions/${data.id}.json`, { depiction: data })
+
+const DestroyImage = (id) => ajaxCall('delete', `/images/${id}.json`)
 
 export {
   CreateAttribution,
@@ -83,7 +53,9 @@ export {
   GetSqedMetadata,
   GetOtuSmartSelector,
   GetPreparationTypes,
+  GetUnits,
   UpdateAttribution,
   UpdateDepiction,
+  UpdateImage,
   DestroyImage
 }

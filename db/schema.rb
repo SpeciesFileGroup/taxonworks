@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_01_201911) do
+ActiveRecord::Schema.define(version: 2021_02_24_104715) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -162,6 +162,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.string "inverted_name"
+    t.text "definition"
     t.index ["created_by_id"], name: "bio_rel_created_by"
     t.index ["project_id"], name: "bio_rel_project"
     t.index ["updated_by_id"], name: "bio_rel_updated_by"
@@ -557,6 +558,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.string "default_unit"
     t.string "description_name"
     t.string "key_name"
+    t.integer "weight"
     t.index ["created_by_id"], name: "index_descriptors_on_created_by_id"
     t.index ["name"], name: "index_descriptors_on_name"
     t.index ["project_id"], name: "index_descriptors_on_project_id"
@@ -981,6 +983,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
+    t.float "pixels_to_centimeter"
     t.index ["created_by_id"], name: "index_images_on_created_by_id"
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
     t.index ["project_id"], name: "index_images_on_project_id"
@@ -1008,6 +1011,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.integer "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "type"
     t.index ["created_by_id"], name: "labels_created_by_id_index"
     t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
     t.index ["project_id"], name: "index_labels_on_project_id"
@@ -1646,6 +1650,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.text "cached"
     t.text "cached_author_string"
     t.date "cached_nomenclature_date"
+    t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
@@ -1653,8 +1658,10 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"
     t.index ["language_id"], name: "index_sources_on_language_id"
     t.index ["serial_id"], name: "index_sources_on_serial_id"
+    t.index ["title"], name: "index_sources_on_title"
     t.index ["type"], name: "index_sources_on_type"
     t.index ["updated_by_id"], name: "index_sources_on_updated_by_id"
+    t.index ["year"], name: "index_sources_on_year"
   end
 
   create_table "sqed_depictions", id: :serial, force: :cascade do |t|
@@ -1804,6 +1811,7 @@ ActiveRecord::Schema.define(version: 2020_04_01_201911) do
     t.integer "cached_valid_taxon_name_id"
     t.text "etymology"
     t.string "cached_original_combination"
+    t.date "cached_nomenclature_date"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"

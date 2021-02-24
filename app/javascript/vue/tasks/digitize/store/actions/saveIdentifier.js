@@ -11,27 +11,27 @@ export default function ({ commit, state }) {
       commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : state.collection_object.id)
       if (identifier.id) {
         UpdateIdentifier(identifier).then(response => {
-          commit(MutationNames.SetIdentifier, response)
+          commit(MutationNames.SetIdentifier, response.body)
           const index = state.identifiers.findIndex(item => {
-            return item.id === response.id
+            return item.id === response.body.id
           })
-          Vue.set(state.identifiers, index, response)
-          return resolve(response)
+          Vue.set(state.identifiers, index, response.body)
+          return resolve(response.body)
         }, (response) => {
-          reject(response)
+          reject(response.body)
         })
       } else {
         if (!state.identifiers.length) {
           CreateIdentifier(identifier).then(response => {
             if (state.settings.increment) {
-              response.identifier = state.identifier.identifier
+              response.body.identifier = state.identifier.identifier
             }
-            commit(MutationNames.SetIdentifier, response)
+            commit(MutationNames.SetIdentifier, response.body)
             state.collection_object.object_tag = state.identifier.identifier_object.object_tag
-            state.identifiers.push(response)
-            return resolve(response)
+            state.identifiers.push(response.body)
+            return resolve(response.body)
           }, (response) => {
-            reject(response)
+            reject(response.body)
           })
         } else {
           return resolve()

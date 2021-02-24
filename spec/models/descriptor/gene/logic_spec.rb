@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dna] do
+RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :observation_matrix, :dna] do
   let(:descriptor) { Descriptor::Gene.new(name: '28s') }
 
   let(:forward_primer) { FactoryBot.create(:valid_sequence) }

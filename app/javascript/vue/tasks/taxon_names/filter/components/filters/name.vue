@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Taxon</h2>
+    <h3>Taxon</h3>
     <div class="field">
       <label>Name</label>
       <input
@@ -8,7 +8,7 @@
         placeholder="Name"
         class="full_width"
         @keyup.enter="$emit('onSearch')"
-        v-model="value.name">
+        v-model="taxon.name">
     </div>
     <div class="field">
       <label>Author</label>
@@ -17,7 +17,7 @@
         class="full_width"
         placeholder="Author"
         @keyup.enter="$emit('onSearch')"
-        v-model="value.author">
+        v-model="taxon.author">
     </div>
     <div class="field">
       <label>Year</label>
@@ -26,26 +26,37 @@
         type="text"
         placeholder="Year"
         @keyup.enter="$emit('onSearch')"
-        v-model="value.year">
+        v-model="taxon.year">
     </div>
   </div>
 </template>
 
 <script>
+
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+
 export default {
   props: {
     value: {
-
+      type: Object,
+      required: true
     }
   },
-  data() {
-    return {
-      taxon: {
-        name: undefined,
-        author: undefined,
-        year: undefined
+  computed: {
+    taxon: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
       }
     }
+  },
+  mounted () {
+    const params = URLParamsToJSON(location.href)
+    this.taxon.name = params.name
+    this.taxon.author = params.author
+    this.taxon.year = params.year
   }
 }
 </script>

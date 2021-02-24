@@ -5,11 +5,11 @@ import { ActionNames } from '../actions/actions'
 export default function ({ dispatch, commit }, id) {
   return new Promise((resolve, reject) => {
     GetLabelsFromCE(id).then(response => {
-      if(response.length)
-        commit(MutationNames.SetLabel, response[0])
+      if(response.body.length)
+        commit(MutationNames.SetLabel, response.body[0])
       else 
         dispatch(ActionNames.NewLabel)
-      resolve(response)
+      resolve(response.body)
     }, error => {
       reject(error)
     })

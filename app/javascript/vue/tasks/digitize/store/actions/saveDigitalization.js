@@ -19,7 +19,7 @@ export default function ({ commit, dispatch, state }) {
           TW.workbench.alert.create('All records were successfully saved.', 'notice')
           resolve(true)
         }, () => {
-          TW.workbench.alert.create('There was an error trying to save.', 'alert')
+          // TW.workbench.alert.create('There was an error trying to save.', 'alert')
           state.settings.saving = false
         })
       })

@@ -13,7 +13,6 @@ module Shared::IsData::Scopes
       end
     end
 
-
     # @return [Scope]
     # @params [List of ids or list of AR instances]
     #   a where clause that excludes the records with id = ids 
@@ -21,8 +20,6 @@ module Shared::IsData::Scopes
     def not_ids(*ids)
       where.not(id: ids)
     end
-
-
   end
 
 end

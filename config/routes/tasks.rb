@@ -16,6 +16,11 @@ scope :tasks do
   end
 
   scope :exports do
+      scope :taxonworks_project, controller: 'tasks/exports/taxonworks_project' do
+        get '/', action: :index, as: 'export_taxonworks_project_task'
+        get 'download', as: 'download_taxonworks_project_task'
+      end
+
     scope :coldp, controller: 'tasks/exports/coldp' do
       get '/', action: :index, as: 'export_coldp_task'
       get 'download', as: 'download_coldp_task'
@@ -39,7 +44,7 @@ scope :tasks do
 
   scope :citations do
     scope :otus, controller: 'tasks/citations/otus' do
-      get 'index', as: 'cite_otus_task_task'
+      get '', as: 'cite_otus_task', action: :index
     end
   end
 
@@ -64,6 +69,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :filter, controller: 'tasks/images/filter' do
+      get '/', action: :index, as: 'filter_images_task'
+    end
+
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'index_new_image_task'
     end
@@ -80,7 +89,7 @@ scope :tasks do
 
   scope :labels do
     scope :print_labels, controller: 'tasks/labels/print_labels' do
-      get :index, as: 'index_print_labels_task'
+      get '/',  as: 'print_labels_task', action: :index
     end
   end
 
@@ -99,9 +108,20 @@ scope :tasks do
     scope :preferences, controller: 'tasks/projects/preferences' do
       get :index, as: 'project_preferences_task'
     end
+    scope :data, controller: 'tasks/projects/data' do
+      get '/', action: :index, as: 'project_data_task'
+    end
   end
 
   scope :sources do
+    scope :gnfinder, controller: 'tasks/sources/gnfinder' do
+      get '/', action: :index, as: 'gnfinder_task'
+    end
+
+    scope :filter, controller: 'tasks/sources/filter' do
+      get '/', action: :index, as: 'filter_sources_task'
+    end
+
     scope :new_source, controller: 'tasks/sources/new_source' do
       get '/', action: :index, as: 'new_source_task'
       get 'crossref_preview', as: 'preview_source_from_crossref_task', defaults: {format: :json}
@@ -114,14 +134,13 @@ scope :tasks do
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
       get '/', action: :index, as: 'new_bibtex_source_task'
     end
-
-    scope :find, controller: 'tasks/sources/find' do
-      get '/', action: :index, as: 'find_sources_task'
-      get 'find', as: 'find_sources_query_task'
-    end
   end
 
   scope :collecting_events do
+      scope :new_collecting_event, controller: 'tasks/collecting_events/new_collecting_event' do
+        get '/', action: :index, as: 'new_collecting_event_task'
+      end
+
     scope :browse, controller: 'tasks/collecting_events/browse' do
       get '/', action: :index, as: 'browse_collecting_events_task'
     end
@@ -154,17 +173,17 @@ scope :tasks do
   end
 
   scope :collection_objects do
-      scope :match, controller: 'tasks/collection_objects/match' do
-        get '/', action: :index, as: 'match_collection_objects_task'
-      end
+    scope :match, controller: 'tasks/collection_objects/match' do
+      get '/', action: :index, as: 'match_collection_objects_task'
+    end
 
-      scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
-        get :index, as: 'grid_digitize_task'
-      end
+    scope :grid_digitize, controller: 'tasks/collection_objects/grid_digitize' do
+      get :index, as: 'grid_digitize_task'
+    end
 
-      scope :summary, controller: 'tasks/collection_objects/summary' do
-        get '/', action: :index, as: 'collection_object_summary_task'
-      end
+    scope :summary, controller: 'tasks/collection_objects/summary' do
+      get '/', action: :index, as: 'collection_object_summary_task'
+    end
 
     scope :filter, controller: 'tasks/collection_objects/filter' do
       get '/', as: 'collection_objects_filter_task', action: :index
@@ -181,10 +200,10 @@ scope :tasks do
     end
 
     scope :report do
-        scope :work, controller: 'tasks/accessions/report/work' do
-          get '/', action: :index, as: 'work_report_task'
-          get :data, as: 'work_data_task'
-        end
+      scope :work, controller: 'tasks/accessions/report/work' do
+        get '/', action: :index, as: 'work_report_task'
+        get :data, as: 'work_data_task'
+      end
 
       scope :dwc, controller: 'tasks/accessions/report/dwc' do
         get '', action: :index, as: 'report_dwc_task'
@@ -244,9 +263,9 @@ scope :tasks do
   end
 
   scope :controlled_vocabularies do
-      scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
-        get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
-      end
+    scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
+      get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
+    end
 
     scope :topics_hub, controller: 'tasks/controlled_vocabularies/topics_hub' do
       get 'index', as: 'index_topics_hub_task'
@@ -298,12 +317,12 @@ scope :tasks do
   end
 
   scope :nomenclature do
-      scope :match, controller: 'tasks/nomenclature/match' do
-        get :index, as: 'match_nomenclature_task'
-      end
+    scope :match, controller: 'tasks/nomenclature/match' do
+      get :index, as: 'match_nomenclature_task'
+    end
 
     scope :stats, controller: 'tasks/nomenclature/stats' do
-      get '', action: :index, as: 'index_stats_task'
+      get '', action: :index, as: 'nomenclature_stats_task'
     end
 
     scope :new_combination, controller: 'tasks/nomenclature/new_combination' do
@@ -314,33 +333,26 @@ scope :tasks do
       get '', action: :index, as: 'new_taxon_name_task'
     end
 
-    scope :catalog do
-      scope :basis, controller: 'tasks/nomenclature/catalog/basis' do
-        get ':taxon_name_id', action: :index, as: 'basis_catalog_task'
-      end
-    end
-
     scope :browse, controller: 'tasks/nomenclature/browse' do
       get '', action: :index, as: 'browse_nomenclature_task'
     end
 
     scope :by_source, controller: 'tasks/nomenclature/by_source' do
-      get '(:source_id)', action: :index, as: 'nomenclature_by_source_task'
+      get '', action: :index, as: 'nomenclature_by_source_task'
     end
   end
 
   scope :observation_matrices do
-      scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
-        get :index, as: 'index_dashboard_task'
-      end
-
+    scope :dashboard, controller: 'tasks/observation_matrices/dashboard' do
+      get '', as: 'observation_matrices_dashboard_task', action: :index
+    end
 
     scope :view, controller: 'tasks/observation_matrices/view' do
       get '(:observation_matrix_id)', as: 'observation_matrix_view_task', action: :index
     end
 
     scope :observation_matrix_hub, controller: 'tasks/observation_matrices/observation_matrix_hub' do
-      get 'index', as: 'observation_matrices_hub_task' # 'index_observation_matrix_hub_task'
+      get '', as: 'observation_matrices_hub_task', action: :index
       post 'copy_observations', as: 'observation_matrix_hub_copy_observations', defaults: {format: :json}
     end
 
@@ -353,6 +365,16 @@ scope :tasks do
     scope :row_coder, controller: 'tasks/observation_matrices/row_coder' do
       get 'index', as: 'index_row_coder_task'
       get 'set', as: 'set_row_coder_task'
+    end
+
+    scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
+      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      get '', action: :index, as: 'interactive_key_task'
+    end
+
+    scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
+      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      get '', action: :index, as: 'image_matrix_task'
     end
   end
 
@@ -393,7 +415,7 @@ scope :tasks do
     end
 
     scope :filter, controller: 'tasks/taxon_names/filter' do
-      get :index, as: 'index_filter_task'
+      get '/', as: 'filter_taxon_names_task', action: :index
     end
   end
 

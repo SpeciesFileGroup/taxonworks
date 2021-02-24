@@ -295,7 +295,7 @@ class TaxonNameRelationship < ApplicationRecord
   def validate_subject_and_object_ranks
     tname = self.type_name
 
-    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Ictv)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Icvcn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       rank_group = self.subject_taxon_name.rank_class.try(:parent)
       unless rank_group == self.object_taxon_name.rank_class.try(:parent)
         errors.add(:object_taxon_name_id, "Rank of related taxon should be in the #{rank_group.try(:rank_name)} rank group, not #{self.object_taxon_name.rank_class.try(:rank_name)}")
@@ -388,13 +388,15 @@ class TaxonNameRelationship < ApplicationRecord
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
             t.update_columns(
                 cached_author_year: t.get_author_and_year,
+                cached_nomenclature_date: t.nomenclature_date,
                 cached_original_combination: t.get_original_combination,
                 cached_original_combination_html: t.get_original_combination_html
             )
           end
 
           if type_name =~/Misapplication/
-            t.update_column( :cached_author_year, t.get_author_and_year)
+            t.update_columns( cached_author_year: t.get_author_and_year,
+                              cached_nomenclature_date: t.nomenclature_date)
           end
 
           vn = t.get_valid_taxon_name
@@ -437,10 +439,13 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_disjoint_relationships
-    subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
-    subject_relationships.find_each  do |i|
-      if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-        soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+    tname = self.type_name
+    if tname =~ /TaxonNameRelationship::(Icnp|Icn|Iczn|Icvcn)/ && tname != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
+      subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
+      subject_relationships.each  do |i|
+        if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
+          soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+        end
       end
     end
   end
@@ -462,7 +467,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} ronflicting with the status: '#{c}'")
+      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end

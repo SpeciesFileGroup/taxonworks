@@ -46,10 +46,38 @@
       <filter-component
         class="separate-right"
         v-show="activeFilter"
+        ref="filterComponent"
         @urlRequest="urlRequest = $event"
         @result="loadList"
+        @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
       <div class="full_width">
+        <div
+          class="flex-separate margin-medium-bottom"
+          :class="{ 'separate-left': activeFilter }">
+          <pagination-component
+            v-if="pagination && list.length"
+            @nextPage="loadPage"
+            :pagination="pagination"/>
+          <div
+            v-if="list.length"
+            class="horizontal-left-content">
+            <span
+              class="horizontal-left-content">{{ list.length }} records.
+            </span>
+            <div class="margin-small-left">
+              <select v-model="per">
+                <option
+                  v-for="records in maxRecords"
+                  :key="records"
+                  :value="records">
+                  {{ records }}
+                </option>
+              </select>
+              records per page.
+            </div>
+          </div>
+        </div>
         <list-component
           :class="{ 'separate-left': activeFilter }"
           :list="list"/>
@@ -67,14 +95,17 @@
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import CsvComponent from './components/convertCsv'
+import PaginationComponent from 'components/pagination'
+import GetPagination from 'helpers/getPagination'
 
 export default {
   components: {
     FilterComponent,
     ListComponent,
-    CsvComponent
+    CsvComponent,
+    PaginationComponent
   },
-  data() {
+  data () {
     return {
       list: [],
       urlRequest: '',
@@ -82,13 +113,23 @@ export default {
       activeJSONRequest: false,
       append: false,
       alreadySearch: false,
+      pagination: undefined,
+      maxRecords: [50, 100, 250, 500, 1000],
+      per: 500
+    }
+  },
+  watch: {
+    per (newVal) {
+      this.$refs.filterComponent.params.settings.per = newVal
+      this.loadPage(1)
     }
   },
   methods: {
-    resetTask() {
+    resetTask () {
       this.alreadySearch = false
       this.list = []
       this.urlRequest = ''
+      history.pushState(null, null, '/tasks/taxon_names/filter')
     },
     loadList(newList) {
       if(this.append) {
@@ -105,7 +146,11 @@ export default {
         this.list = newList
       }
       this.alreadySearch = true
-    }
+    },
+    loadPage (event) {
+      this.$refs.filterComponent.loadPage(event.page)
+    },
+    getPagination: GetPagination
   }
 }
 </script>

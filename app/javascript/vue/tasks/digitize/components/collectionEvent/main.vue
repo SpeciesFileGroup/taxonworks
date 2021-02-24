@@ -1,178 +1,201 @@
 <template>
-  <div>
-    <block-layout :warning="!collectingEvent.id">
-      <div slot="header">
-        <h3>Collecting Event</h3>
-      </div>
-      <div
-        slot="options" 
-        class="horizontal-left-content separate-right">
-        <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
+  <block-layout :warning="!collectingEvent.id">
+    <div slot="header">
+      <h3>Collecting Event</h3>
+    </div>
+    <div
+      slot="body">
+      <fieldset class="separate-bottom">
+        <legend>Selector</legend>
+        <div class="horizontal-left-content align-start separate-bottom">
+          <smart-selector
+            class="full_width"
+            ref="smartSelector"
+            model="collecting_events"
+            target="CollectionObject"
+            klass="CollectionObject"
+            pin-section="CollectingEvents"
+            pin-type="CollectingEvent"
+            v-model="collectingEvent"
+            @selected="setCollectingEvent"/>
+          <div class="horizontal-right-content">
+            <lock-component
+              class="circle-button-margin"
+              v-model="locked.collecting_event"
+            />
+          </div>
+        </div>
+        <div>
+          <span data-icon="warning"/>
+          <span
+            v-if="collectingEvent.id">
+            Modifying existing ({{ alreadyUsed }} uses)
+          </span>
+          <span v-else>
+            New CE record.
+          </span>
+        </div>
         <div
           v-if="collectingEvent.id"
-          class="horizontal-left-content separate-left separate-right">
-          <radial-annotator :global-id="collectingEvent.global_id"/>
-          <radial-object :global-id="collectingEvent.global_id"/>
-          <pin-component 
-            :object-id="collectingEvent.id" 
-            type="CollectingEvent"/>
-        </div>
-      </div>
-      <div slot="body">
-        <fieldset class="separate-bottom">
-          <legend>Selector</legend>
-          <div class="horizontal-left-content separate-bottom">
-            <smart-selector
-              name="collection-event"
-              class="separate-right item"
-              v-model="view"
-              :add-option="staticOptions"
-              :options="tabs"/>
-            <lock-component 
-              v-model="locked.collecting_event"/>
-            <pin-default
-              class="separate-left"
-              section="CollectingEvents"
-              @getId="getCollectingEvent"
-              type="CollectingEvent"/>
-          </div>
-          <div
-            v-if="collectingEvent.id"
-            class="horizontal-left-content">
-            <p v-html="collectingEvent.object_tag"/>
-            <span
-              class="circle-button button-default btn-undo"
-              @click="cleanCollectionEvent"/>
+          class="flex-separate middle"
+        >
+          <p v-html="collectingEvent.object_tag" />
+          <div class="horizontal-left-content">
+            <div
+              slot="options"
+              class="horizontal-left-content separate-right"
+            >
+              <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
+              <div
+                v-if="collectingEvent.id"
+                class="horizontal-left-content separate-left separate-right"
+              >
+                <radial-annotator :global-id="collectingEvent.global_id" />
+                <radial-object :global-id="collectingEvent.global_id" />
+                <pin-component
+                  :object-id="collectingEvent.id"
+                  type="CollectingEvent"
+                />
+              </div>
+            </div>
             <button
               type="button"
-              class="button normal-input button-submit"
-              @click="cloneCE">
+              class="button normal-input button-default margin-small-right"
+              @click="cleanCollectionEvent"
+            >
+              New
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-right"
+              @click="openBrowse"
+            >
+              Browse
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-submit margin-small-right"
+              @click="cloneCE"
+            >
               Clone
             </button>
-            <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
           </div>
-          <component
-            :is="actualComponent"
-            :list="lists[view]"/>
-        </fieldset>
-        <div class="horizontal-left-content align-start">
-          <block-verbatin class="separate-right item"/>
-          <block-geography class="separate-left item separate-right"/>
-          <block-map class="separate-left item"/>
         </div>
+      </fieldset>
+      <div class="horizontal-left-content align-start">
+        <block-verbatin class="separate-right half_width" />
+        <block-geography class="separate-left separate-right full_width" />
+        <block-map class="separate-left full_width" />
       </div>
-    </block-layout>
-  </div>
+    </div>
+  </block-layout>
 </template>
 
 <script>
 
-  import BlockVerbatin from './components/verbatimLayout.vue'
-  import BlockGeography from './components/GeographyLayout.vue'
-  import SmartSelector from 'components/switch.vue'
-  import LockComponent from 'components/lock.vue'
-  import BlockMap from  './components/map/main.vue'
-  import BlockLayout from 'components/blockLayout.vue'
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import RadialObject from 'components/radials/navigation/radial.vue'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { ActionNames } from '../../store/actions/actions.js'
-  import PinComponent from 'components/pin.vue'
-  import PinDefault from 'components/getDefaultPin'
-  import { GetCollectingEventsSmartSelector, GetCollectionEvent, CloneCollectionEvent } from '../../request/resources.js'
-  import makeCollectingEvent from '../../const/collectingEvent.js'
-  import orderSmartSelector from '../../helpers/orderSmartSelector.js'
+import BlockVerbatin from './components/verbatimLayout.vue'
+import BlockGeography from './components/GeographyLayout.vue'
+import SmartSelector from 'components/smartSelector.vue'
+import LockComponent from 'components/lock.vue'
+import BlockMap from './components/map/main.vue'
+import BlockLayout from 'components/blockLayout.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions.js'
+import PinComponent from 'components/pin.vue'
 
-  import SearchComponent from './components/smart/search.vue'
-  import selectFirstSmartOption from '../../helpers/selectFirstSmartOption'
+import { CloneCollectionEvent, GetCollectionObjects } from '../../request/resources.js'
+import makeCollectingEvent from '../../const/collectingEvent.js'
+import refreshSmartSelector from '../shared/refreshSmartSelector'
 
-  import { 
-    default as QuickComponent, 
-    default as RecentComponent, 
-    default as PinboardComponent
-  } from './components/smart/smartList.vue'
-
-  export default {
-    components: {
-      BlockLayout,
-      BlockVerbatin,
-      BlockGeography,
-      SmartSelector,
-      RadialAnnotator,
-      RadialObject,
-      PinComponent,
-      BlockMap,
-      SearchComponent,
-      RecentComponent,
-      PinboardComponent,
-      QuickComponent,
-      PinDefault,
-      LockComponent
+export default {
+  mixins: [refreshSmartSelector],
+  components: {
+    BlockLayout,
+    BlockVerbatin,
+    BlockGeography,
+    SmartSelector,
+    RadialAnnotator,
+    RadialObject,
+    PinComponent,
+    BlockMap,
+    LockComponent
+  },
+  computed: {
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    computed: {
-      collectingEvent() {
+    collectingEvent: {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent]
       },
-      actualComponent() {
-        return (this.view + 'Component')
-      },
-      subsequentialUses: {
-        get() {
-          return this.$store.getters[GetterNames.GetSubsequentialUses]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetSubsequentialUses, value)
-        }
-      },
-      locked: {
-        get() {
-          return this.$store.getters[GetterNames.GetLocked]
-        },
-        set(value) {
-          this.$store.commit([MutationNames.SetLocked, value])
-        }
-      },
-    },
-    data() {
-      return {
-        view: 'search',
-        tabs: [],
-        staticOptions: ['search'],
-        lists: []
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionEvent, value)
       }
     },
-    watch: {
-      collectingEvent(newVal, oldVal) {
-        if(!(newVal.hasOwnProperty('id') && 
-        oldVal.hasOwnProperty('id') &&
-        newVal.id == oldVal.id)) {
-          this.subsequentialUses = 0
-        }
+    actualComponent () {
+      return (this.view + 'Component')
+    },
+    subsequentialUses: {
+      get () {
+        return this.$store.getters[GetterNames.GetSubsequentialUses]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSubsequentialUses, value)
       }
     },
-    mounted() {
-      GetCollectingEventsSmartSelector().then(response => {
-        this.tabs = orderSmartSelector(Object.keys(response))
-        this.lists = response
-        this.view = selectFirstSmartOption(response, this.tabs) ? selectFirstSmartOption(response, this.tabs) : 'search'
-      })
-    },
-    methods: {
-      getCollectingEvent(id) {
-        GetCollectionEvent(id).then(response => {
-          this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
-        })
+    locked: {
+      get () {
+        return this.$store.getters[GetterNames.GetLocked]
       },
-      cleanCollectionEvent() {
-        this.$store.dispatch(ActionNames.NewCollectionEvent)
-      },
-      cloneCE() {
-        CloneCollectionEvent(this.collectingEvent.id).then(response => {
-          this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response))
-          this.$store.dispatch(ActionNames.SaveDigitalization)
-        })
+      set (value) {
+        this.$store.commit([MutationNames.SetLocked, value])
       }
     }
+  },
+  data () {
+    return {
+      alreadyUsed: 0
+    }
+  },
+  watch: {
+    async collectingEvent (newVal, oldVal) {
+      if (!(newVal?.id &&
+        oldVal?.id &&
+        newVal.id === oldVal.id)) {
+        this.subsequentialUses = 0
+      }
+      if (newVal.id) {
+        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.id] })).body.length
+      } else {
+        this.alreadyUsed = 0
+      }
+    },
+    async collectionObject (newVal, oldVal) {
+      if (newVal?.id !== oldVal?.id && newVal.collecting_event_id) {
+        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
+      }
+    }
+  },
+  methods: {
+    setCollectingEvent (ce) {
+      this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), ce))
+      this.$store.dispatch(ActionNames.GetLabels, ce.id)
+    },
+    cleanCollectionEvent () {
+      this.$store.dispatch(ActionNames.NewCollectionEvent)
+    },
+    cloneCE () {
+      CloneCollectionEvent(this.collectingEvent.id).then(response => {
+        this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response.body))
+        this.$store.dispatch(ActionNames.SaveDigitalization)
+      })
+    },
+    openBrowse () {
+      window.open(`/tasks/collecting_events/browse?collecting_event_id=${this.collectingEvent.id}`)
+    }
   }
+}
 </script>

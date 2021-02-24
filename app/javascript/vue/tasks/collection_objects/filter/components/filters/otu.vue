@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Determinations</h2>
+    <h3>Determinations</h3>
     <h3>Taxon name</h3>
     <div>
       <autocomplete
@@ -9,17 +9,18 @@
         label="label_html"
         :clear-after="true"
         placeholder="Search a taxon name"
-        @getItem="setTaxon"
+        @getItem="setTaxon($event.id)"
       />
-      <div 
+      <p
         v-if="taxon"
         class="field middle">
         <span
-          v-html="taxon.label_html"/>
+          class="margin-small-right"
+          v-html="taxon.object_tag"/>
         <span
           class="separate-left button button-circle btn-undo button-default"
           @click="removeTaxon"/>
-      </div>
+      </p>
       <div class="field separate-top">
         <ul class="no_bullets">
           <li 
@@ -45,7 +46,7 @@
       label="label_html"
       :clear-after="true"
       display="label"
-      @getItem="addOtu" />
+      @getItem="addOtu($event.id)" />
     <div class="field separate-top">
       <ul class="no_bullets">
         <li 
@@ -68,7 +69,7 @@
           class="middle flex-separate list-complete-item"
           v-for="(otu, index) in otusStore"
           :key="otu.id">
-          <span v-html="otu.label_html"/>
+          <span v-html="otu.object_tag"/>
           <span
             class="btn-delete button-circle"
             @click="removeOtu(index)"/>
@@ -81,6 +82,8 @@
 <script>
 
 import Autocomplete from 'components/autocomplete'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetTaxonName, GetOtu } from '../../request/resources'
 
 export default {
   components: {
@@ -109,7 +112,7 @@ export default {
       currentDeterminationsOptions: [
         {
           label: 'Current and historical',
-          value: undefined,
+          value: undefined
         },
         {
           label: 'Current only',
@@ -149,18 +152,35 @@ export default {
       deep: true
     }
   },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      if (urlParams.ancestor_id) {
+        this.setTaxon(urlParams.ancestor_id)
+      }
+      if (urlParams.otu_ids) {
+        urlParams.otu_ids.forEach(id => { this.addOtu(id) })
+      }
+      this.determination.validity = urlParams.validity
+      this.determination.current_determinations = urlParams.current_determinations
+    }
+  },
   methods: {
     removeOtu (index) {
       this.determination.otu_ids.splice(index, 1)
       this.otusStore.splice(index, 1)
     },
-    addOtu (item) {
-      this.determination.otu_ids.push(item.id)
-      this.otusStore.push(item)
+    addOtu (id) {
+      GetOtu(id).then(response => {
+        this.determination.otu_ids.push(response.body.id)
+        this.otusStore.push(response.body)
+      })
     },
-    setTaxon(taxon) {
-      this.taxon = taxon
-      this.determination.ancestor_id = taxon.id
+    setTaxon (id) {
+      GetTaxonName(id).then(response => {
+        this.taxon = response.body
+        this.determination.ancestor_id = response.body.id
+      })
     },
     removeTaxon() {
       this.taxon = undefined

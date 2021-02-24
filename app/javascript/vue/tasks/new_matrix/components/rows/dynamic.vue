@@ -73,8 +73,9 @@ import smartTaxonList from './dynamic/smartList'
 import Autocomplete from 'components/autocomplete'
 import SpinnerComponent from 'components/spinner'
 import { GetSmartSelector } from '../../request/resources'
-import { ActionNames } from '../../store/actions/actions';
+import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
@@ -112,32 +113,32 @@ export default {
   },
   mounted() {
     GetSmartSelector('keywords').then(response => {
-      this.smartOptions = this.smartOptions.filter(value => Object.keys(response).includes(value))
-      this.selectorLists = response
+      this.smartOptions = this.smartOptions.filter(value => Object.keys(response.body).includes(value))
+      this.selectorLists = response.body
       this.loadingTag = false
       this.smartOptions.push('search')
     })
     GetSmartSelector('taxon_names').then(response => {
-      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter(value => Object.keys(response).includes(value))
+      this.smartTaxon = ['quick', 'recent', 'pinboard'].filter(value => Object.keys(response.body).includes(value))
       this.smartTaxon.push('search')
-      this.listTaxon = response
+      this.listTaxon = response.body
       this.loadingTaxon = false
     })
   },
   methods: {
-    create(item) {
+    create (item) {
       let data = {
         controlled_vocabulary_term_id: item.id,
         observation_matrix_id: this.matrixId,
-        type: 'ObservationMatrixRowItem::TaggedRowItem'
+        type: ObservationTypes.Row.Tag
       }
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     },
-    createTaxon(item) {
+    createTaxon (item) {
       let data = {
         taxon_name_id: item.id,
         observation_matrix_id: this.matrixId,
-        type: 'ObservationMatrixRowItem::TaxonNameRowItem'
+        type: ObservationTypes.Row.TaxonName
       }
       this.$store.dispatch(ActionNames.CreateRowItem, data)
     }

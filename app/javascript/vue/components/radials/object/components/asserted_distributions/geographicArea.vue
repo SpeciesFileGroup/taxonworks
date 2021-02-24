@@ -3,92 +3,52 @@
   <div>
     <fieldset>
       <legend>Geographic area</legend>
-      <div class="horizontal-left-content">
-        <switch-component
-          class="separate-right"
-          :options="Object.keys(smartGeographics)"
-          v-model="view"
-          :add-option="['search']"
-          name="switch-geographic"/>
-      </div>
-      <template v-if="smartGeographics[view]">
-        <tag-item
-          v-for="item in smartGeographics[view]"
-          :item="item"
-          display="name"
-          @select="sendGeographic"
-          :key="item.id"/>
-      </template>
-      <autocomplete
-        v-else
-        url="/geographic_areas/autocomplete"
-        label="label_html"
-        min="2"
-        :clear-after="true"
-        :autofocus="true"
-        @getItem="sendGeographic"
-        placeholder="Select a geographic area"
-        param="term"/>
+      <smart-selector
+        model="geographic_areas"
+        klass="AssertedDistribution"
+        target="AssertedDistribution"
+        ref="smartSelector"
+        label="name"
+        :buttons="true"
+        :inline="true"
+        pin-section="GeographicAreas"
+        pin-type="GeographicArea"
+        @selected="sendGeographic"
+      />
     </fieldset>
   </div>
 </template>
 
 <script>
 
-  import TagItem from '../shared/item_tag.vue'
-  import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from 'components/autocomplete.vue'
-  import CRUD from '../../request/crud'
-  import LockComponent from 'components/lock'
+import SmartSelector from 'components/smartSelector'
+import CRUD from '../../request/crud'
 
-  export default {
-    mixins: [CRUD],
-    components: {
-      TagItem,
-      SwitchComponent,
-      Autocomplete,
-      LockComponent
-    },
-    props: {
-      createdList: {
-        type: Array,
-        required: true
-      }
-    },
-    data() {
-      return {
-        view: undefined,
-        smartGeographics: [],
-        selected: undefined,
-        lock: false
-      }
-    },
-    watch: {
-      lock(newVal) {
-        this.$emit('lock', newVal)
-      }
-    },
-    mounted() {
-      this.getList(`/geographic_areas/select_options?target=AssertedDistribution`).then(response => {
-        let result = response.body
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartGeographics = result
-        this.view = this.firstTabWithData(result);
-      })
-    },
-    methods: {
-      sendGeographic(item) {
-        this.selected = ''
-        this.$emit('select', item.id)
-      },
-      firstTabWithData(smartObject) {
-        if(Object.keys(smartObject).length) {
-          return Object.keys(smartObject)[0]
-        }
-        else {
-          return 'search'
-        }
+export default {
+  mixins: [CRUD],
+  components: {
+    SmartSelector
+  },
+  props: {
+    sourceLock: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data () {
+    return {
+      smartGeographics: [],
+      selected: undefined
+    }
+  },
+  methods: {
+    sendGeographic (item) {
+      this.selected = ''
+      this.$emit('select', item.id)
+      if (this.sourceLock) {
+        this.$refs.smartSelector.setFocus()
       }
     }
   }
+}
 </script>

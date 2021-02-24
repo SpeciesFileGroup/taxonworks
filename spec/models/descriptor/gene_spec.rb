@@ -3,7 +3,7 @@ require 'rails_helper'
 # See also 
 #   descriptor/gene/logic_spec.rb
 #   descriptor/gene/sequences_spec.rb
-RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :matrix, :dna] do
+RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :observation_matrix, :dna] do
   let(:descriptor) { Descriptor::Gene.new(name: '28s') }
 
   let(:sequence1) { Sequence.create!(sequence: 'ACT', sequence_type: 'DNA') }

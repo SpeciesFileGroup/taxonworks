@@ -1,59 +1,52 @@
 <%= form_tag url, multipart: true do -%>
+  <div class="field">
+    <%= label_tag :file, 'Select a file' -%><br>
+    <%= file_field_tag :file -%>
+  </div>
 
+  <% if @result -%>
     <div class="field">
-      <%= label_tag :file, 'Select a file' -%>
-      <br>
-      <%= file_field_tag :file -%>
+      <%= label_tag "Attaching to:" %> <%= taxon_name_tag(@result.parent_taxon_name) %>
+      <%= hidden_field_tag :parent_taxon_name_id, @result.parent_taxon_name_id -%>
     </div>
 
+    <div class="field">
+      <%= label_tag "Nomenclatural code:" %> <%= hidden_field_tag :nomenclature_code, @result.nomenclature_code -%>
+      <%= @result.nomenclature_code %>
+    </div>
 
-    <% if @result -%>
+    <div class="field">
+      <%= label_tag :also_create_otu, 'Also create OTU:' -%>
+      <%= check_box(nil, :also_create_otu, {checked: @result.also_create_otu, disabled: true}, true, false) -%>
+    </div>
 
-        <div class="field">
-          <%= label_tag "Attaching to:" %> <%= taxon_name_tag(@result.parent_taxon_name) %>
-          <%= hidden_field_tag :parent_taxon_name_id, @result.parent_taxon_name_id -%>
-        </div>
+  <% else %>
 
-        <div class="field">
-          <%= label_tag "Nomenclatural code:" %> <%= hidden_field_tag :nomenclature_code, @result.nomenclature_code -%>
-          <%= @result.nomenclature_code %>
-        </div>
+    <div class="field">
+      <%= label_tag :parent_taxon_name, 'Attach names as children of (defaults to Root if none provided)' %>
+      <br>
+      <%= render partial: 'workbench/elements/forms/ajax_select',
+        locals: {
+          controller: '/taxon_names',
+          object: '',
+          method: 'parent_taxon_name_id',
+          tag_id: 'parent_taxon_name_id_for_simple_batch_laod',
+          size: 20} %>
+    </div>
 
-        <div class="field">
-          <%= label_tag :also_create_otu, 'Also create OTU:' -%>
-          <%= check_box(nil, :also_create_otu, {checked: @result.also_create_otu, disabled: true}, true, false) -%>
-        </div>
+    <div class="field">
+      <%= label_tag :nomenclature_code, 'Nomenclature code (required only if parent is Root)' %><br>
+      <%= radio_button_tag 'nomenclature_code', 'iczn', true -%> ICZN <br>
+      <%= radio_button_tag 'nomenclature_code', 'icn' -%> ICN <br>
+    </div>
 
-    <% else %>
+    <div class="field">
+      <%= label_tag :also_create_otu, 'Also create OTU?' -%><br>
+      <%= check_box_tag :also_create_otu -%>
+    </div>
 
-        <div class="field">
-          <%= label_tag :parent_taxon_name, 'Attach names as children of (defaults to Root if none provided)' %>
-          <br>
-          <%= render partial: 'workbench/elements/forms/ajax_select',
-                     locals:  {
-                         controller: '/taxon_names',
-                         object:     '',
-                         method:     'parent_taxon_name_id',
-                         tag_id:     'parent_taxon_name_id_for_simple_batch_laod',
-                         size:       20} %>
-        </div>
+  <% end %>
 
-        <div class="field">
-          <%= label_tag :nomenclature_code, 'Nomenclature code (required only if parent is Root)' %><br>
-          <%= radio_button_tag 'nomenclature_code', 'iczn', true -%> ICZN <br>
-          <%= radio_button_tag 'nomenclature_code', 'icn' -%> ICN <br>
-        </div>
-
-        <div class="field">
-          <%= label_tag :also_create_otu, 'Also create OTU?' -%>
-          <br>
-          <%= check_box_tag :also_create_otu -%>
-        </div>
-
-
-    <% end %>
-
-    <%= content_for :warn_level -%>
-
-    <%= submit_tag submit -%>
+  <%= content_for :warn_level -%>
+  <%= submit_tag submit, class: (submit == :create ? 'button-submit' :  'button-default') -%>
 <% end %>

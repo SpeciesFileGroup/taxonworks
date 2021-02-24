@@ -17,13 +17,8 @@ RSpec.describe Label, type: :model do
     end
   end
 
-
   specify '.unprinted' do
     expect(Label.unprinted).to contain_exactly()
   end
-
-
-
-
 
 end

@@ -3,11 +3,6 @@
 module Shared::IsData::Levenshtein
   extend ActiveSupport::Concern
 
-  included do
-    # include Users
-    has_many :pinboard_items, as: :pinned_object, dependent: :destroy
-  end
-
   # TODO: make this a proper instance method, remove limit from scope
 
   # @param [String, String, Integer]

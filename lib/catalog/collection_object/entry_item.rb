@@ -5,6 +5,7 @@ class Catalog::CollectionObject::EntryItem
   attr_accessor :object
 
   # Arbitrary categorization of event as per EVENT_TYPES, required
+  # TODO: this is a terrible method name
   attr_accessor :type
 
   # The earliest point at which the event could have happened.

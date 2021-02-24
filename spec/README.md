@@ -34,3 +34,17 @@ See corresponding `/support/projects_and_users.rb` for how globals are handled, 
 * Model tests wrap the globals in `user_id` and `project_id` accessors
 * `Feature` specs *must never reference the globals*.
 
+## Tag groups
+
+See [here](http://elementalselenium.com/tips/60-list-tags) for something to implement.
+
+## Naming 
+Groups are named in the convention:
+* lowercase, singular 
+
+
+### Exisiting 
+
+* `nomenclature` - nomenclature logic
+* `observation_matrix` - matrix logic
+* 

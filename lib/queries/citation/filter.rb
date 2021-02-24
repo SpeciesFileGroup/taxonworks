@@ -16,12 +16,16 @@ module Queries
       # Array, Integer
       attr_accessor :citation_object_type, :citation_object_id, :source_id
 
+      # Boolean
+      attr_accessor :is_original
+
       # @params params [Hash]
       #   already Permitted params, or new Hash
       def initialize(params)
         @citation_object_type = params[:citation_object_type]
         @citation_object_id = params[:citation_object_id]
         @source_id = params[:source_id]
+        @is_original = params[:is_original]
         @options = params
       end
 
@@ -32,6 +36,7 @@ module Queries
           matching_citation_object_type,
           matching_citation_object_id,
           matching_source_id,
+          matching_is_original
         ].compact
 
         return nil if clauses.empty?
@@ -56,6 +61,10 @@ module Queries
       # @return [Arel::Node, nil]
       def matching_source_id
         source_id.blank? ? nil : table[:source_id].eq(source_id)  
+      end
+
+      def matching_is_original
+        is_original.blank? ? nil : table[:is_original].eq(is_original)  
       end
 
       # @return [ActiveRecord::Relation]

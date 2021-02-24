@@ -2,47 +2,59 @@
   <div class="depiction-thumb-container">
     <modal
       v-if="viewMode"
-      @close="viewMode = false"
-      :container-style="{ width: ((fullSizeImage ? depiction.image.width : depiction.image.alternatives.medium.width) + 'px')}">
+      @close="viewMode = false">
       <h3 slot="header">View</h3>
-      <div slot="body">
-        <template>
-          <img
-            class="img-maxsize img-fullsize"
-            v-if="fullSizeImage"
-            @click="fullSizeImage = false"
-            :src="depiction.image.image_file_url"
-            :height="depiction.image.height"
-            :width="depiction.image.width">
-          <img
-            v-else
-            class="img-maxsize img-normalsize"
-            @click="fullSizeImage = true"
-            :src="depiction.image.alternatives.medium.image_file_url"
-            :height="depiction.image.alternatives.medium.height"
-            :width="depiction.image.alternatives.medium.width">
-        </template>
-        <div class="field separate-top">
-          <input
-            v-model="depiction.figure_label"
-            type="text"
-            placeholder="Label">
+      <div
+        slot="body"
+        class="horizontal-left-content align-start">
+        <div class="full_width">
+          <template>
+            <img
+              class="img-maxsize"
+              :src="depiction.image.image_file_url">
+          </template>
+          <div class="horizontal-left-content">
+            <radial-annotator :global-id="depiction.image.global_id"/>
+            Annotate image
+            <radial-navigation :global-id="depiction.image.global_id"/>
+            Navigate image
+          </div>
         </div>
-        <div class="field separate-bottom">
-          <textarea
-            v-model="depiction.caption"
-            rows="5"
-            placeholder="Caption"/>
-        </div>
-        <div class="flex-separate">
-          <button
-            type="button"
-            @click="updateDepiction"
-            class="normal-input button button-submit">Update</button>
-          <button
-            type="button"
-            @click="deleteDepiction"
-            class="normal-input button button-delete">Delete</button>
+        <div class="margin-medium-left full_width">
+          <h3>Image depicts a {{ depiction.depiction_object_type }}</h3>
+          <div class="field separate-top label-above">
+            <label>Figure label</label>
+            <input
+              v-model="depiction.figure_label"
+              type="text"
+              placeholder="Label">
+          </div>
+          <div class="field separate-bottom label-above">
+            <label>Caption</label>
+            <markdown-editor
+              v-model="depiction.caption"
+              :configs="config"
+              ref="etymologyText"/>
+          </div>
+          <div class="margin-small-bottom">
+            <label>
+              <input
+                v-model="depiction.is_metadata_depiction"
+                type="checkbox">
+              Is metadata
+            </label>
+          </div>
+          <div class="flex-separate">
+            <button
+              type="button"
+              @click="updateDepiction"
+              class="normal-input button button-submit">Save
+            </button>
+            <button
+              type="button"
+              @click="deleteDepiction"
+              class="normal-input button button-delete">Delete</button>
+          </div>
         </div>
       </div>
     </modal>
@@ -52,16 +64,38 @@
       :src="depiction.image.alternatives.thumb.image_file_url"
       :height="depiction.image.alternatives.thumb.height"
       :width="depiction.image.alternatives.thumb.width">
+    <div class="horizontal-left-content">
+      <span
+        class="circle-button btn-edit button-default"
+        @click="viewMode = true"/>
+      <span
+        class="circle-button btn-delete"
+        @click="deleteDepiction"/>
+    </div>
   </div>
 </template>
 <script>
 
 import Modal from 'components/modal.vue'
 import { UpdateDepiction } from './request/resources'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import RadialNavigation from 'components/radials/navigation/radial'
+import SwitchComponent from 'components/switch'
+import MarkdownEditor from 'components/markdown-editor.vue'
+
+const Tabs = {
+  MARKDOWN: 'markdown',
+  CAPTION: 'caption'
+
+}
 
 export default {
   components: {
-    Modal
+    Modal,
+    RadialAnnotator,
+    RadialNavigation,
+    SwitchComponent,
+    MarkdownEditor
   },
   props: {
     depiction: {
@@ -72,18 +106,23 @@ export default {
   data: function () {
     return {
       fullSizeImage: false,
-      viewMode: false
+      viewMode: false,
+      tabSelected: undefined,
+      tabs: Object.values(Tabs),
+      config: {
+        status: false,
+        spellChecker: false
+      }
     }
   },
   methods: {
     updateDepiction () {
-      let depiction = {
-        depiction: {
-          caption: this.depiction.caption,
-          figure_label: this.depiction.figure_label
-        }
+      const depiction = {
+        caption: this.depiction.caption,
+        figure_label: this.depiction.figure_label,
+        is_metadata_depiction: this.depiction.is_metadata_depiction
       }
-      UpdateDepiction(this.depiction.id, depiction).then(response => {
+      UpdateDepiction(this.depiction.id, { depiction: depiction }).then(response => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },
@@ -94,15 +133,11 @@ export default {
 }
 </script>
 <style lang="scss">
-  .depiction-thumb-container {
-    .modal-container {
-     max-width: 100vh;
-   }
-   margin: 4px;
-   .img-thumb {
+.depiction-thumb-container {
+  .img-thumb {
      cursor: pointer;
-   }
-   .img-maxsize {
+  }
+  .img-maxsize {
     transition: all 0.5s ease;
     max-width: 100%;
     max-height: 60vh;
@@ -118,5 +153,12 @@ export default {
      width: 100%
    }
   }
+  .CodeMirror {
+    min-height: 100px;
+    height: 100px;
   }
+  .modal-container {
+    width: auto;
+  }
+}
 </style>

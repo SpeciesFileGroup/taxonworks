@@ -20,7 +20,7 @@
 #               unknown: task has not been classified
 #
 ---
-index_filter_task:
+filter_taxon_names_task:
   hub: true
   name: 'Filter nomenclature'
   related:
@@ -65,11 +65,12 @@ otus_filter_task:
   description: 'Find OTUs by nomenclature, geography and author.'
 comprehensive_collection_object_task:
   hub: true
-  name: 'Comprehensive collection object form'
+  name: 'Comprehensive specimen digitization'
   related:
     - collection_objects
   categories:
     - collection_object
+    - new
   status: prototype
   description: 'An all-in-one interface for digitizing collection objects.'
 new_taxon_name_task:
@@ -241,7 +242,7 @@ index_editor_task:
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
-cite_otus_task_task:
+cite_otus_task:
   hub: true
   name: 'Cite OTUs'
   related:
@@ -323,9 +324,10 @@ new_combination_task:
   description: 'Create a new or subsequent nomenclatural combination.'
 browse_otus_task:
   hub: true
-  name: 'Browse taxa'
+  name: 'Browse OTUs'
   related:
   categories:
+    - browse
   status: prototype
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
 new_descriptor_task:
@@ -378,7 +380,7 @@ observation_matrix_view_task:
     - dna
   status: prototype
   description: 'A very basic visualization of an observation matrix.'
-index_print_labels_task:
+print_labels_task:
   hub: true
   name: 'Print labels'
   related:
@@ -416,16 +418,8 @@ new_source_task:
   categories:
    - source
    - new
-  status: prototype
-  description: 'Add a sources of Verbatim, BibTeX or person via a number of methods.'  
-find_sources_task:
-  hub: true
-  name: 'Find sources'
-  related:
-  categories:
-    - source
-  status: prototype
-  description: 'Find sources and list them via a simple keyword/year based search.'  
+  status: stable
+  description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 new_bibtex_source_task:
   hub: true
   name: 'New source from BibTeX'
@@ -442,7 +436,7 @@ visualize_confidences_task:
   categories:
   status: stable 
   description: 'See a graph of confidences applied per data type.'
-index_dashboard_task:
+observation_matrices_dashboard_task:
   hub: true
   name: 'Observation matrices dashboard'
   related:
@@ -450,14 +444,22 @@ index_dashboard_task:
     - matrix
   status: prototype
   description: 'Summarize observations across a nomenclaturally-based hierarchy.'
-index_stats_task:
+interactive_key_task:
+  hub: true
+  name: 'Interactive key'
+  related:
+  categories:
+    - matrix
+  status: prototype
+  description: 'Interactive key based on an observation matrix.'
+nomenclature_stats_task:
   hub: true
   name: 'Nomenclature stats'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'Get counts of names as different ranks.'
+  description: 'Report counts of names at different ranks.'
 export_coldp_task:
   hub: true
   name: 'Catalogue of Life (CoLDP) exports'
@@ -485,7 +487,7 @@ collection_objects_filter_task:
   description: 'Filter collection objects by many different facets, download or visualize results.'
 syncronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Syncronize nomenclature and OTUs'
+  name: 'Synchronize nomenclature and OTUs'
   related:
   categories:
     - nomenclature
@@ -571,3 +573,52 @@ work_report_task:
     - collection_object
   status: prototype
   description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
+filter_sources_task:
+  hub: true
+  name: 'Filter sources'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'Filter and find sources then download or share bibliographies.'
+project_data_task:
+  hub: true
+  name: 'Project data overview and download'
+  related:
+  categories:
+  status: prototype
+  description: 'Quick stats and download options for the overall project.'
+gnfinder_task:
+  hub: true
+  name: 'Gnfinder playground'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Show all names in a document.'
+new_collecting_event_task:
+  hub: true
+  name: 'New collecting event'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create a new collecting event.  Quickly add collection objects to the collecting event.  Generate labels and specimen barcodes. Navigate between collecting events with similar properties.'
+filter_images_task:
+  hub: true
+  name: 'Filter images task'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Filter images.'
+export_taxonworks_project_task:
+  hub: true
+  name: 'Export project database'
+  related:
+  categories:
+  status: prototype
+  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'

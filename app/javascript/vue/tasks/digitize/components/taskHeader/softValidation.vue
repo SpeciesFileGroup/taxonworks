@@ -117,11 +117,11 @@ export default {
       this.isLoading = true
 
       promises.push(GetSoftValidation(this.collectionObject.global_id).then(response => {
-        this.validation.collectionObject = response.validations.soft_validations
+        this.validation.collectionObject = response.body.validations.soft_validations
       }))
       if(this.collectingEvent.id) {
         promises.push(GetSoftValidation(this.collectingEvent.global_id).then(response => {
-          this.validation.collectingEvent = response.validations.soft_validations  
+          this.validation.collectingEvent = response.body.validations.soft_validations
         }))
       }
 

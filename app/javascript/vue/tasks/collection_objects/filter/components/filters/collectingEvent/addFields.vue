@@ -91,6 +91,7 @@
 <script>
 
 import { GetCEAttributes } from '../../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const TYPES = {
   text: 'text',
@@ -135,12 +136,25 @@ export default {
   mounted () {
     GetCEAttributes().then(response => {
       this.fields = response.body
+      const urlParams = URLParamsToJSON(location.href)
+      if (Object.keys(urlParams).length) {
+        this.fields.forEach((field) => {
+          if (urlParams[field.name]) {
+            this.selectedFields.push({
+              param: field.name,
+              value: urlParams[field.name],
+              type: field.type,
+              exact: urlParams.collecting_event_wildcards ? urlParams.collecting_event_wildcards.includes(field.name) : undefined
+            })
+          }
+        })
+      }
     })
   },
   methods: {
     resetFields() {
-      this.selectedField = undefined,
-      this.fieldValue = undefined,
+      this.selectedField = undefined
+      this.fieldValue = undefined
       this.exact = undefined
     },
     addField() {
@@ -157,6 +171,9 @@ export default {
     },
     checkForMatch(type) {
       return (type === 'string' || type === 'text')
+    },
+    cleanList () {
+      this.selectedFields = []
     }
   }
 }

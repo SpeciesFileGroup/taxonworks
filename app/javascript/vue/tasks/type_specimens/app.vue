@@ -13,7 +13,10 @@
         class="middle reload-app">Reset</span>
     </div>
     <div>
-      <div class="flexbox horizontal-center-content align-start">
+      <div
+        v-shortkey="[getOSKey(), 't']"
+        @shortkey="switchTaxonNameTask()"
+        class="align-start">
         <div class="ccenter item separate-right">
           <name-section
             class="separate-bottom"
@@ -45,6 +48,7 @@ import spinner from 'components/spinner.vue'
 
 import ActionNames from './store/actions/actionNames'
 import { GetterNames } from './store/getters/getters'
+import GetOSKey from 'helpers/getMacKey.js'
 
 import setParamsId from './helpers/setParamsId'
 
@@ -73,6 +77,10 @@ export default {
   },
   mounted: function () {
     this.loadTaxonTypes()
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+o`, 'Go to browse OTU', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'New type material')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'New type material')
   },
   watch: {
     taxon (newVal) {
@@ -110,7 +118,17 @@ export default {
       if (findType) {
         this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
       }
-    }
+    },
+    switchTaxonNameTask () {
+      let urlParams = new URLSearchParams(window.location.search)
+      let taxonId = urlParams.get('taxon_name_id')
+      if (taxonId) {
+        window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`, '_self')
+      } else {
+        window.open('/tasks/nomenclature/new_taxon_name', '_self')
+      }
+    },
+    getOSKey: GetOSKey
   }
 }
 
@@ -145,14 +163,6 @@ export default {
        visibility:hidden;
     }
 
-    .types_field {
-      input[type="text"], textarea {
-        width: 300px;
-      }
-      .vue-autocomplete-input {
-          width: 300px;
-      }
-    }
     hr {
         height: 1px;
         color: #f5f5f5;

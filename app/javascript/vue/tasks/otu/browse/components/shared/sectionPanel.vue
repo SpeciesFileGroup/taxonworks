@@ -1,37 +1,42 @@
 <template>
-  <div>
-    <spinner-component v-if="spinner"/>
-    <div class="panel">
-      <div class="content">
-        <div>
-          <div class="flex-separate">
-            <div>
-              <span class="section-title">{{ title }}</span>
-              <slot name="title">
-              </slot>
-            </div>
-            <div class="horizontal-left-content">
-              <div
-                class="option-box button-default cursor-pointer"
-                @click="hidden = !hidden"
-                :data-icon="hidden ? 'w_expand' : 'w_contract'"/>
-              <div
-                data-icon="w_scroll-v"
-                class="option-box button-default cursor-pointer handle"/>
-              <div
-                class="option-box button-default cursor-pointer"
-                @click="$emit('menu')">
-                <div class="hamburger-menu">
-                  <div class="hamburger-menu-bar"/>
-                  <div class="hamburger-menu-bar"/>
-                  <div class="hamburger-menu-bar"/>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <slot v-if="!hidden"></slot>
+  <div class="panel basic-information">
+    <spinner-component v-if="spinner" />
+    <a
+      :name="linkName"
+      class="anchor"
+    />
+    <div
+      v-help.section.status
+      :class="{ [status]: status }"
+      class="header flex-separate middle">
+      <div>
+        <h3 class="section-title">{{ title }}</h3>
+        <slot name="title" />
       </div>
+      <div class="horizontal-left-content">
+        <div
+          v-help.section.options.drag
+          data-icon="w_scroll-v"
+          class="option-box button-default circle-button cursor-pointer handle"
+        />
+        <button
+          type="button"
+          class="option-box cursor-pointer circle-button"
+          :class="{ 'button-default': menu }"
+          :disabled="!menu"
+          v-help.section.options.filter
+          @click="$emit('menu')"
+        >
+          <div class="hamburger-menu">
+            <div class="hamburger-menu-bar" />
+            <div class="hamburger-menu-bar" />
+            <div class="hamburger-menu-bar" />
+          </div>
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <slot v-if="!hidden" />
     </div>
   </div>
 </template>
@@ -42,12 +47,29 @@ export default {
   components: {
     SpinnerComponent
   },
+  computed: {
+    linkName () {
+      return this.name ? this.name : this.title
+    }
+  },
   props: {
     title: {
       type: String,
       default: ''
     },
     spinner: {
+      type: Boolean,
+      default: false
+    },
+    status: {
+      type: String,
+      default: 'unknown'
+    },
+    name: {
+      type: String,
+      default: undefined
+    },
+    menu: {
       type: Boolean,
       default: false
     }
@@ -62,13 +84,14 @@ export default {
 <style scoped>
   .option-box {
     position: relative;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin:0 auto;
     margin-left: 4px;
     padding: 0px;
     background-position: center;
     background-size: 14px;
+    border: 0px;
   }
   .hamburger-menu {
     position: absolute;
@@ -82,5 +105,21 @@ export default {
     background-color: #FFFFFF;
     border-radius: 2px;
     margin: 2px 0;
+  }
+
+  .unknown {
+    border-left-color: #bbbbbb;
+  }
+
+  .stable {
+    border-left-color: #fdbd41;
+  }
+
+  .prototype {
+    border-left-color: #fc615d;
+  }
+
+  .basic-information {
+    border-top-left-radius: 0px;
   }
 </style>

@@ -5,135 +5,72 @@
       class="separate-bottom"
       :options="tabOptions"
       v-model="view"
-      name="related"/>
-    <template v-if="otuView">
-      <div class="horizontal-left-content full_width">
-        <switch-component
-          class="separate-bottom"
-          :options="Object.keys(smartOtu)"
-          v-model="viewOtu"
-          :add-option="['search']"
-          name="switch-otu"/>
-        <pin-default
-          class="separate-left"
-          section="Otus"
-          @getItem="sendRelated({ id: $event.id, object_tag: $event.label })"
-          type="Otu"/>
-      </div>
-      <template v-if="smartOtu[viewOtu]">
-        <tag-item
-          v-for="item in smartOtu[viewOtu]"
-          :item="item"
-          :class="{ 'button-default': selected == item.id }"
-          display="object_tag"
-          @select="sendRelated(item)"
-          :key="item.id"/>
-      </template>
-      <otu-autocomplete
-        v-else
-        @getItem="sendRelated($event)"/>
-    </template>
-
-    <template v-else>
-      <div class="horizontal-left-content full_width">
-        <switch-component
-          class="separate-bottom"
-          :options="Object.keys(smartCollectionObject)"
-          v-model="viewCollectionObject"
-          :add-option="['search']"
-          name="switch-collection"/>
-        <pin-default
-          class="separate-left"
-          section="CollectionObjects"
-          @getItem="sendRelated({ id: $event.id, object_tag: $event.label })"
-          type="CollectionObject"/>
-      </div>
-      <template v-if="smartCollectionObject[viewCollectionObject]">
-        <tag-item
-          v-for="item in smartCollectionObject[viewCollectionObject]"
-          :item="item"
-          :class="{ 'button-default': selected == item.id }"
-          display="object_tag"
-          @select="sendRelated(item)"
-          :key="item.id"/>
-      </template>
-      <autocomplete
-        v-else
-        url="/collection_objects/autocomplete"
-        label="label"
-        min="2"
-        @getItem="sendRelated($event)"
-        placeholder="Select a collection object"
-        param="term"/>
-    </template>
+      name="related"
+    />
+    <smart-selector
+      v-show="otuView"
+      class="full_width"
+      ref="otuSmartSelector"
+      model="otus"
+      target="BiologicalAssociation"
+      klass="BiologicalAssociation"
+      pin-section="Otus"
+      pin-type="Otu"
+      :autocomplete="false"
+      :otu-picker="true"
+      @selected="sendRelated"
+    />
+    <smart-selector
+      v-show="!otuView"
+      ref="smartSelector"
+      class="full_width"
+      model="collection_objects"
+      target="BiologicalAssociation"
+      klass="BiologicalAssociation"
+      pin-section="CollectionObjects"
+      pin-type="CollectionObject"
+      @selected="sendRelated"
+    />
   </fieldset>
 </template>
 
 <script>
 
-  import OtuAutocomplete from 'components/otu/otu_picker/otu_picker.vue'
-  import TagItem from '../shared/item_tag.vue'
-  import SwitchComponent from 'components/switch.vue'
-  import Autocomplete from 'components/autocomplete.vue'
-  import PinDefault from 'components/getDefaultPin.vue'
+import SmartSelector from 'components/smartSelector'
+import SwitchComponent from 'components/switch.vue'
 
-  import { GetOtuBiologicalAssociationsSmartSelector, GetCOBiologicalAssociationSmartSelector } from '../../request/resources.js'
+import { GetterNames } from '../../store/getters/getters'
 
-  export default {
-    components: {
-      TagItem,
-      SwitchComponent,
-      Autocomplete,
-      OtuAutocomplete,
-      PinDefault
+export default {
+  components: {
+    SwitchComponent,
+    SmartSelector
+  },
+  computed: {
+    otuView () {
+      return this.view === 'otu'
     },
-    computed: {
-      otuView() {
-        return this.view === 'otu'
-      }
-    },
-    data() {
-      return {
-        view: 'otu',
-        viewOtu: undefined,
-        viewCollectionObject: undefined,
-        tabOptions: ['otu', 'collection object'],
-        smartOtu: [],
-        smartCollectionObject: [],
-        selected: undefined
-      }
-    },
-    mounted() {
-      GetOtuBiologicalAssociationsSmartSelector().then(response => {
-        let result = response
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartOtu = result
-        this.viewOtu = this.firstTabWithData(result);
-      })
-      GetCOBiologicalAssociationSmartSelector().then(response => {
-        let result = response
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartCollectionObject = result
-        this.viewCollectionObject = this.firstTabWithData(result);
-      })
-    },
-    methods: {
-      sendRelated(item) {
-        this.selected = item.id
-        item['type'] = (this.otuView ? 'Otu' : 'CollectionObject')
-        if(item.hasOwnProperty('gid')) {
-          item['global_id'] = item.gid
-        }
-        this.$emit('select', item)
-      },
-      firstTabWithData(smartObject) {
-        if(Object.keys(smartObject).length) {
-          return Object.keys(smartObject)[0]
-        }
-        else {
-          return 'search'
-        }        
-      }
+    lastSave () {
+      return this.$store.getters[GetterNames.GetLastSave]
+    }
+  },
+  data () {
+    return {
+      view: 'otu',
+      tabOptions: ['otu', 'collection object']
+    }
+  },
+  watch: {
+    lastSave (newVal) {
+      this.$refs.smartSelector.refresh()
+      this.$refs.otuSmartSelector.refresh()
+    }
+  },
+  methods: {
+    sendRelated (item) {
+      item.type = item.base_class
+      this.$emit('select', item)
     }
   }
+}
 </script>

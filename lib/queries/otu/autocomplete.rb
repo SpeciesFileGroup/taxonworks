@@ -30,6 +30,8 @@ module Queries
         autocomplete_named,
         autocomplete_via_taxon_name_autocomplete,
         autocomplete_identifier_cached_like,
+        autocomplete_common_name_exact,
+        autocomplete_common_name_like
       ]
 
       queries.compact!
@@ -42,6 +44,8 @@ module Queries
         a ||= q 
         updated_queries[i] = a
       end
+
+      updated_queries
     end
 
     # @return [Array]

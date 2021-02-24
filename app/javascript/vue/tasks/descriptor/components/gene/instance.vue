@@ -78,7 +78,7 @@
     <button
       type="button"
       class="button normal-input button-submit separate-top"
-      :disabled="!validateExpression || isParensOpen || !geneAttributes.length"
+      :disabled="!validateExpression || isParensOpen || !geneAttributes.length || !descriptor.name"
       @click="sendDescriptor">
       Save
     </button>
@@ -100,12 +100,20 @@ export default {
       type: String,
       required: true
     },
-    descriptor: {
+    value: {
       type: Object,
       required: true
     }
   },
   computed: {
+    descriptor: {
+      get () {
+        return this.value
+      },
+      set () {
+        this.$emit('input', this.value)
+      }
+    },
     composeExpression() {
       let formatExpression = []
       this.expression.forEach(item => {
@@ -295,7 +303,7 @@ export default {
       this.expression.push(item)
       this.operatorMode = true
     },
-    addOperator(operator) {
+    addOperator (operator) {
       let item = {
         key: (Math.random().toString(36).substr(2, 5)),
         type: 'Operator',
@@ -305,32 +313,29 @@ export default {
       this.expression.push(item)
       this.operatorMode = false
     },
-    filterDuplicates(sequencesArray) {
+    filterDuplicates (sequencesArray) {
       return sequencesArray.map(e => e['sequence_id'])
-      .map((e, i, final) => final.indexOf(e) === i && i)
-      .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
+        .map((e, i, final) => final.indexOf(e) === i && i)
+        .filter(e => sequencesArray[e]).map(e => sequencesArray[e])
     },
-    removeAll() {
+    removeAll () {
       this.trashExpressions = this.geneAttributes.filter(item => {
         return item.id
       })
       this.expression = []
       this.sendDescriptor()
     },
-    sendDescriptor() {
-      let newDescriptor = {
-        id: this.descriptor.id,
-        gene_attribute_logic: this.composeExpression,
-        gene_attributes_attributes: this.filterDuplicates(this.geneAttributes)
-      }
+    sendDescriptor () {
+      this.descriptor.gene_attribute_logic = this.composeExpression
+      this.descriptor.gene_attributes_attributes = this.filterDuplicates(this.geneAttributes)
 
       this.trashExpressions.forEach(item => {
-        if(item.hasOwnProperty('id')) {
-          newDescriptor.gene_attributes_attributes.push({ id: item.id, _destroy: true })
+        if (item.hasOwnProperty('id')) {
+          this.descriptor.gene_attributes_attributes.push({ id: item.id, _destroy: true })
         }
       })
 
-      this.$emit('save', newDescriptor)
+      this.$emit('save', this.descriptor)
       this.trashExpressions = []
     }
   }

@@ -301,7 +301,7 @@ require 'namecase'
 #   `author` is automatically populated from `authors` if the latter is provided
 #   !! This is different behavious from TaxonName, where `verbatim_author` has priority over taxon_name_author (People) in rendering.
 #
-#   See also `cached_author_author_string` 
+#   See also `cached_author_string`
 #
 class Source::Bibtex < Source
 
@@ -362,6 +362,10 @@ class Source::Bibtex < Source
   validates :url, format: {
     with: URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
+
+  validate :italics_are_paired, unless: -> { title.blank? }
+
+  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
@@ -671,24 +675,11 @@ class Source::Bibtex < Source
     end
   end
 
-  # not used - move to a helper method if we want something not persisted
-  def bibtex_bibliography_for_zootaxa
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    v = volume
-    v = v + '(' + number + ')' unless number.blank?
-    v = [stated_year, v].compact.join(', ') if !stated_year.blank? and stated_year != year
-    bx_entry.volume = v if !v.blank? && bx_entry.try(:volume) && bx_entry.volume != v
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
-
   # rubocop:disable Metrics/MethodLength
   # @return [BibTeX::Entry]
   #   entry equivalent to self, this should round-trip with no changes
   def to_bibtex
-    b = BibTeX::Entry.new(bibtex_type: self[:bibtex_type])
+    b = BibTeX::Entry.new(bibtex_type: bibtex_type)
 
     ::BIBTEX_FIELDS.each do |f|
       if (!self.send(f).blank?) && !(f == :bibtex_type)
@@ -731,9 +722,9 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    # Over-ride `author` and `editor` if there
-    b.author = compute_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
-    b.editor = compute_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
+    # Overiden by `author` and `editor` if present
+    b.author = get_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = get_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
@@ -745,7 +736,7 @@ class Source::Bibtex < Source
   def get_author
     a = authors.load
     if a.any?
-      compute_bibtex_names('author')
+      get_bibtex_names('author')
     else
       author.blank? ? nil : author
     end
@@ -755,7 +746,7 @@ class Source::Bibtex < Source
   def namecase_bibtex_entry(bibtex_entry)
     bibtex_entry.parse_names
     bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first)if n.first
+      n.first = NameCase(n.first) if n.first
       n.last = NameCase(n.last) if n.last
       n.prefix = NameCase(n.prefix) if n.prefix
       n.suffix = NameCase(n.suffix) if n.suffix
@@ -766,12 +757,8 @@ class Source::Bibtex < Source
   # @return [BibTex::Bibliography]
   #   initialized with this Source as an entry
   def bibtex_bibliography
-    bx_entry = to_bibtex
-    bx_entry.year = '0000' if bx_entry.year.blank? # cludge to fix render problem with year
-    b = BibTeX::Bibliography.new
-    b.add(bx_entry)
-    b
-  end
+    TaxonWorks::Vendor::BibtexRuby.bibliography([self])
+ end
 
   # @param [String] style
   # @param [String] format
@@ -795,6 +782,14 @@ class Source::Bibtex < Source
   def cached_string(format = 'text')
     return nil unless (format == 'text') || (format == 'html')
     str = render_with_style('zootaxa', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zookeys', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('entomological-society-of-america', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('florida-entomologist', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('zoological-journal-of-the-linnean-society', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('systematic-biology', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-annotated-bibliography', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-fullnote-bibliography-16th-edition', format) # the current TaxonWorks default ... make a constant
+#    str = render_with_style('chicago-library-list', format) # the current TaxonWorks default ... make a constant
 
     str.sub('(0ADAD)', '') # citeproc renders year 0000 as (0ADAD)
   end
@@ -805,7 +800,6 @@ class Source::Bibtex < Source
   #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
-
     if !authors.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
         return nil
@@ -821,14 +815,33 @@ class Source::Bibtex < Source
 
   protected
 
+  def validate_year_suffix
+    a = get_author
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+      else
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+      end
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
+    end
+  end
+
+  def italics_are_paired
+    l = title.scan('<i>')&.count
+    r = title.scan('</i>')&.count
+    errors.add(:title, 'italic markup is not paired') unless l == r
+  end
+
   # @param [String] type either `author` or `editor`
   # @return [String]
   #   The BibTeX version of the name strings created from People
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
   #   This only references People, i.e. `authors` and `editors`.
   #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
-  def compute_bibtex_names(role_type)
-    send("#{role_type}_roles").collect{ |a| a.person.bibtex_name }.join(' and ')
+  def get_bibtex_names(role_type)
+    # so, we can not reload here
+    send("#{role_type}s").collect{ |a| a.bibtex_name}.join(' and ')
   end
 
   # @return [Ignored]
@@ -837,7 +850,7 @@ class Source::Bibtex < Source
       Person.transaction do
         authors_to_create.each do |shs|
           p = Person.create!(shs)
-          self.author_roles.build(person: p)
+          author_roles.build(person: p)
         end
       end
     rescue
@@ -851,13 +864,24 @@ class Source::Bibtex < Source
     if errors.empty?
       attributes_to_update = {}
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if authors.reload.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
+      attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
-      if stated_year && year && stated_year != year
-        c = c + " [#{stated_year}]"
+      if bibtex_type == 'book' && !pages.blank?
+        if pages.to_i.to_s == pages
+          c = c + " #{pages} pp."
+        else
+          c = c + " #{pages}"
+        end
       end
+      n = []
+      n += [stated_year.to_s] if stated_year && year && stated_year != year
+
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
+      n += [note.to_s] if note
+      c = c + " [#{n.join(', ')}]" unless n.empty?
+
       attributes_to_update.merge!(
         cached: c,
         cached_nomenclature_date: nomenclature_date,
@@ -1065,7 +1089,7 @@ class Source::Bibtex < Source
   end
 
   def sv_missing_roles
-    soft_validations.add(:base, 'Author roles are not selected.') if self.roles.empty?
+    soft_validations.add(:base, 'Author roles are not selected.') if self.author_roles.empty?
   end
 
   # rubocop:enable Metrics/MethodLength

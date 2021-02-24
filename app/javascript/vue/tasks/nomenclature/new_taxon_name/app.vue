@@ -2,100 +2,58 @@
   <div id="new_taxon_name_task">
     <div class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
-      <autocomplete
-        class="autocomplete-search-bar"
-        url="/taxon_names/autocomplete"
-        param="term"
-        :add-params="{ 'type[]': 'Protonym' }"
-        label="label_html"
-        placeholder="Search a taxon name..."
-        @getItem="loadTaxon"
-        :clearAfter="true"/>
+      <div class="horizontal-right-content middle">
+        <label
+          v-help.section.navbar.autosave
+          class="horizontal-left-content middle margin-medium-right">
+          <input
+            type="checkbox"
+            v-model="isAutosaveActive">
+          Autosave
+        </label>
+        <autocomplete
+          v-if="!getTaxon.id"
+          class="autocomplete-search-bar"
+          url="/taxon_names/autocomplete"
+          param="term"
+          :add-params="{ 'type[]': 'Protonym' }"
+          label="label_html"
+          placeholder="Search a taxon name..."
+          @getItem="loadTaxon"
+          :clearAfter="true"/>
+      </div>
     </div>
     <div>
       <nav-header :menu="menu"/>
       <div class="flexbox horizontal-center-content align-start">
-        <div class="ccenter item separate-right">
+        <div class="ccenter item">
           <spinner
             :full-screen="true"
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
             :logo-size="{ width: '100px', height: '100px'}"
-            v-if="loading || getSaving"/>
-          <basic-information class="separate-bottom"/>
-          <div class="new-taxon-name-block">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <source-picker class="separate-top separate-bottom"/>
-          </div>
-          <div class="new-taxon-name-block">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <status-picker class="separate-top separate-bottom"/>
-          </div>
-          <div class="new-taxon-name-block">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <relationship-picker class="separate-top separate-bottom"/>
-          </div>
-          <div
-            class="new-taxon-name-block"
-            v-if="showForThisGroup(['GenusGroup', 'FamilyGroup'], getTaxon)">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <manage-synonymy class="separate-bottom"/>
-          </div>          
-          <div class="new-taxon-name-block">
-            <type-block
-              v-if="getTaxon.id && showForThisGroup(['FamilyGroup','GenusGroup', 'SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)"
-              class="separate-top separate-bottom"/>
-          </div>
-          <div
-            class="new-taxon-name-block"
-            v-if="showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <block-layout
-              anchor="original-combination"
-              v-help.section.originalCombination.container>
-              <h3 slot="header">Original combination and classification</h3>
-              <div slot="body">
-                <pick-original-combination/>
-              </div>
-            </block-layout>
-          </div>
-          <div
-            class="new-taxon-name-block"
-            v-if="showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <gender-block class="separate-top separate-bottom"/>
-          </div>
-          <div
-            class="new-taxon-name-block"
-            v-if="getTaxon.id && showForThisGroup(['SpeciesGroup','GenusGroup', 'SpeciesAndInfraspeciesGroup'], getTaxon)">
-            <spinner
-              :show-spinner="false"
-              :show-legend="false"
-              v-if="!getTaxon.id"/>
-            <etymology class="separate-top separate-bottom"/>
-          </div>
+            v-if="loading"/>
+          <template v-for="(visibleSection, componentName) in menu">
+            <component
+              v-if="visibleSection"
+              class="margin-medium-bottom"
+              :key="componentName"
+              :is="`${componentName.replace(' ', '')}Section`"/>
+          </template>
         </div>
         <div
           v-if="getTaxon.id"
-          class="cright item separate-left">
+          class="cright item margin-medium-left">
           <div id="cright-panel">
+            <div class="panel content margin-medium-bottom">
+              <autocomplete
+                url="/taxon_names/autocomplete"
+                param="term"
+                :add-params="{ 'type[]': 'Protonym' }"
+                label="label_html"
+                placeholder="Search a taxon name..."
+                @getItem="loadTaxon"
+                :clearAfter="true"/>
+            </div>
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
             <soft-validation class="separate-top"/>
@@ -109,23 +67,23 @@
 <script>
 import Autocomplete from 'components/autocomplete'
 import showForThisGroup from './helpers/showForThisGroup'
-import SourcePicker from './components/sourcePicker.vue'
-import RelationshipPicker from './components/relationshipPicker.vue'
-import StatusPicker from './components/statusPicker.vue'
+import AuthorSection from './components/sourcePicker.vue'
+import RelationshipSection from './components/relationshipPicker.vue'
+import StatusSection from './components/statusPicker.vue'
 import NavHeader from './components/navHeader.vue'
 import TaxonNameBox from './components/taxonNameBox.vue'
-import Etymology from './components/etymology.vue'
-import GenderBlock from './components/gender.vue'
+import EtymologySection from './components/etymology.vue'
+import GenderSection from './components/gender.vue'
 import CheckChanges from './components/checkChanges.vue'
-import TypeBlock from './components/type.vue'
-import BasicInformation from './components/basicInformation.vue'
-import PickOriginalCombination from './components/pickOriginalCombination.vue'
-import ManageSynonymy from './components/manageSynonym'
-
+import TypeSection from './components/type.vue'
+import BasicinformationSection from './components/basicInformation.vue'
+import OriginalcombinationSection from './components/pickOriginalCombination.vue'
+import ManagesynonymySection from './components/manageSynonym'
+import ClassificationSection from './components/classification.vue'
 import SoftValidation from './components/softValidation.vue'
 import Spinner from 'components/spinner.vue'
-import BlockLayout from './components/blockLayout'
 
+import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -133,21 +91,21 @@ import { ActionNames } from './store/actions/actions'
 export default {
   components: {
     Autocomplete,
-    Etymology,
-    SourcePicker,
     Spinner,
     NavHeader,
-    StatusPicker,
     TaxonNameBox,
-    RelationshipPicker,
-    BasicInformation,
+    CheckChanges,
+    EtymologySection,
+    AuthorSection,
+    StatusSection,
+    RelationshipSection,
+    BasicinformationSection,
     SoftValidation,
-    BlockLayout,
-    ManageSynonymy,
-    PickOriginalCombination,
-    TypeBlock,
-    GenderBlock,
-    CheckChanges
+    ManagesynonymySection,
+    OriginalcombinationSection,
+    TypeSection,
+    GenderSection,
+    ClassificationSection
   },
   computed: {
     getTaxon () {
@@ -156,16 +114,26 @@ export default {
     getSaving () {
       return this.$store.getters[GetterNames.GetSaving]
     },
+    isAutosaveActive: {
+      get () {
+        return this.$store.getters[GetterNames.GetAutosave]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetAutosave, value)
+      }
+    },
     menu () {
       return {
         'Basic information': true,
-        'Author': true,
-        'Status': true,
-        'Relationship': true,
-        'Type': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        Author: true,
+        Status: true,
+        Relationship: true,
+        'Manage synonymy': showForThisGroup(['GenusGroup', 'FamilyGroup'], this.getTaxon),
+        Type: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'FamilyGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
         'Original combination': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
-        'Etymology': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
-        'Gender': showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon)
+        Classification: true,
+        Gender: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
+        Etymology: showForThisGroup(['SpeciesGroup', 'GenusGroup', 'SpeciesAndInfraspeciesGroup'], this.getTaxon),
       }
     }
   },
@@ -175,16 +143,21 @@ export default {
     }
   },
   mounted () {
-    let that = this
-    let urlParams = new URLSearchParams(window.location.search)
+    const that = this
+    const urlParams = new URLSearchParams(window.location.search)
     let taxonId = urlParams.get('taxon_name_id')
+    const value = convertType(sessionStorage.getItem('task::newtaxonname::autosave'))
+
+    if (value !== null) {
+      this.isAutosaveActive = value
+    }
 
     if(!taxonId) {
       taxonId = location.pathname.split('/')[4]
     }
 
     window.addEventListener('scroll', this.scrollBox)
-    
+
     this.initLoad().then(function () {
       if (/^\d+$/.test(taxonId)) {
         that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(function () {
@@ -202,9 +175,15 @@ export default {
     this.addShortcutsDescription()
   },
   methods: {
-    scrollBox () {
-      let element = document.querySelector('#new_taxon_name_task #cright-panel')
+    scrollBox (event) {
+      const element = document.querySelector('#new_taxon_name_task #cright-panel')
+      const softValidationContainer = document.querySelector('#new_taxon_name_task .soft-validation-box')
+      if (softValidationContainer) {
+        const innerHeight = window.innerHeight
+        const elementRect = softValidationContainer.getBoundingClientRect()
 
+        softValidationContainer.style.maxHeight = `${innerHeight - elementRect.top - 20}px`
+      }
       if (element) {
         if (((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > 154) && (this.isMinor())) {
           element.classList.add('cright-fixed-top')
@@ -219,6 +198,7 @@ export default {
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

@@ -28,12 +28,12 @@ class Sequence < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Notes
   include Shared::OriginRelationship
   include Shared::ProtocolRelationships
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::IsData
 
   is_origin_for 'Sequence'
 
@@ -72,7 +72,7 @@ class Sequence < ApplicationRecord
   # @param used_on [String] required, one of `GeneAttribute` or `SequenceRelationship`
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
-  def self.used_recently(used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '')
     t = case used_on
         when 'GeneAttribute'
           GeneAttribute.arel_table
@@ -85,7 +85,9 @@ class Sequence < ApplicationRecord
     # i is a select manager
     i = t.project(t['sequence_id'], t['updated_at']).from(t)
       .where(t['updated_at'].gt( 1.weeks.ago ))
-      .order(t['updated_at'])
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
+      .order(t['updated_at'].desc)
 
     # i is a select manager
     i = case used_on 
@@ -94,10 +96,14 @@ class Sequence < ApplicationRecord
             .where(
               t['updated_at'].gt(1.weeks.ago)
           )
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'])
         else
           t.project(t['sequence_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
             .order(t['updated_at'])
         end
 
@@ -113,35 +119,29 @@ class Sequence < ApplicationRecord
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['sequence_id'].eq(p['id'])))
         end
 
-    Sequence.joins(j).distinct.limit(10)
+    Sequence.joins(j).pluck(:sequence_id).uniq
   end
 
   # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
     h = {
       recent: [],
       quick: [],
       pinboard: Sequence.pinned_by(user_id).where(project_id: project_id).to_a
     }
 
-    b = Sequence.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC')
-
-    if target
-      a = target.tableize.to_sym
-      h[:recent] = (
-        b.limit(3).to_a + 
-        Sequence.joins(a).where(project_id: project_id, a => {created_by_id: user_id}).used_recently(target).limit(10).to_a
-      ).uniq
+    if r.empty?
+      h[:quick] = Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = b.limit(10).to_a
+      h[:recent] = Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          Sequence.where('"sequences"."id" IN (?)', r.first(10) ).to_a).uniq
     end
 
-    h[:quick] = (Sequence.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
-
-
 
   protected
 

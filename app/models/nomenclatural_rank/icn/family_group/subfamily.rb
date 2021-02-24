@@ -10,6 +10,10 @@ class NomenclaturalRank::Icn::FamilyGroup::Subfamily < NomenclaturalRank::Icn::F
     taxon_name.errors.add(:name, 'name must end in -oideae') if not(taxon_name.name =~ /.*oideae\Z/)
   end
 
+  def self.valid_name_ending
+    'oideae'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icn::FamilyGroup::Family.to_s]
   end

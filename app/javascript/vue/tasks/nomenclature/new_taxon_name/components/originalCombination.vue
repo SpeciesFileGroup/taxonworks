@@ -25,16 +25,18 @@
           :key="item.id">
           <autocomplete
             url="/taxon_names/autocomplete"
-            label="label"
+            label="label_html"
             min="2"
             :disabled="disabled"
+            clear-after
             @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
             event-send="autocomplete"
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
             param="term"/>
           <span
-            class="handle"
-            data-icon="scroll-v"/>
+            class="handle button circle-button button-submit"
+            title="Press and hold to drag input"
+            data-icon="w_scroll-v"/>
         </div>
         <div
           class="original-combination-item horizontal-left-content middle"
@@ -46,8 +48,9 @@
             </span>
           </div>
           <span
-            class="handle"
-            data-icon="scroll-v"/>
+            class="handle button circle-button button-submit"
+            title="Press and hold to drag input"
+            data-icon="w_scroll-v"/>
           <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>
           <span
             class="circle-button btn-delete"
@@ -65,6 +68,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import Autocomplete from 'components/autocomplete.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -228,11 +232,13 @@ export default {
     },
 
     removeCombination: function (value) {
-      let that = this
+      if(window.confirm('Are you sure you want to remove this combination?')) {
+        let that = this
 
-      this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
-        that.$emit('delete', response)
-      })
+        this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
+          that.$emit('delete', response)
+        })
+      }
     },
     onMove: function (evt) {
       this.newPosition = evt.draggedContext.futureIndex
@@ -279,7 +285,7 @@ export default {
       })
     },
     loadCombinations: function (id) {
-      this.$http.get(`/taxon_names/${id}/original_combination.json`).then(response => {
+      AjaxCall('get', `/taxon_names/${id}/original_combination.json`).then(response => {
         this.$store.commit(MutationNames.SetOriginalCombination, response.body)
       })
     }

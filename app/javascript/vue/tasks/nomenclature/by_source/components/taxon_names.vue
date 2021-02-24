@@ -20,6 +20,7 @@
 
   import TaxonNamesTable from './tables/taxon_names_table.vue'
   import SpinnerComponent from 'components/spinner.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     components: {
@@ -54,7 +55,7 @@
     methods: {
       getCites() {
         this.showSpinner = true
-        this.$http.get('/citations.json?verbose_object=true&citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
+        AjaxCall('get', '/citations.json?verbose_object=true&citation_object_type=TaxonName&source_id=' + this.sourceID).then(response => {
           this.taxon_names_cites_list = response.body;
           this.showSpinner = false
         });

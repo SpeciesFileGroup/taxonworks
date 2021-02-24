@@ -1,0 +1,8 @@
+<h1> Export project database </h1>
+<div>
+  <%= form_tag(download_taxonworks_project_task_path, method: :get) do %>
+    <p>Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)</p>
+
+    <%= submit_tag :Download, class: ['normal-input', :button, 'button-default'] -%>
+  <% end %>
+</div>

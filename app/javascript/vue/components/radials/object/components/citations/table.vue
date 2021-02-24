@@ -22,7 +22,7 @@
           <td class="vue-table-options">
             <a
               class="button-default circle-button btn-citation"
-              :href="`/tasks/nomenclature/by_source/${item.source_id}`"
+              :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
               target="blank"/>
             <pdf-button
               v-if="item.hasOwnProperty('target_document')"

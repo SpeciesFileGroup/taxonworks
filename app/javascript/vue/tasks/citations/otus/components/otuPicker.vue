@@ -37,6 +37,7 @@
 
   import Autocomplete from 'components/autocomplete.vue'
   import Modal from 'components/modal.vue'
+  import AjaxCall from 'helpers/ajaxCall'
 
   export default {
     data: function () {
@@ -63,7 +64,7 @@
     },
     methods: {
       loadOtu: function (id) {
-        this.$http.get(`/otus/${id}.json`).then(response => {
+        AjaxCall('get', `/otus/${id}.json`).then(response => {
           this.$store.commit(MutationNames.SetOtuSelected, response.body)
           this.showModal = false
         })

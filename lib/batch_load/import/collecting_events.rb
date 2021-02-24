@@ -67,7 +67,7 @@ module BatchLoad
             #   1) create the Georeference, using the newly created collecting_event
             gr = Georeference::GeoLocate.create!(collecting_event: ce)
             #   2) build a fake iframe response in the form '52.65|-106.333333|3036|Unavailable'
-            text = "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"
+            text = "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error).to_f}|Unavailable"
             #   3) use that fake to stimulate the parser to create the object
             gr.iframe_response = text
             gr.save

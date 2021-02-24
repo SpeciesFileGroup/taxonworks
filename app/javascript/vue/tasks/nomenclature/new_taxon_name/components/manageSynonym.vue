@@ -1,30 +1,21 @@
 <template>
-  <div v-if="isInvalid && validTaxon && childrenList.length">
-    <spinner-component
-      :full-screen="true"
-      legend="Saving changes..."
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="saving"/>
-    <spinner-component
-      legend="Loading..."
-      :logo-size="{ width: '100px', height: '100px'}"
-      v-if="isLoading"/>
-    <div
-      class="basic-information panel">
-      <a
-        name="author"
-        class="anchor"/>
-      <div class="header flex-separate middle">
-        <h3
-        v-help.section.author.container
-        >Manage synonymy</h3>
-        <expand
-          @changed="expanded = !expanded"
-          :expanded="expanded"/>
-      </div>
+  <div>
+    <block-layout
+      anchor="original-combination"
+      v-if="isInvalid && validTaxon && childrenList.length"
+      v-help.section.originalCombination.container>
+      <h3 slot="header">Manage synonymy</h3>
       <div
-        class="body"
-        v-show="expanded">
+        slot="body">
+        <spinner-component
+          :full-screen="true"
+          legend="Saving changes..."
+          :logo-size="{ width: '100px', height: '100px'}"
+          v-if="saving"/>
+        <spinner-component
+          legend="Loading..."
+          :logo-size="{ width: '100px', height: '100px'}"
+          v-if="isLoading"/>
         <div>
           <p>This name is invalid. The valid name is <span v-html="validTaxon.name"/></p>
           <div class="horizontal-right-content">
@@ -39,7 +30,7 @@
               None
             </button>
           </div>
-          <table class="full_width">
+          <table class="full_width margin-small-bottom margin-small-top">
             <thead>
               <tr>
                 <th>Child</th>
@@ -79,7 +70,7 @@
                   <input
                     :value="children.id"
                     type="checkbox"
-                    v-model="selected"/>
+                    v-model="selected">
                 </td>
               </tr>
             </tbody>
@@ -92,31 +83,31 @@
           </button>
         </div>
       </div>
-      <modal-component
-        v-if="showModal"
-        @close="showModal = false">
-        <h3 slot="header">Move taxon names</h3>
-        <div slot="body">
-          <p>
-            This will change all taxon parents. Are you sure you want to proceed? Type "MOVE" to proceed.
-          </p>
-          <input
-            type="text"
-            class="full_width"
-            v-model="moveInput"
-            placeholder="Wirte MOVE to continue">
-        </div>
-        <div slot="footer">
-          <button 
-            type="button"
-            class="button normal-input button-submit"
-            :disabled="checkInput"
-            @click="saveTaxonNames()">
-            Move all
-          </button>
-        </div>
-      </modal-component>
-    </div>
+    </block-layout>
+    <modal-component
+      v-if="showModal"
+      @close="showModal = false">
+      <h3 slot="header">Move taxon names</h3>
+      <div slot="body">
+        <p>
+          This will change all taxon parents. Are you sure you want to proceed? Type "MOVE" to proceed.
+        </p>
+        <input
+          type="text"
+          class="full_width"
+          v-model="moveInput"
+          placeholder="Wirte MOVE to continue">
+      </div>
+      <div slot="footer">
+        <button
+          type="button"
+          class="button normal-input button-submit"
+          :disabled="checkInput"
+          @click="saveTaxonNames()">
+          Move all
+        </button>
+      </div>
+    </modal-component>
   </div>
 </template>
 
@@ -124,18 +115,19 @@
 
 import { GetterNames } from '../store/getters/getters'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import Expand from './expand.vue'
+import BlockLayout from 'components/blockLayout'
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import Autocomplete from 'components/autocomplete'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
-    Expand,
     ModalComponent,
     RadialAnnotator,
     SpinnerComponent,
-    Autocomplete
+    Autocomplete,
+    BlockLayout
   },
   computed: {
     taxon() {
@@ -152,24 +144,29 @@ export default {
     return {
       childrenList: [],
       selected: [],
-      expanded: true,
       validTaxon: undefined,
       showModal: false,
       moveInput: '',
       saving: false,
       preSelected: [],
-      isLoading: false
+      isLoading: false,
+      maxSelect: 10
     }
   },
   watch: {
     taxon: {
       handler(newVal) {
         if(newVal && newVal.id != newVal.cached_valid_taxon_name_id) {
-          this.$http.get(`/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
+          AjaxCall('get', `/taxon_names/${this.taxon.cached_valid_taxon_name_id}.json`).then(res => {
             this.validTaxon = res.body
             this.isLoading = true
-            this.$http.get(`/taxon_names.json?taxon_name_id[]=${this.taxon.id}&descendants=true`).then(response => {
-              this.childrenList = response.body.filter(item => { return item.id != this.taxon.id })
+            AjaxCall('get', '/taxon_names.json', {
+              params: {
+                taxon_name_id: [this.taxon.id],
+                descendants: true,
+                taxon_name_type: 'Protonym'
+              }}).then(response => {
+              this.childrenList = response.body.filter(item => { return item.id !== this.taxon.id })
               this.isLoading = false
             })
           })
@@ -188,31 +185,30 @@ export default {
       }
     },
     confirmSave() {
-      if(this.selected.length >= 10) {
+      if(this.selected.length >= this.maxSelect) {
         this.showModal = true
-      }
-      else {
+      } else {
         if(window.confirm(`Are you sure you want to proceed?`)) {
           this.saveTaxonNames()
         }
       }
     },
     saveTaxonNames() {
-      let promises = []
-      
+      const promises = []
+
       this.saving = true
       this.showModal = false
       this.moveInput = ''
 
       this.selected.forEach((id, index) => {
-        let findPreSelected = this.preSelected.find(children => {
-          return children.childrenId == id
+        console.log(id)
+        const findPreSelected = this.preSelected.find(children => {
+          return children.childrenId === id
         })
-        if(findPreSelected) {
-          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
-        }
-        else {
-          promises.push(this.$http.patch(`/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
+        if (findPreSelected) {
+          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: findPreSelected.parentId } }))
+        } else {
+          promises.push(AjaxCall('patch', `/taxon_names/${id}`, { taxon_name: { parent_id: this.taxon.cached_valid_taxon_name_id } }))
         }
       })
 
@@ -220,18 +216,17 @@ export default {
         this.childrenList = this.childrenList.filter(children => {
           return !this.selected.includes(children.id)
         })
-        this.selected = [],
+        this.selected = []
         this.preSelected = []
         this.saving = false
         TW.workbench.alert.create(`Taxon name was successfully moved.`, 'notice')
       }, (response) => {
-        TW.workbench.alert.create(`Something went wrong: ${JSON.stringify(response.body)}`, 'error')
         this.saving = false
       })
     },
     addPreSelected(childrenId, parentId) {
-      this.preSelected.push({ 
-        childrenId: childrenId, 
+      this.preSelected.push({
+        childrenId: childrenId,
         parentId: parentId
       })
     }

@@ -6,8 +6,9 @@
 </template>
 
 <script>
-import { GetterNames } from'../store/getters/getters'
-import { MutationNames } from'../store/mutations/mutations'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   computed: {
@@ -17,7 +18,7 @@ export default {
   },
   methods: {
     removeCitation: function (item) {
-      this.$http.delete('/citations/' + item.id).then(() => {
+      AjaxCall('delete', '/citations/' + item.id).then(() => {
         this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
         this.$store.commit(MutationNames.RemoveCitationSelected)
         this.$store.commit(MutationNames.SetOtuCitationsList, [])

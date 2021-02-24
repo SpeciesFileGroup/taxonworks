@@ -2,35 +2,27 @@
   <fieldset>
     <legend>Sequence</legend>
     <smart-selector
-      class="separate-bottom"
-      :options="tabs"
-      v-model="view"/>
-    <ul
-      v-if="isList"
-      class="no_bullets">
-      <li
-        v-for="item in lists[view]"
-        :key="item.id">
-        <label>
-          <input
-            type="radio"
-            @click="sendSelected(item.id)">
-          <span v-html="item.object_tag"/>
-        </label>
-      </li>
-    </ul>
-    <sequence-picker
-      :clear-after="true"
-      @getItem="sendSelected($event.id)"/>
+      class="margin-medium-bottom"
+      model="sequences"
+      pin-section="Sequences"
+      pin-type="Sequence"
+      @selected="sendSelected"
+      :add-tabs="['search']"
+      :search="false"
+    >
+      <sequence-picker
+        slot="search"
+        :clear-after="true"
+        @getItem="sendSelected($event.id)"/>
+    </smart-selector>
   </fieldset>
 </template>
 
 <script>
-import SmartSelector from 'components/switch'
+
+import SmartSelector from 'components/smartSelector'
 import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
-import { GetSequenceSmartSelector, GetSequence } from '../../request/resources.js'
-import OrderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
-import SelectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption.js'
+
 export default {
   props: {
     title: {
@@ -42,14 +34,6 @@ export default {
     SmartSelector,
     SequencePicker
   },
-  computed: {
-    isList() {
-      return Object.keys(this.lists).includes(this.view)
-    },
-    selectedLabel() {
-      return this.selected.hasOwnProperty('label_html') ? this.selected.label_html : this.selected.object_tag
-    }
-  },
   data () {
     return {
       lists: [],
@@ -58,20 +42,9 @@ export default {
       selected: undefined
     }
   },
-  mounted() {
-    GetSequenceSmartSelector().then(response => {
-      this.tabs = Object.keys(response.body)
-      this.tabs.push('search')
-      this.lists = response.body
-    })
-  },
   methods: {
-    sendSelected(id) {
-      GetSequence(id).then(response => {
-        console.log(response)
-        this.selected = response
-        this.$emit('selected', response)        
-      })
+    sendSelected (sequence) {
+      this.$emit('selected', sequence)
     }
   }
 }

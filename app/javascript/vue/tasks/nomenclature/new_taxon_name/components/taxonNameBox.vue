@@ -9,40 +9,52 @@
         <button
           @click="deleteTaxon()"
           type="button"
-          class="normal-input button button-delete align-end">Delete</button>
+          class="normal-input button button-delete">Delete</button>
       </div>
     </modal>
     <div class="panel basic-information">
       <div class="content header">
-        <h3
-          v-if="taxon.id"       
+        <div
+          v-if="taxon.id"
           class="flex-separate middle">
           <a
-            v-shortkey="[getMacKey(), 't']"
+            v-shortkey="[getMacKey(), 'b']"
             @shortkey="switchBrowse()"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
             class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
           </a>
-          <div class="taxon-options">
-            <pin-object
-              v-if="taxon.id"
-              :pin-object="taxon['pinboard_item']"
-              :object-id="taxon.id"
-              :type="taxon.base_class"/>
-            <default-confidence :global-id="taxon.global_id"/>
-            <radial-annotator :global-id="taxon.global_id" />
-            <otu-radial
-              :taxon-id="taxon.id"
-              :taxon-name="taxon.object_tag"/>
-            <radial-object :global-id="taxon.global_id" />
-            <span
-              v-if="taxon.id"
-              @click="showModal = true"
-              class="circle-button btn-delete"/>
+          <div class="flex-wrap-column">
+            <div
+              v-shortkey="[getMacKey(), 'o']"
+              @shortkey="switchBrowseOtu()"
+              class="horizontal-right-content">
+              <radial-annotator :global-id="taxon.global_id" />
+              <otu-radial
+                :object-id="taxon.id"
+                :redirect="false"
+              />
+              <otu-radial
+                ref="browseOtu"
+                :object-id="taxon.id"
+                :taxon-name="taxon.object_tag"/>
+              <radial-object :global-id="taxon.global_id" />
+            </div>
+            <div class="horizontal-right-content">
+              <pin-object
+                v-if="taxon.id"
+                :pin-object="taxon['pinboard_item']"
+                :object-id="taxon.id"
+                :type="taxon.base_class"/>
+              <default-confidence :global-id="taxon.global_id"/>
+              <span
+                v-if="taxon.id"
+                @click="showModal = true"
+                class="circle-button btn-delete"/>
+            </div>
           </div>
-        </h3>
+        </div>
         <h3
           class="taxonname"
           v-else>New</h3>
@@ -61,6 +73,8 @@ import PinObject from 'components/pin.vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Modal from 'components/modal.vue'
+import getMacKey from 'helpers/getMacKey'
+import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -112,11 +126,12 @@ export default {
     }
   },
   mounted: function () {
-    TW.workbench.keyboard.createLegend(((navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt') + '+' + 't'), 'Go to browse nomenclature', 'New taxon name')
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'b'), 'Go to browse nomenclature', 'New taxon name')
+    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'o'), 'Go to browse otus', 'New taxon name')
   },
   methods: {
     deleteTaxon: function () {
-      this.$http.delete(`/taxon_names/${this.taxon.id}`).then(response => {
+      AjaxCall('delete', `/taxon_names/${this.taxon.id}`).then(response => {
         this.reloadPage()
       })
     },
@@ -133,24 +148,22 @@ export default {
     switchBrowse: function () {
       window.location.replace(`/tasks/nomenclature/browse?taxon_name_id=${this.taxon.id}`)
     },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-    },
-    loadParent() {
-      if(this.taxon.id && this.parent.id) {
+    getMacKey: getMacKey,
+    loadParent () {
+      if (this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
           window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.parent_id}`, '_self')
         })
       }
+    },
+    switchBrowseOtu () {
+      this.$refs.browseOtu.openApp()
     }
   }
 }
 </script>
 <style lang="scss">
 #taxonNameBox {
-  .taxon-options {
-    display: flex;
-  }
   .annotator {
     width:30px;
     margin-left: 14px;

@@ -36,6 +36,10 @@ input[type=checkbox].increment {
   background-image: image-url('unlocked.svg');
 }
 
+button {
+  font-size: 12px;
+}
+
 input[type=checkbox]:checked + label.lock {
   background-image: image-url('locked.svg');
   box-shadow: inset 0px 1px 2px 0px $navigation_border;
@@ -121,6 +125,22 @@ select {
   text-align: left;
 }
 
+.date-input {
+  width: 140px;
+}
+
+.input-xsmall-width {
+  width: 80px;
+}
+
+.input-small-width {
+  width: 100px;
+}
+
+.input-medium-width {
+  width: 200px;
+}
+
 form div.required {
   display: inline;
   div.or {
@@ -177,5 +197,5 @@ h4 {
 }
 
 .normal-input {
-  height: $normal-input-size;
+  min-height: $normal-input-size;
 }

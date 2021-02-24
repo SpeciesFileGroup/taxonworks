@@ -11,6 +11,10 @@ class NomenclaturalRank::Icn::FamilyGroup::Subtribe < NomenclaturalRank::Icn::Fa
     taxon_name.errors.add(:name, 'name must not end in -virinae') if (taxon_name.name =~ /.*virinae\Z/)
   end
 
+  def self.valid_name_ending
+    'inae'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icn::FamilyGroup::Tribe.to_s]
   end

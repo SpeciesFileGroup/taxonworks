@@ -1,5 +1,4 @@
 <template>
-
   <div
     v-if="checkSoftValidation()"
     :class="{ 'validation-warning' : errors }"
@@ -7,15 +6,18 @@
     <div class="header flex-separate">
       <h3>Soft Validation</h3>
     </div>
-    <div class="body">
+    <div
+      class="body overflow-y-auto">
       <div
         v-for="key in Object.keys(errors)"
         v-if="errors[key].list.length">
         <hr>
         <h3>{{ errors[key].title }}</h3>
         <hr>
-        <ul class="no_bullets">
-          <li v-for="error in errors[key].list">
+        <ul
+          v-for="list in errors[key].list"
+          class="no_bullets">
+          <li v-for="error in list.validations.soft_validations">
             <span data-icon="warning"/><span v-html="error.message"/>
           </li>
         </ul>
@@ -37,7 +39,9 @@ export default {
   },
   methods: {
     checkSoftValidation: function () {
-      return (this.errors.taxon_name.list.length || this.errors.taxonStatusList.list.length || this.errors.taxonRelationshipList.list.length)
+      return (this.errors.taxon_name.list.length ||
+      this.errors.taxonStatusList.list.length ||
+      this.errors.taxonRelationshipList.list.length)
     }
   }
 }

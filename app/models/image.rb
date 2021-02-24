@@ -38,6 +38,10 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
+# @!attribute pixels_to_centimeter
+#   @return [Float, nil]
+#      used to generate scale bars on the fly
+#
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -229,15 +233,14 @@ class Image < ApplicationRecord
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
 
+    begin
     # img.crop(x, y, width, height, true)
-    cropped = img.crop(
-      params[:x].to_i,
-      params[:y].to_i,
-      params[:width].to_i,
-      params[:height].to_i,
-      true
-    )
-    img.destroy!
+      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
+    rescue RuntimeError
+      cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
+    ensure
+      img.destroy!
+    end
     cropped
   end
 
@@ -303,6 +306,59 @@ class Image < ApplicationRecord
   # @return [String]
   def self.cropped_blob(params)
     self.to_blob!(cropped(params))
+  end
+
+  # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
+  # @return [Scope]
+  #   the max 10 most recently used images, as `used_on`
+  def self.used_recently(user_id, project_id, used_on = '')
+    i = arel_table
+    d = Depiction.arel_table
+
+    # i is a select manager
+    j = d.project(d['image_id'], d['updated_at'], d['depiction_object_type']).from(d)
+      .where(d['updated_at'].gt( 1.weeks.ago ))
+      .where(d['created_by_id'].eq(user_id))
+      .where(d['project_id'].eq(project_id))
+      .order(d['updated_at'].desc)
+
+    z = j.as('recent_i')
+
+    k = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+      z['image_id'].eq(i['id']).and(z['depiction_object_type'].eq(used_on))
+    ))
+
+    joins(k).distinct.pluck(:id)
+  end
+
+  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @return [Hash] images optimized for user selection
+  def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
+    h = {
+      quick: [],
+      pinboard: Image.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if target && !r.empty?
+      h[:recent] = (
+        Image.where('"images"."id" IN (?)', r.first(5) ).to_a +
+        Image.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+
+      h[:quick] = (
+        Image.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Image.where('"images"."id" IN (?)', r.first(4) ).to_a)
+        .uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+    else
+      h[:recent] = Image.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Image.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).order('updated_at DESC')
+    end
+
+    h
   end
 
   protected

@@ -4,32 +4,57 @@
       v-if="sorting"
       :full-screen="true"
       legend="Loading..."/>
-    <div class="flex-separate">
+    <div class="flex-separate margin-small-bottom">
       <div class="horizontal-left-content">
-        <div class="header-box middle separate-right">
-          <span v-if="taxon">Scoped: {{ taxon.name }}</span>
-        </div>
-        <div class="header-box middle separate-left">
-          <select class="normal-input">
-            <option
-              v-for="field in fieldset"
-              :key="field.value"
-              :value="field.value">
-              {{ field.label }}
-            </option>
-          </select>
-        </div>
+        <button
+          class="button normal-input button-default margin-small-right"
+          type="button"
+          @click="selectAll">
+          Select all
+        </button>
+        <button
+          class="button normal-input button-default margin-small-right"
+          type="button"
+          @click="unselect">
+          Unselect all
+        </button>
+        <add-to-matrix
+          :selected-ids="selectedIds"/>
       </div>
-      <span
-        class="middle cursor-pointer"
-        data-icon="reset"
-        @click="resetList">Reset order</span>
+      <ul class="no_bullets context-menu">
+        <li>
+          <label class="middle">
+            <input
+              v-model="withOtus"
+              type="checkbox">
+            Show taxon names with OTUs only
+          </label>
+        </li>
+        <li class="horizontal-left-content">
+          <div class="header-box middle separate-right">
+            <span v-if="taxon">Scoped: {{ taxon.name }}</span>
+          </div>
+          <div class="header-box middle separate-left">
+            <select class="normal-input">
+              <option
+                v-for="field in fieldset"
+                :key="field.value"
+                :value="field.value">
+                {{ field.label }}
+              </option>
+            </select>
+          </div>
+        </li>
+      </ul>
     </div>
     <table
       class="full_width"
       v-if="tableRanks">
       <thead>
         <tr>
+          <th>
+            Selected
+          </th>
           <th 
             v-if="renderFromPosition <= index"
             v-for="(header, index) in tableRanks.column_headers"
@@ -40,21 +65,30 @@
         </tr>
       </thead>
       <tbody>
-        <tr 
-          v-for="(row, index) in tableRanks.data"
-          class="contextMenuCells btn btn-neutral"
-          :class="{ even: (index % 2)}">
-          <template v-for="(header, hindex) in tableRanks.column_headers">
-            <td v-if="renderFromPosition <= hindex">
-              {{ row[hindex] }}
+        <template v-for="(row, index) in tableRanks.data">
+          <tr
+            v-if="withOtus ? row[1] : true && filterRow(index)"
+            class="contextMenuCells btn btn-neutral"
+            :class="{ even: (index % 2)}">
+            <td>
+              <input
+                :disabled="!row[1]"
+                :value="row[1]"
+                v-model="selectedIds"
+                type="checkbox">
             </td>
-          </template>
-          <td>
-            <modal-list
-              :otu-id="getValueFromTable('otu_id', index)"
-              :taxon-id="getValueFromTable('taxon_name_id', index)"/>
-          </td>
-        </tr>
+            <template v-for="(header, hindex) in tableRanks.column_headers">
+              <td v-if="renderFromPosition <= hindex">
+                {{ row[hindex] }}
+              </td>
+            </template>
+            <td>
+              <modal-list
+                :otu-id="getValueFromTable('otu_id', index)"
+                :taxon-name-id="getValueFromTable('taxon_name_id', index)"/>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -65,21 +99,22 @@
 import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from 'components/spinner'
-import { setTimeout } from 'timers';
+import addToMatrix from './addToMatrix'
 
 export default {
   components: {
     ModalList,
-    SpinnerComponent
+    SpinnerComponent,
+    addToMatrix
   },
   props: {
     tableList: {
       type: Object,
       default: () => { return {} }
     },
-    ranksSelected: {
-      type: Array,
-      default: () => { return [] }
+    filter: {
+      type: Object,
+      default: undefined
     }
   },
   computed: {
@@ -108,7 +143,9 @@ export default {
         set: ['observation_count', 'observation_depictions', 'descriptors_scored']
       },
       ascending: false,
-      sorting: false
+      sorting: false,
+      withOtus: false,
+      selectedIds: []
     }
   },
   watch: {
@@ -131,12 +168,6 @@ export default {
     }
   },
   methods: {
-    isFiltered (header) {
-      return this.show.includes(header) || this.selectedFieldSet.set.includes(header) || this.ranksSelected.includes(header)
-    },
-    resetList() {
-      this.tableRanks = this.orderRanksTable(this.tableList)
-    },
     getRankNames (list, nameList = []) {
       for (var key in list) {
         if (typeof list[key] === 'object') {
@@ -148,26 +179,6 @@ export default {
         }
       }
       return nameList
-    },
-    orderRanksTable (list) {
-      let newDataList = []
-      let ranksOrder = this.rankNames.filter(rank => {
-        return list.column_headers.includes(rank)
-      })
-
-      ranksOrder = ranksOrder.concat(list.column_headers.filter(item => {
-        return !ranksOrder.includes(item)
-      }))
-
-      ranksOrder.forEach((rank, index) => {
-        const indexHeader = list.column_headers.findIndex(item => { return item === rank })
-        if (indexHeader >= 0) {
-          list.data.forEach((row, rIndex) => {
-            newDataList[rIndex] ? newDataList[rIndex].push(row[indexHeader]) : newDataList[rIndex] = [row[indexHeader]]
-          })
-        }
-      })
-      return { column_headers: ranksOrder, data: newDataList }
     },
     getValueFromTable (header, rowIndex) {
       const otuIndex = this.tableRanks.column_headers.findIndex(item => {
@@ -196,6 +207,18 @@ export default {
           this.sorting = false
         })
       }, 50)
+    },
+    filterRow (index) {
+      return Object.keys(this.filter).every(key => {
+        const value = this.getValueFromTable(key, index)
+        return (this.filter[key] === undefined) || (this.filter[key] ? value : !value)
+      })
+    },
+    unselect () {
+      this.selectedIds = []
+    },
+    selectAll () {
+      this.selectedIds = this.tableList.data.filter(column => column[1] != null).map(column => column[1])
     }
   }
 }

@@ -5,17 +5,9 @@
     <div class="flex-separate middle">
 
       <div class="middle">
-        <div class="separate-right">
-          <%= form_tag( browse_nomenclature_task_path, method: :get) do %>
-            <%= render  'workbench/elements/forms/ajax_select',
-              controller: '/taxon_names',
-              object: '',
-              method:  'taxon_name_id',
-              send_select: true,
-              tag_id:  'taxon_name_id_for_browse_nomenclature',
-              size: 20 %>
-          <% end %>
-        </div>
+        <div
+          class="separate-right"
+          id="vue-browse-nomenclature-search"></div>
 
         <div class="separate-left separate-right">
         <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
@@ -31,7 +23,7 @@
           </ul>
         </div>
         <ul class="context-menu">
-          <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
           <li><%= confidence_default_icon(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
@@ -55,9 +47,12 @@
     <div class="item item2 separate-bottom">
       <div class="flexbox separate-bottom">
         <div class="panel separate-left separate-right">
-          <div class="break_words">
+          <div>
             <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
-              <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
+            <h3 class="item center_text">
+              <%= content_tag(:span, rank_tag(@taxon_name), class: :subtle) -%>
+              <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: :name) -%>
+            </h3>
             </div>
             <div class="horizontal-center-content filter">
               <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
@@ -65,6 +60,7 @@
             <%= render "filter" %>
             <div class="content">
               <div class="attributes"> 
+                <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
                     <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 

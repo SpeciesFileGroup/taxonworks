@@ -1,3 +1,3 @@
-export default function (state, validation) {
-  state.softValidation[validation.type].list = validation.response
+export default function (state, data) {
+  state.softValidation[data.type].list = data.list
 }

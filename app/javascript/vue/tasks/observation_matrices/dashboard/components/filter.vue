@@ -1,7 +1,12 @@
 <template>
-  <div class="panel filter">
+  <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
+      <span
+        data-icon="reset"
+        class="cursor-pointer"
+        @click="resetFilter">Reset
+      </span>
     </div>
     <spinner-component
       :full-screen="true"
@@ -14,15 +19,21 @@
         class="button normal-input button-default full_width"
         type="button"
         :disabled="!taxonName"
-        @click="$emit('onSearch')">
+        @click="sendParams">
         Search
       </button>
       <taxon-name v-model="taxonName"/>
-      <otu-filter v-model="validity"/>
-      <combinations-filter/>
+      <otu-filter v-model="params.validity"/>
+      <combinations-filter
+        v-model="params.combination"/>
       <ranks-filter
         :taxon-name="taxonName"
-        v-model="ranks"/>
+        v-model="params.ranks"/>
+      <filter-table
+        v-for="(item, key) in tableFilter"
+        :key="key"
+        :title="key"
+        v-model="tableFilter[key]"/>
     </div>
   </div>
 </template>
@@ -33,7 +44,11 @@ import SpinnerComponent from 'components/spinner'
 import taxonName from './filters/taxonName'
 import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
+import FilterTable from './filters/with.vue'
 import CombinationsFilter from './filters/combinations'
+import { GetTaxonName } from '../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -41,47 +56,92 @@ export default {
     CombinationsFilter,
     RanksFilter,
     OtuFilter,
-    taxonName
+    taxonName,
+    FilterTable
+  },
+  props: {
+    fieldSet: {
+      type: Array,
+      required: true
+    }
+  },
+  computed: {
+    rankList () {
+      return this.$store.getters[GetterNames.GetRanks]
+    }
   },
   data () {
     return {
       taxonName: undefined,
-      ranks: [],
       searching: false,
-      validity: false
+      params: this.initParams(),
+      tableFilter: {
+        observation_count: undefined,
+        observation_depictions: undefined,
+        descriptors_scored: undefined
+      }
     }
   },
   watch: {
     taxonName: {
       handler (newVal) {
         this.ranks = []
-        this.$emit('onTaxon', newVal)
-
-        if(!newVal) return
-        if (newVal.rank) {
-          this.ranks.push(newVal.rank)
+        if (newVal) {
+          this.params.ancestor_id = newVal ? newVal.id : undefined
+          this.$emit('onTaxon', newVal)
+        } else {
+          return
+        }
+        if (newVal.rank && !this.params.ranks.includes(newVal.rank)) {
+          this.params.ranks.push(newVal.rank)
         }
       },
       deep: true
     },
-    ranks: {
+    tableFilter: {
       handler (newVal) {
-        if (newVal.length) {
-          this.$emit('rankSelected', newVal)
-        }
+        this.$emit('onTableFilter', newVal)
       },
-      deep: true
+      deep: true,
+      immediate: true
+    }
+  },
+  mounted () {
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      GetTaxonName(urlParams.ancestor_id).then(response => {
+        this.taxonName = response.body
+        this.params = Object.assign({}, this.params, urlParams)
+        this.sendParams()
+      })
+    }
+  },
+  methods: {
+    sendParams () {
+      this.$emit('onSearch', this.params)
     },
-    validity (newVal) {
-      this.$emit('onValidity', newVal)
+    setTaxon (taxon) {
+      this.taxonName = taxon
+      this.params.ancestor_id = taxon.id
+    },
+    initParams () {
+      return {
+        ancestor_id: undefined,
+        ranks: [],
+        validity: false,
+        combination: undefined,
+        fieldsets: ['observations']
+      }
+    },
+    resetFilter () {
+      this.taxonName = undefined
+      this.params = this.initParams()
+      this.$emit('reset')
     }
   }
 }
 </script>
 <style scoped>
-  .filter {
-    min-width: 300px;
-  }
   /deep/ .vue-autocomplete-input {
     width: 100%;
   }

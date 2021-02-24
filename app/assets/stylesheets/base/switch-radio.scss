@@ -24,7 +24,7 @@
     font-size: 12px;
     background-color: $color-secondary-2-4;
     color: #FFFFFF;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
     font-weight: normal;
     text-align: center;
     padding: 6px 14px;
@@ -42,11 +42,19 @@
     border: 1px solid $navigation_border;
   }
 
+  input:focus + label {
+    border: 1px solid $color-complement-3;
+    box-shadow: 0 0px 5px 1px $color-complement-3 inset;
+  }
+
   label:first-of-type {
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 3px 0 0 3px;
   }
 
   label:last-of-type {
     border-radius: 0 3px 3px 0;
   }
+
+
 }

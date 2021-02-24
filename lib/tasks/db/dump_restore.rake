@@ -59,7 +59,7 @@ namespace :tw do
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
     desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ database_host=0.0.0.0 file=2017-07-10_154344UTC.dump'"
-    task restore: ['environment', 'tw:backup_exists', 'tw:database_user', 'db:drop', 'db:create' ] do
+    task restore: [:environment, :backup_exists, :database_user, :database_host, 'db:drop', 'db:create'] do
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
@@ -82,6 +82,18 @@ namespace :tw do
 
       # TODO: Once RAILS is restarted automagically this this can go
       reset_indecies
+    end
+
+    desc "Drops, recreates and loads DB with data from a SQL file 'rake tw:db:load file=/your/path/dump.sql'"
+    task load: [:environment, 'tw:file', 'db:drop', 'db:create'] do
+      puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
+      database = ApplicationRecord.connection.current_database
+      puts Rainbow("Restoring #{database} from #{@args[:file]}").yellow
+
+      config = Support::Database.pg_env_args
+
+      system(config[:env], 'psql', '-v', 'ON_ERROR_STOP=1', *config[:args], '-f', @args[:file])
+      raise TaxonWorks::Error, Rainbow("psql failed with exit code #{$?.to_i}").red unless $? == 0
     end
 
     desc 'First dump then restore the database. Not intended for Production uses.'

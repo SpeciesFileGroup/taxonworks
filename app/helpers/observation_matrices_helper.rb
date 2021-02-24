@@ -85,10 +85,7 @@ module ObservationMatricesHelper
         'INTERNAL ERROR'
       end
     when 'Observation::Continuous'
-      ## ! TODO: auto convert to descriptor standard units (model method)
-      observation.continuous_value.to_s
-
-
+      observation.converted_value.to_s
     else
       '-' # ? not sure 
     end

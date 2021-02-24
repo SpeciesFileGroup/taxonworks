@@ -8,6 +8,7 @@
           <th>
             <tag-all
               :ids="ids"
+              type="CollectionObject"
               class="separate-right"/>
           </th>
           <th>Collection object</th>
@@ -47,10 +48,6 @@
         </tr>
       </tbody>
     </table>
-    <span
-      v-if="list.length"
-      class="horizontal-left-content">{{ list.length }} records.
-    </span>
   </div>
 </template>
 

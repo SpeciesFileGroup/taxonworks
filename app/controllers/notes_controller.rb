@@ -1,7 +1,9 @@
 class NotesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_note, only: [:update, :destroy]
+  include ShallowPolymorphic
+
+  before_action :set_note, only: [:update, :destroy, :api_show]
 
   # GET /notes
   # GET /notes.json
@@ -13,8 +15,10 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @notes = Queries::Note::Filter.new(filter_params)
+          .all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -103,15 +107,56 @@ class NotesController < ApplicationController
       filename: "notes_#{DateTime.now}.csv"
   end
 
+  # GET /api/v1/notes
+  def api_index
+    @notes = Queries::Note::Filter.new(api_params).all
+      .order('notes.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/notes/api/v1/index'
+  end
+
+  # GET /api/v1/notes/:id
+  def api_show
+    render '/notes/api/v1/show'
+  end
+
   private
 
+  def filter_params
+    params.permit(
+      :text,
+      :note_object_id,
+      :note_object_type,
+      :object_global_id,
+      note_object_id: [],
+      note_object_type: [],
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
+  end
+
+  def api_params
+    params.permit(
+      :text,
+      :note_object_id,
+      :note_object_type,
+      :object_global_id,
+      note_object_id: [],
+      note_object_type: [],
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
+  end
+
   def set_note
-    @note = Note.with_project_id(sessions_current_project_id).find(params[:id])
+    @note = Note.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
   def note_params
-    params.require(:note).permit(:text, :note_object_id, :note_object_type,
-                                 :note_object_attribute, :annotated_global_entity)
+    params.require(:note).permit(
+      :text, :note_object_id, :note_object_type,
+      :note_object_attribute, :annotated_global_entity)
   end
 
 end

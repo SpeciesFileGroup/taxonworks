@@ -19,42 +19,36 @@
       </template>
 
       <template v-else>
-        <autocomplete
-          class="separate-right"
-          url="/sources/autocomplete"
-          min="3"
-          param="term"
-          event-send="sourceSelect"
-          label="label_html"
-          :send-label="autocompleteLabel"
-          @getItem="setSource($event); sendCitation()"
-          placeholder="Type for search..."
-          display="label"/>
-        <input
-          type="text"
-          @input="sendCitation"
-          v-model="pages"
-          placeholder="Pages" >
-        <default-element
-          class="separate-left"
-          label="source"
-          type="Source"
-          @getLabel="autocompleteLabel = $event"
-          @getId="sourceId = $event; sendCitation()"
-          section="Sources"/>
+        <smart-selector
+          class="full_width"
+          model="sources"
+          ref="smartSelector"
+          pin-section="Sources"
+          pin-type="Source"
+          @selected="setSource"
+          v-model="source">
+          <div slot="footer">
+            <span
+              v-if="source"
+              v-html="source.object_tag"/>
+            <input
+              type="text"
+              @input="sendCitation"
+              v-model="pages"
+              placeholder="Pages">
+          </div>
+        </smart-selector>
       </template>
     </div>
   </div>
 </template>
 <script>
 
-import autocomplete from 'components/autocomplete.vue'
-import defaultElement from 'components/getDefaultPin.vue'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   components: {
-    autocomplete,
-    defaultElement
+    SmartSelector
   },
   props: {
     citation: {
@@ -64,6 +58,7 @@ export default {
   data: function () {
     return {
       origin_citation: {},
+      source: undefined,
       autocompleteLabel: undefined,
       title: undefined,
       pages: undefined,
@@ -95,7 +90,7 @@ export default {
       this.$emit('select', {
         origin_citation_attributes: {
           id: (this.origin_citation ? this.origin_citation.id : undefined),
-          source_id: this.sourceId,
+          source_id: this.source.id,
           pages: this.pages
         }
       })
@@ -110,25 +105,10 @@ export default {
       this.title = undefined
     },
     setSource (source) {
-      this.sourceId = source.id
+      this.source = source
+      this.sendCitation()
     }
   }
 }
 
 </script>
-<style lang="scss">
-.new-combination-citation {
-  .default-source {
-    min-width: 150px;
-  }
-  .vue-autocomplete {
-    width: 100% !important;
-    .vue-autocomplete-input {
-      width: 100% !important;
-    }
-  }
-  h3 {
-    font-weight: 300
-  }
-}
-</style>

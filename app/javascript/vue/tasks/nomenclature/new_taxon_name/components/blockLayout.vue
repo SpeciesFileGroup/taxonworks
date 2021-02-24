@@ -3,13 +3,15 @@
     <spinner
       :show-spinner="false"
       :show-legend="false"
-      v-if="spinner"/>
+      v-if="spinner || !taxon.id"/>
     <div class="panel basic-information">
       <a
         v-if="anchor"
         :name="anchor"
         class="anchor"/>
-      <div class="header flex-separate middle">
+      <div
+        class="header flex-separate middle"
+        :class="{ 'validation-warning' : warning }">
         <slot name="header">
           <h3>Default title</h3>
         </slot>
@@ -29,6 +31,7 @@
 <script>
 import Expand from './expand.vue'
 import Spinner from 'components/spinner.vue'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
@@ -43,9 +46,18 @@ export default {
     spinner: {
       type: Boolean,
       default: false
+    },
+    warning: {
+      type: [Boolean, Number, Object],
+      default: false
     }
   },
-  data: function () {
+  computed: {
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
+    }
+  },
+  data () {
     return {
       expanded: true
     }

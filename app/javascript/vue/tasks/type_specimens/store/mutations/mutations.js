@@ -11,6 +11,8 @@ import setMaterialTab from './setMaterialTab'
 import removeTypeMaterial from './removeTypeMaterial'
 import addTypeMaterial from './addTypeMaterial'
 import setSoftValidation from './setSoftValidation'
+import setIdentifier from './setIdentifier'
+import setSettings from './setSettings'
 
 import setCollectionObjectBufferedDeterminations from './setCollectionObjectBufferedDeterminations'
 import setCollectionObjectBufferedEvent from './setCollectionObjectBufferedEvent'
@@ -44,7 +46,9 @@ const MutationNames = {
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
   SetCollectionObject: 'setCollectionObject',
-  SetSoftValidation: 'setSoftValidation'
+  SetSoftValidation: 'setSoftValidation',
+  SetIdentifier: 'setIdentifier',
+  SetSettings: 'setSettings'
 }
 
 const MutationFunctions = {
@@ -69,7 +73,9 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectPreparationId]: setCollectionObjectPreparationId,
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
   [MutationNames.SetCollectionObject]: setCollectionObject,
-  [MutationNames.SetSoftValidation]: setSoftValidation
+  [MutationNames.SetSoftValidation]: setSoftValidation,
+  [MutationNames.SetIdentifier]: setIdentifier,
+  [MutationNames.SetSettings]: setSettings
 }
 
 export {

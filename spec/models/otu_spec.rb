@@ -181,6 +181,7 @@ describe Otu, type: :model, group: :otu do
     before do
       otu.name = 'Foo recently'
       otu.save!
+      PinboardItem.create!(pinned_object: o2, is_inserted: true, user_id: 1)
     end
 
     let(:o2) { Otu.create(name: 'o2') }
@@ -190,11 +191,11 @@ describe Otu, type: :model, group: :otu do
     let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu: otu) }
 
     specify ".used_recently('Content')" do
-      expect(Otu.used_recently('Content').to_a).to include(otu)
+      expect(Otu.used_recently(otu.created_by_id, otu.project_id,'Content').to_a).to include(otu.id)
     end
 
     specify ".used_recently('BiologicalAssociation')" do
-      expect(Otu.used_recently('BiologicalAssociation').to_a).to include(otu)
+      expect(Otu.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation').to_a).to include(otu.id)
     end
 
     specify '.selected_optimized 1' do

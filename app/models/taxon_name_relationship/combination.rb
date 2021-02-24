@@ -15,17 +15,17 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     RANKS.index(::ICN_LOOKUP[self.name.demodulize.underscore.humanize.downcase])
   end
 
-  def self.disjoint_classes
-    self.collect_descendants_to_s(TaxonNameClassification)
-  end
+#  def self.disjoint_classes
+#    self.collect_descendants_to_s(TaxonNameClassification)
+#  end
 
-  def self.disjoint_subject_classes
-    self.disjoint_classes
-  end
+#  def self.disjoint_subject_classes
+#    self.disjoint_classes
+#  end
 
-  def self.disjoint_object_classes
-    self.disjoint_classes
-  end
+#  def self.disjoint_object_classes
+#    self.disjoint_classes
+#  end
 
   def self.nomenclatural_priority
     :reverse

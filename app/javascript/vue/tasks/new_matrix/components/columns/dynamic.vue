@@ -4,70 +4,49 @@
       <h3>Columns</h3>
     </div>
     <div class="body">
-      <smart-selector
-        :options="smartOptions"
-        v-model="view"
-        name="rows-smart"/>
-      <component 
-        v-if="componentExist"
-        @send="create"
-        :list="selectorLists[view]"
-        :is="view + 'Component'"/>
+      <fieldset>
+        <legend>Tag/Keyword</legend>
+        <smart-selector
+          autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+          :autocomplete-params="{'type[]' : 'Keyword'}"
+          get-url="/controlled_vocabulary_terms/"
+          model="keywords"
+          buttons
+          inline
+          klass="Tag"
+          button-class="button-submit"
+          @selected="create"/>
+      </fieldset>
     </div>
   </div>
 </template>
 <script>
 
-import smartSelector from '../shared/smartSelector'
-import searchComponent from './search'
-import tagsComponent from '../shared/tag_list'
-
-import { 
-  default as quickComponent, 
-  default as recentComponent, 
-  default as pinboardComponent 
-} from '../shared/tag_list'
-import { GetSmartSelector } from '../../request/resources'
-import { ActionNames } from '../../store/actions/actions';
+import SmartSelector from 'components/smartSelector'
+import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-
+import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
-    smartSelector,
-    tagsComponent,
-    quickComponent,
-    recentComponent,
-    pinboardComponent,
-    searchComponent
+    SmartSelector
   },
   computed: {
-    componentExist() {
-      return this.$options.components[this.view + 'Component']
-    },
-    matrixId() {
+    matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
     }
   },
   data() {
     return {
-      smartOptions: ['quick', 'recent', 'pinboard'],
-      selectorLists: undefined,
-      view: undefined
+
     }
   },
-  mounted() {
-    GetSmartSelector('keywords').then(response => {
-      this.smartOptions = this.smartOptions.filter(value => Object.keys(response).includes(value))
-      this.selectorLists = response
-    })
-  },
   methods: {
-    create(item) {
+    create (item) {
       let data = {
         controlled_vocabulary_term_id: item.id,
         observation_matrix_id: this.matrixId,
-        type: 'ObservationMatrixColumnItem::TaggedDescriptor'
+        type: ObservationTypes.Column.Tag
       }
       this.$store.dispatch(ActionNames.CreateColumnItem, data)
     }

@@ -88,7 +88,7 @@ class CollectionObject < ApplicationRecord
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -120,6 +120,10 @@ class CollectionObject < ApplicationRecord
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
+
+  has_many :observation_matrix_row_items, inverse_of: :collection_object, class_name: 'ObservationMatrixRowItem::Single::CollectionObject'
+  has_many :observation_matrix_rows, inverse_of: :collection_object
+  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -535,7 +539,8 @@ class CollectionObject < ApplicationRecord
   # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '')
+    return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
           TaxonDetermination.arel_table
@@ -553,12 +558,16 @@ class CollectionObject < ApplicationRecord
               t['updated_at'].gt(1.weeks.ago).and(
                 t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
               )
-          )
-            .order(t['updated_at'])
+            )
+              .where(t['created_by_id'].eq(user_id))
+              .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
             .where(t['updated_at'].gt( 1.weeks.ago ))
-            .order(t['updated_at'])
+            .where(t['created_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         end
 
     # z is a table alias
@@ -573,28 +582,29 @@ class CollectionObject < ApplicationRecord
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
         end
 
-    CollectionObject.joins(j).distinct.limit(10)
+    CollectionObject.joins(j).pluck(:id).uniq
   end
 
   # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a
+      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
     }
 
-    if target
+    if target && !r.empty?
       n = target.tableize.to_sym
-      h[:recent] = CollectionObject.joins(n)
-        .where(collection_objects: {project_id: project_id}, n => {updated_by_id: user_id})
-        .used_recently(target)
-        .limit(10).distinct.to_a
+      h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
+          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
       h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     end
 
-    h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
     h
   end
 

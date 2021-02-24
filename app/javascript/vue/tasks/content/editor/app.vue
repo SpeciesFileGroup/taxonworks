@@ -43,22 +43,22 @@
 </template>
 
 <script>
-  import panelTop from './panels/top.vue'
-  import recentList from './panels/recentlist.vue'
-  import citationList from './editor/citationList.vue'
-  import contentEditor from './editor/content.vue'
-  import figuresPanel from './editor/figuresPanel.vue'
-  import topicSection from './panels/topicSection.vue'
+import panelTop from './panels/top.vue'
+import recentList from './panels/recentlist.vue'
+import citationList from './editor/citationList.vue'
+import contentEditor from './editor/content.vue'
+import figuresPanel from './editor/figuresPanel.vue'
+import topicSection from './panels/topicSection.vue'
 
-  export default {
-    components: {
-      panelTop,
-      recentList,
-      citationList,
-      contentEditor,
-      figuresPanel,
-      topicSection
-    }
+export default {
+  components: {
+    panelTop,
+    recentList,
+    citationList,
+    contentEditor,
+    figuresPanel,
+    topicSection
   }
+}
 
 </script>

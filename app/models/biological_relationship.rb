@@ -44,32 +44,44 @@ class BiologicalRelationship < ApplicationRecord
 
   # @return [Scope]
   #    the max 10 most recently used biological relationships 
-  def self.used_recently
-    t = BiologicalAssociation.arel_table
+  def self.used_recently(user_id, project_id)
+      t = BiologicalAssociation.arel_table
     k = BiologicalRelationship.arel_table 
 
     # i is a select manager
     i = t.project(t['biological_relationship_id'], t['created_at']).from(t)
       .where(t['created_at'].gt( 1.weeks.ago ))
-      .order(t['created_at'])
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
+      .order(t['created_at'].desc)
 
     # z is a table alias 
     z = i.as('recent_t')
 
     BiologicalRelationship.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_relationship_id'].eq(k['id'])))
-    ).distinct.limit(10)
+    ).pluck(:biological_relationship_id).uniq
   end
 
   # @params target [String] one of `Citation` or `Content`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id)
+    r = used_recently(user_id, project_id)
+
     h = {
-      recent: BiologicalRelationship.joins(:biological_associations).where(biological_associations: {project_id: project_id, updated_by_id: user_id }).used_recently.limit(10).distinct.to_a,
-      pinboard:  BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  + h[:recent][0..3]).uniq
+    if r.empty?
+      h[:quick] = BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:quick] = (BiologicalRelationship.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          BiologicalRelationship.where('"biological_relationships"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
+    end
+
     h
   end
 end

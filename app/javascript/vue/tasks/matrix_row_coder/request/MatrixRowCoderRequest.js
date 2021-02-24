@@ -1,47 +1,44 @@
-import Vue from 'vue'
-import VueResource from 'vue-resource'
+import ajaxCall from 'helpers/ajaxCall'
 import IMatrixRowCoderRequest from './IMatrixRowCoderRequest'
 
-Vue.use(VueResource)
-Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-
-const ajaxCall = function (type, url, data = null) {
-  return new Promise(function (resolve, reject) {
-    Vue.http[type](url, data).then(response => {
-      return resolve(response.body)
-    }, response => {
-      handleError(response.body)
-      return reject(response)
+function getJSON (url) {
+  return new Promise((resolve, reject) => {
+    ajaxCall('get', url).then(response => {
+      resolve(response.body)
+    }, (error) => {
+      reject(error.body)
     })
   })
 }
 
-const handleError = function (json) {
-  if (typeof json !== 'object') return
-  let errors = Object.keys(json)
-  let errorMessage = ''
-
-  errors.forEach(function (item) {
-    errorMessage += json[item].join('<br>')
-  })
-  TW.workbench.alert.create(errorMessage, 'error')
-}
-
-
-function getJSON (url) {
-  return ajaxCall('get', url)
-}
-
 function postJSON (url, payload) {
-  return ajaxCall('post', url, payload)
+  return new Promise((resolve, reject) => {
+    ajaxCall('post', url, payload).then(response => {
+      resolve(response.body)
+    }, (error) => {
+      reject(error.body)
+    })
+  })
 }
 
 function putJSON (url, payload) {
-  return ajaxCall('patch', url, payload)
+  return new Promise((resolve, reject) => {
+    ajaxCall('patch', url, payload).then(response => {
+      resolve(response.body)
+    }, (error) => {
+      reject(error.body)
+    })
+  })
 }
 
 function deleteResource (url) {
-  return ajaxCall('delete', url)
+  return new Promise((resolve, reject) => {
+    ajaxCall('delete', url).then(response => {
+      resolve(response.body)
+    }, (error) => {
+      reject(error.body)
+    })
+  })
 }
 
 export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
@@ -70,7 +67,7 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     }
   }
 
-  getMatrixRow (rowId, globalId) {
+  getMatrixRow (rowId) {
     const extraParams = {
       observation_matrix_row_id: rowId
     }
@@ -110,7 +107,6 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   createObservation (payload) {
     const url = `${this.apiBase}/observations.json`
-    console.log(Object.assign(payload, this.apiParams))
     return postJSON(url, Object.assign(payload, this.apiParams))
   }
 
@@ -154,8 +150,14 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     return getJSON(url)
   }
 
+  getUnits () {
+    const url = this.buildGetUrl('/descriptors/units.json')
+    console.log(getJSON(url))
+    return getJSON(url)
+  }
+
   getConfidenceLevels () {
-    const url = this.buildGetUrl(`/confidence_levels.json`)
+    const url = this.buildGetUrl('/confidence_levels.json')
     return getJSON(url)
   }
 }

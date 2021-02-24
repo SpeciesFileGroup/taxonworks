@@ -12,4 +12,7 @@ class NomenclaturalRank::Iczn::GenusGroup::Infragenus < NomenclaturalRank::Iczn:
     false
   end
 
+  def self.abbreviation
+    'infragen.'
+  end
 end

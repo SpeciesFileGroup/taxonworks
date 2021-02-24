@@ -42,6 +42,7 @@
             class="drag-container">
             <depiction-modal-viewer
               :depiction="depiction"
+              is-original
               @delete="removeDepiction"
             />
           </div>

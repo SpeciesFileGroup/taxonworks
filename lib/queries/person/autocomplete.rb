@@ -39,24 +39,6 @@ module Queries
         roles_table[:project_id].eq(project_id)
       end
 
-    # def autocomplete_alternate_spelling_last_name
-    #   a = ::AlternateValue.arel_table
-    #   w = a[:value].matches('%' + query_string + '%')
-    #     .and(a[:type].eq('AlternateValue::AlternateSpelling'))
-    #     .and(a[:alternate_value_object_attribute]).eq('last_name')
-    # 
-    #   query_base.joins(:alternate_values).where(w.to_sql)
-    # end
-
-    # def autocomplete_alternate_spelling_first_name
-    #   a = ::AlternateValue.arel_table
-    #   w = a[:value].matches('%' + query_string + '%')
-    #     .and(a[:type].eq('AlternateValue::AlternateSpelling'))
-    #     .and(a[:alternate_value_object_attribute]).eq('first_name')
-
-    #   query_base.joins(:alternate_values).where(w.to_sql)
-    # end
-
       # @return [Scope]
       def autocomplete_exact_match
         base_query.where(

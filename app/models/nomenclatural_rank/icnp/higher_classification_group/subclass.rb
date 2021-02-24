@@ -10,6 +10,10 @@ class NomenclaturalRank::Icnp::HigherClassificationGroup::Subclass < Nomenclatur
     taxon_name.errors.add(:name, 'name must end in -idae') if not(taxon_name.name =~ /.*idae\Z/)
   end
 
+  def self.valid_name_ending
+    'idae'
+  end
+
   def self.valid_parents
     [NomenclaturalRank::Icnp::HigherClassificationGroup::ClassRank.to_s]
   end

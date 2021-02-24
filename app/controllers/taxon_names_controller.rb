@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -16,19 +16,6 @@ class TaxonNamesController < ApplicationController
         @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
       }
     end
-  end
-
-  # GET /api/v1/taxon_names
-  def api_index
-    @taxon_names =
-      Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/taxon_names/api/index.json.jbuilder'
-  end
-
-  # GET /api/v1/taxon_names/:id
-  def api_show
-    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/taxon_names/api/show.json.jbuilder'
   end
 
   # GET /taxon_names/1
@@ -127,6 +114,19 @@ class TaxonNamesController < ApplicationController
     render json: RANKS_JSON.to_json
   end
 
+  def predicted_rank
+    if params[:parent_id]
+      p = TaxonName.find_by(id: params[:parent_id])
+      if p.nil?
+        render json: {predicted_rank: ''}.to_json
+      else
+        render json: {predicted_rank: p.predicted_child_rank(params[:name]).to_s}.to_json
+      end
+    else
+      render json: {predicted_rank: ''}.to_json
+    end
+  end
+
   def random
     redirect_to browse_nomenclature_task_path(
       taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
@@ -203,10 +203,6 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def browse
-    @data = NomenclatureCatalog.data_for(@taxon_name)
-  end
-
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id] # TODO: this may have to change to taxon_name_id
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
@@ -216,8 +212,22 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
-  def catalog
-    @data = NomenclatureCatalog.data_for(@taxon_name)
+  # GET /taxon_names/1/original_combination
+  def original_combination
+  end
+
+  # GET /api/v1/taxon_names
+  def api_index
+    @taxon_names = Queries::TaxonName::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+      .page(params[:page]).per(params[:per])
+    render '/taxon_names/api/v1/index'
+  end
+
+  # GET /api/v1/taxon_names/:id
+  def api_show
+    render '/taxon_names/api/v1/show'
   end
 
   private
@@ -267,26 +277,77 @@ class TaxonNamesController < ApplicationController
 
   def filter_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
-      :descendants,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
+      :ancestors,
+      :author,
       :authors,
-      :nomenclature_group, # !! different than autocomplete
+      :citations,
+      :descendants,
+      :descendants_max_depth,
+      :etymology,
+      :exact,
+      :leaves,
+      :name,
       :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+      :page,
+      :per,
       :taxon_name_type,
-      type: [],
-      taxon_name_id: [],
+      :type_metadata,
+      :updated_since,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
+      # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def api_params
+    params.permit(
+      :ancestors,
+      :author,
+      :authors,
+      :citations,
+      :descendants,
+      :descendants_max_depth,
+      :etymology,
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+#     :page, # TODO: yes or no?
+#     :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
+      parent_id: [],
+      taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
+      taxon_name_relationship_type: [],
+      type: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+
+    # TODO: see config in collection objects controller
+    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    # a
   end
 
 end

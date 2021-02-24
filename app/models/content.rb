@@ -20,7 +20,7 @@
 #
 # @!attribute revision_id
 #   @return [Integer]
-#   Stubbed placeholder for Revision (sensus taxonomy) model.  NOT PRESENTLY USED.
+#   Stubbed placeholder for Revision (sensus taxonomy) model. NOT PRESENTLY USED.
 #
 class Content < ApplicationRecord
   include Housekeeping
@@ -28,9 +28,9 @@ class Content < ApplicationRecord
   include Shared::Confidences
   include Shared::Citations
   include Shared::Attributions
-  include Shared::IsData
   include Shared::HasPapertrail
-  include Shared::DataAttributes
+  include Shared::DataAttributes # TODO: reconsider, why is this here?  Should be removed, use case is currently cross reference to an identifier, if required use Identifier
+  include Shared::IsData
   ignore_whitespace_on(:text)
 
   belongs_to :otu, inverse_of: :contents

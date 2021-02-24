@@ -50,16 +50,16 @@ export default {
       types: [
         {
           label: 'Otu',
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         },
         {
           label: 'Collection object',
-          type: 'ObservationMatrixRowItem::SingleCollectionObject'
+          type: 'ObservationMatrixRowItem::Single::CollectionObject'
         }
       ],
       type: {
         label: 'Otu',
-        type: 'ObservationMatrixRowItem::SingleOtu'
+        type: 'ObservationMatrixRowItem::Single::Otu'
       },
       saving: false
     }

@@ -1,6 +1,13 @@
 <template>
   <div>
-    <h2>User</h2>
+    <h3 class="flex-separate">
+      Housekeeping
+      <span
+        class="margin-small-left"
+        v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
+        data-icon="warning"
+        title="Select a date range first to pick a date"/>
+    </h3>
     <div class="field">
       <select v-model="user.user_id">
         <option
@@ -13,14 +20,19 @@
     </div>
     <h3>Date range</h3>
     <div class="field">
-      <select v-model="user.user_target">
-        <option
+      <ul class="no_bullets">
+        <li
           v-for="item in options"
-          :value="item.value"
           :key="item.value">
-          {{ item.label }}
-        </option>
-      </select>
+          <label>
+            <input
+              :value="item.value"
+              v-model="user.user_target"
+              type="radio">
+            {{ item.label }}
+          </label>
+        </li>
+      </ul>
     </div>
     <div class="horizontal-left-content">
       <div class="field separate-right">
@@ -28,16 +40,26 @@
         <br>
         <input 
           type="date"
-          :disabled="!user.user_id || !user.user_target"
+          class="date-input"
           v-model="user.user_date_start">
       </div>
       <div class="field">
         <label>End date:</label>
         <br>
-        <input
-          type="date"
-          :disabled="!user.user_id || !user.user_target"
-          v-model="user.user_date_end">
+        <div class="horizontal-left-content">
+          <input
+            type="date"
+            :disabled="!user.user_date_start"
+            class="date-input"
+            v-model="user.user_date_end">
+          <button
+            type="button"
+            class="button normal-input button-default margin-small-left"
+            @click="setActualDateStart"
+            @dblclick="setActualDateEnd">
+            Now
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -46,6 +68,7 @@
 <script>
 
 import { GetUsers } from '../../request/resources'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
@@ -56,12 +79,15 @@ export default {
   },
   computed: {
     user: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
+    },
+    startDate () {
+      return this.user.user_date_start
     }
   },
   data () {
@@ -75,8 +101,8 @@ export default {
         {
           label: 'created at',
           value: 'created'
-        }, 
-        { 
+        },
+        {
           label: 'updated',
           value: 'updated'
         }
@@ -84,14 +110,10 @@ export default {
     }
   },
   watch: {
-    user: {
-      handler (newVal) {
-        if(!newVal.user_id || !newVal.user_target) {
-          this.user.user_date_start = undefined
-          this.user.user_date_end = undefined
-        }
-      },
-      deep: true
+    startDate (newVal) {
+      if (!newVal) {
+        this.user.user_date_end = undefined
+      }
     }
   },
   mounted () {
@@ -100,6 +122,22 @@ export default {
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
     })
+
+    const urlParams = URLParamsToJSON(location.href)
+    if (Object.keys(urlParams).length) {
+      this.user.user_id = urlParams.user_id
+      this.user.user_date_start = urlParams.user_date_start
+      this.user.user_date_end = urlParams.user_date_end
+      this.user.user_target = urlParams.user_target
+    }
+  },
+  methods: {
+    setActualDateStart () {
+      this.user.user_date_start = new Date().toISOString().split('T')[0]
+    },
+    setActualDateEnd () {
+      this.user.user_date_end = new Date().toISOString().split('T')[0]
+    }
   }
 }
 </script>

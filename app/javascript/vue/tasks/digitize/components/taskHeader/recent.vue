@@ -84,7 +84,7 @@
         if(newVal) {
           this.isLoading = true
           GetRecentCollectionObjects().then(response => {
-            this.list = response
+            this.list = response.body
             this.isLoading = false
           })
         }

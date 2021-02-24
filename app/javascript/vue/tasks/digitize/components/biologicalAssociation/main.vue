@@ -175,7 +175,7 @@
       collectionObject(newVal, oldVal) {
         if(newVal.id) {
           GetBiologicalRelationshipsCreated(newVal.global_id).then(response => {
-            this.list = response
+            this.list = response.body
             this.processQueue()
           })
         }
@@ -213,9 +213,8 @@
         if(!this.collectionObject.id) return
         this.queueAssociations.forEach(item => {
           CreateBiologicalAssociation(this.createAssociationObject(item)).then(response => {
-            this.list.push(response)
+            this.list.push(response.body)
           }, response => {
-            TW.workbench.alert.create(Object.keys(response.body).map(key => { return response.body[key] }).join('<br>'), 'error')
           })
         })
         this.queueAssociations = []

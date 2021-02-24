@@ -10,10 +10,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   def self.disjoint_subject_classes
     self.parent.disjoint_subject_classes +
         self.collect_descendants_to_s(TaxonNameClassification::Iczn::Available::Valid) +
-        self.collect_to_s(TaxonNameClassification::Iczn::Available,
-            TaxonNameClassification::Iczn::Available::OfficialListOfFamilyGroupNamesInZoology,
-            TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology,
-            TaxonNameClassification::Iczn::Available::OfficialListOfWorksApprovedAsAvailable)
+        self.collect_to_s(TaxonNameClassification::Iczn::Available)
   end
 
   def self.nomenclatural_priority
@@ -30,7 +27,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
 
 
   def subject_status
-    'invalid'
+    'unavailable or invalid'
   end
 
   def object_status

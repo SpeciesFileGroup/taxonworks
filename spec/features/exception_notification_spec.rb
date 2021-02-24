@@ -27,4 +27,9 @@ describe 'Exception notification', type: :feature do
     expect(ActionMailer::Base.deliveries.last.body).to include("https://github.com/SpeciesFileGroup/taxonworks/blob/badc0de/app/controllers/crash_test_controller.rb#L4")
   end
 
+  it 'includes full backtrace' do
+    (visit crash_test_path) rescue nil
+    expect(ActionMailer::Base.deliveries.last.body).to include("create!")
+  end
+
 end

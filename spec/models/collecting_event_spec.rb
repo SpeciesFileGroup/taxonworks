@@ -68,17 +68,34 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify 'md5_of_verbatim_collecting_event is unique on update 1' do
-      label = "SOUTH AFRICA: WCape Prov.\n" + 
+      label = "SOUTH AFRICA: WCape Prov.\n" +
         "De Hoop Nat. Res.\n"	+
         "S34°27.150' E20°25.486'  19.6 m\n" +
         "11-XII-2004 a 04-22\n" +
         "col. J.N. Zahniser  sweep"
 
-      c1 = CollectingEvent.create(verbatim_label: label)
+      c1 = CollectingEvent.create!(verbatim_label: label)
       label.gsub!(/\sa\s/, ' # ')
       c1.update(verbatim_label: label)
       expect(c1.errors[:base]).to eq([])
     end
+
+    specify 'different multi-line labels' do
+      l1 = "Lee, N.H.\n" +
+        "VI-17-1953\n" +
+        "\n" +
+        "R.L.Blickle\n" +
+        "Collr."
+
+      l2 = "Lee, N.H.\n" +
+        "VI-17-1953"
+
+      c1 = CollectingEvent.create!(verbatim_label: l1)
+      c2 = CollectingEvent.new(verbatim_label: l2)
+      c2.valid?
+      expect(c2.errors).to be_empty
+    end
+
 
   end
 
@@ -160,7 +177,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     let!(:ce3) { FactoryBot.create(:valid_collecting_event) }
 
     let!(:s1) { FactoryBot.create(:valid_specimen, collecting_event: ce1) }
-    
+
     specify '.used_recently' do
       expect(CollectingEvent.used_recently).to contain_exactly(ce1)
     end
@@ -244,10 +261,16 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       )
     end
 
-   specify 'clones collectors' do
+    specify 'clones collectors' do
       a = collecting_event.clone
       expect(a.collectors.count).to eq(1)
-   end 
+    end
+
+    specify 'clones georeferences' do
+      FactoryBot.create(:valid_georeference_verbatim_data, collecting_event: collecting_event)
+      a = collecting_event.clone
+      expect(a.georeferences.count).to eq(1)
+    end
   end
 
   context 'roles' do
@@ -257,7 +280,7 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
 
     specify '#collector_names 2' do
-      a = FactoryBot.create(:valid_person, last_name: 'Smith') 
+      a = FactoryBot.create(:valid_person, last_name: 'Smith')
       collecting_event.collectors << a
       expect(collecting_event.collector_names).to eq(a.last_name)
     end

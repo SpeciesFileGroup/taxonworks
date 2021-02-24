@@ -1,5 +1,7 @@
 <template>
-  <div class="flexbox buffered-component">
+  <div
+    v-help.sections.collectionObject.buffered
+    class="flexbox buffered-component">
     <div class="separate-right">
       <label>Buffered determination</label>
       <br>

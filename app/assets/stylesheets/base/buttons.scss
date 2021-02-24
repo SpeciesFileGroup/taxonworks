@@ -4,9 +4,9 @@
   position: relative;
   cursor: pointer;
   color: #444;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: none;
   background-color: $navigation-background;
-  border-radius: 3px;
+  border-radius: 8px;
   &:disabled {
     color: #999;
     background-color: $color-button-disabled !important;
@@ -27,7 +27,7 @@
   background-color: $color-secondary-2-4 !important;
 }
 
-.button-default-pin {
+.btn-pin {
   background-image: image-url("b_pin.svg");
 }
 
@@ -114,6 +114,7 @@
   background-size: 10px !important;
 }
 .circle-button {
+  @extend .circle-button-margin;
   border-radius: 50%;
   display: block;
   width: 24px;
@@ -124,7 +125,6 @@
   background-position: center;
   background-repeat: no-repeat;
   box-shadow: 0px 1px 2px 0px $navigation_border;
-  margin: 5px;
   cursor: pointer;
 }
 
@@ -207,6 +207,12 @@
   background-image: image-url("w_hexagon.svg");
 }
 
+.btn-hexagon-arrow-flip-w {
+  background-size: 16px;
+  transform: scaleX(-1);
+  background-image: image-url("hexagon_empty_w.svg");
+}
+
 .btn-hexagon-empty-w {
   background-size: 16px;
   background-image: image-url("hexagon_empty_w.svg");
@@ -238,11 +244,39 @@
   background-image: image-url("undo.svg");
 }
 
+.btn-clipboard {
+  background-size: 12px;
+  background-image: image-url('paper-clips.svg');
+}
+
+.btn-add-to-project {
+  background-size: 14px, 16px;
+  background-image: image-url('addtoproject.svg');
+}
+
+.btn-remove-from-project {
+  background-size: 14px, 16px;
+  background-image: image-url('removefromproject.svg');
+}
+
+.btn-create-child {
+  background-size: 14px, 14px;
+  background-image: image-url('create_child_icon.svg');
+}
+
+.btn-create-sister {
+  background-size: 14px, 16px;
+  background-image: image-url('create_sister_icon.svg');
+}
+
 .circle-button-big {
   width: 30px;
   height: 30px;
 }
 
+.circle-button-margin {
+  margin: 5px;
+}
 .box-button {
   cursor: pointer;
   width: 24px;

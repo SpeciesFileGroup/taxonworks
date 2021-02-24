@@ -13,6 +13,7 @@ function makeInitialState () {
   return {
     settings: {
       saving: false,
+      isConverting: false,
       loading: false,
       lastSave: 0,
       lastEdit: 0,

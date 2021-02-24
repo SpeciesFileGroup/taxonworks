@@ -6,21 +6,23 @@ class ConfidenceLevel < ControlledVocabularyTerm
 
   # @return [Scope]
   #    the max 10 most recently used confidence levels
-  def self.used_recently
+  def self.used_recently(user_id, project_id, klass)
     t = ConfidenceLevel.arel_table 
     c = Confidence.arel_table
 
     # i is a select manager
     i = c.project(c['confidence_level_id'], c['created_at']).from(c)
       .where(c['created_at'].gt( 1.weeks.ago ))
-      .order(c['created_at'])
+      .where(c['created_by_id'].eq(user_id))
+      .where(c['project_id'].eq(project_id))
+      .order(c['created_at'].desc)
      
     # z is a table alias 
     z = i.as('recent_c')
 
-    ConfidenceLevel.joins(
+    ConfidenceLevel.used_on_klass(klass).joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['confidence_level_id'].eq(t['id'])))
-    ).distinct.limit(10)
+    ).pluck(:id).uniq
   end
 
   def confidenced_objects
@@ -33,12 +35,21 @@ class ConfidenceLevel < ControlledVocabularyTerm
 
   # @param klass [like CollectionObject] required
   def self.select_optimized(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass)
     h = {
-      recent: ConfidenceLevel.used_on_klass(klass).used_recently.where(project_id: project_id, confidences: {updated_by_id: user_id}).distinct.limit(10).to_a,
-      pinboard:  ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a
+        quick: [],
+        pinboard: ConfidenceLevel.pinned_by(user_id).where(project_id: project_id).to_a,
+        recent: []
     }
 
-    h[:quick] = (ConfidenceLevel.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a + h[:recent][0..3]).uniq
+    if r.empty?
+      h[:quick] = ConfidenceLevel.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = ConfidenceLevel.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:quick] = (ConfidenceLevel.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+          ConfidenceLevel.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+    end
+
     h
   end
 

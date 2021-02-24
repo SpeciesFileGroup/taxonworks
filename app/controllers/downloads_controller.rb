@@ -1,8 +1,10 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_download, only: [:show, :download_file, :destroy, :update]
+  before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :api_show]
   before_action :set_download_api, only: [:api_file, :api_show]
+
+  after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
 
   # GET /downloads
   # GET /downloads.json
@@ -38,8 +40,8 @@ class DownloadsController < ApplicationController
     @downloads = Download.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(params[:per])
   end
 
-  # GET /downloads/1/download_file
-  def download_file
+  # GET /downloads/1/file
+  def file
     if @download.ready?
       @download.increment!(:times_downloaded)
       send_file @download.file_path
@@ -49,8 +51,9 @@ class DownloadsController < ApplicationController
   end
 
   def api_index
-    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id) # .page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/downloads/api/index.json.jbuilder'
+    @downloads = Download.where(is_public: true, project_id: sessions_current_project_id)
+      .order('downloads.id').page(params[:page]).per(params[:per])
+    render '/downloads/api/v1/index'
   end
 
   def api_file
@@ -63,7 +66,7 @@ class DownloadsController < ApplicationController
   end
 
   def api_show
-    render '/downloads/api/show.json.jbuilder'
+    render '/downloads/api/v1/show'
   end
 
   private

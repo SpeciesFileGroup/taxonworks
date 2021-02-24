@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 MAINTAINER Matt Yoder
 ENV LAST_FULL_REBUILD 2018-10-05
 ARG BUNDLER_WORKERS=1
@@ -6,29 +6,37 @@ ARG BUNDLER_WORKERS=1
 RUN apt-get update && \
     apt-get install -y curl software-properties-common apt-transport-https && \
     apt clean && \
-    rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Update repos
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 
 RUN apt-get update && \
     apt-get install -y locales \
-                       postgresql-client-10 \
+                       postgresql-client-12 \
                        git gcc build-essential \
                        libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-                       pkg-config imagemagick libmagickcore-dev libmagickwand-dev \
+                       pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
+                       libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 \
                        libpq-dev libproj-dev libgeos-dev libgeos++-dev \
                        tesseract-ocr \
                        cmake \
+                       zip \
                        nodejs && \
                        apt clean && \
-                       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/* && \
-                       wget https://gitlab.com/gogna/gnparser/uploads/643872fc2c63d9218e5612c5f545c511/gnparser-v0.13.0-linux.tar.gz && \
-                       tar xf gnparser-v0.13.0-linux.tar.gz -C /usr/local/bin
+                       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Firefox (for headless feature tests)
+RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
+    tar -xjf - -C /usr/bin
+
+RUN /usr/bin/firefox/firefox --version
+
+ENV PATH /usr/bin/firefox/:$PATH
 
 #
 # Install ruby
@@ -52,7 +60,7 @@ RUN echo 'export RBENV_ROOT=/usr/local/rbenv' >> /root/.bashrc \
 ENV CONFIGURE_OPTS --disable-install-doc
 ENV PATH /usr/local/rbenv/bin:/usr/local/rbenv/shims:$PATH
 
-ENV RBENV_VERSION 2.6.5
+ENV RBENV_VERSION 2.7.2
 
 RUN eval "$(rbenv init -)"; rbenv install $RBENV_VERSION \
 &&  eval "$(rbenv init -)"; rbenv global $RBENV_VERSION \

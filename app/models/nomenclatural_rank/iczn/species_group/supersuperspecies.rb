@@ -8,4 +8,7 @@ class NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies < NomenclaturalRa
     false
   end
 
+  def self.abbreviation
+    'supersupersp.'
+  end
 end

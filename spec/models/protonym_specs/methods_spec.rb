@@ -61,6 +61,39 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       expect(species.all_generic_placements.sort).to eq(['Aus', 'Bus', 'Cus', 'Dus'])
     end
 
+    context 'predicted_child_rank' do
+      before(:all) do
+        @order = FactoryBot.build(:iczn_order, name: 'Hemiptera')
+        @family = FactoryBot.build(:iczn_family, name: 'Cicadellidae', parent: @order)
+        @genus = FactoryBot.build(:iczn_genus, name: 'Cicadella', parent: @family)
+        @species = FactoryBot.build(:iczn_species, name: 'viridis', parent: @genus)
+      end
+
+      specify 'predict family' do
+        expect(@order.predicted_child_rank('Delphacidae')).to eq(NomenclaturalRank::Iczn::FamilyGroup::Family)
+      end
+
+      specify 'predict tribe' do
+        expect(@family.predicted_child_rank('Delphacini')).to eq(NomenclaturalRank::Iczn::FamilyGroup::Tribe)
+      end
+
+      specify 'predict genus' do
+        expect(@family.predicted_child_rank('Aus')).to eq(NomenclaturalRank::Iczn::GenusGroup::Genus)
+      end
+
+      specify 'predict subgenus' do
+        expect(@genus.predicted_child_rank('Aus')).to eq(NomenclaturalRank::Iczn::GenusGroup::Subgenus)
+      end
+
+      specify 'predict species' do
+        expect(@genus.predicted_child_rank('aus')).to eq(NomenclaturalRank::Iczn::SpeciesGroup::Species)
+      end
+
+      specify 'predict subspecies' do
+        expect(@species.predicted_child_rank('aus')).to eq(NomenclaturalRank::Iczn::SpeciesGroup::Subspecies)
+      end
+    end
+
     context 'coordinated names' do
       before(:all) do
         @family = FactoryBot.create(:iczn_family, name: 'Cicadellidae')
