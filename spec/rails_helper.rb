@@ -1,4 +1,4 @@
-if ENV['CI']
+if !ENV['NO_COVERAGE_REPORT'] && ENV['CI']
   require 'simplecov'
   SimpleCov.start
 
