@@ -42,7 +42,9 @@ export default {
   mounted () {
     this.orderRanks()
     this.taxon = this.protonyms[0].taxon
-    this.parent = this.protonyms[1].taxon
+    if (this.protonyms[1]) {
+      this.parent = this.protonyms[1].taxon
+    }
   },
   methods: {
     create () {

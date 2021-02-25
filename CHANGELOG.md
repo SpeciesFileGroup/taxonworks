@@ -62,6 +62,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
 
+<<<<<<< HEAD
+=======
+[#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
+[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
+[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
+>>>>>>> 748_subgenus_combination
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
 [#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
