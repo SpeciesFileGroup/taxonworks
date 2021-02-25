@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tag facet to filter nomenclature [#2047]
 - Warn about unsaved changes on Accession metadata [#1858]
 - Pagination on Browse Annotations [#1438]
+- New combination for subgenus [#748]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -52,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some value label in Filter sources
 - Dropzone error message
 
+[#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
 [#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
