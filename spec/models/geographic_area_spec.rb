@@ -338,14 +338,15 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
 
       context 'retrieving geolocate UI paramerters as a hash' do
         specify 'champaign' do
+          point = champaign.geolocate_attributes.slice("Latitude", "Longitude")
 
           # pending 'completion of a method for geolocate_ui_params_string'
           expect(champaign.geolocate_ui_params).to eq({'country'       => 'United States of America',
                                                        'state'         => 'Illinois',
                                                        'county'        => 'Champaign',
                                                        'locality'      => nil,
-                                                       'Latitude'      => 40.1397523583313,
-                                                       'Longitude'     => -88.199600849246,
+                                                       'Latitude'      => point['Latitude'],
+                                                       'Longitude'     => point['Longitude'],
                                                        'Placename'     => nil,
                                                        'Score'         => '0',
                                                        'Uncertainty'   => '3',
@@ -361,12 +362,13 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                       })
         end
         specify 'illinois' do
+          point = champaign.parent.geolocate_attributes.slice("Latitude", "Longitude")
           expect(champaign.parent.geolocate_ui_params).to eq({'country'       => 'United States of America',
                                                               'state'         => 'Illinois',
                                                               'county'        => nil,
                                                               'locality'      => nil,
-                                                              'Latitude'      => 40.1211151426486,
-                                                              'Longitude'     => -89.1547189404101,
+                                                              'Latitude'      => point['Latitude'],
+                                                              'Longitude'     => point['Longitude'],
                                                               'Placename'     => nil,
                                                               'Score'         => '0',
                                                               'Uncertainty'   => '3',
@@ -423,15 +425,15 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
                                                                             'gc'            => 'TaxonWorks'})
         end
         specify 'ford' do
-          ford
+          point = ford.geolocate_attributes.slice("Latitude", "Longitude")
           # this case is to look upwards in the stack for a geographic_item, because this record does not have one,
           # thus providing the parent's centroid.
           expect(ford.geolocate_ui_params).to eq({'country'       => 'United States of America',
                                                   'state'         => 'Illinois',
                                                   'county'        => 'Ford',
                                                   'locality'      => nil,
-                                                  'Latitude'      => 40.1211151426486,
-                                                  'Longitude'     => -89.1547189404101,
+                                                  'Latitude'      => point['Latitude'],
+                                                  'Longitude'     => point['Longitude'],
                                                   'Placename'     => nil,
                                                   'Score'         => '0',
                                                   'Uncertainty'   => '3',
@@ -454,13 +456,14 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
         specify 'retrieving geolocate UI parameters as a string' do
           # pending 'completion of a method for geolocate_ui_params_string'
           ford.geographic_items << GeographicItem::MultiPolygon.create!(multi_polygon: fc_shape)
+          point = ford.geolocate_attributes.slice("Latitude", "Longitude").values.join('|')
           expect(ford.geolocate_ui_params_string)
             .to eq('http://www.geo-locate.org/web/webgeoreflight.aspx' \
                 '?country=United States of America' \
                 '&state=Illinois' \
                 '&county=Ford' \
                 '&locality=' \
-                '&points=40.5968937591322|-88.2239418211552||0|3' \
+                "&points=#{point}||0|3" \
                 '&georef=run|false|false|true|true|false|false|false|0' \
                 '&gc=TaxonWorks')
         end
