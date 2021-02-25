@@ -2,6 +2,7 @@ class AlternateValuesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_alternate_value, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:alternate_values) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /alternate_values
   # GET /alternate_values.json
