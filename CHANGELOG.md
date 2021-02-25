@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
 - Some value label in Filter sources
 - Dropzone error message
+- Redirect to Image Matrix on OTU Radial [#2033]
 
 ### Changed
 - Pagination in Filter sources
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#1939]: https://github.com/SpeciesFileGroup/taxonworks/issues/1939
+[#2033]: https://github.com/SpeciesFileGroup/taxonworks/issues/2033
 
 ## [0.16.2] - 2021-02-18
 
