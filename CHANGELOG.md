@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Additional date recognition format in date RegEx
 - Pagination on Browse Annotations [#1438]
 - New combination for subgenus [#748]
 - Warn about unsaved changes on Accession metadata [#1858]
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.16.2] - 2021-02-18
 
 ### Added
+- Additional date recognition format in date RegEx
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
