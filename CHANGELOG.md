@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confirmation popup to delete a type material in comprehensive
 - Tag facet to filter nomenclature [#2047]
 - Warn about unsaved changes on Accession metadata [#1858]
+- Pagination on Browse Annotations [#1438]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -51,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some value label in Filter sources
 - Dropzone error message
 
+[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
 [#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
