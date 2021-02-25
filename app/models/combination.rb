@@ -57,8 +57,8 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations. ! TODO:  family group names  ?
-  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
+  # The ranks that can be used to build combinations.  
+  APPLICABLE_RANKS = %w{genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
