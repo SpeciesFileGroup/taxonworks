@@ -7,15 +7,27 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Pagination on Browse Annotations [#1438]
+- New combination for subgenus [#748]
+- Warn about unsaved changes on Accession metadata [#1858]
+
 ### Fixed
 - `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
+- Some value label in Filter sources
+- Dropzone error message
 
-[#1939] https://github.com/SpeciesFileGroup/taxonworks/issues/1939
+### Changed
+- Pagination in Filter sources
+
+[#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
+[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
+[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
+[#1939]: https://github.com/SpeciesFileGroup/taxonworks/issues/1939
 
 ## [0.16.2] - 2021-02-18
 
 ### Added
-- Additional date recognition format in date RegEx
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
@@ -26,8 +38,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock biological relationship in radial object [#2036]
 - Confirmation popup to delete a type material in comprehensive
 - Tag facet to filter nomenclature [#2047]
-- Warn about unsaved changes on Accession metadata [#1858]
-- Pagination on Browse Annotations [#1438]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -36,7 +46,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed `verbatim author` for `cached_author_year` in filter nomenclature
 - Keywords styled after choice in Tag facet
 - Keywords removed from all list after choice in Tag facet
-- Pagination in Filter sources
 
 ### Fix
 - Model LoanItem - Tagged batch adds tag, not object [#2051]
@@ -50,11 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image caption modal size [#2030]
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
-- Some value label in Filter sources
-- Dropzone error message
 
-[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
-[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
 [#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
