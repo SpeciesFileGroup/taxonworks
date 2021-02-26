@@ -109,7 +109,8 @@
         <list-component
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
+          :list="list"
+          @onSort="list = $event"/>
         <h3
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.
