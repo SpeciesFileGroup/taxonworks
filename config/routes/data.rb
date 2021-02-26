@@ -581,6 +581,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load

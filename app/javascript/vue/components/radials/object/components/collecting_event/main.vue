@@ -6,37 +6,27 @@
       @onSelect="addCollectingEvent"/>
     <div v-if="collectingEvent">
       <h3>Print label</h3>
-      <div class="flex-separate margin-medium-bottom middle">
-        <div>
-          <button
-            @click="copyLabel"
-            class="button normal-input button-default"
-            type="button"
-            :disabled="isEmpty">
-            Copy verbatim label
-          </button>
-        </div>
-        <div class="horizontal-right-content middle">
-          <label>Que to print
+      <ul
+        v-if="identifier"
+        class="no_bullets context-menu">
+        <li
+          v-for="(value, key) in labelTypes"
+          :key="value">
+          <label>
             <input
-              class="que-input"
-              :disabled="!(label.text && label.text.length)"
-              size="5"
-              v-model="label.total"
-              type="number">
+              type="radio"
+              v-model="label.type"
+              :value="key">
+            {{ value }}
           </label>
-          <a
-            v-if="label.id && label.total > 0"
-            target="blank"
-            :href="`/tasks/labels/print_labels?label_id=${label.id}`">Preview
-          </a>
-        </div>
-      </div>
-      <textarea
-        class="full_width margin-small-bottom"
-        v-model="label.text"
-        cols="45"
-        rows="12"/>
+        </li>
+      </ul>
+      <component
+        class="margin-small-top"
+        :is="componentName"
+        :collecting-event="collectingEvent"
+        :identifier="identifier"
+        v-model="label"/>
       <button
         class="normal-input button button-submit"
         @click="saveLabel">
@@ -48,10 +38,11 @@
         @click="resetLabel">
         New
       </button>
-      <display-list
+      <table-list
         class="margin-medium-top"
         :list="labels"
-        label="text"
+        :header="['Label', 'Total', '']"
+        :attributes="['label','total']"
         edit
         @edit="setLabel"
         @delete="removeLabel"/>
@@ -63,35 +54,40 @@
 
 import CRUD from '../../request/crud.js'
 import annotatorExtend from '../../components/annotatorExtend.js'
-import DisplayList from 'components/displayList'
+import TableList from 'components/table_list'
 import CeSection from './ceSection'
+import TextComponent from './label/TextLabel'
+import QRCodeComponent from './label/QRCode'
+
+const LabelTypes = {
+  Label: 'Text',
+  'Label::QrCode': 'QRCode',
+  'Label::Code128': 'Barcode'
+}
 
 export default {
   mixins: [CRUD, annotatorExtend],
   components: {
+    BarcodeComponent: QRCodeComponent,
     CeSection,
-    DisplayList
+    TableList,
+    TextComponent,
+    QRCodeComponent
   },
   computed: {
-    isEmpty () {
-      return !this.collectingEvent?.verbatim_label
-    }
-  },
-  async created () {
-    const ceId = (await (this.getList(`/collection_objects/${this.metadata.object_id}.json`))).body.collecting_event_id
 
-    if (ceId) {
-      this.collectingEvent = (await this.getList(`/collecting_events/${ceId}.json`)).body
+    componentName () {
+      return `${LabelTypes[this.label.type]}Component`
     }
-
-    this.resetLabel()
   },
   data () {
     return {
       loadOnMounted: false,
       label: {},
       collectingEvent: undefined,
-      labels: []
+      labels: [],
+      identifier: undefined,
+      labelTypes: LabelTypes
     }
   },
   watch: {
@@ -108,15 +104,32 @@ export default {
       }
     }
   },
+  async created () {
+    const ceId = (await (this.getList(`/collection_objects/${this.metadata.object_id}.json`))).body.collecting_event_id
+
+    this.getList('/identifiers.json', {
+      params: {
+        identifier_object_id: this.metadata.object_id,
+        identifier_object_type: 'CollectionObject',
+        type: 'Identifier::Local::CatalogNumber'
+      }
+    }).then(response => {
+      this.identifier = response.body[0]
+    })
+
+    if (ceId) {
+      this.collectingEvent = (await this.getList(`/collecting_events/${ceId}.json`)).body
+    }
+
+    this.resetLabel()
+  },
   methods: {
     resetLabel () {
       this.label = {
         total: undefined,
-        text: undefined
+        text: undefined,
+        type: 'Label'
       }
-    },
-    copyLabel () {
-      this.label.text = this.collectingEvent.verbatim_label
     },
     saveLabel () {
       const ceData = {

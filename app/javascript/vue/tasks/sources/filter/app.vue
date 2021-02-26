@@ -89,7 +89,9 @@
             v-if="list.length"
             class="horizontal-left-content">
             <span
-              class="horizontal-left-content">{{ list.length }} records.
+              class="horizontal-left-content">
+              {{ recordsAtCurrentPage }} - 
+              {{ recordsAtNextPage }} of {{ pagination.total }} records.
             </span>
             <div class="margin-small-left">
               <select v-model="per">
@@ -149,6 +151,13 @@ export default {
     },
     csvList () {
       return this.ids.length ? this.list.filter(item => { return this.ids.includes(item.id) }) : this.list
+    },
+    recordsAtCurrentPage () {
+      return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
+    },
+    recordsAtNextPage () {
+      const recordsCount = this.pagination.paginationPage * this.pagination.perPage
+      return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
     }
   },
   data () {

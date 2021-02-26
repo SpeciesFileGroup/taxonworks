@@ -9,7 +9,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
 
-      # TODO: likely move to model
+      # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
       ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
       ATTRIBUTES.each do |a|
@@ -71,8 +71,6 @@ module Queries
         @geo_json = params[:geo_json]
         @radius = params[:radius].blank? ? 100 : params[:radius] 
 
-        @keyword_ids = params[:keyword_ids].blank? ? [] : params[:keyword_ids]
-
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
@@ -89,6 +87,7 @@ module Queries
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
 
+        set_tags_params(params)
         set_attributes(params)
         set_dates(params)
       end
@@ -244,7 +243,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
-          matching_keyword_ids,
+          keyword_id_facet, 
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,

@@ -374,8 +374,6 @@ export default {
         } else {
           window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
         }
-      }, () => {
-        TW.workbench.alert.create(`${this.metadata.type} could not be destroyed.`, 'error')
       })
     }
   }

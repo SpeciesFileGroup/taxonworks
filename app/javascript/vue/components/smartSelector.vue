@@ -286,12 +286,21 @@ export default {
         this.options = OrderSmart(this.options)
       })
     },
+    addToList (listName, item) {
+      const index = this.lists[listName].findIndex(({ id }) => id === item.id)
+
+      if (index > -1) {
+        this.$set(this.lists[listName], index, item)
+      } else {
+        this.lists[listName].push(item)
+      }
+    },
     addCustomElements () {
       const keys = Object.keys(this.customList)
       if (keys.length) {
         keys.forEach(key => {
           if (this.lists[key]) {
-            this.$set(this.lists, key, getUnique(this.lists[key].concat(this.customList[key]), 'id'))
+            this.$set(this.lists, key, this.customList[key])
           } else {
             this.$set(this.lists, key, this.customList[key])
             this.options.push(key)

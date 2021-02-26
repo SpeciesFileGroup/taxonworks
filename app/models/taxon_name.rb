@@ -209,9 +209,11 @@ class TaxonName < ApplicationRecord
     :validate_source_type,
     :validate_one_root_per_project
 
+  # TODO: remove, this is handled natively
   validates_presence_of :type, message: 'is not specified'
 
-  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}
+  validates :year_of_publication, date_year: {min_year: 1000, max_year: Time.now.year + 5}, allow_nil: true
+  validates :name, format: { without: /\s/ }
 
   # TODO: move some of these down to Protonym when they don't apply to Combination
 
@@ -874,7 +876,8 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
-      cached_original_combination: nil
+      cached_original_combination: nil,
+      cached_nomenclature_date: nil
     )
     save if update
   end
@@ -886,7 +889,8 @@ class TaxonName < ApplicationRecord
     # We can't use the in-memory cache approach for combination names, force reload each time
     n = nil if is_combination?
 
-    update_column(:cached_html, get_full_name_html(n))
+    update_columns(cached_html: get_full_name_html(n),
+                   cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
 
@@ -904,6 +908,7 @@ class TaxonName < ApplicationRecord
     update_columns(
       cached:  NO_CACHED_MESSAGE,
       cached_author_year:  NO_CACHED_MESSAGE,
+      cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
       cached_html:  NO_CACHED_MESSAGE
     )

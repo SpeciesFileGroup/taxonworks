@@ -14,11 +14,10 @@
         </div>
         <ul class="context-menu">
           <li>
-            <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+            <a href="/tasks/observation_matrices/observation_matrix_hub">Observation matrix hub</a>
           </li>
         </ul>
       </div>
-    
     </template>
     <div class="content-menu">
       <template v-if="!matrixRow">
