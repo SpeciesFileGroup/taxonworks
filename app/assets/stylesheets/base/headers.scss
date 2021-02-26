@@ -24,6 +24,7 @@
     line-height: $font_small;
 
     a {
+      color: white;
       text-decoration: none;
     }
   }
@@ -51,10 +52,7 @@
 }
 
 #header_bar.sandbox {
-  background-color: $color-primary-0;
-  #session_nav a {
-    color: $color-secondary-2-4;
-  }
+  background-color: #00845D;
 
   #taxonworks a {
     color: $default_text;
