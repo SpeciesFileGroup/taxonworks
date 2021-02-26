@@ -124,7 +124,6 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
-  gem 'selenium-webdriver', '~> 3.141'
   gem 'webdrivers', '~> 4.5', require: false
   gem 'prawn', '~> 2.2.2'
 end
