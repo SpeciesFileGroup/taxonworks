@@ -42,6 +42,9 @@ class Extract < ApplicationRecord
 
   is_origin_for 'Sequence', 'Extract'
 
+  has_many :extractor_roles, class_name: 'Extractor', as: :role_object, dependent: :destroy
+  has_many :extractors, through: :extractor_roles, source: :person
+
   validates_presence_of :quantity_value
   attr_accessor :is_made_now
 
