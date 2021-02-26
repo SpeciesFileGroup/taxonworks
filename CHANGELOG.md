@@ -18,10 +18,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some value label in Filter sources
 - Dropzone error message
 - Redirect to Image Matrix on OTU Radial [#2033]
+- Race condition problem when generating dwc_occurrences indexing
 
 ### Changed
 - Pagination in Filter sources
 - Replaced geckodriver-helper with webdrivers gem
+- Improvements on sort table in source and nomenclature filters
 
 [#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
 [#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
