@@ -80,7 +80,8 @@
         </div>
         <list-component
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
+          :list="list"
+          @onSort="list = $event"/>
         <h3
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content">No records found.

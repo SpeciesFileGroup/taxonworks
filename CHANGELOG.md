@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Pagination in Filter sources
 - Replaced geckodriver-helper with webdrivers gem
+- Improvements on sort table in source and nomenclature filters
 
 [#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
 [#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
