@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div>
     <h2>Made</h2>
     <div class="horizontal-left-content align-end">
       <div class="label-above margin-small-right">
@@ -44,11 +44,11 @@
 
 <script>
 
-import props from './mixins/props'
 import LockComponent from 'components/lock'
+import componentExtend from './mixins/componentExtend'
 
 export default {
-  mixins: [props],
+  mixins: [componentExtend],
   components: {
     LockComponent
   }

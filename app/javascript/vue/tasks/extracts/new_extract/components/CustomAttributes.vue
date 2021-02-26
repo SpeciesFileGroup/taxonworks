@@ -1,13 +1,16 @@
 <template>
-  
+  <div>
+    <h2>Custom attributes</h2>
+  </div>
 </template>
 
 <script>
-export default {
 
+import CustomAttributes from 'components/custom_attributes/predicates/predicates'
+
+export default {
+  components: {
+    CustomAttributes
+  }
 }
 </script>
-
-<style>
-
-</style>
