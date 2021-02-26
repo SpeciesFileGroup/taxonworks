@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Some value label in Filter sources
 - Dropzone error message
 - Redirect to Image Matrix on OTU Radial [#2033]
+- Race condition problem when generating dwc_occurrences indexing
 
 ### Changed
 - Pagination in Filter sources
