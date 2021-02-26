@@ -20,9 +20,11 @@
   }
 
   #taxonworks_left {
+    flex-grow: 1;
     line-height: $font_small;
-    li {
-      padding-left: $standard_padding * 0.5;
+
+    a {
+      text-decoration: none;
     }
   }
 

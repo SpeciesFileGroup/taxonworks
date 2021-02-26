@@ -1,20 +1,20 @@
 <div id="header_bar" class="flexbox <%= sandbox_css -%>"> 
   <div class="horizontal-left-content item item1">
-    <div class="horizontal-left-content align-end">
+    <div
+      id="taxonworks_left"
+      class="horizontal-left-content align-end">
       <div id="taxonworks">
         <%= link_to(content_tag(:div, '', class: :logo), root_path) -%> 
       </div>
-      <ul class="horizontal_navbar no_bullets"
-        id="taxonworks_left">
-        <li><%= taxonworks_version_tag -%></li>
-        <li><%= sandbox_details_tag -%></li>
-        <li>
-          <a
-            href="https://github.com/SpeciesFileGroup/taxonworks/issues"
-            target="_blank">
-            Issues
-          </a>
-        </li>
+      <div>
+        <%= taxonworks_version_tag -%>
+        <%= sandbox_details_tag -%>
+        <a
+          class="margin-small-left"
+          href="https://github.com/SpeciesFileGroup/taxonworks/issues"
+          target="_blank">
+          Issues
+        </a>
       </ul>
     </div>
   </div>
