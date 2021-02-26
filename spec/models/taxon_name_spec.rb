@@ -1014,15 +1014,15 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     specify '#reified_id 5' do
-      expect(c1.reified_id).to eq(species.reified_id)
+      expect(c1.reified_id).to eq(c1.reified_id)
     end
 
     specify '#reified_id 6' do
-      expect(c2.reified_id).to eq(species.reified_id)
+      expect(c2.reified_id).to eq(c2.reified_id)
     end
 
     specify '#reified_id 7' do
-      expect(c3.reified_id).to eq(species.reified_id)
+      expect(c3.reified_id).to eq(c3.reified_id)
     end
 
     specify '#reified_id with original_combination relationship' do
