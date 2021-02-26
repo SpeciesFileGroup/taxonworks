@@ -62,7 +62,6 @@ module Export::Coldp::Files::Synonym
                 nil,            # Status TODO def status(taxon_name_id)
                 remarks_field,
                 nil,            # Unclear what this means in TW
-                o[3]            # TODO: remove after debuggin
               ]
             end
         end

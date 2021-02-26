@@ -5,11 +5,6 @@ module Export
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
-  # TODO:
-  # * Consider exploring https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
-  # then each module will provide a correspond method to each field
-  # https://github.com/frictionlessdata/datapackage-rb
-  # https://github.com/frictionlessdata/tableschema-rb
   # * write tests to check for coverage (missing methods)
   # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
@@ -20,8 +15,6 @@ module Export
     # @return [Scope]
     #   Should return the full set of Otus (= Taxa in CoLDP) that are to be sent.
     #
-    #
-    # TODO: include options for validity, sets of tags, etc.
     # At present otus are a mix of valid and invalid
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
@@ -108,9 +101,8 @@ module Export
         taxon_name.reified_id
       elsif taxon_name.type == 'Combination'
         taxon_name.protonyms.last.reified_id
-        # taxon_name.protonyms.last.id
       else
-        nil # shouldn't be hit
+        nil
       end
     end
 

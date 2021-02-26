@@ -103,34 +103,34 @@ module Export::Coldp::Files::Name
         else
           species = e[:species][1]
         end
-      end   
+      end
 
     end
 
     csv << [
-      id,                                                                         # ID
-      basionym_id,                                                                # basionymID (can't be invalid
-      clean_sic(t.cached_original_combination),                                   # scientificName # TODO: once cache is fixed remove &. check
-      authorship_field(t, true),                                                  # authorship
-      rank,                                                                       # rank
-      uninomial,                                                                  # uninomial
-      genus,                                                                      # genus
-      subgenus,                                                                   # subgenus (no parens) # TODO - optimize to not have to strip these
-      species,                                                                    # species
-      infraspecific_element ? infraspecific_element.last : nil,                   # infraspecificEpithet
-      nil,                                                                        # publishedInID   |
-      nil,                                                                        # publishedInPage |-- Decisions is that these add to Synonym table
-      nil,                                                                        # publishedInYear |
-      true,                                                                       # original
-      code_field(t),                                                              # code
-      nil,                                                                        # status https://api.catalogue.life/vocab/nomStatus
-      nil,                                                                        # link (probably TW public or API)
-      remarks_field(t),                                                           # remarks
+      id,                                                        # ID
+      basionym_id,                                               # basionymID
+      clean_sic(t.cached_original_combination),                  # scientificName
+      authorship_field(t, true),                                 # authorship
+      rank,                                                      # rank
+      uninomial,                                                 # uninomial
+      genus,                                                     # genus
+      subgenus,                                                  # subgenus (no parens)
+      species,                                                   # species
+      infraspecific_element ? infraspecific_element.last : nil,  # infraspecificEpithet
+      nil,                                                       # publishedInID   |
+      nil,                                                       # publishedInPage |-- Decisions is that these add to Synonym table
+      nil,                                                       # publishedInYear |
+      true,                                                      # original
+      code_field(t),                                             # code
+      nil,                                                       # status https://api.catalogue.life/vocab/nomStatus
+      nil,                                                       # link (probably TW public or API)
+      remarks_field(t),                                          # remarks
     ]
   end
 
   def self.clean_sic(name)
-    name&.gsub(/\s+\[sic\]/, '') # TODO: remove & once cached_original_combination is re-indexed
+    name&.gsub(/\s+\[sic\]/, '') # TODO: remove `&` once cached_original_combination is re-indexed
   end
 
   # @params otu [Otu]
@@ -159,13 +159,10 @@ module Export::Coldp::Files::Name
         remarks
       }
 
-      # why we getting double
-      #  unique = {}
-
       otu.taxon_name.self_and_descendants.that_is_valid
         .pluck(:id, :cached)
         .each do |name|
-        
+
         # TODO: handle > quadranomial names (e.g. super species like `Bus (Dus aus aus) aus eus var. fus`
         # Proposal is to exclude names of a specific ranks see taxon.rb
         #
@@ -192,17 +189,17 @@ module Export::Coldp::Files::Name
 
           is_genus_species = t.is_genus_or_species_rank?
 
-          # TODO: combinations never uninomial, right? (only case is subgenus treated as genus, but that should be ClassifiedAs)
+          # TODO: Subgenus as Genus combination may break this
           is_col_uninomial = !t.is_combination? && ((t.rank == 'genus') || !is_genus_species)
 
           higher = !t.is_combination? && !is_genus_species
 
           # TODO: consider faster ways to check for misspellings
           name_string = clean_sic(t.cached) # if higher and misspelling, then it's in name too
-          
+
           uninomial = nil
           generic_epithet, infrageneric_epithet, specific_epithet, infraspecific_epithet = nil, nil, nil, nil
-          
+
           if !is_col_uninomial
             elements = t.full_name_hash
 
@@ -214,12 +211,11 @@ module Export::Coldp::Files::Name
             uninomial = name_string
           end
 
-          # TODO: Combinations don't have rank BUT CoL importer can interpret
-          # * possible solutions 
+          # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
           rank = t.rank
 
           # Set is: valid or invalid higher, valid lower, past combinations
-          if higher || t.is_valid? || t.is_combination? 
+          if higher || t.is_valid? || t.is_combination?
             csv << [
               t.id,                                     # ID
               basionym_id,                              # basionymID
@@ -243,10 +239,7 @@ module Export::Coldp::Files::Name
           end
 
           # Here we truly want no higher
-          if (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?)) # TODO: Confirm unnecessary: && unique[basionym_id].nil?
-            # subgenera not hitting here
-
-            # unique[basionym_id] = true
+          if (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
             add_original_combination(t, csv)
           end
@@ -255,7 +248,7 @@ module Export::Coldp::Files::Name
         end
       end
 
-      puts Rainbow("----------TOTAL: #{name_total}------").red.bold
+      # puts Rainbow("----------TOTAL: #{name_total}------").red.bold
     end
   end
 
