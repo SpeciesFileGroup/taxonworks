@@ -7,6 +7,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+## [0.16.3] - 2021-02-26
 ### Added
 - Additional date recognition format in date RegEx
 - Pagination on Browse Annotations [#1438]
@@ -909,7 +910,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...development
+[0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...v0.16.0
