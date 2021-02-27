@@ -7,11 +7,35 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+## [0.16.3] - 2021-02-26
+### Added
+- Additional date recognition format in date RegEx
+- Pagination on Browse Annotations [#1438]
+- New combination for subgenus [#748]
+- Warn about unsaved changes on Accession metadata [#1858]
+
+### Fixed
+- `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
+- Some value label in Filter sources
+- Dropzone error message
+- Redirect to Image Matrix on OTU Radial [#2033]
+- Race condition problem when generating dwc_occurrences indexing
+
+### Changed
+- Pagination in Filter sources
+- Replaced geckodriver-helper with webdrivers gem
+- Improvement sort table on collection object, source and nomenclature filters
+
+[#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
+[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
+[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
+[#1939]: https://github.com/SpeciesFileGroup/taxonworks/issues/1939
+[#2033]: https://github.com/SpeciesFileGroup/taxonworks/issues/2033
 
 ## [0.16.2] - 2021-02-18
 
 ### Added
+- Additional date recognition format in date RegEx
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
@@ -120,6 +144,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+- CoLDP [sic], errant chresonym, and basionym ids for misspellings
 - Loan items reference proper housekeeping in table
 - Line links of batch-preview results
 - broken API download link for exported references [#1908]
@@ -885,7 +910,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...development
+[0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...v0.16.0

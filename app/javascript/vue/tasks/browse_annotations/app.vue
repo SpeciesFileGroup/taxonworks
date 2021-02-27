@@ -48,7 +48,7 @@
     </div>
     <button
       class="button normal-input button-default separate-bottom"
-      @click="processResult"
+      @click="processResult()"
       :disabled="submitAvailable"
       type="submit">Submit
     </button>
@@ -58,119 +58,174 @@
       :type="filter.annotation_type.type"
       :url="request.url"
       :total="request.total"/>
-    <view-list 
+
+    <div
+      class="flex-separate margin-medium-bottom margin-medium-top">
+      <pagination-component
+        v-if="pagination && resultList.length"
+        @nextPage="processResult"
+        :pagination="pagination"/>
+      <div
+        v-if="resultList.length"
+        class="horizontal-left-content">
+        <span
+          class="horizontal-left-content">
+          {{ recordsAtCurrentPage }} - 
+          {{ recordsAtNextPage }} of {{ pagination.total }} records.
+        </span>
+        <div class="margin-small-left">
+          <select v-model="per">
+            <option
+              v-for="records in maxRecords"
+              :key="records"
+              :value="records">
+              {{ records }}
+            </option>
+          </select>
+          records per page.
+        </div>
+      </div>
+    </div>
+    <view-list
       :list="resultList"/>
   </div>
 </template>
 <script>
 
   //TODO: Make a main filter component and move each annotator filter there.
-  import AnnotationTypes from './components/annotation_types'
-  import AnnotationOn from './components/annotation_on'
-  import AnnotationFor from './components/annotation_for'
-  import AnnotationDates from './components/annotation_dates'
-  import AnnotationLogic from './components/annotation_logic'
-  import AnnotationBy from './components/annotation_by'
-  //
-  import ViewList from './components/view/list.vue'
-  import RequestBar from './components/view/requestBar.vue'
+import AnnotationTypes from './components/annotation_types'
+import AnnotationOn from './components/annotation_on'
+import AnnotationFor from './components/annotation_for'
+import AnnotationDates from './components/annotation_dates'
+import AnnotationLogic from './components/annotation_logic'
+import AnnotationBy from './components/annotation_by'
+//
+import ViewList from './components/view/list.vue'
+import RequestBar from './components/view/requestBar.vue'
 
-  import Spinner from 'components/spinner.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import Spinner from 'components/spinner.vue'
+import AjaxCall from 'helpers/ajaxCall'
+import PaginationComponent from 'components/pagination'
+import GetPagination from 'helpers/getPagination'
 
-  export default {
-    components: {
-      AnnotationBy,
-      AnnotationTypes,
-      AnnotationFor,
-      AnnotationOn,
-      AnnotationDates,
-      AnnotationLogic,
-      ViewList,
-      RequestBar,
-      Spinner
+export default {
+  components: {
+    AnnotationBy,
+    AnnotationTypes,
+    AnnotationFor,
+    AnnotationOn,
+    AnnotationDates,
+    AnnotationLogic,
+    ViewList,
+    RequestBar,
+    Spinner,
+    PaginationComponent
+  },
+
+  data () {
+    return {
+      filter: this.resetFilter(),
+      isLoading: false,
+      resultList: [],
+      request: {
+        url: '',
+        total: 0
+      },
+      for: {
+        tags: 'keyword_id',
+        data_attributes: 'controlled_vocabulary_term_id',
+        confidences: 'confidence_level_id',
+      },
+      per: 500,
+      pagination: undefined,
+      maxRecords: [50, 100, 250, 500, 1000]
+    }
+  },
+
+  computed: {
+    submitAvailable () {
+      return !this.filter.annotation_type.type || !this.filter.model
     },
-    computed: {
-      submitAvailable() {
-        return !this.filter.annotation_type.type || !this.filter.model
+
+    recordsAtCurrentPage () {
+      return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
+    },
+
+    recordsAtNextPage () {
+      const recordsCount = this.pagination.paginationPage * this.pagination.perPage
+      return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
+    }
+  },
+
+  watch: {
+    per () {
+      this.processResult()
+    }
+  },
+
+  methods: {
+    processResult ({ page } = {}) {
+      const params = {
+        on: [this.filter.model],
+        by: Object.values(this.filter.selected_by).map(item => item.user_id),
+        created_after: this.filter.annotation_dates.after,
+        created_before: this.filter.annotation_dates.before,
+        per: this.per,
+        page
       }
+      params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
+      this.isLoading = true
+
+      AjaxCall('get', `/${this.filter.annotation_type.type}.json`, { params: params }).then(response => {
+        this.pagination = GetPagination(response)
+        if (this.filter.annotation_logic === 'replace') {
+          this.resultList = response.body
+        } else {
+          let concat = response.body.concat(this.resultList)
+
+          concat = concat.filter((item, index, self) =>
+            index === self.findIndex((i) => (
+              i.id === item.id && i.type === item.type
+            ))
+          )
+          this.resultList = concat
+        }
+
+        this.request.url = response.request.responseURL
+        this.request.total = response.body.length
+        this.isLoading = false
+      })
     },
-    data() {
+
+    resetApp () {
+      this.filter = this.resetFilter()
+      this.resultList = []
+      this.request.url = ''
+      this.request.total = 0
+    },
+
+    resetFilter () {
       return {
-        filter: this.resetFilter(),
-        isLoading: false,
-        resultList: [],
-        request: {
-          url: '',
-          total: 0
+        annotation_type: {
+          type: undefined,
+          used_on: undefined,
+          select_options_url: undefined,
+          all_select_option_url: undefined
         },
-        for: {
-          tags: 'keyword_id',
-          data_attributes: 'controlled_vocabulary_term_id',
-          confidences: 'confidence_level_id',
+        annotation_dates: {
+          after: undefined,
+          before: undefined
         },
-      }
-    },
-    methods: {
-      processResult() {
-        let params = {
-          on: [this.filter.model],
-          by: Object.values(this.filter.selected_by).map(item => item.user_id),
-          created_after: this.filter.annotation_dates.after,
-          created_before: this.filter.annotation_dates.before
-        }
-        params[this.for[this.filter.annotation_type.type]] = Object.values(this.filter.selected_for).map(item => item.id)
-        this.isLoading = true
-
-        AjaxCall('get', `/${this.filter.annotation_type.type}.json`, { params: params } ).then(response => {
-
-          if(this.filter.annotation_logic == 'replace') {
-            this.resultList = response.body
-          }
-          else {
-            let concat = response.body.concat(this.resultList)
-            
-            concat = concat.filter((item, index, self) =>
-              index === self.findIndex((i) => (
-                i.id === item.id && i.type === item.type
-              ))
-            )
-            this.resultList = concat
-          }
-
-          this.request.url = response.request.responseURL
-          this.request.total = response.body.length
-          this.isLoading = false
-        })
-      },
-      resetApp() {
-        this.filter = this.resetFilter()
-        this.resultList = []
-        this.request.url = ''
-        this.request.total = 0
-      },
-      resetFilter() {
-        return {
-          annotation_type: {
-            type: undefined,
-            used_on: undefined,
-            select_options_url: undefined,
-            all_select_option_url: undefined
-          },
-          annotation_dates: {
-            after: undefined,
-            before: undefined
-          },
-          annotation_logic: 'replace',
-          selected_type: undefined,
-          selected_for: {},
-          selected_by: {},
-          model: undefined,
-          result: 'initial result'
-        }
+        annotation_logic: 'replace',
+        selected_type: undefined,
+        selected_for: {},
+        selected_by: {},
+        model: undefined,
+        result: 'initial result'
       }
     }
   }
+}
 </script>
 <style lang="scss">
   .reload-app {

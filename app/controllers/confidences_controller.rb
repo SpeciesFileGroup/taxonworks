@@ -2,6 +2,7 @@ class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_confidence, only: [:edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:confidences) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /confidences
   # GET /confidences.json

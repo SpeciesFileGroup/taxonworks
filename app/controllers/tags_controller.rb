@@ -4,6 +4,7 @@ class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_tag, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:tags) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /tags
   # GET /tags.json

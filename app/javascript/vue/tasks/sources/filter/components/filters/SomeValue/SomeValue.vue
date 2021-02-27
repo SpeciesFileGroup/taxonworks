@@ -34,6 +34,7 @@
             class="list-complete-item"
             :key="index"
             :item="item"
+            label="name"
             v-model="item.empty"
             @remove="removeAttr(index)"
           />

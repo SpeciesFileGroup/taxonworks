@@ -682,7 +682,7 @@ module Utilities::Dates
 
     date = {}
     # June 27 1946 - July 1 1947
-    if matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s\.,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    if matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s\.,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–—]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-\s,\/]\s?(\d\d?)[\.;,]?[-\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -691,7 +691,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[4]
       date[:end_date_year] = matchdata1[6]
       # 27 June 1946 - 1 July 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–]\s?(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\s?[-–—]\s?(\d\d?)[\.,\/-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s,\/-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[2]
@@ -700,7 +700,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[5]
       date[:end_date_year] = matchdata1[6]
       # 5 27 1946 - 6 1 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|'?\d{2})\s?[-–]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s\.,\/](\d{4}|'?\d{2})\s?[-–—]\s?(\d\d?)[\s,\.\/]\s?(\d\d?)[\.,]?[\s,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -709,7 +709,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[4]
       date[:end_date_year] = matchdata1[6]
       # June 27 - July 1 1947
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–\s,\/]?\s?(\d\d?)\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–\s,\/]?\s?(\d\d?)[-–\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s,\/]?\s?(\d\d?)\s?[-–—]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s,\/]?\s?(\d\d?)[-–—\s\.;,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -718,7 +718,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[3]
       date[:end_date_year] = matchdata1[5]
       # 27 June - 1 July 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–]\s?(\d\d?)[\.\/,–-]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[,-–\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[-–—\.\/,]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–—]\s?(\d\d?)[-–—\.\/,]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—,\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[2]
@@ -727,7 +727,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[4]
       date[:end_date_year] = matchdata1[5]
       # 5 27 - 6 1 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-–]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[\s\.,\/]\s?(\d\d?)\s?[-–—]\s?(\d\d?)[\s\.,\/]\s?(\d\d?)[\s\.,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -736,7 +736,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[3]
       date[:end_date_year] = matchdata1[5]
       # June 27-29 1947
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.;,]?[-\s\.–,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s\/,]?(\d\d?)\s?[-–—\+]\s?(\d\d?)[\.;,]?[-\s\.–,\/]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -745,7 +745,7 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[1]
       date[:end_date_year] = matchdata1[4]
       # 27-29 June 1947
-    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[\s\/,–-]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–—\+]\s?(\d\d?)[\s\.,\/-]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—\s\/,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[3]
@@ -755,7 +755,7 @@ module Utilities::Dates
       date[:end_date_year] = matchdata1[4]
       #=begin
       # 27-29 12 1947 #### watch for false positives
-    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–\+]\s?(\d\d?)[\s\.,\/]\s?(\d\d)\.?[\s\/,\.](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–—\+]\s?(\d\d?)[\s\.,\/]\s?(\d\d)\.?[\s\/,\.](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[3]
@@ -765,7 +765,7 @@ module Utilities::Dates
       date[:end_date_year] = matchdata1[4]
       #=end
       # 12 27-29 1947
-    elsif matchdata1 = text.match(/\W(\d\d)[\s\.,\/]\s?(\d\d?)\s?[-–\+]\s?(\d\d?)[\.,]?[\s,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d)[\s\.,\/]\s?(\d\d?)\s?[-–—\+]\s?(\d\d?)[\.,]?[\s,\/](\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
@@ -774,38 +774,38 @@ module Utilities::Dates
       date[:end_date_month] = matchdata1[1]
       date[:end_date_year] = matchdata1[4]
       # June - July 1947
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[,-–\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?\s?[-–—]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xi|xii|x|iii|ii|i)\.?[-–—,\/]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
       date[:end_date_month] = matchdata1[2]
       date[:end_date_year] = matchdata1[3]
       # Jun 29 1947     Jun 29, 1947    June 29, 1947    VI-29-1947   X.25.2000   Jun 29, '47   June 29, '47    VI-4-08
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-–_,\/]?\s?(\d\d?)[\.;,]?\s?[-–_\/\.',\s]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)\.?\s?[-–—_,\/]?\s?(\d\d?)[\.;,]?\s?[-–—_\/\.',\s]\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
       # 29 Jun 1947   29 June 1947   2 June, 1983   29 VI 1947   29-VI-1947   25.X.2000  25X2000  29 June '47   29 Jun '47
-    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,\/]?\s?[-–,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(\d\d?)\s?[-–—_\.,\/]?\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,\/]?\s?[-–—,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[1]
       date[:start_date_month] = matchdata1[2]
       date[:start_date_year] = matchdata1[3]
       # 6/29/1947    6-29-1947    6-15 1985    10.25 2000    7.10.1994
-    elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(\d{4})\W/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[-–—_\.,\/\s]\s?(\d\d?)[-–—_\.,\/\s]\s?(\d{4})\W/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
       # 6/29/47    6/29/'47    7.10.94    5-17-97
-    elsif matchdata1 = text.match(/\W(\d\d?)[-–_\.,\/\s]\s?(\d\d?)[-–_\.,\/\s]\s?(['´`ʹʼˊ]?\s?\d{2})\W/)
+    elsif matchdata1 = text.match(/\W(\d\d?)[-–—_\.,\/\s]\s?(\d\d?)[-–—_\.,\/\s]\s?(['´`ʹʼˊ]?\s?\d{2})\W/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
       # Jun 1947   June 1947   VI 1947   VI-1947   X.2000
-    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-–,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
+    elsif matchdata1 = text.match(/\W(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,]?\s?[-–—,]?\s?(\d{4}|['´`ʹʼˊ]?\s?\d{2})\D/)
       date[:verbatim_date] = matchdata1[0].strip
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[2]
