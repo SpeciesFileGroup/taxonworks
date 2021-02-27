@@ -16,7 +16,7 @@ namespace :tw do
 
         puts Rainbow("Processing #{query.count} records").purple
 
-        processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 16
+        cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 16
 
         Parallel.each(query.find_each, progress: 'update_cached_original_combinations', in_processes: cached_rebuild_processes ) do |n|
           begin
