@@ -1013,18 +1013,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       expect(species.reified_id).to eq(species.to_param)
     end
 
-    specify '#reified_id 5' do
-      expect(c1.reified_id).to eq(c1.reified_id)
-    end
-
-    specify '#reified_id 6' do
-      expect(c2.reified_id).to eq(c2.reified_id)
-    end
-
-    specify '#reified_id 7' do
-      expect(c3.reified_id).to eq(c3.reified_id)
-    end
-
     specify '#reified_id with original_combination relationship' do
       species.update!(verbatim_author: 'Smith', original_genus: genus2)
       a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
