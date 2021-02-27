@@ -5,6 +5,15 @@ const copyObjectByProperties = (objSource, objProperties) => {
   return newObj
 }
 
+const isJSON = (str) => {
+  try {
+    return (typeof str === 'object' || (JSON.parse(str) && !!str))
+  } catch (e) {
+    return false
+  }
+}
+
 export {
-  copyObjectByProperties
+  copyObjectByProperties,
+  isJSON
 }

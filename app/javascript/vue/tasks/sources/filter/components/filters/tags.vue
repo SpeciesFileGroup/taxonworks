@@ -110,8 +110,6 @@ export default {
       keyword_id_or = []
     } = urlParams
 
-    console.log(urlParams)
-
     this.loadTags()
 
     keyword_id_and.forEach(id => {

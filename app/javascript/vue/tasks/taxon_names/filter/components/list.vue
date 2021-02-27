@@ -52,6 +52,7 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
+import { sortArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -71,10 +72,7 @@ export default {
   },
   methods: {
     sortTable (sortProperty) {
-      this.list.sort((a, b) => this.ascending ?
-        a[sortProperty]?.localeCompare(b[sortProperty], 'en', {'sensitivity': 'base'}) :
-        b[sortProperty]?.localeCompare(a[sortProperty], 'en', {'sensitivity': 'base'})
-      )
+      this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
       this.ascending = !this.ascending
     }
   }

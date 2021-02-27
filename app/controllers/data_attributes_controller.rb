@@ -2,6 +2,7 @@ class DataAttributesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_data_attribute, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:data_attributes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /data_attributes
   # GET /data_attributes.json

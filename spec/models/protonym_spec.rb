@@ -291,7 +291,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
   end
 
-
   context 'citation' do
     let!(:g1) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
 
