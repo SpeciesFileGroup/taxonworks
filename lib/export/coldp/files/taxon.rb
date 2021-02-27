@@ -80,9 +80,13 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag public
+  # TODO: flag/exclude ! is_public
   def self.remarks(otu)
-    otu.notes.pluck(:text).join('|')
+    if otu.notes.load.any?
+      otu.notes.pluck(:text).join('|')
+    else
+      nil
+    end
   end
 
   # "supporting the taxonomic concept"
@@ -115,7 +119,7 @@ module Export::Coldp::Files::Taxon
       }
 
       otus.each do |o|
-        next unless o.taxon_name && o.taxon_name.is_valid?
+        next unless o.taxon_name_id && o.taxon_name.is_valid?
 
         # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU ?
 

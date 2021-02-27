@@ -5,11 +5,6 @@ module Export
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
-  # TODO:
-  # * Consider exploring https://github.com/frictionlessdata/datapackage-rb to ingest frictionless data,
-  # then each module will provide a correspond method to each field
-  # https://github.com/frictionlessdata/datapackage-rb
-  # https://github.com/frictionlessdata/tableschema-rb
   # * write tests to check for coverage (missing methods)
   # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
@@ -20,15 +15,12 @@ module Export
     # @return [Scope]
     #   Should return the full set of Otus (= Taxa in CoLDP) that are to be sent.
     #
-    #
-    # TODO: include options for validity, sets of tags, etc.
     # At present otus are a mix of valid and invalid
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
-      
-      a = o.taxon_name.self_and_descendants
-      ::Otu.joins(:taxon_name).where(taxon_name: a)
+
+      ::Otu.joins(taxon_name: [:ancestor_hierarchies]).where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
     end
 
     def self.export(otu_id)
@@ -49,19 +41,17 @@ module Export
         zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate( Otu.find(otu_id), ref_csv) }
         zipfile.get_output_stream('Taxon.csv') { |f| f.write Export::Coldp::Files::Taxon.generate( otus, otu_id, ref_csv) }
 
-
         # Sort the refs by full citation string
         sorted_refs = ref_csv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = CSV.generate(col_sep: "\t") do |csv|
           csv << %w{ID citation	doi} # author year source details
           sorted_refs.each do |r|
-            csv << r 
+            csv << r
           end
         end
 
         zipfile.get_output_stream('References.csv') { |f| f.write d }
-
       end
 
       zip_file_path
@@ -98,27 +88,35 @@ module Export
     # TODO - perhaps a utilities file --
 
     # @return [Boolean]
-    #   true if no parens in cached_author_year
-    #   false if parens in cached_author_year
+    #  `true` if no parens in `cached_author_year`
+    #  `false` if parens in `cached_author_year`
     def self.original_field(taxon_name)
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end
 
     # @param taxon_name [a valid Protonym or a Combination]
-    #   see also exclusion of OTUs/Names based on Ranks not handled 
+    #   see also exclusion of OTUs/Names based on Ranks not handled
     def self.basionym_id(taxon_name)
       if taxon_name.type == 'Protonym'
         taxon_name.reified_id
       elsif taxon_name.type == 'Combination'
         taxon_name.protonyms.last.reified_id
-        # taxon_name.protonyms.last.id
       else
-        nil # shouldn't be hit
+        nil
+      end
+    end
+
+    # Replicate TaxonName.refified_id without having to use AR
+    def self.reified_id(taxon_name_id, cached, cached_original_combination)
+      # Protonym#has_alternate_original?
+      if cached_original_combination && (cached != cached_original_combination)
+        taxon_name_id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
+      else
+        taxon_name_id
       end
     end
 
     # Reification spec
-    # Duplicate Combination check -> is the Combination in question already represented int he current *classification* 
-
+    # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
   end
 end

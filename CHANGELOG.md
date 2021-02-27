@@ -143,6 +143,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+- CoLDP [sic], errant chresonym, and basionym ids for misspellings
 - Loan items reference proper housekeeping in table
 - Line links of batch-preview results
 - broken API download link for exported references [#1908]
