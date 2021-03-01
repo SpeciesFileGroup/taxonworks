@@ -30,7 +30,7 @@ jobs:
       RAILS_ENV: test
       CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL }}
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         worker: [0, 1, 2, 3]
