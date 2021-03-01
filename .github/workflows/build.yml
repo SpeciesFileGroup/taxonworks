@@ -66,9 +66,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-rev2-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.os }}-gems-rev3-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
-          ${{ runner.os }}-gems-rev2
+          ${{ runner.os }}-gems-rev3
 
     - name: Set up Node 10
       uses: actions/setup-node@v2
@@ -81,9 +81,9 @@ jobs:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-rev2-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-rev3-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-rev2
+          ${{ runner.os }}-node-rev3
 
     - name: Set up assets cache
       uses: actions/cache@v2
