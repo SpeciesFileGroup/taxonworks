@@ -1,19 +1,22 @@
 <template>
   <div>
     <h3>Tags</h3>
-    <smart-selector
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Keyword'}"
-      get-url="/controlled_vocabulary_terms/"
-      model="keywords"
-      klass="Tag"
-      @selected="addTag"/>
-    <display-list
-      label="object_tag"
-      :list="list"
-      soft-delete
-      :delete-warning="false"
-      @deleteIndex="removeTag"/>
+    <fieldset>
+      <legend>Keyword</legend>
+      <smart-selector
+        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+        :autocomplete-params="{'type[]' : 'Keyword'}"
+        get-url="/controlled_vocabulary_terms/"
+        model="keywords"
+        klass="Tag"
+        @selected="addTag"/>
+      <display-list
+        label="object_tag"
+        :list="list"
+        soft-delete
+        :delete-warning="false"
+        @deleteIndex="removeTag"/>
+    </fieldset>
   </div>
 </template>
 
