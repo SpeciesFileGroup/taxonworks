@@ -1,16 +1,24 @@
 <template>
   <div>
     <h2>Custom attributes</h2>
+    <custom-attributes
+      v-if="projectPreferences"
+      :object-id="extract.id"
+      object-type="Extract"
+      model="Extract"
+      :model-preferences="projectPreferences.model_predicate_sets.Extract"
+      @onUpdate="setAttributes"
+    />
   </div>
 </template>
 
 <script>
 
 import CustomAttributes from 'components/custom_attributes/predicates/predicates'
+import componentExtend from './mixins/componentExtend'
 
 export default {
-  components: {
-    CustomAttributes
-  }
+  mixins: [componentExtend],
+  components: { CustomAttributes }
 }
 </script>
