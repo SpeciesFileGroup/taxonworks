@@ -31,18 +31,18 @@ export default {
     PredicatesComponent
   },
   computed: {
-    modelList() {
-      if(!this.model) return []
-      return (this.preferences.hasOwnProperty('model_predicate_sets') ? this.preferences.model_predicate_sets[this.model] : [])
+    modelList () {
+      if (!this.model) return []
+      return this.preferences?.model_predicate_sets || []
     }
   },
-  data() {
+  data () {
     return {
       model: undefined,
       preferences: {}
     }
   },
-  mounted() {
+  mounted () {
     GetProjectPreferences().then(response => {
       this.preferences = response.body
     })
@@ -58,7 +58,7 @@ export default {
 
       UpdateProjectPreferences(this.preferences.id, { model_predicate_sets: data }).then(response => {
         this.preferences = response.body.preferences
-        this.preferences.id = response.id
+        this.preferences.id = response.body.id
       })
     }
   }

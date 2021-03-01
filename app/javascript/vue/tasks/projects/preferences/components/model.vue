@@ -40,6 +40,10 @@ export default {
         {
           label: 'Collecting Event',
           value: 'CollectingEvent'
+        },
+        {
+          label: 'Extract',
+          value: 'Extract'
         }
       ],
       selected: undefined
