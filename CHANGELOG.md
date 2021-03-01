@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Tag smart selector on create collection object in New collecting event task [#2066]
+
+[#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
+
 ## [0.16.3] - 2021-02-26
 ### Added
 - Additional date recognition format in date RegEx

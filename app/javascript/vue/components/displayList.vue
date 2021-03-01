@@ -40,6 +40,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
+          :class="{ 'button-default': softDelete }"
           @click="deleteItem(item, index)">Remove
         </span>
       </div>
@@ -99,6 +100,10 @@ export default {
       default: true
     },
     validations: {
+      type: Boolean,
+      default: false
+    },
+    softDelete: {
       type: Boolean,
       default: false
     }
