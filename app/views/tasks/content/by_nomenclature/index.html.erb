@@ -1,15 +1,19 @@
 
 
-<% @taxon_names = TaxonName.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).limit(5000).uniq %>
+<% @taxon_names = TaxonName.that_is_valid.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
+<%# @taxon_names = TaxonName.that_is_valid.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order('taxon_name_hierarchies.generations DESC').uniq %>
 
 <% @topic = Topic.where(project_id: sessions_current_project_id).first -%>
-
+<% @rowcount = 1 %>
 <h2>Topic: <%= @topic.name -%> </h2>
 
 <table>
   <tr>
+    <td> Row</td>
     <td> Order </td>
     <td> Family </td>
+    <td> Subfamily </td>
+    <td> Tribe
     <td> Name
     <td> Author year </td>
 
@@ -19,16 +23,21 @@
 
 
 <% @taxon_names.each do |n| -%>
+<% if !((n.ancestor_at_rank(:family)&.cached).blank?) -%>
   <tr>
+    <td> <%= @rowcount -%> </td>
     <td> <%= n.ancestor_at_rank(:order)&.cached -%> </td>
     <td> <%= n.ancestor_at_rank(:family)&.cached -%> </td>
+    <td> <%= n.ancestor_at_rank(:subfamily)&.cached -%> </td>
+    <td> <%= n.ancestor_at_rank(:tribe)&.cached -%> </td>
     <td> <%= n.cached -%> </td>
     <td> <%= n.cached_author_year -%> </td>
 
-    <td> <%= n.otus&.first&.contents&.where(topic_id: 6)&.first&.text %> </td>
+    <td> <%= n.otus&.first&.contents&.where(topic_id: 4)&.first&.text %> </td>
   </tr>
 
-
-<% end %>
-
+<% @rowcount = @rowcount + 1 %>
+    <% end -%>
+  <% end -%>
 </table>
+
