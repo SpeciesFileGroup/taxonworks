@@ -36,14 +36,15 @@ module Shared::Citations
     # }
 
     scope :order_by_youngest_source_first, -> {
-      join_str = ActiveRecord::Base.send(:sanitize_sql_array,
-                                         ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
-                                          'citations.citation_object_id ' \
-                                          'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
-                                          'ON citations.source_id = sources.id',
-                                          related_class])
-    joins(join_str).group("#{related_table_name}.id")
-      .order(Arel.sql("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC"))
+      join_str = ActiveRecord::Base.send(
+        :sanitize_sql_array,
+        ["LEFT OUTER JOIN citations ON #{related_table_name}.id = " \
+         'citations.citation_object_id ' \
+         'AND citations.citation_object_type = ? LEFT OUTER JOIN sources ' \
+         'ON citations.source_id = sources.id',
+         related_class])
+      joins(join_str).group("#{related_table_name}.id")
+        .order(Arel.sql("MAX(COALESCE(sources.cached_nomenclature_date, Date('1-1-0001'))) DESC"))
     }
 
     # SEE https://github.com/rails/arel/issues/399 for issue with ordering by named function

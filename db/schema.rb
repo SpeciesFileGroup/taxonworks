@@ -695,7 +695,7 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
     t.string "identificationRemarks"
     t.string "identificationVerificationStatus"
     t.string "identifiedBy"
-    t.string "individualCount"
+    t.integer "individualCount"
     t.string "informationWithheld"
     t.string "infraspecificEpithet"
     t.string "institutionCode"
@@ -800,6 +800,8 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
     t.integer "project_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifiedByID"
+    t.string "recordedByID"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
   end
 
@@ -1814,6 +1816,7 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
     t.date "cached_nomenclature_date"
     t.index ["cached"], name: "index_taxon_names_on_cached"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
+    t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
     t.index ["name"], name: "index_taxon_names_on_name"
     t.index ["parent_id"], name: "index_taxon_names_on_parent_id"
@@ -1883,7 +1886,9 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
     t.datetime "last_seen_at"
     t.integer "time_active", default: 0
     t.json "preferences", default: {}
+    t.bigint "person_id"
     t.index ["created_by_id"], name: "index_users_on_created_by_id"
+    t.index ["person_id"], name: "index_users_on_person_id"
     t.index ["remember_token"], name: "index_users_on_remember_token"
     t.index ["updated_by_id"], name: "index_users_on_updated_by_id"
   end
@@ -2225,6 +2230,7 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
   add_foreign_key "type_materials", "taxon_names", column: "protonym_id", name: "type_materials_protonym_id_fkey"
   add_foreign_key "type_materials", "users", column: "created_by_id", name: "type_materials_created_by_id_fkey"
   add_foreign_key "type_materials", "users", column: "updated_by_id", name: "type_materials_updated_by_id_fkey"
+  add_foreign_key "users", "people"
   add_foreign_key "users", "users", column: "created_by_id", name: "users_created_by_id_fkey"
   add_foreign_key "users", "users", column: "updated_by_id", name: "users_updated_by_id_fkey"
 end

@@ -81,9 +81,9 @@ jobs:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-rev2-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-rev3-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-rev2
+          ${{ runner.os }}-node-rev3
 
     - name: Set up assets cache
       uses: actions/cache@v2

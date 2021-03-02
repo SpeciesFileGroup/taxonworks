@@ -7,14 +7,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Tag smart selector on create collection object in New collecting event task [#2066]
+
+[#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
+
+## [0.16.3] - 2021-02-26
+### Added
+- Additional date recognition format in date RegEx
+- Pagination on Browse Annotations [#1438]
+- New combination for subgenus [#748]
+- Warn about unsaved changes on Accession metadata [#1858]
+
 ### Fixed
 - `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
+- Some value label in Filter sources
+- Dropzone error message
+- Redirect to Image Matrix on OTU Radial [#2033]
+- Race condition problem when generating dwc_occurrences indexing
 
-[#1939] https://github.com/SpeciesFileGroup/taxonworks/issues/1939
+### Changed
+- Pagination in Filter sources
+- Replaced geckodriver-helper with webdrivers gem
+- Improvement sort table on collection object, source and nomenclature filters
+
+[#748]: https://github.com/SpeciesFileGroup/taxonworks/issues/748
+[#1438]: https://github.com/SpeciesFileGroup/taxonworks/issues/1438
+[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
+[#1939]: https://github.com/SpeciesFileGroup/taxonworks/issues/1939
+[#2033]: https://github.com/SpeciesFileGroup/taxonworks/issues/2033
 
 ## [0.16.2] - 2021-02-18
 
 ### Added
+- Additional date recognition format in date RegEx
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
 - Adds database index to Sour title, year, author
@@ -25,7 +51,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock biological relationship in radial object [#2036]
 - Confirmation popup to delete a type material in comprehensive
 - Tag facet to filter nomenclature [#2047]
-- Warn about unsaved changes on Accession metadata [#1858]
 
 ### Changed
 - Checkmark on verbatim should visible only
@@ -34,7 +59,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Changed `verbatim author` for `cached_author_year` in filter nomenclature
 - Keywords styled after choice in Tag facet
 - Keywords removed from all list after choice in Tag facet
-- Pagination in Filter sources
 
 ### Fix
 - Model LoanItem - Tagged batch adds tag, not object [#2051]
@@ -48,10 +72,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image caption modal size [#2030]
 - Set created loan object [#2042]
 - Refactor edit load items [#2044]
-- Some value label in Filter sources
-- Dropzone error message
 
-[#1858]: https://github.com/SpeciesFileGroup/taxonworks/issues/1858
 [#2032]: https://github.com/SpeciesFileGroup/taxonworks/issues/2032
 [#2051]: https://github.com/SpeciesFileGroup/taxonworks/issues/2051
 [#2043]: https://github.com/SpeciesFileGroup/taxonworks/issues/2043
@@ -128,6 +149,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+- CoLDP [sic], errant chresonym, and basionym ids for misspellings
 - Loan items reference proper housekeeping in table
 - Line links of batch-preview results
 - broken API download link for exported references [#1908]
@@ -893,7 +915,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...development
+[0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.15.1...v0.16.0
