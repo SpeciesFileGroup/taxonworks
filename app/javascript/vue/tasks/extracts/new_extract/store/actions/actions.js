@@ -1,6 +1,12 @@
 import ActionNames from './actionNames'
 
-const ActionFunctions = {}
+import loadProjectPreferences from './loadProjectPreferences'
+import loadUserPreferences from './loadUserPreferences'
+
+const ActionFunctions = {
+  [ActionNames.LoadProjectPreferences]: loadProjectPreferences,
+  [ActionNames.LoadUserPreferences]: loadUserPreferences
+}
 
 export {
   ActionNames,

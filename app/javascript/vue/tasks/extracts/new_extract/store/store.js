@@ -5,6 +5,8 @@ import { ActionFunctions } from '../store/actions/actions'
 import { GetterFunctions } from '../store/getters/getters'
 import { MutationFunctions } from '../store/mutations/mutations'
 
+import makeExtract from '../const/makeExtract'
+
 Vue.use(Vuex)
 
 const makeInitialState = () => {
@@ -17,16 +19,11 @@ const makeInitialState = () => {
       },
       sortable: false
     },
-    extract: {
-      quantity_value: undefined,
-      quantity_unit: undefined,
-      concentration_value: undefined,
-      concentration_unit: undefined,
-      verbatim_anatomical_origin: undefined,
-      year_made: undefined,
-      month_made: undefined,
-      day_made: undefined
+    preferences: {
+      user: undefined,
+      project: undefined
     },
+    extract: makeExtract(),
     softValidation: []
   }
 }

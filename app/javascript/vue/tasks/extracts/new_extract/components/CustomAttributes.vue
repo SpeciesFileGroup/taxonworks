@@ -14,11 +14,23 @@
 
 <script>
 
+import { GetterNames } from '../store/getters/getters'
 import CustomAttributes from 'components/custom_attributes/predicates/predicates'
 import componentExtend from './mixins/componentExtend'
 
 export default {
   mixins: [componentExtend],
-  components: { CustomAttributes }
+
+  components: { CustomAttributes },
+
+  computed: {
+    projectPreferences () { return this.$store.getters[GetterNames.GetProjectPreferences] }
+  },
+
+  methods: {
+    setAttributes (data) {
+      this.extract.data_attributes_attributes = data
+    }
+  }
 }
 </script>

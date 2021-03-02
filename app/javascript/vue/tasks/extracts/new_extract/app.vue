@@ -56,6 +56,7 @@
 
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
+import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
 
 import NavbarComponent from 'components/navBar'
@@ -93,8 +94,16 @@ export default {
     }
   },
 
+  created () {
+    this.$store.dispatch(ActionNames.LoadProjectPreferences)
+    this.$store.dispatch(ActionNames.LoadUserPreferences)
+  },
+
   methods: {
-    updatePreferences () {}
+    updatePreferences () {},
+    saveExtract () {
+      this.$store.dispatch(ActionNames.SaveExtract)
+    }
   }
 }
 </script>
