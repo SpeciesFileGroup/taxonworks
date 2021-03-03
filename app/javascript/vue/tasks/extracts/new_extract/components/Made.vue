@@ -12,28 +12,25 @@
         <label>Month</label>
         <input
           type="text"
-          v-model="extract.year_made">
+          v-model="extract.month_made">
       </div>
       <div class="label-above">
         <label>Year</label>
         <input
           type="text"
-          v-model="extract.month_made">
+          v-model="extract.year_made">
       </div>
       <div class="horizontal-left-content align-end">
         <button
           type="button"
-          class="button normal-input button-default margin-small-right">
+          class="button normal-input button-default margin-small-right"
+          @click="setActualDate">
           Now
         </button>
         <button
           type="button"
-          class="button normal-input button-default margin-small-right">
-          Today
-        </button>
-        <button
-          type="button"
-          class="button normal-input button-default">
+          class="button normal-input button-default"
+          @click="setYear">
           This year
         </button>
         <lock-component/>
@@ -51,10 +48,19 @@ export default {
   mixins: [componentExtend],
   components: {
     LockComponent
+  },
+
+  methods: {
+    setActualDate () {
+      const today = new Date()
+      this.extract.day_made = today.getDate()
+      this.extract.month_made = today.getMonth() + 1
+      this.extract.year_made = today.getFullYear()
+    },
+    setYear () {
+      const today = new Date()
+      this.extract.year_made = today.getFullYear()
+    }
   }
 }
 </script>
-
-<style>
-
-</style>

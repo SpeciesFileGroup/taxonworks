@@ -15,7 +15,8 @@ const makeInitialState = () => {
       lock: {
         date: false,
         lock: false,
-        protocol: false
+        protocol: false,
+        repository: false
       },
       sortable: false
     },
@@ -24,6 +25,8 @@ const makeInitialState = () => {
       project: undefined
     },
     extract: makeExtract(),
+    identifier: {},
+    identifiers: [],
     softValidation: []
   }
 }

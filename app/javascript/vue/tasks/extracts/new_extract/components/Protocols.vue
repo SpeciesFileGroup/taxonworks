@@ -1,10 +1,15 @@
 <template>
   <div>
     <h2>Protocols</h2>
-    <smart-selector
-      model="protocols"
-      klass="extract"/>
-    <lock-component v-model="settings.lock.protocol"/>
+    <div class="horizontal-left-content align-start">
+      <smart-selector
+        class="full_width"
+        model="protocols"
+        klass="extract"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="settings.lock.protocol"/>
+    </div>
   </div>
 </template>
 
