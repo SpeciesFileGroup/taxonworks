@@ -153,7 +153,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.3.0'
+  gem 'codecov', '~> 0.5.1'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'
