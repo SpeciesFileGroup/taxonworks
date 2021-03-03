@@ -17,7 +17,7 @@ jobs:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - name: Get startup date
       id: datetime

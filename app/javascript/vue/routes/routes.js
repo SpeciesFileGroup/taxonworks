@@ -14,6 +14,7 @@ const RouteNames = {
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   PrintLabel: '/tasks/labels/print_labels',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
+  ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   DwcImport: '/tasks/dwca_import/index'
 }
 

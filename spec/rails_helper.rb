@@ -4,6 +4,7 @@ if !ENV['NO_COVERAGE_REPORT'] && ENV['CI']
 
   require 'codecov'
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  Codecov.pass_ci_if_error = true
 end
 
 ENV['RAILS_ENV'] ||= 'test'

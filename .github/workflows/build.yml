@@ -30,7 +30,7 @@ jobs:
       RAILS_ENV: test
       CROSSREF_EMAIL: ${{ secrets.CROSSREF_EMAIL }}
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         worker: [0, 1, 2, 3]
@@ -66,9 +66,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-rev2-${{ hashFiles('**/Gemfile.lock') }}
+        key: ${{ runner.os }}-gems-rev3-${{ hashFiles('**/Gemfile.lock') }}
         restore-keys: |
-          ${{ runner.os }}-gems-rev2
+          ${{ runner.os }}-gems-rev3
 
     - name: Set up Node 10
       uses: actions/setup-node@v2
@@ -81,9 +81,9 @@ jobs:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-rev2-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-rev3-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
-          ${{ runner.os }}-node-rev2
+          ${{ runner.os }}-node-rev3
 
     - name: Set up assets cache
       uses: actions/cache@v2
@@ -105,7 +105,7 @@ jobs:
     - name: Install apt packages
       run: |
         sudo apt-get update
-        sudo apt-get install -y imagemagick tesseract-ocr libgeos-dev libproj-dev
+        sudo apt-get install -y libmagickwand-dev tesseract-ocr libgeos-dev libproj-dev
 
     - name: Set up TaxonWorks config files
       run: |

@@ -9,8 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Tag smart selector on create collection object in New collecting event task [#2066]
+- Year field on person source in new source task
+
+### Fixed
+- Fix observation matrices hub link [#2071]
 
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
+[#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
 
 ## [0.16.3] - 2021-02-26
 ### Added
