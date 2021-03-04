@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Tag smart selector on create collection object in New collecting event task [#2066]
 - Year field on person source in new source task
+- Create new biocuration and in relationship links in filter collection object
 
 ### Fixed
 - Observation matrices hub link [#2071]
