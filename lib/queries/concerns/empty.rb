@@ -37,7 +37,6 @@ module Queries::Concerns::Empty
 
   def empty_fields_facet
     return nil if empty.empty?
-
     a = base_query
     empty.each do |f|
       a = a.where(f => nil)

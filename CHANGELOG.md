@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Multiple presnece/absence params for collection objects filter [#2080] 
 - Tag smart selector on create collection object in New collecting event task [#2066]
 - Year field on person source in new source task
 - Create new biocuration and in relationship links in filter collection object
@@ -16,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
 
+[#2080]: https://github.com/SpeciesFileGroup/taxonworks/issues/2080
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
