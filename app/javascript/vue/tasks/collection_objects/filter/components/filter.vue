@@ -212,8 +212,13 @@ export default {
         byRecordsWith: {
           collecting_events: undefined,
           determinations: undefined,
+          depictions: undefined,
+          geographic_area: undefined,
+          georeference: undefined,
           identifiers: undefined,
-          repository: undefined
+          type_material: undefined,
+          repository: undefined,
+          dwc_indexed: undefined
         },
         relationships: {
           biological_relationship_ids: []
@@ -224,7 +229,8 @@ export default {
           never_loaned: undefined
         },
         types: {
-          is_type: []
+          is_type: [],
+          type_type: []
         },
         identifier: {
           identifier: undefined,
