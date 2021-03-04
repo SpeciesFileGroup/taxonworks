@@ -12,10 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Year field on person source in new source task
 
 ### Fixed
-- Fix observation matrices hub link [#2071]
+- Observation matrices hub link [#2071]
+- Refresh button component [#2085]
 
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
+[#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
 
 ## [0.16.3] - 2021-02-26
 ### Added
