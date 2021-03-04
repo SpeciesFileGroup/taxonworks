@@ -5,7 +5,7 @@ module Queries
     # - use date processing? / DateConcern
     # - syncronize with GIS/GEO
 
-    class Filter
+    class Filter < Queries::Query
 
       include Queries::Helpers
 
@@ -126,6 +126,40 @@ module Queries
       #   nil - not applied
       attr_accessor :geographic_area
 
+
+      #---
+
+      
+
+      # @return [Array]
+      # @param determiner [Array or Person#id]
+      #   one ore more people id
+      attr_accessor :determiner
+
+
+      # @return [String, nil]
+      attr_accessor :buffered_determinations
+
+      # @return [Boolean, nil]
+      attr_accessor :exact_buffered_determinations
+
+
+
+      # @return [Boolean, nil]
+      attr_accessor :exact_buffered_collecting_event
+
+      # @return [String, nil]
+      attr_accessor :buffered_collecting_event
+
+
+      # @return [Boolean, nil]
+      attr_accessor :exact_buffered_other_labels
+
+      # @return [String, nil]
+      attr_accessor :buffered_other_labels
+
+
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -144,7 +178,9 @@ module Queries
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
         @depictions = boolean_param(params, :depictions)
+        @determiner = params[:determiner] 
         @dwc_indexed = boolean_param(params, :dwc_indexed) 
+        @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
         @is_type = params[:is_type] || []
@@ -160,6 +196,14 @@ module Queries
         @taxon_determinations = boolean_param(params, :taxon_determinations)
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
         @validity = boolean_param(params, :validity)
+
+        @buffered_determinations = params[:buffered_determinations]
+        @buffered_collecting_event = params[:buffered_collecting_event]
+        @buffered_other_labels = params[:buffered_other_labels]
+
+        @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
+        @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
+        @exact_buffered_other_labels = boolean_param(params, :exact_buffered_other_labels)
 
         set_identifier(params)
         set_tags_params(params)
@@ -200,6 +244,10 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+      def determiner
+        [@determiner].flatten.compact
+      end
+
       def taxon_determinations_facet
         return nil if taxon_determinations.nil?
 
@@ -210,6 +258,11 @@ module Queries
             .where(taxon_determinations: {id: nil})
             .distinct
         end
+      end
+
+      def determiner_facet
+        return nil if determiner.empty? 
+        ::CollectionObject.joins(:determiners).where(roles: {person_id: determiner})
       end
 
       def georeferences_facet
@@ -356,6 +409,9 @@ module Queries
         clauses = []
 
         clauses += [
+          attribute_exact_facet(:buffered_determinations),
+          attribute_exact_facet(:buffered_collecting_event),
+          attribute_exact_facet(:buffered_other_labels),
           collecting_event_ids_facet,
           type_facet,
           repository_id_facet
@@ -369,6 +425,7 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          determiner_facet, 
           geographic_area_facet,
           collecting_event_facet,
           repository_facet,

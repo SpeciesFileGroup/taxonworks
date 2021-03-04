@@ -5,6 +5,62 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
   let(:query) { Queries::CollectionObject::Filter.new({}) }
 
+
+  specify '#buffered_collecting_event' do
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
+    query.buffered_collecting_event = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_collecting_event' do
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
+    query.buffered_collecting_event = 'BC'
+    query.exact_buffered_collecting_event = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#buffered_other_labels' do
+    s = FactoryBot.create(:valid_specimen, buffered_other_labels: 'A BC D')
+    query.buffered_other_labels = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_other_labels' do
+    s = FactoryBot.create(:valid_specimen, buffered_other_labels: 'A BC D')
+    query.buffered_other_labels = 'BC'
+    query.exact_buffered_other_labels = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'A BC D')
+    query.buffered_determinations = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'A BC D')
+    query.buffered_determinations = 'BC'
+    query.exact_buffered_determinations = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#exact_buffered_collecting_event' do
+    v = 'A BC D'
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: v)
+    query.buffered_collecting_event = v 
+    query.exact_buffered_collecting_event = true 
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#determiners' do
+    FactoryBot.create(:valid_specimen)
+    s = FactoryBot.create(:valid_specimen)
+    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
+    query.determiner = a.determiners.map(&:id) 
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
   specify '#geographic_area' do
     s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area_id: nil))
     query.geographic_area = true
