@@ -1,144 +1,94 @@
 <template>
   <div class="panel container">
     <h2>Identifier</h2>
-    <div
-      class="flex-wrap-column middle align-start full_width"
-    >
-      <div class="separate-right full_width">
-        <div
-          v-if="identifiers > 1"
-          class="separate-bottom"
-        >
-          <span data-icon="warning">More than one identifier exists! Use annotator to edit others.</span>
-        </div>
-        <fieldset>
-          <legend>Namespace</legend>
-          <div class="horizontal-left-content align-start separate-bottom">
-            <smart-selector
-              class="full_width"
-              ref="smartSelector"
-              model="namespaces"
-              input-id="namespace-autocomplete"
-              target="CollectionObject"
-              klass="CollectionObject"
-              pin-section="Namespaces"
-              pin-type="Namespace"
-              @selected="setNamespace"/>
-            <div class="horizontal-right-content">
-              <lock-component
-                class="circle-button-margin"
-                v-model="locked.identifier" />
-            </div>
-            <a 
-              class="margin-small-top margin-small-left"
-              href="/namespaces/new">New</a>
-          </div>
-          <template v-if="namespace">
-            <div class="middle separate-top">
-              <span data-icon="ok" />
-              <p
-                class="separate-right"
-                v-html="namespaceSelected"
-              />
-              <span
-                class="circle-button button-default btn-undo"
-                @click="namespace = undefined"
-              />
-            </div>
-          </template>
-        </fieldset>
+    <div class="flex-wrap-column middle align-start full_width">
+
+      <div v-if="typeListSelected">
+        <span class="capitalize">{{ typeListSelected }}</span>
+        <button
+          class="button button-default"
+          @click="typeListSelected = undefined">
+          Change
+        </button>
+        <select-type
+          :list="typeList[typeListSelected]"
+          v-model="typeSelected"/>
       </div>
-      <div
-        class="separate-top">
-        <label>Identifier</label>
-        <div class="horizontal-left-content field">
-          <input
-            id="identifier-field"
-            :class="{ 'validate-identifier': existingIdentifier }"
-            type="text"
-            @input="checkIdentifier"
-            v-model="identifier"
-          >
-          <label>
+
+      <ul
+        v-else
+        class="no_bullets">
+        <li
+          v-for="(item, key) in typeList"
+          :key="key">
+          <label class="capitalize">
             <input
-              v-model="settings.increment"
-              type="checkbox"
+              type="radio"
+              v-model="typeListSelected"
+              :value="key"
             >
-            Increment
+            {{ key }}
           </label>
-          <validate-component
-            v-if="namespace"
-            class="separate-left"
-            :show-message="checkValidation"
-            legend="Namespace and identifier needs to be set to be saved."
-          />
-        </div>
-        <span
-          v-if="!namespace && identifier && identifier.length"
-          style="color: red"
-        >Namespace is needed.</span>
-        <template v-if="existingIdentifier">
-          <span
-            style="color: red"
-          >Identifier already exists, and it won't be saved:</span>
-          <a
-            :href="existingIdentifier.identifier_object.object_url"
-            v-html="existingIdentifier.identifier_object.object_tag"
-          />
-        </template>
-      </div>
+        </li>
+      </ul>
+
     </div>
   </div>
 </template>
 
 <script>
 
-import { CheckForExistingIdentifier } from 'tasks/digitize/request/resources.js'
-import validateComponent from 'tasks/digitize/components/shared/validate.vue'
-import incrementIdentifier from 'tasks/digitize/helpers/incrementIdentifier.js'
+import { GetIdentifierTypes } from '../request/resources'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+
 import componentExtend from './mixins/componentExtend'
-import SmartSelector from 'components/smartSelector.vue'
+import SelectType from './Identifiers/SelectType'
 
 export default {
   mixins: [componentExtend],
-  components: {
-    validateComponent,
-    SmartSelector
-  },
+
+  components: { SelectType },
+
   data () {
     return {
       existingIdentifier: undefined,
       delay: 1000,
-      saveRequest: undefined
+      saveRequest: undefined,
+      namespace: undefined,
+      identifier: undefined,
+      typeList: undefined,
+      typeListSelected: undefined,
+      typeSelected: undefined
     }
   },
+
+  computed: {
+    identifiers: {
+      get () {
+        return this.$store.getters[GetterNames.GetIdentifiers]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetIdentifiers, value)
+      }
+    }
+  },
+
+  created () {
+    GetIdentifierTypes().then(({ body }) => {
+      const list = body
+      const keys = Object.keys(body)
+      keys.forEach(key => {
+        const itemList = list[key]
+        itemList.common = Object.fromEntries(itemList.common.map(item => ([item, Object.entries(itemList.all).find(([key, value]) => key === item)[1]])))
+      })
+      this.typeList = body
+    })
+  },
+
   watch: {
     existingIdentifier (newVal) {
       this.settings.saveIdentifier = !newVal
-    }
-  },
-  methods: {
-    increment () {
-      this.identifier = incrementIdentifier(this.identifier)
-    },
-    checkIdentifier () {
-      const that = this
-
-      if (this.saveRequest) {
-        clearTimeout(this.saveRequest)
-      }
-      if (this.identifier) {
-        this.saveRequest = setTimeout(() => {
-          CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
-            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
-          })
-        }, this.delay)
-      }
-    },
-    setNamespace (namespace) {
-      this.namespace = namespace.id
-      this.namespaceSelected = namespace.name
-      this.checkIdentifier()
     }
   }
 }

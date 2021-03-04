@@ -20,7 +20,7 @@
           type="text"
           v-model="extract.year_made">
       </div>
-      <div class="horizontal-left-content align-end">
+      <div class="horizontal-left-content align-end margin-small-left">
         <button
           type="button"
           class="button normal-input button-default margin-small-right"
