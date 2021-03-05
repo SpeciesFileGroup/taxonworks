@@ -129,13 +129,10 @@ module Queries
 
       #---
 
-      
-
       # @return [Array]
       # @param determiner [Array or Person#id]
       #   one ore more people id
       attr_accessor :determiner
-
 
       # @return [String, nil]
       attr_accessor :buffered_determinations
