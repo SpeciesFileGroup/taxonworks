@@ -53,11 +53,11 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     expect(query.all.map(&:id)).to contain_exactly(s.id)
   end
 
-  specify '#determiners' do
+  specify '#determiner_id' do
     FactoryBot.create(:valid_specimen)
     s = FactoryBot.create(:valid_specimen)
     a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
-    query.determiner = a.determiners.map(&:id) 
+    query.determiner_id = a.determiners.map(&:id) 
     expect(query.all.map(&:id)).to contain_exactly(s.id)
   end
 
