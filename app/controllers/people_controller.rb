@@ -99,13 +99,14 @@ class PeopleController < ApplicationController
     @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
   end
 
+  # POST /people/merge
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
     person_to_remove = Person.find(params[:person_to_destroy])
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed'}
+      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
     end
   end
 
