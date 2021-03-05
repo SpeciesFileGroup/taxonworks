@@ -1,8 +1,7 @@
-name: base-image
-
+name: Generate Taxonworks base Docker image
 on:
   workflow_dispatch:
-
+  
   schedule:
     - cron: '0 0 * * 0'
 
