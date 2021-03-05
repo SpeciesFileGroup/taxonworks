@@ -16,10 +16,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create new biocuration and in relationship links in filter collection object
 
 ### Fixed
+- Qualitative states in matrix row coder order correctly [#2076]
 - Better source cached filter wildcards [#1557]
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
 
+[#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
 [#1557]: https://github.com/SpeciesFileGroup/taxonworks/issues/1557
 [#1835]: https://github.com/SpeciesFileGroup/taxonworks/issues/1835
 [#1456]: https://github.com/SpeciesFileGroup/taxonworks/issues/1456
