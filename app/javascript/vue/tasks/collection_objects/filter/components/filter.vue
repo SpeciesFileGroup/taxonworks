@@ -134,6 +134,7 @@ export default {
         !this.params.keywords.keyword_id_and.length &&
         !this.params.keywords.keyword_id_or.length &&
         !this.params.determination.otu_ids.length &&
+        !this.params.determination.determiner_id.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
@@ -253,6 +254,7 @@ export default {
           keyword_id_or: []
         },
         determination: {
+          determiner_id: [],
           otu_ids: [],
           current_determinations: undefined,
           ancestor_id: undefined,

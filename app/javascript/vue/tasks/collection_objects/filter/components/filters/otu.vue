@@ -1,13 +1,13 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <h3>Taxon name</h3>
-    <div>
+    <label>Taxon name</label>
+    <div class="field">
       <autocomplete
         url="/taxon_names/autocomplete"
         param="term"
         label="label_html"
-        :clear-after="true"
+        clear-after
         placeholder="Search a taxon name"
         @getItem="setTaxon($event.id)"
       />
@@ -27,7 +27,7 @@
             v-for="item in validityOptions"
             :key="item.value">
             <label>
-              <input 
+              <input
                 type="radio"
                 :value="item.value"
                 name="taxon-validity"
@@ -36,24 +36,45 @@
             </label>
           </li>
         </ul>
-      </div>      
+      </div>
     </div>
-    <h3>Otu</h3>
-    <autocomplete
-      url="/otus/autocomplete"
-      placeholder="Select an otu"
-      param="term"
-      label="label_html"
-      :clear-after="true"
-      display="label"
-      @getItem="addOtu($event.id)" />
+    <div class="field">
+      <label>Otu</label>
+      <autocomplete
+        url="/otus/autocomplete"
+        placeholder="Select an otu"
+        param="term"
+        label="label_html"
+        clear-after
+        display="label"
+        @getItem="addOtu($event.id)" />
+    </div>
+    <div class="field">
+      <label>Determiner</label>
+      <autocomplete
+        url="/people/autocomplete"
+        placeholder="Select a determiner"
+        param="term"
+        clear-after
+        label="label_html"
+        :add-params="{
+          'roles[]': 'Determiner'
+        }"
+        @getItem="addDeterminer($event.id)"/>
+      <display-list
+        soft-delete
+        :list="determiners"
+        :delete-warning="false"
+        @deleteIndex="removePerson"
+        label="cached"/>
+    </div>
     <div class="field separate-top">
       <ul class="no_bullets">
-        <li 
+        <li
           v-for="item in currentDeterminationsOptions"
           :key="item.value">
           <label>
-            <input 
+            <input
               type="radio"
               :value="item.value"
               name="current-determination"
@@ -83,31 +104,26 @@
 
 import Autocomplete from 'components/autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName, GetOtu } from '../../request/resources'
+import { GetTaxonName, GetOtu, GetPerson } from '../../request/resources'
+import DisplayList from 'components/displayList'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    DisplayList
   },
+
   props: {
     value: {
       type: Object,
       default: undefined
     }
   },
-  computed: {
-    determination: {
-      get () {
-        return this.value
-      },
-      set (value) {
-        this.$emit('input', value)
-      }
-    }
-  },
+
   data () {
     return {
       otusStore: [],
+      determiners: [],
       taxon: undefined,
       currentDeterminationsOptions: [
         {
@@ -139,37 +155,51 @@ export default {
       ]
     }
   },
+
+  computed: {
+    determination: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit('input', value)
+      }
+    }
+  },
+
   watch: {
     determination: {
       handler (newVal) {
         if (!newVal.otu_ids.length) {
           this.otusStore = []
         }
-        if(!newVal.ancestor_id) {
+        if (!newVal.ancestor_id) {
           this.taxon = undefined
+        }
+        if (!newVal.determiner_id.length) {
+          this.determiners = []
         }
       },
       deep: true
     }
   },
-  mounted () {
-    const urlParams = URLParamsToJSON(location.href)
-    if (Object.keys(urlParams).length) {
-      if (urlParams.ancestor_id) {
-        this.setTaxon(urlParams.ancestor_id)
-      }
-      if (urlParams.otu_ids) {
-        urlParams.otu_ids.forEach(id => { this.addOtu(id) })
-      }
-      this.determination.validity = urlParams.validity
-      this.determination.current_determinations = urlParams.current_determinations
+
+  created () {
+    const { ancestor_id, otu_ids, validity, current_determinations, determiner_id } = URLParamsToJSON(location.href)
+    if (ancestor_id) {
+      this.setTaxon(ancestor_id)
     }
+    if (otu_ids) {
+      otu_ids.forEach(id => { this.addOtu(id) })
+    }
+    if (determiner_id) {
+      determiner_id.forEach(id => { this.addDeterminer(id) })
+    }
+    this.determination.validity = validity
+    this.determination.current_determinations = current_determinations
   },
+
   methods: {
-    removeOtu (index) {
-      this.determination.otu_ids.splice(index, 1)
-      this.otusStore.splice(index, 1)
-    },
     addOtu (id) {
       GetOtu(id).then(response => {
         this.determination.otu_ids.push(response.body.id)
@@ -182,9 +212,23 @@ export default {
         this.determination.ancestor_id = response.body.id
       })
     },
-    removeTaxon() {
+    addDeterminer (id) {
+      GetPerson(id).then(({ body }) => {
+        this.determiners.push(body)
+        this.determination.determiner_id.push(body.id)
+      })
+    },
+    removeTaxon () {
       this.taxon = undefined
       this.determination.ancestor_id = undefined
+    },
+    removePerson (index) {
+      this.determiners.splice(index, 1)
+      this.determination.determiner_id.splice(index, 1)
+    },
+    removeOtu (index) {
+      this.determination.otu_ids.splice(index, 1)
+      this.otusStore.splice(index, 1)
     }
   }
 }

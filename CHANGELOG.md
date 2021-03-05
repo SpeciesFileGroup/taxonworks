@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tag smart selector on create collection object in New collecting event task [#2066]
 - Year field on person source in new source task
 - Create new biocuration and in relationship links in filter collection object
+- Determiner in filter collection object
 
 ### Fixed
 - Uniquifying 2 people attached to the same source raises [#2078]
