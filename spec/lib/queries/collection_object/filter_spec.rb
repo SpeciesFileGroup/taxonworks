@@ -3,9 +3,132 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collection_object, :collecting_event, :shared_geo] do
 
+  let(:query) { Queries::CollectionObject::Filter.new({}) }
+
+
+  specify '#buffered_collecting_event' do
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
+    query.buffered_collecting_event = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_collecting_event' do
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: 'A BC D')
+    query.buffered_collecting_event = 'BC'
+    query.exact_buffered_collecting_event = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#buffered_other_labels' do
+    s = FactoryBot.create(:valid_specimen, buffered_other_labels: 'A BC D')
+    query.buffered_other_labels = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_other_labels' do
+    s = FactoryBot.create(:valid_specimen, buffered_other_labels: 'A BC D')
+    query.buffered_other_labels = 'BC'
+    query.exact_buffered_other_labels = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'A BC D')
+    query.buffered_determinations = 'BC'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#exact_buffered_determinations' do
+    s = FactoryBot.create(:valid_specimen, buffered_determinations: 'A BC D')
+    query.buffered_determinations = 'BC'
+    query.exact_buffered_determinations = true 
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#exact_buffered_collecting_event' do
+    v = 'A BC D'
+    s = FactoryBot.create(:valid_specimen, buffered_collecting_event: v)
+    query.buffered_collecting_event = v 
+    query.exact_buffered_collecting_event = true 
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#determiner_id' do
+    FactoryBot.create(:valid_specimen)
+    s = FactoryBot.create(:valid_specimen)
+    a = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, determiners: [ FactoryBot.create(:valid_person) ] )
+    query.determiner_id = a.determiners.map(&:id) 
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#geographic_area' do
+    s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area_id: nil))
+    query.geographic_area = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#geographic_area 1' do
+    s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event, geographic_area: FactoryBot.create(:valid_geographic_area) ))
+    query.geographic_area = true
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#identifiers' do
+    s = FactoryBot.create(:valid_specimen)
+    d = FactoryBot.create(:valid_identifier, identifier_object: s)
+    query.identifiers = false
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#identifiers 1' do
+    FactoryBot.create(:valid_specimen)
+    s = FactoryBot.create(:valid_specimen)
+    d = FactoryBot.create(:valid_identifier, identifier_object: s)
+    query.identifiers = true
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#collecting_event' do
+    s = FactoryBot.create(:valid_specimen)
+    query.collecting_event = false
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#collecting_event 1' do
+    s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
+    query.collecting_event = true
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#repository 1' do
+    s = FactoryBot.create(:valid_specimen, repository: FactoryBot.create(:valid_repository))
+    FactoryBot.create(:valid_specimen)
+    query.repository = true
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#repository' do
+    s = FactoryBot.create(:valid_specimen)
+    query.repository = false
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
+
+  specify '#taxon_determinations' do
+    s = FactoryBot.create(:valid_specimen)
+    d = FactoryBot.create(:valid_taxon_determination, biological_collection_object: s)
+    query.taxon_determinations = false
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#georeferences' do
+    s = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event))
+    d = FactoryBot.create(:valid_georeference, collecting_event: s.collecting_event)
+    query.georeferences = false
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
   context 'simple' do
     let(:params) { {} }
-    let(:query) { Queries::CollectionObject::Filter.new({}) }
 
     let(:ce1) { CollectingEvent.create(
       verbatim_locality: 'Out there',
@@ -39,9 +162,9 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
     # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
   
-    specify '#depicted' do
+    specify '#depictions' do
      t = FactoryBot.create(:valid_depiction, depiction_object: co1)
-      query.depicted = true
+      query.depictions = true
       expect(query.all.map(&:id)).to contain_exactly(co1.id)
     end
 
@@ -110,7 +233,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
 
       let!(:td5) { FactoryBot.create(:valid_taxon_determination, biological_collection_object: co3, otu: o3) } # current
 
-      context 'type_material' do
+      context 'type specimens' do
         let!(:tm1) { TypeMaterial.create!(collection_object: co1, protonym: species1, type_type: 'holotype') }
         let!(:tm2) { TypeMaterial.create!(collection_object: co3, protonym: species2, type_type: 'neotype') }
 
@@ -261,17 +384,17 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       let!(:li1) { FactoryBot.create(:valid_loan_item, loan_item_object: co1) }
 
       specify '#loaned' do
-        query.loaned = true 
+        query.loaned = true
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
       end
 
       specify '#on_loan' do
-        query.on_loan = true 
+        query.on_loan = true
         expect(query.all.map(&:id)).to contain_exactly(co1.id)
       end
 
       specify '#never_loaned' do
-        query.never_loaned = true 
+        query.never_loaned = true
         expect(query.all.map(&:id)).to contain_exactly(co2.id)
       end
     end

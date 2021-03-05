@@ -188,8 +188,6 @@ module CollectingEventsHelper
   end
 
   def collecting_event_next_by_start_date(collecting_event)
-
-
   end
 
 
