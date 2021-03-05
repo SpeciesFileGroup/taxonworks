@@ -32,6 +32,12 @@ module Queries::Concerns::Identifiers
     #   of identifier types
     attr_accessor :identifier_type
 
+    # @return [True, False, nil]
+    #   true - has an identifier
+    #   false - does not have an identifier
+    #   nil - not applied
+    attr_accessor :identifiers
+
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
     end
@@ -40,6 +46,7 @@ module Queries::Concerns::Identifiers
       ( @identifier_end.to_i + 1 ).to_s
     end
   end
+
 
   def set_identifier(params)
     @namespace_id = params[:namespace_id]
@@ -72,6 +79,17 @@ module Queries::Concerns::Identifiers
           Arel::Nodes::SqlLiteral.new(identifier_end) ]
       )
     )
+  end
+
+  def identifiers_facet
+    return nil if identifiers.nil?
+    if identifiers
+      query_base.joins(:identifiers).distinct
+    else
+      query_base.left_outer_joins(:identifiers)
+        .where(identifiers: {id: nil})
+        .distinct
+    end
   end
 
   def identifier_facet

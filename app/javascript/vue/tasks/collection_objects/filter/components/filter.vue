@@ -67,6 +67,13 @@
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
+      <with-component
+        class="margin-large-bottom"
+        v-for="(item, key) in params.byRecordsWith"
+        :key="key"
+        :title="key"
+        :param="key"
+        v-model="params.byRecordsWith[key]"/>
     </div>
   </div>
 </template>
@@ -84,6 +91,7 @@ import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
 import RepositoryComponent from './filters/repository.vue'
+import WithComponent from 'tasks/sources/filter/components/filters/with'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -103,14 +111,15 @@ export default {
     LoanComponent,
     InRelationship,
     BiocurationsComponent,
-    RepositoryComponent
+    RepositoryComponent,
+    WithComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, this.params.settings, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -130,7 +139,8 @@ export default {
         !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
         !Object.values(this.params.user).find(item => { return item !== undefined }) &&
         !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item !== undefined })
+        !Object.values(this.params.identifier).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.byRecordsWith).find(item => (item !== undefined))
     }
   },
   data () {
@@ -199,6 +209,17 @@ export default {
         biocurations: {
           biocuration_class_ids: []
         },
+        byRecordsWith: {
+          collecting_events: undefined,
+          determinations: undefined,
+          depictions: undefined,
+          geographic_area: undefined,
+          georeference: undefined,
+          identifiers: undefined,
+          type_material: undefined,
+          repository: undefined,
+          dwc_indexed: undefined
+        },
         relationships: {
           biological_relationship_ids: []
         },
@@ -208,7 +229,8 @@ export default {
           never_loaned: undefined
         },
         types: {
-          is_type: []
+          is_type: [],
+          type_type: []
         },
         identifier: {
           identifier: undefined,

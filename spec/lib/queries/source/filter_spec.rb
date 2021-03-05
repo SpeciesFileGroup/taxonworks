@@ -10,7 +10,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
-
   specify '#ancestor_id' do
     t = FactoryBot.create(:valid_taxon_name)
     c = FactoryBot.create(:valid_citation, citation_object: t)
