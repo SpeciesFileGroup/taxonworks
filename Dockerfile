@@ -1,58 +1,6 @@
-FROM phusion/passenger-ruby27:latest AS base
+FROM sfgrp/taxonworks-base:latest AS base
 ARG BUNDLER_WORKERS=1
-
-# From Phusion
-ENV HOME /root
-RUN rm /etc/nginx/sites-enabled/default
-ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
-
-# Update repos
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-# Until we move to update Ubuntu
-RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
-# TaxonWorks dependencies
-RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update && \
-      apt-get install -y locales software-properties-common \ 
-      postgresql-client-12 \
-      build-essential autoconf libtool git-core \
-      libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-      pkg-config poppler-utils \
-      libpq-dev libproj-dev libgeos-dev libgeos++-dev \
-      tesseract-ocr \
-      cmake \
-      zip \
-      nodejs \
-      redis-server libhiredis-dev && \
-      apt-get build-dep -y imagemagick libmagickcore-dev libde265 libheif && \
-      cd /usr/src/ && \
-      git clone https://github.com/strukturag/libde265.git && \
-      git clone https://github.com/strukturag/libheif.git && \
-      cd libde265 && ./autogen.sh && ./configure && make -j3 && make install && \
-      cd ../libheif && ./autogen.sh && ./configure && make -j3 && make install && \
-      cd .. && wget https://www.imagemagick.org/download/ImageMagick.tar.gz && tar xf ImageMagick.tar.gz && cd ImageMagick-7* && \
-      ./configure --with-heic=yes && make -j3 && make install && ldconfig && \
-      apt clean && \ 
-      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN locale-gen en_US.UTF-8
-
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
 ENV RAILS_ENV production
-
-RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
-RUN gem update --system
-RUN gem install bundler
-
-# Set up ImageMagick
-#RUN sed -i 's/name="disk" value="1GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-7/policy.xml \
-#&&  identify -list resource | grep Disk | grep 8GiB # Confirm the setting is active
-
 
 ADD package.json /app/
 ADD package-lock.json /app/
