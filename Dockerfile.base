@@ -33,7 +33,7 @@ RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update &&
       cd libde265 && ./autogen.sh && ./configure && make -j3 && make install && \
       cd ../libheif && ./autogen.sh && ./configure && make -j3 && make install && \
       cd .. && wget https://www.imagemagick.org/download/ImageMagick.tar.gz && tar xf ImageMagick.tar.gz && cd ImageMagick-7* && \
-      ./configure --with-heic=yes --with-wmf=yes && make -j3 && make install && ldconfig && \
+      ./configure --with-modules=yes && make -j3 && make install && ldconfig && \
       apt clean && \ 
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
