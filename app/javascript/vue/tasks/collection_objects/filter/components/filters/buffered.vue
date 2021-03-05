@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Buffered</h2>
+    <h3>Buffered</h3>
     <div
       v-for="(item, key) in buffered"
       class="field label-above">
