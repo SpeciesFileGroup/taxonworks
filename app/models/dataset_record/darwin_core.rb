@@ -14,8 +14,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
     index = get_fields_mapping[field_name.to_s]
 
     value = data_fields[index]&.dig("value") if index
-    value&.gsub!(/^[[:space:]]+|[[:space:]]+$/, '') # strip method doesn't deal with https://en.wikipedia.org/wiki/Non-breaking_space
-    value&.squeeze!(" ")
+    normalize_value!(value)
 
     value unless value.blank?
   end
@@ -32,6 +31,11 @@ class DatasetRecord::DarwinCore < DatasetRecord
 
   def get_fields_mapping
     @fields_mapping ||= import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
+  end
+
+  def normalize_value!(value)
+    value&.gsub!(/^[[:space:]]+|[[:space:]]+$/, '') # strip method doesn't deal with https://en.wikipedia.org/wiki/Non-breaking_space
+    value&.squeeze!(" ")
   end
 
 end

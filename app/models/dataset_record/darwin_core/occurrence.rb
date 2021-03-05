@@ -11,8 +11,25 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         names, origins = parse_taxon_class
 
         innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
+          predicted_rank = false
+
+          unless name[:rank_class]
+            name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
+            unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
+              name.delete(:rank_class)
+            else
+              predicted_rank = true
+            end
+          end
+
           Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
-            raise DarwinCore::InvalidData.new({ origins[name.object_id] => protonym.errors.messages.values.flatten }) unless protonym.persisted?
+            unless protonym.persisted?
+              raise DarwinCore::InvalidData.new({
+                origins[name.object_id] => predicted_rank ?
+                protonym.errors.messages.values.flatten :
+                ["Rank for #{name[:name]} could not be determined. Please create this taxon name manually and retry."]
+              })
+            end
           end
         end
 
@@ -600,8 +617,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # nomenclaturalCode: [Selects nomenclature code to pick ranks from]
     code = get_field_value(:nomenclaturalCode)&.downcase&.to_sym || :iczn
 
-    # higherClassification: [Not mapped]
-
     # kingdom: [Kingdom protonym]
     origins[
       {rank_class: Ranks.lookup(code, "kingdom"), name: get_field_value(:kingdom)}.tap { |h| names << h }.object_id
@@ -678,6 +693,34 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     if rank
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
+    end
+
+    # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]
+    higherClassification = (
+      get_field_value(:higherClassification)&.split('|') || []
+    ).map! { |n| normalize_value!(n); {rank_class: nil, name: n} }
+
+    curr = 0
+    names.each do |name|
+      idx = higherClassification[curr..].index { |n| n[:name] == name[:name] }
+
+      if idx
+        higherClassification[curr+idx] = name
+        curr += idx + 1
+      end
+    end
+    idx = higherClassification.index { |n| n[:rank_class] == Ranks.lookup(code, "genus") }
+    higherClassification = higherClassification.slice(0, idx) if idx
+
+    curr = 0
+    higherClassification.each do |name|
+      if name[:rank_class]
+        curr = names.index(name) + 1
+      else
+        names.insert(curr, name)
+        origins[name.object_id] = :higherClassification
+        curr += 1
+      end
     end
 
     # verbatimTaxonRank: [Not mapped]
