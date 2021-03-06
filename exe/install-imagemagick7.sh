@@ -1,27 +1,24 @@
-#!/bin/sh
-# Source: https://medium.com/@eplt/5-minutes-to-install-imagemagick-with-heic-support-on-ubuntu-18-04-digitalocean-fe2d09dcef1
-sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
+#!/bin/bash
+set -e
+set -x
 apt-get update
-apt-get install -y build-essential autoconf libtool git-core
-apt-get build-dep -y imagemagick libmagickcore-dev libde265 libheif
+apt-get build-dep -y libmagickcore-dev
 cd /usr/src/
-git clone https://github.com/strukturag/libde265.git
-git clone https://github.com/strukturag/libheif.git
-cd libde265/
+[ ! -d libheif-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libheif/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf -
+[ ! -d libde265-* ] && curl -sL $(curl -s https://api.github.com/repos/strukturag/libde265/releases/latest | jq --raw-output '.assets[0] | .browser_download_url') | tar xzf -
+[ ! -d ImageMagick-7* ] && curl -sL https://www.imagemagick.org/download/ImageMagick.tar.gz | tar xzf -
+cd libde265-*
 ./autogen.sh
 ./configure
-make -j3
+make -j${MAKE_JOBS-3}
 make install
-cd /usr/src/libheif/
+cd ../libheif-*
 ./autogen.sh
 ./configure
-make -j3
+make -j${MAKE_JOBS-3}
 make install
-cd /usr/src/
-wget https://www.imagemagick.org/download/ImageMagick.tar.gz
-tar xf ImageMagick.tar.gz
-cd ImageMagick-7*
-./configure --with-heic=yes
-make -j3
+cd ../ImageMagick-7*
+./configure --with-modules=yes
+make -j${MAKE_JOBS-3}
 make install
 ldconfig
