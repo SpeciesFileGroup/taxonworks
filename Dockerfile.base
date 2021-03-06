@@ -1,20 +1,16 @@
 FROM phusion/passenger-ruby27:latest AS base
+ARG MAKE_JOBS=3
 
 # From Phusion
 ENV HOME /root
 RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
-# Update repos
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-# Until we move to update Ubuntu
-RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
 # TaxonWorks dependencies
-RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update && \
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main' >> /etc/apt/sources.list.d/pgdg.list && \
+      curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+      sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update && \
+      curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
       apt-get install -y locales software-properties-common \ 
       postgresql-client-12 \
       build-essential autoconf libtool git-core \
@@ -26,16 +22,16 @@ RUN sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list && apt-get update &&
       zip \
       nodejs \
       redis-server libhiredis-dev && \
-      apt-get build-dep -y imagemagick libmagickcore-dev libde265 libheif && \
+      apt-get build-dep -y libmagickcore-dev && \
       cd /usr/src/ && \
       git clone https://github.com/strukturag/libde265.git && \
       git clone https://github.com/strukturag/libheif.git && \
-      cd libde265 && ./autogen.sh && ./configure && make -j3 && make install && \
-      cd ../libheif && ./autogen.sh && ./configure && make -j3 && make install && \
-      cd .. && wget https://www.imagemagick.org/download/ImageMagick.tar.gz && tar xf ImageMagick.tar.gz && cd ImageMagick-7* && \
-      ./configure --with-modules=yes && make -j3 && make install && ldconfig && \
-      apt clean && \ 
-      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+      cd libde265 && ./autogen.sh && ./configure && make -j$MAKE_JOBS && make install && \
+      cd ../libheif && ./autogen.sh && ./configure && make -j$MAKE_JOBS && make install && \
+      cd .. && curl -sL https://www.imagemagick.org/download/ImageMagick.tar.gz | tar xzf - && cd ImageMagick-7* && \
+      ./configure --with-modules=yes && make -j$MAKE_JOBS && make install && ldconfig && \
+      apt-get autoremove -y && apt clean && \
+      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
 
 RUN locale-gen en_US.UTF-8
 
