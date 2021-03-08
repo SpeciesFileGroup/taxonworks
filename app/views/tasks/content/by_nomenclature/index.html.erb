@@ -1,7 +1,6 @@
 
 
-<% @taxon_names = TaxonName.that_is_valid.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
-<%# @taxon_names = TaxonName.that_is_valid.joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order('taxon_name_hierarchies.generations DESC').uniq %>
+<% @taxon_names = TaxonName.that_is_valid.with_base_of_rank_class("NomenclaturalRank::Iczn::SpeciesGroup::S").joins(:descendant_hierarchies).where(project_id: sessions_current_project_id).order(:generations, :cached).uniq %>
 
 <% @topic = Topic.where(project_id: sessions_current_project_id).first -%>
 <% @rowcount = 1 %>
