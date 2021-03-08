@@ -115,7 +115,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop image or click to browse',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       coordinatesEXIF: []
     }

@@ -129,13 +129,10 @@ module Queries
 
       #---
 
-      
-
       # @return [Array]
       # @param determiner [Array or Person#id]
       #   one ore more people id
-      attr_accessor :determiner
-
+      attr_accessor :determiner_id
 
       # @return [String, nil]
       attr_accessor :buffered_determinations
@@ -178,7 +175,7 @@ module Queries
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
         @depictions = boolean_param(params, :depictions)
-        @determiner = params[:determiner] 
+        @determiner_id = params[:determiner_id] 
         @dwc_indexed = boolean_param(params, :dwc_indexed) 
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
         @geographic_area = boolean_param(params, :geographic_area)
@@ -244,8 +241,8 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
-      def determiner
-        [@determiner].flatten.compact
+      def determiner_id
+        [@determiner_id].flatten.compact
       end
 
       def taxon_determinations_facet
@@ -261,8 +258,8 @@ module Queries
       end
 
       def determiner_facet
-        return nil if determiner.empty? 
-        ::CollectionObject.joins(:determiners).where(roles: {person_id: determiner})
+        return nil if determiner_id.empty? 
+        ::CollectionObject.joins(:determiners).where(roles: {person_id: determiner_id})
       end
 
       def georeferences_facet

@@ -6,6 +6,12 @@
       min-height: 16px;
       align-items: center;
     }
+    
+    .center-icon {
+      background-position: center;
+      padding-left: auto;
+      min-height: auto;
+    }
 
     .small-icon {
       background-size: 12px 12px;
@@ -204,7 +210,11 @@
 
     [data-icon="reset"] {
       background-image: image-url("restart.svg");
-    }  
+    }
+
+    [data-icon="w_reset"] {
+      background-image: image-url("w_restart.svg");
+    }
     
     [data-icon="swap"] {
       background-image: image-url("swap.svg");

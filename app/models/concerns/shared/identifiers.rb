@@ -14,11 +14,13 @@ module Shared::Identifiers
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
 
     # !! This only is able to match numeric identifiers, other results are excluded !!
-    # Careful, a potential security issue here
-    scope :with_identifiers_sorted, -> (o = 'ASC') { includes(:identifiers)
-      .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
-      .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{o}"))
-      .references(:identifiers) }
+    def self.with_identifiers_sorted(sort_order = 'ASC')
+      raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
+      includes(:identifiers)
+        .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
+        .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{sort_order}"))
+        .references(:identifiers)
+    end
 
     scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
       with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
@@ -67,6 +69,7 @@ module Shared::Identifiers
     # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
     def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)
       return self.none if identifier_type.blank? && namespace_id.blank? && sorted.blank?
+      q = nil
       q = with_identifier_type(identifier_type) if !identifier_type.blank?
       q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if !namespace_id.blank?
       q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
