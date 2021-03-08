@@ -1,65 +1,72 @@
 <template>
   <div>
-    <div class="separate-bottom">
-      <div class="switch-radio">
-        <switch-component
-          class="full_width"
-          v-model="display"
-          :options="optionList"/>
+    <spinner-component
+      v-if="!source.id"
+      :show-spinner="false"
+      legend="Save source first to upload documents"/>
+    <div class="content">
+      <div class="separate-bottom">
+        <div class="switch-radio">
+          <switch-component
+            class="full_width"
+            v-model="display"
+            :options="optionList"/>
+        </div>
       </div>
-    </div>
-    <div class="margin-medium-bottom">
-      <label>
-        <input
-          v-model="isPublic"
-          type="checkbox"
-        >
-        Is public?
-      </label>
-    </div>
+      <div class="margin-medium-bottom">
+        <label>
+          <input
+            v-model="isPublic"
+            type="checkbox"
+          >
+          Is public?
+        </label>
+      </div>
 
-    <component
-      :source="source"
-      :is-public="isPublic"
-      :is="componentView"/>
+      <component
+        :source="source"
+        :is-public="isPublic"
+        :is="componentView"/>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Filename</th>
-          <th>Is public</th>
-          <th>Updated at</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in list">
-          <td><span v-html="item.document.object_tag" /></td>
-          <td>
-            <input
-              type="checkbox"
-              :checked="item.document.is_public"
-              @click="changeIsPublicState(item)"
-            >
-          </td>
-          <td>{{ item.updated_at }}</td>
-          <td>
-            <div class="horizontal-right-content">
-              <radial-annotator :global-id="item.global_id"/>
-              <pdf-button :pdf="item.document"/>
-              <span
-                class="button circle-button btn-delete"
-                @click="removeDocumentation(item)"/>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <table class="full_width margin-medium-top">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Is public</th>
+            <th>Updated at</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in list">
+            <td><span v-html="item.document.object_tag" /></td>
+            <td>
+              <input
+                type="checkbox"
+                :checked="item.document.is_public"
+                @click="changeIsPublicState(item)"
+              >
+            </td>
+            <td>{{ item.updated_at }}</td>
+            <td>
+              <div class="horizontal-right-content">
+                <radial-annotator :global-id="item.global_id"/>
+                <pdf-button :pdf="item.document"/>
+                <span
+                  class="button circle-button btn-delete"
+                  @click="removeDocumentation(item)"/>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 <script>
 
 import PdfButton from 'components/pdfButton.vue'
+import SpinnerComponent from 'components/spinner'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import SwitchComponent from 'components/switch'
 import PickComponent from './documents/pick'
@@ -75,7 +82,8 @@ export default {
     PickComponent,
     RadialAnnotator,
     SwitchComponent,
-    DropComponent
+    DropComponent,
+    SpinnerComponent
   },
 
   data () {

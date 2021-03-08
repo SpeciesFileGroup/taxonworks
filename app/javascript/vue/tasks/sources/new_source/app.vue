@@ -113,7 +113,7 @@
       <div class="full_width">
         <component :is="section"/>
         <documents-component
-          class="panel content margin-medium-top"/>
+          class="panel margin-medium-top"/>
       </div>
       <right-section class="separate-left"/>
     </div>
