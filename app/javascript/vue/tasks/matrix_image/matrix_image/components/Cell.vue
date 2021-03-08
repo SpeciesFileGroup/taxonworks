@@ -136,7 +136,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop<br>image<br>here',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       dropzoneDepiction: {
         paramName: 'depiction[image_attributes][image_file]',
@@ -146,7 +146,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop<br>image<br>here',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       }
     }
   },
