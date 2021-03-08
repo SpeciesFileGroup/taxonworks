@@ -272,7 +272,7 @@ export default {
       this.$refs.determinerSmartSelector.refresh()
     }
   },
-  mounted () {
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const otuId = urlParams.get('otu_id')
     const taxonId = urlParams.get('taxon_name_id')

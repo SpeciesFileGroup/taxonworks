@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Better source cached filter wildcards [#1557]
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
+- Update comprehensive url [#2096]
 
 ### Changed
 - Now using ImageMagick 7 instead of 6
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
 [#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
+[#2096]: https://github.com/SpeciesFileGroup/taxonworks/issues/2096
 
 ## [0.16.3] - 2021-02-26
 ### Added
