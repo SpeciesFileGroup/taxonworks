@@ -22,7 +22,7 @@ namespace :tw do
           default_images = {}
 
           CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
-            if row['AccessCode'].to_i != 0 or row['Status'].to_i != 0
+            if [0, 7].include?(row['AccessCode'].to_i) or row['Status'].to_i != 0
               # HLP: Lets start by not exposing data that could potentially be part of a manuscript for now.
               # Emit a warning to remind us in the future of the missing images.
               logger.warn "Skipping ImageID = #{row['ImageID']}, AccessCode = #{row['AccessCode']}, Status = #{row['Status']}"
