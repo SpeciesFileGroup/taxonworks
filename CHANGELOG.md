@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create new biocuration and in relationship links in filter collection object
 - Determiner in filter collection object
 - HEIC image format support
+- PDF drop box on new source task [#2094]
 
 ### Fixed
 - Uniquifying 2 people attached to the same source raises [#2078]
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
+[#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
 
 ## [0.16.3] - 2021-02-26
 ### Added

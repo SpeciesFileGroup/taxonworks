@@ -110,7 +110,11 @@
       v-if="showRecent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
-      <component class="full_width" :is="section"/>
+      <div class="full_width">
+        <component :is="section"/>
+        <documents-component
+          class="panel content margin-medium-top"/>
+      </div>
       <right-section class="separate-left"/>
     </div>
     <cross-ref
@@ -134,6 +138,7 @@ import RecentComponent from './components/recent'
 import SpinnerComponent from 'components/spinner'
 
 import CrossRef from './components/crossRef'
+import DocumentsComponent from './components/documents'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
@@ -171,6 +176,7 @@ export default {
     AddSource,
     NavBar,
     RecentComponent,
+    DocumentsComponent,
     SpinnerComponent
   },
   computed: {

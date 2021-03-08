@@ -1,52 +1,43 @@
 import ajaxCall from 'helpers/ajaxCall'
 
+const CloneSource = (id) => ajaxCall('post', `/sources/${id}/clone`)
+
+const CreateDocumentation = (documentation) => ajaxCall('post', '/documentation.json', { documentation: documentation })
+
+const CreateSource = (source) => ajaxCall('post', '/sources', { source: source })
+
+const GetRecentSources = () => ajaxCall('get', '/sources.json', { params: { per: 10, recent: true } })
+
 const GetSerialMatch = (title) => ajaxCall('get', '/serials.json', { params: { name: title } })
 
-const GetSource = (id) => {
-  return ajaxCall('get', `/sources/${id}.json`)
-}
+const GetSource = (id) => ajaxCall('get', `/sources/${id}.json`)
 
-const GetRecentSources = () => {
-  return ajaxCall('get', '/sources.json', {
-    params: {
-      per: 10,
-      recent: true
-    }
-  })
-}
+const GetSourceDocumentations = (id) => ajaxCall('get', `/sources/${id}/documentation`)
 
-const CreateSource = (source) => {
-  return ajaxCall('post', '/sources', { source: source })
-}
+const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
 
-const UpdateSource = (source) => {
-  return ajaxCall('patch', `/sources/${source.id}`, { source: source })
-}
+const LoadSoftValidation = (globalId) => ajaxCall('get', `/soft_validations/validate?global_id=${globalId}`)
 
-const UpdateUserPreferences = function (id, data) {
-  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
-}
+const RemoveDocumentation = (id) => ajaxCall('delete', `/documentation/${id}.json`)
 
-const GetUserPreferences = function () {
-  return ajaxCall('get', `/preferences.json`)
-}
+const UpdateDocument = (data) => ajaxCall('patch', `/documents/${data.id}.json`, { document: data })
 
-const CloneSource = function (id) {
-  return ajaxCall('post', `/sources/${id}/clone`)
-}
+const UpdateSource = (source) => ajaxCall('patch', `/sources/${source.id}`, { source: source })
 
-const LoadSoftValidation = function (global_id) {
-  return ajaxCall('get', `/soft_validations/validate?global_id=${global_id}`)
-}
+const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 
 export {
-  GetSource,
+  CloneSource,
+  CreateDocumentation,
+  CreateSource,
   GetRecentSources,
   GetSerialMatch,
-  CreateSource,
-  UpdateSource,
-  UpdateUserPreferences,
+  GetSource,
+  GetSourceDocumentations,
   GetUserPreferences,
-  CloneSource,
-  LoadSoftValidation
+  LoadSoftValidation,
+  RemoveDocumentation,
+  UpdateDocument,
+  UpdateSource,
+  UpdateUserPreferences
 }

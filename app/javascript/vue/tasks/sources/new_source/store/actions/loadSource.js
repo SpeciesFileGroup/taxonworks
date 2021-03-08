@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetSource, LoadSoftValidation } from '../../request/resources'
+import { GetSource, GetSourceDocumentations, LoadSoftValidation } from '../../request/resources'
 
 import setParam from 'helpers/setParam'
 
@@ -17,11 +17,15 @@ export default ({ state, commit }, id) => {
       commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
     })
 
+    GetSourceDocumentations(id).then(response => {
+      commit(MutationNames.SetDocumentation, response.body)
+    })
+
     setParam('/tasks/sources/new_source', 'source_id', response.body.id)
     state.settings.lastSave = 0
     state.settings.lastEdit = 0
   }, () => {
     TW.workbench.alert.create('No source was found with that ID.', 'alert')
-    history.pushState(null, null, `/tasks/sources/new_source`)
+    history.pushState(null, null, '/tasks/sources/new_source')
   })
 }
