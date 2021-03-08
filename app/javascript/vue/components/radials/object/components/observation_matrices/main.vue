@@ -62,6 +62,9 @@
 
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
+import SpinnerComponent from 'components/spinner'
+import DefaultPin from 'components/getDefaultPin'
+
 import {
   GetObservationMatrices,
   GetObservationRow,
@@ -71,6 +74,10 @@ import {
 
 export default {
   mixins: [CRUD, annotatorExtend],
+  components: {
+    DefaultPin,
+    SpinnerComponent
+  },
   computed: {
     alreadyInMatrices () {
       return this.matrices.filter(item => {
@@ -95,11 +102,11 @@ export default {
       types: {
         Otu: {
           propertyName: 'otu_id',
-          type: 'ObservationMatrixRowItem::SingleOtu'
+          type: 'ObservationMatrixRowItem::Single::Otu'
         },
         CollectionObject: {
           propertyName: 'collection_object_id',
-          type: 'ObservationMatrixRowItem::SingleCollectionObject'
+          type: 'ObservationMatrixRowItem::Single::CollectionObject'
         }
       }
     }
@@ -179,6 +186,10 @@ export default {
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
         window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+      } else {
+        this.createRow().then(() => {
+          window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
+        })
       }
     }
   }

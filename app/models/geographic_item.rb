@@ -56,16 +56,15 @@ class GeographicItem < ApplicationRecord
     :multi_polygon,
     :geometry_collection].freeze
 
-    GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
-      .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_polygon].as('geometry')]))
-      .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:point].as('geometry')]))
-      .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:line_string].as('geometry')]))
-      .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:polygon].as('geometry')]))
-      .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_line_string].as('geometry')]))
-      .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_point].as('geometry')]))
-      .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
-      .freeze
-
+  GEOMETRY_SQL = Arel::Nodes::Case.new(arel_table[:type])
+    .when('GeographicItem::MultiPolygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_polygon].as('geometry')]))
+    .when('GeographicItem::Point').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:point].as('geometry')]))
+    .when('GeographicItem::LineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:line_string].as('geometry')]))
+    .when('GeographicItem::Polygon').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:polygon].as('geometry')]))
+    .when('GeographicItem::MultiLineString').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_line_string].as('geometry')]))
+    .when('GeographicItem::MultiPoint').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:multi_point].as('geometry')]))
+    .when('GeographicItem::GeometryCollection').then(Arel::Nodes::NamedFunction.new("CAST", [arel_table[:geometry_collection].as('geometry')]))
+    .freeze
 
     # "CASE geographic_items.type
     #        WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon::geometry
@@ -77,15 +76,15 @@ class GeographicItem < ApplicationRecord
     #        WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection::geometry
     #     END".freeze
 
-    GEOGRAPHY_SQL = "CASE geographic_items.type
-     WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
-     WHEN 'GeographicItem::Point' THEN point
-     WHEN 'GeographicItem::LineString' THEN line_string
-     WHEN 'GeographicItem::Polygon' THEN polygon
-     WHEN 'GeographicItem::MultiLineString' THEN multi_line_string
-     WHEN 'GeographicItem::MultiPoint' THEN multi_point
-     WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection
-  END".freeze
+  GEOGRAPHY_SQL = "CASE geographic_items.type
+    WHEN 'GeographicItem::MultiPolygon' THEN multi_polygon
+    WHEN 'GeographicItem::Point' THEN point
+    WHEN 'GeographicItem::LineString' THEN line_string
+    WHEN 'GeographicItem::Polygon' THEN polygon
+    WHEN 'GeographicItem::MultiLineString' THEN multi_line_string
+    WHEN 'GeographicItem::MultiPoint' THEN multi_point
+    WHEN 'GeographicItem::GeometryCollection' THEN geometry_collection
+    END".freeze
 
   # ANTI_MERIDIAN = '0X0102000020E61000000200000000000000008066400000000000405640000000000080664000000000004056C0'
   ANTI_MERIDIAN = 'LINESTRING (180 89.0, 180 -89)'.freeze
@@ -97,9 +96,9 @@ class GeographicItem < ApplicationRecord
   has_many :gadm_geographic_areas, class_name: 'GeographicArea', foreign_key: :gadm_geo_item_id
   has_many :ne_geographic_areas, class_name: 'GeographicArea', foreign_key: :ne_geo_item_id
   has_many :tdwg_geographic_areas, class_name: 'GeographicArea', foreign_key: :tdwg_geo_item_id
-  has_many :georeferences
+  has_many :georeferences, inverse_of: :geographic_item
   has_many :georeferences_through_error_geographic_item,
-           class_name: 'Georeference', foreign_key: :error_geographic_item_id
+           class_name: 'Georeference', foreign_key: :error_geographic_item_id, inverse_of: :error_geographic_item
   has_many :collecting_events_through_georeferences, through: :georeferences, source: :collecting_event
   has_many :collecting_events_through_georeference_error_geographic_item,
            through: :georeferences_through_error_geographic_item, source: :collecting_event

@@ -219,7 +219,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       objectTypes: [
         {

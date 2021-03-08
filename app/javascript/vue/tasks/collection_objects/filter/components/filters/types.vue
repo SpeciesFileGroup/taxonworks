@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Types</h2>
+    <h3>Types</h3>
     <h3>Nomenclature code</h3>
     <div class="field">
       <ul class="no_bullets">

@@ -5,21 +5,18 @@ module Shared::Labels
   extend ActiveSupport::Concern
   included do
 
-    Label.related_foreign_keys.push self.name.foreign_key
+    ::Label.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
     has_many :labels, as: :label_object, validate: true, dependent: :destroy
     accepts_nested_attributes_for :labels, reject_if: :reject_labels, allow_destroy: true
 
-  end
-
-  module ClassMethods
-
     protected
 
     def reject_labels(attributed)
-      attributed['text'].blank? 
+      attributed['text'].blank? && attributed[:text_method].blank?
     end
+
   end
 
   def labeled?

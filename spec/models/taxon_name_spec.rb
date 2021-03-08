@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/debug/taxon_names'
 
 describe TaxonName, type: :model, group: [:nomenclature] do
 
@@ -23,6 +24,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       Citation.delete_all
       Source.destroy_all
       TaxonNameHierarchy.delete_all
+    end
+
+    specify '#name without space' do
+      taxon_name.name = 'with space'
+      taxon_name.valid?
+      expect(taxon_name.errors[:name]).to_not be_empty
     end
 
     context '#year_of_publication' do
@@ -988,7 +995,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:c3) { Combination.create!(genus: genus1, subgenus: genus2, species: species) }
 
 
-
     specify '#reified_id 1' do
       expect(family.reified_id).to eq(family.to_param)
     end
@@ -1007,18 +1013,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       expect(species.reified_id).to eq(species.to_param)
     end
 
-    specify '#reified_id 5' do
-      expect(c1.reified_id).to eq(species.reified_id)
-    end
-
-    specify '#reified_id 6' do
-      expect(c2.reified_id).to eq(species.reified_id)
-    end
-
-    specify '#reified_id 7' do
-      expect(c3.reified_id).to eq(species.reified_id)
-    end
-
     specify '#reified_id with original_combination relationship' do
       species.update!(verbatim_author: 'Smith', original_genus: genus2)
       a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
@@ -1031,7 +1025,55 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       a = [species.id, Digest::MD5.hexdigest(species.cached_original_combination)].join('-')
       expect(species.reified_id).to eq(a)
     end
+  end
 
+  context 'combinations not in scope' do
+    let!(:root1) { FactoryBot.create(:root_taxon_name) }
+    let!(:family1) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
+    let!(:family2) { Protonym.create!(name: 'Bidae', rank_class: Ranks.lookup(:iczn, :family), parent: root1) }
+    let!(:genus1) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family1) }
+    let!(:genus2) { Protonym.create!(name: 'Ogus', rank_class: Ranks.lookup(:iczn, :genus), parent: family2) }
+    let!(:species1) { Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
+    let!(:species2) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus2) }
+
+    let!(:c1) { Combination.create!(genus: genus1, species: species1) }
+    let!(:c2) { Combination.create!(genus: genus2, species: species1) } # target!
+    let!(:c3) { Combination.create!(genus: genus2, species: species2) } # out of scope red herring
+
+    # TODO: Spec logger with debug:true
+    #  before do
+    #    Support::Debug::TaxonNames.puts_names(
+    #      [root1, family1, family2, genus1, genus2, species1, species2, c1, c2]
+    #    )
+    #  end
+
+    specify 'ensure combination is not in scope 1' do
+      expect(genus1.descendants.to_a).to_not include(c1, c2, c3) 
+    end
+
+    specify 'ensure combination is not in scope 2' do
+      expect(genus2.descendants.to_a).to_not include(c1, c2) 
+    end
+
+    specify '#out_of_scope_combinations 1' do
+      expect(genus1.out_of_scope_combinations).to contain_exactly(c2)
+    end
+
+    specify '#out_of_scope_combinations 1' do
+      expect(genus2.out_of_scope_combinations).to contain_exactly()
+    end
+
+    specify '.out_of_scope_combinations 1' do
+      expect(TaxonName.out_of_scope_combinations(genus1.id)).to contain_exactly(c2)
+    end
+
+    specify '.out_of_scope_combinations 1' do
+      expect(TaxonName.out_of_scope_combinations(genus2.id)).to contain_exactly()
+    end
+
+    specify '#out_of_scope_combinations 2' do
+      expect(family1.out_of_scope_combinations).to contain_exactly(c2) # c1 is present because of parenthood
+    end
   end
 
   context 'concerns' do

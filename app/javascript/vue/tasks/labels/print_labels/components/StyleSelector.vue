@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Style</h2>
+    <h3>Style</h3>
     <ul class="no_bullets">
       <li
         v-for="item in list"

@@ -55,9 +55,7 @@ export default {
     processString (str) {
       str = this.removeSpaces(str)
       this.capitalize(str)
-      if (this.GenusAndSpecies()) {
-        this.addTimer()
-      }
+      this.addTimer()
     },
     removeSpaces (str) {
       str = str.replace(/^\s+|\s{2,}$|\s\.\s/g, '')

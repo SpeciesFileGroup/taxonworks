@@ -1,5 +1,3 @@
-require 'fileutils'
-
 namespace :tw do
   require_relative 'support/database'
 
@@ -98,13 +96,7 @@ namespace :tw do
     end
 
     @args[:backup_directory] = (ENV['backup_directory'] || default)
-
-    if ENV['create_backup_directory'] == 'true'
-      FileUtils.mkdir_p @args[:backup_directory]
-    end
-
     raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory])
-
     @args
   end
 

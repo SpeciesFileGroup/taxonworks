@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Identifiers</h2>
+    <h3>Identifiers</h3>
     <div class="field">
       <label>Identifier</label>
       <br>
@@ -25,7 +25,7 @@
         </li>
       </ul>
     </div>
-    <h3>In range</h3>
+    <h4>In range</h4>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start:</label>

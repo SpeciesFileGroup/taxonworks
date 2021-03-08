@@ -99,13 +99,14 @@ class PeopleController < ApplicationController
     @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
   end
 
+  # POST /people/merge
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
     person_to_remove = Person.find(params[:person_to_destroy])
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed'}
+      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
     end
   end
 
@@ -163,7 +164,8 @@ class PeopleController < ApplicationController
       :user_id,
       :user_target,
       used_in_project_id: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       role: [],
       person_wildcard: [],
       user_id: []
@@ -190,7 +192,8 @@ class PeopleController < ApplicationController
       :user_target,
       :tags,
       # user_id: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       role: [],
       person_wildcard: []
     )
@@ -208,6 +211,7 @@ class PeopleController < ApplicationController
   def person_params
     params.require(:person).permit(
       :type,
+      :no_namecase,
       :last_name, :first_name,
       :suffix, :prefix,
       :year_born, :year_died, :year_active_start, :year_active_end

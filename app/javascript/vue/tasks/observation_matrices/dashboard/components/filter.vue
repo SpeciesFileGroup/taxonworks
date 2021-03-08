@@ -32,7 +32,8 @@
       <filter-table
         v-for="(item, key) in tableFilter"
         :key="key"
-        :title="key" v-model="tableFilter[key]"/>
+        :title="key"
+        v-model="tableFilter[key]"/>
     </div>
   </div>
 </template>

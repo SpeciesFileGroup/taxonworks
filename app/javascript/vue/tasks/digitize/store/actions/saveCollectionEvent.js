@@ -17,7 +17,7 @@ export default function ({ commit, state }) {
       if (collection_event.units === 'ft') {
         ['minimum_elevation', 'maximum_elevation', 'elevation_precision'].forEach(key => {
           const elevationValue = Number(collection_event[key])
-          collection_event[key] = elevationValue > 0 ? elevationValue * 3.281 : undefined
+          collection_event[key] = elevationValue > 0 ? elevationValue / 3.281 : undefined
         })
       }
       if (collection_event.id) {

@@ -88,6 +88,11 @@ class CollectionObjectsController < ApplicationController
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
+  # /collection_objects/preview?<filter params>
+  def preview
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+  end
+
   # GET /collection_objects/depictions/1
   # GET /collection_objects/depictions/1.json
   def depictions
@@ -365,7 +370,19 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [
+        :id,
+        :_destroy,
+        :identifier,
+        :namespace_id,
+        :type,
+        labels_attributes: [
+          :text,
+          :type,
+          :text_method,
+          :total
+        ]
+      ]
     )
   end
 
@@ -393,15 +410,26 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
+      :buffered_collecting_event,
+      :buffered_determinations,
+      :buffered_other_labels,
+      :collecting_event,
       :collection_object_type,
       :current_determinations,
-      :depicted,
+      :depictions,
+      :dwc_indexed,
       :end_date,
+      :exact_buffered_collecting_event,
+      :exact_buffered_determinations,
+      :exact_buffered_other_labels,
       :geo_json,
+      :geographic_area,
+      :georeferences,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :loaned,
@@ -411,10 +439,13 @@ class CollectionObjectsController < ApplicationController
       :on_loan,
       :partial_overlap_dates,
       :radius,
+      :repository,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,
+      :taxon_determinations,
+      :type_material,
       :type_specimen_taxon_name_id,
       :user_date_end,
       :user_date_start,
@@ -422,18 +453,20 @@ class CollectionObjectsController < ApplicationController
       :user_target,
       :validity,
       :wkt,
-      is_type: [],
-      otu_ids: [],
-      keyword_ids: [],
-      collecting_event_ids: [],
-      geographic_area_ids: [],
       biocuration_class_ids: [],
       biological_relationship_ids: [],
+      collecting_event_ids: [],
+      determiner_id: [],
+      geographic_area_ids: [],
+      is_type: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_ids: [],
       #  user_id: []
       
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 
@@ -448,15 +481,26 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
+      :buffered_collecting_event,
+      :buffered_determinations,
+      :buffered_other_labels,
+      :collecting_event,
       :collection_object_type,
       :current_determinations,
-      :depicted,
+      :depictions,
+      :dwc_indexed,
       :end_date,
+      :exact_buffered_collecting_event,
+      :exact_buffered_determinations,
+      :exact_buffered_other_labels,
       :geo_json,
+      :geographic_area,
+      :georeferences,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :loaned,
@@ -466,10 +510,13 @@ class CollectionObjectsController < ApplicationController
       :on_loan,
       :partial_overlap_dates,
       :radius,
+      :repository,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,
+      :taxon_determinations,
+      :type_material,
       :type_specimen_taxon_name_id,
       :user_date_end,
       :user_date_start,
@@ -477,17 +524,19 @@ class CollectionObjectsController < ApplicationController
       :user_target,
       :validity,
       :wkt,
-      is_type: [],
-      otu_ids: [],
-      keyword_ids: [],
-      collecting_event_ids: [],
-      geographic_area_ids: [],
       biocuration_class_ids: [],
       biological_relationship_ids: [],
+      collecting_event_ids: [],
+      determiner_id: [],
+      geographic_area_ids: [],
+      is_type: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_ids: [],
 
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 

@@ -51,8 +51,7 @@ describe Source::Human, type: :model, group: [:people, :sources] do
   end
 
   specify '#person_ids 1' do
-    sh = Source::Human.new(person_ids: [tom.id, franklin.id])
-    expect(sh.save!).to be_truthy
+    sh = Source::Human.create(person_ids: [tom.id, franklin.id])
     expect(sh.cached).to eq(tom.last_name + ' & ' + franklin.last_name)
   end
 
@@ -72,6 +71,11 @@ describe Source::Human, type: :model, group: [:people, :sources] do
       source_human.people.push sue
       source_human.save
       expect(source_human.cached).to eq(tom.last_name + ' & ' + sue.last_name)
+    end
+
+    specify '#cached includes year' do
+      source_human.update(year: 1920)
+      expect(source_human.cached).to eq(tom.last_name + ', 1920')
     end
 
     specify '#cached with three (or more) people comman with & between last two' do

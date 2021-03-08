@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2>Otu</h2>
-    <autocomplete 
+    <h3>Otu</h3>
+    <autocomplete
       url="/otus/autocomplete"
       placeholder="Search an OTU"
       param="term"

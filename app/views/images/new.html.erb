@@ -1,5 +1,6 @@
 <div class="panel panels-container">
   <div class="title action-line"><span>New image</span><%= link_to 'Back', @image, data: { icon: "arrow-left"}, "class" => "small-icon"  %></div>
+  <p>  <%= link_to('Task: New image', index_new_image_task_path) %> is the prefered interface to add an image. </p>
   <div class="content">
     <%= render 'form' %>
   </div>

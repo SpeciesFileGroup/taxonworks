@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Otu</h2>
+    <h3>Otu</h3>
     <label>
       <input
         type="checkbox"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Status</h2>
+    <h3>Status</h3>
     <smart-selector
       class="separate-bottom"
       :options="options"

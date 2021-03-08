@@ -222,9 +222,11 @@ export default {
       this.$store.dispatch(ActionNames.GetTaxon, taxonId)
     },
     destroyTypeMateria (item) {
-      this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(response => {
-        TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
-      })
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then((response) => {
+          TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
+        })
+      }
     },
     selectSource (source) {
       this.origin_citation_attributes.source_id = source.id

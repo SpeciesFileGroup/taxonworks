@@ -1,83 +1,56 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const GetCollectionObjects = (params) => {
-  return ajaxCall('get', '/collection_objects/dwc_index', { params: params })
-}
+const CreateTags = (keywordId, ids, type) => ajaxCall('post', '/tags/batch_create', {
+  object_type: type,
+  keyword_id: keywordId,
+  object_ids: ids
+})
 
-const GetCollectingEvents = (id) => {
-  return ajaxCall('get', `/collecting_events/${id}.json`)
-}
+const GetBiocurations = () => ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
 
-const GetUsers = () => {
-  return ajaxCall('get', '/project_members.json')
-}
+const GetBiologicalRelationships = () => ajaxCall('get', '/biological_relationships.json')
 
-const GetGeographicArea = (id) => {
-  return ajaxCall('get', `/geographic_areas/${id}.json`)
-}
+const GetCEAttributes = () => ajaxCall('get', '/collecting_events/attributes')
 
-const GetTaxonName = (id) => {
-  return ajaxCall('get', `/taxon_names/${id}.json`)
-}
+const GetCODWCA = (id) => ajaxCall('get', `/collection_objects/${id}/dwc`)
 
-const GetNamespace = (id) => {
-  return ajaxCall('get', `/namespaces/${id}.json`)
-}
+const GetCollectingEvents = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
-const GetRepository = (id) => {
-  return ajaxCall('get', `/repositories/${id}.json`)
-}
+const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects/dwc_index', { params: params })
 
-const GetOtu = (id) => {
-  return ajaxCall('get', `/otus/${id}.json`)
-}
+const GetGeographicArea = (id) => ajaxCall('get', `/geographic_areas/${id}.json`)
 
-const GetCEAttributes = () => {
-  return ajaxCall('get', `/collecting_events/attributes`)
-}
+const GetKeyword = (id) => ajaxCall('get', `/controlled_vocabulary_terms/${id}.json`)
 
-const GetTypes = function () {
-  return ajaxCall('get', `/type_materials/type_types.json`)
-}
+const GetNamespace = (id) => ajaxCall('get', `/namespaces/${id}.json`)
 
-const GetBiologicalRelationships = () => {
-  return ajaxCall('get', '/biological_relationships.json')
-}
+const GetOtu = (id) => ajaxCall('get', `/otus/${id}.json`)
 
-const GetBiocurations = () => {
-  return ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=BiocurationClass')
-}
+const GetPerson = (id) => ajaxCall('get', `/people/${id}.json`)
 
-const GetKeyword = (id) => {
-  return ajaxCall('get', `/controlled_vocabulary_terms/${id}.json`)
-}
+const GetRepository = (id) => ajaxCall('get', `/repositories/${id}.json`)
 
-const GetCODWCA = (id) => {
-  return ajaxCall('get', `/collection_objects/${id}/dwc`)
-}
+const GetTaxonName = (id) => ajaxCall('get', `/taxon_names/${id}.json`)
 
-const CreateTags = (keywordId, ids, type) => {
-  return ajaxCall('post', `/tags/batch_create`, { 
-    object_type: type,
-    keyword_id: keywordId,
-    object_ids: ids
-  })
-}
+const GetTypes = () => ajaxCall('get', '/type_materials/type_types.json')
+
+const GetUsers = () => ajaxCall('get', '/project_members.json')
 
 export {
-  GetCollectionObjects,
-  GetUsers,
-  GetCEAttributes,
-  GetTypes,
-  GetBiologicalRelationships,
-  GetBiocurations,
-  GetCODWCA,
   CreateTags,
-  GetGeographicArea,
-  GetTaxonName,
-  GetOtu,
-  GetNamespace,
+  GetBiocurations,
+  GetBiologicalRelationships,
+  GetCEAttributes,
+  GetCODWCA,
   GetCollectingEvents,
+  GetCollectionObjects,
+  GetGeographicArea,
   GetKeyword,
-  GetRepository
+  GetNamespace,
+  GetOtu,
+  GetPerson,
+  GetRepository,
+  GetTaxonName,
+  GetTypes,
+  GetUsers
 }

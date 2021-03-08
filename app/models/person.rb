@@ -84,6 +84,7 @@ class Person < ApplicationRecord
   validate :not_active_after_death
   validate :not_active_before_birth
   validate :not_gandalf
+  validate :not_balrog
 
   before_validation :namecase_names, unless: Proc.new {|n| n.no_namecase }
 
@@ -172,11 +173,15 @@ class Person < ApplicationRecord
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
+  #   
+  # No person is destroyed, see `hard_merge`.  self is intended to be kept.
+  # 
   # r_person is merged into l_person (self)
   #
   def merge_with(person_id)
     return false if person_id == id
-    if r_person = Person.find(person_id) # get the person to merge to this person
+
+    if r_person = Person.find(person_id) # get the person to merge to into self
       begin
         ApplicationRecord.transaction do
           # !! Role.where(person_id: r_person.id).update(person_id: id) is BAAAD
@@ -203,7 +208,7 @@ class Person < ApplicationRecord
                 av_list.each do |av|
                   if av.value == r_person.first_name
                     if av.type == 'AlternateValue::AlternateSpelling' &&
-                      av.alternate_value_object_attribute == 'first_name' # &&
+                        av.alternate_value_object_attribute == 'first_name' # &&
                       skip_av = true
                       break # stop looking in this bunch, if you found a match
                     end
@@ -367,10 +372,13 @@ class Person < ApplicationRecord
         merge_with(person_to_destroy.id)
         person_to_destroy.destroy!
       end
+
+    rescue ActiveRecord::RecordNotDestroyed
+      return false
     rescue ActiveRecord::RecordInvalid
       return false
     rescue ActiveRecord::RecordNotFound
-     return false
+      return false
     end
     true
   end
@@ -511,9 +519,14 @@ class Person < ApplicationRecord
   end
 
   # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
-  # @return [Ignored]
   def not_gandalf
     errors.add(:base, 'fountain of eternal life does not exist yet') if year_born && year_died && year_died - year_born > 119
+  end
+
+
+  # https://en.wikipedia.org/wiki/List_of_the_verified_oldest_people
+  def not_balrog
+    errors.add(:base, 'nobody is that active') if year_active_start && year_active_end && (year_active_end - year_active_start > 119)
   end
 
   # TODO: deprecate this, always set explicitly

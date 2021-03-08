@@ -1,3 +1,5 @@
+<p class="feedback feedback-info"> An editor task is available, use <%= link_to('New collecting event', new_collecting_event_task_path(collecting_event_id: @collecting_event.id)) -%>.</p>
+
 <% if @collecting_event.persisted? %>
   <ul class="context-menu">
     <li> <%= collecting_event_tag(@collecting_event) -%>

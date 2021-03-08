@@ -1,6 +1,6 @@
 <template>
   <div v-if="taxonName">
-    <h2>Select ranks</h2>
+    <h3>Select ranks</h3>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
       <div

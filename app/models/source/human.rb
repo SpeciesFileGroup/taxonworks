@@ -84,9 +84,13 @@ class Source::Human < Source
 
   protected
 
+  def get_cached
+    [authority_name, year].compact.join(', ')
+  end
+
   # @return [Ignored]
   def set_cached
-    update_column(:cached, authority_name)
+    update_column(:cached, get_cached)
   end
 
   # @return [Ignored]
