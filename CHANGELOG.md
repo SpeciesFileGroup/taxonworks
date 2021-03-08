@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Year field on person source in new source task
 - Create new biocuration and in relationship links in filter collection object
 - Determiner in filter collection object
+- HEIC image format support
 
 ### Fixed
 - Uniquifying 2 people attached to the same source raises [#2078]
@@ -24,6 +25,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
 
+### Changed
+- Now using ImageMagick 7 instead of 6
+- Production and development docker images are now based off a single base image
+- Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
 
 [#2078]: https://github.com/SpeciesFileGroup/taxonworks/issues/2078
 [#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
