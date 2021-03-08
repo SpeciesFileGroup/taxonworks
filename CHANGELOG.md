@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
 - Update comprehensive url [#2096]
+- `/units.json` called 2x [#2089]
 
 ### Changed
 - Now using ImageMagick 7 instead of 6
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
+[#2089]: https://github.com/SpeciesFileGroup/taxonworks/issues/2089
 [#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
 [#2096]: https://github.com/SpeciesFileGroup/taxonworks/issues/2096
 

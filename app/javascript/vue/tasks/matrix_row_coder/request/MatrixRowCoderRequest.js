@@ -152,7 +152,6 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
 
   getUnits () {
     const url = this.buildGetUrl('/descriptors/units.json')
-    console.log(getJSON(url))
     return getJSON(url)
   }
 
