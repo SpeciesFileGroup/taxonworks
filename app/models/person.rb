@@ -372,10 +372,13 @@ class Person < ApplicationRecord
         merge_with(person_to_destroy.id)
         person_to_destroy.destroy!
       end
+
+    rescue ActiveRecord::RecordNotDestroyed
+      return false
     rescue ActiveRecord::RecordInvalid
       return false
     rescue ActiveRecord::RecordNotFound
-     return false
+      return false
     end
     true
   end

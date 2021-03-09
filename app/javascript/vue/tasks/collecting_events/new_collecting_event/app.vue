@@ -257,7 +257,4 @@ export default {
     width: 100px;
   }
 
-  /deep/ .vue-autocomplete {
-    width: 600px;
-  }
 </style>

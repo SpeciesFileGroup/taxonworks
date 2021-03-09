@@ -36,7 +36,7 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop image here',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       },
       firstUploaded: undefined
     }

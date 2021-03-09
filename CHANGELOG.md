@@ -7,6 +7,59 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.16.4] - 2020-03-09
+
+### Added
+- Multiple presnece/absence params for collection objects filter [#2080] 
+- Buffered field facets for collection object [#1456], [#1835]
+- Filter collection objects by determiner (Person) [#1835]
+- Tag smart selector on create collection object in New collecting event task [#2066]
+- Year field on person source in new source task
+- Create new biocuration and in relationship links in filter collection object
+- Determiner in filter collection object
+- HEIC image format support
+- PDF drop box on new source task [#2094]
+- Confirmation modal to clone source [#2099]
+- Smart selector on attributions in Radial annotator [#2081]
+
+### Fixed
+- Uniquifying 2 people attached to the same source raises [#2078]
+- Render Source::Human cached with year, udpate `citation_tag` [#2067] 
+- Qualitative states in matrix row coder order correctly [#2076]
+- Better source cached filter wildcards [#1557]
+- Observation matrices hub link [#2071]
+- Refresh button component [#2085]
+- Update comprehensive url [#2096]
+- `/units.json` called 2x [#2089]
+- Edit `error radius` of a georeference in new collecting event task [#2087]
+- Previous and next navigate navigation links [#2039]
+
+### Changed
+- Now using ImageMagick 7 instead of 6
+- Production and development docker images are now based off a single base image
+- Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
+- Updated npm packages
+
+[#2039]: https://github.com/SpeciesFileGroup/taxonworks/issues/2039
+[#2078]: https://github.com/SpeciesFileGroup/taxonworks/issues/2078
+[#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
+[#2076]: https://github.com/SpeciesFileGroup/taxonworks/issues/2076
+[#1557]: https://github.com/SpeciesFileGroup/taxonworks/issues/1557
+[#1835]: https://github.com/SpeciesFileGroup/taxonworks/issues/1835
+[#1456]: https://github.com/SpeciesFileGroup/taxonworks/issues/1456
+[#2080]: https://github.com/SpeciesFileGroup/taxonworks/issues/2080
+[#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
+[#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
+[#2081]: https://github.com/SpeciesFileGroup/taxonworks/issues/2081
+[#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
+[#2087]: https://github.com/SpeciesFileGroup/taxonworks/issues/2087
+[#2089]: https://github.com/SpeciesFileGroup/taxonworks/issues/2089
+[#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
+[#2096]: https://github.com/SpeciesFileGroup/taxonworks/issues/2096
+[#2099]: https://github.com/SpeciesFileGroup/taxonworks/issues/2099
+
 ## [0.16.3] - 2021-02-26
 ### Added
 - Additional date recognition format in date RegEx
@@ -910,7 +963,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...development
+[0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1

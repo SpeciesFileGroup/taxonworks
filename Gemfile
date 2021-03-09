@@ -22,7 +22,7 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 4.0'
+gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
@@ -153,7 +153,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.3.0'
+  gem 'codecov', '~> 0.5.1'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'

@@ -10,6 +10,11 @@ describe Queries::Source::Filter, type: :model, group: [:sources] do
   let!(:doi) { '10.11646/stuff.1234.5.6' }
   let(:tomorrow) {  (Time.now + 1.day).strftime("%Y-%m-%d") }
 
+  specify '#cached ordered fragments' do
+    s = FactoryBot.create(:valid_source_verbatim, verbatim: 'Jones, AP (1920) stuff and things')
+    query.query_string = 'Jones 1920'
+    expect(query.all.map(&:id)).to contain_exactly(s.id)
+  end
 
   specify '#ancestor_id' do
     t = FactoryBot.create(:valid_taxon_name)

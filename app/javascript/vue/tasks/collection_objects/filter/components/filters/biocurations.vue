@@ -1,7 +1,9 @@
 <template>
   <div>
     <h3>Biocurations</h3>
-    <ul class="no_bullets">
+    <ul
+      v-if="biocurations.length"
+      class="no_bullets">
       <li
         v-for="item in biocurations"
         :key="item.id"
@@ -15,6 +17,9 @@
         </label>
       </li>
     </ul>
+    <a
+      v-else
+      href="/tasks/controlled_vocabularies/biocuration/build_collection">Create new</a>
   </div>
 </template>
 

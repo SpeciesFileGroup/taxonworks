@@ -12,7 +12,8 @@ const RouteNames = {
   TypeMaterial: '/tasks/type_material/edit_type_material',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
   PrintLabel: '/tasks/labels/print_labels',
-  InteractiveKeys: '/tasks/observation_matrices/interactive_key'
+  InteractiveKeys: '/tasks/observation_matrices/interactive_key',
+  ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub'
 }
 
 export {

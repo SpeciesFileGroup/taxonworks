@@ -144,9 +144,9 @@
           if(newVal.id && oldVal.id != newVal.id) {
             if(!this.loadingNavigation) {
               this.loadingNavigation = true
-              AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
-                this.navigation.next = response.headers['navigation-next']
-                this.navigation.previous = response.headers['navigation-previous']
+              AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(({ headers }) => {
+                this.navigation.next = headers['navigation-next-by-identifier'] || headers['navigation-next']
+                this.navigation.previous = headers['navigation-previous-by-identifier'] || headers['navigation-previous']
                 this.loadingNavigation = false
               })
             }
