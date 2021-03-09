@@ -122,7 +122,7 @@ export default {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.buffered, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -226,9 +226,16 @@ export default {
           dwc_indexed: undefined
         },
         buffered: {
-          buffered_collecting_event: undefined,
-          buffered_determinations: undefined,
-          buffered_other_labels: undefined
+          text: {
+            buffered_collecting_event: undefined,
+            buffered_determinations: undefined,
+            buffered_other_labels: undefined,
+          },
+          exact: {
+            exact_buffered_collecting_event: undefined,
+            exact_buffered_determinations: undefined,
+            exact_buffered_other_labels: undefined
+          }
         },
         relationships: {
           biological_relationship_ids: []
