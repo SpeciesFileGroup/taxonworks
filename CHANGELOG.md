@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - HEIC image format support
 - PDF drop box on new source task [#2094]
 - Confirmation modal to clone source [#2099]
+- Smart selector on attributions in Radial annotator [#2081]
 
 ### Fixed
 - Uniquifying 2 people attached to the same source raises [#2078]
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2080]: https://github.com/SpeciesFileGroup/taxonworks/issues/2080
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
+[#2081]: https://github.com/SpeciesFileGroup/taxonworks/issues/2081
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
 [#2087]: https://github.com/SpeciesFileGroup/taxonworks/issues/2087
 [#2089]: https://github.com/SpeciesFileGroup/taxonworks/issues/2089
