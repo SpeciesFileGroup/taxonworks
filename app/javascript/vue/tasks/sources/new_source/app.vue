@@ -61,20 +61,11 @@
           </button>
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-right"
             type="button"
             @click="convert">
             To BibTeX
           </button>
-          <button
-            :disabled="!source.id"
-            v-shortkey="[getMacKey(), 'c']"
-            @shortkey="cloneSource"
-            @click="cloneSource"
-            class="button normal-input button-submit button-size"
-            type="button">
-            Clone
-          </button>
+          <clone-source/>
           <button
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
@@ -148,6 +139,7 @@ import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
 import Autocomplete from 'components/autocomplete'
+import CloneSource from './components/cloneSource'
 
 import PinComponent from 'components/pin'
 
@@ -163,6 +155,7 @@ import NavBar from 'components/navBar'
 export default {
   components: {
     Autocomplete,
+    CloneSource,
     RadialAnnotator,
     RadialObject,
     PinComponent,

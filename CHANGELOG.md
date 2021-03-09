@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiner in filter collection object
 - HEIC image format support
 - PDF drop box on new source task [#2094]
+- Confirmation modal to clone source [#2099]
 
 ### Fixed
 - Uniquifying 2 people attached to the same source raises [#2078]
@@ -47,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2089]: https://github.com/SpeciesFileGroup/taxonworks/issues/2089
 [#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
 [#2096]: https://github.com/SpeciesFileGroup/taxonworks/issues/2096
+[#2099]: https://github.com/SpeciesFileGroup/taxonworks/issues/2099
 
 ## [0.16.3] - 2021-02-26
 ### Added
