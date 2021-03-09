@@ -2,7 +2,7 @@
   <div>
     <button
       type="button"
-      class="button normal-input button-submit button-size margin-small-right"
+      class="button normal-input button-submit button-size"
       :disabled="!source.id"
       v-shortkey="[getOSKey, 'c']"
       @shortkey="showModal = true"
