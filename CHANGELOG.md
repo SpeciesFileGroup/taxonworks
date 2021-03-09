@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Update comprehensive url [#2096]
 - `/units.json` called 2x [#2089]
 - Edit `error radius` of a georeference in new collecting event task [#2087]
+- Previous and next navigate navigation links [#2039]
 
 ### Changed
 - Now using ImageMagick 7 instead of 6
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
 - Updated npm packages
 
+[#2039]: https://github.com/SpeciesFileGroup/taxonworks/issues/2039
 [#2078]: https://github.com/SpeciesFileGroup/taxonworks/issues/2078
 [#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
 [#2076]: https://github.com/SpeciesFileGroup/taxonworks/issues/2076
