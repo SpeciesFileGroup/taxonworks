@@ -114,7 +114,7 @@ jobs:
         path: |
           /usr/src/libheif-*
           /usr/src/libde265-*
-          /usr/src/ImageMagick-7-*
+          /usr/src/ImageMagick-7*
         key: ${{ runner.os }}-imagemagick-${{ steps.datetime.outputs.year_week }}
 
     - name: Install imagemagick
