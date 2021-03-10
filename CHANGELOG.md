@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Not being able to get pinboard items on some circumstances
 
 ## [0.16.4] - 2020-03-09
 
