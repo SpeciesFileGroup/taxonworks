@@ -7,9 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Determination, OTU and repository smart selectors on New image task [#2101]
+
 ### Fixed
 
 - Not being able to get pinboard items on some circumstances
+
+[#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 
 ## [0.16.4] - 2020-03-09
 

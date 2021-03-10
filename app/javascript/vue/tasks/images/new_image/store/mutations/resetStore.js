@@ -1,5 +1,5 @@
 import { makeInitialState } from '../store'
 
-export default function(state) {
+export default (state) => {
   Object.assign(state, makeInitialState())
 }

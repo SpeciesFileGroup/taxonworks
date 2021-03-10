@@ -5,6 +5,8 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
+import makeTaxonDetermination from '../const/makeTaxonDetermination'
+
 Vue.use(Vuex)
 
 function makeInitialState () {
@@ -35,18 +37,20 @@ function makeInitialState () {
       layout: undefined,
       metadata_map: []
     },
-    newCOForSqed: true,
-    source: undefined,
-    pixels_to_centimeter: undefined,
-    yearCopyright: undefined,
     attributionsCreated: [],
     citations: [],
     data_attributes: [],
     depictionsCreated: [],
     imagesCreated: [],
+    newCOForSqed: true,
     objectsForDepictions: [],
+    pixels_to_centimeter: undefined,
+    source: undefined,
+    repository: undefined,
     tags: [],
-    taxon_determinations: []
+    taxonDetermination: makeTaxonDetermination(),
+    taxon_determinations: [],
+    yearCopyright: undefined
   }
 }
 
