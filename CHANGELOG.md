@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock buttons on New image [#2101]
 
 ### Changed
+- Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
 
 ### Fixed

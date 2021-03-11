@@ -56,7 +56,6 @@ namespace :tw do
           @loan_invoice_speciments = {}
           @loans = {}
           @rooms = {}
-
         end
 
         def export_to_pg(data_directory) 
@@ -165,7 +164,9 @@ namespace :tw do
         handle_biocuration_classes_insects(@data1, @import)
         handle_biological_relationship_classes_insects(@data1, @import)
         handle_preparation_types_insects(@data1, @import)
-=begin        
+        # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
+        @redis.flushall
+=begin
         handle_people_insects(@data1, @import)
         GC.start
         handle_taxa_insects(@data1, @import)
@@ -178,9 +179,6 @@ namespace :tw do
         build_localities_index_insects(@data1)
 
         puts 'Indexing collecting events.'
-        # should be run to clear redis database. if specimen from diffrent tables run one buy one, data could be left in Redis and reused
-
-        @redis.flushall
 
         index_collecting_events_from_accessions_new(@data1, @import)
         GC.start
