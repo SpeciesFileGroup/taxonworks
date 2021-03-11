@@ -107,6 +107,10 @@
     >
       Add
     </button>
+    <div class="flex-separate margin-medium-top">
+      <span>Determinations</span>
+      <lock-component v-model="settings.lock.taxon_determinations"/>
+    </div>
     <display-list
       :list="list"
       @delete="removeTaxonDetermination"
@@ -125,12 +129,14 @@ import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import makeTaxonDetermination from '../../const/makeTaxonDetermination'
+import LockComponent from 'components/lock'
 
 export default {
   components: {
     SmartSelector,
     RolePicker,
-    DisplayList
+    DisplayList,
+    LockComponent
   },
 
   computed: {
@@ -142,12 +148,22 @@ export default {
         this.$store.commit(MutationNames.SetTaxonDetermination, value)
       }
     },
+
     taxonDetermination: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination]
       },
       set (value) {
         this.$store.commit(MutationNames.SetTaxonDetermination, value)
+      }
+    },
+
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   },

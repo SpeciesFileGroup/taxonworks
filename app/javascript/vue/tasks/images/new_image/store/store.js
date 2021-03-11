@@ -12,28 +12,33 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     settings: {
-      saving: false
+      saving: false,
+      lock: {
+        repository: false,
+        taxon_determination: false,
+        taxon_determinations: false
+      }
     },
     collection_object: {
-      total: 1,
+      preparation_type_id: undefined,
       repository_id: undefined,
-      preparation_type_id: undefined
+      total: 1
     },
     depiction: {
       caption: ''
     },
     people: {
-      editors: [],
-      owners: [],
       authors: [],
-      copyrightHolder: []
+      copyrightHolder: [],
+      editors: [],
+      owners: []
     },
     license: undefined,
     sqed: {
-      id: undefined,
       boundary_color: undefined,
       boundary_finder: 'Sqed::BoundaryFinder::ColorLineFinder',
       has_border: false,
+      id: undefined,
       layout: undefined,
       metadata_map: []
     },
@@ -45,8 +50,8 @@ function makeInitialState () {
     newCOForSqed: true,
     objectsForDepictions: [],
     pixels_to_centimeter: undefined,
-    source: undefined,
     repository: undefined,
+    source: undefined,
     tags: [],
     taxonDetermination: makeTaxonDetermination(),
     taxon_determinations: [],

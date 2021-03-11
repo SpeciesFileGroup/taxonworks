@@ -20,6 +20,7 @@ import setNewCOForSqed from './setNewCOForSqed'
 import setOwners from './setOwners'
 import setPixels from './setPixels'
 import setRepository from './setRepository'
+import setSettings from './setSettings'
 import setSource from './setSource'
 import setSqed from './setSqed'
 import setTags from './setTags'
@@ -50,6 +51,7 @@ const MutationNames = {
   SetOwners: 'setOwners',
   SetPixels: 'setPixels',
   SetRepository: 'setRepository',
+  SetSettings: 'setSettings',
   SetSource: 'setSource',
   SetSqed: 'setSqed',
   SetTags: 'setTags',
@@ -81,6 +83,7 @@ const MutationFunctions = {
   [MutationNames.SetOwners]: setOwners,
   [MutationNames.SetPixels]: setPixels,
   [MutationNames.SetRepository]: setRepository,
+  [MutationNames.SetSettings]: setSettings,
   [MutationNames.SetSource]: setSource,
   [MutationNames.SetSqed]: setSqed,
   [MutationNames.SetTags]: setTags,
