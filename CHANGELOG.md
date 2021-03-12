@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determination, OTU and repository smart selectors on New image task [#2101]
 - Georeferences coordinates in label generate on New collecting event [#2107]
 - Lock buttons on New image [#2101]
+- Open PDF slider in all tabs [#2106]
 
 ### Changed
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Not being able to get pinboard items on some circumstances
 
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
+[#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 
