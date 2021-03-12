@@ -606,29 +606,12 @@ class TaxonNameRelationship < ApplicationRecord
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
-        if subj.rank_class.try(:nomenclatural_code) == :iczn && obj.parent_id != subj.parent_id &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
-        soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
+        if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
+        soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent and rank with  #{obj.cached_html_name_and_author_year}",
                              fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
       end
     end
   end
-
-  #  def sv_fix_synonym_linked_to_valid_name
-  #    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-  #      obj = self.object_taxon_name
-  #      unless obj.get_valid_taxon_name == obj
-  #        self.object_taxon_name = obj.get_valid_taxon_name
-  #        begin
-  #          TaxonName.transaction do
-  #            self.save
-  #            return true
-  #          end
-  #        rescue
-  #        end
-  #      end
-  #    end
-  #    false
-  #  end
 
   def sv_fix_subject_parent_update
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
@@ -636,6 +619,7 @@ class TaxonNameRelationship < ApplicationRecord
       subj = self.subject_taxon_name
       unless obj.parent_id == subj.parent_id
         subj.parent_id = obj.parent_id
+        subj.rank_class = obj.rank_class
         begin
           TaxonName.transaction do
             subj.save

@@ -62,10 +62,32 @@
         :role-type="roleSelected"/>
     </template>
     <div v-else>
-      <role-picker
-        v-if="view"
-        v-model="roleList"
-        :role-type="roleSelected"/>
+      <template v-if="view">
+        <smart-selector
+          ref="smartSelector"
+          model="people"
+          target="CollectingEvent"
+          klass="CollectingEvent"
+          :params="{ role_type: 'Collector' }"
+          :autocomplete-params="{
+            roles: ['Collector']
+          }"
+          :autocomplete="false"
+          @selected="addRole">
+          <role-picker
+            slot="header"
+            :hidden-list="true"
+            v-model="roleList"
+            ref="rolepicker"
+            :autofocus="false"
+            :role-type="roleSelected"/>
+          <role-picker
+            :create-form="false"
+            v-model="roleList"
+            :autofocus="false"
+            :role-type="roleSelected"/>
+        </smart-selector>
+      </template>
     </div>
     <div class="separate-top">
       <button
@@ -87,6 +109,7 @@ import CRUD from '../../request/crud.js'
 import AnnotatorExtended from '../annotatorExtend.js'
 import OrganizationPicker from 'components/organizationPicker'
 import DisplayList from 'components/displayList'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   mixins: [CRUD, AnnotatorExtended],
@@ -94,7 +117,8 @@ export default {
     RolePicker,
     SwitchComponent,
     OrganizationPicker,
-    DisplayList
+    DisplayList,
+    SmartSelector
   },
   computed: {
     validateFields() {
@@ -244,7 +268,22 @@ export default {
       } else {
         this.rolesList.copyright_organization_roles.splice(index, 1)
       }
-    }
+    },
+
+    roleExist (id) {
+      return this.roleList.find(role => !role?._destroy && (role.person_id === id || role?.person?.id === id))
+    },
+
+    addRole (role) {
+      if (!this.roleExist(role.id)) {
+        this.roleList.push({
+          first_name: role.first_name,
+          last_name: role.last_name,
+          person_id: role.id,
+          type: this.roleSelected
+        })
+      }
+    },
   }
 }
 </script>

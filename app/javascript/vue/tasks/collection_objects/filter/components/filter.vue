@@ -55,6 +55,7 @@
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
+      <preparation-types v-model="params.preparation_type_id"/>
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
@@ -72,7 +73,7 @@
         class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
         :key="key"
-        :title="key"
+        :title="key.replace('with_', '')"
         :param="key"
         v-model="params.byRecordsWith[key]"/>
     </div>
@@ -94,6 +95,7 @@ import BiocurationsComponent from './filters/biocurations'
 import RepositoryComponent from './filters/repository.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
+import PreparationTypes from './filters/preparationTypes'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -115,14 +117,15 @@ export default {
     InRelationship,
     BiocurationsComponent,
     RepositoryComponent,
-    WithComponent
+    WithComponent,
+    PreparationTypes
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.buffered, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -139,6 +142,7 @@ export default {
         !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
+        !this.params.preparation_type_id.length &&
         Object.keys(this.params.collectingEvents.fields).length <= 1 &&
         !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
         !Object.values(this.params.user).find(item => { return item !== undefined }) &&
@@ -215,20 +219,30 @@ export default {
           biocuration_class_ids: []
         },
         byRecordsWith: {
-          collecting_events: undefined,
+          collecting_event: undefined,
           depictions: undefined,
           geographic_area: undefined,
-          georeference: undefined,
+          georeferences: undefined,
           identifiers: undefined,
           taxon_determinations: undefined,
           type_material: undefined,
           repository: undefined,
-          dwc_indexed: undefined
+          dwc_indexed: undefined,
+          with_buffered_collecting_event: undefined,
+          with_buffered_determinations: undefined,
+          with_buffered_other_labels: undefined
         },
         buffered: {
-          buffered_collecting_event: undefined,
-          buffered_determinations: undefined,
-          buffered_other_labels: undefined
+          text: {
+            buffered_collecting_event: undefined,
+            buffered_determinations: undefined,
+            buffered_other_labels: undefined,
+          },
+          exact: {
+            exact_buffered_collecting_event: undefined,
+            exact_buffered_determinations: undefined,
+            exact_buffered_other_labels: undefined
+          }
         },
         relationships: {
           biological_relationship_ids: []
@@ -238,6 +252,7 @@ export default {
           loaned: undefined,
           never_loaned: undefined
         },
+        preparation_type_id: [],
         types: {
           is_type: [],
           type_type: []
