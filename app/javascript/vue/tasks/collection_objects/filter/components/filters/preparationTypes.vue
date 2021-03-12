@@ -1,10 +1,10 @@
 <template>
   <div>
     <h3>Preparation</h3>
-    <div class="horizontal-left-content align-start">
+    <div class="flex-separate align-start">
       <template v-for="(itemsGroup, index) in preparationTypes.chunk(Math.ceil(preparationTypes.length/2))">
         <ul
-          class="no_bullets preparation-list"
+          class="no_bullets"
           :key="index">
           <li
             v-for="type in itemsGroup"
