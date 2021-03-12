@@ -21,7 +21,6 @@ export default ({ state, commit }, otusId) => {
         Promise.all(promises).then(responses => {
           const georeferences = [].concat(...responses).map(({ body }) => body)
 
-          console.log(...georeferences)
           commit(MutationNames.SetGeoreferences, state.georeferences.concat(...georeferences))
           resolve(CEs)
         })
