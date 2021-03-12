@@ -12,7 +12,7 @@ function getUnique (arr, property) {
   return [...new Map(arr.map(item => [item[property], item])).values()]
 }
 
-function sortArray (arr, sortProperty, ascending = false) {
+function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
   return list.sort((A, B) => {
     const a = A[sortProperty]
