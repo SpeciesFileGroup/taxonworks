@@ -722,6 +722,21 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       expect(g2.parent_id).to eq(f.id)
     end
 
+    specify 'synonym should have same parent1' do
+      f  = FactoryBot.create(:relationship_family, parent: kingdom)
+      g1 = FactoryBot.create(:relationship_genus, parent: f)
+      g2 = FactoryBot.create(:relationship_genus, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Subgenus', parent: family)
+      r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g2, object_taxon_name: g1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+      r1.soft_validate(:synonym_linked_to_valid_name)
+      expect(r1.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
+      r1.fix_soft_validations
+      r1.soft_validate(:synonym_linked_to_valid_name)
+      expect(r1.soft_validations.messages_on(:subject_taxon_name_id).empty?).to be_truthy
+      expect(g2.parent_id).to eq(f.id)
+      expect(g2.rank_class).to eq(g1.rank_class)
+
+    end
+
     specify 'type genus should have the same first letter' do
       f1 = FactoryBot.create(:relationship_family, parent: kingdom)
       g1 = FactoryBot.create(:relationship_genus, name: 'Bus', parent: f1)
