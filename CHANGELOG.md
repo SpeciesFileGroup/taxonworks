@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeferences coordinates in label generate on New collecting event [#2107]
 - Lock buttons on New image [#2101]
 - Open PDF slider in all tabs [#2106]
+- TaxonName autocomplete by internal id
 
 ### Changed
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
