@@ -13,18 +13,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock buttons on New image [#2101]
 - Open PDF slider in all tabs [#2106]
 - TaxonName autocomplete by internal id
+- Preparation type and with/out facets [#2118]
 
 ### Changed
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
+- sortArray function now return a natural sort
 
 ### Fixed
 - Not being able to get pinboard items on some circumstances
+- `Request-URI Too Large` loading georeferences on Browse OTU
 
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
+[#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
 
 ## [0.16.4] - 2020-03-09
 
