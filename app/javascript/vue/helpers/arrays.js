@@ -26,7 +26,9 @@ function sortArray (arr, sortProperty, ascending = true) {
     result = a - b
 
     if (isNaN(result)) {
-      return (ascending) ? a.toString().localeCompare(b) : b.toString().localeCompare(a)
+      return (ascending)
+        ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+        : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
     }
     else {
       return (ascending) ? result : -result

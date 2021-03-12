@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
+- sortArray function now return a natural sort
 
 ### Fixed
 - Not being able to get pinboard items on some circumstances
