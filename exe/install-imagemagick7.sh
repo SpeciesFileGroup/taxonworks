@@ -18,7 +18,7 @@ cd /usr/src/
   cd ..
 [ ! -d ImageMagick-7* ] && curl -sL https://www.imagemagick.org/download/ImageMagick.tar.gz | tar xzf - && \
   cd ImageMagick-7*
-  ./configure --with-modules=yes && \
+  ./configure --with-modules=yes --with-heic=yes && \
   cd ..
 
 cd libde265-*
