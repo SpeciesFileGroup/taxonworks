@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Preparation type and with/out facets [#2118]
 
 ### Changed
+- Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
 - sortArray function now return a natural sort
