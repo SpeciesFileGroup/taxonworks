@@ -20,11 +20,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
 - sortArray function now return a natural sort
+- Open confirmation modal and focus new button on New taxon name
 
 ### Fixed
 - Not being able to get pinboard items on some circumstances
 - `Request-URI Too Large` loading georeferences on Browse OTU
 - Tab order near parent when name is pinned [#2130]
+- Spinner in distribution section on Browse OTU
 
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
@@ -32,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 [#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
 [#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
+[#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
 
 ## [0.16.4] - 2020-03-09
