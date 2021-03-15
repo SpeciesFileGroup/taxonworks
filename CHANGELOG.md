@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tab order near parent when name is pinned [#2130]
 - Spinner in distribution section on Browse OTU
 - Destroying a container goes to 404 page [#2133]
+- Missing Determiner param [#2119]
 
 [#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 [#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
+[#2119]: https://github.com/SpeciesFileGroup/taxonworks/issues/2119
 [#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
 [#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
