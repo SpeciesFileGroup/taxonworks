@@ -9,6 +9,37 @@ describe Otu, type: :model, group: :otu do
     TaxonNameHierarchy.delete_all
   end
 
+  context 'parent otu' do
+
+    specify '#parent_otu_id 1' do
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o1 = Otu.create(taxon_name:t)
+      o2 = Otu.create(taxon_name:t1)
+      expect(o2.parent_otu_id).to eq(o1.id)
+    end
+
+    specify '#parent_otu_id 2' do
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+
+      o0 = Otu.create(taxon_name: t)
+      o1 = Otu.create(taxon_name: t)
+      o2 = Otu.create(taxon_name: t1)
+      expect(o2.parent_otu_id).to eq(false)
+    end
+
+    specify '#parent_otu_id 3' do
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o2 = Otu.create(taxon_name:t1)
+      expect(o2.parent_otu_id).to eq(nil)
+    end
+  end
+
   context 'associations' do
     context 'has many' do
       specify 'taxon determinations' do
@@ -28,7 +59,7 @@ describe Otu, type: :model, group: :otu do
   specify 'without #name or #taxon_name_id is invalid' do
     expect(otu.valid?).to be_falsey
   end
-  
+
   specify '#name' do
     expect(otu).to respond_to(:name)
   end

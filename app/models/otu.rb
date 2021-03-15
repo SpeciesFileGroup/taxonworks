@@ -151,19 +151,25 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
-  # @return [Otu, nil, false]
-  def parent_otu
-    return nil if taxon_name_id.blank?
-    taxon_name.ancestors.each do |a|
-      if a.otus.load.count == 1
-        return a.otus.first
-      elsif a.otus.count > 1
-        return false 
-      else
-        return nil
-      end
+  # @return [Otu#id, nil, false]
+  #  nil - there is no OTU parent possible
+  #  false - there is > 1 OTU parent possible
+  #  id - the (unambiguous) immediate ID of the parent OTU
+  def parent_otu_id
+    return nil if taxon_name_id.nil?
+
+    otus = Otu.joins(taxon_name: [:descendant_hierarchies])
+      .where.not(id: id)
+      .where( taxon_name_hierarchies: {descendant_id: taxon_name.id})
+      .pluck(:id)
+
+    if otus.size == 1
+      return otus.first
+    elsif otus.count > 1
+      return false
+    else
+      return nil
     end
-    nil
   end
 
   # @return [Array]
