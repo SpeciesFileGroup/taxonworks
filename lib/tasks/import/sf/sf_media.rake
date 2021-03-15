@@ -121,10 +121,10 @@ namespace :tw do
             ###
             ### Create image source
             ###
-            unless row['SourceID'] == '0'
-              source = get_sf_source_metadata[row['SourceID']]
+            source_id = row['SourceID']
+            unless source_id == '0'
+              source = get_sf_source_metadata[source_id]
               ref_id = source["ref_id"]
-              source_id = nil
 
               if ref_id == '0'
                 unless source['description'].empty?
