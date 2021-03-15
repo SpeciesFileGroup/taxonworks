@@ -23,12 +23,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Not being able to get pinboard items on some circumstances
 - `Request-URI Too Large` loading georeferences on Browse OTU
+- Tab order near parent when name is pinned [#2130]
 
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 [#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
+[#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
 
 ## [0.16.4] - 2020-03-09
 
