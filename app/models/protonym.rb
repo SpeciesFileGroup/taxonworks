@@ -208,11 +208,9 @@ class Protonym < TaxonName
 
         r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
         if !search_name.nil? && r.empty?
-          list = Protonym.ancestors_and_descendants_of(self).not_self(self).
+          list = Protonym.ancestors_and_descendants_of(self).not_self(self).that_is_valid.
             with_rank_class_including(search_rank).
-            where('name in (?)', search_name).
-            as_subject_without_taxon_name_relationship_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
-            #as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').
+            where('name in (?)', search_name)
         else
           list = []
         end

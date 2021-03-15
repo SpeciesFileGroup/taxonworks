@@ -22,9 +22,11 @@ export default ({ state, commit }, otusId) => {
           const georeferences = [].concat(...responses).map(({ body }) => body)
 
           commit(MutationNames.SetGeoreferences, state.georeferences.concat(...georeferences))
+          state.loadState.distribution = false
           resolve(CEs)
         })
       } else {
+        state.loadState.distribution = false
         resolve(CEs)
       }
     }, error => {

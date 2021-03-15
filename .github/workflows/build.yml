@@ -123,7 +123,7 @@ jobs:
     - name: Change ownership of /usr/src back to root
       run: |
         sudo chown root /usr/src
-        sudo chown -R root /usr/src/libheif-* /usr/src/libde265-* /usr/src/ImageMagick-7*
+        sudo chown -R root /usr/src/libheif-* /usr/src/libde265-* /usr/src/ImageMagick-7* || true
 
     - name: Install imagemagick
       run: |
