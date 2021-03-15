@@ -11,11 +11,12 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     loadState: {
-      descendants: true,
-      distribution: true,
       assertedDistribution: true,
+      biologicalAssociations: true,
       collectionObjects: true,
-      biologicalAssociations: true
+      descendants: true,
+      descendantsDistribution: true,
+      distribution: true,
     },
     preferences: {
       preferenceSchema: 20200807,

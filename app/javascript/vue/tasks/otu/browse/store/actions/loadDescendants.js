@@ -7,8 +7,8 @@ const MAX_PER_CALL = 50
 function getAllCollectingEvents (taxonNames) {
   return new Promise((resolve, reject) => {
     const chunks = chunkArray(Array.from(new Set(taxonNames.map(tn => tn.otus.map(otu => otu.id)).filter(id => id.length))), MAX_PER_CALL)
-    var collectingEvents = []
-    var promises = []
+    const collectingEvents = []
+    const promises = []
 
     if (chunks.length) {
       chunks.forEach(ids => {
@@ -72,7 +72,7 @@ export default ({ commit, state }, otu) => {
       descendants.collecting_events = collectingEvents
       getAllGeoreferences(collectingEvents.map(ce => ce.id)).then(georeferences => {
         descendants.georeferences = georeferences
-        state.loadState.distribution = false
+        state.loadState.descendantsDistribution = false
         commit(MutationNames.SetDescendants, descendants)
       })
     })
