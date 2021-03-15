@@ -71,8 +71,10 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
+      back = request.referrer
+      path = container_path(@container)
       if @container.destroyed?
-        format.html { redirect_to containers_url, notice: 'Container was successfully destroyed.' }
+        format.html { redirect_to back == path ? containers_url : back, notice: 'Container was successfully destroyed.' }
         format.json { head :no_content }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was not destroyed, ' + @container.errors.full_messages.join('; ')) }
