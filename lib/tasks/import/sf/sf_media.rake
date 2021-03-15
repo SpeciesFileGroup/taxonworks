@@ -121,15 +121,14 @@ namespace :tw do
             ###
             ### Create image source
             ###
-            source_id = row['SourceID']
-            unless source_id == '0'
+            unless row['SourceID'] == '0'
               source = get_sf_source_metadata[row['SourceID']]
               ref_id = source["ref_id"]
               source_id = nil
 
               if ref_id == '0'
                 unless source['description'].empty?
-                  source_id = (verbatim_sources[source_id] |= Source::Verbatim.create!(verbatim: source['description']).id)
+                  source_id = (verbatim_sources[source_id] ||= Source::Verbatim.create!(verbatim: source['description']).id)
                 else
                   source_reports << { reason: 'Empty description and no RefID', source: source }
                   next ###
