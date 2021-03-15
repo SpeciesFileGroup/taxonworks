@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock buttons on New image [#2101]
 - Open PDF slider in all tabs [#2106]
 - Preparation type and with/out facets [#2118]
+- bind `alt/ctrl + f` to focus the search autocomplete [#2132]
 
 ### Changed
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 [#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
 [#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
+[#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
 
 ## [0.16.4] - 2020-03-09
 
