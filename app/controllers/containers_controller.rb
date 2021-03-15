@@ -71,7 +71,7 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      back = request.referrer
+      back = URI(request.referrer).path
       path = container_path(@container)
       if @container.destroyed?
         format.html { redirect_to back == path ? containers_url : back, notice: 'Container was successfully destroyed.' }

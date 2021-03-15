@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Georeferences coordinates in label generate on New collecting event [#2107]
 - Lock buttons on New image [#2101]
 - Open PDF slider in all tabs [#2106]
+- TaxonName autocomplete by internal id
 - Preparation type and with/out facets [#2118]
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
 
@@ -23,12 +24,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Open confirmation modal and focus new button on New taxon name
 
 ### Fixed
+- Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
 - Not being able to get pinboard items on some circumstances
 - `Request-URI Too Large` loading georeferences on Browse OTU
 - Tab order near parent when name is pinned [#2130]
 - Spinner in distribution section on Browse OTU
 - Destroying a container goes to 404 page [#2133]
 
+[#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
