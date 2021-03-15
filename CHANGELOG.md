@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `Request-URI Too Large` loading georeferences on Browse OTU
 - Tab order near parent when name is pinned [#2130]
 - Spinner in distribution section on Browse OTU
+- Destroying a container goes to 404 page [#2133]
 
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
 [#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
+[#2133]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 
 ## [0.16.4] - 2020-03-09
 
