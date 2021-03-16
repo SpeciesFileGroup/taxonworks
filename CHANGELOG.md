@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock background color [#2112]
 - sortArray function now return a natural sort
 - Open confirmation modal and focus new button on New taxon name
+- Next and previous links for id and identifier on comprehensive task [#2134]
 
 ### Fixed
 - Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
