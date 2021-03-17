@@ -102,6 +102,7 @@ resources :collection_objects do
     get 'containerize'
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
