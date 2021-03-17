@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonName autocomplete by internal id
 - Preparation type and with/out facets [#2118]
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
+- Annotations on Browse nomenclature
 
 ### Changed
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
