@@ -147,21 +147,23 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   # NOTE: Sometimes an identifier/collector happens to be a non-person (like "ANSP Orthopterist"). Does TW (will) have something for this? Currently imported as an Unvetted Person.
   def parse_people(field_name)
-    DwcAgent.parse(get_field_value(field_name)).map! { |n| DwcAgent.clean(n) }.map! do |name|
-      attributes = {
-        last_name: [name[:particle], name[:family]].compact.join(" "),
-        first_name: name[:given],
-        suffix: name[:suffix],
-        prefix: name[:title] || name[:appellation]
-      }
+    Person.transaction(requires_new: true) do
+      DwcAgent.parse(get_field_value(field_name)).map! { |n| DwcAgent.clean(n) }.map! do |name|
+        attributes = {
+          last_name: [name[:particle], name[:family]].compact.join(" "),
+          first_name: name[:given],
+          suffix: name[:suffix],
+          prefix: name[:title] || name[:appellation]
+        }
 
-      # self.import_dataset.derived_people.merge(Person.where(attributes)).first || # TODO: Doesn't work, fails to detect Person subclasses. Why (besides explanation in Shared::OriginRelationship)?
-      Person.where(attributes).joins(:related_origin_relationships).merge(
-        OriginRelationship.where(old_object: self.import_dataset)
-      ).first ||
-      Person::Unvetted.create!(attributes.merge({
-        related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
-      }))
+        # self.import_dataset.derived_people.merge(Person.where(attributes)).first || # TODO: Doesn't work, fails to detect Person subclasses. Why (besides explanation in Shared::OriginRelationship)?
+        Person.where(attributes).joins(:related_origin_relationships).merge(
+          OriginRelationship.where(old_object: self.import_dataset)
+        ).first ||
+        Person::Unvetted.create!(attributes.merge({
+          related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset)]
+        }))
+      end
     end
   end
 
@@ -275,7 +277,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # recordNumber: [Not mapped]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    set_hash_val(res[:collecting_event], :collectors, parse_people(:recordedBy))
+    set_hash_val(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
     set_hash_val(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
