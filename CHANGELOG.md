@@ -33,7 +33,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Spinner in distribution section on Browse OTU
 - Destroying a container goes to 404 page [#2133]
 - Missing Determiner param [#2119]
+- Refresh status and relationship list on rank change [#2010]
 
+[#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
 [#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101

@@ -133,36 +133,43 @@ export default {
     taxonLabel () {
       return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
+
     treeList () {
       return this.$store.getters[GetterNames.GetRelationshipList]
     },
+
     getRankGroup () {
       return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
     },
+
     GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
-        return (
-          item.type.split('::')[1] !== 'OriginalCombination' &&
-          item.type.split('::')[1] !== 'Typification' &&
-          !item.type.endsWith('::UncertainPlacement') &&
-          !item.type.endsWith('::SourceClassifiedAs'))
-      })
+      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) =>
+        item.type.split('::')[1] !== 'OriginalCombination' &&
+        item.type.split('::')[1] !== 'Typification' &&
+        !item.type.endsWith('::UncertainPlacement') &&
+        !item.type.endsWith('::SourceClassifiedAs'))
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
+
     checkValidation () {
       return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
     },
+
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]
     },
+
     showModal () {
       return this.$store.getters[GetterNames.ActiveModalRelationship]
     }
@@ -186,12 +193,13 @@ export default {
   },
   watch: {
     parent: {
-      handler: function (newVal) {
+      handler (newVal) {
         if (newVal == null) return true
         this.refresh()
       },
       immediate: true
     },
+
     view (newVal) {
       if (newVal === 'Show all') {
         this.activeModal(true)
@@ -199,23 +207,27 @@ export default {
     }
   },
   methods: {
-    setInsertaeSedis: function () {
+    setInsertaeSedis () {
       this.isInsertaeSedis = true
       this.taxonRelation = this.parent
     },
-    loadTaxonRelationships: function () {
+
+    loadTaxonRelationships () {
       this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
     },
-    removeRelationship: function (item) {
+
+    removeRelationship (item) {
       this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item).then(() => {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       })
     },
+
     setRelationship (item) {
       this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
     },
-    refresh: function () {
-      let copyList = Object.assign({}, this.treeList[this.nomenclaturalCode])
+
+    refresh () {
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode]))
       this.objectLists.tree = Object.assign({}, JSON.parse(JSON.stringify(copyList.tree)))
       this.objectLists.commonList = Object.assign({}, JSON.parse(JSON.stringify(copyList.common)))
       this.objectLists.allList = Object.assign({}, JSON.parse(JSON.stringify(copyList.all)))
@@ -224,22 +236,25 @@ export default {
       this.getTreeList(this.objectLists.tree, copyList.all)
       this.addType(this.objectLists.commonList)
     },
-    activeModal: function (value) {
+
+    activeModal (value) {
       this.$store.commit(MutationNames.SetModalRelationship, value)
     },
-    makeLists: function () {
+
+    makeLists () {
       return {
         tree: undefined,
         commonList: [],
-        allList: [],
+        allList: []
       }
     },
-    addEntry: function (item) {
-      if(this.editMode) {
-        let relationship = {
+
+    addEntry (item) {
+      if (this.editMode) {
+        const relationship = {
           id: this.editMode.id,
           subject_taxon_name_id: this.taxon.id,
-          object_taxon_name_id: this.taxonRelation.hasOwnProperty('object_taxon_name_id') ? this.taxonRelation.object_taxon_name_id : this.taxonRelation.id,
+          object_taxon_name_id: this.taxonRelation?.object_taxon_name_id || this.taxonRelation.id,
           type: item.type
         }
 
@@ -256,20 +271,23 @@ export default {
         }).then(() => {
           this.taxonRelation = undefined
           this.$store.commit(MutationNames.UpdateLastChange)
-        }, (errors) => {})
+        })
       }
       this.isInsertaeSedis = false
     },
-    closeEdit() {
+
+    closeEdit () {
       this.editMode = undefined
       this.taxonRelation = undefined
     },
+
     editRelationship(value) {
       this.taxonRelation = value
       this.editMode = this.taxonRelation
     },
+
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
           Object.defineProperty(list[key], 'type', { value: key })
           Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
@@ -277,18 +295,18 @@ export default {
           Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
         }
         else {
-          let label = key.split('::')
+          const label = key.split('::')
 
           Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length-1].replace(/\.?([A-Z])/g, function (x,y){return " " + y.toLowerCase()}).replace(/^_/, "").toLowerCase().trim() })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })    
+          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
     addType (list) {
-      for (var key in list) {
+      for (const key in list) {
         Object.defineProperty(list[key], 'type', { value: key })
       }
     }
