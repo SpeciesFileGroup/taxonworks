@@ -11,6 +11,12 @@ json.endpoints do
       else
         json.total @object.send(k) ? 1 : 0
       end
+
+      if k == :origin_relationships
+        json.origin_for @object.valid_new_object_classes 
+        json.origin_of ['todo'] 
+      end
+
     end
   end 
 end
