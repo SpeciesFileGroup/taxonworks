@@ -10,6 +10,10 @@ if ["Ready", "Staging", "Importing"].include? import_dataset.status
       json.collectionCode mapping[0][1]
       json.namespace_id mapping[1]
     end
+    if import_dataset.status == "Importing"
+      json.import_filters import_dataset.metadata['import_filters']
+      json.import_retry_errored import_dataset.metadata['import_retry_errored']
+    end
   end
 end
 json.url import_dataset_url(import_dataset, format: :json)

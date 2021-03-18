@@ -88,7 +88,7 @@ class ImportDataset::DarwinCore < ImportDataset
     with_lock do
       if self.status == 'Importing'
         self.status = 'Ready'
-        self.metadata.except!('import_uuid', 'import_start_id')
+        self.metadata.except!('import_uuid', 'import_start_id', 'import_filters', 'import_retry_errored')
         save!
       end
     end
@@ -99,24 +99,26 @@ class ImportDataset::DarwinCore < ImportDataset
   #   Maximum time to spend processing records.
   # @param [Integer] max_records
   #   Maximum number of records to be processed.
-  # @param [Array] retry_errored
+  # @param [Boolean] retry_errored
   #   Also looks up for errored records when importing (default is looking for records with Status=Ready)
   # @param [Hash] filters
   #   (Column-index, value) pairs of filters to apply when searching for records to import (default none)
   # @param [Integer] record_id
   #   Indicates the record to be imported (default none). When used filters are ignored.
   # Returns the updated dataset records. Do not call if there are changes that have not been persisted
-  def import(max_time, max_records, retry_errored: false, filters: nil, record_id: nil)
+  def import(max_time, max_records, retry_errored: nil, filters: nil, record_id: nil)
     imported = []
 
     lock_time = Time.now
     old_uuid = self.metadata['import_uuid']
     start_import do
       lock_time = Time.now - lock_time
+      start_id = self.metadata['import_start_id']
+      filters = self.metadata['import_filters'] if filters.nil?
+      retry_errored = self.metadata['import_retry_errored'] if retry_errored.nil?
+
       status = ["Ready"]
       status << "Errored" if retry_errored
-      start_id = self.metadata['import_start_id']
-
       records = dataset_records.where(status: status).order(:id).limit(max_records)
       filters&.each do |k, v|
         records = records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
@@ -135,10 +137,15 @@ class ImportDataset::DarwinCore < ImportDataset
       end
 
       if imported.any? && record_id.nil?
-        self.metadata['import_start_id'] = imported.last&.id + 1
+        self.metadata.merge!({
+          'import_start_id' => imported.last&.id + 1,
+          'import_filters' => filters,
+          'import_retry_errored' => retry_errored
+        })
         save!
+
         new_uuid = self.metadata['import_uuid']
-        ImportDatasetImportJob.perform_later(self, new_uuid, max_time, max_records, retry_errored, filters) unless old_uuid == new_uuid
+        ImportDatasetImportJob.perform_later(self, new_uuid, max_time, max_records) unless old_uuid == new_uuid
       else
         self.stop_import
       end

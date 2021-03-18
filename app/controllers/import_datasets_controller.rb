@@ -17,12 +17,12 @@ class ImportDatasetsController < ApplicationController
 
   # POST /import_datasets/1/import.json
   def import
-    p = params.permit(:filter, :record_id, :retry_errored)
+    params.permit(:record_id, :retry_errored, filter: {})
 
     @results = @import_dataset.import(5000, 100,
-      retry_errored: p[:retry_errored],
-      filters: p[:filter],
-      record_id: p[:record_id]
+      retry_errored: params[:retry_errored],
+      filters: params[:filter],
+      record_id: params[:record_id]
     )
   end
 
