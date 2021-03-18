@@ -309,6 +309,7 @@ resources :import_datasets do
   concerns [:data_routes]
   member do
     post 'import'
+    post 'stop_import'
   end
   resources :dataset_records, only: [:index, :create, :show, :update, :destroy] do
     collection do

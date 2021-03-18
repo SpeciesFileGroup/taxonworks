@@ -18,12 +18,15 @@ const UpdateColumnField = (importId, params) => AjaxCall('patch', `/import_datas
 
 const ImportRows = (datasetId, params) => AjaxCall('post', `/import_datasets/${datasetId}/import.json`, params)
 
+const StopImport = (datasetId) => AjaxCall('post', `/import_datasets/${datasetId}/stop_import.json`)
+
 export {
   GetDataset,
   GetImports,
   GetDatasetRecords,
   GetNamespace,
   ImportRows,
+  StopImport,
   UpdateRow,
   UpdateCatalogueNumber,
   UpdateColumnField,

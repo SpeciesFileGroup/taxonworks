@@ -28,6 +28,7 @@ import ImportList from './components/ImportList'
 import TableComponent from './components/table'
 import NavbarComponent from './components/NavBar'
 import { ImportRows } from './request/resources'
+import { StopImport } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -98,21 +99,6 @@ export default {
     },
     unselectAll () {
       this.selectedIds = []
-    },
-    processImport () {
-      this.isProcessing = true
-      ImportRows(this.dataset.id).then(response => {
-        if (response.body.results.length) {
-          response.body.results.forEach(row => {
-            this.updateRow(row)
-          })
-          this.processImport()
-        } else {
-          this.isProcessing = false
-        }
-      }, () => {
-        this.isProcessing = false
-      })
     }
   }
 }

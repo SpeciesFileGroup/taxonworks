@@ -61,6 +61,39 @@ class ImportDataset::DarwinCore < ImportDataset
     end
   end
 
+  # @return [String]
+  # Sets up import dataset for import and returns UUID. If already started same UUID is returned (unless last activity was more than 10 minutes ago).
+  # Do not call if there are changes that have not been persisted
+  def start_import(&block)
+    with_lock do
+      case self.status
+      when 'Ready'
+        self.status = 'Importing'
+        self.metadata['import_uuid'] = SecureRandom.uuid
+      when 'Importing'
+        self.metadata['import_uuid'] = SecureRandom.uuid if self.updated_at < 10.minutes.ago
+      else
+        raise "Invalid initial state"
+      end
+      save!
+
+      yield if block_given?
+    end
+
+    self.metadata['import_uuid']
+  end
+
+  # Sets import dataset to stop importing data. Do not call if there are changes that have not been persisted.
+  def stop_import
+    with_lock do
+      if self.status == 'Importing'
+        self.status = 'Ready'
+        self.metadata.except!('import_uuid', 'import_start_id')
+        save!
+      end
+    end
+  end
+
   # @return [Hash]
   # @param [Integer] max_time
   #   Maximum time to spend processing records.
@@ -70,31 +103,45 @@ class ImportDataset::DarwinCore < ImportDataset
   #   Also looks up for errored records when importing (default is looking for records with Status=Ready)
   # @param [Hash] filters
   #   (Column-index, value) pairs of filters to apply when searching for records to import (default none)
-  # @param [Integer] start_id
-  #   Indicates the lowest record ID to start importing from (default none)
   # @param [Integer] record_id
   #   Indicates the record to be imported (default none). When used filters are ignored.
-  # Returns the updated dataset records.
-  def import(max_time, max_records, retry_errored: false, filters: nil, start_id: nil, record_id: nil)
-    status = ["Ready"]
-    status << "Errored" if retry_errored
-
-    records = dataset_records.where(status: status).order(:id).limit(max_records)
-    filters&.each do |k, v|
-      records = records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
-    end
-    records = records.where(id: start_id..) if start_id
-
-    records = dataset_records.where(id: record_id) if record_id
-
-    records = records.all
-    start_time = Time.now
+  # Returns the updated dataset records. Do not call if there are changes that have not been persisted
+  def import(max_time, max_records, retry_errored: false, filters: nil, record_id: nil)
     imported = []
 
-    records.each do |record|
-      imported << record.import
+    lock_time = Time.now
+    old_uuid = self.metadata['import_uuid']
+    start_import do
+      lock_time = Time.now - lock_time
+      status = ["Ready"]
+      status << "Errored" if retry_errored
+      start_id = self.metadata['import_start_id']
 
-      break if 1000.0*(Time.now - start_time).abs > max_time
+      records = dataset_records.where(status: status).order(:id).limit(max_records)
+      filters&.each do |k, v|
+        records = records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
+      end
+      records = records.where(id: start_id..) if start_id
+
+      records = dataset_records.where(id: record_id) if record_id
+
+      records = records.all
+      start_time = Time.now - lock_time
+
+      records.each do |record|
+        imported << record.import
+
+        break if 1000.0*(Time.now - start_time).abs > max_time
+      end
+
+      if imported.any? && record_id.nil?
+        self.metadata['import_start_id'] = imported.last&.id + 1
+        save!
+        new_uuid = self.metadata['import_uuid']
+        ImportDatasetImportJob.perform_later(self, new_uuid, max_time, max_records, retry_errored, filters) unless old_uuid == new_uuid
+      else
+        self.stop_import
+      end
     end
 
     imported

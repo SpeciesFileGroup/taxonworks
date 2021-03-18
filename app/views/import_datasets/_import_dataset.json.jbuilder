@@ -1,6 +1,6 @@
 # TODO: This view is DwC-A specific placed on a generic directory, it should not.
 json.extract! import_dataset, :id, :type, :status, :description, :created_at, :updated_at, :progress
-if ["Ready", "Staging"].include? import_dataset.status
+if ["Ready", "Staging", "Importing"].include? import_dataset.status
   json.metadata do
     json.import_settings import_dataset.metadata["import_settings"]
     json.core_headers import_dataset.metadata["core_headers"]

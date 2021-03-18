@@ -1,9 +1,11 @@
 import { ImportRows } from '../../request/resources'
+import { StopImport } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
 
 export default ({ state, getters, commit }) => {
   state.settings.isProcessing = true
+  state.settings.stopRequested = false
 
   function processImport () {
     if (state.settings.isProcessing) {
@@ -21,13 +23,20 @@ export default ({ state, getters, commit }) => {
               commit(MutationNames.SetRow, payload)
             }
           })
-          commit(MutationNames.SetStartRow, response.body.results.reduce((max, cur) => Math.max(max, cur.id + 1), 0))
           delete response.body.results
           commit(MutationNames.SetDataset, response.body)
 
-          processImport()
+          if (state.settings.stopRequested) {
+            StopImport(state.dataset.id).then(response => {
+              commit(MutationNames.SetDataset, response.body)
+              state.settings.isProcessing = false
+            }, () => {
+              state.settings.isProcessing = false
+            })
+          } else {
+            processImport()
+          }
         } else {
-          commit(MutationNames.SetStartRow, null)
           state.settings.isProcessing = false
         }
       }, () => {

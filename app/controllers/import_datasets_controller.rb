@@ -1,7 +1,7 @@
 class ImportDatasetsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_import_dataset, only: [:show, :import, :edit, :update, :destroy]
+  before_action :set_import_dataset, only: [:show, :import, :stop_import, :edit, :update, :destroy]
 
   # GET /import_datasets
   # GET /import_datasets.json
@@ -17,12 +17,18 @@ class ImportDatasetsController < ApplicationController
 
   # POST /import_datasets/1/import.json
   def import
+    p = params.permit(:filter, :record_id, :retry_errored)
+
     @results = @import_dataset.import(5000, 100,
-      retry_errored: params[:retry_errored],
-      filters: params[:filter],
-      start_id: params[:start_id],
-      record_id: params[:record_id]
+      retry_errored: p[:retry_errored],
+      filters: p[:filter],
+      record_id: p[:record_id]
     )
+  end
+
+  # POST /import_datasets/1/stop_import.json
+  def stop_import
+    @import_dataset.stop_import
   end
 
   # GET /import_datasets/new

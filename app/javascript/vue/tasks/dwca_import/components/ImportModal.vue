@@ -33,6 +33,7 @@
         <button
           v-if="settings.isProcessing"
           type="button"
+          :disabled="settings.stopRequested"
           class="button normal-input button-default margin-medium-top"
           @click="stopImport">
           Stop import
@@ -97,7 +98,7 @@ export default {
       this.$store.dispatch(ActionNames.ProcessImport)
     },
     stopImport () {
-      this.settings.isProcessing = false
+      this.$store.dispatch(ActionNames.StopImport)
     }
   }
 }

@@ -68,12 +68,6 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     update!(metadata: self.metadata.merge!(catalog_numbers_namespaces: catalog_numbers_namespaces))
   end
 
-  # @return [Hash]
-  # Returns a hash with the record counts grouped by status
-  def progress
-    core_records.group(:status).count
-  end
-
   def check_field_set
     if source.staged?
 

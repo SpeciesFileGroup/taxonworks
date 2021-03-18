@@ -93,10 +93,4 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
   end
 
-  # @return [Hash]
-  # Returns a hash with the record counts grouped by status
-  def progress
-    core_records.group(:status).count
-  end
-
 end
