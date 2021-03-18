@@ -13,8 +13,13 @@ json.endpoints do
       end
 
       if k == :origin_relationships
-        json.origin_for @object.valid_new_object_classes 
-        json.origin_of ['todo'] 
+        json.origin_for do 
+          @object.valid_new_object_classes.each do |j|
+            l = j.split('::').first
+            json.set! l, l.tableize 
+          end
+        end
+        json.origin_of {}
       end
 
     end
