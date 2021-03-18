@@ -1,5 +1,4 @@
-import { ImportRows } from '../../request/resources'
-import { StopImport } from '../../request/resources'
+import { ImportRows, StopImport } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { GetterNames } from '../getters/getters'
 
@@ -29,8 +28,7 @@ export default ({ state, getters, commit }) => {
           if (state.settings.stopRequested) {
             StopImport(state.dataset.id).then(response => {
               commit(MutationNames.SetDataset, response.body)
-              state.settings.isProcessing = false
-            }, () => {
+            }).finally(() => {
               state.settings.isProcessing = false
             })
           } else {

@@ -3,8 +3,7 @@ const ActionNames = {
   LoadDataset: 'loadDataset',
   LoadDatasetRecords: 'loadDatasetRecords',
   UpdateRow: 'updateRow',
-  ProcessImport: 'processImport',
-  StopImport: 'stopImport'
+  ProcessImport: 'processImport'
 }
 
 export default ActionNames

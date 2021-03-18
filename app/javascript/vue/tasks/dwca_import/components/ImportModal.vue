@@ -45,9 +45,11 @@
           @click="startImport">
           Start import
         </button>
-        <input
-          type="checkbox"
-          v-model="settings.retryErrored"> Retry errored records
+        <label>
+          <input
+            type="checkbox"
+            v-model="settings.retryErrored"> Retry errored records
+        </label>
       </template>
     </modal-component>
   </div>
@@ -94,7 +96,7 @@ export default {
     setModalView (value) {
       this.showModal = value
     },
-    startImport (value) {
+    startImport () {
       this.$store.dispatch(ActionNames.ProcessImport)
     },
     stopImport () {
