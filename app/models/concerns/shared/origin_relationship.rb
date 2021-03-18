@@ -3,9 +3,13 @@ Shared code for extending data classes with an OriginRelationship
 
   How to use this concern:
     1) In BOTH related models, Include this concern (`include Shared::OriginRelationship`)
-    2) In the "old" model call "is_origin_for" with valid class names, as strings, e.g.:
+    2) In the "old" model call `is_origin_for` with valid class names, as strings, e.g.:
        `is_origin_for 'CollectionObject', 'CollectionObject::BiologicalCollectionObject'`
-    3) has_many :derived_<foo> associations are created for each is_origin_for()
+    3) In the "old" model call `originates_from` if required.
+    4) Repeat assertions in the "new" model.
+
+    5) `has_many :derived_<foo> associations are created for each `is_origin_for()`
+    6) `has_many :origin_<foo> associtations are created for each `originates_from()`
 
     !! You must redundantly provide STI subclasses and parent classes if you want to allow both.  Providing
        a superclass does *not* provide the subclasses.
@@ -55,6 +59,29 @@ module Shared::OriginRelationship
       args.each do |a|
         relationship = 'derived_' + a.demodulize.tableize
         has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :new_object
+      end
+    end
+
+    def originates_from(*args)
+      if args.length == 0
+        raise ArgumentError.new('is_origin_for must have an array full of valid target tables supplied!')
+      end
+
+      # @return [Array of Strings]
+      #   valid new_object Classes
+      define_method :valid_old_object_classes do
+        args
+      end
+
+      # @return [Array of Strings]
+      #   valid new_object Classes
+      define_singleton_method :valid_old_object_classes do
+        args
+      end
+
+      args.each do |a|
+        relationship = 'origin_' + a.demodulize.tableize
+        has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :old_object
       end
     end
   end

@@ -16,10 +16,15 @@ json.endpoints do
         json.origin_for do 
           @object.valid_new_object_classes.each do |j|
             l = j.split('::').first
-            json.set! l, l.tableize 
+            json.set! j, l.tableize 
           end
         end
-        json.origin_of {}
+        json.originates_from do
+          @object.valid_old_object_classes.each do |j|
+            l = j.split('::').first
+            json.set! j, l.tableize 
+          end
+        end
       end
 
     end

@@ -309,10 +309,10 @@ class Source::Bibtex < Source
 
   include Shared::OriginRelationship
 
-  is_origin_for 'Source'
+  is_origin_for 'Source::Bibtex', 'Source::Verbatim'
+  originates_from 'Source::Bibtex', 'Source::Verbatim'
 
   GRAPH_ENTRY_POINTS = [:origin_relationships]
-
 
   # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 

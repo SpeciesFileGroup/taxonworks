@@ -1,20 +1,27 @@
 require 'rails_helper'
 
 context 'OriginRelationship', type: :model do
-  context 'configuration' do
-    before do
-      TestClass.is_origin_for('TestClass')
-    end
 
-    let(:t) { TestClass.new }
+  specify '.valid_new_object_classes' do
+    TestClass.is_origin_for('TestClass')
+    expect(TestClass.valid_new_object_classes).to contain_exactly('TestClass') 
+  end
 
-    specify '.valid_new_object_classes' do
-      expect(TestClass.valid_new_object_classes).to contain_exactly('TestClass') 
-    end
+  specify '#valid_new_object_classes' do
+    TestClass.is_origin_for('TestClass')
+    t = TestClass.new 
+    expect(t.valid_new_object_classes).to contain_exactly('TestClass') 
+  end
 
-    specify '#valid_new_object_classes' do
-      expect(t.valid_new_object_classes).to contain_exactly('TestClass') 
-    end
+  specify '.valid_old_object_classes' do
+    TestClass.originates_from('TestClass')
+    expect(TestClass.valid_old_object_classes).to eq(['TestClass'])
+  end
+
+  specify '#valid_old_object_classes' do
+    TestClass.originates_from('TestClass')
+    t = TestClass.new
+    expect(t.valid_old_object_classes).to eq(['TestClass'])
   end
 
   context 'associations' do
@@ -87,7 +94,6 @@ context 'OriginRelationship', type: :model do
           expect(z.old_objects).to contain_exactly(o)
         end 
       end
-
     end
 
 
