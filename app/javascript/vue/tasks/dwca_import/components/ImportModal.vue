@@ -98,7 +98,7 @@ export default {
       this.$store.dispatch(ActionNames.ProcessImport)
     },
     stopImport () {
-      this.$store.dispatch(ActionNames.StopImport)
+      this.settings.stopRequested = true
     }
   }
 }
