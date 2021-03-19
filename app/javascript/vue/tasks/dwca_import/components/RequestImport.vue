@@ -39,7 +39,9 @@ export default {
     }
   },
   mounted () {
-    this.loadDataset()
+    if (!this.datasetReady) {
+      this.loadDataset()
+    }
   },
   methods: {
     loadDataset () {

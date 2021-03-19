@@ -14,6 +14,7 @@
       :key="index"
       :cell="data_field.value"
       :cell-index="index"
+      :disabled="isProcessing"
       @update="updateRecord"/>
   </tr>
 </template>
@@ -52,6 +53,9 @@ export default {
     },
     isImported () {
       return this.row.status === 'Imported'
+    },
+    isProcessing () {
+      return this.$store.getters[GetterNames.GetSettings].isProcessing
     }
   },
   methods: {

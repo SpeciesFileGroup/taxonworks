@@ -2,7 +2,7 @@
   <button
     v-if="showButton"
     type="button"
-    :disabled="isProcessing"
+    :disabled="isProcessing || isProcessingImport"
     class="button normal-input button-submit"
     @click="importRow">
     {{ enableStatus[row.status] }}
@@ -12,6 +12,7 @@
 <script>
 
 import { ActionNames } from '../store/actions/actions'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   props: {
@@ -23,6 +24,10 @@ export default {
   computed: {
     showButton () {
       return Object.keys(this.enableStatus).includes(this.row.status)
+    },
+
+    isProcessingImport () {
+      return this.$store.getters[GetterNames.GetSettings].isProcessing
     }
   },
   data () {

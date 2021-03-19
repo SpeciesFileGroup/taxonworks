@@ -10,7 +10,7 @@ export default ({ state, commit, dispatch }, id) => {
       const {
         import_filters,
         import_retry_errored
-      } = body.metadata
+      } = body?.metadata || {}
 
       const importRunning = !!import_filters
 

@@ -22,12 +22,13 @@
               </th>
               <status-filter
                 class="position-sticky margin-medium-left"
+                :disabled="isProcessing"
                 v-model="params.status"/>
               <column-filter
                 v-for="(item, index) in datasetHeaders"
                 :key="index"
                 :title="item"
-                :disabled="disabled"
+                :disabled="isProcessing"
                 :column-index="index"
                 @replace="replaceField"
                 class="position-sticky margin-medium-left"
@@ -84,12 +85,7 @@ export default {
     SpinnerComponent,
     VirtualPaginationComponent
   },
-  props: {
-    disabled: {
-      type: Boolean,
-      default: false
-    }
-  },
+
   computed: {
     params: {
       get () {
@@ -117,6 +113,9 @@ export default {
     },
     pagination () {
       return this.$store.getters[GetterNames.GetPagination]
+    },
+    isProcessing () {
+      return this.$store.getters[GetterNames.GetSettings].isProcessing
     }
   },
   data () {

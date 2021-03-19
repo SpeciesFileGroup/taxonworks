@@ -8,8 +8,8 @@
     </button>
     <modal-component
       v-if="settings.importModalView"
-      @close-x="stopImport(); setModalView(false)"
-      @close-esc="stopImport(); setModalView(false)"
+      @close-x="setModalView(false)"
+      @close-esc="setModalView(false)"
       :container-style="{
         width: '700px'
       }">
