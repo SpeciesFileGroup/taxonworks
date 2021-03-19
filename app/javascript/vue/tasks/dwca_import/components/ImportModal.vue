@@ -7,7 +7,7 @@
       Import
     </button>
     <modal-component
-      v-if="showModal"
+      v-if="settings.importModalView"
       @close-x="stopImport(); setModalView(false)"
       @close-esc="stopImport(); setModalView(false)"
       :container-style="{
@@ -88,13 +88,12 @@ export default {
   },
   data () {
     return {
-      showModal: false,
       disableStatus: Object.keys(disableStatus)
     }
   },
   methods: {
     setModalView (value) {
-      this.showModal = value
+      this.settings.importModalView = value
     },
     startImport () {
       this.$store.dispatch(ActionNames.ProcessImport)

@@ -10,6 +10,7 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     settings: {
+      importModalView: false,
       isLoading: false,
       isProcessing: false,
       retryErrored: false,
