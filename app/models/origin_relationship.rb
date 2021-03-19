@@ -44,31 +44,28 @@
 class OriginRelationship < ApplicationRecord
   include Housekeeping
   include Shared::IsData
+  include Shared::PolymorphicAnnotator
+
+  polymorphic_annotates('old_object')
+  polymorphic_annotates('new_object')
 
   acts_as_list scope: [:project_id, :old_object_id, :old_object_type]
 
-  belongs_to :old_object, polymorphic: true
-  belongs_to :new_object, polymorphic: true
+  belongs_to :old_object, polymorphic: true, inverse_of: :origin_relationships
+  belongs_to :new_object, polymorphic: true, inverse_of: :related_origin_relationships
 
-  # Don't validate presence of old_object or new_object
-  # so that nested attributes can work in such a way that
-  # old_object and new_object don't have to be saved first
-  validate :valid_source_target_pairs
+  # The two validations, and the inclusion of the Shared::OriginRelationship code
+  # ensure that new/old objects are indeed ones that are allowed (otherwise we will get Raises, which means the UI is messed up)
+  validates_presence_of :new_object
+  validates_presence_of :old_object
 
-  def valid_source_target_pairs
-    if old_object_type.nil? || new_object_type.nil?
-      errors.add(:old_object, "can't be nil!") if old_object_type.nil?
-      errors.add(:new_object, "can't be nil!") if new_object_type.nil?
-      return
-    end
+  validate :pairing_is_allowed, unless: -> {!errors.empty?}
 
-    old_object_type_class = old_object_type.constantize
+  private
 
-    if !old_object_type_class.respond_to?(:valid_new_object_classes)
-      errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object")
-    elsif !old_object_type_class.valid_new_object_classes.include?(new_object_type)
-      errors.add(:new_object, "#{new_object_type} is not a valid origin relationship new object for old object #{old_object_type}")
-    end
+  def pairing_is_allowed
+    errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object") if !new_object.valid_old_object_classes.include?(old_object.class.name)
+    errors.add(:new_object, "#{new_object_type} is not a valid origin relationship old object") if !old_object.valid_new_object_classes.include?(new_object.class.name)
   end
 
 end

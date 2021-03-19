@@ -592,6 +592,8 @@ resources :sources do
     get :generate, defaults: {format: :json}
   end
 
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
+  
   member do
     post :clone
   end
