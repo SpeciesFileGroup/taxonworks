@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- `/collection_objects/123/navigation.json` route/view
 - Determination, OTU and repository smart selectors on New image task [#2101]
 - Georeferences coordinates in label generate on New collecting event [#2107]
 - Lock buttons on New image [#2101]
@@ -15,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonName autocomplete by internal id
 - Preparation type and with/out facets [#2118]
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
+- Annotations on Browse nomenclature
 
 ### Changed
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
@@ -22,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock background color [#2112]
 - sortArray function now return a natural sort
 - Open confirmation modal and focus new button on New taxon name
+- Next and previous links for id and identifier on comprehensive task [#2134]
 
 ### Fixed
 - Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
@@ -30,13 +33,17 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tab order near parent when name is pinned [#2130]
 - Spinner in distribution section on Browse OTU
 - Destroying a container goes to 404 page [#2133]
+- Missing Determiner param [#2119]
+- Refresh status and relationship list on rank change [#2010]
 
+[#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
 [#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
 [#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
 [#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
 [#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
+[#2119]: https://github.com/SpeciesFileGroup/taxonworks/issues/2119
 [#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
 [#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132

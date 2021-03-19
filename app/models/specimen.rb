@@ -7,6 +7,9 @@
 #
 class Specimen < CollectionObject::BiologicalCollectionObject
 
+  is_origin_for 'Specimen', 'Extract', 'AssertedDistribution'
+  originates_from 'Specimen', 'Lot', 'RangedLot'
+
   with_options if: -> {self.type == 'Specimen'} do |s|
     s.before_validation :check_and_set_total
     s.validates :total, inclusion: { in: 1..1 }, presence: true

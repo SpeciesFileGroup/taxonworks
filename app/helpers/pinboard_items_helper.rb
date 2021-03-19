@@ -62,7 +62,7 @@ module PinboardItemsHelper
 
   def next_object_by_inserted_keyword(object, keyword)
     return nil if keyword.nil? || object.nil?
-    t = object.class.name.tableize
+    t = object.class.base_class.name.tableize
     base = object.class.base_class
       .joins(:tags)
       .where(tags: {keyword: keyword})
@@ -78,7 +78,7 @@ module PinboardItemsHelper
 
   def previous_object_by_inserted_keyword(object, keyword)
     return nil if keyword.nil? || object.nil?
-    t = object.class.name.tableize
+    t = object.class.base_class.name.tableize
     base = object.class.base_class
       .joins(:tags)
       .where(tags: {keyword: keyword})

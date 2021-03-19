@@ -66,7 +66,7 @@ class Person < ApplicationRecord
   IGNORE_IDENTICAL = [:type, :first_name, :last_name, :prefix, :suffix].freeze
 
   # @return [true, nil]
-  #   set as true to prevent caching 
+  #   set as true to prevent caching
   attr_accessor :no_cached
 
   # @return [true, nil]
@@ -112,7 +112,7 @@ class Person < ApplicationRecord
 
   has_many :authored_sources, through: :author_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :authors
   has_many :edited_sources, through: :editor_roles, source: :role_object, source_type: 'Source::Bibtex', inverse_of: :editors
-  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human', inverse_of: :people 
+  has_many :human_sources, through: :source_roles, source: :role_object, source_type: 'Source::Human', inverse_of: :people
   has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', inverse_of: :taxon_name_authors
@@ -128,7 +128,7 @@ class Person < ApplicationRecord
   def namecase_names
     write_attribute(:last_name, NameCase(last_name)) if last_name && will_save_change_to_last_name?
     write_attribute(:first_name, NameCase(first_name)) if first_name && will_save_change_to_first_name?
-    write_attribute(:prefix, NameCase(prefix)) if prefix && will_save_change_to_prefix? 
+    write_attribute(:prefix, NameCase(prefix)) if prefix && will_save_change_to_prefix?
     write_attribute(:suffix, NameCase(suffix)) if suffix && will_save_change_to_suffix?
   end
 
@@ -141,7 +141,7 @@ class Person < ApplicationRecord
   # @return Boolean
   #   whether or not this Person is linked to any data in the project
   def used_in_project?(project_id)
-    Role.where(person_id: id, project_id: project_id).any? || 
+    Role.where(person_id: id, project_id: project_id).any? ||
       Source.joins(:project_sources, :roles).where(roles: {person_id: id}, project_sources: { project_id: project_id }).any?
   end
 
@@ -174,9 +174,9 @@ class Person < ApplicationRecord
   # @param [Integer] person_id
   # @return [Boolean]
   #   true if all records updated, false if any one failed (all or none)
-  #   
+  #
   # No person is destroyed, see `hard_merge`.  self is intended to be kept.
-  # 
+  #
   # r_person is merged into l_person (self)
   #
   def merge_with(person_id)
@@ -190,7 +190,7 @@ class Person < ApplicationRecord
           # !! Role#vet_person, etc.
           # update merge person's roles to old
           Role.where(person_id: r_person.id).each do |r|
-            return false unless r.update(person_id: id) 
+            return false unless r.update(person_id: id)
           end
 
           roles.reload
@@ -352,7 +352,7 @@ class Person < ApplicationRecord
               self.year_active_end = r_person.year_active_end
             end
           end
-          
+
           # last thing to do in the transaction...
           # NO!!! -  unless self.persisted? (all people are at this point persisted!)
           self.save! if self.changed?
@@ -383,7 +383,7 @@ class Person < ApplicationRecord
     end
     true
   end
-     
+
   # @return [Boolean]
   def is_determiner?
     determiner_roles.any?
@@ -431,7 +431,7 @@ class Person < ApplicationRecord
   # @return [Array] of People
   #    return people for name strings
   def self.parse_to_people(name_string)
-    parser(name_string).collect { |n| 
+    parser(name_string).collect { |n|
       Person::Unvetted.new(
         last_name: n['family'] ? NameCase(n['family']) : nil,
         first_name: n['given'] ? NameCase(n['given']) : nil,
@@ -440,7 +440,7 @@ class Person < ApplicationRecord
 
   # @param role_type [String] one of the Role types
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) people 
+  #    the max 10 most recently used (1 week, could parameterize) people
   def self.used_recently(user_id, role_type = 'SourceAuthor')
     t = Role.arel_table
     p = Person.arel_table
@@ -457,7 +457,7 @@ class Person < ApplicationRecord
 
     Person.joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['person_id'].eq(p['id'])))
-    ).pluck(:person_id).uniq
+    ).distinct.pluck(:person_id)
   end
 
   # @params Role [String] one the available roles
@@ -480,12 +480,14 @@ class Person < ApplicationRecord
       h[:quick] = Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
     else
       h[:recent] = Person.where('"people"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
-          Person.where('"people"."id" IN (?)', r.first(4) ).to_a).uniq
+      h[:quick] = (
+        Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+        Person.where('"people"."id" IN (?)', r.first(4) ).to_a
+      ).uniq
     end
-#    h[:recent] =
-#    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
-#     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
+    #    h[:recent] =
+    #    (Person.joins(:roles).where(roles: role_params).used_recently(role_type).distinct.limit(10).to_a +
+    #     Person.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('created_at DESC').limit(6).to_a).uniq
 
 #    h[:quick] = (Person.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
 #        h[:recent][0..3]).uniq
@@ -510,7 +512,7 @@ class Person < ApplicationRecord
       errors.add(:year_active_start, 'is older than year of death') if year_active_start && year_died && year_active_start > year_died
       errors.add(:year_active_end, 'is older than year of death') if year_active_end && year_died && year_active_end > year_died
     end
-    true 
+    true
   end
 
   # @return [Ignored]
@@ -552,7 +554,7 @@ class Person < ApplicationRecord
   end
 
   # @return [Boolean]
-  # Difficult to anticipate what 
+  # Difficult to anticipate what
   # attributes will be cached in different models
   def change_to_cached_attribute?
     saved_change_to_last_name? || saved_change_to_prefix? || saved_change_to_suffix?

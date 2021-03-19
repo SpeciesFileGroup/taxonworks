@@ -2,7 +2,7 @@ class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collection_object, only: [
-    :show, :edit, :update, :destroy, :containerize,
+    :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
@@ -32,6 +32,9 @@ class CollectionObjectsController < ApplicationController
   def biocuration_classifications
     @biocuration_classifications = @collection_object.biocuration_classifications
    render '/biocuration_classifications/index'
+  end
+
+  def navigation
   end
 
   # DEPRECATED
