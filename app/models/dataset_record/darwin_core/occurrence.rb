@@ -728,7 +728,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # verbatimTaxonRank: [Not mapped]
 
     # scientificNameAuthorship: [verbatim_author of innermost protonym]
-    names.last.merge!({ verbatim_author: get_field_value("scientificNameAuthorship") })
+    names.last&.merge!({ verbatim_author: get_field_value("scientificNameAuthorship") })
 
     # vernacularName: [Not mapped]
 
