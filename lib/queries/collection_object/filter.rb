@@ -115,6 +115,7 @@ module Queries
       attr_accessor :repository
 
       # @return [True, False, nil]
+      # @param collecting_event ['true', 'false']
       #   true - has collecting_event_id
       #   false - does not have collecting_event_id
       #   nil - not applied
@@ -156,6 +157,12 @@ module Queries
       attr_accessor :buffered_other_labels
 
 
+      # @return [True, False, nil]
+      #   true - has collecting event that has  geographic_area
+      #   false - does not have  collecting event that has geographic area
+      #   nil - not applied
+      attr_accessor :type_material
+
 
       # @param [Hash] args are permitted params
       def initialize(params)
@@ -170,7 +177,9 @@ module Queries
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
         @biocuration_class_ids = params[:biocuration_class_ids] || []
         @biological_relationship_ids = params[:biological_relationship_ids] || []
+       
         @collecting_event = boolean_param(params, :collecting_event)
+
         @collecting_event_ids = params[:collecting_event_ids] || []
         @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
         @current_determinations = boolean_param(params, :current_determinations)
@@ -191,6 +200,7 @@ module Queries
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
         @taxon_determinations = boolean_param(params, :taxon_determinations)
+        @type_material = boolean_param(params, :type_material)
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
         @validity = boolean_param(params, :validity)
 
@@ -426,6 +436,7 @@ module Queries
           geographic_area_facet,
           collecting_event_facet,
           repository_facet,
+          type_material_facet,
           georeferences_facet,
           taxon_determinations_facet,
           otus_facet,
@@ -504,6 +515,17 @@ module Queries
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists
         )
+      end
+
+      def type_material_facet
+        return nil if type_material.nil?
+        if type_material 
+          ::CollectionObject.joins(:type_designations).distinct
+        else
+          ::CollectionObject.left_outer_joins(:type_designations)
+            .where(type_material: {id: nil})
+            .distinct
+        end
       end
 
       # @return [Scope]

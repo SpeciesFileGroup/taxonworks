@@ -8,7 +8,7 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   let(:query) { Queries::OriginRelationship::Filter.new({}) }
 
-  specify '#old_global_object_id' do
+  xspecify '#old_global_object_id' do
     o = OriginRelationship.create!(old_object: s1, new_object: s2)
 
     query.old_global_object_id = s1.to_global_id.to_s
