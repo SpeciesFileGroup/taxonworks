@@ -40,7 +40,7 @@ class Extract < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::IsData
 
-  is_origin_for 'Sequence', 'Extract'
+  is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot'
 
   validates_presence_of :quantity_value

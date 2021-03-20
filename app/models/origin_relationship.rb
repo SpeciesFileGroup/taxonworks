@@ -51,8 +51,8 @@ class OriginRelationship < ApplicationRecord
 
   acts_as_list scope: [:project_id, :old_object_id, :old_object_type]
 
-  belongs_to :old_object, polymorphic: true, inverse_of: :origin_relationships
-  belongs_to :new_object, polymorphic: true, inverse_of: :related_origin_relationships
+  belongs_to :old_object, polymorphic: true
+  belongs_to :new_object, polymorphic: true
 
   # The two validations, and the inclusion of the Shared::OriginRelationship code
   # ensure that new/old objects are indeed ones that are allowed (otherwise we will get Raises, which means the UI is messed up)
@@ -64,8 +64,8 @@ class OriginRelationship < ApplicationRecord
   private
 
   def pairing_is_allowed
-    errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object") if !new_object.valid_old_object_classes.include?(old_object.class.name)
-    errors.add(:new_object, "#{new_object_type} is not a valid origin relationship old object") if !old_object.valid_new_object_classes.include?(new_object.class.name)
+    errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object of a #{old_object.class.name}") if !new_object.valid_old_object_classes.include?(old_object.class.name)
+    errors.add(:new_object, "#{new_object_type} is not a valid origin relationship new object of a #{new_object.class.name}") if !old_object.valid_new_object_classes.include?(new_object.class.name)
   end
 
 end

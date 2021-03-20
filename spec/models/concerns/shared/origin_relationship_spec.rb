@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 context 'OriginRelationship', type: :model do
-
   specify '.valid_new_object_classes' do
     TestClass.is_origin_for('TestClass')
     expect(TestClass.valid_new_object_classes).to contain_exactly('TestClass') 
@@ -31,7 +30,6 @@ context 'OriginRelationship', type: :model do
   end
 
   context 'validation' do
-
     let(:matching_origin_targets) do
       { origin_relationships_attributes: [{ new_object: TestClass.new }] }
     end
@@ -65,9 +63,8 @@ context 'OriginRelationship', type: :model do
   end
 
   context 'new/old objects' do
-
     before { WithIsOriginForMatching.is_origin_for('TestClass') }
-    
+
     context 'with classes properly configured' do
       let(:o) { WithIsOriginForMatching.create }
       let(:n) { TestClass.create }
@@ -114,7 +111,6 @@ context 'OriginRelationship', type: :model do
         end
       end
     end
-
   end
 end
 
