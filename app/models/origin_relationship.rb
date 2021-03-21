@@ -59,9 +59,20 @@ class OriginRelationship < ApplicationRecord
   validates_presence_of :new_object
   validates_presence_of :old_object
 
+  validate :old_object_responds
+  validate :new_object_responds
   validate :pairing_is_allowed, unless: -> {!errors.empty?}
 
   private
+
+  def old_object_responds
+    errors.add(:old_object, "#{old_object.class.name} is not a legal part of an origin relationship") if !(old_object.class < Shared::OriginRelationship)
+  end
+
+  def new_object_responds
+    errors.add(:new_object, "#{new_object.class.name} is not a legal part of an origin relationship") if !(new_object.class < Shared::OriginRelationship)
+  end
+
 
   def pairing_is_allowed
     errors.add(:old_object, "#{old_object_type} is not a valid origin relationship old object of a #{old_object.class.name}") if !new_object.valid_old_object_classes.include?(old_object.class.name)

@@ -25,11 +25,15 @@ RSpec.describe OriginRelationship, type: :model do
     end
 
     specify 'new not allowed' do
-      expect{ origin_relationship.new_object = FactoryBot.create(:valid_collecting_event) }.to raise_error ActiveRecord::InverseOfAssociationNotFoundError 
+      origin_relationship.old_object = old_specimen
+      origin_relationship.new_object = FactoryBot.create(:valid_collecting_event)
+      expect(origin_relationship.valid?).to be_falsey
     end
 
     specify 'old not allowed' do
-      expect{ origin_relationship.old_object = FactoryBot.create(:valid_collecting_event) }.to raise_error ActiveRecord::InverseOfAssociationNotFoundError 
+      origin_relationship.new_object = old_specimen
+      origin_relationship.old_object = FactoryBot.create(:valid_collecting_event)
+      expect(origin_relationship.valid?).to be_falsey
     end
 
   end
