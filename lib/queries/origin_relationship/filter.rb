@@ -1,35 +1,55 @@
 module Queries
   module OriginRelationship
-
-    # !! does not inherit from Queries::Query
     class Filter
 
       include Concerns::Polymorphic
       polymorphic_klass(::OriginRelationship)
 
+      # attr_accessor :object_global_id  from Queries::Concerns::Polymorphic
+      # attr_accessor :polymorphic_ids   from Queries::Concerns::Polymorphic
+
       attr_accessor :new_object_global_id
       attr_accessor :old_object_global_id
 
-      # @params params [ActionController::Parameters]
       def initialize(params)
-      # @identifier_object_type = params[:identifier_object_type] 
-      # @identifier_object_id = params[:identifier_object_id] 
-
-      # # TODO: deprecate, see README.md
-      # @identifier_object_ids = params[:identifier_object_ids] || []
-      # @identifier_object_types = params[:identifier_object_types] || []
-
         @new_object_global_id = params[:new_object_global_id]
         @old_object_global_id = params[:old_object_global_id]
 
         set_polymorphic_ids(params)
-        # need 'set annotator params'
+      end
+
+      def new_object
+        if o = GlobalID::Locator.locate(new_object_global_id)
+          o
+        else
+          nil
+        end
+      end
+
+      def old_object
+        if o = GlobalID::Locator.locate(old_object_global_id)
+          o
+        else
+          nil
+        end
+      end
+
+      def matching_new_object_facet
+        return nil if new_object_global_id.nil?
+        ::OriginRelationship.where(new_object: new_object)
+      end
+
+
+      def matching_old_object_facet
+        return nil if old_object_global_id.nil?
+        ::OriginRelationship.where(old_object: old_object)
       end
 
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [
-          # Queries::Annotator.annotator_params(options, ::OriginRelationship),
+          matching_new_object_facet,
+          matching_old_object_facet,
           matching_polymorphic_ids
         ].compact
 
@@ -58,6 +78,7 @@ module Queries
       def all
         a = and_clauses
         b = merge_clauses
+        byebug
         if a && b
           b.where(a).distinct
         elsif a
