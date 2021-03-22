@@ -84,9 +84,6 @@ class CollectionObject < ApplicationRecord
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
 
-  is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
-  originates_from 'CollectionObject'
-
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
