@@ -100,10 +100,10 @@ module Export::Coldp::Files::Taxon
   def self.generate(otus, root_otu_id = nil, reference_csv = nil )
 
     # Until we have RC5 articulations we are temporarily glossing over the fact
-    # that one taoxn name can be used for many OTUs.  Track to see that 
+    # that one taoxn name can be used for many OTUs.  Track to see that
     # an OTU with a given taxon name does not already exist
     #   taxon_name_id: otu_id (the value is not needed)
-    observed_taxon_name_ids = { }     
+    observed_taxon_name_ids = { }
 
     CSV.generate(col_sep: "\t") do |csv|
 
@@ -130,6 +130,7 @@ module Export::Coldp::Files::Taxon
 
         # TODO: remove once RC5 better modelled
         next if observed_taxon_name_ids[o.taxon_name_id]
+
         observed_taxon_name_ids[o.taxon_name_id] = o.id
 
         # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
@@ -158,13 +159,13 @@ module Export::Coldp::Files::Taxon
           if pid = o.parent_otu_id
             parent_id = pid
           else
-            # there is no OTU parent for the hierarchy, at present we just flat skip this OTU 
+            # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
             # curators can use the create OTUs for valid ids to resolve this data issue
             next
           end
         end
 
-        parent_id = (root_otu_id == o.id ? nil : o.parent_otu&.id )
+        parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
           o.id,                                      # ID
