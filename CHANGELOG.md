@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Next and previous links for id and identifier on comprehensive task [#2134]
 
 ### Fixed
+- CoLDP missing values for names without original combinations [#2146] 
 - Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
 - Not being able to get pinboard items on some circumstances
 - `Request-URI Too Large` loading georeferences on Browse OTU
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Determiner param [#2119]
 - Refresh status and relationship list on rank change [#2010]
 
+[#2146]: https://github.com/SpeciesFileGroup/taxonworks/issues/2146
 [#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
 [#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
 [#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
