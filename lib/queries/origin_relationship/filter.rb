@@ -1,6 +1,6 @@
 module Queries
   module OriginRelationship
-    class Filter
+    class Filter < Queries::Query
 
       include Concerns::Polymorphic
       polymorphic_klass(::OriginRelationship)
@@ -36,13 +36,14 @@ module Queries
 
       def matching_new_object_facet
         return nil if new_object_global_id.nil?
-        ::OriginRelationship.where(new_object: new_object)
+        table[:new_object_type].eq(new_object.class.base_class)
+          .and(table[:new_object_id].eq(new_object.id))  
       end
-
 
       def matching_old_object_facet
         return nil if old_object_global_id.nil?
-        ::OriginRelationship.where(old_object: old_object)
+        table[:old_object_type].eq(old_object.class.base_class)
+          .and(table[:old_object_id].eq(old_object.id))  
       end
 
       # @return [ActiveRecord::Relation]
@@ -73,12 +74,10 @@ module Queries
         a
       end
 
-
       # @return [ActiveRecord::Relation]
       def all
         a = and_clauses
         b = merge_clauses
-        byebug
         if a && b
           b.where(a).distinct
         elsif a

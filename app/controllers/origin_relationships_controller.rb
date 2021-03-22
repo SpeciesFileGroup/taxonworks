@@ -13,7 +13,10 @@ class OriginRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json{
-        @origin_relationships = Queries::OriginRelationship::Filter.new(filter_params).all
+        @origin_relationships = Queries::OriginRelationship::Filter.new(filter_params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
       }
     end
   end
@@ -106,8 +109,8 @@ class OriginRelationshipsController < ApplicationController
 
   def filter_params
     params.permit(
-      :old_object_global_id,
       :new_object_global_id,
+      :old_object_global_id,
     ).to_h
       .merge(
         old_object_global_id: shallow_object_global_param[:object_global_id],
