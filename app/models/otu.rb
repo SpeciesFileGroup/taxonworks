@@ -155,16 +155,18 @@ class Otu < ApplicationRecord
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
   # @return [Otu#id, nil, false]
-  #  nil - there is no OTU parent possible
-  #  false - there is > 1 OTU parent possible
-  #  id - the (unambiguous) immediate ID of the parent OTU
+  #  nil - there is no OTU parent with a valid taxon name possible
+  #  false - there is > 1 OTU parent with a valid taxon name possible
+  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
+  #
+  #  Note this is used CoLDP export. Do not change without considerations there.
   def parent_otu_id
     return nil if taxon_name_id.nil?
-
 
     # TODO: Unify to a single query
 
     candidates = TaxonName.joins(:otus, :descendant_hierarchies)
+      .that_is_valid
       .where.not(id: taxon_name_id)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
       .order('taxon_name_hierarchies.generations')
