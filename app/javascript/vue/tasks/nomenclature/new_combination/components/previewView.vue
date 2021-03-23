@@ -10,6 +10,14 @@
             v-if="combination.protonyms[rank]"> {{ combination.protonyms[rank].name }}
           </span>
         </i>
+        <template v-if="incomplete">
+          <span class="feedback feedback-warning feedback-thin margin-small-left margin-small-right">
+            <span
+              title="Match incomplete"
+              data-icon="warning"/>
+            Incomplete match
+          </span>
+        </template>
         <span v-html="showAuthorCitation(searchLastExistingRank(combination.protonyms))"/>
       </span>
       <span class="separate-left separate-right"> | </span>
@@ -36,6 +44,10 @@ export default {
     combination: {
       type: Object,
       default: undefined
+    },
+    incomplete: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

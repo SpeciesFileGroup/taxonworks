@@ -1,12 +1,11 @@
-# This requires relationships and ranks as well
 require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
 require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 
-# A taxonomic name (nomenclature only). See also NOMEN.
+# A taxon name (nomenclature only). See also NOMEN.
 #
 # @!attribute name
 #   @return [String, nil]
-#   the fully latinized string (monomimial) of a code governed taxonomic biological name
+#   the fully latinized string (monomial) of a code governed taxonomic biological name
 #   not applicable for Combinations, they are derived from their pieces
 #
 # @!attribute parent_id
@@ -15,7 +14,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   of a taxon name must be explicitly defined via taxon name relationships or classifications. The parent of a taxon name
 #   can be thought of as  "the place where you'd find this name in a hierarchy if you knew literally *nothing* else about that name."
 #   In practice read each monomial in the name (protonym or combination) from right to left, the parent is the parent of the last monomial read.
-#   There are 3 simple rules for determening the parent of a Protonym or Combination:
+#   There are 3 simple rules for determining the parent of a Protonym or Combination:
 #     1) the parent must always be at least one rank higher than the target names rank
 #     2) the parent of a synonym (any sense) is the parent of the synonym's valid name
 #     3) the parent of a combination is the parent of the highest ranked monomial in the epithet (almost always the parent of the genus)
@@ -60,7 +59,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!attribute verbatim_name
 #   @return [String]
-#   a representation of what the combination (fully spelled out) or protonym (monomial)
+#   a representation of what the Combination (fully spelled out) or Protonym (monomial)
 #   *looked like* in its originating publication.
 #   The sole purpose of this string is to represent visual differences from what is recorded in the
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
@@ -83,7 +82,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @attribute cached_author_year
 #   @return [String, nil]
-#      author and year string with parentheses where necessary, i.e. with context of present placement for iczn
+#      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
 #
 # @!attribute cached_higher_classification
 #   @return [String]
@@ -123,7 +122,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
-#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_ralationships and taxon_name_classifications.
+#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_relationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
 
@@ -224,7 +223,6 @@ class TaxonName < ApplicationRecord
   has_many :observation_matrix_row_items, inverse_of: :taxon_name, class_name: 'ObservationMatrixRowItem::Dynamic::TaxonName', dependent: :delete_all
   has_many :observation_matrices, through: :observation_matrix_row_items
 
-
   belongs_to :valid_taxon_name, class_name: 'TaxonName', foreign_key: :cached_valid_taxon_name_id
   has_one :source_classified_as_relationship, -> {
     where(taxon_name_relationships: {type: 'TaxonNameRelationship::SourceClassifiedAs'})
@@ -273,10 +271,10 @@ class TaxonName < ApplicationRecord
   # Includes taxon_name, doesn't order result
   scope :ancestors_and_descendants_of, -> (taxon_name) do
     scoping do
-    a = TaxonName.self_and_ancestors_of(taxon_name)
-    b = TaxonName.descendants_of(taxon_name)
-    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-  end
+      a = TaxonName.self_and_ancestors_of(taxon_name)
+      b = TaxonName.descendants_of(taxon_name)
+      TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    end
   end
 
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
@@ -330,6 +328,52 @@ class TaxonName < ApplicationRecord
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
+  # @return [Scope]
+  #   Combinations that are composed of children of this taxon name
+  #     when those children are not currently descendants of this taxon name
+  #
+  # !! When :cached_valid_taxon_name_id is properly set then this method is not required
+  # rather you should use :historical_taxon_names.
+  #
+  def self.out_of_scope_combinations(taxon_name_id)
+    t = ::TaxonName.arel_table
+    h = ::TaxonNameHierarchy.arel_table
+    r = ::TaxonNameRelationship.arel_table
+
+    h1 = h.alias('osch_')
+    h2 = h.alias('oschh_')
+    h3 = h.alias('oschhh_')
+
+    b = h.project(
+      # h[Arel.star],
+      # r[:subject_taxon_name_id].as('s'),
+      # r[:object_taxon_name_id].as('o'),
+      # h[:ancestor_id].as('aa'),
+      # h[:descendant_id].as('ab'),
+      # h1[:ancestor_id].as('a'),
+      h1[:descendant_id].as('b'),
+      h2[:ancestor_id].as('c'),
+      # h2[:descendant_id].as('d')
+    ).from([h])
+
+    b = b.join(r, Arel::Nodes::InnerJoin).on(h[:descendant_id].eq(r[:subject_taxon_name_id]).and(h[:ancestor_id].eq(taxon_name_id)))
+      .join(h1, Arel::Nodes::InnerJoin).on(r[:object_taxon_name_id].eq(h1[:descendant_id]).and(h1[:ancestor_id].not_eq(h1[:descendant_id])))
+      .join(h2, Arel::Nodes::OuterJoin).on(
+        h1[:ancestor_id].eq(h2[:ancestor_id]).
+        and(h2[:descendant_id].eq(taxon_name_id))
+      )
+
+    # This was particularly useful in debugging the join chain:
+    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a} 
+
+    b = b.as('abc')
+
+    ::Combination
+      .joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['b'].eq(t[:id]))))
+      .where(b['c'].eq(nil))
+      .distinct
+  end
+
   # @return Scope
   #   names that are not leaves
   # TODO: belongs in lib/queries/filter.rb likely
@@ -357,11 +401,6 @@ class TaxonName < ApplicationRecord
     ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(t['id']))))
   end
 
-  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
-  def synonyms
-    TaxonName.with_cached_valid_taxon_name_id(self.id)
-  end
-
   soft_validate(:sv_validate_name, set: :validate_name, has_fix: false)
   soft_validate(:sv_missing_confidence_level, set: :missing_fields, has_fix: false)
   soft_validate(:sv_missing_original_publication, set: :missing_fields, has_fix: false)
@@ -381,8 +420,23 @@ class TaxonName < ApplicationRecord
     taxon_names.sort!{|a, b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}
   end
 
+  # TODO: what is this:!? :)
+  def self.foo(rank_classes)
+    from <<-SQL.strip_heredoc
+      ( SELECT *, rank()
+           OVER (
+               PARTITION BY rank_class, parent_id
+               ORDER BY generations asc, name
+            ) AS rn
+         FROM taxon_names
+         INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
+         WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
+         ) as taxon_names
+    SQL
+  end
+
   # @return [String]
-  #   rank as human readable shortform, like 'genus' or 'species'
+  #   rank as human readable short-form, like 'genus' or 'species'
   def rank
     ::RANKS.include?(rank_string) ? rank_name : nil
   end
@@ -404,19 +458,11 @@ class TaxonName < ApplicationRecord
     Ranks.valid?(r) ? r.safe_constantize : r
   end
 
-  # TODO: what is this:!? :)
-  def self.foo(rank_classes)
-    from <<-SQL.strip_heredoc
-      ( SELECT *, rank()
-           OVER (
-               PARTITION BY rank_class, parent_id
-               ORDER BY generations asc, name
-            ) AS rn
-         FROM taxon_names
-         INNER JOIN "taxon_name_hierarchies" ON "taxon_names"."id" = "taxon_name_hierarchies"."descendant_id"
-         WHERE #{rank_classes.collect{|c| "rank_class = '#{c}'" }.join(' OR ')}
-         ) as taxon_names
-    SQL
+  # @see .out_of_scope_combinations
+  def out_of_scope_combinations 
+    ::TaxonName
+      .where(project_id: project_id)
+      .out_of_scope_combinations(id)
   end
 
   # @return [TaxonName, nil] an ancestor at the specified rank
@@ -443,6 +489,11 @@ class TaxonName < ApplicationRecord
     descendants.with_rank_class(
       Ranks.lookup(nomenclatural_code, rank)
     )
+  end
+
+  # @return [Scope] Protonym(s) the **broad sense** synonyms of this name
+  def synonyms
+    TaxonName.with_cached_valid_taxon_name_id(id)
   end
 
   # @return [Array]
@@ -825,7 +876,8 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
-      cached_original_combination: nil
+      cached_original_combination: nil,
+      cached_nomenclature_date: nil
     )
     save if update
   end
@@ -837,7 +889,8 @@ class TaxonName < ApplicationRecord
     # We can't use the in-memory cache approach for combination names, force reload each time
     n = nil if is_combination?
 
-    update_column(:cached_html, get_full_name_html(n))
+    update_columns(cached_html: get_full_name_html(n),
+                   cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
 
@@ -855,6 +908,7 @@ class TaxonName < ApplicationRecord
     update_columns(
       cached:  NO_CACHED_MESSAGE,
       cached_author_year:  NO_CACHED_MESSAGE,
+      cached_nomenclature_date: NO_CACHED_MESSAGE,
       cached_classified_as: NO_CACHED_MESSAGE,
       cached_html:  NO_CACHED_MESSAGE
     )
@@ -938,6 +992,8 @@ class TaxonName < ApplicationRecord
     h
   end
 
+  # !! TODO: when name is a subgenus will no grab genus
+  #
   # @!return [ { rank => [prefix, name] }
   #   Returns a hash of rank => [prefix, name] for genus and below
   # @taxon_name.full_name_hash # =>
@@ -1279,11 +1335,12 @@ class TaxonName < ApplicationRecord
   # Some observations:
   #  - reified ids are only for original combinations (for which we have no ID)
   #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
-  # mental note- consider combinatoin - is_current_placement?
+  # Mental note- consider combination - is_current_placement? (presently excluded in CoL code, which is the correct place to decide that.)
+  # Duplicated in COLDP export code
   def reified_id
-    target = (is_combination? ? finest_protonym : self)
-    return target.id.to_s unless target.has_alternate_original?
-    target.id.to_s + '-' + Digest::MD5.hexdigest(target.cached_original_combination) # missing spec to catch when chached original combination nil
+    return id.to_s if is_combination?
+    return id.to_s unless has_alternate_original?
+    id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
   end
 
   protected

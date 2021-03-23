@@ -40,7 +40,10 @@ class Extract < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::IsData
 
-  is_origin_for 'Sequence', 'Extract'
+  is_origin_for 'Extract', 'Sequence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+
+  has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
 
   has_many :extractor_roles, class_name: 'Extractor', as: :role_object, dependent: :destroy
   has_many :extractors, through: :extractor_roles, source: :person

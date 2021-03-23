@@ -2,13 +2,13 @@
   <div class="panel vue-filter-container">
     <div class="flex-separate content middle action-line">
       <span>Filter</span>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
+      <button
+        type="button"
+        data-icon="w_reset"
+        class="button circle-button button-default center-icon no-margin"
         v-shortkey="[getMacKey, 'r']"
         @shortkey="resetFilter"
-        @click="resetFilter">Reset
-      </span>
+        @click="resetFilter"/>
     </div>
     <spinner-component
       :full-screen="true"
@@ -48,13 +48,14 @@
         v-model="params.user"/>
       <keywords-component
         class="margin-large-bottom"
-        v-model="params.keywords.keyword_ids" />
+        v-model="params.keywords" />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
+      <preparation-types v-model="params.preparation_type_id"/>
       <types-component
         class="margin-large-bottom"
         v-model="params.types"/>
@@ -67,6 +68,14 @@
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
+      <buffered-component v-model="params.buffered"/>
+      <with-component
+        class="margin-large-bottom"
+        v-for="(item, key) in params.byRecordsWith"
+        :key="key"
+        :title="key.replace('with_', '')"
+        :param="key"
+        v-model="params.byRecordsWith[key]"/>
     </div>
   </div>
 </template>
@@ -77,13 +86,16 @@ import OtuComponent from './filters/otu'
 import CollectingEvent from './filters/collectingEvent/collectingEvent'
 import UserComponent from './filters/user'
 import GeographicComponent from './filters/geographic'
-import KeywordsComponent from './filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from './filters/identifier'
 import TypesComponent from './filters/types'
 import LoanComponent from './filters/loan'
 import InRelationship from './filters/relationship/in_relationship'
 import BiocurationsComponent from './filters/biocurations'
 import RepositoryComponent from './filters/repository.vue'
+import WithComponent from 'tasks/sources/filter/components/filters/with'
+import BufferedComponent from './filters/buffered.vue'
+import PreparationTypes from './filters/preparationTypes'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -92,6 +104,7 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   components: {
+    BufferedComponent,
     SpinnerComponent,
     OtuComponent,
     CollectingEvent,
@@ -103,14 +116,16 @@ export default {
     LoanComponent,
     InRelationship,
     BiocurationsComponent,
-    RepositoryComponent
+    RepositoryComponent,
+    WithComponent,
+    PreparationTypes
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, this.params.settings, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -119,17 +134,22 @@ export default {
         !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_ids.length &&
+        !this.params.keywords.keyword_id_and.length &&
+        !this.params.keywords.keyword_id_or.length &&
         !this.params.determination.otu_ids.length &&
+        !this.params.determination.determiner_id.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
+        !this.params.preparation_type_id.length &&
         Object.keys(this.params.collectingEvents.fields).length <= 1 &&
         !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
         !Object.values(this.params.user).find(item => { return item !== undefined }) &&
         !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item !== undefined })
+        !Object.values(this.params.identifier).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
+        !Object.values(this.params.buffered).find(item => { return item !== undefined })
     }
   },
   data () {
@@ -198,6 +218,32 @@ export default {
         biocurations: {
           biocuration_class_ids: []
         },
+        byRecordsWith: {
+          collecting_event: undefined,
+          depictions: undefined,
+          geographic_area: undefined,
+          georeferences: undefined,
+          identifiers: undefined,
+          taxon_determinations: undefined,
+          type_material: undefined,
+          repository: undefined,
+          dwc_indexed: undefined,
+          with_buffered_collecting_event: undefined,
+          with_buffered_determinations: undefined,
+          with_buffered_other_labels: undefined
+        },
+        buffered: {
+          text: {
+            buffered_collecting_event: undefined,
+            buffered_determinations: undefined,
+            buffered_other_labels: undefined,
+          },
+          exact: {
+            exact_buffered_collecting_event: undefined,
+            exact_buffered_determinations: undefined,
+            exact_buffered_other_labels: undefined
+          }
+        },
         relationships: {
           biological_relationship_ids: []
         },
@@ -206,8 +252,10 @@ export default {
           loaned: undefined,
           never_loaned: undefined
         },
+        preparation_type_id: [],
         types: {
-          is_type: []
+          is_type: [],
+          type_type: []
         },
         identifier: {
           identifier: undefined,
@@ -217,9 +265,11 @@ export default {
           namespace_id: undefined
         },
         keywords: {
-          keyword_ids: []
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         determination: {
+          determiner_id: [],
           otu_ids: [],
           current_determinations: undefined,
           ancestor_id: undefined,

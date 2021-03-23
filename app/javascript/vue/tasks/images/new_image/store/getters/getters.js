@@ -1,59 +1,65 @@
-import getLicense from './getLicense'
-import getImagesCreated from './getImagesCreated'
-import getPeople from './getPeople'
-import getYearCopyright from './getYearCopyright'
-import getObjectsForDepictions from './getObjectsForDepictions'
 import getAttributions from './getAttributions'
-import getSettings from './getSettings'
-import getSqed from './getSqed'
-import getNewCOForSqed from './getNewCOForSqed'
-import getCollectionObject from './getCollectionObject'
-import getTaxonDeterminations from './getTaxonDeterminations'
-import getSource from './getSource'
-import getDepiction from './getDepiction'
 import getCitations from './getCitations'
-import getTags from './getTags'
+import getCollectionObject from './getCollectionObject'
 import getDataAttributes from './getDataAttributes'
+import getDepiction from './getDepiction'
+import getImagesCreated from './getImagesCreated'
+import getLicense from './getLicense'
+import getNewCOForSqed from './getNewCOForSqed'
+import getObjectsForDepictions from './getObjectsForDepictions'
+import getPeople from './getPeople'
 import getPixels from './getPixels'
+import getRepository from './getRepository'
+import getSettings from './getSettings'
+import getSource from './getSource'
+import getSqed from './getSqed'
+import getTags from './getTags'
+import getTaxonDetermination from './getTaxonDetermination'
+import getTaxonDeterminations from './getTaxonDeterminations'
+import getYearCopyright from './getYearCopyright'
 
 const GetterNames = {
-  GetLicense: 'getLicense',
-  GetImagesCreated: 'getImagesCreated',
-  GetPeople: 'getPeople',
-  GetYearCopyright: 'getYearCopyright',
-  GetObjectsForDepictions: 'getObjectsForDepictions',
   GetAttributions: 'getAttributions',
-  GetSettings: 'getSettings',
-  GetSqed: 'getSqed',
-  GetNewCOForSqed: 'getNewCOForSqed',
-  GetCollectionObject: 'getCollectionObject',
-  GetTaxonDeterminations: 'getTaxonDeterminations',
-  GetSource: 'getSource',
-  GetDepiction: 'getDepiction',
   GetCitations: 'getCitations',
-  GetTags: 'getTags',
+  GetCollectionObject: 'getCollectionObject',
   GetDataAttributes: 'getDataAttributes',
-  GetPixels: 'getPixels'
+  GetDepiction: 'getDepiction',
+  GetImagesCreated: 'getImagesCreated',
+  GetLicense: 'getLicense',
+  GetNewCOForSqed: 'getNewCOForSqed',
+  GetObjectsForDepictions: 'getObjectsForDepictions',
+  GetPeople: 'getPeople',
+  GetPixels: 'getPixels',
+  GetRepository: 'getRepository',
+  GetSettings: 'getSettings',
+  GetSource: 'getSource',
+  GetSqed: 'getSqed',
+  GetTags: 'getTags',
+  GetTaxonDetermination: 'getTaxonDetermination',
+  GetTaxonDeterminations: 'getTaxonDeterminations',
+  GetYearCopyright: 'getYearCopyright'
 }
 
 const GetterFunctions = {
-  [GetterNames.GetLicense]: getLicense,
-  [GetterNames.GetImagesCreated]: getImagesCreated,
-  [GetterNames.GetPeople]: getPeople,
-  [GetterNames.GetYearCopyright]: getYearCopyright,
-  [GetterNames.GetObjectsForDepictions]: getObjectsForDepictions,
   [GetterNames.GetAttributions]: getAttributions,
-  [GetterNames.GetSettings]: getSettings,
-  [GetterNames.GetSqed]: getSqed,
-  [GetterNames.GetNewCOForSqed]: getNewCOForSqed,
-  [GetterNames.GetCollectionObject]: getCollectionObject,
-  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
-  [GetterNames.GetSource]: getSource,
-  [GetterNames.GetDepiction]: getDepiction,
   [GetterNames.GetCitations]: getCitations,
-  [GetterNames.GetTags]: getTags,
+  [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetDataAttributes]: getDataAttributes,
-  [GetterNames.GetPixels]: getPixels
+  [GetterNames.GetDepiction]: getDepiction,
+  [GetterNames.GetImagesCreated]: getImagesCreated,
+  [GetterNames.GetLicense]: getLicense,
+  [GetterNames.GetNewCOForSqed]: getNewCOForSqed,
+  [GetterNames.GetObjectsForDepictions]: getObjectsForDepictions,
+  [GetterNames.GetPeople]: getPeople,
+  [GetterNames.GetPixels]: getPixels,
+  [GetterNames.GetRepository]: getRepository,
+  [GetterNames.GetSettings]: getSettings,
+  [GetterNames.GetSource]: getSource,
+  [GetterNames.GetSqed]: getSqed,
+  [GetterNames.GetTags]: getTags,
+  [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
+  [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
+  [GetterNames.GetYearCopyright]: getYearCopyright
 }
 
 export {

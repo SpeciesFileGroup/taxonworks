@@ -18,10 +18,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     let(:ranged_lot_category) { FactoryBot.create(:valid_ranged_lot_category) }
 
     context 'validation' do
-      specify '.valid_new_object_classes' do
-        expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract', 'AssertedDistribution')
-      end
-
       specify 'type is not set when total/ranged_lot are not provided' do
         collection_object.valid?
         expect(collection_object.type).to eq(nil)
@@ -133,13 +129,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-    context '#origin_relationships' do
-      specify '#derived_extracts' do
-        expect(collection_object).to respond_to(:derived_extracts)
+    context 'via #origin_relationships' do
+      specify '#extracts' do
+        expect(collection_object).to respond_to(:extracts)
       end
 
-      specify 'joins #derived_extracts' do
-        expect(CollectionObject.joins(:derived_extracts).count).to eq(0)
+      specify 'joins #extracts' do
+        expect(CollectionObject.joins(:extracts).count).to eq(0)
       end
     end
 
@@ -461,12 +457,27 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         )
       }
 
-      (1..5).each do  |identifier|
+      (1..5).each do |identifier|
         n = "sp_#{identifier}".to_sym
         i = "id_#{identifier}".to_sym
 
-        let!(n){ Specimen.create!(id: 999 - identifier) } # Force strange id order so we don't assume anything
-        let!(i){ Identifier::Local::CatalogNumber.create!(
+        let!(n) {
+
+          # Generate random ids that never duplicate
+          new = true
+          id = nil
+          while new
+            id = rand(99999) + 10 - identifier
+            if !Specimen.where(id: id).any?
+              new = false
+            end
+          end
+
+          # Force strange id order so we don't assume anything
+          Specimen.create!(id: id)
+        }
+
+        let!(i) { Identifier::Local::CatalogNumber.create!(
           identifier_object: send(n),
           namespace: (identifier.even? ? ns2 : ns1),
           identifier: identifier) }
@@ -475,11 +486,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       let(:evens) { [sp_2, sp_4] }
       let(:odds) { [ sp_1, sp_3, sp_5] }
 
-      let(:all_specimens) { [s1, s2, sp_1, sp_2, sp_3, sp_4, sp_5]  }
-      let(:only_numeric_identifiers) { [ sp_1, sp_2, sp_3, sp_4, sp_5]  }
-
-
-      # TODO: something not working still, likely need to create specimens out of order
+      let(:all_specimens) { [s1, s2, sp_1, sp_2, sp_3, sp_4, sp_5] }
+      let(:only_numeric_identifiers) { [ sp_1, sp_2, sp_3, sp_4, sp_5] }
 
       specify '#next_by_identifier 1' do
         expect(sp_1.next_by_identifier).to eq(sp_3)
@@ -510,7 +518,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
 
       specify '#next_by_identifier, no identifier' do 
-        collection_object.update!(total: 1) 
+        collection_object.update!(total: 1)
         expect(collection_object.next_by_identifier).to eq(nil)
       end
 
@@ -559,7 +567,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       describe 'with sorted identifiers' do
         specify 'without restriction' do
-          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id).sort.reverse ) 
+          expect(CollectionObject.with_identifiers_sorted.map(&:id)).to eq( only_numeric_identifiers.map(&:id) )
         end
       end
 
@@ -590,15 +598,15 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         end
 
         specify 'with namespace_id, sort ASC' do
-          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'ASC').map(&:id) ).to eq(evens.map(&:id).sort.reverse)
+          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'ASC').map(&:id) ).to eq(evens.map(&:id))
         end
 
         specify 'with namespace_id, sort DESC' do
-          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+          expect(CollectionObject.with_identifier_type_and_namespace(nil, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).reverse)
         end
 
         specify 'with identifier_type, namespace_id, sort DESC (all)' do
-          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).sort)
+          expect(CollectionObject.with_identifier_type_and_namespace(type_cat_no, ns2.id, 'DESC').map(&:id)).to eq(evens.map(&:id).reverse)
         end
 
         specify 'with identifier_type, namespace_id, sort DESC (none)' do

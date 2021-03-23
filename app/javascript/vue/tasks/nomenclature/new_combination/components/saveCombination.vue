@@ -23,7 +23,7 @@ export default {
   },
   methods: {
     validateCreate () {
-      return (this.newCombination.protonyms.genus && this.newCombination.protonyms.species)
+      return this.newCombination.protonyms.genus
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')

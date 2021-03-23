@@ -4,6 +4,7 @@ class NotesController < ApplicationController
   include ShallowPolymorphic
 
   before_action :set_note, only: [:update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:notes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /notes
   # GET /notes.json

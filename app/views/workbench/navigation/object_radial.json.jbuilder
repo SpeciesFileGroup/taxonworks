@@ -1,5 +1,4 @@
 resource = @klass.tableize
-
 json.type @klass
 
 if @object
@@ -12,8 +11,9 @@ else
   json.resource_path resource
 end
 
-json.tasks do
-  if @data
+if @data
+  
+  json.tasks do
     @data['tasks'].each do |t|
       json.set! t do
         json.name UserTasks::INDEXED_TASKS[t].name
@@ -25,9 +25,7 @@ json.tasks do
       end
     end
   end
-end
 
-if @data
   json.config @data['config']
 
   if @data.dig('config', 'recent')
@@ -47,7 +45,6 @@ if @data
   end
 
   json.destroy @object.is_destroyable?(sessions_current_user)
-
 end
 
 json.partial! '/pinboard_items/pinned', object: @object

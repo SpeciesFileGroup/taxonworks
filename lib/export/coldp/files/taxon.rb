@@ -80,9 +80,13 @@ module Export::Coldp::Files::Taxon
     # API or public interface
   end
 
-  # TODO: flag public
+  # TODO: flag/exclude ! is_public
   def self.remarks(otu)
-    otu.notes.pluck(:text).join('|')
+    if otu.notes.load.any?
+      otu.notes.pluck(:text).join('|')
+    else
+      nil
+    end
   end
 
   # "supporting the taxonomic concept"
@@ -94,6 +98,13 @@ module Export::Coldp::Files::Taxon
   end
 
   def self.generate(otus, root_otu_id = nil, reference_csv = nil )
+
+    # Until we have RC5 articulations we are temporarily glossing over the fact
+    # that one taoxn name can be used for many OTUs.  Track to see that
+    # an OTU with a given taxon name does not already exist
+    #   taxon_name_id: otu_id (the value is not needed)
+    observed_taxon_name_ids = { }
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -115,9 +126,14 @@ module Export::Coldp::Files::Taxon
       }
 
       otus.each do |o|
-        next unless o.taxon_name && o.taxon_name.is_valid?
+        next unless o.taxon_name_id && o.taxon_name.is_valid?
 
-        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU ?
+        # TODO: remove once RC5 better modelled
+        next if observed_taxon_name_ids[o.taxon_name_id]
+
+        observed_taxon_name_ids[o.taxon_name_id] = o.id
+
+        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
 
         sources = o.sources
         source = o.source
@@ -138,7 +154,18 @@ module Export::Coldp::Files::Taxon
         # Also:
         #   For OTUs with combinations we might have to change the parenthood?!
 
-        parent_id = (root_otu_id == o.id ? nil : o.parent_otu&.id )
+        parent_id = nil
+        if root_otu_id != o.id
+          if pid = o.parent_otu_id
+            parent_id = pid
+          else
+            # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
+            # curators can use the create OTUs for valid ids to resolve this data issue
+            next
+          end
+        end
+
+        parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
           o.id,                                      # ID

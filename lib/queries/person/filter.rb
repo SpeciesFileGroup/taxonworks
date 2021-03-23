@@ -227,7 +227,7 @@ module Queries
           identifier_facet,
           identifier_namespace_facet,
 
-          matching_keyword_ids,
+          keyword_id_facet,
           tag_facet,
 
           used_in_project_id_facet,

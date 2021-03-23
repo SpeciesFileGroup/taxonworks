@@ -11,6 +11,22 @@ json.endpoints do
       else
         json.total @object.send(k) ? 1 : 0
       end
+
+      if k == :origin_relationships
+        json.origin_for do 
+          @object.valid_new_object_classes.each do |j|
+            l = j.split('::').first
+            json.set! j, l.tableize 
+          end
+        end
+        json.originates_from do
+          @object.valid_old_object_classes.each do |j|
+            l = j.split('::').first
+            json.set! j, l.tableize 
+          end
+        end
+      end
+
     end
   end 
 end

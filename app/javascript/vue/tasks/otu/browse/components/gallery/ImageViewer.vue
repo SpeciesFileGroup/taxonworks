@@ -79,7 +79,7 @@
           </div>
           <div>
             <h3 v-if="originalCitation">Original citation</h3>
-            <span>{{ originalCitation }}</span>
+            <span v-html="originalCitation"/>
           </div>
         </div>
       </div>

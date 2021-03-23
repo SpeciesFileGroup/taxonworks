@@ -7,6 +7,15 @@
         v-model="source.roles_attributes"
         :autofocus="false"
         role-type="SourceSource"/>
+      <div class="label-above">
+        <label class="label-above">
+          Year
+        </label>
+        <input
+          type="number"
+          maxlength="4"
+          v-model="source.year">
+      </div>
     </div>
   </div>
 </template>

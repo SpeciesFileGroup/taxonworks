@@ -173,7 +173,7 @@ export default {
       return [].concat(this.georeferences, this.queueGeoreferences).find(item => { return item.type === GeoreferenceTypes.Verbatim || item.type === GeoreferenceTypes.Exif })
     },
     mapGeoreferences () {
-      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate).map(item => JSON.parse(item.geographic_item_attributes.shape)))
+      return [].concat(this.shapes.features, this.queueGeoreferences.filter(item => (item.type !== GeoreferenceTypes.Wkt && item.type !== GeoreferenceTypes.Geolocate) && item?.geographic_item_attributes?.shape).map(item => JSON.parse(item?.geographic_item_attributes?.shape)))
     },
     geojson () {
       return this.collectingEventId ? this.shapes.features : this.queueGeoreferences

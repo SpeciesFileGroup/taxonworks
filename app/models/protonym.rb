@@ -208,11 +208,9 @@ class Protonym < TaxonName
 
         r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
         if !search_name.nil? && r.empty?
-          list = Protonym.ancestors_and_descendants_of(self).not_self(self).
+          list = Protonym.ancestors_and_descendants_of(self).not_self(self).that_is_valid.
             with_rank_class_including(search_rank).
-            where('name in (?)', search_name).
-            as_subject_without_taxon_name_relationship_array(TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM)
-            #as_subject_without_taxon_name_relationship_base('TaxonNameRelationship::Iczn::Invalidating::Synonym').
+            where('name in (?)', search_name)
         else
           list = []
         end
@@ -466,10 +464,12 @@ class Protonym < TaxonName
   # @return [Boolean]
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
-    taxon_name_relationships.each do |tr|
-      return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
-    end
-    false
+    taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
+
+   #taxon_name_relationships.each do |tr|
+   #  return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
+   #end
+   #false
   end
 
   # Same as is_original_name?!
@@ -643,6 +643,7 @@ class Protonym < TaxonName
     s.blank? ? nil : s
   end
 
+  # @return [Hash]
   #
   # {
   #  genus: ["", 'Aus' ],
@@ -704,12 +705,13 @@ class Protonym < TaxonName
   end
 
   # @return [[rank_name, name], nil]
+  #   Used in ColDP export
   def original_combination_infraspecific_element(elements = nil)
     elements ||= original_combination_elements
 
     # TODO: consider plants/other codes?
     [:form, :variety, :subspecies].each do |r|
-      return [r.to_s, original_combination_elements[r].last] if original_combination_elements[r]
+      return [r.to_s, elements[r].last] if elements[r]
     end
     nil
   end
@@ -773,7 +775,8 @@ class Protonym < TaxonName
         columns_to_update = {
           cached: i.get_full_name,
           cached_html: i.get_full_name_html,
-          cached_author_year: i.get_author_and_year
+          cached_author_year: i.get_author_and_year,
+          cached_nomenclature_date: i.nomenclature_date
         }
 
         if i.is_species_rank?
@@ -793,7 +796,8 @@ class Protonym < TaxonName
         j.update_columns(
           cached: j.get_full_name,
           cached_html: j.get_full_name_html,
-          cached_author_year: j.get_author_and_year)
+          cached_author_year: j.get_author_and_year,
+          cached_nomenclature_date: j.nomenclature_date)
       end
 
       classified_as_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
@@ -804,12 +808,14 @@ class Protonym < TaxonName
         i.update_columns(
           cached: i.get_full_name,
           cached_html: i.get_full_name_html,
-          cached_author_year: i.get_author_and_year)
+          cached_author_year: i.get_author_and_year,
+          cached_nomenclature_date: i.nomenclature_date)
       end
 
       misspelling_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION)
       misspelling_relationships.collect{|i| i.subject_taxon_name}.uniq.each do |i|
-        i.update_columns(cached_author_year: i.get_author_and_year)
+        i.update_columns(cached_author_year: i.get_author_and_year,
+                         cached_nomenclature_date: i.nomenclature_date)
       end
     end
   end

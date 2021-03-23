@@ -28,10 +28,13 @@ class AssertedDistribution < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Citations
   include Shared::Confidences
+  include Shared::OriginRelationship
   include Shared::IsData
 
   include Shared::IsDwcOccurrence
   include AssertedDistribution::DwcExtensions
+
+  originates_from 'Specimen', 'Lot'
 
   belongs_to :otu, inverse_of: :asserted_distributions
   has_one :taxon_name, through: :otu
