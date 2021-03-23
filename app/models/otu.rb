@@ -57,12 +57,10 @@ class Otu < ApplicationRecord
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
 
-  has_many :extracts, through: :collection_objects, source: :derived_extracts
-
+  has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
-
   has_many :common_names, dependent: :destroy
   has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
   has_many :contents, inverse_of: :otu, dependent: :destroy

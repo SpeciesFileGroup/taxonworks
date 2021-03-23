@@ -108,8 +108,10 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
+  # TODO: Deprecate these models.  Semantics also confuse with origin relationship.
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
@@ -139,6 +141,9 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+
+  has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
+  has_many :sequences, through: :extracts
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that

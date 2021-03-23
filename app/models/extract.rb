@@ -41,7 +41,9 @@ class Extract < ApplicationRecord
   include Shared::IsData
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+
+  has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
 
   validates_presence_of :quantity_value
   attr_accessor :is_made_now
