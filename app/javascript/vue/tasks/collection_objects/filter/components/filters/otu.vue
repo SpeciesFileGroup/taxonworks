@@ -49,25 +49,62 @@
         display="label"
         @getItem="addOtu($event.id)" />
     </div>
-    <div class="field">
-      <label>Determiner</label>
-      <autocomplete
-        url="/people/autocomplete"
-        placeholder="Select a determiner"
-        param="term"
-        clear-after
-        label="label_html"
-        :add-params="{
-          'roles[]': 'Determiner'
-        }"
-        @getItem="addDeterminer($event.id)"/>
-      <display-list
-        soft-delete
-        :list="determiners"
-        :delete-warning="false"
-        @deleteIndex="removePerson"
-        label="cached"/>
+    <div class="field separate-top">
+      <ul class="no_bullets table-entrys-list">
+        <li
+          class="middle flex-separate list-complete-item"
+          v-for="(otu, index) in otusStore"
+          :key="otu.id">
+          <span v-html="otu.object_tag"/>
+          <span
+            class="btn-delete button-circle"
+            @click="removeOtu(index)"/>
+        </li>
+      </ul>
     </div>
+    <div class="field">
+      <fieldset>
+        <legend>Determiner</legend>
+        <smart-selector
+          :autocomplete-params="{'roles[]' : 'Determiner'}"
+          model="people"
+          klass="CollectionObject"
+          pin-section="People"
+          pin-type="People"
+          @selected="addDeterminer"/>
+      </fieldset>
+    </div>
+    <table
+      v-if="determiners.length"
+      class="vue-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th></th>
+          <th></th>
+        </tr>
+      </thead>
+      <transition-group
+        name="list-complete"
+        tag="tbody">
+        <template
+          v-for="(item, index) in determiners"
+          class="table-entrys-list">
+          <row-item
+            class="list-complete-item"
+            :key="index"
+            :item="item"
+            label="object_tag"
+            :options="{
+              AND: true,
+              OR: false
+            }"
+            v-model="item.and"
+            @remove="removePerson(index)"
+          />
+        </template>
+      </transition-group>
+    </table>
     <div class="field separate-top">
       <ul class="no_bullets">
         <li
@@ -84,19 +121,6 @@
         </li>
       </ul>
     </div>
-    <div class="field separate-top">
-      <ul class="no_bullets table-entrys-list">
-        <li
-          class="middle flex-separate list-complete-item"
-          v-for="(otu, index) in otusStore"
-          :key="otu.id">
-          <span v-html="otu.object_tag"/>
-          <span
-            class="btn-delete button-circle"
-            @click="removeOtu(index)"/>
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 
@@ -105,12 +129,14 @@
 import Autocomplete from 'components/autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetTaxonName, GetOtu, GetPerson } from '../../request/resources'
-import DisplayList from 'components/displayList'
+import RowItem from 'tasks/sources/filter/components/filters/shared/RowItem'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   components: {
     Autocomplete,
-    DisplayList
+    RowItem,
+    SmartSelector
   },
 
   props: {
@@ -176,25 +202,48 @@ export default {
         if (!newVal.ancestor_id) {
           this.taxon = undefined
         }
-        if (!newVal.determiner_id.length) {
+
+        if (!newVal.determiner_id_and.length && !newVal.determiner_id_or.length && this.determiners.length) {
           this.determiners = []
         }
+      },
+      deep: true
+    },
+
+    determiners: {
+      handler () {
+        this.determination.determiner_id_and = this.determiners.filter(determiner => determiner.and).map(determiner => determiner.id)
+        this.determination.determiner_id_or = this.determiners.filter(determiner => !determiner.and).map(determiner => determiner.id)
       },
       deep: true
     }
   },
 
   created () {
-    const { ancestor_id, otu_ids, validity, current_determinations, determiner_id } = URLParamsToJSON(location.href)
+    const { 
+      ancestor_id,
+      validity,
+      current_determinations,
+      determiner_id_or = [],
+      determiner_id_and = [],
+      otu_ids = [],
+    } = URLParamsToJSON(location.href)
     if (ancestor_id) {
       this.setTaxon(ancestor_id)
     }
-    if (otu_ids) {
-      otu_ids.forEach(id => { this.addOtu(id) })
-    }
-    if (determiner_id) {
-      determiner_id.forEach(id => { this.addDeterminer(id) })
-    }
+
+    otu_ids.forEach(id => { this.addOtu(id) })
+
+    determiner_id_or.forEach(id => {
+      GetPerson(id).then(({ body }) => {
+        this.addDeterminer(body, false)
+      })
+    })
+    determiner_id_and.forEach(id => {
+      GetPerson(id).then(({ body }) => {
+        this.addDeterminer(body, true)
+      })
+    })
     this.determination.validity = validity
     this.determination.current_determinations = current_determinations
   },
@@ -212,11 +261,10 @@ export default {
         this.determination.ancestor_id = response.body.id
       })
     },
-    addDeterminer (id) {
-      GetPerson(id).then(({ body }) => {
-        this.determiners.push(body)
-        this.determination.determiner_id.push(body.id)
-      })
+    addDeterminer (determiner, and = true) {
+      if (!this.determiners.find(item => item.id === determiner.id)) {
+        this.determiners.push({ ...determiner, and })
+      }
     },
     removeTaxon () {
       this.taxon = undefined
