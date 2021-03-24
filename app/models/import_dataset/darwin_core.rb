@@ -217,6 +217,8 @@ class ImportDataset::DarwinCore < ImportDataset
     headers[table.id[:index]] = "id"
     table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
 
+    table.read_header.first.each_with_index { |f, i| headers[i] ||= f.strip }
+
     get_dwc_default_values(table).each.with_index(headers.length) { |f, i| headers[i] = get_normalized_dwc_term(f) }
 
     headers

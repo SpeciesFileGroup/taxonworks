@@ -39,9 +39,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_location_class)
         attributes.deep_merge!(parse_identification_class)
 
+        attributes.deep_merge!(parse_tw_collection_object_data_attributes)
+        attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
+
         specimen = Specimen.create!({
           no_dwc_occurrence: true
-        }.merge!(attributes[:specimen]))
+        }.merge!(attributes[:specimen])
+      )
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
@@ -251,7 +255,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # basisOfRecord: [Check it is 'PreservedSpecimen']
     basis = get_field_value(:basisOfRecord) || 'PreservedSpecimen'
-    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PreservedSpecimen' or empty allowed"] }) if basis != 'PreservedSpecimen'
+    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PreservedSpecimen' or empty allowed"] }) unless "PreservedSpecimen".casecmp(basis) == 0
 
     # informationWithheld: [Not mapped]
 
@@ -741,4 +745,44 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     [names, origins]
   end
 
+  def parse_tw_collection_object_data_attributes
+    attributes = []
+
+    get_tw_data_attribute_fields_for('CollectionObject').each do |attribute|
+      append_data_attribute(attributes, attribute)
+    end
+
+    {
+      specimen: {
+        data_attributes_attributes: attributes
+      }
+    }
+  end
+
+  def parse_tw_collecting_event_data_attributes
+    attributes = []
+
+    get_tw_data_attribute_fields_for('CollectingEvent').each do |attribute|
+      append_data_attribute(attributes, attribute)
+    end
+
+    {
+      collecting_event: {
+        data_attributes_attributes: attributes
+      }
+    }
+  end
+
+  def append_data_attribute(attributes, attribute)
+    predicate = Predicate.find_by(uri: attribute[:uri])
+    value = get_field_value(attribute[:field])
+    if value
+      raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
+      attributes << {
+        type: 'InternalAttribute',
+        predicate: predicate,
+        value: value
+      }
+    end
+  end
 end

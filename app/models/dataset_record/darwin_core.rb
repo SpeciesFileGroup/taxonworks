@@ -19,6 +19,16 @@ class DatasetRecord::DarwinCore < DatasetRecord
     value unless value.blank?
   end
 
+  def get_tw_data_attribute_fields_for(subject_class)
+    get_fields_mapping.keys
+    .select { |f| f.is_a?(String) }
+    .map do |field|
+      /(TW:DataAttribute:#{Regexp.escape(subject_class)}:).+/i =~ field
+      {field: field, uri: field.sub($1, '')} if $1
+    end
+    .reject(&:nil?)
+  end
+
   private
 
   # Re-implemented method from DatasetRecord

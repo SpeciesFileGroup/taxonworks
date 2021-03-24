@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
-  revision: bed8da693028f54f60de873dfd5f2fad50e19216
+  revision: 31afa6017b4edbee5fa82a43502385083ace2ea3
   branch: overhaul
   specs:
     dwc-archive (1.1.1)
@@ -277,7 +277,7 @@ GEM
     namecase (2.0.0)
     nenv (0.3.0)
     nio4r (2.5.5)
-    nokogiri (1.11.1)
+    nokogiri (1.11.2)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     notiffany (0.1.3)
