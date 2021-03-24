@@ -63,48 +63,16 @@
       </ul>
     </div>
     <div class="field">
-      <fieldset>
-        <legend>Determiner</legend>
-        <smart-selector
-          :autocomplete-params="{'roles[]' : 'Determiner'}"
-          model="people"
-          klass="CollectionObject"
-          pin-section="People"
-          pin-type="People"
-          @selected="addDeterminer"/>
-      </fieldset>
+      <determiner-component
+        class="margin-large-bottom"
+        role="Determiner"
+        title="Determiner"
+        klass="CollectionObject"
+        param-people="determiner_id"
+        param-any="determiner_id_or"
+        v-model="determination"/>
     </div>
-    <table
-      v-if="determiners.length"
-      class="vue-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th></th>
-          <th></th>
-        </tr>
-      </thead>
-      <transition-group
-        name="list-complete"
-        tag="tbody">
-        <template
-          v-for="(item, index) in determiners"
-          class="table-entrys-list">
-          <row-item
-            class="list-complete-item"
-            :key="index"
-            :item="item"
-            label="object_tag"
-            :options="{
-              AND: true,
-              OR: false
-            }"
-            v-model="item.and"
-            @remove="removePerson(index)"
-          />
-        </template>
-      </transition-group>
-    </table>
+
     <div class="field separate-top">
       <ul class="no_bullets">
         <li
@@ -129,14 +97,12 @@
 import Autocomplete from 'components/autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetTaxonName, GetOtu, GetPerson } from '../../request/resources'
-import RowItem from 'tasks/sources/filter/components/filters/shared/RowItem'
-import SmartSelector from 'components/smartSelector'
+import DeterminerComponent from './shared/people'
 
 export default {
   components: {
     Autocomplete,
-    RowItem,
-    SmartSelector
+    DeterminerComponent
   },
 
   props: {
@@ -202,31 +168,17 @@ export default {
         if (!newVal.ancestor_id) {
           this.taxon = undefined
         }
-
-        if (!newVal.determiner_id.length && !newVal.determiner_id_or.length && this.determiners.length) {
-          this.determiners = []
-        }
-      },
-      deep: true
-    },
-
-    determiners: {
-      handler () {
-        this.determination.determiner_id = this.determiners.filter(determiner => determiner.and).map(determiner => determiner.id)
-        this.determination.determiner_id_or = this.determiners.filter(determiner => !determiner.and).map(determiner => determiner.id)
       },
       deep: true
     }
   },
 
   created () {
-    const { 
+    const {
       ancestor_id,
       validity,
       current_determinations,
-      determiner_id_or = [],
-      determiner_id = [],
-      otu_ids = [],
+      otu_ids = []
     } = URLParamsToJSON(location.href)
     if (ancestor_id) {
       this.setTaxon(ancestor_id)
@@ -234,16 +186,6 @@ export default {
 
     otu_ids.forEach(id => { this.addOtu(id) })
 
-    determiner_id_or.forEach(id => {
-      GetPerson(id).then(({ body }) => {
-        this.addDeterminer(body, false)
-      })
-    })
-    determiner_id.forEach(id => {
-      GetPerson(id).then(({ body }) => {
-        this.addDeterminer(body, true)
-      })
-    })
     this.determination.validity = validity
     this.determination.current_determinations = current_determinations
   },
@@ -255,25 +197,24 @@ export default {
         this.otusStore.push(response.body)
       })
     },
+
     setTaxon (id) {
       GetTaxonName(id).then(response => {
         this.taxon = response.body
         this.determination.ancestor_id = response.body.id
       })
     },
-    addDeterminer (determiner, and = true) {
-      if (!this.determiners.find(item => item.id === determiner.id)) {
-        this.determiners.push({ ...determiner, and })
-      }
-    },
+
     removeTaxon () {
       this.taxon = undefined
       this.determination.ancestor_id = undefined
     },
+
     removePerson (index) {
       this.determiners.splice(index, 1)
       this.determination.determiner_id.splice(index, 1)
     },
+
     removeOtu (index) {
       this.determination.otu_ids.splice(index, 1)
       this.otusStore.splice(index, 1)

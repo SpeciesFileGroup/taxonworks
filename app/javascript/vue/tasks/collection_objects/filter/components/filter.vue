@@ -44,6 +44,11 @@
         v-model="params.collectingEvents"/>
       <collectors-component
         class="margin-large-bottom"
+        role="Collector"
+        title="Collectors"
+        klass="CollectingEvent"
+        param-people="collector_ids"
+        param-any="collector_ids_or"
         v-model="params.collectors"/>
       <user-component
         class="margin-large-bottom"
@@ -99,7 +104,7 @@ import RepositoryComponent from './filters/repository.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
-import CollectorsComponent from './filters/collectingEvent/collectors'
+import CollectorsComponent from './filters/shared/people'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -142,10 +147,8 @@ export default {
         !this.params.keywords.keyword_id_and.length &&
         !this.params.keywords.keyword_id_or.length &&
         !this.params.collectors.collector_ids.length &&
-        !this.params.collectors.collector_ids_or.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.determiner_id.length &&
-        !this.params.determination.determiner_id_or.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
         !this.params.collectingEvents.fields.length &&
@@ -278,7 +281,7 @@ export default {
         },
         collectors: {
           collector_ids: [],
-          collector_ids_or: []
+          collector_ids_or: false
         },
         determination: {
           determiner_id_or: [],
