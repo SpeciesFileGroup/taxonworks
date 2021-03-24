@@ -295,7 +295,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
-        b = b.as('z1_')
+        b = b.as('det_z1_')
 
         ::CollectionObject.joins(:taxon_determinations).joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end

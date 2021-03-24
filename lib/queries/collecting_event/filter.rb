@@ -69,29 +69,22 @@ module Queries
       attr_accessor :collector_ids_or
 
       def initialize(params)
-        @in_labels = params[:in_labels]
-        @in_verbatim_locality = params[:in_verbatim_locality]
-        @recent = params[:recent].blank? ? nil : params[:recent].to_i
-
-        @wkt = params[:wkt]
-        @geo_json = params[:geo_json]
-        @radius = params[:radius].blank? ? 100 : params[:radius]
-
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
-        @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
-
-        @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
-
-        @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
-
-        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
-
+        @collecting_event_wildcards = params[:collecting_event_wildcards] || []
         @collector_ids = params[:collector_ids].blank? ? [] : params[:collector_ids]
         @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
-
-        @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-
+        @geo_json = params[:geo_json]
+        @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+        @in_labels = params[:in_labels]
+        @in_verbatim_locality = params[:in_verbatim_locality]
+        @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
+        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
+        @radius = params[:radius].blank? ? 100 : params[:radius]
+        @recent = params[:recent].blank? ? nil : params[:recent].to_i
+        @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
+        @wkt = params[:wkt]
+      
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
@@ -152,7 +145,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(collector_ids.length)) unless collector_ids_or
-        b = b.as('z1_')
+        b = b.as('col_z_')
 
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
