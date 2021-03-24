@@ -54,12 +54,18 @@ module Queries
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
+      # TODO: singularize and handle array or single
       # @return [Array]
       attr_accessor :otu_ids
 
+      # TODO: singularize and handle array or single
       # @return [Array]
       attr_accessor :collector_ids
 
+      # @return [Boolean]
+      # @param collector_ids_or [String]
+      #   'true' - all ids treated as "or"
+      #   'false', nil - all ids treated as "and" 
       attr_accessor :collector_ids_or
 
       def initialize(params)
@@ -82,7 +88,6 @@ module Queries
         @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
 
         @collector_ids = params[:collector_ids].blank? ? [] : params[:collector_ids]
-
         @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
