@@ -467,7 +467,7 @@ class CollectionObjectsController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
-      collector_ids: [], # 
+      collector_ids: [] # 
       #  user_id: []
       
       #  collecting_event: {

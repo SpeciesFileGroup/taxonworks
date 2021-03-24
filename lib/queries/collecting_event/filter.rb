@@ -1,7 +1,7 @@
 module Queries
-  module CollectingEvent 
+  module CollectingEvent
 
-    class Filter 
+    class Filter
 
       # TODO:
       # identifiers
@@ -19,7 +19,7 @@ module Queries
       # Wildcard wrapped matching any label
       attr_accessor :in_labels
 
-      # If true then in_labels checks only the MD5 
+      # If true then in_labels checks only the MD5
       attr_accessor :md5_verbatim_label
 
       # TODO: remove for exact/array
@@ -41,7 +41,7 @@ module Queries
       attr_accessor :geo_json
 
       # @return [True, nil]
-      # Reference geographic areas to do a spatial query 
+      # Reference geographic areas to do a spatial query
       attr_accessor :spatial_geographic_areas
 
       # @return [Array]
@@ -65,17 +65,17 @@ module Queries
       # @return [Boolean]
       # @param collector_ids_or [String]
       #   'true' - all ids treated as "or"
-      #   'false', nil - all ids treated as "and" 
+      #   'false', nil - all ids treated as "and"
       attr_accessor :collector_ids_or
 
       def initialize(params)
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
-      
+
         @wkt = params[:wkt]
         @geo_json = params[:geo_json]
-        @radius = params[:radius].blank? ? 100 : params[:radius] 
+        @radius = params[:radius].blank? ? 100 : params[:radius]
 
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
@@ -99,7 +99,7 @@ module Queries
 
       def set_attributes(params)
         ATTRIBUTES.each do |a|
-          send("#{a}=", params[a.to_sym]) 
+          send("#{a}=", params[a.to_sym])
         end
       end
 
@@ -107,7 +107,7 @@ module Queries
       def table
         ::CollectingEvent.arel_table
       end
-      
+
       def base_query
         ::CollectingEvent.select('collecting_events.*')
       end
@@ -134,7 +134,7 @@ module Queries
         o = table
         r = ::Role.arel_table
 
-        a = o.alias("a_") 
+        a = o.alias("a_")
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('r1')
@@ -159,7 +159,7 @@ module Queries
 
 
      ## TODO: what is it @param value [String] ?!
-     ## In 
+     ## In
      #def shape=(value)
      #  @shape = ::RGeo::GeoJSON.decode(value, json_parser: :json)
      #  @shape
@@ -169,18 +169,18 @@ module Queries
         return nil if wkt.blank?
         a = RGeo::WKRep::WKTParser.new
         b = a.parse(wkt)
-        spatial_query(b.geometry_type.to_s, wkt) 
-      end 
+        spatial_query(b.geometry_type.to_s, wkt)
+      end
 
       # Shape is a Hash in GeoJSON format
       def geo_json_facet
         return nil if geo_json.nil?
         a = RGeo::GeoJSON.decode(geo_json)
         spatial_query(a.geometry_type.to_s, a.to_s)
-      end 
+      end
 
       def spatial_query(geometry_type, wkt)
-        case geometry_type 
+        case geometry_type
         when 'Point'
           ::CollectingEvent
             .joins(:geographic_items)
@@ -197,7 +197,7 @@ module Queries
        # TODO: throttle by size?
        def matching_spatial_via_geographic_area_ids
           return nil unless spatial_geographic_areas && !geographic_area_ids.empty?
-          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_ids).ids 
+          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_ids).ids
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
@@ -209,7 +209,7 @@ module Queries
 
       def matching_verbatim_label_md5
         return nil unless md5_verbatim_label && !in_labels.blank?
-        md5 = ::Utilities::Strings.generate_md5(in_labels) 
+        md5 = ::Utilities::Strings.generate_md5(in_labels)
 
         table[:md5_of_verbatim_label].eq(md5)
       end
@@ -248,7 +248,7 @@ module Queries
 
       def base_merge_clauses
         clauses = [
-          keyword_id_facet, 
+          keyword_id_facet,
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,
@@ -260,7 +260,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def and_clauses
-        clauses = base_and_clauses        
+        clauses = base_and_clauses
         return nil if clauses.empty?
 
         a = clauses.shift
@@ -286,7 +286,7 @@ module Queries
         a = and_clauses
         b = merge_clauses
 
-        q = nil 
+        q = nil
         if a && b
           q = b.where(a).distinct
         elsif a
@@ -296,11 +296,11 @@ module Queries
         else
           q = ::CollectingEvent.includes(:identifiers, :roles, :pinboard_items, :geographic_area, georeferences: [:geographic_item, :error_geographic_item]).all
         end
-        
+
         q = q.order(updated_at: :desc).limit(recent) if recent
         q
       end
     end
-    
+
   end
 end
