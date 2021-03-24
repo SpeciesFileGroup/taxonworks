@@ -469,7 +469,6 @@ class CollectionObjectsController < ApplicationController
       otu_ids: [],
       collector_ids: [] # 
       #  user_id: []
-      
       #  collecting_event: {
       #   :recent,
       #   keyword_id_and: []
