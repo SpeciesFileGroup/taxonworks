@@ -418,8 +418,10 @@ class CollectionObjectsController < ApplicationController
       :buffered_other_labels,
       :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
       :depictions,
+      :determiner_id_or,
       :dwc_indexed,
       :end_date,
       :exact_buffered_collecting_event,
@@ -465,6 +467,7 @@ class CollectionObjectsController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
+      collector_ids: [], # 
       #  user_id: []
       
       #  collecting_event: {
@@ -489,8 +492,10 @@ class CollectionObjectsController < ApplicationController
       :buffered_other_labels,
       :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
       :depictions,
+      :determiner_id_or,
       :dwc_indexed,
       :end_date,
       :exact_buffered_collecting_event,
@@ -536,6 +541,7 @@ class CollectionObjectsController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
+      collector_ids: []
 
       #  collecting_event: {
       #   :recent,
