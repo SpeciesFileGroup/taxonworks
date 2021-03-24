@@ -144,7 +144,7 @@ export default {
         !this.params.collectors.collector_ids.length &&
         !this.params.collectors.collector_ids_or.length &&
         !this.params.determination.otu_ids.length &&
-        !this.params.determination.determiner_id_and.length &&
+        !this.params.determination.determiner_id.length &&
         !this.params.determination.determiner_id_or.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
@@ -282,7 +282,7 @@ export default {
         },
         determination: {
           determiner_id_or: [],
-          determiner_id_and: [],
+          determiner_id: [],
           otu_ids: [],
           current_determinations: undefined,
           ancestor_id: undefined,

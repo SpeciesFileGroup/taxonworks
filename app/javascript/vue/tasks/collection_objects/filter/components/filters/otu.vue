@@ -203,7 +203,7 @@ export default {
           this.taxon = undefined
         }
 
-        if (!newVal.determiner_id_and.length && !newVal.determiner_id_or.length && this.determiners.length) {
+        if (!newVal.determiner_id.length && !newVal.determiner_id_or.length && this.determiners.length) {
           this.determiners = []
         }
       },
@@ -212,7 +212,7 @@ export default {
 
     determiners: {
       handler () {
-        this.determination.determiner_id_and = this.determiners.filter(determiner => determiner.and).map(determiner => determiner.id)
+        this.determination.determiner_id = this.determiners.filter(determiner => determiner.and).map(determiner => determiner.id)
         this.determination.determiner_id_or = this.determiners.filter(determiner => !determiner.and).map(determiner => determiner.id)
       },
       deep: true
@@ -225,7 +225,7 @@ export default {
       validity,
       current_determinations,
       determiner_id_or = [],
-      determiner_id_and = [],
+      determiner_id = [],
       otu_ids = [],
     } = URLParamsToJSON(location.href)
     if (ancestor_id) {
@@ -239,7 +239,7 @@ export default {
         this.addDeterminer(body, false)
       })
     })
-    determiner_id_and.forEach(id => {
+    determiner_id.forEach(id => {
       GetPerson(id).then(({ body }) => {
         this.addDeterminer(body, true)
       })
