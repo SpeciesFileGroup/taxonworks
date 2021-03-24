@@ -171,9 +171,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'coordinated taxa' do
       context 'mismatching author in genus' do
-        before do 
+        before do
           @sgen = FactoryBot.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
           @sgen.original_genus = @genus
+          @genus.etymology = 'aaa'
+          @genus.save!
           @sgen.save!
           @genus.reload
           @genus.soft_validate(:validate_coordinated_names)
@@ -182,6 +184,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
         specify 'genus and subgenus have different author' do
           expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
+        end
+
+        specify 'genus does not has etymology' do
+          expect(@sgen.soft_validations.messages_on(:etymology).empty?).to be_falsey
         end
 
         specify 'genus and subgenus have different year (error on verbatim_author)' do
@@ -210,6 +216,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
           specify 'there are no year_of_publication validations on subgenus' do
             expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
           end
+
+          specify 'there are no etymology validations on subgenus' do
+            expect(@sgen.soft_validations.messages_on(:etymology).empty?).to be_truthy
+          end
         end
       end
 
@@ -236,6 +246,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
         @subfamily.type_genus = nil
         expect(@subfamily.save).to be_truthy
+      end
+
+      specify 'mismatching original citation pages' do
+        tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
+        tribe.origin_citation.pages = 95
+        tribe.origin_citation.source_id = @subfamily.origin_citation.source_id
+        tribe.save
+        @subfamily.soft_validate(:validate_coordinated_names)
+        #original citation pages are different
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
+        @subfamily.fix_soft_validations
+        @subfamily.soft_validate(:validate_coordinated_names)
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
       specify 'mismatching author and year in incorrect_original_spelling' do

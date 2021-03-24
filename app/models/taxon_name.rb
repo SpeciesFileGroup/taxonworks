@@ -236,7 +236,7 @@ class TaxonName < ApplicationRecord
   has_many :related_taxon_name_relationships, class_name: 'TaxonNameRelationship', foreign_key: :object_taxon_name_id, dependent: :restrict_with_error, inverse_of: :object_taxon_name
 
   has_many :taxon_name_author_roles, class_name: 'TaxonNameAuthor', as: :role_object, dependent: :destroy
-  has_many :taxon_name_authors, through: :taxon_name_author_roles, source: :person
+  has_many :taxon_name_authors, -> { order('roles.position ASC') }, through: :taxon_name_author_roles, source: :person
 
   # TODO: Combinations shouldn't have classifications or relationships?  Move to Protonym?
   has_many :taxon_name_classifications, dependent: :destroy, foreign_key: :taxon_name_id, inverse_of: :taxon_name
@@ -526,10 +526,10 @@ class TaxonName < ApplicationRecord
   def author_string
     return verbatim_author if !verbatim_author.nil?
     if taxon_name_authors.any?
-      if !source.nil? && source.authors.collect{|i| i.id} == taxon_name_authors.order('roles.position').pluck(:id).to_a
+      if !source.nil? && source.authors.collect{|i| i.id} == taxon_name_authors.pluck(:id).to_a
         return source.authority_name if !source.nil?
       else
-        return Utilities::Strings.authorship_sentence( taxon_name_authors.order('roles.position').pluck(:last_name) )
+        return Utilities::Strings.authorship_sentence( taxon_name_authors.pluck(:last_name) )
       end
     end
     return source.authority_name if !source.nil?
@@ -663,7 +663,8 @@ class TaxonName < ApplicationRecord
   #   See also app/helpers/taxon_names_helper
   def original_author_year
     if nomenclatural_code == :iczn
-      cached_author_year&.gsub(/^\(|\)$/, '')
+      cached_author_year&.gsub(/^\(|\)/, '')
+     #cached_author_year&.gsub(/^\(|\)$/, '')
     else
       cached_author_year
     end

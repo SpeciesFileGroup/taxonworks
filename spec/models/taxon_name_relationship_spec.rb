@@ -525,6 +525,18 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(r.soft_validations.messages_on(:base).size).to eq(1)
       end
 
+      specify 'misspelling missing citation' do
+        f3 = FactoryBot.create(:relationship_family, name: 'Aidae', parent: kingdom)
+        f3.citations.create(source_id: source.id, pages: 10, is_original: true)
+        f3.reload
+        r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: f3, object_taxon_name: f1, type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        r.soft_validate('no_citation')
+        expect(r.soft_validations.messages_on(:base).size).to eq(1)
+        r.fix_soft_validations
+        r.soft_validate('no_citation')
+        expect(r.soft_validations.messages_on(:base).size).to eq(0)
+      end
+
       specify 'type species by subsequent designation' do
         r = FactoryBot.build_stubbed(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2, type: 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation')
         r.soft_validate(:synonym_relationship)

@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added soft_validations and fixes for coordinate name citations and roles.
 - `/collection_objects/123/navigation.json` route/view
 - Determination, OTU and repository smart selectors on New image task [#2101]
 - Georeferences coordinates in label generate on New collecting event [#2107]

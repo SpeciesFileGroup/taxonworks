@@ -27,6 +27,7 @@ module Protonym::SoftValidationExtensions
       sv_primary_types_repository: { set: :primary_types, has_fix: false},
 #      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_source: { set: :validate_coordinated_names, has_fix: true},
+      sv_validate_coordinated_names_page: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_author: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_year: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_gender: { set: :validate_coordinated_names, has_fix: true},
@@ -41,6 +42,8 @@ module Protonym::SoftValidationExtensions
       sv_validate_coordinated_names_type_species_type: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_type_genus: { set: :validate_coordinated_names, has_fix: true},
       sv_validate_coordinated_names_type_specimen: { set: :validate_coordinated_names, has_fix: true},
+      sv_validate_coordinated_names_etymology: { set: :validate_coordinated_names, has_fix: true},
+      sv_validate_coordinated_names_roles: { set: :validate_coordinated_roles, has_fix: true},
       sv_single_sub_taxon: { set: :single_sub_taxon, has_fix: true},
       sv_parent_priority: { set: :parent_priority, has_fix: false},
       sv_homotypic_synonyms: { set: :homotypic_synonyms, has_fix: false},
@@ -221,10 +224,12 @@ module Protonym::SoftValidationExtensions
 
     def sv_fix_coordinated_names_source
       fixed = false
+      pg = nil
       return false unless self.source.nil?
         list_of_coordinated_names.each do |t|
           if !t.source.nil?
             self.source = t.source
+            pg = t.origin_citation.pages
             fixed = true
           end
         end
@@ -232,6 +237,39 @@ module Protonym::SoftValidationExtensions
         begin
           Protonym.transaction do
             self.source.save
+            self.origin_citation.update_column(:pages, pg)
+          end
+          return true
+        rescue
+          return false
+        end
+      end
+    end
+
+    def sv_validate_coordinated_names_page
+      return true unless is_available?
+      s = self.origin_citation
+      list_of_coordinated_names.each do |t|
+        ts = t.origin_citation
+        if s && ts && s.source_id == ts.source_id && (s.pages != ts.pages || (s.pages.nil? && !ts.pages.nil?))
+          soft_validations.add(:base, "The original publication page does not match with the original publication page of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_page, success_message: 'Original publication page was updated')
+        end
+      end
+    end
+
+    def sv_fix_coordinated_names_page
+      fixed = false
+      return false if self.origin_citation.nil? || !self.origin_citation.pages.nil?
+      list_of_coordinated_names.each do |t|
+        if !t.origin_citation.nil? && !t.origin_citation.pages.nil? && self.origin_citation.source_id == t.origin_citation.source_id
+          self.origin_citation.pages = t.origin_citation.pages
+          fixed = true
+        end
+      end
+      if fixed
+        begin
+          Protonym.transaction do
+            self.origin_citation.save
           end
           return true
         rescue
@@ -528,6 +566,58 @@ module Protonym::SoftValidationExtensions
           return false
         end
       end
+    end
+
+    def sv_validate_coordinated_names_etymology
+      return true unless is_available?
+      list_of_coordinated_names.each do |t|
+        if self.etymology != t.etymology
+          soft_validations.add(:etymology, "The etymology does not match with the etymology of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_etymology, success_message: 'Etymology was updated')
+        end
+      end
+    end
+
+    def sv_fix_coordinated_names_etymology
+      fixed = false
+      return false unless self.etymology.blank?
+      list_of_coordinated_names.each do |t|
+        if !t.etymology.blank?
+          self.etymology = t.etymology
+          fixed = true
+        end
+      end
+      if fixed
+        begin
+          Protonym.transaction do
+            self.save
+          end
+          return true
+        rescue
+          return false
+        end
+      end
+    end
+
+    def sv_validate_coordinated_names_roles
+      return true unless is_available?
+      list_of_coordinated_names.each do |t|
+        if self.roles.collect{|i| i.person_id} != t.roles.collect{|i| i.person_id}
+          soft_validations.add(:etymology, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_roles, success_message: 'Author roles were updated')
+        end
+      end
+    end
+
+    def sv_fix_coordinated_names_roles
+      return false unless self.roles.empty?
+      list_of_coordinated_names.each do |t|
+        if !t.roles.empty?
+          t.roles.each do |r|
+            TaxonNameAuthor.create(person_id: r.person_id, role_object: self, position: r.position)
+          end
+          return true
+        end
+      end
+      return false
     end
 
     def sv_validate_coordinated_names_type_species_type
@@ -1070,7 +1160,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied?
+      if self.roles.empty? && !has_misspelling_relationship?
         soft_validations.add(:base, 'Taxon name author role is not selected')
       end
     end
@@ -1098,7 +1188,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      if !self.roles.empty? && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+      if !self.roles.empty? && self.source && has_misspelling_relationship?
         soft_validations.add(:base, 'Taxon name author role is not required for misspellings and misapplications', fix: :sv_fix_misspelling_roles_are_not_required, success_message: 'Roles were deleted')
       end
     end
@@ -1131,7 +1221,6 @@ module Protonym::SoftValidationExtensions
       self.update_column(:year_of_publication, nil)
       return true
     end
-
 
     #  def sv_fix_add_relationship(method, object_id)
     #    begin
