@@ -286,7 +286,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_coordinated_names_author
-      return false unless self.verbatim_author.nil?
+      return false if !self.verbatim_author.nil? || !self.roles.empty?
       list_of_coordinated_names.each do |t|
         if self.verbatim_author.nil? && !t.verbatim_author.nil?
           self.update_column(:verbatim_author, t.verbatim_author)
@@ -304,7 +304,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_coordinated_names_year
-      return false unless self.year_of_publication.nil?
+      return false if !self.year_of_publication.nil? || !self.source.try(:year).nil?
       list_of_coordinated_names.each do |t|
         if self.year_of_publication.nil? && !t.year_of_publication.nil?
           self.update_column(:year_of_publication, t.year_of_publication)
