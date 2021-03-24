@@ -213,13 +213,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
             expect(@sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
           end
 
-          specify 'there are no year_of_publication validations on subgenus' do
-            expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
-          end
-
           specify 'there are no etymology validations on subgenus' do
             expect(@sgen.soft_validations.messages_on(:etymology).empty?).to be_truthy
           end
+
+#          specify 'there are no year_of_publication validations on subgenus' do
+#            expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+#          end
+
         end
       end
 
@@ -241,7 +242,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         tribe.fix_soft_validations
         tribe.soft_validate(:validate_coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
-        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+        #        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_truthy
 
         @subfamily.type_genus = nil
