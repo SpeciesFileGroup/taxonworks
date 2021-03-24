@@ -27,7 +27,7 @@ class ImportDataset::DarwinCore < ImportDataset
     begin
       path = params[:source].tempfile.path
       if path =~ /\.zip\z/i
-        dwc = ::DarwinCore.new(params[:source].tempfile.path)
+        dwc = ::DarwinCore.new(path)
         core_type = dwc.core.data[:attributes][:rowType]
 
         ### Check all files are readable
@@ -214,7 +214,7 @@ class ImportDataset::DarwinCore < ImportDataset
   def get_dwc_headers(table)
     headers = []
 
-    headers[table.id[:index]] = "id"
+    headers[table.id[:index]] = "id" if table.id
     table.fields.each { |f| headers[f[:index]] = get_normalized_dwc_term(f) if f[:index] }
 
     table.read_header.first.each_with_index { |f, i| headers[i] ||= f.strip }

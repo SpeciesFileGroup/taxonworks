@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
-  revision: 31afa6017b4edbee5fa82a43502385083ace2ea3
+  revision: 5dffd889f625c165daff45698b0368f167f85753
   branch: overhaul
   specs:
     dwc-archive (1.1.1)
