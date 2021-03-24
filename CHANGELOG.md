@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Preparation type and with/out facets [#2118]
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
 - Annotations on Browse nomenclature
+- Collectors facet on Filter collection objects task
 
 ### Changed
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - sortArray function now return a natural sort
 - Open confirmation modal and focus new button on New taxon name
 - Next and previous links for id and identifier on comprehensive task [#2134]
+- Determiner facet on Filter collection objects task
 
 ### Fixed
 - CoLDP missing values for names without original combinations [#2146] 
