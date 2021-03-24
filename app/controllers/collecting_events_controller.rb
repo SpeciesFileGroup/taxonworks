@@ -309,7 +309,6 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
-      :collector_ids_or,
       keyword_id_and: [],
       keyword_id_or: [],
       spatial_geographic_area_ids: [],
@@ -322,7 +321,6 @@ class CollectingEventsController < ApplicationController
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collector_ids_or,
       :collector_ids_or,
       :end_date,   # used in date range
       :geo_json,

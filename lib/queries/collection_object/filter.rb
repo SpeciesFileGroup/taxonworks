@@ -174,9 +174,10 @@ module Queries
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
         @collecting_event_query = Queries::CollectingEvent::Filter.new(
-          *params.select{|a,b| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(a.to_s) },
-          collector_ids: params[:collector_ids],
-          collector_ids_or: params[:collector_ids_or]
+          params.select{|a,b| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(a.to_s) }.merge(
+            collector_ids: params[:collector_ids],
+            collector_ids_or: params[:collector_ids_or]
+          )
         )
 
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
