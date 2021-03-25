@@ -16,6 +16,21 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
+      PARAMS = %w{collector_ids
+        collector_ids_or
+        spatial_geographic_areas
+        wkt
+        geographic_area_ids
+        start_date
+        end_date
+        radius
+        partial_overlap_dates
+        md5_verbatim_label
+        in_verbatim_locality
+        in_labels
+        geo_json
+      }
+
       # Wildcard wrapped matching any label
       attr_accessor :in_labels
 
@@ -84,7 +99,7 @@ module Queries
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
         @wkt = params[:wkt]
-      
+
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)

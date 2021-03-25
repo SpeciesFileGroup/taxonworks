@@ -166,18 +166,16 @@ module Queries
       #   nil - not applied
       attr_accessor :type_material
 
-
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
 
         # Only CollectingEvent fields are permitted now.
         # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
+        collecting_event_params = Queries::CollectingEvent::Filter::ATTRIBUTES + Queries::CollectingEvent::Filter::PARAMS
+
         @collecting_event_query = Queries::CollectingEvent::Filter.new(
-          params.select{|a,b| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(a.to_s) }.merge(
-            collector_ids: params[:collector_ids],
-            collector_ids_or: params[:collector_ids_or]
-          )
+          params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
@@ -206,6 +204,7 @@ module Queries
         @on_loan =  boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
+        @preparation_type_id = params[:preparation_type_id]
         @recent = params[:recent].blank? ? false : true
         @repository = boolean_param(params, :repository)
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
@@ -256,6 +255,10 @@ module Queries
 
       def determiner_id
         [@determiner_id].flatten.compact
+      end
+
+      def preparation_type_id
+        [@preparation_type_id].flatten.compact
       end
 
       def taxon_determinations_facet
@@ -402,6 +405,11 @@ module Queries
         table[:collecting_event_id].eq_any(collecting_event_ids)
       end
 
+      def preparation_type_id_facet
+        return nil if preparation_type_id.empty?
+        table[:preparation_type_id].eq_any(preparation_type_id)
+      end
+
       def repository_id_facet
         return nil if repository_id.blank?
         table[:repository_id].eq(repository_id)
@@ -449,6 +457,7 @@ module Queries
           attribute_exact_facet(:buffered_collecting_event),
           attribute_exact_facet(:buffered_other_labels),
           collecting_event_ids_facet,
+          preparation_type_id_facet,
           type_facet,
           repository_id_facet
         ]
@@ -476,7 +485,7 @@ module Queries
           created_updated_facet,  # See Queries::Concerns::Users
           identifiers_facet,      # See Queries::Concerns::Identifiers
           identifier_between_facet,
-          identifier_facet,
+          identifier_facet, # See Queries::Concerns::Identifiers
           identifier_namespace_facet,
           loaned_facet,
           on_loan_facet,
@@ -607,18 +616,20 @@ module Queries
         ::CollectionObject.joins(q.join_sources).where(z)
       end
 
+
+      # TODO: is this used?
       # @return [Scope]
-      def geographic_area_scope
-        # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
-        target_geographic_item_ids = []
-        geographic_area_ids.each do |ga_id|
-          target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
-            .find(ga_id)
-            .default_geographic_item.id)
-        end
-        ::CollectionObject.joins(:geographic_items)
-          .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-      end
+      #  def geographic_area_scope
+      #    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
+      #    target_geographic_item_ids = []
+      #    geographic_area_ids.each do |ga_id|
+      #      target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
+      #        .find(ga_id)
+      #        .default_geographic_item.id)
+      #    end
+      #    ::CollectionObject.joins(:geographic_items)
+      #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
+      #  end
 
 
     end

@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Collection object filter params for preparation and buffered fields [#2118]
 - Added soft_validations and fixes for coordinate name citations and roles.
 - `/collection_objects/123/navigation.json` route/view
 - Determination, OTU and repository smart selectors on New image task [#2101]
@@ -15,7 +16,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Lock buttons on New image [#2101]
 - Open PDF slider in all tabs [#2106]
 - TaxonName autocomplete by internal id
-- Preparation type and with/out facets [#2118]
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
 - Annotations on Browse nomenclature
 - Collectors facet on Filter collection objects task
@@ -30,6 +30,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiner facet on Filter collection objects task
 
 ### Fixed
+- Collection object filter, collecting event related params were not being passed [#1807]
+- Collection object filter with/out facets, in part [#1455]
 - CoLDP missing values for names without original combinations [#2146] 
 - Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
 - Not being able to get pinboard items on some circumstances
@@ -40,6 +42,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing Determiner param [#2119]
 - Refresh status and relationship list on rank change [#2010]
 
+
+[#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
+[#1807]: https://github.com/SpeciesFileGroup/taxonworks/issues/1807
+[#2114]: https://github.com/SpeciesFileGroup/taxonworks/issues/2114
 [#2146]: https://github.com/SpeciesFileGroup/taxonworks/issues/2146
 [#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
 [#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
