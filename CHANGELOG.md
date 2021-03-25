@@ -47,7 +47,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refresh status and relationship list on rank change [#2010]
 - Remove map shapes after reset form on Filter collection objects
 - Disabled `Create georeference from verbatim` button when latitude and longitude are not available [#2152]
+- Fix create determinations and biocurations before turn off the spinner [#1991]
 
+[#1991]: https://github.com/SpeciesFileGroup/taxonworks/issues/1991
 [#2100]: https://github.com/SpeciesFileGroup/taxonworks/issues/2100
 [#2154]: https://github.com/SpeciesFileGroup/taxonworks/issues/2154
 [#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
