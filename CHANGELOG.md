@@ -83,6 +83,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Smart selector on attributions in Radial annotator [#2081]
 
 ### Fixed
+- Soft validation scope for AssertedDistributions not scoped to taxon [#1971]
 - Uniquifying 2 people attached to the same source raises [#2078]
 - Render Source::Human cached with year, udpate `citation_tag` [#2067] 
 - Qualitative states in matrix row coder order correctly [#2076]
@@ -100,6 +101,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
 - Updated npm packages
 
+[#1971]: https://github.com/SpeciesFileGroup/taxonworks/issues/1971
 [#2039]: https://github.com/SpeciesFileGroup/taxonworks/issues/2039
 [#2078]: https://github.com/SpeciesFileGroup/taxonworks/issues/2078
 [#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
