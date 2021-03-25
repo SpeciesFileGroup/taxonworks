@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_24_104715) do
+ActiveRecord::Schema.define(version: 2021_03_24_231449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -498,7 +498,7 @@ ActiveRecord::Schema.define(version: 2021_02_24_104715) do
     t.bigint "project_id"
     t.bigint "import_dataset_id"
     t.index ["created_by_id"], name: "index_dataset_records_on_created_by_id"
-    t.index ["import_dataset_id", "type"], name: "index_dataset_records_on_import_dataset_id_and_type"
+    t.index ["import_dataset_id", "type", "id"], name: "index_dataset_records_on_import_dataset_id_and_type_and_id"
     t.index ["import_dataset_id"], name: "index_dataset_records_on_import_dataset_id"
     t.index ["project_id"], name: "index_dataset_records_on_project_id"
     t.index ["updated_by_id"], name: "index_dataset_records_on_updated_by_id"
