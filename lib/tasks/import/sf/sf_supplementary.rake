@@ -27,6 +27,17 @@ namespace :tw do
           get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
           get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
 
+          scrutiny_predicate_ids = {}
+
+          get_tw_project_id.each_value do |project_id|
+            scrutiny_predicate = Predicate.create!(
+              name: 'Scrutiny',
+              definition: 'Nomenclature comments made by a taxonomist on a certain date and year not published',
+              project_id: project_id
+            )
+            scrutiny_predicate_ids[project_id.to_i] = scrutiny_predicate.id
+          end
+
           counter = 0
 
           # first create hash of scrutinies
@@ -87,16 +98,13 @@ namespace :tw do
 
             logger.info "Working on ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}, project_id = #{project_id}, counter = #{counter += 1}"
 
-            content = "SeqNum = #{seqnum}, ScrutinyID = #{scrutiny_id}, Year = #{year}, PersonIDs = #{get_tw_scrutiny_authors[scrutiny_id]}, Comment = '#{comment}'"
+            sh = Source::Human.create!(year: year, person_ids: get_tw_scrutiny_authors[scrutiny_id])
 
-            sh = Source::Human.create!(stated_year: year, person_ids: get_tw_scrutiny_authors[scrutiny_id])
-
-            scrutiny_predicate = Predicate.find_or_create_by(name: 'Species File scrutiny', definition: 'from tblScrutinies, limit of three scrutinies per taxon name', project_id: project_id)
-            scrutiny = DataAttribute.create!(type: 'InternalAttribute',
-                                            controlled_vocabulary_term_id: scrutiny_predicate.id,
+            scrutiny = InternalAttribute.create(
+                                            controlled_vocabulary_term_id: scrutiny_predicate_ids[project_id],
                                             attribute_subject_id: tw_taxon_name_id,
                                             attribute_subject_type: 'TaxonName',
-                                            value: content,
+                                            value: comment,
                                             project_id: project_id,
                                             created_at: row['CreatedOn'],
                                             updated_at: row['LastUpdate'],
@@ -106,8 +114,8 @@ namespace :tw do
                                             citations_attributes: [{source_id: sh.id, project_id: project_id}]  # source: {id: sh.id}   # source_id: sh.id
             )
 
-            if scrutiny.nil?
-              logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}"
+            unless scrutiny.persisted?
+              logger.error "Error creating TaxonScrutiny: ScrutinyID = #{scrutiny_id}, SF.TaxonNameID #{sf_taxon_name_id} = tw.taxon_name_id #{tw_taxon_name_id}. Errors: #{scrutiny.errors.messages}"
             # else
             #   cite = Citation.new(source_id: sh.id, citation_object: scrutiny)
             #   byebug

@@ -730,19 +730,29 @@ namespace :tw do
 
           ecology_topic_ids = {}
           distribution_topic_ids = {}
+          nomenclatural_comment_predicate_ids = {}
+
           get_tw_project_id.each_value do |project_id|
             puts project_id
             ecology_topic = Topic.create!(
-                name: 'Life zone and ecology data',
-                definition: 'Life zone and ecology data',
-                project_id: project_id)
+              name: 'Life zone and ecology data',
+              definition: 'Life zone and ecology data',
+              project_id: project_id)
             ecology_topic_ids[project_id] = ecology_topic.id
 
             distribution_topic = Topic.create!(
-                name: 'Distribution text',
-                definition: 'List of documented place names',
-                project_id: project_id)
+              name: 'Distribution text',
+              definition: 'List of documented place names',
+              project_id: project_id
+            )
             distribution_topic_ids[project_id] = distribution_topic.id
+
+            nomenclatural_comment_predicate = Predicate.create!(
+              name: 'Nomenclatural comment',
+              definition: 'Explanation relating to the status of the name',
+              project_id: project_id
+            )
+            nomenclatural_comment_predicate_ids[project_id] = nomenclatural_comment_predicate.id
           end
 
           ap ecology_topic_ids
@@ -957,13 +967,6 @@ namespace :tw do
                                                created_by_id: get_tw_user_id[row['CreatedBy']],
                                                updated_by_id: get_tw_user_id[row['ModifiedBy']]},
 
-                  notes_attributes: [{text: (row['Comment'].blank? ? nil : row['Comment']),
-                                      project_id: project_id,
-                                      created_at: row['CreatedOn'],
-                                      updated_at: row['LastUpdate'],
-                                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                                      updated_by_id: get_tw_user_id[row['ModifiedBy']]}],
-
                   # perhaps test for nil for each...  (Dmitry) classification.new? Dmitry prefers doing one at a time and validating?? And after the taxon is saved.
 
                   taxon_name_classifications_attributes: [
@@ -1028,10 +1031,22 @@ namespace :tw do
                 get_sf_status_flags[row['TaxonNameID']] = status_flags
                 get_taxon_name_otu_id[taxon_name.id.to_s] = taxon_name.otus.last.id.to_s
 
+                otu_id = get_taxon_name_otu_id[taxon_name.id.to_s]
+
+                # Nomenclatural comment
+                InternalAttribute.create!(
+                  controlled_vocabulary_term_id: nomenclatural_comment_predicate_ids[project_id],
+                  attribute_subject: taxon_name,
+                  project_id: project_id,
+                  value: row['Comment'],
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                ) unless row['Comment'].blank?
 
                 # ecology
 
-                otu_id = get_taxon_name_otu_id[taxon_name.id.to_s]
                 logger.info "Ecology: Working with SF.TaxonNameID = '#{row['TaxonNameID']}', TW.TaxonNameID = '#{taxon_name.id}, otu_id = '#{otu_id}, SF.FileID = '#{row['FileID']}', life_zones = '#{life_zone_text}' \n"
 
                 Content.create!(
