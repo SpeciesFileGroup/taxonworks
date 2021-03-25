@@ -41,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroying a container goes to 404 page [#2133]
 - Missing Determiner param [#2119]
 - Refresh status and relationship list on rank change [#2010]
+- Remove map shapes after reset form on Filter collection objects
 
 
 [#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
