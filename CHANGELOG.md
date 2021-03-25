@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Open confirmation modal and focus new button on New taxon name
 - Next and previous links for id and identifier on comprehensive task [#2134]
 - Determiner facet on Filter collection objects task
+- Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
 - Compute print column divisions with barcode style labels [#1993] 
