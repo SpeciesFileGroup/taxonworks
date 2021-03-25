@@ -206,7 +206,6 @@ module Queries
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
-        @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
         @exact_buffered_other_labels = boolean_param(params, :exact_buffered_other_labels)
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
