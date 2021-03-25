@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Link from Browse colleciton object to Browse OTU for current OTU det [#2154]
 - Collection object filter params for preparation and buffered fields [#2118]
 - Added soft_validations and fixes for coordinate name citations and roles.
 - `/collection_objects/123/navigation.json` route/view
@@ -21,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Collectors facet on Filter collection objects task
 
 ### Changed
+- Renamed -`otus_redirect` to `browse_otu_link`
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
 - Lock background color [#2112]
@@ -43,6 +45,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refresh status and relationship list on rank change [#2010]
 
 
+[#2154]: https://github.com/SpeciesFileGroup/taxonworks/issues/2154
 [#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
 [#1807]: https://github.com/SpeciesFileGroup/taxonworks/issues/1807
 [#2114]: https://github.com/SpeciesFileGroup/taxonworks/issues/2114
