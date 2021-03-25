@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - bind `alt/ctrl + f` to focus the search autocomplete [#2132]
 - Annotations on Browse nomenclature
 - Collectors facet on Filter collection objects task
+- Preview use panel on Manage controlled vocabulary [#2135]
 
 ### Changed
 - Renamed -`otus_redirect` to `browse_otu_link`
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
 [#2133]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 [#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
+[#2135]: https://github.com/SpeciesFileGroup/taxonworks/issues/2135
 
 ## [0.16.4] - 2020-03-09
 
