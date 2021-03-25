@@ -12,7 +12,7 @@
 <% end %>
 
 <%= content_for :icon_navigation do -%>
-  <%= content_tag(:li, otus_redirect(@otu) )   %>
+  <%= content_tag(:li, browse_otu_link(@otu) )   %>
   <%= content_tag(:li, otus_radial(@otu) )   %>
 <% end %>
 

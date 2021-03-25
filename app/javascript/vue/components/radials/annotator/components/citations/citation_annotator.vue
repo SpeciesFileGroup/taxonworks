@@ -181,9 +181,7 @@ export default {
   .radial-annotator {
     .citation_annotator {
       overflow-y: scroll;
-      button {
-        min-width: 100px;
-      }
+
       textarea {
         padding-top: 14px;
         padding-bottom: 14px;

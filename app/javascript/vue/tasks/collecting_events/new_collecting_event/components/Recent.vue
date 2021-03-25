@@ -10,7 +10,7 @@
       Recent
     </button>
     <modal-component
-      :container-style="{ width: '800px' }"
+      :container-style="{ width: '90%' }"
       @close="showModalView(false)">
       <h3 slot="header">Recent collecting events</h3>
       <div slot="body">

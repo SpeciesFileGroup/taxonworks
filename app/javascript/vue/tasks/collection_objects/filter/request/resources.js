@@ -30,6 +30,8 @@ const GetPerson = (id) => ajaxCall('get', `/people/${id}.json`)
 
 const GetRepository = (id) => ajaxCall('get', `/repositories/${id}.json`)
 
+const GetPreparationTypes = () => ajaxCall('get', '/preparation_types.json')
+
 const GetTaxonName = (id) => ajaxCall('get', `/taxon_names/${id}.json`)
 
 const GetTypes = () => ajaxCall('get', '/type_materials/type_types.json')
@@ -49,6 +51,7 @@ export {
   GetNamespace,
   GetOtu,
   GetPerson,
+  GetPreparationTypes,
   GetRepository,
   GetTaxonName,
   GetTypes,

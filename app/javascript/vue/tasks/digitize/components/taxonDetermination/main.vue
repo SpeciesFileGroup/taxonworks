@@ -42,7 +42,11 @@
             class="full_width"
             ref="determinerSmartSelector"
             model="people"
-            target="Determiner"
+            target="CollectionObject"
+            :params="{ role_type: 'Determiner' }"
+            :autocomplete-params="{
+              roles: ['Determiner']
+            }"
             :autocomplete="false"
             @onTabSelected="view = $event"
             @selected="addRole">

@@ -1,8 +1,8 @@
-function chunkArray (myArray, chunkSize) {
-  var results = []
+function chunkArray (arr, chunkSize) {
+  const results = []
 
-  while (myArray.length) {
-    results.push(myArray.splice(0, chunkSize))
+  while (arr.length) {
+    results.push(arr.splice(0, chunkSize))
   }
 
   return results
@@ -12,7 +12,7 @@ function getUnique (arr, property) {
   return [...new Map(arr.map(item => [item[property], item])).values()]
 }
 
-function sortArray (arr, sortProperty, ascending = false) {
+function sortArray (arr, sortProperty, ascending = true) {
   const list = arr.slice()
   return list.sort((A, B) => {
     const a = A[sortProperty]
@@ -26,7 +26,9 @@ function sortArray (arr, sortProperty, ascending = false) {
     result = a - b
 
     if (isNaN(result)) {
-      return (ascending) ? a.toString().localeCompare(b) : b.toString().localeCompare(a)
+      return (ascending)
+        ? a.toString().localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+        : b.toString().localeCompare(a, undefined, { numeric: true, sensitivity: 'base' })
     }
     else {
       return (ascending) ? result : -result

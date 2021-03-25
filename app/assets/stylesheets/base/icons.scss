@@ -9,7 +9,7 @@
     
     .center-icon {
       background-position: center;
-      padding-left: auto;
+      padding-left: initial;
       min-height: auto;
     }
 
@@ -218,6 +218,10 @@
     
     [data-icon="swap"] {
       background-image: image-url("swap.svg");
+    }  
+
+    [data-icon="w-swap"] {
+      background-image: image-url("w_swap.svg");
     }  
 
     [data-icon="task"] {

@@ -36,6 +36,7 @@ class Sequence < ApplicationRecord
   include Shared::IsData
 
   is_origin_for 'Sequence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Sequence'
 
   ALTERNATE_VALUES_FOR = [:name].freeze
 

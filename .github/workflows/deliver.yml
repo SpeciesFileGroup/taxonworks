@@ -118,5 +118,8 @@ jobs:
         CACHE_HASH: ${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
       run: |
         mkdir -p $CACHE_PATH
-        [ -f ${CACHE_PATH}/${CACHE_HASH} ] || docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
+        [ -f ${CACHE_PATH}/${CACHE_HASH} ] || (\
+          rm -f ${CACHE_PATH}/images.tar && \
+          docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>') \
+        )
         touch ${CACHE_PATH}/${CACHE_HASH}

@@ -154,12 +154,12 @@ export default {
     })
   },
   methods: {
-    resetSqed() {
+    resetSqed () {
       this.$store.commit(MutationNames.SetSqed, {
         id: undefined,
         boundary_color: undefined,
         boundary_finder: undefined,
-        has_border: false, 
+        has_border: false,
         layout: undefined,
         metadata_map: []
       })

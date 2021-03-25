@@ -267,6 +267,7 @@ module Queries
       # Used in new taxon name, for example
       def exact_autocomplete
         [
+          autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
           autocomplete_exact_name_and_year,
@@ -280,6 +281,7 @@ module Queries
         z = genus_species
 
         queries = [
+          autocomplete_exact_id,
           autocomplete_exact_cached,
           autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact, 

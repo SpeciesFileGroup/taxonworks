@@ -5,48 +5,57 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
+import makeTaxonDetermination from '../const/makeTaxonDetermination'
+
 Vue.use(Vuex)
 
 function makeInitialState () {
   return {
     settings: {
-      saving: false
+      saving: false,
+      lock: {
+        repository: false,
+        taxon_determination: false,
+        taxon_determinations: false
+      }
     },
     collection_object: {
-      total: 1,
+      preparation_type_id: undefined,
       repository_id: undefined,
-      preparation_type_id: undefined
+      total: 1
     },
     depiction: {
       caption: ''
     },
     people: {
-      editors: [],
-      owners: [],
       authors: [],
-      copyrightHolder: []
+      copyrightHolder: [],
+      editors: [],
+      owners: []
     },
     license: undefined,
     sqed: {
-      id: undefined,
       boundary_color: undefined,
       boundary_finder: 'Sqed::BoundaryFinder::ColorLineFinder',
       has_border: false,
+      id: undefined,
       layout: undefined,
       metadata_map: []
     },
-    newCOForSqed: true,
-    source: undefined,
-    pixels_to_centimeter: undefined,
-    yearCopyright: undefined,
     attributionsCreated: [],
     citations: [],
     data_attributes: [],
     depictionsCreated: [],
     imagesCreated: [],
+    newCOForSqed: true,
     objectsForDepictions: [],
+    pixels_to_centimeter: undefined,
+    repository: undefined,
+    source: undefined,
     tags: [],
-    taxon_determinations: []
+    taxonDetermination: makeTaxonDetermination(),
+    taxon_determinations: [],
+    yearCopyright: undefined
   }
 }
 

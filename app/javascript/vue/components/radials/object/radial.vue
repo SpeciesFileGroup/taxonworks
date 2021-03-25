@@ -82,6 +82,7 @@ import biocuration_classificationsAnnotator from './components/biocurations/bioc
 import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
 import observation_matricesAnnotator from './components/observation_matrices/main.vue'
 import collecting_eventAnnotator from './components/collecting_event/main.vue'
+import origin_relationshipsAnnotator from './components/origin_relationship/main'
 
 import Icons from './images/icons.js'
 
@@ -100,7 +101,8 @@ export default {
     biocuration_classificationsAnnotator,
     taxon_determinationsAnnotator,
     observation_matricesAnnotator,
-    collecting_eventAnnotator
+    collecting_eventAnnotator,
+    origin_relationshipsAnnotator
   },
   props: {
     reload: {
