@@ -19,12 +19,6 @@ module Queries
       #    one of 'Specimen', 'Lot', or 'RangedLot'
       attr_accessor :collection_object_type
 
-      # @param [String, nil]
-      #  'true' - order by updated_at
-      #  'false', nil - do not apply ordering
-      # @return [Boolen, nil]
-      attr_accessor :recent
-
       # [Array]
       #   only return objects with this collecting event ID
       attr_accessor :collecting_event_ids
@@ -108,6 +102,12 @@ module Queries
       #   nil - not applied
       attr_accessor :georeferences
 
+      # @param [String, nil]
+      #  'true' - order by updated_at
+      #  'false', nil - do not apply ordering
+      # @return [Boolen, nil]
+      attr_accessor :recent
+
       # @return [True, False, nil]
       #   true - has repository_id
       #   false - does not have repository_id
@@ -166,8 +166,16 @@ module Queries
       #   nil - not applied
       attr_accessor :type_material
 
+      # @return [Boolean, nil
+      # @param with_buffered_determinations [String, nil]
+      #   `false`, nil - without buffered determination field value
+      #   'true' - with buffered_determinations field value
       attr_accessor :with_buffered_determinations
+
+      # See with_buffered_determinations
       attr_accessor :with_buffered_collecting_event
+
+      # See with_buffered_determinations
       attr_accessor :with_buffered_other_labels
 
       # @param [Hash] args are permitted params
@@ -217,8 +225,8 @@ module Queries
         @type_material = boolean_param(params, :type_material)
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
         @validity = boolean_param(params, :validity)
-        @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
+        @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
         set_identifier(params)

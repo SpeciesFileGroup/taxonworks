@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Determiner facet on Filter collection objects task
 
 ### Fixed
+- Object tag for TaxonNameRelationship inverted [#2100]
 - Collection object filter, collecting event related params were not being passed [#1807]
 - Collection object filter with/out facets, in part [#1455]
 - CoLDP missing values for names without original combinations [#2146] 
@@ -46,7 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Remove map shapes after reset form on Filter collection objects
 - Disabled `Create georeference from verbatim` button when latitude and longitude are not available [#2152]
 
-
+[#2100]: https://github.com/SpeciesFileGroup/taxonworks/issues/2100
 [#2154]: https://github.com/SpeciesFileGroup/taxonworks/issues/2154
 [#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
 [#1807]: https://github.com/SpeciesFileGroup/taxonworks/issues/1807
