@@ -166,6 +166,10 @@ module Queries
       #   nil - not applied
       attr_accessor :type_material
 
+      attr_accessor :with_buffered_determinations
+      attr_accessor :with_buffered_collecting_event
+      attr_accessor :with_buffered_other_labels
+
       # @param [Hash] args are permitted params
       def initialize(params)
         params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
@@ -213,6 +217,9 @@ module Queries
         @type_material = boolean_param(params, :type_material)
         @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
         @validity = boolean_param(params, :validity)
+        @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
+        @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
+        @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
         set_identifier(params)
         set_tags_params(params)
@@ -303,7 +310,6 @@ module Queries
         ::CollectionObject.joins(:taxon_determinations).joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
-
       def georeferences_facet
         return nil if georeferences.nil?
         if georeferences
@@ -330,6 +336,34 @@ module Queries
           ::CollectionObject.where.not(collecting_event_id: nil)
         else
           ::CollectionObject.where(collecting_event_id: nil)
+        end
+      end
+
+
+      def with_buffered_collecting_event_facet
+        return nil if with_buffered_collecting_event.nil?
+        if with_buffered_collecting_event
+          ::CollectionObject.where.not(buffered_collecting_event: nil)
+        else
+          ::CollectionObject.where(buffered_collecting_event: nil)
+        end
+      end
+
+      def with_buffered_other_labels_facet
+        return nil if with_buffered_other_labels.nil?
+        if with_buffered_other_labels
+          ::CollectionObject.where.not(buffered_other_labels: nil)
+        else
+          ::CollectionObject.where(buffered_other_labels: nil)
+        end
+      end
+
+      def with_buffered_determinations_facet
+        return nil if with_buffered_determinations.nil?
+        if with_buffered_determinations
+          ::CollectionObject.where.not(buffered_determinations: nil)
+        else
+          ::CollectionObject.where(buffered_determinations: nil)
         end
       end
 
@@ -470,6 +504,9 @@ module Queries
         clauses += collecting_event_merge_clauses + collecting_event_and_clauses
 
         clauses += [
+          with_buffered_collecting_event_facet,
+          with_buffered_other_labels_facet,
+          with_buffered_determinations_facet,
           determiner_facet,
           geographic_area_facet,
           collecting_event_facet,
