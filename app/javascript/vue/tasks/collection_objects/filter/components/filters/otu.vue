@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <label>Taxon name</label>
+    <h4>Taxon name</h4>
     <div class="field">
       <autocomplete
         url="/taxon_names/autocomplete"
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="field">
-      <label>Otu</label>
+      <h4>Otu</h4>
       <autocomplete
         url="/otus/autocomplete"
         placeholder="Select an otu"
@@ -64,7 +64,6 @@
     </div>
     <div class="field">
       <determiner-component
-        class="margin-large-bottom"
         role="Determiner"
         title="Determiner"
         klass="CollectionObject"
@@ -73,7 +72,7 @@
         v-model="determination"/>
     </div>
 
-    <div class="field separate-top">
+    <div class="field">
       <ul class="no_bullets">
         <li
           v-for="item in currentDeterminationsOptions"
@@ -96,7 +95,7 @@
 
 import Autocomplete from 'components/autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName, GetOtu, GetPerson } from '../../request/resources'
+import { GetTaxonName, GetOtu } from '../../request/resources'
 import DeterminerComponent from './shared/people'
 
 export default {

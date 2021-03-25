@@ -39,6 +39,13 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <identifier-component
+        class="margin-large-bottom"
+        v-model="params.identifier"/>
+      <preparation-types v-model="params.preparation_type_id"/>
+      <biocurations-component
+        class="margin-large-bottom"
+        v-model="params.biocurations.biocuration_class_ids"/>
       <collecting-event
         class="margin-large-bottom"
         v-model="params.collectingEvents"/>
@@ -50,32 +57,25 @@
         param-people="collector_ids"
         param-any="collector_ids_or"
         v-model="params.collectors"/>
+      <keywords-component
+        class="margin-large-bottom"
+        v-model="params.keywords" />
+      <types-component
+        class="margin-large-bottom"
+        v-model="params.types"/>
+      <in-relationship
+        class="margin-large-bottom"
+        v-model="params.relationships.biological_relationship_ids"/>
+      <loan-component
+        class="margin-large-bottom"
+        v-model="params.loans"/>
       <user-component
         class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <keywords-component
-        class="margin-large-bottom"
-        v-model="params.keywords" />
       <repository-component
         class="margin-large-bottom"
         v-model="params.repository.repository_id"/>
-      <identifier-component
-        class="margin-large-bottom"
-        v-model="params.identifier"/>
-      <preparation-types v-model="params.preparation_type_id"/>
-      <types-component
-        class="margin-large-bottom"
-        v-model="params.types"/>
-      <loan-component
-        class="margin-large-bottom"
-        v-model="params.loans"/>
-      <in-relationship
-        class="margin-large-bottom"
-        v-model="params.relationships.biological_relationship_ids"/>
-      <biocurations-component
-        class="margin-large-bottom"
-        v-model="params.biocurations.biocuration_class_ids"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"

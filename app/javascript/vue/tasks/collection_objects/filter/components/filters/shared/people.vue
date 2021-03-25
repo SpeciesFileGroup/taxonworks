@@ -1,22 +1,19 @@
 <template>
   <div>
-    <h3>{{ title }}</h3>
-    <fieldset>
-      <legend>People</legend>
-      <smart-selector
-        :autocomplete-params="{'roles[]' : role }"
-        model="people"
-        :klass="klass"
-        pin-section="People"
-        pin-type="People"
-        @selected="addPerson"/>
-      <label>
-        <input
-          v-model="params[paramAny]"
-          type="checkbox">
-        Any
-      </label>
-    </fieldset>
+    <h4>{{ title }}</h4>
+    <smart-selector
+      :autocomplete-params="{'roles[]' : role }"
+      model="people"
+      :klass="klass"
+      pin-section="People"
+      pin-type="People"
+      @selected="addPerson"/>
+    <label>
+      <input
+        v-model="params[paramAny]"
+        type="checkbox">
+      Any
+    </label>
     <display-list
       :list="list"
       label="object_tag"
