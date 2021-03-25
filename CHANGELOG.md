@@ -43,6 +43,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroying a container goes to 404 page [#2133]
 - Missing Determiner param [#2119]
 - Refresh status and relationship list on rank change [#2010]
+- Remove map shapes after reset form on Filter collection objects
+- Disabled `Create georeference from verbatim` button when latitude and longitude are not available [#2152]
 
 
 [#2154]: https://github.com/SpeciesFileGroup/taxonworks/issues/2154
@@ -62,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
 [#2133]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
+[#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 
 ## [0.16.4] - 2020-03-09
 
