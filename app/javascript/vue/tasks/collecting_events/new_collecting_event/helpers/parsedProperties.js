@@ -1,5 +1,6 @@
 import { romanNumbers } from './romanNumbers'
 import DOMPurify from 'dompurify'
+import { truncateDecimal } from 'helpers/math.js'
 
 export const parsedProperties = {
   GeographicArea: ({ ce }) => ce.geographicArea?.name,
@@ -38,5 +39,10 @@ export const parsedProperties = {
 
   CollectorsComponent: ({ ce }) => ce.roles_attributes.map(role => role.person.cached).join('; '),
 
-  TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true })
+  TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
+
+  Georeferences: ({ georeferences }) => georeferences
+    .filter(geo => geo?.geo_json?.geometry?.type === 'Point')
+    .map(geo => `${truncateDecimal(geo.geo_json.geometry.coordinates[1], 6)}, ${truncateDecimal(geo.geo_json.geometry.coordinates[0], 6)}`)
+    .join('\n')
 }

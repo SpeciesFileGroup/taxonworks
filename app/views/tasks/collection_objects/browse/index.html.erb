@@ -30,8 +30,10 @@
           <li><%= tag_default_icon(@collection_object) %></li>
           <li><%= pin_item_to_pinboard_link(@collection_object, sessions_current_user) %></li>
           <li><%= radial_navigation_tag(@collection_object) %></li>
+          <li><%= browse_otu_link(@collection_object.current_otu) -%></li>
         </ul>
       </span>
+
     </div>
   </div>
 
@@ -87,9 +89,9 @@
             <div class="panel separate-left">
 
               <div class="content">
-              <% if @collection_object.contained? %>
-                <%= draw_container_tag(@collection_object.container) -%>
-              <% end %>
+                <% if @collection_object.contained? %>
+                  <%= draw_container_tag(@collection_object.container) -%>
+                <% end %>
               </div>
 
               <%= loan_status_tag(@collection_object) -%>
@@ -137,7 +139,6 @@
         </div>
       </div>
 
-
       <div  class="panel content separate-left">
         <h2> DwC </h2>
         <%= dwc_table([@collection_object]) -%>
@@ -147,6 +148,3 @@
 
   </div>
 </div>
-
-
-

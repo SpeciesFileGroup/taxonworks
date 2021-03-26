@@ -108,14 +108,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev
 
+    - name: Change ownership of /usr/src to runner user to allow cache to be restored
+      run: sudo chown $(id -u) /usr/src
+
     - name: Set up imagemagick cache
       uses: actions/cache@v2
       with:
         path: |
           /usr/src/libheif-*
           /usr/src/libde265-*
-          /usr/src/ImageMagick-7-*
+          /usr/src/ImageMagick-7*
         key: ${{ runner.os }}-imagemagick-${{ steps.datetime.outputs.year_week }}
+
+    - name: Change ownership of /usr/src back to root
+      run: |
+        sudo chown root /usr/src
+        sudo chown -R root /usr/src/libheif-* /usr/src/libde265-* /usr/src/ImageMagick-7* || true
 
     - name: Install imagemagick
       run: |

@@ -33,7 +33,7 @@ module ObservationMatricesHelper
     max = 0
 
     observation_matrix.observation_matrix_rows.load.each do |r|
-      s = observation_matrix_row_label(r).length 
+      s = observation_matrix_row_label_nexus(r).length
       max = s if max < s
     end
     max + 1

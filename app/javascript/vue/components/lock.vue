@@ -34,7 +34,7 @@ export default {
 }
 </script>
 <style lang="scss">
-$primary: #006ebf;
+$primary: #FFDA44;
 $lightGrey: #99A3BA;
 
 .switch-lock {
@@ -152,7 +152,7 @@ $lightGrey: #99A3BA;
     &:checked {
       & + span {
         &:before {
-          background: rgba($primary, .35);
+          background: rgba($primary, 1);
         }
         &:after {
           background: #fff;
@@ -160,9 +160,7 @@ $lightGrey: #99A3BA;
         }
         em {
           transform: translate(18px, 0);
-          background: $primary;
           &:after {
-            border-color: $primary;
             transform: rotate(0deg) translate(-1px, 0);
           }
         }

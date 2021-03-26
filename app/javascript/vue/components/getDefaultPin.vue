@@ -1,11 +1,10 @@
 <template>
-  <span
+  <button
     v-if="getDefault != undefined"
     type="button"
     title="Use default pinned"
     class="button circle-button btn-pin button-default"
-    @click="sendDefault()">
-  </span>
+    @click="sendDefault()"/>
 </template>
 <script>
 export default {

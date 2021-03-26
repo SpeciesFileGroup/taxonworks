@@ -112,6 +112,9 @@ export default {
       },
       set (value) {
         this.$store.commit(MutationNames.SetTaxonName, value)
+        if (!this.taxon.id) {
+          this.$store.commit(MutationNames.UpdateLastChange)
+        }
       }
     },
     errors () {

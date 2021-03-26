@@ -42,7 +42,11 @@
             class="full_width"
             ref="determinerSmartSelector"
             model="people"
-            target="Determiner"
+            target="CollectionObject"
+            :params="{ role_type: 'Determiner' }"
+            :autocomplete-params="{
+              roles: ['Determiner']
+            }"
             :autocomplete="false"
             @onTabSelected="view = $event"
             @selected="addRole">
@@ -272,7 +276,7 @@ export default {
       this.$refs.determinerSmartSelector.refresh()
     }
   },
-  mounted () {
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const otuId = urlParams.get('otu_id')
     const taxonId = urlParams.get('taxon_name_id')

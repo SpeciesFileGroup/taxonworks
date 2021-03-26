@@ -65,6 +65,10 @@ $pane_margin: .2em;
   margin-top: $standard_margin*1.5;
 }
 
+.margin-xlarge-top {
+  margin-top: $standard_margin * 2;
+}
+
 .margin-small-left {
   margin-left: $standard_margin*0.5;
 }
@@ -75,6 +79,10 @@ $pane_margin: .2em;
 
 .margin-large-left {
   margin-left: $standard_margin*1.5;
+}
+
+.margin-xlarge-left {
+  margin-left: $standard_margin*2;
 }
 
 .margin-small-right {
@@ -89,6 +97,10 @@ $pane_margin: .2em;
   margin-right: $standard_margin*1.5;
 }
 
+.margin-xlarge-right {
+  margin-right: $standard_margin * 2;
+}
+
 .margin-small-bottom {
   margin-bottom: $standard_margin*0.5;
 }
@@ -99,6 +111,10 @@ $pane_margin: .2em;
 
 .margin-large-bottom {
   margin-bottom: $standard_margin*1.5;
+}
+
+.margin-xlarge-bottom {
+  margin-bottom: $standard_margin * 2;
 }
 
 .margin-remove {

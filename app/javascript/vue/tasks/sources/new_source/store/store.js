@@ -29,6 +29,8 @@ function makeInitialState () {
     preferences: {
 
     },
+    documentations: [],
+    documents: [],
     source: newSource(),
     softValidation: []
   }

@@ -18,10 +18,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     let(:ranged_lot_category) { FactoryBot.create(:valid_ranged_lot_category) }
 
     context 'validation' do
-      specify '.valid_new_object_classes' do
-        expect(CollectionObject.valid_new_object_classes).to contain_exactly('CollectionObject', 'Extract', 'AssertedDistribution')
-      end
-
       specify 'type is not set when total/ranged_lot are not provided' do
         collection_object.valid?
         expect(collection_object.type).to eq(nil)
@@ -133,13 +129,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-    context '#origin_relationships' do
-      specify '#derived_extracts' do
-        expect(collection_object).to respond_to(:derived_extracts)
+    context 'via #origin_relationships' do
+      specify '#extracts' do
+        expect(collection_object).to respond_to(:extracts)
       end
 
-      specify 'joins #derived_extracts' do
-        expect(CollectionObject.joins(:derived_extracts).count).to eq(0)
+      specify 'joins #extracts' do
+        expect(CollectionObject.joins(:extracts).count).to eq(0)
       end
     end
 

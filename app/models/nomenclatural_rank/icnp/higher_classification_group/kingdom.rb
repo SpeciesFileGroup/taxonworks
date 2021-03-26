@@ -7,7 +7,8 @@ class NomenclaturalRank::Icnp::HigherClassificationGroup::Kingdom < Nomenclatura
   def self.validate_name_format(taxon_name)
     super
     return true if taxon_name.name.length < 2
-    taxon_name.errors.add(:name, "Should be 'Procaryotae'") if taxon_name.name != 'Procaryotae'
+    taxon_name.errors.add(:name, "Should be 'Archaea or Bacteria'") if taxon_name.name != 'Archaea' && taxon_name.name != 'Bacteria'
+
   end
 
 

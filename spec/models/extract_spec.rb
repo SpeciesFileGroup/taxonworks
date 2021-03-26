@@ -124,10 +124,9 @@ RSpec.describe Extract, type: :model, group: :extract do
     # Method comes from concerns/shared/origin_relationship.rb
     context '#derived_sequences' do
       let(:e) { FactoryBot.create(:valid_extract) }
-      before do 
-        e.derived_sequences.create!(sequence: 'ACGT', sequence_type: 'DNA')
-      end 
-      
+      before { 
+        e.derived_sequences.create!(sequence: 'ACGT', sequence_type: 'DNA') }
+        
       specify 'are returned' do
         expect(e.derived_sequences.count).to eq(1)
         expect(e.derived_sequences.first.sequence).to eq('ACGT')

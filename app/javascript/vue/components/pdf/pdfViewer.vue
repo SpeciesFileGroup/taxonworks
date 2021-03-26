@@ -117,14 +117,16 @@ export default {
       checkScroll: undefined,
       documentUrl: undefined,
       loadingPdf: false,
-      sourceId: undefined
+      sourceId: undefined,
+      channel: new BroadcastChannel('tw-pdf')
     }
   },
   mounted() {
     this.eventsListens()
   },
   destroyed() {
-    document.removeEventListener("mouseover", this.loadPDF); 
+    document.removeEventListener("mouseover", this.loadPDF)
+    this.channel.close()
   },
   watch: {
     show(s) {
@@ -194,17 +196,28 @@ export default {
     findPos (obj) {
       return obj.offsetTop
     },
-    eventsListens() {
-      var that = this
+    openPanel () {
+      this.viewerActive = true
+      document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
+      document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
+      document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
+      document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
+    },
+    eventsListens () {
+      const that = this
+
+      this.channel.onmessage = (event) => {
+        this.loadPDF({ detail: event.data })
+        this.openPanel()
+      }
 
       document.addEventListener(this.eventLoadPDFName, (event) => {
-        that.loadPDF(event)
-        that.viewerActive = true
-        document.querySelector('[data-panel-name="pinboard"]').classList.remove("slice-panel-show")
-        document.querySelector('[data-panel-name="pinboard"]').classList.add("slice-panel-hide")
-        document.querySelector('[data-panel-name="pdfviewer"]').classList.remove("slice-panel-hide")
-        document.querySelector('[data-panel-name="pdfviewer"]').classList.add("slice-panel-show")
+        const { detail } = event
+        this.channel.postMessage(detail)
+        this.loadPDF(event)
+        this.openPanel()
       })
+
       document.addEventListener('onSlidePanelClose', (event) => {
         if(event.detail.name == 'pdfviewer') {
           this.setWidth(400)
@@ -246,7 +259,7 @@ export default {
         }
       })
     },
-    getSelectedText() {
+    getSelectedText () {
       if (window.getSelection) {
         return window.getSelection().toString()
       } else if (document.selection) {

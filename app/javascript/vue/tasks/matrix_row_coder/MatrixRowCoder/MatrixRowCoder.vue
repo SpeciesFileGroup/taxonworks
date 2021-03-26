@@ -72,7 +72,7 @@ const computed = mapState({
 })
 
 export default {
-  created: function () {
+  created () {
     this.loadMatrixRow({
       rowId: this.$props.rowId,
       otuId: this.$props.otuId

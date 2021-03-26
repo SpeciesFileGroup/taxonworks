@@ -7,6 +7,79 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.16.5] - 2020-03-25
+
+### Added
+- Link from Browse colleciton object to Browse OTU for current OTU det [#2154]
+- Collection object filter params for preparation and buffered fields [#2118]
+- Added soft_validations and fixes for coordinate name citations and roles.
+- `/collection_objects/123/navigation.json` route/view
+- Determination, OTU and repository smart selectors on New image task [#2101]
+- Georeferences coordinates in label generate on New collecting event [#2107]
+- Lock buttons on New image [#2101]
+- Open PDF slider in all tabs [#2106]
+- TaxonName autocomplete by internal id
+- bind `alt/ctrl + f` to focus the search autocomplete [#2132]
+- Annotations on Browse nomenclature
+- Collectors facet on Filter collection objects task
+- Preview use panel on Manage controlled vocabulary [#2135]
+
+### Changed
+- Renamed -`otus_redirect` to `browse_otu_link`
+- Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
+- Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
+- Lock background color [#2112]
+- sortArray function now return a natural sort
+- Open confirmation modal and focus new button on New taxon name
+- Next and previous links for id and identifier on comprehensive task [#2134]
+- Determiner facet on Filter collection objects task
+- Updated gems (`bundle update` without altering `Gemfile`)
+
+### Fixed
+- Compute print column divisions with barcode style labels [#1993] 
+- Object tag for TaxonNameRelationship inverted [#2100]
+- Collection object filter, collecting event related params were not being passed [#1807]
+- Collection object filter with/out facets, in part [#1455]
+- CoLDP missing values for names without original combinations [#2146] 
+- Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
+- Not being able to get pinboard items on some circumstances
+- `Request-URI Too Large` loading georeferences on Browse OTU
+- Tab order near parent when name is pinned [#2130]
+- Spinner in distribution section on Browse OTU
+- Destroying a container goes to 404 page [#2133]
+- Missing Determiner param [#2119]
+- Refresh status and relationship list on rank change [#2010]
+- Remove map shapes after reset form on Filter collection objects
+- Disabled `Create georeference from verbatim` button when latitude and longitude are not available [#2152]
+- Fix create determinations and biocurations before turn off the spinner [#1991]
+
+[#1993]: https://github.com/SpeciesFileGroup/taxonworks/issues/1993
+[#1991]: https://github.com/SpeciesFileGroup/taxonworks/issues/1991
+[#2100]: https://github.com/SpeciesFileGroup/taxonworks/issues/2100
+[#2154]: https://github.com/SpeciesFileGroup/taxonworks/issues/2154
+[#1455]: https://github.com/SpeciesFileGroup/taxonworks/issues/1455
+[#1807]: https://github.com/SpeciesFileGroup/taxonworks/issues/1807
+[#2114]: https://github.com/SpeciesFileGroup/taxonworks/issues/2114
+[#2146]: https://github.com/SpeciesFileGroup/taxonworks/issues/2146
+[#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
+[#2011]: https://github.com/SpeciesFileGroup/taxonworks/issues/2011
+[#2101]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
+[#2106]: https://github.com/SpeciesFileGroup/taxonworks/issues/2101
+[#2107]: https://github.com/SpeciesFileGroup/taxonworks/issues/2107
+[#2112]: https://github.com/SpeciesFileGroup/taxonworks/issues/2112
+[#2118]: https://github.com/SpeciesFileGroup/taxonworks/issues/2118
+[#2119]: https://github.com/SpeciesFileGroup/taxonworks/issues/2119
+[#2130]: https://github.com/SpeciesFileGroup/taxonworks/issues/2130
+[#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
+[#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
+[#2133]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
+[#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
+[#2135]: https://github.com/SpeciesFileGroup/taxonworks/issues/2135
+
+## [0.16.4] - 2020-03-09
+
 ### Added
 - Multiple presnece/absence params for collection objects filter [#2080] 
 - Buffered field facets for collection object [#1456], [#1835]
@@ -16,14 +89,22 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Create new biocuration and in relationship links in filter collection object
 - Determiner in filter collection object
 - HEIC image format support
+- PDF drop box on new source task [#2094]
+- Confirmation modal to clone source [#2099]
+- Smart selector on attributions in Radial annotator [#2081]
 
 ### Fixed
+- Soft validation scope for AssertedDistributions not scoped to taxon [#1971]
 - Uniquifying 2 people attached to the same source raises [#2078]
 - Render Source::Human cached with year, udpate `citation_tag` [#2067] 
 - Qualitative states in matrix row coder order correctly [#2076]
 - Better source cached filter wildcards [#1557]
 - Observation matrices hub link [#2071]
 - Refresh button component [#2085]
+- Update comprehensive url [#2096]
+- `/units.json` called 2x [#2089]
+- Edit `error radius` of a georeference in new collecting event task [#2087]
+- Previous and next navigate navigation links [#2039]
 
 ### Changed
 - Now using ImageMagick 7 instead of 6
@@ -31,6 +112,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
 - Updated npm packages
 
+[#1971]: https://github.com/SpeciesFileGroup/taxonworks/issues/1971
+[#2039]: https://github.com/SpeciesFileGroup/taxonworks/issues/2039
 [#2078]: https://github.com/SpeciesFileGroup/taxonworks/issues/2078
 [#2067]: https://github.com/SpeciesFileGroup/taxonworks/issues/2067
 [#2076]: https://github.com/SpeciesFileGroup/taxonworks/issues/2076
@@ -40,7 +123,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2080]: https://github.com/SpeciesFileGroup/taxonworks/issues/2080
 [#2066]: https://github.com/SpeciesFileGroup/taxonworks/issues/2066
 [#2071]: https://github.com/SpeciesFileGroup/taxonworks/issues/2071
+[#2081]: https://github.com/SpeciesFileGroup/taxonworks/issues/2081
 [#2085]: https://github.com/SpeciesFileGroup/taxonworks/issues/2085
+[#2087]: https://github.com/SpeciesFileGroup/taxonworks/issues/2087
+[#2089]: https://github.com/SpeciesFileGroup/taxonworks/issues/2089
+[#2094]: https://github.com/SpeciesFileGroup/taxonworks/issues/2094
+[#2096]: https://github.com/SpeciesFileGroup/taxonworks/issues/2096
+[#2099]: https://github.com/SpeciesFileGroup/taxonworks/issues/2099
 
 ## [0.16.3] - 2021-02-26
 ### Added
@@ -945,7 +1034,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...development
+[0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
+[0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
 [0.16.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.0...v0.16.1

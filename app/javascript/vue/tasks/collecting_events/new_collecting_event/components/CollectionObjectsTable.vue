@@ -255,17 +255,18 @@ export default {
               }
             }))
           })
+          index++
+          Promise.all(promises).then(() => {
+            this.createCOs(index)
+          })
         }, (error) => {
           this.noCreated.unshift({
             identifier: identifier.identifier,
             namespace: identifier.namespace.name,
             error: error.body
           })
-        }).finally(() => {
           index++
-          Promise.all(promises).then(() => {
-            this.createCOs(index)
-          })
+          this.createCOs(index)
         })
       } else {
         this.isSaving = false
