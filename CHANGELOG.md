@@ -7,12 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
-
+### Added
+- Community stats for `/api/v1/stats` [#2061]
+- Add by-project param for `/api/v1/stats` [#2056] 
 
 ### Fixed
 -`browse_otu_link` handles nil [#2155]
 
+[#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
+[#2061]: https://github.com/SpeciesFileGroup/taxonworks/issues/2061
 [#2155]: https://github.com/SpeciesFileGroup/taxonworks/issues/2155
 
 
