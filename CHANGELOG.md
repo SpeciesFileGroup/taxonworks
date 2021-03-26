@@ -9,6 +9,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+
+### Fixed
+-`browse_otu_link` handles nil [#2155]
+
+[#2155]: https://github.com/SpeciesFileGroup/taxonworks/issues/2155
+
+
 ## [0.16.5] - 2020-03-25
 
 ### Added
