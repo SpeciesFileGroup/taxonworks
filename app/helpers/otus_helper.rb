@@ -48,6 +48,7 @@ module OtusHelper
   # @param object [an instance of TaxonName or Otu]
   #   if TaxonName is provided JS UI will disambiguate if more options are possible
   def browse_otu_link(object)
+    return nil if object.nil?
     otu = object.metamorphosize
     content_tag(:div, '', 'data-taxon-name' => object_tag(otu), 'data-redirect' => 'true', 'data-id' => otu.id, 'data-klass' => object.class.base_class.name.to_s, 'data-otu-button' => 'true')
   end

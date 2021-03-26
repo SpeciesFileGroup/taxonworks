@@ -9,6 +9,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.16.6] - 2020-03-26
+
+### Added
+- Community stats for `/api/v1/stats` [#2061]
+- Add by-project param for `/api/v1/stats` [#2056] 
+
+### Fixed
+- `browse_otu_link` handles nil [#2155]
+
+[#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
+[#2061]: https://github.com/SpeciesFileGroup/taxonworks/issues/2061
+[#2155]: https://github.com/SpeciesFileGroup/taxonworks/issues/2155
+
 ## [0.16.5] - 2020-03-25
 
 ### Added
@@ -1034,7 +1047,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...development
+[0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3
