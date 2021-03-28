@@ -1,6 +1,39 @@
-require 'lib/soft_validation_helpers'
+require_relative 'soft_validation_helpers'
 
 describe 'SoftValidation', group: :soft_validation do
+
+  context 'subclass overiding methods' do
+    before do
+      OtherSofty.define_method(:my_sv) do
+        2
+      end
+
+      Softy.define_method(:my_sv) do
+        1
+      end
+
+      Softy.soft_validate(:my_sv, name: 'Check for cheeze')
+      OtherSofty.soft_validate(:my_sv, name: 'Check for cheeze with microscope')
+    end
+
+    after :all do  
+      Softy.send(:reset_soft_validation!)
+      OtherSofty.send(:reset_soft_validation!)
+      OtherOtherSofty.send(:reset_soft_validation!)
+    end
+
+    specify 'subclass overrides 1' do
+      expect(Softy.soft_validation_methods[:my_sv].name).to eq('Check for cheeze')
+    end
+
+    specify 'subclass overrides 2' do
+      expect(OtherSofty.soft_validation_methods[:my_sv].name).to eq('Check for cheeze with microscope')
+    end
+
+    specify 'subclass does not override 3' do
+      expect(OtherOtherSofty.soft_validation_methods[:my_sv].name).to eq('Check for cheeze')
+    end
+  end
 
   context 'extended class methods' do
     specify '.has_self_soft_validations?' do
@@ -254,5 +287,3 @@ describe 'SoftValidation', group: :soft_validation do
     end
   end
 end
-
-

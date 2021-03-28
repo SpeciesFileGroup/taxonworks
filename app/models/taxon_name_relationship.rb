@@ -79,69 +79,81 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
-  soft_validate(:sv_validate_required_relationships,
-                set: :validate_required_relationships,
-                name: 'Required relationships',
-                description: 'Required relationships' )
+  soft_validate(
+    :sv_validate_required_relationships,
+    set: :validate_required_relationships,
+    name: 'Required relationships',
+    description: 'Required relationships' )
 
-  soft_validate(:sv_validate_disjoint_relationships,
-                set: :validate_disjoint_relationships,
-                name: 'Conflicting relationships',
-                description: 'Detect conflicting relationships' )
+  soft_validate(
+    :sv_validate_disjoint_relationships,
+    set: :validate_disjoint_relationships,
+    name: 'Conflicting relationships',
+    description: 'Detect conflicting relationships' )
 
-  soft_validate(:sv_validate_disjoint_object,
-                set: :validate_disjoint_object,
-                name: 'Conflicting object taxon',
-                description: 'Object taxon has a status conflicting with the relationship' )
+  soft_validate(
+    :sv_validate_disjoint_object,
+    set: :validate_disjoint_object,
+    name: 'Conflicting object taxon',
+    description: 'Object taxon has a status conflicting with the relationship' )
 
-  soft_validate(:sv_validate_disjoint_subject,
-                set: :validate_disjoint_subject,
-                name: 'Conflicting subject taxon',
-                description: 'Subject taxon has a status conflicting with the relationship' )
+  soft_validate(
+    :sv_validate_disjoint_subject,
+    set: :validate_disjoint_subject,
+    name: 'Conflicting subject taxon',
+    description: 'Subject taxon has a status conflicting with the relationship' )
 
-  soft_validate(:sv_specific_relationship,
-                set: :specific_relationship,
-                name: 'validate relationship',
-                description: 'Validate integrity of the relationship, for example, the year applicability range' )
+  soft_validate(
+    :sv_specific_relationship,
+    set: :specific_relationship,
+    name: 'validate relationship',
+    description: 'Validate integrity of the relationship, for example, the year applicability range' )
 
-  soft_validate(:sv_objective_synonym_relationship,
-                set: :objective_synonym_relationship,
-                name: 'Objective synonym relationship',
-                description: 'Objective synonyms should have the same type' )
+  soft_validate(
+    :sv_objective_synonym_relationship,
+    set: :objective_synonym_relationship,
+    name: 'Objective synonym relationship',
+    description: 'Objective synonyms should have the same type' )
 
-  soft_validate(:sv_synonym_relationship,
-                set: :synonym_relationship,
-                name: 'Synonym relationship',
-                description: 'Validate integrity of synonym relationship' )
+  soft_validate(
+    :sv_synonym_relationship,
+    set: :synonym_relationship,
+    name: 'Synonym relationship',
+    description: 'Validate integrity of synonym relationship' )
 
-  soft_validate(:sv_not_specific_relationship,
-                set: :not_specific_relationship,
-                fix: :sv_fix_add_synonym_for_homonym,
-                name: 'Not specific relationship',
-                description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".' )
+  soft_validate(
+    :sv_not_specific_relationship,
+    set: :not_specific_relationship,
+    fix: :sv_fix_add_synonym_for_homonym,
+    name: 'Not specific relationship',
+    description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".' )
 
-  soft_validate(:sv_synonym_linked_to_valid_name,
-                set: :synonym_linked_to_valid_name,
-                fix: :sv_fix_subject_parent_update,
-                name: 'Synonym not linked to valid taxon',
-                description: 'Synonyms should be linked to valid taxon.' )
+  soft_validate(
+    :sv_synonym_linked_to_valid_name,
+    set: :synonym_linked_to_valid_name,
+    fix: :sv_fix_subject_parent_update,
+    name: 'Synonym not linked to valid taxon',
+    description: 'Synonyms should be linked to valid taxon.' )
 
-  soft_validate(:sv_validate_priority,
-                set: :validate_priority,
-                name: 'Priority validation',
-                description: 'Junior synonym should be younger than senior synonym' )
+  soft_validate(
+    :sv_validate_priority,
+    set: :validate_priority,
+    name: 'Priority validation',
+    description: 'Junior synonym should be younger than senior synonym' )
 
-  soft_validate(:sv_coordinated_taxa,
-                set: :coordinated_taxa,
-                fix: :sv_fix_coordinated_subject_taxa,
-                name: 'Move relationship to coordinate taxon',
-                description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.' )
+  soft_validate(
+    :sv_coordinated_taxa,
+    set: :coordinated_taxa,
+    fix: :sv_fix_coordinated_subject_taxa,
+    name: 'Move relationship to coordinate taxon',
+    description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.' )
 
-  soft_validate(:sv_coordinated_taxa_object,
-                set: :coordinated_taxa,
-                fix: :sv_fix_coordinated_object_taxa,
-                name: 'Move object relationship to coordinate taxon',
-                description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.')
+  soft_validate(
+    :sv_coordinated_taxa_object,
+    set: :coordinated_taxa,
+    fix: :sv_fix_coordinated_object_taxa,
+    name: 'Move object relationship to coordinate taxon',
+    description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.')
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -804,6 +816,24 @@ class TaxonNameRelationship < ApplicationRecord
           return true
         end
       rescue
+      end
+    end
+    false
+  end
+
+  def sv_fix_add_synonym_for_homonym
+    byebug
+    if subject_taxon_name.iczn_set_as_synonym_of.nil?
+      unless subject_taxon_name.iczn_replacement_names.empty?
+        subject_taxon_name.iczn_set_as_synonym_of = object_taxon_name
+        begin
+          TaxonNameRelationship.transaction do
+            save
+            return true
+          end
+        rescue ActiveRecord::RecordInvalid
+          return false
+        end
       end
     end
     false

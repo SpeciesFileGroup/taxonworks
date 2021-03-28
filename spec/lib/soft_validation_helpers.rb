@@ -43,7 +43,7 @@ class Softy
   def cook_cheezburgers
     @hungry = false
     true
-  end 
+  end
 end
 
 # Stub class for testing, used to ensure that soft validation
@@ -54,9 +54,22 @@ class OtherSofty < Softy
     ['lezz']
   end
 
-  # Stub ancestors method
+  # Mock ancestors method
   def self.ancestors
     [Softy]
-  end 
+  end
 end
 
+# Stub class for testing, used to ensure that soft validation
+# methods are specific to a class
+class OtherOtherSofty < Softy
+  # soft_validate(:bar)
+  def self.column_names
+    ['lezz']
+  end
+
+  # Mock ancestors method
+  def self.ancestors
+    [Softy]
+  end
+end

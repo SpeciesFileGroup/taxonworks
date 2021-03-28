@@ -1,12 +1,12 @@
-require 'soft_validation/soft_validation'
-require 'soft_validation/soft_validations'
-require 'soft_validation/soft_validation_method'
-require 'utilities/params'
-require "active_support/all"
-
 # TODO: REMOVE
 require 'byebug'
 require 'amazing_print'
+
+require_relative 'soft_validation/soft_validation'
+require_relative 'soft_validation/soft_validations'
+require 'soft_validation/soft_validation_method'
+require_relative 'utilities/params'
+require "active_support/all"
 
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
 #
@@ -117,7 +117,7 @@ module SoftValidation
       h[klass.name] = (klass.ancestors.select {|a| a.respond_to?(:soft_validates?) && a.soft_validates?} - [klass]) # a < ApplicationRecord && would be faster but requires AR in spec
     end
 
-  extend ::ActiveSupport::Concern
+  extend ActiveSupport::Concern
 
   included do
     attr_accessor :soft_validation_result
@@ -125,14 +125,12 @@ module SoftValidation
     # @return [Hash]
     #   An index of soft validation methods, keys are all methods
     #    `{ method_name: @method_instance, ... }`
-    class_attribute :soft_validation_methods, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
-    self.soft_validation_methods = {}
+    class_attribute :soft_validation_methods, default: {} # http://api.rubyonrails.org/classes/Class.html
 
     # @return [Hash]
     #   An index of soft validation methods by ClassName by set
     #   ' { ClassName' => { set: [ :method_name, ], ...}
-    class_attribute :soft_validation_sets, instance_writer: false
-    self.soft_validation_sets = { self.name =>  { default: []} }
+    class_attribute :soft_validation_sets, default: { self.name =>  { default: []} }
   end
 
   module ClassMethods
@@ -154,24 +152,31 @@ module SoftValidation
     # @param [Hash] options
     # @return [SoftValidationMethod]
     def add_method(method, options)
-      self.soft_validation_methods ||= {} # where here?
-      self.soft_validation_methods[method] = SoftValidationMethod.new(options)
+      # Yes, this has to be self.
+      #
+      # The critical insight is to use the `=` to access the setter method.  This allows the subclasses to have their own copy of `soft_validation_methods`
+      # See https://api.rubyonrails.org/classes/Class.html
+      self.soft_validation_methods = self.soft_validation_methods.merge(method =>  SoftValidationMethod.new(options))
     end
 
     # @param [Hash] method
     # @param [Hash] options
     def add_to_set(method, options)
+
+      # TODO: update this to use setters?  Might not
+      # be required because we are subgrouping by set.
+
       n = self.name
       set = options[:set]
 
-      self.soft_validation_sets[n] ||= {}
+      soft_validation_sets[n] ||= {}
 
       if set
-        self.soft_validation_sets[n][set] ||= []
-        self.soft_validation_sets[n][set] << method
+        soft_validation_sets[n][set] ||= []
+        soft_validation_sets[n][set] << method
       else
-        self.soft_validation_sets[n][:default] ||= []
-        self.soft_validation_sets[n][:default] << method
+        soft_validation_sets[n][:default] ||= []
+        soft_validation_sets[n][:default] << method
       end
     end
 
