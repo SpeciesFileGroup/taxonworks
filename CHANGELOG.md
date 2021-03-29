@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Updated y18n node package to version 4.0.1 [#2160]
+
+[#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 
 ## [0.16.6] - 2020-03-26
 
