@@ -1,9 +1,8 @@
-
 module SoftValidation
 
   # A SoftValidations instance contains a set of SoftValidations
   # and some code that tracks whether those validations have
-  # been fixed, etc.
+  # been run and fixed.
   #
   # @!attribute soft_validations
   #   @return [Array]
@@ -29,7 +28,7 @@ module SoftValidation
 
     # @param attribute [Symbol]
     #   a column attribute or :base
-    # @param message [String] 
+    # @param message [String]
     #   a message describing the soft validation to the user, i.e. what has gone wrong
     # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
     #   the method identified by :fix should fully resolve the SoftValidation.
@@ -47,7 +46,7 @@ module SoftValidation
       # TODO: why resolution_with
       options[:resolution] = resolution_for(options[:resolution_with])
 
-      # TODO: FIX?! shouldn't be used ... 
+      # TODO: FIX?! shouldn't be used ...
       options.delete(:resolution_with)
 
       sv = SoftValidation.new(options)

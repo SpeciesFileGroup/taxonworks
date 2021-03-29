@@ -3,8 +3,8 @@ module Protonym::SoftValidationExtensions
 
     VALIDATIONS = {
       sv_validate_parent_rank: {
-        set:         :validate_parent_rank,
-        name:        'Inappropriate parent rank',
+        set: :validate_parent_rank,
+        name: 'Inappropriate parent rank',
         description: 'Validates parent rank, for example suggesting "Incertae sedis" relationship for the species which has family as a parent taxon',
         resolution:  [:new_taxon_name_task],
         # fix: nil,
@@ -118,194 +118,197 @@ module Protonym::SoftValidationExtensions
         set: :validate_coordinated_names,
         fix: :sv_fix_coordinated_names_year,
         name: 'Matching year of coordinated names',
-        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim. When the year is not set for one of the names, it could be automatically set using the Fix' },
+        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim. When the year is not set for one of the names, it could be automatically set using the Fix'
+      },
 
       sv_validate_coordinated_names_gender: {
         set: :validate_coordinated_names,
         fix: :sv_fix_coordinated_names_gender,
         name: 'Matching gender of coordinated names',
-        description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same grammatical gender. When the gender is not set for one of the names, it could be automatically set using the Fix' },
+        description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same grammatical gender. When the gender is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_part_of_speach: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_part_of_speach,
-          name: 'Matching part of speach of coordinated names',
-          description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same part of speach. When the part of speach is not set for one of the names, it could be automatically set using the Fix' },
+      sv_validate_coordinated_names_part_of_speach: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_part_of_speach,
+        name: 'Matching part of speach of coordinated names',
+        description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same part of speach. When the part of speach is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_genus: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_genus,
-          name: 'Matching original genus of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original genus. When the original genus is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_genus: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_genus,
+        name: 'Matching original genus of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original genus. When the original genus is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_subgenus: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_subgenus,
-          name: 'Matching original subgenus of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subgenus. When the original subgenus is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_subgenus: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_subgenus,
+        name: 'Matching original subgenus of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subgenus. When the original subgenus is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_species: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_species,
-          name: 'Matching original species of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original species. When the original species is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_species: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_species,
+        name: 'Matching original species of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original species. When the original species is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_subspecies: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_subspecies,
-          name: 'Matching original subspecies of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subspecies. When the original subspecies is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_subspecies: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_subspecies,
+        name: 'Matching original subspecies of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original subspecies. When the original subspecies is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_variety: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_variety,
-          name: 'Matching original variety of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original variety. When the original variety is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_variety: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_variety,
+        name: 'Matching original variety of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original variety. When the original variety is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_original_form: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_original_form,
-          name: 'Matching original form of coordinated names',
-          description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original form. When the original form is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_original_form: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_original_form,
+        name: 'Matching original form of coordinated names',
+        description: 'Two coordinated names (for example a species and nominotypical subspecies) should have the same original form. When the original form is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_type_species: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_type_species,
-          name: 'Matching type species of coordinated names',
-          description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species. When the type species is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_type_species: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_type_species,
+        name: 'Matching type species of coordinated names',
+        description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species. When the type species is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_type_species_type: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_type_species_type,
-          name: 'Matching type species designation of coordinated names',
-          description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species designation. When the type species designation does not match with the coordinated name, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_type_species_type: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_type_species_type,
+        name: 'Matching type species designation of coordinated names',
+        description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same type species designation. When the type species designation does not match with the coordinated name, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_type_genus: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_type_genus,
-          name: 'Matching type genus of coordinated names',
-          description: 'Two coordinated family-group names (for example a family and nominotypical subfamily) should have the same type genus. When the type genus is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_type_genus: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_type_genus,
+        name: 'Matching type genus of coordinated names',
+        description: 'Two coordinated family-group names (for example a family and nominotypical subfamily) should have the same type genus. When the type genus is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_validate_coordinated_names_type_specimen: {
-          set: :validate_coordinated_names,
-          fix: :sv_fix_coordinated_names_type_specimen,
-          name: 'Matching type specimen of coordinated names',
-          description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same type specimens. When the type specimen is not set for one of the names, it could be automatically set using the Fix'
-        },
+      sv_validate_coordinated_names_type_specimen: {
+        set: :validate_coordinated_names,
+        fix: :sv_fix_coordinated_names_type_specimen,
+        name: 'Matching type specimen of coordinated names',
+        description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same type specimens. When the type specimen is not set for one of the names, it could be automatically set using the Fix'
+      },
 
-        sv_single_sub_taxon: {
-          set: :single_sub_taxon,
-          fix: :sv_fix_add_nominotypical_sub,
-          name: 'Single sub-taxon',
-          description: 'When the name is a sub-taxon (for example a subgenus in genus) the parent taxon should have a nominotypical sub-taxon. When the nominotypical sub-taxon is missing, it could be automatically created using the Fix'
-        },
+      sv_single_sub_taxon: {
+        set: :single_sub_taxon,
+        fix: :sv_fix_add_nominotypical_sub,
+        name: 'Single sub-taxon',
+        description: 'When the name is a sub-taxon (for example a subgenus in genus) the parent taxon should have a nominotypical sub-taxon. When the nominotypical sub-taxon is missing, it could be automatically created using the Fix'
+      },
 
-        sv_parent_priority: {
-          set: :parent_priority,
-          name: 'Higher rank priority',
-          description: 'In the same rank-group (for example, genus-group), the parent should be the oldest taxon'
-        },
+      sv_parent_priority: {
+        set: :parent_priority,
+        name: 'Higher rank priority',
+        description: 'In the same rank-group (for example, genus-group), the parent should be the oldest taxon'
+      },
 
-        sv_homotypic_synonyms: {
-          set: :homotypic_synonyms,
-          name: 'Missing homotypic synonym relationship',
-          description: 'Two taxa should be homotypic synonyms if they share the same type'
-        },
+      sv_homotypic_synonyms: {
+        set: :homotypic_synonyms,
+        name: 'Missing homotypic synonym relationship',
+        description: 'Two taxa should be homotypic synonyms if they share the same type'
+      },
 
-        sv_family_is_invalid: {
-          set: :family_is_invalid,
-          name: 'Invalid family',
-          description: 'Family is invalid due to the homonymy or suppression of its type genus'
-        },
+      sv_family_is_invalid: {
+        set: :family_is_invalid,
+        name: 'Invalid family',
+        description: 'Family is invalid due to the homonymy or suppression of its type genus'
+      },
 
-        sv_family_is_invalid_no_substitute: {
-          set: :family_is_invalid,
-          name: 'No substitute for invalid family',
-          description: 'Family is marked as invalid, but no synonym relationship is created'
-        },
+      sv_family_is_invalid_no_substitute: {
+        set: :family_is_invalid,
+        name: 'No substitute for invalid family',
+        description: 'Family is marked as invalid, but no synonym relationship is created'
+      },
 
-        sv_source_not_older_then_description: {
-          set: :dates,
-          name: 'Source year does not match Taxon verbatim_year',
-          description: 'Source year does not match Taxon verbatim_year'
-        },
+      sv_source_not_older_then_description: {
+        set: :dates,
+        name: 'Source year does not match Taxon verbatim_year',
+        description: 'Source year does not match Taxon verbatim_year'
+      },
 
-        sv_original_combination_relationships: {
-          set: :original_combination_relationships,
-          name: 'Self original combination relationship',
-          description: 'Taxon istself should be present as a lowest original combination relationship'
-        },
+      sv_original_combination_relationships: {
+        set: :original_combination_relationships,
+        name: 'Self original combination relationship',
+        description: 'Taxon istself should be present as a lowest original combination relationship'
+      },
 
-        sv_extant_children: {
-          set: :extant_children,
-          name: 'Extinct taxon has extant children taxa',
-          description: 'Extinct taxon has extant children taxa'
-        },
+      sv_extant_children: {
+        set: :extant_children,
+        name: 'Extinct taxon has extant children taxa',
+        description: 'Extinct taxon has extant children taxa'
+      },
 
-        sv_protonym_to_combination: {
-          set: :protonym_to_combination,
-          fix: :becomes_combination,
-          flagged: true,
-          name: 'Invalid protonym could be converted into a combination',
-          description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger'
-        },
+      sv_protonym_to_combination: {
+        set: :protonym_to_combination,
+        fix: :becomes_combination,
+        flagged: true,
+        name: 'Invalid protonym could be converted into a combination',
+        description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger'
+      },
 
-        sv_missing_roles: {
-          set: :missing_roles,
-          name: 'Missing taxon author roles',
-          description: 'Taxon author roles are not set'
-        },
+      sv_missing_roles: {
+        set: :missing_roles,
+        name: 'Missing taxon author roles',
+        description: 'Taxon author roles are not set'
+      },
 
-        sv_year_is_not_required: {
-          set: :year_is_not_required,
-          fix: :sv_fix_year_is_not_required,
-          name: 'Verbatim year is not required',
-          description: 'Verbatim year is not required if the origina source is set and the source has year of publication. The Fix will delete the verbatim_year'
-        },
+      sv_year_is_not_required: {
+        set: :year_is_not_required,
+        fix: :sv_fix_year_is_not_required,
+        name: 'Verbatim year is not required',
+        description: 'Verbatim year is not required if the origina source is set and the source has year of publication. The Fix will delete the verbatim_year'
+      },
 
-        sv_author_is_not_required: {
-          set: :author_is_not_required,
-          fix: :sv_fix_author_is_not_required,
-          name: 'Verbatim author is not required',
-          description: 'Verbatim author is not required if the author roles are set. The Fix will delete the verbatim_author'
-        },
+      sv_author_is_not_required: {
+        set: :author_is_not_required,
+        fix: :sv_fix_author_is_not_required,
+        name: 'Verbatim author is not required',
+        description: 'Verbatim author is not required if the author roles are set. The Fix will delete the verbatim_author'
+      },
 
-        sv_misspelling_roles_are_not_required: {
-          set: :roles_are_not_required,
-          fix: :sv_fix_misspelling_roles_are_not_required,
-          name: 'Author roles are not required for misspelling',
-          description: 'Author roles are not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the roles'
-        },
+      sv_misspelling_roles_are_not_required: {
+        set: :roles_are_not_required,
+        fix: :sv_fix_misspelling_roles_are_not_required,
+        name: 'Author roles are not required for misspelling',
+        description: 'Author roles are not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the roles'
+      },
 
-        sv_misspelling_author_is_not_required: {
-          set: :roles_are_not_required,
-          fix: :sv_fix_misspelling_author_is_not_required,
-          name: 'Verbatim author is not required for misspelling',
-          description: 'Verbatim author is not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the author'
-        },
+      sv_misspelling_author_is_not_required: {
+        set: :roles_are_not_required,
+        fix: :sv_fix_misspelling_author_is_not_required,
+        name: 'Verbatim author is not required for misspelling',
+        description: 'Verbatim author is not required for misspelling. The author of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the author'
+      },
 
-        sv_misspelling_year_is_not_required: {
-          set: :roles_are_not_required,
-          fix: :sv_fix_misspelling_year_is_not_required,
-          name: 'Verbatim year is not required for misspelling',
-          description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
-        },
+      sv_misspelling_year_is_not_required: {
+        set: :roles_are_not_required,
+        fix: :sv_fix_misspelling_year_is_not_required,
+        name: 'Verbatim year is not required for misspelling',
+        description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
+      },
 
-        sv_cached_names: {
-          set: :cached_names,
-          fix: :sv_fix_cached_names,
-          name: 'Cached names',
-          description: 'Check if cached values need to be updated'
-        }
+      sv_cached_names: {
+        set: :cached_names,
+        fix: :sv_fix_cached_names,
+        name: 'Cached names',
+        description: 'Check if cached values need to be updated'
+      }
     }.freeze
 
     VALIDATIONS.each_key do |k|

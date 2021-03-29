@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Protonym, type: :model, group: [:nomenclature, :protonym] do
+describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
 
   before(:all) do
     TaxonNameRelationship.delete_all

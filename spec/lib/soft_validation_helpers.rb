@@ -54,9 +54,8 @@ class OtherSofty < Softy
     ['lezz']
   end
 
-  # Stub ancestors method
+  # Mock ancestors method
   def self.ancestors
     [Softy]
   end 
 end
-
