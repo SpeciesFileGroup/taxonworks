@@ -680,6 +680,25 @@ namespace :tw do
                 new_protonym = false
                 skip_citation = false
 
+                citation_housekeeping_attributes = {
+                  created_at: row['CreatedOn'],
+                  updated_at: row['LastUpdate'],
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                }
+
+                citation_common_attributes = {
+                  source_id: source_id,
+                  pages: row['CitePages'],
+                  project_id: project_id.to_i,
+                  citation_topics_attributes: Utilities::Numbers.get_bits(row['InfoFlags'].to_i).map do |bit_position|
+                    {
+                      topic_id: get_cvt_id[project_id]["#{base_uri}cite_info_flags/#{bit_position}"],
+                      project_id: project_id.to_i
+                    }.merge!(citation_housekeeping_attributes)
+                  end
+                }.merge!(citation_housekeeping_attributes)
+
                 if row['NomenclatorID'] !='0' && nomenclator_ids[nomenclator_id.to_i] && nomenclator_ids[nomenclator_id.to_i]['genus'] && tw_taxa_ids[project_id + '_' + nomenclator_ids[nomenclator_id.to_i]['genus'][0]].nil?
                   pr = Protonym.create(name: nomenclator_ids[nomenclator_id.to_i]['genus'][0], rank_class: Ranks.lookup(:iczn, 'Genus'), project_id: project_id, parent_id: protonym.root.id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                   if pr.id.nil?
@@ -1010,15 +1029,10 @@ namespace :tw do
                         end
                         if tr.try(:id)
                           citation = Citation.create(
-                              source_id: source_id,
-                              pages: row['CitePages'],
+                            citation_common_attributes.merge({
                               citation_object: tr,
-                              project_id: project_id,
-                              created_at: row['CreatedOn'],
-                              updated_at: row['LastUpdate'],
-                              created_by_id: get_tw_user_id[row['CreatedBy']],
-                              updated_by_id: get_tw_user_id[row['ModifiedBy']],
                               notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '5'}))]
+                            })
                           )
                           unless citation.id
                             missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "TR_CITATION_CREATE_FAILED"]
@@ -1041,15 +1055,10 @@ namespace :tw do
                     end
                     if tr.try(:id)
                       citation = Citation.create(
-                          source_id: source_id,
-                          pages: row['CitePages'],
+                        citation_common_attributes.merge({
                           citation_object: tr,
-                          project_id: project_id,
-                          created_at: row['CreatedOn'],
-                          updated_at: row['LastUpdate'],
-                          created_by_id: get_tw_user_id[row['CreatedBy']],
-                          updated_by_id: get_tw_user_id[row['ModifiedBy']],
                           notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '6'}))]
+                        })
                       )
                       missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED"] unless citation.id
                     end
@@ -1129,15 +1138,10 @@ namespace :tw do
                     tr = TaxonNameRelationship.create(subject_taxon_name_id: protonym.id, object_taxon_name_id: p1.id, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym', project_id: project_id) if tr.nil?
                       if tr.nil? # Looks imposible to be false. Originally placed as if modifier of line below
                         citation = Citation.create(
-                            source_id: source_id,
-                            pages: row['CitePages'],
+                          citation_common_attributes.merge({
                             citation_object: tr,
-                            project_id: project_id,
-                            created_at: row['CreatedOn'],
-                            updated_at: row['LastUpdate'],
-                            created_by_id: get_tw_user_id[row['CreatedBy']],
-                            updated_by_id: get_tw_user_id[row['ModifiedBy']],
                             notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '7'}))]
+                          })
                         )
                         missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED_2"] unless citation.id
                       end
@@ -1173,17 +1177,12 @@ namespace :tw do
                     this_object_type = 'TaxonName'
                   end
                   citation = Citation.new(
-                      source_id: source_id,
-                      pages: row['CitePages'],
+                    citation_common_attributes.merge({
                       is_original: (row['SeqNum'] == '1' && protonym.source.nil? ? true : false),
                       citation_object_id: use_this_object_id,
                       citation_object_type: this_object_type,
-                      project_id: project_id,
-                      created_at: row['CreatedOn'],
-                      updated_at: row['LastUpdate'],
-                      created_by_id: get_tw_user_id[row['CreatedBy']],
-                      updated_by_id: get_tw_user_id[row['ModifiedBy']],
                       notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '8'}))]
+                    })
                   )
 
                   begin
@@ -1287,66 +1286,63 @@ namespace :tw do
   ## ConceptChange: For now, do not import, only 2000 out of 31K were not automatically calculated, downstream in TW we will use Euler
   ## CurrentConcept: bit: For now, do not import
   # select * from tblCites c inner join tblTaxa t on c.TaxonNameID = t.TaxonNameID where c.CurrentConcept = 1 and t.NameStatus = 7
-  ## InfoFlags: Attribute/topic of citation?!! Treat like StatusFlags for individual values
-  # Use as topics on citations for OTUs, make duplicate citation on OTU, then topic on that citation
+  # ## InfoFlags: Attribute/topic of citation?!! Treat like StatusFlags for individual values
+  # # Use as topics on citations for OTUs, make duplicate citation on OTU, then topic on that citation
 
-                info_flags = row['InfoFlags'].to_i
-                if info_flags == 0
-                  next
-                end
+  #               info_flags = row['InfoFlags'].to_i
+  #               if info_flags == 0
+  #                 next
+  #               end
 
-  # !! from here on we're back to referencing OTUs that were created PRE combination world
+  # # !! from here on we're back to referencing OTUs that were created PRE combination world
 
-                # otu_id = get_taxon_name_otu_id[protonym.id.to_s].to_i  # previously set
+  #               # otu_id = get_taxon_name_otu_id[protonym.id.to_s].to_i  # previously set
 
-                # if otu_id.blank?
-                #   # lgo meessage
-                #   otu_id = protonym.otus.first.try(:id) if otu_id.blank?
-                # end
-                #
-                # if otu_id.blank?
-                #   # !! a even more important log messages
-                # end
+  #               # if otu_id.blank?
+  #               #   # lgo meessage
+  #               #   otu_id = protonym.otus.first.try(:id) if otu_id.blank?
+  #               # end
+  #               #
+  #               # if otu_id.blank?
+  #               #   # !! a even more important log messages
+  #               # end
 
-                if otu_id.nil?
-                  logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} (OTU not found: #{otu_not_found_counter += 1})"
-                  next
-                end
+  #               if otu_id.nil?
+  #                 logger.warn "OTU error, SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} (OTU not found: #{otu_not_found_counter += 1})"
+  #                 next
+  #               end
 
-                base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
-                cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
+  #               base_cite_info_flags_uri = (base_uri + 'cite_info_flags/') # + bit_position below
+  #               cite_info_flags_array = Utilities::Numbers.get_bits(info_flags)
 
-                citation_topics_attributes = cite_info_flags_array.collect {|bit_position|
-                  {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
-                   project_id: project_id,
-                   created_at: row['CreatedOn'],
-                   updated_at: row['LastUpdate'],
-                   created_by_id: get_tw_user_id[row['CreatedBy']],
-                   updated_by_id: get_tw_user_id[row['ModifiedBy']]
-                  }
-                }
+  #               citation_topics_attributes = cite_info_flags_array.collect {|bit_position|
+  #                 {topic_id: get_cvt_id[project_id][base_cite_info_flags_uri + bit_position.to_s],
+  #                  project_id: project_id,
+  #                  created_at: row['CreatedOn'],
+  #                  updated_at: row['LastUpdate'],
+  #                  created_by_id: get_tw_user_id[row['CreatedBy']],
+  #                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+  #                 }
+  #               }
 
-                otu_citation = Citation.new(
-                    source_id: source_id,
-                    pages: row['CitePages'],
-                    is_original: (row['SeqNum'] == '1' ? true : false),
-                    citation_object_type: 'Otu',
-                    citation_object_id: otu_id,
-                    citation_topics_attributes: citation_topics_attributes,
-                    project_id: project_id,
-                    created_at: row['CreatedOn'],
-                    updated_at: row['LastUpdate'],
-                    created_by_id: get_tw_user_id[row['CreatedBy']],
-                    updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                    notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '10'}))]
-                )
+  #               otu_citation = Citation.new(
+  #                 citation_common_attributes.merge({
+  #                   source_id: source_id,
+  #                   pages: row['CitePages'],
+  #                   is_original: (row['SeqNum'] == '1' ? true : false),
+  #                   citation_object_type: 'Otu',
+  #                   citation_object_id: otu_id,
+  #                   citation_topics_attributes: citation_topics_attributes,
+  #                   notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '10'}))]
+  #                 })
+  #               )
 
-                begin
-                  otu_citation.save!
-                  puts 'OTU citation created'
-                rescue ActiveRecord::RecordInvalid
-                  logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
-                end
+  #               begin
+  #                 otu_citation.save!
+  #                 puts 'OTU citation created'
+  #               rescue ActiveRecord::RecordInvalid
+  #                 logger.error "OTU citation ERROR SF.TaxonNameID #{row['TaxonNameID']} = TW.taxon_name_id #{protonym.id} = otu_id #{otu_id} (error_counter = #{error_counter += 1}): " + otu_citation.errors.full_messages.join(';')
+  #               end
 
                 ## PolynomialStatus: based on NewNameStatus: Used to detect "fake" (previous combos) synonyms
                 # Not included in initial import; after import, in TW, when we calculate CoL output derived from OTUs, and if CoL output is clearly wrong then revisit this issue
