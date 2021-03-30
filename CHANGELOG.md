@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
 
 ### Changed
+- Changed TaxonName string for superspecies names
 - Updated y18n node package to version 4.0.1 [#2160]
 
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
