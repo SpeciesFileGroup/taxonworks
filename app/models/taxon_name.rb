@@ -1429,13 +1429,14 @@ class TaxonName < ApplicationRecord
       end
 
       unless correct_name_format
-        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
-        misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
+        #invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
+        #invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
+        #misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
 
         icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
-        misspellings = misspellings & taxon_name_relationships.pluck(:type)
-        if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
+        #misspellings = misspellings & taxon_name_relationships.pluck(:type)
+        if is_available? && icvcn_species.nil?
+#          if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end

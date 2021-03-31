@@ -58,6 +58,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+- updated softvalidation for non binomial names
+- updated label for species-group rank TaxonName
 - Compute print column divisions with barcode style labels [#1993] 
 - Object tag for TaxonNameRelationship inverted [#2100]
 - Collection object filter, collecting event related params were not being passed [#1807]
