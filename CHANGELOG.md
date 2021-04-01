@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [0.16.5] - 2020-03-25
 
 ### Added
+- softvalidation fix for transfer of type species into coordinate subgenus
 - Link from Browse colleciton object to Browse OTU for current OTU det [#2154]
 - Collection object filter params for preparation and buffered fields [#2118]
 - Added soft_validations and fixes for coordinate name citations and roles.

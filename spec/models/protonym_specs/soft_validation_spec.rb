@@ -492,6 +492,21 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
+      specify 'type species not in coordinate subgenus' do
+        gen = FactoryBot.create(:iczn_genus, name: 'Cus')
+        sgen = FactoryBot.create(:iczn_subgenus, name: 'Cus', parent: gen)
+        species = FactoryBot.create(:relationship_species, parent: gen)
+        gen.type_species_by_original_designation_or_monotypy = species
+        sgen.type_species_by_original_designation_or_monotypy = species
+
+        species.soft_validate(:type_placement)
+        expect(species.soft_validations.messages_on(:base).size).to eq(1)
+        species.fix_soft_validations
+        species.soft_validate(:type_placement)
+        expect(species.soft_validations.messages_on(:base).size).to eq(0)
+        expect(species.parent_id).to eq(sgen.id)
+      end
+
       specify 'mismatching' do
         @genus.type_species_by_original_designation_or_monotypy = @species
         @subgenus.type_species_by_original_monotypy = @species
