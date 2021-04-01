@@ -286,7 +286,7 @@ export default {
     },
     defaultLinks () {
       return {
-        [defaultOptions.Edit]: `${this.metadata.resource_path}/edit`,
+        [defaultOptions.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
         [defaultOptions.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
         [defaultOptions.Show]: this.metadata.resource_path
       }
