@@ -82,8 +82,8 @@
         <div id="third-column">
           <div class="flex-wrap-row"> 
             <%= render "summary" %>
-            <%= annotations_summary_tag(@taxon_name) %>
             <%= render "soft_validation" %>
+            <%= annotations_summary_tag(@taxon_name) %>
             <div class="panel content fullSize separate-left">
               <div class="attributes">
                 <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
