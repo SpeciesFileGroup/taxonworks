@@ -25,6 +25,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - sortArray function now return a natural sort
 - Open confirmation modal and focus new button on New taxon name
 - Next and previous links for id and identifier on comprehensive task [#2134]
+- Replaced Canvas for SVG radial menu
+- Close radial object after select a matrix on observation matrices slice [#2165]
 
 ### Fixed
 - CoLDP missing values for names without original combinations [#2146] 
@@ -36,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroying a container goes to 404 page [#2133]
 - Missing Determiner param [#2119]
 - Refresh status and relationship list on rank change [#2010]
+- Show observation matrices count on radial object [#2158]
 
 [#2146]: https://github.com/SpeciesFileGroup/taxonworks/issues/2146
 [#2010]: https://github.com/SpeciesFileGroup/taxonworks/issues/2010
@@ -50,6 +53,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2131]: https://github.com/SpeciesFileGroup/taxonworks/issues/2131
 [#2132]: https://github.com/SpeciesFileGroup/taxonworks/issues/2132
 [#2133]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
+[#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
+[#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
 
 ## [0.16.4] - 2020-03-09
 
