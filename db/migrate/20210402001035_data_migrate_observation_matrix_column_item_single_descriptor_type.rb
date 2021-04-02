@@ -1,11 +1,9 @@
 class DataMigrateObservationMatrixColumnItemSingleDescriptorType < ActiveRecord::Migration[6.0]
   def change
-    target = ObservationMatrixColumnItem::Single::Descriptor
-
-    ObservationMatrixColumnItem.connection.execute(
+    ActiveRecord::Base.connection.execute(
       <<~SQL
-        UPDATE #{target.table_name}
-        SET type = '#{target.to_s}'
+        UPDATE observation_matrix_column_items
+        SET type = 'ObservationMatrixColumnItem::Single::Descriptor'
         WHERE type = 'ObservationMatrixColumnItem::SingleDescriptor';
       SQL
     )
