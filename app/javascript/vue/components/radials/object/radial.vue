@@ -42,7 +42,8 @@
               :metadata="metadata"
               :global-id="globalId"
               :object-type="metadata.object_type"
-              @updateCount="setTotal"/>
+              @updateCount="setTotal"
+              @close="closeModal"/>
           </div>
         </div>
       </modal>

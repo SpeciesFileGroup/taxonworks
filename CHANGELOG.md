@@ -12,10 +12,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
+- Show observation matrices count on radial object [#2158]
 
 ### Changed
 - Changed TaxonName string for superspecies names
 - Updated y18n node package to version 4.0.1 [#2160]
+- Replaced Canvas for SVG radial menu
+- Close radial object after select a matrix on observation matrices slice [#2165]
 
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 
@@ -31,6 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
 [#2061]: https://github.com/SpeciesFileGroup/taxonworks/issues/2061
 [#2155]: https://github.com/SpeciesFileGroup/taxonworks/issues/2155
+[#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
+[#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
 
 ## [0.16.5] - 2020-03-25
 
