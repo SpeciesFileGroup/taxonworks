@@ -94,6 +94,7 @@ export default {
       matrices: [],
       selectedMatrix: undefined,
       rows: [],
+      create: false,
       filterType: '',
       loading: false,
       otuSelected: undefined,
@@ -108,11 +109,6 @@ export default {
           type: 'ObservationMatrixRowItem::Single::CollectionObject'
         }
       }
-    }
-  },
-  watch: {
-    alreadyInMatrices (newVal) {
-      this.$emit('updateCount', newVal.length)
     }
   },
   mounted () {
@@ -148,6 +144,7 @@ export default {
     reset () {
       this.selectedMatrix = undefined
       this.rows = []
+      this.create = false
       this.show = false
     },
     createRow () {
@@ -185,7 +182,6 @@ export default {
           window.open(`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${this.alreadyInCurrentMatrix[0].id}`, '_blank')
         })
       }
-      this.$emit('close')
     },
     openImageMatrix () {
       if (this.alreadyInCurrentMatrix.length) {
@@ -195,7 +191,6 @@ export default {
           window.open(`/tasks/matrix_image/matrix_image/index?observation_matrix_id=${this.selectedMatrix.id}&row_id=${this.alreadyInCurrentMatrix[0].id}&row_position=${this.alreadyInCurrentMatrix[0].position}`, '_blank')
         })
       }
-      this.$emit('close')
     }
   }
 }
