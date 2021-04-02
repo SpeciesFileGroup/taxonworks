@@ -128,8 +128,8 @@ module SoftValidation
     # @return [Hash]
     #   An index of soft validation methods, keys are all methods
     #    `{ method_name: @method_instance, ... }`
-    class_attribute :soft_validation_methods #, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
-    # self.soft_validation_methods = {}
+    class_attribute :soft_validation_methods, instance_writer: false  # http://api.rubyonrails.org/classes/Class.html
+    self.soft_validation_methods = {}
 
     # @return [Hash]
     #   An index of soft validation methods by ClassName by set
@@ -157,8 +157,8 @@ module SoftValidation
     # @param [Hash] options
     # @return [SoftValidationMethod]
     def add_method(method, options)
-      @soft_validation_methods ||= {} # where here?
-      @soft_validation_methods[method] = SoftValidationMethod.new(options)
+      self.soft_validation_methods ||= {} # where here?
+      self.soft_validation_methods[method] = SoftValidationMethod.new(options)
     end
 
     # @param [Hash] method
