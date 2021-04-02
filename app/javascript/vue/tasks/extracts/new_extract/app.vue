@@ -15,7 +15,8 @@
         <div class="horizontal-right-content">
           <button
             type="button"
-            class="button normal-input button-submit margin-small-right">
+            class="button normal-input button-submit margin-small-right"
+            @click="saveExtract">
             Save
           </button>
           <button
@@ -60,7 +61,6 @@ import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
 
 import NavbarComponent from 'components/navBar'
-import OriginComponent from './components/Origin'
 import MadeComponent from './components/Made'
 import RepositoryComponent from './components/Repository'
 import Draggable from 'vuedraggable'
@@ -70,7 +70,6 @@ export default {
   components: {
     Draggable,
     NavbarComponent,
-    OriginComponent,
     MadeComponent,
     RepositoryComponent,
     SoftValidation,

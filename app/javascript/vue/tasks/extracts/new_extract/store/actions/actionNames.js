@@ -1,7 +1,8 @@
 const ActionNames = {
   CreateExtract: 'createExtract',
   LoadProjectPreferences: 'loadProjectPreferences',
-  LoadUserPreferences: 'loadUserPreferences'
+  LoadUserPreferences: 'loadUserPreferences',
+  SaveExtract: 'saveExtract'
 }
 
 export default ActionNames

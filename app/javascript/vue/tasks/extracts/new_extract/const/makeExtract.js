@@ -6,5 +6,5 @@ export default () => ({
   day_made: undefined,
   origin_relationships_attributes: [],
   data_attributes_attributes: [],
-  role_attributes: []
+  roles_attributes: []
 })

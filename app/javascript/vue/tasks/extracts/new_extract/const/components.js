@@ -4,6 +4,7 @@ import Identifier from '../components/Identifier'
 import CustomAttributes from '../components/CustomAttributes'
 import Protocols from '../components/Protocols'
 import Repository from '../components/Repository'
+import ByComponent from '../components/Role'
 
 const VueComponent = {
   Origin: OriginComponent,
@@ -11,7 +12,8 @@ const VueComponent = {
   Identifier: Identifier,
   Repository: Repository,
   Protocols: Protocols,
-  CustomAttributes: CustomAttributes
+  CustomAttributes: CustomAttributes,
+  By: ByComponent
 }
 
 export {

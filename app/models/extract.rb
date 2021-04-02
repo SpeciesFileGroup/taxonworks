@@ -39,6 +39,8 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::IsData
+  include Shared::DataAttributes
+  include Shared::Roles
 
   is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
@@ -53,10 +55,10 @@ class Extract < ApplicationRecord
 
   before_validation :set_made, if: -> {is_made_now}
 
-  validates_presence_of :quantity_value
-  validates_presence_of :quantity_unit
+#  validates_presence_of :quantity_value
+#  validates_presence_of :quantity_unit
 
-  validates :quantity_unit, with: :validate_units
+#  validates :quantity_unit, with: :validate_units
 
   validates :year_made, date_year: { allow_blank: false }
   validates :month_made, date_month: { allow_blank: false }
