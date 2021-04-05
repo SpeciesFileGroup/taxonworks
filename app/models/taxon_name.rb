@@ -1165,9 +1165,6 @@ class TaxonName < ApplicationRecord
     ay = nil
     p = nil
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-
     if self.type == 'Combination'
       c = protonyms_by_rank
       return nil if c.empty?
@@ -1175,6 +1172,9 @@ class TaxonName < ApplicationRecord
     else
       taxon = self
     end
+
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
     unless mobj.blank?
