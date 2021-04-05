@@ -6,8 +6,15 @@ class ExtractsController < ApplicationController
   # GET /extracts
   # GET /extracts.json
   def index
-    @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+      respond_to do |format|
+      format.html do
+        @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @extracts = Extract.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /extracts/1
@@ -74,6 +81,11 @@ class ExtractsController < ApplicationController
     else
       redirect_to extract_path(params[:id])
     end
+  end
+
+  # GET /extracts/select_options
+  def select_options
+    @extracts = Extract.select_optimized(sessions_current_user_id, sessions_current_project_id)
   end
 
   private
