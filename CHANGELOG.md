@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - incorrect author string for misspelled combination is fixed
 - Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
 - Show observation matrices count on radial object [#2158]
+- Overflow on New observation matrix [#2168]
 
 ### Changed
 - Changed TaxonName string for superspecies names
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
+[#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 
 ## [0.16.6] - 2020-03-26
 
