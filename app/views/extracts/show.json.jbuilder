@@ -1,1 +1,1 @@
-json.extract! @extract, :id, :quantity_value, :quantity_unit, :concentration_value, :concentration_unit, :verbatim_anatomical_origin, :year_made, :month_made, :day_made, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.extract! @extract, :id, :concentration_value, :concentration_unit, :verbatim_anatomical_origin, :year_made, :month_made, :day_made, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at

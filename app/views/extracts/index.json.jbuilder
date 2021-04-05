@@ -1,8 +1,6 @@
 json.array!(@extracts) do |extract|
   json.extract! extract, 
     :id,
-    :quantity_value,
-    :quantity_unit,
     :concentration_value,
     :concentration_unit,
     :verbatim_anatomical_origin,
