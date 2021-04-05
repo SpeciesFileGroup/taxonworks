@@ -130,7 +130,7 @@ export default {
   computed: {
     menuOptions () {
       const tasks = this.metadata.tasks || {}
-      const slices = [].concat(this.defaultSlices, Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
+      const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
         name: task,
         label: name,
         link: path,
@@ -141,10 +141,10 @@ export default {
               height: '20'
             }
           : undefined
-      })))
+      }))
 
       if (Object.keys(tasks).length > this.maxTaskInPie) {
-        slices.push({
+        taskSlices.push({
           label: 'All tasks',
           name: 'alltasks',
           icon: {
@@ -156,7 +156,7 @@ export default {
       }
 
       if (this.metadata?.recent_url) {
-        slices.push(this.addSlice(defaultOptions.Recent,
+        taskSlices.push(this.addSlice(defaultOptions.Recent,
           this.recentTotal
             ? {
                 slices: [{
@@ -171,12 +171,15 @@ export default {
             : {}
         ))
       }
+
+      const slices = [].concat(taskSlices, this.defaultSlices)
+
       return {
         width: 400,
         height: 400,
         sliceSize: 130,
         centerSize: 34,
-        innerPosition: 1.6,
+        innerPosition: 1.7,
         margin: 2,
         middleButton: this.middleButton,
         css: {

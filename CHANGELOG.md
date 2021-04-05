@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated y18n node package to version 4.0.1 [#2160]
 - Replaced Canvas for SVG radial menu
 - Close radial object after select a matrix on observation matrices slice [#2165]
+- Radial menu slices position 
 
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
