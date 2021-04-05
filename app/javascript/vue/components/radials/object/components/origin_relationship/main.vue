@@ -57,6 +57,28 @@
         Create
       </button>
     </div>
+    <table>
+      <thead>
+        <tr>
+          <th>New object</th>
+          <th>Old object</th>
+          <th></th>
+        </tr>
+      </thead>
+      <draggable
+        class="table-entrys-list"
+        element="tbody"
+        v-model="list"
+        @end="onSortable">
+        <tr v-for="(item, index) in list">
+          <td v-html="item.new_object_object_tag"/>
+          <td v-html="item.old_object_object_tag"/>
+          <span
+            class="circle-button btn-delete"
+            @click="removeOrigin(index)"/>
+        </tr>
+      </draggable>
+    </table>
   </div>
 </template>
 
@@ -65,11 +87,15 @@
 import SmartSelector from 'components/smartSelector'
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
+import Draggable from 'vuedraggable'
 
 export default {
   mixins: [CRUD, annotatorExtend],
 
-  components: { SmartSelector },
+  components: {
+    Draggable,
+    SmartSelector
+  },
 
   data () {
     return {
@@ -115,6 +141,23 @@ export default {
 
       this.create('/origin_relationships', { origin_relationship: originRelationship }).then(response => {
         this.list.unshift(response.body)
+      })
+    },
+
+    removeOrigin (index) {
+      this.destroy(`/origin_relationships/${this.list[index].id}.json`).then(({ body }) => {
+        this.list.splice(index, 1)
+      })
+    },
+
+    onSortable ({ newIndex }) {
+      const originRelationship = {
+        id: this.list[newIndex].id,
+        position: newIndex
+      }
+
+      this.update(`/origin_relationships/${originRelationship.id}.json`, { origin_relationship: originRelationship }).then(({ body }) => {
+        this.$set(this.list, newIndex, body)
       })
     }
   }

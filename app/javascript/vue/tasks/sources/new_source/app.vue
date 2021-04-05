@@ -103,8 +103,6 @@
     <div class="horizontal-left-content align-start">
       <div class="full_width">
         <component :is="section"/>
-        <documents-component
-          class="panel margin-medium-top"/>
       </div>
       <right-section class="separate-left"/>
     </div>
@@ -129,7 +127,6 @@ import RecentComponent from './components/recent'
 import SpinnerComponent from 'components/spinner'
 
 import CrossRef from './components/crossRef'
-import DocumentsComponent from './components/documents'
 import BibtexButton from './components/bibtex'
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
@@ -169,7 +166,6 @@ export default {
     AddSource,
     NavBar,
     RecentComponent,
-    DocumentsComponent,
     SpinnerComponent
   },
   computed: {

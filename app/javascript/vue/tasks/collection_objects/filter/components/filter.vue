@@ -39,35 +39,43 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
-      <collecting-event
-        class="margin-large-bottom"
-        v-model="params.collectingEvents"/>
-      <user-component
-        class="margin-large-bottom"
-        @onUserslist="usersList = $event"
-        v-model="params.user"/>
-      <keywords-component
-        class="margin-large-bottom"
-        v-model="params.keywords" />
-      <repository-component
-        class="margin-large-bottom"
-        v-model="params.repository.repository_id"/>
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
       <preparation-types v-model="params.preparation_type_id"/>
-      <types-component
-        class="margin-large-bottom"
-        v-model="params.types"/>
-      <loan-component
-        class="margin-large-bottom"
-        v-model="params.loans"/>
-      <in-relationship
-        class="margin-large-bottom"
-        v-model="params.relationships.biological_relationship_ids"/>
       <biocurations-component
         class="margin-large-bottom"
         v-model="params.biocurations.biocuration_class_ids"/>
+      <collecting-event
+        class="margin-large-bottom"
+        v-model="params.collectingEvents"/>
+      <collectors-component
+        class="margin-large-bottom"
+        role="Collector"
+        title="Collectors"
+        klass="CollectingEvent"
+        param-people="collector_ids"
+        param-any="collector_ids_or"
+        v-model="params.collectors"/>
+      <keywords-component
+        class="margin-large-bottom"
+        v-model="params.keywords" />
+      <types-component
+        class="margin-large-bottom"
+        v-model="params.types"/>
+      <in-relationship
+        class="margin-large-bottom"
+        v-model="params.relationships.biological_relationship_ids"/>
+      <loan-component
+        class="margin-large-bottom"
+        v-model="params.loans"/>
+      <user-component
+        class="margin-large-bottom"
+        @onUserslist="usersList = $event"
+        v-model="params.user"/>
+      <repository-component
+        class="margin-large-bottom"
+        v-model="params.repository.repository_id"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"
@@ -96,6 +104,7 @@ import RepositoryComponent from './filters/repository.vue'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
+import CollectorsComponent from './filters/shared/people'
 
 import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -118,14 +127,15 @@ export default {
     BiocurationsComponent,
     RepositoryComponent,
     WithComponent,
-    PreparationTypes
+    PreparationTypes,
+    CollectorsComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
+      return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
     emptyParams () {
       if (!this.params) return
@@ -136,6 +146,7 @@ export default {
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_id_and.length &&
         !this.params.keywords.keyword_id_or.length &&
+        !this.params.collectors.collector_ids.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.determiner_id.length &&
         !this.params.determination.ancestor_id &&
@@ -236,7 +247,7 @@ export default {
           text: {
             buffered_collecting_event: undefined,
             buffered_determinations: undefined,
-            buffered_other_labels: undefined,
+            buffered_other_labels: undefined
           },
           exact: {
             exact_buffered_collecting_event: undefined,
@@ -268,7 +279,12 @@ export default {
           keyword_id_and: [],
           keyword_id_or: []
         },
+        collectors: {
+          collector_ids: [],
+          collector_ids_or: false
+        },
         determination: {
+          determiner_id_or: [],
           determiner_id: [],
           otu_ids: [],
           current_determinations: undefined,
@@ -305,9 +321,9 @@ export default {
       this.searchForCollectionObjects(this.parseParams)
     },
     setDays(days) {
-      var date = new Date();
-      date.setDate(date.getDate() - days);
-      return date.toISOString().slice(0,10);
+      var date = new Date()
+      date.setDate(date.getDate() - days)
+      return date.toISOString().slice(0,10)
     },
     filterEmptyParams(object) {
       let keys = Object.keys(object)

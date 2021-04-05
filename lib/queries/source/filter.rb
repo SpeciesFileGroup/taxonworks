@@ -238,7 +238,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
-        b = b.as('z1_')
+        b = b.as('aut_z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end

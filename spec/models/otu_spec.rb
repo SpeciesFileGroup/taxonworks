@@ -12,18 +12,20 @@ describe Otu, type: :model, group: :otu do
   context 'parent otu' do
 
     specify '#parent_otu_id 1' do
-      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
+      o0 = Otu.create(taxon_name:t0)
       o1 = Otu.create(taxon_name:t)
       o2 = Otu.create(taxon_name:t1)
       expect(o2.parent_otu_id).to eq(o1.id)
     end
 
     specify '#parent_otu_id 2' do
-      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
-
 
       o0 = Otu.create(taxon_name: t)
       o1 = Otu.create(taxon_name: t)
@@ -32,7 +34,8 @@ describe Otu, type: :model, group: :otu do
     end
 
     specify '#parent_otu_id 3' do
-      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: FactoryBot.create(:root_taxon_name))
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
       o2 = Otu.create(taxon_name:t1)

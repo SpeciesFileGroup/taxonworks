@@ -4,10 +4,6 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   let(:biological_collection_object) { CollectionObject::BiologicalCollectionObject.new }
   let(:otu) {Otu.create(name: 'zzz')}
 
-  specify '.valid_new_object_classes' do
-    expect(CollectionObject::BiologicalCollectionObject.valid_new_object_classes).to contain_exactly('Extract', 'CollectionObject::BiologicalCollectionObject')
-  end
-
   context 'associations' do
     context 'has_many' do
       specify 'biocuration_classifications' do

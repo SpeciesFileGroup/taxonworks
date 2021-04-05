@@ -67,6 +67,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000207'.freeze
 
     extend InnerClassFamilyGroup
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class IncorrectOriginalSpelling < TaxonNameClassification::Iczn::Unavailable
@@ -80,7 +84,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.gbif_status
       'negatum'
     end
-  
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class LessThanTwoLetters < TaxonNameClassification::Iczn::Unavailable
@@ -88,6 +95,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000210'.freeze
 
     extend InnerClass
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotLatin < TaxonNameClassification::Iczn::Unavailable
@@ -97,6 +108,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     extend InnerClass
     def classification_label
       'not Latin'
+    end
+
+    def sv_not_specific_classes
+      true
     end
   end
 
@@ -109,6 +124,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.code_applicability_start_year
       1900
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotLatinizedBefore1900AndNotAccepted < TaxonNameClassification::Iczn::Unavailable
@@ -120,6 +139,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.code_applicability_end_year
       1899
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotNominativePlural < TaxonNameClassification::Iczn::Unavailable
@@ -127,6 +150,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000202'.freeze
 
     extend InnerClassFamilyGroup
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotNounInNominativeSingular < TaxonNameClassification::Iczn::Unavailable
@@ -134,6 +161,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000211'.freeze
 
     extend InnerClassGenusGroup
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotNounOrAdjective < TaxonNameClassification::Iczn::Unavailable
@@ -141,6 +172,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000212'.freeze
 
     extend InnerClassSpeciesGroup
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class NotScientificPlural < TaxonNameClassification::Iczn::Unavailable
@@ -148,6 +183,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000205'.freeze
 
     extend InnerClassFamilyGroup
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class PreLinnean < TaxonNameClassification::Iczn::Unavailable
@@ -159,6 +198,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.code_applicability_end_year
       1757
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class UnavailableAndNotUsedAsValidBefore2000 < TaxonNameClassification::Iczn::Unavailable
@@ -166,6 +209,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000213'.freeze
 
     extend InnerClassFamilyGroupUnavailableBefore2000
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class UnavailableAndRejectedByAuthorBefore2000 < TaxonNameClassification::Iczn::Unavailable
@@ -173,6 +220,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000214'.freeze
 
     extend InnerClassFamilyGroupUnavailableBefore2000
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class UnavailableUnderIczn < TaxonNameClassification::Iczn::Unavailable
@@ -184,6 +235,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.gbif_status
       'abortivum'
     end
+
+    def sv_not_specific_classes
+      true
+    end
   end
 
   class VarietyOrFormAfter1960 < TaxonNameClassification::Iczn::Unavailable
@@ -194,6 +249,10 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     
     def self.code_applicability_start_year
       1961
+    end
+
+    def sv_not_specific_classes
+      true
     end
   end
 

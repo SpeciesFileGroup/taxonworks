@@ -325,7 +325,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(taxon_name_author_ids.length)) unless taxon_name_author_ids_or
-        b = b.as('z1_')
+        b = b.as('tn_z1_')
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end

@@ -81,7 +81,7 @@ module Shared::OriginRelationship
 
       args.each do |a|
         relationship = 'origin_' + a.demodulize.tableize
-        has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :old_object
+        has_many relationship.to_sym, source_type: a, through: :related_origin_relationships, source: :old_object
       end
     end
   end

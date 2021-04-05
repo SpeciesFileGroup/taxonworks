@@ -1,6 +1,6 @@
 class LabelsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  
+
   before_action :set_label, only: [:show, :edit, :update, :destroy]
 
   # GET /labels
@@ -17,27 +17,22 @@ class LabelsController < ApplicationController
     end
   end
 
-  def list
-    @labels = Label.with_project_id(sessions_current_project_id).page(params[:page])
-    @recent_object = @label
-  end
-
   # GET /labels/1
   # GET /labels/1.json
   def show
   end
 
   # GET /labels/new
-   def new
-     @label = Label.new
-   end
+  def new
+    @label = Label.new
+  end
 
   # GET /labels/1/edit
   def edit
   end
 
   def list
-    @labels = Label.with_project_id(sessions_current_project_id).page(params[:page])
+    @labels = Label.wher(project_id: sessions_current_project_id).page(params[:page])
   end
 
   # POST /labels
@@ -81,20 +76,20 @@ class LabelsController < ApplicationController
   end
 
   private
-  
-    def set_label
-      @label = Label.where(project_id: sessions_current_project_id).find(params[:id])
-    end
 
-    def filter_params
-      params.permit(:label_object_id, :label_object_type) 
-    end
+  def set_label
+    @label = Label.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
-    def label_params
-      params.require(:label).permit(
-        :text, :total, :style, :is_copy_edited, :is_printed, :type,
-        :label_object_id, :label_object_type,
-        :annotated_global_entity
-      )
-    end
+  def filter_params
+    params.permit(:label_object_id, :label_object_type) 
+  end
+
+  def label_params
+    params.require(:label).permit(
+      :text, :total, :style, :is_copy_edited, :is_printed, :type,
+      :label_object_id, :label_object_type,
+      :annotated_global_entity
+    )
+  end
 end

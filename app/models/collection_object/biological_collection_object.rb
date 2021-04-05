@@ -3,8 +3,6 @@
 # !! See also CollectionObject::BiologicalExtensions
 class CollectionObject::BiologicalCollectionObject < CollectionObject
     
-  is_origin_for 'Extract', 'CollectionObject::BiologicalCollectionObject'
-
   # !! See also CollectionObject::BiologicalExtensions, all code there technically belongs here
 
   has_many :biocuration_classifications,  inverse_of: :biological_collection_object, dependent: :destroy

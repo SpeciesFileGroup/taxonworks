@@ -213,9 +213,9 @@ module Export::Coldp::Files::Name
 
           # TODO: Combinations don't have rank BUT CoL importer can interpret, so we're OK here for now
           rank = t.rank
-
-          # Set is: valid or invalid higher, valid lower, past combinations
-          if higher || t.is_valid? || t.is_combination?
+          
+          # Set is: no original combination OR (valid or invalid higher, valid lower, past combinations)
+          if t.cached_original_combination.blank? || higher || t.is_valid? || t.is_combination? 
             csv << [
               t.id,                                     # ID
               basionym_id,                              # basionymID
@@ -239,7 +239,7 @@ module Export::Coldp::Files::Name
           end
 
           # Here we truly want no higher
-          if (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
+          if !t.cached_original_combination.blank? && (is_genus_species && !t.is_combination? && (!t.is_valid? || t.has_alternate_original?))
             name_total += 1
             add_original_combination(t, csv)
           end
@@ -247,8 +247,6 @@ module Export::Coldp::Files::Name
           Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv) if reference_csv && origin_citation
         end
       end
-
-      # puts Rainbow("----------TOTAL: #{name_total}------").red.bold
     end
   end
 
