@@ -1013,7 +1013,7 @@ class TaxonName < ApplicationRecord
       gender = i.gender_name if rank == 'genus'
 
       if i.is_genus_or_species_rank?
-        if ['genus', 'subgenus', 'superspecies', 'species', 'subspecies'].include? (rank)
+        if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]
         else
           data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
@@ -1165,9 +1165,6 @@ class TaxonName < ApplicationRecord
     ay = nil
     p = nil
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-
     if self.type == 'Combination'
       c = protonyms_by_rank
       return nil if c.empty?
@@ -1175,6 +1172,9 @@ class TaxonName < ApplicationRecord
     else
       taxon = self
     end
+
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
     unless mobj.blank?
@@ -1429,13 +1429,14 @@ class TaxonName < ApplicationRecord
       end
 
       unless correct_name_format
-        invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
-        misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
+        #invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
+        #invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
+        #misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
 
         icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
-        misspellings = misspellings & taxon_name_relationships.pluck(:type)
-        if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
+        #misspellings = misspellings & taxon_name_relationships.pluck(:type)
+        if is_available? && icvcn_species.nil?
+#          if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end

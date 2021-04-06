@@ -21,12 +21,8 @@
             <div>
               <radial-menu
                 v-if="menuCreated"
-                :menu="menuOptions"
-                :circle-style="pinStyle"
-                @selected="selectedRadialOption($event)"
-                @contextmenu="selectedRadialOption($event, '_blank'); closeModal()"
-                width="400"
-                height="400"/>
+                :options="menuOptions"
+                @onClick="selectedRadialOption"/>
             </div>
           </div>
           <div
@@ -64,7 +60,7 @@
 </template>
 <script>
 
-import RadialMenu from 'components/radialMenu.vue'
+import RadialMenu from 'components/radials/RadialMenu.vue'
 import Modal from 'components/modal.vue'
 import Spinner from 'components/spinner.vue'
 
@@ -130,7 +126,105 @@ export default {
       default: () => { return [] }
     }
   },
-  data: function () {
+
+  computed: {
+    menuOptions () {
+      const tasks = this.metadata.tasks || {}
+      const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
+        name: task,
+        label: name,
+        link: path,
+        icon: Icons[task]
+          ? {
+              url: Icons[task],
+              width: '20',
+              height: '20'
+            }
+          : undefined
+      }))
+
+      if (Object.keys(tasks).length > this.maxTaskInPie) {
+        taskSlices.push({
+          label: 'All tasks',
+          name: 'alltasks',
+          icon: {
+            url: Icons.AllTasks,
+            width: '20',
+            height: '20'
+          }
+        })
+      }
+
+      if (this.metadata?.recent_url) {
+        taskSlices.push(this.addSlice(defaultOptions.Recent,
+          this.recentTotal
+            ? {
+                slices: [{
+                  size: 26,
+                  label: this.recentTotal.toString(),
+                  svgAttributes: {
+                    fill: '#006ebf',
+                    color: '#FFFFFF'
+                  }
+                }]
+              }
+            : {}
+        ))
+      }
+
+      const slices = [].concat(taskSlices, this.defaultSlices)
+
+      return {
+        width: 400,
+        height: 400,
+        sliceSize: 130,
+        centerSize: 34,
+        innerPosition: 1.7,
+        margin: 2,
+        middleButton: this.middleButton,
+        css: {
+          class: 'svg-radial-annotator'
+        },
+        svgAttributes: {
+          fontSize: 11,
+          fill: '#FFFFFF',
+          textAnchor: 'middle'
+        },
+        slices: slices
+      }
+    },
+    defaultSlices () {
+      const filterOptions = this.filterOptions
+
+      if (!this.metadata.destroy) {
+        filterOptions.push(this.addSlice(defaultOptions.Destroy))
+      }
+
+      return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
+    },
+    menuCreated () {
+      return this.metadata
+    },
+    isPinned () {
+      return this.metadata['pinboard_item']
+    },
+    middleButton () {
+      return {
+        name: 'circleButton',
+        radius: 30,
+        icon: {
+          url: Icons.Pin,
+          width: '20',
+          height: '20'
+        },
+        svgAttributes: {
+          fill: this.isPinned ? '#F44336' : '#9ccc65'
+        }
+      }
+    }
+  },
+
+  data () {
     return {
       loading: false,
       currentView: undefined,
@@ -140,75 +234,35 @@ export default {
       title: 'Radial object',
       deleted: false,
       showDestroyModal: false,
-      menuOptions: [],
+      recentTotal: 0,
       customOptions: ['alltasks', 'circleButton'],
-      defaultSlices: [
-        {
-          label: defaultOptions.New,
-          event: defaultOptions.New,
-          size: 30,
-          icon: {
-            url: Icons.New,
-            width: '20',
-            height: '20'
-          }
-        },
-        {
-          label: defaultOptions.Destroy,
-          event: defaultOptions.Destroy,
-          size: 30,
-          icon: {
-            url: Icons.Destroy,
-            width: '20',
-            height: '20'
-          }
-        },
-        {
-          label: defaultOptions.Edit,
-          event: defaultOptions.Edit,
-          size: 30,
-          icon: {
-            url: Icons.Edit,
-            width: '20',
-            height: '20'
-          }
-        },
-        {
-          label: defaultOptions.Show,
-          event: defaultOptions.Show,
-          size: 30,
-          icon: {
-            url: Icons.Show,
-            width: '20',
-            height: '20'
-          }
-        }]
+      defaultSlicesTypes: [
+        defaultOptions.New,
+        defaultOptions.Destroy,
+        defaultOptions.Edit,
+        defaultOptions.Show
+      ]
     }
   },
-  computed: {
-    menuCreated () {
-      return this.menuOptions.length > 0
-    },
-    isPinned () {
-      return this.metadata['pinboard_item']
-    },
-    pinStyle () {
+
+  methods: {
+    addSlice (type, attr) {
       return {
+        label: type,
+        name: type,
+        radius: 30,
         icon: {
-          url: Icons.Pin,
+          url: Icons[type],
           width: '20',
           height: '20'
         },
-        background: this.isPinned ? '#F44336' : '#9ccc65',
-        backgroundHover: this.isPinned ? '#CE3430' : '#81a553'
+        ...attr
       }
-    }
-  },
-  methods: {
-    selectedRadialOption (selected, target = '_self') {
-      if (Object.keys(defaultOptions).includes(selected) || this.customOptions.includes(selected)) {
+    },
+    selectedRadialOption ({ name }) {
+      if (Object.keys(defaultOptions).includes(name) || this.customOptions.includes(name)) {
         this.currentView = undefined
-        switch (selected) {
+        switch (name) {
           case 'circleButton':
             this.isPinned ? this.destroyPin() : this.createPin()
             break
@@ -216,13 +270,13 @@ export default {
             this.currentView = 'Recent'
             break
           case defaultOptions.Edit:
-            window.open(this.metadata['edit'] ? this.metadata.edit : `${this.metadata.resource_path}/edit`, target)
+            window.open(this.metadata['edit'] ? this.metadata.edit : `${this.metadata.resource_path}/edit`)
             break
           case defaultOptions.New:
-            window.open(this.metadata['new'] ? this.metadata.new : `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`, target)
+            window.open(this.metadata['new'] ? this.metadata.new : `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`)
             break
           case defaultOptions.Show:
-            window.open(this.metadata.resource_path, target)
+            window.open(this.metadata.resource_path)
             break
           case defaultOptions.Destroy:
             this.showDestroyModal = true
@@ -231,8 +285,13 @@ export default {
             this.currentView = 'all_tasks'
             break
         }
-      } else {
-        window.open(this.metadata.tasks[selected].path, target)
+      }
+    },
+    defaultLinks () {
+      return {
+        [defaultOptions.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
+        [defaultOptions.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
+        [defaultOptions.Show]: this.metadata.resource_path
       }
     },
     closeModal () {
@@ -253,73 +312,12 @@ export default {
       this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(response => {
         this.metadata = response.body
         this.title = this.metadata.object_label
-        this.menuOptions = (this.metadata.hasOwnProperty('tasks') ? this.createMenuOptions(this.metadata.tasks) : [])
-        if (this.metadata.hasOwnProperty('recent_url')) {
-          this.menuOptions.push({
-            label: defaultOptions.Recent,
-            event: defaultOptions.Recent,
-            size: 30,
-            icon: {
-              url: Icons.Recent,
-              width: '20',
-              height: '20'
-            }
-          })
-        }
-        this.addDefaultOptions()
+
         this.loading = false
       })
     },
-    createMenuOptions (tasks) {
-      const menu = []
-      const keys = Object.keys(tasks)
-
-      for (var i = 0; i < this.maxTaskInPie && i < keys.length; i++) {
-        const key = keys[i]
-        menu.push({
-          label: tasks[key].name,
-          event: key,
-          icon: Icons[key] ? {
-            url: Icons[key],
-            width: '20',
-            height: '20'
-          } : undefined
-        })
-      }
-      if (keys.length > this.maxTaskInPie) {
-        menu.push({
-          label: 'All tasks',
-          event: 'alltasks',
-          icon: {
-            url: Icons.AllTasks,
-            width: '20',
-            height: '20'
-          }
-        })
-      }
-      return menu
-    },
-    addDefaultOptions () {
-      const filterOptions = this.filterOptions
-      if (!this.metadata.destroy) {
-        filterOptions.push(defaultOptions.Destroy)
-      }
-      this.defaultSlices.forEach(slice => {
-        const founded = filterOptions.find(option => {
-          return option.toLowerCase() == slice.label.toLowerCase()
-        })
-
-        if (!founded) {
-          this.menuOptions.push(slice)
-        }
-      })
-    },
     setTotal (total) {
-      var that = this
-      const position = this.menuOptions.findIndex(function (element) {
-        return element.event == that.currentView
-      })
-      this.menuOptions[position].total = total
+      this.recentTotal = total
     },
     eventClose () {
       const event = new CustomEvent('radialObject:close', {

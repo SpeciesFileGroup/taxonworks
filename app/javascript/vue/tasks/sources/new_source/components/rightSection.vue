@@ -1,6 +1,8 @@
 <template>
   <div class="right-section">
     <div ref="section">
+      <documents-component
+        class="panel"/>
       <soft-validation class="soft-validation-box"/>
       <matches-component/>
     </div>
@@ -9,13 +11,15 @@
 
 <script>
 
+import DocumentsComponent from './documents'
 import SoftValidation from './softValidation'
 import MatchesComponent from './matches'
 import { GetterNames } from '../store/getters/getters'
 export default {
   components: {
     SoftValidation,
-    MatchesComponent
+    MatchesComponent,
+    DocumentsComponent
   },
   computed: {
     source () {
@@ -46,6 +50,7 @@ export default {
       if (element) {
         if (element.offsetTop < document.documentElement.scrollTop + 50) {
           this.$refs.section.classList.add('float-box')
+          this.$refs.section.style.width = `${element.getBoundingClientRect().width}px`
         } else {
           this.$refs.section.classList.remove('float-box')
         }

@@ -22,7 +22,7 @@ module Protonym::SoftValidationExtensions
       sv_species_gender_agreement: { set: :species_gender_agreement, has_fix: false},
       sv_species_gender_agreement_not_required: { set: :species_gender_agreement, has_fix: false},
       sv_type_placement: { set: :type_placement, has_fix: false},
-      sv_type_placement1: { set: :type_placement, has_fix: false},
+      sv_type_placement1: { set: :type_placement, has_fix: true},
       sv_primary_types: { set: :primary_types, has_fix: false},
       sv_primary_types_repository: { set: :primary_types, has_fix: false},
 #      sv_validate_coordinated_names: { set: :validate_coordinated_names, has_fix: true},
@@ -837,7 +837,24 @@ module Protonym::SoftValidationExtensions
       # this taxon is a type, but not included in nominal taxon
       if !!self.type_of_taxon_names
         self.type_of_taxon_names.each do |t|
-          soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}") unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
+          soft_validations.add(:base, "#{self.rank_class.rank_name.capitalize} #{self.cached_html} is the type of #{t.rank_class.rank_name} #{t.cached_html} but it has a parent outside of #{t.cached_html}", fix: :sv_fix_type_placement1, success_message: 'Parent for type species was updated') unless self.get_valid_taxon_name.ancestors.include?(TaxonName.find(t.cached_valid_taxon_name_id))
+        end
+      end
+    end
+
+    def sv_fix_type_placement1
+      self.type_of_taxon_names.each do |t|
+        coordinated = t.lowest_rank_coordinated_taxon
+        if t.id != coordinated.id && self.parent_id != coordinated.id
+          begin
+            Protonym.transaction do
+              self.parent_id = coordinated.id
+              self.save
+            end
+            return true
+          rescue
+            return false
+          end
         end
       end
     end
@@ -1088,7 +1105,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_original_genus
-      if is_genus_or_species_rank? && self.original_genus.nil?
+      if is_genus_or_species_rank? && self.original_genus.nil? && !not_binomial?
         soft_validations.add(:base, 'Missing relationship: Original genus is not selected')
       end
     end
