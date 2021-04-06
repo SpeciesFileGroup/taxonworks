@@ -97,10 +97,7 @@ class ExtractsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def extract_params
       params.require(:extract).permit(
-        :quantity_value,
-        :quantity_unit,
-        :concentration_value,
-        :concentration_unit,
+        :repository_id,
         :verbatim_anatomical_origin,
         :year_made,
         :month_made,
