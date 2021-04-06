@@ -11,7 +11,12 @@
     </div>
     <navbar-component>
       <div class="flex-separate middle">
-        New
+        <span
+          v-if="extract.id"
+          v-html="extract.object_tag"/>
+        <span v-else>
+          New
+        </span>
         <div class="horizontal-right-content">
           <button
             type="button"
@@ -83,6 +88,10 @@ export default {
   },
 
   computed: {
+    extract () {
+      return this.$store.getters[GetterNames.GetExtract]
+    },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -100,8 +109,13 @@ export default {
 
   methods: {
     updatePreferences () {},
+
     saveExtract () {
-      this.$store.dispatch(ActionNames.SaveExtract)
+      const { dispatch } = this.$store
+
+      dispatch(ActionNames.SaveExtract).then(() => {
+        dispatch(ActionNames.SaveOriginRelationship)
+      })
     }
   }
 }

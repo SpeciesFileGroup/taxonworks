@@ -4,6 +4,7 @@ import setSettings from './setSettings'
 import setSoftValidation from './setSoftValidation'
 import setUserPreferences from './setUserPreferences'
 import setProjectPreferences from './setProjectPreferences'
+import setOriginRelationship from './setOriginRelationship'
 
 const MutationNames = {
   SetExtract: 'setExtract',
@@ -11,7 +12,8 @@ const MutationNames = {
   SetSettings: 'setSettings',
   SetSoftValidation: 'setSoftValidation',
   SetUserPreferences: 'setUserPreferences',
-  SetProjectPreferences: 'setProjectPreferences'
+  SetProjectPreferences: 'setProjectPreferences',
+  SetOriginRelationship: 'setOriginRelationship'
 }
 
 const MutationFunctions = {
@@ -20,7 +22,8 @@ const MutationFunctions = {
   [MutationNames.SetSettings]: setSettings,
   [MutationNames.SetSoftValidation]: setSoftValidation,
   [MutationNames.SetUserPreferences]: setUserPreferences,
-  [MutationNames.SetProjectPreferences]: setProjectPreferences
+  [MutationNames.SetProjectPreferences]: setProjectPreferences,
+  [MutationNames.SetOriginRelationship]: setOriginRelationship
 }
 
 export {

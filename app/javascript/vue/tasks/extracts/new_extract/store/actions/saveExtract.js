@@ -5,9 +5,8 @@ export default ({ state, commit }) => {
   const { extract } = state
   const saveExtract = extract.id ? UpdateExtract : CreateExtract
 
-  console.log(extract)
-
-  saveExtract(extract).then(({ body }) => {
+  return saveExtract(extract).then(({ body }) => {
     commit(MutationNames.SetExtract, body)
+    return body
   })
 }
