@@ -135,6 +135,11 @@ class ExtractsController < ApplicationController
           :attribute_subject_id,
           :attribute_subject_type,
           :value
+        ],
+
+        origin_relationships_attributes: [
+          :old_object_id,
+          :old_object_type
         ]
       )
     end
