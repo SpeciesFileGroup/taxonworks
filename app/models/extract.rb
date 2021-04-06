@@ -38,12 +38,15 @@ class Extract < ApplicationRecord
   include Shared::Identifiers
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
-  include Shared::IsData
+  include Shared::Containable
   include Shared::DataAttributes
   include Shared::HasRoles
+  include Shared::IsData
 
   is_origin_for 'Extract', 'Sequence'
   originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+
+  belongs_to :repository, inverse_of: :extracts
 
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
 
