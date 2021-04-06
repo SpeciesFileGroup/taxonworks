@@ -10,13 +10,19 @@ const GetProjectPreferences = () => AjaxCall('get', '/project_preferences.json')
 
 const GetUserPreferences = () => AjaxCall('get', '/preferences.json')
 
-const UpdateExtract = (data) => AjaxCall('patch', `/extract/${data.id}.json`, { extract: data })
+const UpdateExtract = (data) => AjaxCall('patch', `/extracts/${data.id}.json`, { extract: data })
+
+const CreateOriginRelationship = (data) => AjaxCall('post', '/origin_relationships.json', { origin_relationship: data })
+
+const UpdateOriginRelationship = (data) => AjaxCall('post', `/origin_relationships/${data.id}.json`, { origin_relationship: data })
 
 export {
   CreateExtract,
+  CreateOriginRelationship,
   GetIdentifierTypes,
   GetRepository,
   GetProjectPreferences,
   GetUserPreferences,
-  UpdateExtract
+  UpdateExtract,
+  UpdateOriginRelationship
 }

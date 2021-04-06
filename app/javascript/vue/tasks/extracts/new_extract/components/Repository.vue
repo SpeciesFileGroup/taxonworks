@@ -33,7 +33,6 @@
 <script>
 
 import SmartSelector from 'components/smartSelector'
-import { GetRepository } from '../request/resources.js'
 import componentExtend from './mixins/componentExtend'
 import LockComponent from 'components/lock'
 
@@ -58,13 +57,13 @@ export default {
   },
 
   watch: {
-    repository (newVal) {
-      if (newVal) {
-        GetRepository(newVal).then(response => {
-          this.setRepository(response.body)
-        })
-      }
-    }
+    // repository (newVal) {
+    //   if (newVal) {
+    //     GetRepository(newVal.id).then(response => {
+    //       this.setRepository(response.body)
+    //     })
+    //   }
+    // }
   },
 
   methods: {
