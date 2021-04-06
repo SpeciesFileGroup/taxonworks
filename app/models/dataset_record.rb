@@ -43,6 +43,14 @@ class DatasetRecord < ApplicationRecord
     end
   end
 
+  def freeze_data_field(index)
+    data_fields[index]["frozen"] = true
+  end
+
+  def freeze_all_data_fields
+    data_fields.each { |f| f["frozen"] = true }
+  end
+
   private
 
   def data_field_changed(index, value)

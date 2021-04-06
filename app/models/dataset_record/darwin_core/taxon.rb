@@ -12,6 +12,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   def import
     begin
       DatasetRecord.transaction do
+        self.metadata.delete("error_data")
+        freeze_all_data_fields
+
         fields_mapping = get_fields_mapping
         
         unless metadata["is_synonym"]
@@ -99,10 +102,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
   end
 
   private
-
-  def get_fields_mapping
-    import_dataset.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
-  end
 
   def get_parent(fields_mapping)
     import_dataset.dataset_records.where("data_fields -> #{fields_mapping["taxonID"]} ->> 'value' = ?", data_fields[fields_mapping["parentNameUsageID"]]["value"]).first
