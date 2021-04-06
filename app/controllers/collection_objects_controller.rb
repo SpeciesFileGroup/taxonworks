@@ -462,6 +462,8 @@ class CollectionObjectsController < ApplicationController
       :with_buffered_determinations,
       :with_buffered_other_labels,
       :wkt,
+      biocuration_class_ids: [],
+      biological_relationship_ids: [],
       collecting_event_ids: [],
       collector_ids: [], #
       determiner_id: [],
