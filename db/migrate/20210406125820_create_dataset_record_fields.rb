@@ -1,5 +1,5 @@
 class CreateDatasetRecordFields < ActiveRecord::Migration[6.0]
-  BATCH_SIZE = 1000
+  BATCH_SIZE = 10000
 
   def change
     create_table :dataset_record_fields do |t|
@@ -38,29 +38,27 @@ class CreateDatasetRecordFields < ActiveRecord::Migration[6.0]
 
       break if dataset_records.empty?
 
-      dataset_records_fields = []
-
       dataset_records.each do |dataset_record|
-        dataset_record[1].each_with_index do |data_field, position|
-          dataset_records_fields << {
-            position: position,
-            frozen_value: data_field["frozen"],
-            value: data_field["value"],
-            original_value: data_field["original_value"]
-          }.merge!(
-            dataset_record_id: dataset_record[0],
-            created_at: dataset_record[2],
-            updated_at: dataset_record[3],
-            created_by_id: dataset_record[4],
-            updated_by_id: dataset_record[5],
-            project_id: dataset_record[6],
-            import_dataset_id: dataset_record[7],
-            dataset_record_type: dataset_record[8]
-          )
-        end
+        DatasetRecordField.insert_all(
+          dataset_record[1].map.with_index do |data_field, position|
+            {
+              position: position,
+              frozen_value: data_field["frozen"],
+              value: data_field["value"],
+              original_value: data_field["original_value"]
+            }.merge!(
+              dataset_record_id: dataset_record[0],
+              created_at: dataset_record[2],
+              updated_at: dataset_record[3],
+              created_by_id: dataset_record[4],
+              updated_by_id: dataset_record[5],
+              project_id: dataset_record[6],
+              import_dataset_id: dataset_record[7],
+              dataset_record_type: dataset_record[8]
+            )
+          end
+        )
       end
-
-      DatasetRecordField.insert_all(dataset_records_fields)
 
       i += 1
       print "\r#{i}/#{batches} batch(es) of #{BATCH_SIZE} records migrated."
