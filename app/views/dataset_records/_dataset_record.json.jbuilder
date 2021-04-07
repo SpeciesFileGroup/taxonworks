@@ -1,9 +1,8 @@
-# TODO: Do not expose complete metadata. Doing so at this time to simplify development.
-json.extract! dataset_record, :id, :status, :metadata, :data_fields
-# json.id dataset_record.id
-# json.data_fields do
-#   json.array! dataset_record.data_fields.keys.collect do |key|
-#     json.field key
-#     json.extract! dataset_record.data_fields[key], "value", "frozen"
-#   end
-# end
+json.id dataset_record.id
+json.status dataset_record.status
+json.metadata dataset_record.metadata # TODO: Do not expose complete metadata. Doing so at this time to simplify development.
+json.data_fields do
+  json.array! dataset_record.data_fields do |field|
+    json.extract! field, :value, :frozen_value
+  end
+end

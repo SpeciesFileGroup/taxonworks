@@ -59,11 +59,18 @@ class DatasetRecordsController < ApplicationController
   def autocomplete_data_fields
     render json: {} and return if params[:field].blank? || params[:value].blank?
 
-    values = filtered_records
-      .where("data_fields -> ? ->> 'value' ILIKE ?", params[:field].to_i, "#{params[:value].gsub(/([%_\[\\])/, '\\\\\1')}%")
-      .select("data_fields -> #{params[:field].to_i} ->> 'value' AS value").distinct
+    import_dataset = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id])
+
+    core_records_fields = import_dataset.core_records_fields
+    params[:filter]&.each do |key, value|
+      core_records_fields = core_records_fields.at(k.to_i).with_value(v)
+    end
+
+    values = core_records_fields
+      .at(params[:field].to_i).with_prefix_value(params[:value])
+      .select(:value).distinct
       .page(params[:page]).per(params[:per] || 10)
-      .map { |x| x.value }
+      .map { |f| f.value }
 
     render json: values, status: :ok
   end
@@ -86,14 +93,17 @@ class DatasetRecordsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def dataset_record_params
-      params.require(:dataset_record).permit(:data_fields)
+      params.require(:dataset_record).permit(data_fields: {})
     end
 
     def filtered_records
-      dataset_records = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id]).core_records
+      import_dataset = ImportDataset.with_project_id(sessions_current_project_id).find(params[:import_dataset_id])
 
-      params[:filter]&.each do |k, v|
-        dataset_records = dataset_records.where("data_fields -> ? ->> 'value' = ?", k.to_i, v)
+      dataset_records = import_dataset.core_records
+      params[:filter]&.each do |key, value|
+        dataset_records = dataset_records.where(
+          dataset_record_fields: import_dataset.core_records_fields.at(key.to_i).with_value(value)
+        )
       end
 
       params[:status].blank? ? dataset_records : dataset_records.where(status: params[:status])

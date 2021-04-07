@@ -13,7 +13,7 @@ class DatasetRecord::DarwinCore < DatasetRecord
   def get_field_value(field_name)
     index = get_fields_mapping[field_name.to_s]
 
-    value = data_fields[index]&.dig("value") if index
+    value = data_fields[index]&.value if index
     normalize_value!(value)
 
     value unless value.blank?

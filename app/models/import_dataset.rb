@@ -38,6 +38,7 @@ class ImportDataset < ApplicationRecord
   attribute :status, :string, default: "Uploaded"
 
   has_many :dataset_records, dependent: :destroy
+  has_many :dataset_record_fields # To speed up queries, normally should be get through dataset_records
 
   has_attached_file :source,
     filename_cleaner:  Utilities::CleanseFilename

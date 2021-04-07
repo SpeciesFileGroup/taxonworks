@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_02_001035) do
+ActiveRecord::Schema.define(version: 2021_04_06_125820) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -486,10 +486,31 @@ ActiveRecord::Schema.define(version: 2021_04_02_001035) do
     t.index ["updated_by_id"], name: "index_data_attributes_on_updated_by_id"
   end
 
+  create_table "dataset_record_fields", force: :cascade do |t|
+    t.integer "position", null: false
+    t.boolean "frozen_value", null: false
+    t.string "value"
+    t.string "original_value"
+    t.string "dataset_record_type", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "created_by_id", null: false
+    t.integer "updated_by_id", null: false
+    t.bigint "project_id"
+    t.bigint "import_dataset_id"
+    t.bigint "dataset_record_id"
+    t.index "import_dataset_id, dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
+    t.index ["created_by_id"], name: "index_dataset_record_fields_on_created_by_id"
+    t.index ["dataset_record_id", "position"], name: "index_dataset_record_fields_on_dataset_record_id_and_position", unique: true
+    t.index ["dataset_record_id"], name: "index_dataset_record_fields_on_dataset_record_id"
+    t.index ["import_dataset_id"], name: "index_dataset_record_fields_on_import_dataset_id"
+    t.index ["project_id"], name: "index_dataset_record_fields_on_project_id"
+    t.index ["updated_by_id"], name: "index_dataset_record_fields_on_updated_by_id"
+  end
+
   create_table "dataset_records", force: :cascade do |t|
     t.string "type", null: false
     t.string "status", null: false
-    t.jsonb "data_fields", null: false
     t.jsonb "metadata"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -2041,6 +2062,9 @@ ActiveRecord::Schema.define(version: 2021_04_02_001035) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_record_fields", "dataset_records"
+  add_foreign_key "dataset_record_fields", "import_datasets"
+  add_foreign_key "dataset_record_fields", "projects"
   add_foreign_key "dataset_records", "import_datasets"
   add_foreign_key "dataset_records", "projects"
   add_foreign_key "depictions", "sled_images"

@@ -1,9 +1,5 @@
 # A DatasetRecord is the unit of data (typically a table row) from an ImportDataset
 #
-# @!attribute data_fields
-#   @return [Array]
-#      data of each record field. Structure: [ { data: "[text]", original_data: "[text]", frozen?: boolean }, ... ]
-#
 # @!attribute metadata
 #   @return [Hash]
 #      data about the record. No particular structure is enforced, any subclass may store metadata (typically to aid the import process).
@@ -18,37 +14,43 @@ class DatasetRecord < ApplicationRecord
 
   belongs_to :import_dataset
 
+  has_many :dataset_record_fields, -> { order(position: :asc) }, dependent: :destroy, autosave: true
+
   validates :type, presence: true
   validates :status, presence: true
-  validates :data_fields, presence: true
+
+  default_scope { includes(:dataset_record_fields) }
 
   def initialize_data_fields(field_data)
-    
-    self.data_fields = field_data.map do |value|
-      {
-        "value" => value,
-        "original_value" => value,
-        "frozen" => false
-      }
+    field_data.each_with_index do |value, position|
+      dataset_record_fields.build(
+        value: value,
+        original_value: value,
+        frozen_value: false,
+        position: position
+      )
     end
+  end
 
+  def data_fields
+    dataset_record_fields
   end
 
   def set_data_field(index, value)
-    unless data_fields[index]["frozen"]
-      data_fields[index].merge!({
-        "value" => value
-      })
+    field = dataset_record_fields[index]
+
+    unless field.frozen_value
+      field.value = value
       data_field_changed(index, value)
     end
   end
 
   def freeze_data_field(index)
-    data_fields[index]["frozen"] = true
+    dataset_record_fields[index].frozen_value = true
   end
 
   def freeze_all_data_fields
-    data_fields.each { |f| f["frozen"] = true }
+    dataset_record_fields.each { |f| f.frozen_value = true }
   end
 
   private

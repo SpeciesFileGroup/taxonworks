@@ -29,7 +29,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           name = name_details.kind_of?(Array) ? name_details.first[:value] : name_details
 
           authorship = parse_results_details.dig(:authorship, :normalized)
-          rank = data_fields[fields_mapping["taxonRank"]]["value"]
+          rank = get_field_value("taxonRank")
           is_hybrid = metadata["is_hybrid"] # TODO: NO...
 
           if metadata["parent"].nil?
@@ -49,9 +49,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           taxon_name = Protonym.new(protonym_attributes)
           taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
           taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-            scientificName: data_fields[fields_mapping["scientificName"]]["value"],
-            scientificNameAuthorship: data_fields[fields_mapping["scientificNameAuthorship"]]["value"],
-            taxonRank: data_fields[fields_mapping["taxonRank"]]["value"],
+            scientificName: get_field_value("scientificName"),
+            scientificNameAuthorship: get_field_value("scientificNameAuthorship"),
+            taxonRank: get_field_value("taxonRank"),
             metadata: metadata
           })
 
@@ -74,7 +74,9 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         save!
 
         if status == "Imported"
-          taxon_id = data_fields[fields_mapping["taxonID"]]["value"]
+          taxon_id = get_field_value("taxonID")
+
+          raise "FIX!!"
 
           DatasetRecord::DarwinCore::Taxon
             .where(import_dataset: self.import_dataset, status: "NotReady")

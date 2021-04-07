@@ -3,6 +3,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Taxon'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
+  def core_record_type
+    DatasetRecord::DarwinCore::Taxon.to_s
+  end
+
   # Stages core (Taxon) records and all extension records.
   def perform_staging
     records, headers = get_records(source)

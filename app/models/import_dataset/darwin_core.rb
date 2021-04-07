@@ -15,6 +15,10 @@ class ImportDataset::DarwinCore < ImportDataset
     }
   end
 
+  def core_records_fields
+    dataset_record_fields.where(dataset_record_type: core_record_type)
+  end
+
   # @return [Checklist|Occurrences|Unknown]
   # @param [string] file_path
   #   Path to DwC-A file
