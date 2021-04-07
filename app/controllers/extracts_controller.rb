@@ -134,7 +134,15 @@ class ExtractsController < ApplicationController
           :value
         ],
 
+        protocol_relationships_attributes: [
+          :id,
+          :_destroy,
+          :protocol_id
+        ],
+
         origin_relationships_attributes: [
+          :id,
+          :_destroy,
           :old_object_id,
           :old_object_type
         ]
