@@ -5,6 +5,7 @@ import getSoftValidation from './getSoftValidation'
 import getUserPreferences from './getUserPreferences'
 import getProjectPreferences from './getProjectPreferences'
 import getOriginRelationship from './getOriginRelationship'
+import getRepository from './getRepository'
 
 const GetterNames = {
   GetExtract: 'getExtract',
@@ -13,7 +14,8 @@ const GetterNames = {
   GetSoftValidation: 'getSoftValidation',
   GetUserPreferences: 'getUserPreferences',
   GetProjectPreferences: 'getProjectPreferences',
-  GetOriginRelationship: 'getOriginRelationship'
+  GetOriginRelationship: 'getOriginRelationship',
+  GetRepository: 'getRepository'
 }
 
 const GetterFunctions = {
@@ -23,7 +25,8 @@ const GetterFunctions = {
   [GetterNames.GetSoftValidation]: getSoftValidation,
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
   [GetterNames.GetUserPreferences]: getUserPreferences,
-  [GetterNames.GetOriginRelationship]: getOriginRelationship
+  [GetterNames.GetOriginRelationship]: getOriginRelationship,
+  [GetterNames.GetRepository]: getRepository
 }
 
 export {

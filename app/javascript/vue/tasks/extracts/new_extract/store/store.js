@@ -25,9 +25,9 @@ const makeInitialState = () => {
       user: undefined,
       project: undefined
     },
+    repository: undefined,
     originRelationship: makeOriginRelationship(),
     extract: makeExtract(),
-    identifier: {},
     identifiers: [],
     softValidation: []
   }

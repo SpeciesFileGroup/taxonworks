@@ -1,9 +1,8 @@
 <template>
-  <div class="panel container">
+  <div>
     <h2>Identifier</h2>
     <div class="flex-wrap-column middle align-start full_width">
-
-      <div v-if="typeListSelected">
+      <template v-if="typeListSelected">
         <span class="capitalize">{{ typeListSelected }}</span>
         <button
           class="button button-default"
@@ -13,7 +12,7 @@
         <select-type
           :list="typeList[typeListSelected]"
           v-model="typeSelected"/>
-      </div>
+      </template>
 
       <ul
         v-else
@@ -32,7 +31,27 @@
         </li>
       </ul>
 
+      <template v-if="typeSelected">
+        <namespace-component
+          v-if="isTypeListLocal"
+          v-model="namespace"/>
+        <identifier-component
+          class="margin-small-bottom"
+          v-model="identifier"/>
+
+        <button
+          type="button"
+          class="button button-submit normal-input"
+          :disabled="isMissingData"
+          @click="addIdentifier(); resetIdentifier()">
+          Add
+        </button>
+      </template>
     </div>
+    <display-list
+      :list="identifiers"
+      label="label"
+    />
   </div>
 </template>
 
@@ -44,17 +63,22 @@ import { MutationNames } from '../store/mutations/mutations'
 
 import componentExtend from './mixins/componentExtend'
 import SelectType from './Identifiers/SelectType'
+import NamespaceComponent from './Identifiers/Namespace'
+import IdentifierComponent from './Identifiers/Identifier'
+import DisplayList from 'components/displayList'
 
 export default {
   mixins: [componentExtend],
 
-  components: { SelectType },
+  components: {
+    DisplayList,
+    SelectType,
+    NamespaceComponent,
+    IdentifierComponent
+  },
 
   data () {
     return {
-      existingIdentifier: undefined,
-      delay: 1000,
-      saveRequest: undefined,
       namespace: undefined,
       identifier: undefined,
       typeList: undefined,
@@ -71,6 +95,14 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetIdentifiers, value)
       }
+    },
+
+    isTypeListLocal () {
+      return this.typeListSelected === 'local'
+    },
+
+    isMissingData () {
+      return !this.namespace || !this.identifier
     }
   },
 
@@ -89,6 +121,25 @@ export default {
   watch: {
     existingIdentifier (newVal) {
       this.settings.saveIdentifier = !newVal
+    }
+  },
+
+  methods: {
+    addIdentifier () {
+      const data = {
+        namespace_id: this.namespace.id,
+        label: [this.namespace.name, this.identifier].filter(item => item).join(' '),
+        identifier: this.identifier,
+        type: this.typeSelected
+      }
+      console.log(data)
+
+      this.identifiers.push(data)
+    },
+
+    resetIdentifier () {
+      this.namespace = undefined
+      this.identifier = undefined
     }
   }
 }

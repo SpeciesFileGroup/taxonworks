@@ -35,9 +35,13 @@
 import SmartSelector from 'components/smartSelector'
 import componentExtend from './mixins/componentExtend'
 import LockComponent from 'components/lock'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { GetRepository } from '../request/resources'
 
 export default {
   mixins: [componentExtend],
+
   components: {
     LockComponent,
     SmartSelector
@@ -50,20 +54,25 @@ export default {
     }
   },
 
-  data () {
-    return {
-      repository: undefined
+  computed: {
+    repository: {
+      get () {
+        return this.$store.getters[GetterNames.GetRepository]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetRepository, value)
+      }
     }
   },
 
   watch: {
-    // repository (newVal) {
-    //   if (newVal) {
-    //     GetRepository(newVal.id).then(response => {
-    //       this.setRepository(response.body)
-    //     })
-    //   }
-    // }
+    extract (newVal) {
+      if (newVal.repository_id) {
+        GetRepository(newVal.id).then(response => {
+          this.setRepository(response.body)
+        })
+      }
+    }
   },
 
   methods: {
