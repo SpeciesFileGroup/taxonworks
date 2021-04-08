@@ -33,8 +33,6 @@ class ImportDataset < ApplicationRecord
   include Shared::IsData
   include Shared::OriginRelationship
 
-  is_origin_for Person.to_s
-
   attribute :status, :string, default: "Uploaded"
 
   has_many :dataset_records, dependent: :destroy
