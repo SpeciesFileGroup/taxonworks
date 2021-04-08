@@ -7,7 +7,12 @@
         :key="item.id"
         class="panel content margin-medium-right margin-medium-bottom cursor-pointer import-card"
         @click="$emit('onSelect', item.id)">
-        <h2><b>{{ item.description }}</b></h2>
+        <h2 class="flex-separate middle">
+          <b>{{ item.description }}</b>
+          <a
+            @click.stop=""
+            :href="item.source_file">Download original</a>
+        </h2>
         <span>DwC-A {{ item.type.split('::').pop() }}</span>
         <span>Status: <b>{{ item.status }}</b></span>
         <hr class="line full_width">
