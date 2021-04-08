@@ -12,10 +12,10 @@ class CreateDatasetRecordFields < ActiveRecord::Migration[6.0]
 
       t.timestamps
 
-      t.integer :created_by_id, null: false, index: true
-      t.integer :updated_by_id, null: false, index: true
+      t.integer :created_by_id, null: false, index: false
+      t.integer :updated_by_id, null: false, index: false
   
-      t.references :project, index: true, foreign_key: true
+      t.references :project, index: false, foreign_key: true
       t.references :import_dataset, foreign_key: true
       t.references :dataset_record, foreign_key: true
       t.index [:dataset_record_id, :position], unique: true
