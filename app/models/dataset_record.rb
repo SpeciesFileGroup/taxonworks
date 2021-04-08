@@ -19,7 +19,7 @@ class DatasetRecord < ApplicationRecord
   validates :type, presence: true
   validates :status, presence: true
 
-  default_scope { includes(:dataset_record_fields) }
+  scope :preload_fields, -> { includes(:dataset_record_fields) }
 
   def initialize_data_fields(field_data)
     field_data.each_with_index do |value, position|
@@ -51,6 +51,10 @@ class DatasetRecord < ApplicationRecord
 
   def freeze_all_data_fields
     dataset_record_fields.each { |f| f.frozen_value = true }
+  end
+
+  def freeze_persisted_data_fields
+    dataset_record_fields.update_all(frozen_value: true)
   end
 
   private

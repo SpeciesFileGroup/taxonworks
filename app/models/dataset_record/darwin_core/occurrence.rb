@@ -7,7 +7,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
-        freeze_all_data_fields
+        freeze_persisted_data_fields
 
         names, origins = parse_taxon_class
 
