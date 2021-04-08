@@ -29,7 +29,8 @@ const makeInitialState = () => {
     originRelationship: makeOriginRelationship(),
     extract: makeExtract(),
     identifiers: [],
-    softValidation: []
+    softValidation: [],
+    protocols: []
   }
 }
 

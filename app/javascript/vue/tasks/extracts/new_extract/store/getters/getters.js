@@ -6,6 +6,7 @@ import getUserPreferences from './getUserPreferences'
 import getProjectPreferences from './getProjectPreferences'
 import getOriginRelationship from './getOriginRelationship'
 import getRepository from './getRepository'
+import getProtocols from './getProtocols'
 
 const GetterNames = {
   GetExtract: 'getExtract',
@@ -15,7 +16,8 @@ const GetterNames = {
   GetUserPreferences: 'getUserPreferences',
   GetProjectPreferences: 'getProjectPreferences',
   GetOriginRelationship: 'getOriginRelationship',
-  GetRepository: 'getRepository'
+  GetRepository: 'getRepository',
+  GetProtocols: 'getProtocols'
 }
 
 const GetterFunctions = {
@@ -26,7 +28,8 @@ const GetterFunctions = {
   [GetterNames.GetProjectPreferences]: getProjectPreferences,
   [GetterNames.GetUserPreferences]: getUserPreferences,
   [GetterNames.GetOriginRelationship]: getOriginRelationship,
-  [GetterNames.GetRepository]: getRepository
+  [GetterNames.GetRepository]: getRepository,
+  [GetterNames.GetProtocols]: getProtocols
 }
 
 export {
