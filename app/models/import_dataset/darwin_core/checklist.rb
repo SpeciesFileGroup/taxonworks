@@ -1,4 +1,5 @@
 class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
+  is_origin_for Person::Unvetted.to_s
 
   has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Taxon'
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
