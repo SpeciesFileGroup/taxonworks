@@ -49,7 +49,7 @@ export default {
       required: true
     },
     modelPreferences: {
-      type: [Array],
+      type: Array,
       required: false
     }
   },
@@ -64,42 +64,41 @@ export default {
     }
   },
   watch: {
-    objectId(newVal) {
-      if(newVal && this.objectType) {
+    objectId (newVal) {
+      if (newVal && this.objectType) {
         this.loading = true
         GetPredicatesCreated(this.objectType, this.objectId).then(response => {
           this.createdList = response.body
           this.loading = false
-        }) 
-      }
-      else {
+        })
+      } else {
         this.createdList = []
       }
     }
   },
-  mounted() {
+  mounted () {
     this.loadPreferences()
   },
   methods: {
-    loadPreferences() {
-      if(Array.isArray(this.modelPreferences) && this.modelPreferences.length) {
+    loadPreferences () {
+      if (this.modelPreferences?.length) {
         this.loadPredicates(this.modelPreferences)
-      }
-      else {
+      } else {
         GetProjectPreferences().then(response => {
           this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
           this.loadPredicates(this.modelPreferencesIds)
         })
       }
     },
-    loadPredicates(ids) {
-      let promises = []
-      if(ids.length)
+    loadPredicates (ids) {
+      const promises = []
+      if (ids.length) {
         promises.push(GetPredicates(ids).then(response => {
           this.predicatesList = response.body
         }))
+      }
 
-      if(this.objectId) {
+      if (this.objectId) {
         promises.push(GetPredicatesCreated(this.objectType, this.objectId).then(response => {
           this.createdList = response.body
         }))
@@ -109,23 +108,18 @@ export default {
         this.loading = false
       })
     },
-    findExisting(id) {
-      return this.createdList.find(item => {
-        return item.controlled_vocabulary_term_id == id
-      })
+    findExisting (id) {
+      return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
     },
-    addDataAttribute(dataAttribute) {
-      let index = this.data_attributes.findIndex(item => {
-        return item.controlled_vocabulary_term_id == dataAttribute.controlled_vocabulary_term_id
-      })
+    addDataAttribute (dataAttribute) {
+      const index = this.data_attributes.findIndex(item => item.controlled_vocabulary_term_id === dataAttribute.controlled_vocabulary_term_id)
 
-      if(index > -1) {
+      if (index > -1) {
         this.$set(this.data_attributes, index, dataAttribute)
-      }
-      else {
+      } else {
         this.data_attributes.push(dataAttribute)
       }
-      
+
       this.$emit('onUpdate', this.data_attributes)
     }
   }
