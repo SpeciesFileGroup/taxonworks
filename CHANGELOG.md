@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Overflow on New observation matrix [#2168]
 
 ### Changed
+- Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
 - Changed TaxonName string for superspecies names
 - Updated y18n node package to version 4.0.1 [#2160]
 - Replaced Canvas for SVG radial menu
