@@ -16,6 +16,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
 - Show observation matrices count on radial object [#2158]
 - Overflow on New observation matrix [#2168]
+- Clear geographic area after reset [#2174]
+
 
 ### Changed
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
@@ -27,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
+[#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
 
 ## [0.16.6] - 2020-03-26
 
