@@ -13,7 +13,6 @@
     </div>
     <display-list
       :list="protocols"
-      :delete-warning="false"
       @deleteIndex="removeProtocol"
       label="name"/>
   </div>

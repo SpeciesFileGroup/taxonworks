@@ -3,7 +3,8 @@ const ActionNames = {
   LoadProjectPreferences: 'loadProjectPreferences',
   LoadUserPreferences: 'loadUserPreferences',
   SaveExtract: 'saveExtract',
-  SaveOriginRelationship: 'saveOriginRelationship'
+  SaveOriginRelationship: 'saveOriginRelationship',
+  ResetState: 'resetState'
 }
 
 export default ActionNames

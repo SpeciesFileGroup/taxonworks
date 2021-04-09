@@ -7,6 +7,7 @@ import setProjectPreferences from './setProjectPreferences'
 import setOriginRelationship from './setOriginRelationship'
 import setRepository from './setRepository'
 import setProtocols from './setProtocols'
+import setState from './setState'
 
 const MutationNames = {
   SetExtract: 'setExtract',
@@ -17,7 +18,8 @@ const MutationNames = {
   SetProjectPreferences: 'setProjectPreferences',
   SetOriginRelationship: 'setOriginRelationship',
   SetRepository: 'setRepository',
-  SetProtocols: 'setProtocols'
+  SetProtocols: 'setProtocols',
+  SetState: 'setState'
 }
 
 const MutationFunctions = {
@@ -29,7 +31,8 @@ const MutationFunctions = {
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
   [MutationNames.SetOriginRelationship]: setOriginRelationship,
   [MutationNames.SetRepository]: setRepository,
-  [MutationNames.SetProtocols]: setProtocols
+  [MutationNames.SetProtocols]: setProtocols,
+  [MutationNames.SetState]: setState
 }
 
 export {

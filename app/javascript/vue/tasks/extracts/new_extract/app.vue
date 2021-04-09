@@ -31,7 +31,8 @@
           </button>
           <button
             type="button"
-            class="button normal-input button-default">
+            class="button normal-input button-default"
+            @click="resetState">
             New
           </button>
         </div>
@@ -116,6 +117,10 @@ export default {
       dispatch(ActionNames.SaveExtract).then(() => {
         dispatch(ActionNames.SaveOriginRelationship)
       })
+    },
+
+    resetState () {
+      this.$store.dispatch(ActionNames.ResetState)
     }
   }
 }

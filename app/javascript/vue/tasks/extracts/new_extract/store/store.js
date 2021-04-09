@@ -15,8 +15,10 @@ const makeInitialState = () => {
     settings: {
       lock: {
         date: false,
+        identifiers: false,
         lock: false,
-        protocol: false,
+        originRelationship: false,
+        protocols: false,
         repository: false
       },
       sortable: false
@@ -25,12 +27,12 @@ const makeInitialState = () => {
       user: undefined,
       project: undefined
     },
-    repository: undefined,
-    originRelationship: makeOriginRelationship(),
     extract: makeExtract(),
     identifiers: [],
-    softValidation: [],
-    protocols: []
+    originRelationship: makeOriginRelationship(),
+    protocols: [],
+    repository: undefined,
+    softValidation: []
   }
 }
 
