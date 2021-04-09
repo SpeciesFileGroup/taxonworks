@@ -74,7 +74,10 @@ class ImportDatasetsController < ApplicationController
   # DELETE /import_datasets/1
   # DELETE /import_datasets/1.json
   def destroy
-    @import_dataset.destroy
+    ImportDataset.transaction do
+      DatasetRecordField.where(import_dataset: @import_dataset).delete_all # TODO: Make this happen transparently when destroying ImportDataset/DatasetRecord
+      @import_dataset.destroy
+    end
     respond_to do |format|
       format.html { redirect_to import_datasets_url, notice: 'Import dataset was successfully destroyed.' }
       format.json { head :no_content }

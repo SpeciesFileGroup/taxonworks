@@ -16,7 +16,7 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def core_records_fields
-    dataset_record_fields.where(dataset_record_type: core_record_type)
+    dataset_record_fields.with_record_type(core_records_fields)
   end
 
   # @return [Checklist|Occurrences|Unknown]
@@ -166,7 +166,12 @@ class ImportDataset::DarwinCore < ImportDataset
 
   # Stages DwC-A records into DB.
   def stage
-    dataset_records.delete_all if status == "Staging" # ActiveJob being retried could cause this state
+    if status == "Staging" # ActiveJob being retried could cause this state
+      transaction do
+        DatasetRecordField.where(import_dataset: self).delete_all
+        dataset_records.delete_all
+      end
+    end
 
     update!(status: "Staging") if status == "Uploaded"
 

@@ -6,30 +6,32 @@ class CreateDatasetRecordFields < ActiveRecord::Migration[6.0]
       t.integer :position, null: false
       t.boolean :frozen_value, null: false
       t.string :value
-      t.string :original_value
+      # t.string :original_value # TODO: Keep this somewhere else. Consider storing at first change
 
-      t.string :dataset_record_type, null: false
+      t.integer :encoded_dataset_record_type, null: false
 
-      t.timestamps
+      #t.timestamps # TODO: Forward to dataset record if important
 
-      t.integer :created_by_id, null: false, index: false
-      t.integer :updated_by_id, null: false, index: false
+      # TODO: If breaks something, attempt to wire these to corresponding dataset record
+      #t.integer :created_by_id, null: false, index: false, type: :integer
+      #t.integer :updated_by_id, null: false, index: false, type: :integer
   
-      t.references :project, index: false, foreign_key: true
-      t.references :import_dataset, foreign_key: true
-      t.references :dataset_record, foreign_key: true
+      t.references :project, index: false, foreign_key: true, null: false, type: :integer # Only for security to prevent leaks (when exporting projects for example)
+      t.references :import_dataset, foreign_key: true, null: false, type: :integer
+      t.references :dataset_record, foreign_key: true, null: false
       t.index [:dataset_record_id, :position], unique: true
 
       # Had to supply name because auto-generated one exceeds maximum length
       #t.index [:import_dataset_id, :position, :value, :dataset_record_id], unique: true, name: "index_dataset_record_fields_for_filters"
     
       # Index cannot be of arbitrary size, so limiting value length before indexing:
-      t.index "import_dataset_id, dataset_record_type, position, substr(value, 1, 1000), dataset_record_id",
+      t.index "import_dataset_id, encoded_dataset_record_type, position, substr(value, 1, 1000), dataset_record_id",
         name: "index_dataset_record_fields_for_filters", unique: true
     end
 
     i = 0
     batches = (DatasetRecord.count + BATCH_SIZE - 1) / BATCH_SIZE
+    sha_lut = {}
     loop do
       dataset_records = DatasetRecord
         .limit(BATCH_SIZE).offset(BATCH_SIZE*i)
@@ -44,17 +46,12 @@ class CreateDatasetRecordFields < ActiveRecord::Migration[6.0]
             {
               position: position,
               frozen_value: data_field["frozen"],
-              value: data_field["value"],
-              original_value: data_field["original_value"]
+              value: data_field["value"]
             }.merge!(
               dataset_record_id: dataset_record[0],
-              created_at: dataset_record[2],
-              updated_at: dataset_record[3],
-              created_by_id: dataset_record[4],
-              updated_by_id: dataset_record[5],
               project_id: dataset_record[6],
               import_dataset_id: dataset_record[7],
-              dataset_record_type: dataset_record[8]
+              encoded_dataset_record_type: sha_lut[dataset_record[8]] ||= Digest::MD5.hexdigest(dataset_record[8]).last(32/4).to_i(16) & (2**31 - 1)
             )
           end
         )

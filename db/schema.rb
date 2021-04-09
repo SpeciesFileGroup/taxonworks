@@ -490,22 +490,14 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
     t.integer "position", null: false
     t.boolean "frozen_value", null: false
     t.string "value"
-    t.string "original_value"
-    t.string "dataset_record_type", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.bigint "project_id"
-    t.bigint "import_dataset_id"
-    t.bigint "dataset_record_id"
-    t.index "import_dataset_id, dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
-    t.index ["created_by_id"], name: "index_dataset_record_fields_on_created_by_id"
+    t.integer "encoded_dataset_record_type", null: false
+    t.integer "project_id", null: false
+    t.integer "import_dataset_id", null: false
+    t.bigint "dataset_record_id", null: false
+    t.index "import_dataset_id, encoded_dataset_record_type, \"position\", substr((value)::text, 1, 1000), dataset_record_id", name: "index_dataset_record_fields_for_filters", unique: true
     t.index ["dataset_record_id", "position"], name: "index_dataset_record_fields_on_dataset_record_id_and_position", unique: true
     t.index ["dataset_record_id"], name: "index_dataset_record_fields_on_dataset_record_id"
     t.index ["import_dataset_id"], name: "index_dataset_record_fields_on_import_dataset_id"
-    t.index ["project_id"], name: "index_dataset_record_fields_on_project_id"
-    t.index ["updated_by_id"], name: "index_dataset_record_fields_on_updated_by_id"
   end
 
   create_table "dataset_records", force: :cascade do |t|

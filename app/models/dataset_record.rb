@@ -14,7 +14,7 @@ class DatasetRecord < ApplicationRecord
 
   belongs_to :import_dataset
 
-  has_many :dataset_record_fields, -> { order(position: :asc) }, dependent: :destroy, autosave: true
+  has_many :dataset_record_fields, -> { order(position: :asc) }, autosave: true # dependent: :destroy too expensive when deleting multiple dataset records.
 
   validates :type, presence: true
   validates :status, presence: true
@@ -25,9 +25,11 @@ class DatasetRecord < ApplicationRecord
     field_data.each_with_index do |value, position|
       dataset_record_fields.build(
         value: value,
-        original_value: value,
+        position: position,
         frozen_value: false,
-        position: position
+        encoded_dataset_record_type: DatasetRecordField.encode_record_type(self.class),
+        import_dataset: import_dataset,
+        project: import_dataset.project
       )
     end
   end
