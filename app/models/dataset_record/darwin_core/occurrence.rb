@@ -7,7 +7,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
-        freeze_all_data_fields
 
         names, origins = parse_taxon_class
 
@@ -44,9 +43,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
 
         specimen = Specimen.create!({
-          no_dwc_occurrence: true
-        }.merge!(attributes[:specimen])
-      )
+            no_dwc_occurrence: true
+          }.merge!(attributes[:specimen])
+        )
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
@@ -86,6 +85,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         self.metadata["imported_objects"] = { collection_object: { id: specimen.id } }
         self.status = "Imported"
+        freeze_all_data_fields
 
         DwcOccurrenceUpsertJob.perform_later(specimen)
       end

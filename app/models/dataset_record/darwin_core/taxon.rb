@@ -13,7 +13,6 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
-        freeze_all_data_fields
 
         fields_mapping = get_fields_mapping
         
@@ -58,6 +57,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
           if taxon_name.save
             self.metadata[:imported_objects] = { taxon_name: { id: taxon_name.id } }
             self.status = "Imported"
+            freeze_all_data_fields
           else
             self.status = "Errored"
             self.metadata[:error_data] = {
