@@ -158,7 +158,7 @@ class Otu < ApplicationRecord
   #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
-  def parent_otu_id
+  def parent_otu_id(skip_ranks: [], prefer_nameless_otu: false)
     return nil if taxon_name_id.nil?
 
     # TODO: Unify to a single query
@@ -167,18 +167,22 @@ class Otu < ApplicationRecord
       .that_is_valid
       .where.not(id: taxon_name_id)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
+      .where.not(rank_class: skip_ranks)
       .order('taxon_name_hierarchies.generations')
       .limit(1)
       .pluck(:id)
 
     if candidates.size == 1
-      otus = Otu.where(taxon_name_id: candidates.first).limit(1).limit(2).load
+      otus = Otu.where(taxon_name_id: candidates.first)
+      otus = otus.where(name: nil) if prefer_nameless_otu
+      otus.load
+
       if otus.size == 1
         return otus.first.id
-      elsif otus.count > 1
+      elsif otus.size > 1
         return false
       else
-      return nil
+        return nil
       end
     else
       return nil

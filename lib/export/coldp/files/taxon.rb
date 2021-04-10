@@ -17,6 +17,11 @@ module Export::Coldp::Files::Taxon
     lifezone: 'https://api.catalogue.life/datapackage#Taxon.lifezone',                       # from https://api.catalogue.life/vocab/lifezone
   }
 
+  SKIPPED_RANKS = %w{
+    NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+    NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+  }
+
   # @param predicate [:symbol]
   #   a key from IRI_MAP
   def self.predicate_value(otu, predicate)
@@ -156,7 +161,7 @@ module Export::Coldp::Files::Taxon
 
         parent_id = nil
         if root_otu_id != o.id
-          if pid = o.parent_otu_id
+          if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_nameless_otu: true)
             parent_id = pid
           else
             # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
