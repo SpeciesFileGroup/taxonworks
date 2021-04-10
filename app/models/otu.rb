@@ -173,9 +173,8 @@ class Otu < ApplicationRecord
       .pluck(:id)
 
     if candidates.size == 1
-      otus = Otu.where(taxon_name_id: candidates.first)
-      otus = otus.where(name: nil) if prefer_nameless_otu
-      otus.load
+      otus = Otu.where(taxon_name_id: candidates.first).to_a
+      otus.select! { |o| o.name.nil? } if prefer_nameless_otu && otus.size > 1
 
       if otus.size == 1
         return otus.first.id
