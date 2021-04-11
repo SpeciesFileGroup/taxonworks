@@ -12,7 +12,10 @@ class ExtractsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @extracts = Extract.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @extracts = Queries::Extract::Filter.
+        new(filter_params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500).
+        order('extracts.id')
       }
     end
   end
@@ -89,9 +92,24 @@ class ExtractsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_extract
       @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
+    end
+
+    def filter_params
+      params.permit(
+        :id,
+        :user_date_end,
+        :user_date_start,
+        :user_id,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :identifier_type,
+        :repository_id,
+        repository_id: [],
+      )
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
