@@ -1,22 +1,6 @@
 # An Extract is the quantified physical entity that originated from a CollectionObject.
 # Extracts are linked to their origin through an OriginRelationship.
 #
-# @!attribute quantity_value
-#   @return [Numeric]
-#    # @Merfoo, define with David
-#
-# @!attribute quantity_unit
-#   @return [Numeric]
-#      # @Merfoo, define with David
-#
-# @!attribute concentration_value
-#   @return [Numeric]
-#      # @Merfoo, define with David
-#
-# @!attribute concentration_unit
-#   @return [Numeric]
-#      # @Merfoo, define with David
-#
 # @!attribute verbatim_anatomical_origin
 #  @return [String]
 #    proxy for a OriginRelationship to an AnatomicalClass
@@ -58,14 +42,9 @@ class Extract < ApplicationRecord
 
   before_validation :set_made, if: -> {is_made_now}
 
-#  validates_presence_of :quantity_value
-#  validates_presence_of :quantity_unit
-
-#  validates :quantity_unit, with: :validate_units
-
-  validates :year_made, date_year: { allow_blank: false }
-  validates :month_made, date_month: { allow_blank: false }
-  validates :day_made, date_day: { allow_blank: false }
+  validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
+  validates :month_made, date_month: true
+  validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
   protected
 
@@ -73,14 +52,6 @@ class Extract < ApplicationRecord
     write_attribute(:year_made, Time.now.year)
     write_attribute(:month_made, Time.now.month)
     write_attribute(:day_made, Time.now.day)
-  end
-
-  def validate_units
-    begin
-      RubyUnits::Unit.new(quantity_unit)
-    rescue ArgumentError, 'Unit not recognized'
-      errors.add(:quantity_unit, "'#{quantity_unit}' is an invalid quantity_unit")
-    end
   end
 
   # @param used_on [String] required, one of `Protocol`, `OriginRelationship`
@@ -154,6 +125,5 @@ class Extract < ApplicationRecord
 
     h
   end
-
 
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_06_213848) do
+ActiveRecord::Schema.define(version: 2021_04_11_151701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
@@ -805,9 +805,9 @@ ActiveRecord::Schema.define(version: 2021_04_06_213848) do
 
   create_table "extracts", id: :serial, force: :cascade do |t|
     t.string "verbatim_anatomical_origin"
-    t.integer "year_made", null: false
-    t.integer "month_made", null: false
-    t.integer "day_made", null: false
+    t.integer "year_made"
+    t.integer "month_made"
+    t.integer "day_made"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
