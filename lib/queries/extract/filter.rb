@@ -13,12 +13,19 @@ module Queries
       include Queries::Concerns::Users
       include Queries::Concerns::Identifiers
 
+      # @param [String, nil]
+      #  'true' - order by updated_at
+      #  'false', nil - do not apply ordering
+      # @return [Boolen, nil]
+      attr_accessor :recent
+
       # @return [Array of Repository#id]
       attr_accessor :repository_id
 
       # @param [Hash] args are permitted params
       def initialize(params)
         @respository_id = params[:respository_id] 
+        @recent = boolean_param(params, :recent)
 
         set_identifier(params)
         set_tags_params(params)
@@ -107,6 +114,7 @@ module Queries
           q = ::Extract.all
         end
 
+        q = q.order(updated_at: :desc) if recent
         q
       end
 

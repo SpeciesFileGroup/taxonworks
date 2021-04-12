@@ -195,7 +195,7 @@ module Queries
         @on_loan =  boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
         @otu_ids = params[:otu_ids] || []
-        @recent = params[:recent].blank? ? false : true
+        @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
         @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
         @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]

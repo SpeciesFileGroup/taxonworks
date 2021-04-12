@@ -14,10 +14,9 @@ class ExtractsController < ApplicationController
       format.json {
         @extracts = Queries::Extract::Filter.
         new(filter_params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500).
-        order('extracts.id')
+        page(params[:page]).per(params[:per] || 500)
       }
-    end
+      end
   end
 
   # GET /extracts/1
@@ -107,6 +106,7 @@ class ExtractsController < ApplicationController
         :identifier_exact,
         :identifier_start,
         :identifier_type,
+        :recent,
         :repository_id,
         repository_id: [],
       )
