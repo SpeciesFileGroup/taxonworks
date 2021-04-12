@@ -68,8 +68,8 @@ export default {
   watch: {
     extract (newVal) {
       if (newVal.repository_id) {
-        GetRepository(newVal.id).then(response => {
-          this.setRepository(response.body)
+        GetRepository(newVal.id).then(({ body }) => {
+          this.setRepository(body)
         })
       }
     }

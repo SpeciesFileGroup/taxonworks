@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>Origin</h2>
-    <template v-if="!selectedOrigin">
+    <template v-if="!originRelationship.oldObject">
       <div class="horizontal-left-content middle margin-small-bottom">
         <switch-component
           v-model="tabSelected"
@@ -17,20 +17,21 @@
     </template>
 
     <div
-      v-if="selectedOrigin"
+      v-if="originRelationship.object_tag"
       class="horizontal-left-content">
-      <span v-html="selectedOrigin.object_tag"/>
+      <span v-html="originRelationship.object_tag"/>
       <button
         class="button circle-button btn-undo button-default"
         type="button"
-        @click="selectedOrigin = undefined"/>
+        @click="originRelationship = {}"/>
     </div>
+
     <label>
       <input
         type="checkbox">
       Substract from origin
     </label>
-    <label>
+    <label v-if="!isExtract">
       Verbatim anatomical origin
       <input
         type="text"
@@ -47,6 +48,7 @@ import LockComponent from 'components/lock'
 import componentExtend from './mixins/componentExtend'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { ActionNames } from '../store/actions/actions'
 
 const smartTypes = [{
   label: 'CollectionObject',
@@ -68,8 +70,7 @@ export default {
   data () {
     return {
       smartTypes: smartTypes,
-      tabSelected: smartTypes[0].label,
-      selectedOrigin: undefined
+      tabSelected: smartTypes[0].label
     }
   },
 
@@ -80,6 +81,10 @@ export default {
 
     tabsOptions () {
       return this.smartTypes.map(({ label }) => label)
+    },
+
+    isExtract () {
+      return this.tabSelected === smartTypes[1].label
     },
 
     originRelationship: {
@@ -93,15 +98,21 @@ export default {
   },
 
   watch: {
-    selectedOrigin (newVal) {
-      this.originRelationship.old_object_id = newVal.id
-      this.originRelationship.old_object_type = newVal.base_class || 'CollectionObject'
+    extract (newVal) {
+      if (!newVal?.id) return
+      this.$store.dispatch(ActionNames.LoadOriginRelationship, newVal)
     }
   },
 
   methods: {
-    setOrigin (origin) {
-      this.selectedOrigin = origin
+    setOrigin ({ base_class, id, object_tag }) {
+      this.originRelationship = {
+        object_tag,
+        oldObject: {
+          old_object_id: id,
+          old_object_type: base_class || 'CollectionObject'
+        }
+      }
     }
   }
 }

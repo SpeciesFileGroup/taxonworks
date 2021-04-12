@@ -13,6 +13,7 @@ Vue.use(Vuex)
 const makeInitialState = () => {
   return {
     settings: {
+      isLoading: false,
       lock: {
         date: false,
         identifiers: false,
@@ -29,7 +30,8 @@ const makeInitialState = () => {
     },
     extract: makeExtract(),
     identifiers: [],
-    originRelationship: makeOriginRelationship(),
+    originRelationship: {},
+    recents: [],
     protocols: [],
     repository: undefined,
     softValidation: []

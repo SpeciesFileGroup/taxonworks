@@ -1,3 +1,4 @@
+import getRecent from './getRecent'
 import getSettings from './getSettings'
 import getExtract from './getExtract'
 import getIdentifiers from './getIdentifiers'
@@ -9,6 +10,7 @@ import getRepository from './getRepository'
 import getProtocols from './getProtocols'
 
 const GetterNames = {
+  GetRecent: 'getRecent',
   GetExtract: 'getExtract',
   GetIdentifiers: 'getIdentifiers',
   GetSettings: 'getSettings',
@@ -21,6 +23,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.GetRecent]: getRecent,
   [GetterNames.GetExtract]: getExtract,
   [GetterNames.GetIdentifiers]: getIdentifiers,
   [GetterNames.GetSettings]: getSettings,

@@ -53,7 +53,8 @@
         </draggable>
       </div>
       <div class="item">
-        <soft-validation/>
+        <recent-component />
+        <soft-validation />
       </div>
     </div>
   </div>
@@ -71,6 +72,7 @@ import MadeComponent from './components/Made'
 import RepositoryComponent from './components/Repository'
 import Draggable from 'vuedraggable'
 import SoftValidation from './components/SoftValidation.vue'
+import RecentComponent from './components/Recent'
 
 export default {
   components: {
@@ -79,6 +81,7 @@ export default {
     MadeComponent,
     RepositoryComponent,
     SoftValidation,
+    RecentComponent,
     ...VueComponent
   },
 
@@ -104,6 +107,13 @@ export default {
   },
 
   created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const extractId = urlParams.get('extract_id')
+
+    if (/^\d+$/.test(extractId)) {
+      this.$store.dispatch(ActionNames.LoadExtract, extractId)
+    }
+
     this.$store.dispatch(ActionNames.LoadProjectPreferences)
     this.$store.dispatch(ActionNames.LoadUserPreferences)
   },

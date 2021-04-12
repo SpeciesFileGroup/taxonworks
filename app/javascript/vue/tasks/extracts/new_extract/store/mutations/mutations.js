@@ -1,5 +1,6 @@
 import setExtract from './setExtract'
 import setIdentifiers from './setIdentifiers'
+import setRecents from './setRecent'
 import setSettings from './setSettings'
 import setSoftValidation from './setSoftValidation'
 import setUserPreferences from './setUserPreferences'
@@ -12,6 +13,7 @@ import setState from './setState'
 const MutationNames = {
   SetExtract: 'setExtract',
   SetIdentifiers: 'setIdentifiers',
+  SetRecents: 'setRecent',
   SetSettings: 'setSettings',
   SetSoftValidation: 'setSoftValidation',
   SetUserPreferences: 'setUserPreferences',
@@ -25,6 +27,7 @@ const MutationNames = {
 const MutationFunctions = {
   [MutationNames.SetExtract]: setExtract,
   [MutationNames.SetIdentifiers]: setIdentifiers,
+  [MutationNames.SetRecents]: setRecents,
   [MutationNames.SetSettings]: setSettings,
   [MutationNames.SetSoftValidation]: setSoftValidation,
   [MutationNames.SetUserPreferences]: setUserPreferences,

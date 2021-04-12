@@ -25,6 +25,7 @@ class Extract < ApplicationRecord
   include Shared::Containable
   include Shared::DataAttributes
   include Shared::HasRoles
+  include SoftValidation
   include Shared::IsData
 
   is_origin_for 'Extract', 'Sequence'

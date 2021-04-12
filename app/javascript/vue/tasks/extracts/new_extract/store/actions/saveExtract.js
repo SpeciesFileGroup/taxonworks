@@ -1,5 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateExtract, UpdateExtract } from '../../request/resources'
+import { CreateExtract, UpdateExtract, GetSoftValidation } from '../../request/resources'
+
 
 export default ({ state, commit }) => {
   const { extract, repository, identifiers, protocols } = state
@@ -11,6 +12,9 @@ export default ({ state, commit }) => {
 
   return saveExtract(extract).then(({ body }) => {
     commit(MutationNames.SetExtract, body)
+    GetSoftValidation(body.global_id).then(response => {
+      commit(MutationNames.SetSoftValidation, response.body)
+    })
     return body
   })
 }
