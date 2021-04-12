@@ -21,6 +21,8 @@
           <button
             type="button"
             class="button normal-input button-submit margin-small-right"
+            v-shortkey="[getOSKey, 's']"
+            @shortkey="saveExtract"
             @click="saveExtract">
             Save
           </button>
@@ -32,6 +34,8 @@
           <button
             type="button"
             class="button normal-input button-default"
+            v-shortkey="[getOSKey, 'n']"
+            @shortkey="resetState"
             @click="resetState">
             New
           </button>
@@ -52,7 +56,7 @@
             :is="componentName"/>
         </draggable>
       </div>
-      <div class="item">
+      <div class="item margin-medium-left">
         <recent-component />
         <soft-validation />
       </div>
@@ -73,6 +77,7 @@ import RepositoryComponent from './components/Repository'
 import Draggable from 'vuedraggable'
 import SoftValidation from './components/SoftValidation.vue'
 import RecentComponent from './components/Recent'
+import getOSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -103,7 +108,9 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
-    }
+    },
+
+    getOSKey: getOSKey
   },
 
   created () {

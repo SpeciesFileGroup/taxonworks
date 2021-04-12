@@ -101,6 +101,11 @@ export default {
     extract (newVal) {
       if (!newVal?.id) return
       this.$store.dispatch(ActionNames.LoadOriginRelationship, newVal)
+    },
+    isExtract (newVal) {
+      if (newVal) {
+        this.extract.verbatim_anatomical_origin = undefined
+      }
     }
   },
 
