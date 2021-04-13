@@ -43,7 +43,7 @@ class Softy
   def cook_cheezburgers
     @hungry = false
     true
-  end
+  end 
 end
 
 # Stub class for testing, used to ensure that soft validation

@@ -44,13 +44,13 @@ describe 'SoftValidation', group: :soft_validation do
       expect(Softy.soft_validation_methods).to eq({})
     end
 
-    specify '.soft_validators() returns individual methods from soft_validation_methods' do
-      expect(Softy.soft_validators).to eq([])
-    end
+      specify '.soft_validators() returns individual methods from soft_validation_methods' do
+        expect(Softy.soft_validators).to eq([])
+      end
 
-    specify '.soft_validation_descriptions returns name and description pairs' do
-      expect(Softy.soft_validation_descriptions).to eq({})
-    end
+      specify '.soft_validation_descriptions returns name and description pairs' do
+        expect(Softy.soft_validation_descriptions).to eq({})
+      end
 
     context 'adding soft validations' do
       before(:each) { Softy.send(:reset_soft_validation!) }
@@ -191,9 +191,9 @@ describe 'SoftValidation', group: :soft_validation do
       let(:softy) {Softy.new}
       specify 'after validation resolution is available' do
         softy.soft_validate
-        expect(softy.soft_validations.soft_validations.first.resolution).to contain_exactly(:root_path)
+          expect(softy.soft_validations.soft_validations.first.resolution).to contain_exactly(:root_path)
+        end
       end
-    end
 
     context 'with a validation instance that is fixable' do
       before { Softy.soft_validate(:you_do_it?, fix: :my_fix) }
