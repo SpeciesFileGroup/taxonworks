@@ -7,7 +7,7 @@ class DatasetRecordsController < ApplicationController
   # GET /dataset_records
   # GET /dataset_records.json
   def index
-    @dataset_records = filtered_records.preload_fields.order(id: :asc).page(params[:page]).per(params[:per] || 100)
+    @dataset_records = filtered_records.order(id: :asc).page(params[:page]).per(params[:per] || 100) #.preload_fields
   end
 
   # GET /dataset_records/1
@@ -48,7 +48,7 @@ class DatasetRecordsController < ApplicationController
 
   # PATCH/PUT /dataset_records/set_field_value
   def set_field_value
-    filtered_records.preload_fields.find_each(batch_size: 10000) do |record|
+    filtered_records.find_each(batch_size: 10000) do |record| #.preload_fields
       record.set_data_field(Integer(params[:field]), params[:value])
       record.save!
     end unless params[:filter].blank?
@@ -97,7 +97,7 @@ class DatasetRecordsController < ApplicationController
       dataset_records = import_dataset.core_records
       params[:filter]&.each do |key, value|
         dataset_records = dataset_records.where(
-          dataset_record_fields: import_dataset.core_records_fields.at(key.to_i).with_value(value)
+          id: import_dataset.core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id)
         )
       end
 

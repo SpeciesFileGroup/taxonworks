@@ -1,9 +1,10 @@
 class DatasetRecordField < ApplicationRecord
   include Shared::IsData
 
-  belongs_to :import_dataset # To speed up queries, normally should be get from dataset_record
   belongs_to :dataset_record
-  belongs_to :project # Security purposes only (avoid leaks)
+
+  has_one :import_dataset # To speed up queries, normally should be get from dataset_record
+  has_one :project # Security purposes only (avoid leaks)
 
   VALUE_INDEX_LIMIT = 1000
 
@@ -27,9 +28,9 @@ class DatasetRecordField < ApplicationRecord
     where(indexed_column_value(prefix).matches("#{prefix.gsub(/([%_\[\\])/, '\\\\\1')}%"))
   end
 
-  def self.with_record_type(type)
+  def self.with_record_class(record_class)
     where(
-      encoded_dataset_record_type: DatasetRecordField.encode_record_type(core_record_type)
+      encoded_dataset_record_type: DatasetRecordField.encode_record_type(record_class)
     )
   end
 

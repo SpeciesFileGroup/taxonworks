@@ -16,7 +16,7 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def core_records_fields
-    dataset_record_fields.with_record_type(core_records_fields)
+    dataset_record_fields.with_record_class(core_records_class)
   end
 
   # @return [Checklist|Occurrences|Unknown]
@@ -123,7 +123,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
       status = ["Ready"]
       status << "Errored" if retry_errored
-      records = dataset_records.preload_fields.where(status: status).order(:id).limit(max_records)
+      records = dataset_records.where(status: status).order(:id).limit(max_records) #.preload_fields
       filters&.each do |key, value|
         records = records.where(dataset_record_fields: DatasetRecordField.at(key.to_i).with_value(value))
       end

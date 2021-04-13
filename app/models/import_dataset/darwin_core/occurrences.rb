@@ -8,8 +8,8 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
   validate :source, :check_field_set
 
-  def core_record_type
-    DatasetRecord::DarwinCore::Occurrence.to_s
+  def core_records_class
+    DatasetRecord::DarwinCore::Occurrence
   end
 
   # Stages core (Occurrence) records and all extension records.
@@ -109,9 +109,9 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
       query = ready ? dataset_records.where(status: 'NotReady') : dataset_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
       query.where(
-        dataset_record_fields: core_records_fields.at(fields_mapping["institutionCode"]).with_value(institution_code)
+        id: core_records_fields.at(fields_mapping["institutionCode"]).with_value(institution_code).select(:dataset_record_id)
       ).where(
-        dataset_record_fields: core_records_fields.at(fields_mapping["collectionCode"]).with_value(collection_code)
+        id: core_records_fields.at(fields_mapping["collectionCode"]).with_value(collection_code).select(:dataset_record_id)
       ).update_all(ready ?
         "status = 'Ready', metadata = metadata - 'error_data'" :
         "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set, see \\\"Settings\\\".\"] } }')"
