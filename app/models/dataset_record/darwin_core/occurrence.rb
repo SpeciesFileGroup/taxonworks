@@ -248,7 +248,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         #     delimiter: '-'
         # }).find_or_create_by!(short_name: "#{institution_code}-#{collection_code}")) if collection_code
     namespace_id = self.import_dataset.get_catalog_number_namespace(institution_code, get_field_value(:collectionCode))
-    set_hash_val(res[:catalog_number], :namespace, Namespace.find(namespace_id)) if namespace_id
+    if namespace_id
+      set_hash_val(res[:catalog_number], :namespace, Namespace.find(namespace_id))
+      set_hash_val(res[:catalog_number], :project, self.project)
+    end
 
     # datasetName: [Not mapped]
 
@@ -775,7 +778,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def append_data_attribute(attributes, attribute)
-    predicate = Predicate.find_by(uri: attribute[:uri])
+    predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
     value = get_field_value(attribute[:field])
     if value
       raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
