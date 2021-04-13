@@ -26,30 +26,28 @@ module SoftValidation
       @soft_validations = []
     end
 
+    # Add a soft validation to a data instance.
+    # 
     # @param attribute [Symbol]
     #   a column attribute or :base
     # @param message [String]
     #   a message describing the soft validation to the user, i.e. what has gone wrong
-    # @param options [Hash{fix: :method_name, success_message: String, failure_message: String, resolution: TODO }]
-    #   the method identified by :fix should fully resolve the SoftValidation.
     def add(attribute, message, options = {})
-      source = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
+      # Must be left here
+      method = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
 
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
       raise SoftValidationError, 'no :attribute or message provided to soft validation' if attribute.nil? || message.nil? || message.length == 0
-      # raise SoftValidationError, 'if one of :success_message or :failure_message provided both must be' if (!options[:success_message].nil? || !options[:failure_message].nil?) && ( options[:success_message].nil? || options[:failure_message].nil? )
 
-      options[:attribute] = attribute
-      options[:message] = message
-      options[:soft_validation_method] = source
+      options.merge!(
+        soft_validation_method: method,
+        attribute: attribute,
+        message: message,
+        resolution: resolution_for(method),
+        fix: fix_for(method)
+      )
 
-      # TODO: why resolution_with
-      options[:resolution] = resolution_for(options[:resolution_with])
-
-      # TODO: FIX?! shouldn't be used ...
-      options.delete(:resolution_with)
-
-      sv = SoftValidation.new(options)
+      sv = ::SoftValidation::SoftValidation.new(options)
 
       @soft_validations << sv
     end
@@ -65,6 +63,13 @@ module SoftValidation
     def resolution_for(method)
       return [] if method.nil?
       self.instance.class.soft_validation_methods[method].resolution
+    end
+
+    # @param [Symbol, String] method
+    # @return [Array]
+    def fix_for(method)
+      return [] if method.nil?
+      self.instance.class.soft_validation_methods[method].fix
     end
 
     # @return [Boolean]
@@ -115,5 +120,3 @@ module SoftValidation
   end
 
 end
-
-

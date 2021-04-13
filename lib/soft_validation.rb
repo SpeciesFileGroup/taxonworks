@@ -4,7 +4,7 @@ require 'amazing_print'
 
 require_relative 'soft_validation/soft_validation'
 require_relative 'soft_validation/soft_validations'
-require 'soft_validation/soft_validation_method'
+require_relative 'soft_validation/soft_validation_method'
 require_relative 'utilities/params'
 require "active_support/all"
 
@@ -108,7 +108,6 @@ require "active_support/all"
 #   f.soft_validate(flagged: true)                      # run all, *including* methods flagged by developers as "a-typical", there is no flagged: false, as it is default)
 #
 module SoftValidation
-
   class SoftValidationError < StandardError; end
 
   # An index of the soft validators in superclasses
@@ -156,16 +155,15 @@ module SoftValidation
       #
       # The critical insight is to use the `=` to access the setter method.  This allows the subclasses to have their own copy of `soft_validation_methods`
       # See https://api.rubyonrails.org/classes/Class.html
+      # b
       self.soft_validation_methods = self.soft_validation_methods.merge(method =>  SoftValidationMethod.new(options))
     end
 
     # @param [Hash] method
     # @param [Hash] options
     def add_to_set(method, options)
-
       # TODO: update this to use setters?  Might not
       # be required because we are subgrouping by set.
-
       n = self.name
       set = options[:set]
 
@@ -329,7 +327,6 @@ module SoftValidation
   def soft_validate(**options)
     clear_soft_validations
     soft_validations
-
 
     soft_validators(**options).each do |sv_method|
       self.send(sv_method)

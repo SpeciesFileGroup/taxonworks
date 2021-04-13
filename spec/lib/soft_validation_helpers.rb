@@ -25,7 +25,7 @@ class Softy
   end
 
   def haz_cheezburgers?
-    soft_validations.add(:base, 'hungry!', success_message: 'no longer hungry, cooked a cheezeburger', failure_message: 'missed my mouth') if @hungry
+    soft_validations.add(:base, 'hungry!') if @hungry
   end
 
   def needs_moar_cheez? 
@@ -37,7 +37,7 @@ class Softy
   end
 
   def you_do_it?
-    soft_validations.add(:mohr, 'fix it urselv!', resolution_with: __method__) if true 
+    soft_validations.add(:mohr, 'fix it urselv!') if true 
   end
 
   def cook_cheezburgers

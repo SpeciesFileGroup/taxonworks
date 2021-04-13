@@ -272,7 +272,7 @@ module Protonym::SoftValidationExtensions
         set: :year_is_not_required,
         fix: :sv_fix_year_is_not_required,
         name: 'Verbatim year is not required',
-        description: 'Verbatim year is not required if the origina source is set and the source has year of publication. The Fix will delete the verbatim_year'
+        description: 'Verbatim year is not required if the original source is set and the source has year of publication. The Fix will delete the verbatim_year'
       },
 
       sv_author_is_not_required: {
