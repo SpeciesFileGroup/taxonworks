@@ -33,7 +33,7 @@ module SoftValidation
     # @param message [String]
     #   a message describing the soft validation to the user, i.e. what has gone wrong
     def add(attribute, message, options = {})
-      # Must be left here
+      # this is impossible to test.
       method = caller[0][/`(block\ in\ )*([^']*)'/, 2].to_sym # janky, the caller of this method, that is the method referenced in `soft_validate()`, used to get the fix for this Instance added
 
       raise SoftValidationError, "can not add soft validation to [#{attribute}] - not a column name or 'base'" if !(['base'] + instance.class.column_names).include?(attribute.to_s)
