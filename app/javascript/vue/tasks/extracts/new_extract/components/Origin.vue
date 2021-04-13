@@ -106,6 +106,11 @@ export default {
       if (newVal) {
         this.extract.verbatim_anatomical_origin = undefined
       }
+    },
+    originRelationship ({ oldObject }) {
+      if (oldObject) {
+        this.tabSelected = oldObject.old_object_type
+      }
     }
   },
 
