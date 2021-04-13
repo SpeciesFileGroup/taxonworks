@@ -43,9 +43,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
 
         specimen = Specimen.create!({
-          no_dwc_occurrence: true
-        }.merge!(attributes[:specimen])
-      )
+            no_dwc_occurrence: true
+          }.merge!(attributes[:specimen])
+        )
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
