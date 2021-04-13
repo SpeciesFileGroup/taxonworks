@@ -185,12 +185,9 @@ module SoftValidation
     end
 
     # @return [Boolean]
-    #    true if at least on soft_validate() exists in *this* class
+    #   true if at least on soft_validate() exists in *this* class
     def has_self_soft_validations?
       soft_validation_methods_on_self.any?
-
-      #  self.soft_validation_methods[self.name].any? # donesn't include superclass !?
-      #  self.soft_validation_sets[self.name] && self.soft_validation_sets[self.name].keys.count > 0 # [:all].count > 0 any set indicates at least one
     end
 
     # @return [Array]
@@ -222,11 +219,11 @@ module SoftValidation
     #   names (symbols]
     #
     # @param only_methods [Array]
-    #   Names (symbols) of sets to run. _If provided all other params are ignored._
+    #   Names (symbols) of soft validation methods (not fix methods) to run. _If provided all other params are ignored._
     #
     # @param except_methods [Array]
-    #   names (symbols]
-    #
+    #   Names (symbols) of soft validation methods to exclude.  Ignored if only_methods is provided.
+    #   
     # @param include_superclass [Boolean]
     #   include validations on superclasses, default is `true`
     #
