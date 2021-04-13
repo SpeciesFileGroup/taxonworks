@@ -125,7 +125,7 @@ class ImportDataset::DarwinCore < ImportDataset
       status << "Errored" if retry_errored
       records = dataset_records.where(status: status).order(:id).limit(max_records) #.preload_fields
       filters&.each do |key, value|
-        records = records.where(dataset_record_fields: DatasetRecordField.at(key.to_i).with_value(value))
+        records = records.where(id: DatasetRecordField.at(key.to_i).with_value(value).select(:dataset_record_id))
       end
       records = records.where(id: start_id..) if start_id
 
