@@ -10,9 +10,9 @@
     </td>
     <import-row-state :row="row"/>
     <cell-component
-      v-for="(data_field, index) in row.data_fields"
+      v-for="(data_field, index) in tableHeaders"
       :key="index"
-      :cell="data_field.value"
+      :cell="row.data_fields[index]"
       :cell-index="index"
       :disabled="isProcessing"
       @update="updateRecord"/>
@@ -56,6 +56,10 @@ export default {
     },
     isProcessing () {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
+    },
+    tableHeaders () {
+      const { metadata: { core_headers: headers } } = this.$store.getters[GetterNames.GetDataset]
+      return headers
     }
   },
   methods: {
