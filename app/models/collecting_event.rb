@@ -524,14 +524,14 @@ class CollectingEvent < ApplicationRecord
     begin
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
+        vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
         end
         return a
       end
-    rescue
+    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
       raise
     end
     false
