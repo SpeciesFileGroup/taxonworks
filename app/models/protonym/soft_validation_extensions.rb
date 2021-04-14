@@ -114,13 +114,25 @@ module Protonym::SoftValidationExtensions
             count(:type)
 
         if z.empty?
+          z = TaxonNameClassification.
+              joins(:taxon_name).
+              where(taxon_names: { name: name}).
+              where("taxon_name_classifications.type LIKE 'TaxonNameClassification::Latinized::PartOfSpeech%'").
+              group(:type).
+              count(:type)
+          other_project = ' in different projects'
+        else
+          other_project = ''
+        end
+
+        if z.empty?
           soft_validations.add(:base, 'Part of speech is not specified. Please select if the name is a noun or an adjective.')
         else
           l = []
           z.each do |key, value|
             l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
           end
-          soft_validations.add(:base, 'Part of speech is not specified. The name was previously used' + l.join('; '))
+          soft_validations.add(:base, "Part of speech is not specified. The name was previously used#{other_project}" + l.join('; '))
         end
       end
     end
@@ -140,25 +152,29 @@ module Protonym::SoftValidationExtensions
             if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && name != masculine_name && name != feminine_name && name != neuter_name
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             else
+              forms = predict_three_forms
               if feminine_name.blank?
                 soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
               else
-                e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, feminine_name)
-                soft_validations.add(:feminine_name, "Name has a non feminine ending: -#{e}") unless e.nil?
+                # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, feminine_name)
+                # soft_validations.add(:feminine_name, "Name has a non feminine ending: -#{e}") unless e.nil?
+                soft_validations.add(:feminine_name, "Feminine form does not match with predicted: -#{forms[:feminine_name]}") if feminine_name != forms[:feminine_name]
               end
 
               if masculine_name.blank?
                 soft_validations.add(:masculine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in masculine is not provided")
               else
-                e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, masculine_name)
-                soft_validations.add(:masculine_name, "Name has a non masculine ending: -#{e}") unless e.nil?
+                # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, masculine_name)
+                # soft_validations.add(:masculine_name, "Name has a non masculine ending: -#{e}") unless e.nil?
+                soft_validations.add(:masculine_name, "Masculine form does not match with predicted: -#{forms[:masculine_name]}") if masculine_name != forms[:masculine_name]
               end
 
               if neuter_name.blank?
                 soft_validations.add(:neuter_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in neuter is not provided")
               else
-                e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
-                soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}") unless e.nil?
+                # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
+                # soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}") unless e.nil?
+                soft_validations.add(:neuter_name, "Neuter form does not match with predicted: -#{forms[:neuter_name]}") if neuter_name != forms[:neuter_name]
               end
             end
           end
@@ -602,7 +618,7 @@ module Protonym::SoftValidationExtensions
       return true unless is_available?
       list_of_coordinated_names.each do |t|
         if self.roles.collect{|i| i.person_id} != t.roles.collect{|i| i.person_id}
-          soft_validations.add(:etymology, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_roles, success_message: 'Author roles were updated')
+          soft_validations.add(:base, "The author roles do not match with the author roles of the coordinate #{t.rank_class.rank_name}", fix: :sv_fix_coordinated_names_roles, success_message: 'Author roles were updated')
         end
       end
     end
@@ -1145,11 +1161,18 @@ module Protonym::SoftValidationExtensions
             count(:etymology)
 
         if z.empty?
+          z = TaxonName.where(name: name).where.not(etymology: nil).group(:etymology).count(:etymology)
+          other_project = ' in different projects'
+        else
+          other_project = ''
+        end
+
+        if z.empty?
           soft_validations.add(:etymology, 'Etymology is missing')
         else
           z1 = z.sort_by {|k, v| -v}
           t = z1[0][1] == 1 ? 'time' : 'times'
-          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name#{other_project}: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
         end
       end
     end
