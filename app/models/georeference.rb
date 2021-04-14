@@ -267,16 +267,17 @@ class Georeference < ApplicationRecord
 
     unless collecting_event_list.nil?
       collecting_event_list.each do |event_id|
-        new_gr = Georeference.new(collecting_event_id: event_id.to_i,
-                                  geographic_item_id: gr.geographic_item_id,
-                                  error_radius: gr.error_radius,
-                                  error_depth: gr.error_depth,
-                                  error_geographic_item_id: gr.error_geographic_item_id,
-                                  type: gr.type,
-                                  is_public: gr.is_public,
-                                  api_request: gr.api_request,
-                                  is_undefined_z: gr.is_undefined_z,
-                                  is_median_z: gr.is_median_z)
+        new_gr = Georeference.new(
+          collecting_event_id: event_id.to_i,
+          geographic_item_id: gr.geographic_item_id,
+          error_radius: gr.error_radius,
+          error_depth: gr.error_depth,
+          error_geographic_item_id: gr.error_geographic_item_id,
+          type: gr.type,
+          is_public: gr.is_public,
+          api_request: gr.api_request,
+          is_undefined_z: gr.is_undefined_z,
+          is_median_z: gr.is_median_z)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
           new_gr.save!
           result.push new_gr

@@ -30,7 +30,7 @@
           :options="['Column', 'Row']"
           v-model="matrixView"/>
         <switch-component
-          :options="['Fixed', 'Dynamic']"
+          :options="['fixed', 'dynamic']"
           v-model="matrixMode"/>
       </div>
     </div>
@@ -52,10 +52,10 @@ export default {
   },
   computed: {
     matrixName: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetMatrix].name
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixName, value)
       }
     },
@@ -68,18 +68,18 @@ export default {
       }
     },
     matrixView: {
-      get() {
-        return (this.$store.getters[GetterNames.GetMatrixView] == 'column' ? true : false)
+      get () {
+        return this.$store.getters[GetterNames.GetMatrixView] === 'column'
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixView, (value ? 'column' : 'row'))
       }
     },
     matrixMode: {
-      get() {
-        return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
+      get () {
+        return this.$store.getters[GetterNames.GetMatrixMode] === 'fixed'
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },
