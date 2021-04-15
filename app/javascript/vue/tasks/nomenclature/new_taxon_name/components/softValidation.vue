@@ -10,7 +10,8 @@
       class="body overflow-y-auto">
       <div
         v-for="key in Object.keys(errors)"
-        v-if="errors[key].list.length">
+        v-if="errors[key].list.length"
+        :key="key">
         <hr>
         <h3>
           {{ errors[key].title }}
@@ -18,7 +19,7 @@
             v-if="getFixPresent(errors[key].list).length"
             type="button"
             class="button button-submit margin-small-left"
-            @click="runFix(errors[key].list.map(({ global_id }) => ({ global_id }) ))">
+            @click="runFix(getFixPresent(errors[key].list))">
             Fix all
           </button>
         </h3>
@@ -32,10 +33,15 @@
               v-if="error.fix"
               type="button"
               class="button button-submit"
-              @click="runFix([{ global_id: list.global_id, fix: [error.soft_validation_method] }])">
+              @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
               Fix
             </button>
-            <span v-html="error.message"/>
+            <span
+              v-html="error.message"
+              :title="error.description"/>
+            <span
+              v-if="error.resolution.length"
+              v-html="`[${error.resolution.map((path, index) => `<a href='${path}'>${index}</a>`).join(', ')}]`"></span>
           </li>
         </ul>
       </div>
@@ -76,11 +82,11 @@ export default {
       return list.map(item =>
         Object.assign({}, {
           global_id: item.global_id,
-          key: item.validations.soft_validations
+          only_methods: item.validations.soft_validations
             .filter(v => v.fix)
             .map(item => item.fix)
         }))
-        .filter(item => item.key.length)
+        .filter(item => item.only_methods.length)
     }
   }
 }
