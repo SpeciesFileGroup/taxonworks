@@ -14,7 +14,7 @@ describe 'SoftValidations', group: :soft_validation do
 
 =begin
 # We can't call these because of the `caller` hack and how it's hit from specs.  That's probably a sign about how bad it is.
-  
+
 specify '#size' do
     soft_validations.add(:base, 'no cheezburgahz!')
     expect(soft_validations.size).to eq(1)
@@ -45,11 +45,7 @@ specify '#size' do
   end
 
   specify 'messages_on' do
-    expect(soft_validations).to respond_to(:messages)
-  end
-
-  specify '#resolution_for' do
-    expect(soft_validations).to respond_to(:resolution_for)
+    expect(soft_validations).to respond_to(:messages_on)
   end
 
   specify '#validated?' do

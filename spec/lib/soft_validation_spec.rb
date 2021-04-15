@@ -169,23 +169,6 @@ describe 'SoftValidation', group: :soft_validation do
   context 'example usage' do
     before { Softy.send(:reset_soft_validation!) }
 
-    context 'with a validation that has resolution' do
-      before do
-        Softy.soft_validate(:just_bun?, resolution: [:root_path])
-        Softy.soft_validate(:needs_moar_cheez?)
-      end
-
-      let(:softy) {Softy.new}
-
-      specify 'soft_validations#resolution_for()' do
-        expect(softy.soft_validations.resolution_for(:just_bun?)).to contain_exactly(:root_path)
-      end
-
-      specify 'soft_validations#resolution_for()' do
-        expect(softy.soft_validations.resolution_for(:needs_moar_cheez?)).to contain_exactly()
-      end
-    end
-
     context 'with a validation instance that is resolvable' do
       before { Softy.soft_validate(:you_do_it?, resolution: [:root_path]) }
       let(:softy) {Softy.new}
@@ -202,6 +185,16 @@ describe 'SoftValidation', group: :soft_validation do
       specify 'after validation fix is available' do
         softy.soft_validate
         expect(softy.soft_validations.soft_validations.first.fix).to eq(:my_fix)
+      end
+    end
+
+    context 'with a validation instance that has description' do
+      before { Softy.soft_validate(:you_do_it?, fix: :my_fix, description: 'my description') }
+      let(:softy) {Softy.new}
+
+      specify 'after validation description is available' do
+        softy.soft_validate
+        expect(softy.soft_validations.soft_validations.first.description).to eq('my description')
       end
     end
 

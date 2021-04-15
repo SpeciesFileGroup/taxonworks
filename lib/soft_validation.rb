@@ -108,6 +108,7 @@ require "active_support/all"
 #   f.soft_validate(flagged: true)                      # run all, *including* methods flagged by developers as "a-typical", there is no flagged: false, as it is default)
 #
 module SoftValidation
+
   class SoftValidationError < StandardError; end
 
   # An index of the soft validators in superclasses
@@ -373,6 +374,7 @@ module SoftValidation
     soft_validations.complete?
   end
 
+  # TODO: should be here?
   def fix_for(soft_validation_method)
     soft_validation_methods[soft_validation_method]&.fix
   end

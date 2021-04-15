@@ -115,6 +115,7 @@ module Protonym::SoftValidationExtensions
       },
 
       sv_validate_coordinated_names_year: {
+        resolution: [:new_taxon_name_task_path],
         set: :validate_coordinated_names,
         fix: :sv_fix_coordinated_names_year,
         name: 'Matching year of coordinated names',

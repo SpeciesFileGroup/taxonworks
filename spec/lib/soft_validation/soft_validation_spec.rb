@@ -41,4 +41,8 @@ describe 'SoftValidation (instance)', group: :soft_validation do
     expect(soft_validation).to respond_to(:result_message)
   end
 
+  specify 'to_json' do
+    expect(soft_validation.to_json).to be_truthy
+  end
+
 end

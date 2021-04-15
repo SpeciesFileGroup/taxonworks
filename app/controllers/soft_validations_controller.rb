@@ -6,19 +6,12 @@ class SoftValidationsController < ApplicationController
   # GET /soft_validations/validate
   def validate
     @object.soft_validate(soft_validate_params)
-    render json: {
-      validations: @object.soft_validations
-    }
-
   end
 
   # POST /soft_validations/fix?global_id=<>
   def fix
     @object.soft_validate(soft_validate_params)
     @object.fix_soft_validations
-    render json: {
-      validations: @object.soft_validations
-    }
   end
 
   protected

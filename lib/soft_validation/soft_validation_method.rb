@@ -38,11 +38,9 @@ module SoftValidation
     # @param [Hash] args
     def initialize(options)
       raise(SoftValidationError, 'missing method and klass') if options[:method].nil? || options[:klass].nil?
-
       options.each do |k,v|
         send("#{k}=", v)
       end
-
     end
 
     # @param [Array] v
