@@ -113,7 +113,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return this.softValidation?.find(item => this.GetRelationshipsCreated.find(created => created.global_id === item.global_id))
     },
     getStatusCreated () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter(function (item) {

@@ -22,7 +22,7 @@ export default function ({ commit, state }, type) {
   })
 
   Promise.all(promises).then(response => {
-    const validations = response.filter(item => item.validations.soft_validations.length)
+    const validations = response.filter(item => item.soft_validations.length)
     const data = {
       list: validations,
       type: type

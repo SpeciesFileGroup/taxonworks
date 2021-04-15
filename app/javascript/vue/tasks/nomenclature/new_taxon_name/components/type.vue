@@ -156,7 +156,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return this.softValidation?.find(item => this.GetRelationshipsCreated.find(created => created.global_id === item.global_id))
     },
     taxonRelation: {
       get () {

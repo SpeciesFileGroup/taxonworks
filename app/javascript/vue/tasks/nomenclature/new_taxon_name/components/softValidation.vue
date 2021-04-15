@@ -27,10 +27,10 @@
         <ul
           v-for="list in errors[key].list"
           class="no_bullets">
-          <li v-for="error in list.validations.soft_validations">
+          <li v-for="error in list.soft_validations">
             <span data-icon="warning"/>
             <button
-              v-if="error.fix"
+              v-if="error.fixable"
               type="button"
               class="button button-submit"
               @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
@@ -41,7 +41,7 @@
               :title="error.description"/>
             <span
               v-if="error.resolution.length"
-              v-html="`[${error.resolution.map((path, index) => `<a href='${path}'>${index}</a>`).join(', ')}]`"></span>
+              v-html="`[${error.resolution.map((path, index) => `<a href='${path}'>${index}</a>`).join(', ')}]`"/>
           </li>
         </ul>
       </div>
@@ -74,7 +74,7 @@ export default {
       fixItems.forEach(params => { promises.push(SoftValidationFix(params)) })
 
       Promise.all(promises).then(() => {
-        location.reload()
+        // location.reload()
       })
     },
 
@@ -82,9 +82,9 @@ export default {
       return list.map(item =>
         Object.assign({}, {
           global_id: item.global_id,
-          only_methods: item.validations.soft_validations
-            .filter(v => v.fix)
-            .map(item => item.fix)
+          only_methods: item.soft_validations
+            .filter(v => v.fixable)
+            .map(item => item.soft_validation_method)
         }))
         .filter(item => item.only_methods.length)
     }
