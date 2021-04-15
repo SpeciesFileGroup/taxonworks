@@ -340,7 +340,17 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         'glabrum'   => 'glaber|glabra|glabrum',
         'ater'      => 'ater|atra|atrum',
         'atra'      => 'ater|atra|atrum',
-        'atrum'      => 'ater|atra|atrum',
+        'atrum'     => 'ater|atra|atrum',
+        'pedestris' => 'pedester|pedestris|pedestre',
+        'mirus'     => 'mirus|mira|mirum',
+        'mira'      => 'mirus|mira|mirum',
+        'mirum'     => 'mirus|mira|mirum',
+        'integer'   => 'integer|integra|integrum',
+        'integra'   => 'integer|integra|integrum',
+        'integrum'  => 'integer|integra|integrum',
+        'asper'     => 'asper|aspera|asperum',
+        'aspera'    => 'asper|aspera|asperum',
+        'asperum'   => 'asper|aspera|asperum',
     }
 
     @entry = 0
