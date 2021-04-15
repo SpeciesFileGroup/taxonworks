@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Show observation matrices count on radial object [#2158]
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
+- PK sequence not set up properly on project export
 
 
 ### Changed
