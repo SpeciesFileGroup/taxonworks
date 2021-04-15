@@ -74,7 +74,7 @@ export default {
       fixItems.forEach(params => { promises.push(SoftValidationFix(params)) })
 
       Promise.all(promises).then(() => {
-        // location.reload()
+        location.reload()
       })
     },
 
