@@ -158,7 +158,7 @@ module Protonym::SoftValidationExtensions
               else
                 # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Feminine, feminine_name)
                 # soft_validations.add(:feminine_name, "Name has a non feminine ending: -#{e}") unless e.nil?
-                soft_validations.add(:feminine_name, "Feminine form does not match with predicted: -#{forms[:feminine_name]}") if feminine_name != forms[:feminine_name]
+                soft_validations.add(:feminine_name, "Feminine form does not match with predicted: #{forms[:feminine_name]}") if feminine_name != forms[:feminine_name]
               end
 
               if masculine_name.blank?
@@ -166,7 +166,7 @@ module Protonym::SoftValidationExtensions
               else
                 # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Masculine, masculine_name)
                 # soft_validations.add(:masculine_name, "Name has a non masculine ending: -#{e}") unless e.nil?
-                soft_validations.add(:masculine_name, "Masculine form does not match with predicted: -#{forms[:masculine_name]}") if masculine_name != forms[:masculine_name]
+                soft_validations.add(:masculine_name, "Masculine form does not match with predicted: #{forms[:masculine_name]}") if masculine_name != forms[:masculine_name]
               end
 
               if neuter_name.blank?
@@ -174,7 +174,7 @@ module Protonym::SoftValidationExtensions
               else
                 # e = species_questionable_ending(TaxonNameClassification::Latinized::Gender::Neuter, neuter_name)
                 # soft_validations.add(:neuter_name, "Name has a non neuter ending: -#{e}") unless e.nil?
-                soft_validations.add(:neuter_name, "Neuter form does not match with predicted: -#{forms[:neuter_name]}") if neuter_name != forms[:neuter_name]
+                soft_validations.add(:neuter_name, "Neuter form does not match with predicted: #{forms[:neuter_name]}") if neuter_name != forms[:neuter_name]
               end
             end
           end
