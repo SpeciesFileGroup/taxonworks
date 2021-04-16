@@ -20,28 +20,37 @@
             type="button"
             class="button button-submit margin-small-left"
             @click="runFix(getFixPresent(errors[key].list))">
-            Fix all
+            <span
+              class="small-icon"
+              data-icon="w_wrench">Fix all</span>
           </button>
         </h3>
         <hr>
         <ul
           v-for="list in errors[key].list"
           class="no_bullets">
-          <li v-for="error in list.soft_validations">
-            <span data-icon="warning"/>
-            <button
-              v-if="error.fixable"
-              type="button"
-              class="button button-submit"
-              @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
-              Fix
-            </button>
-            <span
-              v-html="error.message"
-              :title="error.description"/>
-            <span
-              v-if="error.resolution.length"
-              v-html="`[${error.resolution.map((path, index) => `<a href='${path}'>${index}</a>`).join(', ')}]`"/>
+          <li
+            class="flex-separate"
+            v-for="error in list.soft_validations">
+            <div> 
+              <span data-icon="warning"/>
+              <span
+                v-html="error.message"
+                :title="error.description"/>
+              <span
+                v-if="error.resolution.length"
+                v-html="`[${error.resolution.map((path, index) => `<a href='${path}'>${index}</a>`).join(', ')}]`"/>
+            </div>
+            <div>
+              <button
+                v-if="error.fixable"
+                type="button"
+                data-icon="w_wrench"
+                class="button button-submit button-circle small-icon"
+                @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
+                Fix
+              </button>
+            </div>
           </li>
         </ul>
       </div>
