@@ -9,6 +9,8 @@
 #
 class Source::Verbatim < Source
 
+  include Shared::OriginRelationship
+
   IGNORE_IDENTICAL = [:serial_id, :address, :annote, :booktitle, :chapter, :crossref,
                       :edition, :editor, :howpublished, :institution, :journal, :key,
                       :month, :note, :number, :organization, :pages, :publisher, :school,
@@ -19,6 +21,8 @@ class Source::Verbatim < Source
                       :cached_nomenclature_date].freeze
   IGNORE_SIMILAR = IGNORE_IDENTICAL.dup.freeze
 
+  is_origin_for 'Source::Bibtex', 'Source::Verbatim'
+  originates_from 'Source::Bibtex', 'Source::Verbatim'
 
   attr_accessor :convert_to_bibtex
 

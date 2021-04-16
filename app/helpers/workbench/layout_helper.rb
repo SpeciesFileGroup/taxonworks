@@ -14,7 +14,7 @@ module Workbench::LayoutHelper
 
   def sandbox_details_tag
     if Settings.sandbox_mode? 
-      content_tag(:span) do
+      content_tag(:span, class: 'subtle') do
         [ 'SANDBOX - build',
           (Settings.sandbox_short_commit_sha ?
            link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:font_subtitle]) :

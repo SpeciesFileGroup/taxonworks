@@ -8,7 +8,7 @@
       >
         <autocomplete
           url="/sources/autocomplete"
-          label="label"
+          label="label_html"
           min="2"
           ref="autocomplete"
           :clear-after="true"

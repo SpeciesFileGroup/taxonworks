@@ -22,7 +22,7 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 4.0'
+gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
@@ -96,8 +96,8 @@ gem 'barby', '~> 0.6.8'
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
-gem 'dwc-archive', '~> 1.1.1'
-gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
+gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
+gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
@@ -124,8 +124,7 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
-  gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
+  gem 'webdrivers', '~> 4.5', require: false
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -154,7 +153,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.3.0'
+  gem 'codecov', '~> 0.5.1'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'

@@ -13,6 +13,9 @@ module CollectionObject::BiologicalExtensions
     delegate :id, to: :current_otu, prefix: :otu, allow_nil: true
 
     has_many :taxon_determinations, foreign_key: :biological_collection_object_id, inverse_of: :biological_collection_object, dependent: :destroy
+
+    has_many :determiners, through: :taxon_determinations
+
     has_many :otus, through: :taxon_determinations, inverse_of: :collection_objects
     has_many :taxon_names, through: :otus
 

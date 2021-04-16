@@ -19,7 +19,6 @@
             pin-type="Otu"
             :autocomplete="false"
             :otu-picker="true"
-            :custom-list="smartList"
             target="TaxonDetermination"
             @selected="setOtu"
           />
@@ -43,7 +42,11 @@
             class="full_width"
             ref="determinerSmartSelector"
             model="people"
-            target="Determiner"
+            target="CollectionObject"
+            :params="{ role_type: 'Determiner' }"
+            :autocomplete-params="{
+              roles: ['Determiner']
+            }"
             :autocomplete="false"
             @onTabSelected="view = $event"
             @selected="addRole">
@@ -249,10 +252,7 @@ export default {
   data () {
     return {
       view: undefined,
-      otuSelected: undefined,
-      smartList: {
-        quick: []
-      }
+      otuSelected: undefined
     }
   },
   watch: {
@@ -276,7 +276,7 @@ export default {
       this.$refs.determinerSmartSelector.refresh()
     }
   },
-  mounted () {
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const otuId = urlParams.get('otu_id')
     const taxonId = urlParams.get('taxon_name_id')
@@ -290,11 +290,11 @@ export default {
           if (response.body.length === 1) {
             this.setOtu(response.body[0])
           }
-          this.smartList.quick = response.body
+          this.$refs.smartSelector.addToList('quick', response.body[0])
         } else {
           CreateOtu(taxonId).then(otu => {
             this.setOtu(otu)
-            this.smartList.quick.push(otu.body)
+            this.$refs.smartSelector.addToList('quick', otu.body)
           })
         }
       })

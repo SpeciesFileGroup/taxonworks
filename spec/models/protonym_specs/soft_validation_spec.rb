@@ -175,9 +175,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
     context 'coordinated taxa' do
       context 'mismatching author in genus' do
-        before do 
+        before do
           @sgen = FactoryBot.create(:iczn_subgenus, verbatim_author: nil, year_of_publication: nil, parent: @genus, source: @genus.source)
           @sgen.original_genus = @genus
+          @genus.etymology = 'aaa'
+          @genus.save!
           @sgen.save!
           @genus.reload
           @genus.soft_validate(only_sets: :validate_coordinated_names)
@@ -186,6 +188,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
         specify 'genus and subgenus have different author' do
           expect(@genus.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
+        end
+
+        specify 'genus does not has etymology' do
+          expect(@sgen.soft_validations.messages_on(:etymology).empty?).to be_falsey
         end
 
         specify 'genus and subgenus have different year (error on verbatim_author)' do
@@ -211,9 +217,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
             expect(@sgen.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
           end
 
-          specify 'there are no year_of_publication validations on subgenus' do
-            expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+          specify 'there are no etymology validations on subgenus' do
+            expect(@sgen.soft_validations.messages_on(:etymology).empty?).to be_truthy
           end
+
+#          specify 'there are no year_of_publication validations on subgenus' do
+#            expect(@sgen.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+#          end
+
         end
       end
 
@@ -235,11 +246,24 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         tribe.fix_soft_validations
         tribe.soft_validate(only_sets: :validate_coordinated_names)
         expect(tribe.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
-        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
+        #        expect(tribe.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
         expect(tribe.soft_validations.messages_on(:base).empty?).to be_truthy
 
         @subfamily.type_genus = nil
         expect(@subfamily.save).to be_truthy
+      end
+
+      specify 'mismatching original citation pages' do
+        tribe = FactoryBot.create(:iczn_tribe, name: 'Typhlocybini', verbatim_author: nil, year_of_publication: nil, parent: @subfamily)
+        tribe.origin_citation.pages = 95
+        tribe.origin_citation.source_id = @subfamily.origin_citation.source_id
+        tribe.save
+        @subfamily.soft_validate(:validate_coordinated_names)
+        #original citation pages are different
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
+        @subfamily.fix_soft_validations
+        @subfamily.soft_validate(:validate_coordinated_names)
+        expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
       specify 'mismatching author and year in incorrect_original_spelling' do
@@ -470,6 +494,21 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         other_subfamily.reload
         other_subfamily.soft_validate(only_sets: :type_placement)
         expect(other_subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
+      specify 'type species not in coordinate subgenus' do
+        gen = FactoryBot.create(:iczn_genus, name: 'Cus')
+        sgen = FactoryBot.create(:iczn_subgenus, name: 'Cus', parent: gen)
+        species = FactoryBot.create(:relationship_species, parent: gen)
+        gen.type_species_by_original_designation_or_monotypy = species
+        sgen.type_species_by_original_designation_or_monotypy = species
+
+        species.soft_validate(:type_placement)
+        expect(species.soft_validations.messages_on(:base).size).to eq(1)
+        species.fix_soft_validations
+        species.soft_validate(:type_placement)
+        expect(species.soft_validations.messages_on(:base).size).to eq(0)
+        expect(species.parent_id).to eq(sgen.id)
       end
 
       specify 'mismatching' do

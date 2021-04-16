@@ -42,7 +42,7 @@
           </div>
         </li>
         <li>
-          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+          <a :href="observationMatrixHubPath">Observation matrix hub</a>
         </li>
         <li>
           <span
@@ -119,6 +119,7 @@ import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, C
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
 import CreateComponent from './components/save/save.vue'
+import { RouteNames } from 'routes/routes'
 
 import TYPES from './const/types'
 
@@ -151,6 +152,9 @@ export default {
     },
     hideSaveButton () {
       return this.hideSaveButtonFor.includes(this.descriptor.type)
+    },
+    observationMatrixHubPath () {
+      return RouteNames.ObservationMatricesHub
     }
   },
   data () {

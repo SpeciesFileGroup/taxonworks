@@ -68,7 +68,7 @@ export default {
     }
   },
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Open pinboard navigator', 'Pinboard')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+g`, 'Open pinboard navigator', 'Pinboard')
   },
   methods: {
     redirect () {

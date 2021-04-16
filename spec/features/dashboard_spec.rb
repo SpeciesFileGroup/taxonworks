@@ -34,7 +34,7 @@ describe 'Dashboard' do
       expect(page).to have_selector('.panel .title', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'
-      within(:css, 'ul.horizontal_navbar') {
+      within(:css, '#session_nav ul.horizontal_navbar') {
         expect(page).to have_link('Account')
         expect(page).to have_link('Sign out')
         expect(page).to have_content("#{@user.name}")

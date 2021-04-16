@@ -36,6 +36,7 @@ module Utilities::Italicize
     string.gsub!(/(#{COMBINATION_INJECTION_REGEX})/, '</i>\1<i>')
     string = "<i>#{string}</i>"
     string.gsub!('<i> ', ' <i>')
+    string.gsub!(')</i>', '</i>)')
     string.gsub!('<i></i>', '')
     string
   end

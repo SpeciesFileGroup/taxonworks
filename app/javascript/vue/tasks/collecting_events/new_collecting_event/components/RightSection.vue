@@ -3,8 +3,9 @@
     <div ref="section">
       <soft-validation
         :soft-validation="softValidation"
-        class="soft-validation-box"/>
+        class="soft-validation-box margin-medium-top "/>
       <matches-component
+        class="margin-medium-top"
         @select="$emit('select', $event)"
         :collecting-event="collectingEvent"/>
     </div>
@@ -51,9 +52,12 @@ export default {
   .right-section {
     position: relative;
     width: 400px;
+    min-width: 400px;
   }
   .float-box {
-    top: 70px;
+    top: 55px;
+    width: 400px;
+    min-width: 400px;
     position: fixed;
   }
 </style>

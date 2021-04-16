@@ -4,13 +4,15 @@
     id="panel-editor">
     <div class="flexbox">
       <div class="left">
-        <div class="title">
-          <span>
-            <span v-if="topic">{{ topic.name }}</span> -
-            <span
-              v-if="otu"
-              v-html="otu.object_tag"/>
-          </span>
+        <div class="flex-separate">
+          <div class="title">
+            <span>
+              <span v-if="topic">{{ topic.name }}</span> -
+              <span
+                v-if="otu"
+                v-html="otu.object_tag"/>
+            </span>
+          </div>
           <div class="horizontal-left-content middle">
             <radial-annotator
               v-if="content"

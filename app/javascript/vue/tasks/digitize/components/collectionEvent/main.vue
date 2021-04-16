@@ -4,23 +4,6 @@
       <h3>Collecting Event</h3>
     </div>
     <div
-      slot="options"
-      class="horizontal-left-content separate-right"
-    >
-      <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
-      <div
-        v-if="collectingEvent.id"
-        class="horizontal-left-content separate-left separate-right"
-      >
-        <radial-annotator :global-id="collectingEvent.global_id" />
-        <radial-object :global-id="collectingEvent.global_id" />
-        <pin-component
-          :object-id="collectingEvent.id"
-          type="CollectingEvent"
-        />
-      </div>
-    </div>
-    <div
       slot="body">
       <fieldset class="separate-bottom">
         <legend>Selector</legend>
@@ -42,23 +25,61 @@
             />
           </div>
         </div>
+        <div>
+          <span data-icon="warning"/>
+          <span
+            v-if="collectingEvent.id">
+            Modifying existing ({{ alreadyUsed }} uses)
+          </span>
+          <span v-else>
+            New CE record.
+          </span>
+        </div>
         <div
           v-if="collectingEvent.id"
-          class="horizontal-left-content"
+          class="flex-separate middle"
         >
           <p v-html="collectingEvent.object_tag" />
-          <span
-            class="circle-button button-default btn-undo"
-            @click="cleanCollectionEvent"
-          />
-          <button
-            type="button"
-            class="button normal-input button-submit margin-small-right"
-            @click="cloneCE"
-          >
-            Clone
-          </button>
-          <a :href="`/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.id}`">Browse</a>
+          <div class="horizontal-left-content">
+            <div
+              slot="options"
+              class="horizontal-left-content separate-right"
+            >
+              <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
+              <div
+                v-if="collectingEvent.id"
+                class="horizontal-left-content separate-left separate-right"
+              >
+                <radial-annotator :global-id="collectingEvent.global_id" />
+                <radial-object :global-id="collectingEvent.global_id" />
+                <pin-component
+                  :object-id="collectingEvent.id"
+                  type="CollectingEvent"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-right"
+              @click="cleanCollectionEvent"
+            >
+              New
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-default margin-small-right"
+              @click="openBrowse"
+            >
+              Browse
+            </button>
+            <button
+              type="button"
+              class="button normal-input button-submit margin-small-right"
+              @click="cloneCE"
+            >
+              Clone
+            </button>
+          </div>
         </div>
       </fieldset>
       <div class="horizontal-left-content align-start">
@@ -85,7 +106,7 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import PinComponent from 'components/pin.vue'
 
-import { CloneCollectionEvent } from '../../request/resources.js'
+import { CloneCollectionEvent, GetCollectionObjects } from '../../request/resources.js'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 
@@ -103,6 +124,9 @@ export default {
     LockComponent
   },
   computed: {
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
     collectingEvent: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionEvent]
@@ -131,12 +155,27 @@ export default {
       }
     }
   },
+  data () {
+    return {
+      alreadyUsed: 0
+    }
+  },
   watch: {
-    collectingEvent (newVal, oldVal) {
-      if (!(newVal.hasOwnProperty('id') &&
-        oldVal.hasOwnProperty('id') &&
-        newVal.id == oldVal.id)) {
+    async collectingEvent (newVal, oldVal) {
+      if (!(newVal?.id &&
+        oldVal?.id &&
+        newVal.id === oldVal.id)) {
         this.subsequentialUses = 0
+      }
+      if (newVal.id) {
+        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.id] })).body.length
+      } else {
+        this.alreadyUsed = 0
+      }
+    },
+    async collectionObject (newVal, oldVal) {
+      if (newVal?.id !== oldVal?.id && newVal.collecting_event_id) {
+        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
       }
     }
   },
@@ -153,6 +192,9 @@ export default {
         this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response.body))
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
+    },
+    openBrowse () {
+      window.open(`/tasks/collecting_events/browse?collecting_event_id=${this.collectingEvent.id}`)
     }
   }
 }

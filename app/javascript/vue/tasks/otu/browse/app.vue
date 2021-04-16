@@ -219,12 +219,11 @@ export default {
     }
     .section-title {
       text-transform: uppercase;
-      color: #888;
       font-size: 14px;
     }
     .expand-box {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       padding: 0px;
       background-size: 10px;
       background-position: center;

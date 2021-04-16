@@ -100,7 +100,6 @@ import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
-import { getUnique } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -188,24 +187,28 @@ export default {
     },
     addTabs: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     params: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     },
     customList: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     },
     name: {
       type: String,
       required: false,
-      default: () => { return Math.random().toString(36).substr(2, 5) }
+      default: () => (Math.random().toString(36).substr(2, 5))
     },
     filterIds: {
       type: [Number, Array],
       default: () => []
+    },
+    filterBy: {
+      type: String,
+      default: 'id'
     },
     lockView: {
       type: Boolean,
@@ -262,7 +265,7 @@ export default {
       this.$emit('selected', item)
     },
     filterItem (item) {
-      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item.id) : this.filterIds !== item.id
+      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item[this.filterBy]) : this.filterIds !== item[this.filterBy]
     },
     refresh (forceUpdate = false) {
       if (this.alreadyOnLists() && !forceUpdate) return
@@ -286,12 +289,21 @@ export default {
         this.options = OrderSmart(this.options)
       })
     },
+    addToList (listName, item) {
+      const index = this.lists[listName].findIndex(({ id }) => id === item.id)
+
+      if (index > -1) {
+        this.$set(this.lists[listName], index, item)
+      } else {
+        this.lists[listName].push(item)
+      }
+    },
     addCustomElements () {
       const keys = Object.keys(this.customList)
       if (keys.length) {
         keys.forEach(key => {
           if (this.lists[key]) {
-            this.$set(this.lists, key, getUnique(this.lists[key].concat(this.customList[key]), 'id'))
+            this.$set(this.lists, key, this.customList[key])
           } else {
             this.$set(this.lists, key, this.customList[key])
             this.options.push(key)

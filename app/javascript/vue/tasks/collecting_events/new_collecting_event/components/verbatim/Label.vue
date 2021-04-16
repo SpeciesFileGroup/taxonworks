@@ -8,6 +8,7 @@
     <button
       type="button"
       class="button normal-input button-default"
+      :disabled="!collectingEvent.verbatim_label"
       @click="parseData">
       Parse fields
     </button>

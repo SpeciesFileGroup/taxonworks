@@ -1,7 +1,6 @@
-
 # taxon_id
 # name - ORIGINAL LANGUAGE
-# transliteration - 
+# transliteration
 # language
 # country
 # area
@@ -11,7 +10,8 @@
 #
 module Export::Coldp::Files::VernacularName
 
-  # return the 'English' translation(s) if available
+  # @return [String, nil] 
+  #   the 'English' translation(s) if available
   def self.transliteration(common_name)
     n = common_name.alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: :name).load
     if n.any?
@@ -25,19 +25,20 @@ module Export::Coldp::Files::VernacularName
     common_name.geographic_area&.self_and_ancestors&.collect{|a| a.name}&.join('; ')
   end
 
-  # TODO: Map to biocuration attribute via URI hopefully
+  # TODO: Map to biocuration attribute via URI
   def self.life_stage(common_name)
     nil
   end
 
-  # TODO: Map to biocuration attribute via URI hopefully
+  # TODO: Map to biocuration attribute via URI
   def self.sex(common_name)
     nil
   end
 
-  # "supporting the taxonomic concept" 
-  # Potentially- all other Citations tied to Otu, what exactly supports a concept?
-  # Not used internally, for reference only
+  # @return [String, nil]
+  # "supporting the taxonomic concept"
+  # Potentially- all other Citations tied to OTU, what exactly supports a concept?
+  #   Not used internally within CoLDP, for reference only. TODO: confirm.
   def self.reference_id(common_name)
     i = common_name.sources.pluck(:id)
     return i.join(',') if i.any?
@@ -45,10 +46,9 @@ module Export::Coldp::Files::VernacularName
   end
 
   def self.generate(otus, reference_csv = nil )
-    # TODO tabs delimit
     CSV.generate(col_sep: "\t") do |csv|
 
-      # TODO: Biocuration attribuets on these two
+      # TODO: Biocuration attributes on these two 
       # lifestage
       # sex
 
@@ -62,9 +62,8 @@ module Export::Coldp::Files::VernacularName
         referenceID
       }
 
-      otus.each do |o|
+      otus.joins(:common_names).each do |o|
         o.common_names.each do |n|
-
           sources = n.sources.load
 
           csv << [
@@ -74,9 +73,9 @@ module Export::Coldp::Files::VernacularName
             n.language&.alpha_3_bibliographic,
             n.geographic_area&.level0&.iso_3166_a2,
             area(n),
-            sources.collect{|a| a.id}.join(',')  # reference_id  
+            sources.collect{|a| a.id}.join(',')  # reference_id
           ]
-        
+
           Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv && sources.any?
         end
       end

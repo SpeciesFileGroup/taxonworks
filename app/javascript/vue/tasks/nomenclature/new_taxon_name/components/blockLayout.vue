@@ -57,7 +57,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
-  data: function () {
+  data () {
     return {
       expanded: true
     }

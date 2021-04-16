@@ -12,8 +12,10 @@ class TaxonNameClassification::Iczn::Unavailable::NonBinomial < TaxonNameClassif
   def self.disjoint_taxon_name_classes
     self.parent.disjoint_taxon_name_classes + self.collect_descendants_and_itself_to_s(
         TaxonNameClassification::Iczn::Unavailable::Excluded,
-        TaxonNameClassification::Iczn::Unavailable::Suppressed,
-        TaxonNameClassification::Iczn::Unavailable::NonBinomial) +
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial::SpeciesNotBinomial,
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubgenusNotIntercalare,
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial::SubspeciesNotTrinomial,
+        TaxonNameClassification::Iczn::Unavailable::NonBinomial::NotUninomial) +
         self.collect_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 

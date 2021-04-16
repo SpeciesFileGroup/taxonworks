@@ -57,8 +57,8 @@
 #
 class Combination < TaxonName
 
-  # The ranks that can be used to build combinations. ! TODO:  family group names  ?
-  APPLICABLE_RANKS = %w{family subfamily tribe subtribe genus subgenus section subsection
+  # The ranks that can be used to build combinations.  
+  APPLICABLE_RANKS = %w{genus subgenus section subsection
                         series subseries species subspecies variety subvariety form subform}.freeze
 
   before_validation :set_parent
@@ -180,7 +180,7 @@ class Combination < TaxonName
                 name: 'Combination older than protonyms',
                 description: 'The combination is older than protonyms in the combination' )
 
-# @return [Protonym Scope]
+  # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery

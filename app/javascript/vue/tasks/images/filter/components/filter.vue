@@ -26,16 +26,31 @@
         @click="searchDepictions">
         Search
       </button>
-      <otus-component v-model="params.base.otu_id"/>
-      <scope-component v-model="params.base.taxon_name_id"/>
+      <otus-component
+        class="margin-large-bottom"
+        v-model="params.base.otu_id"/>
+      <scope-component
+        class="margin-large-bottom"
+        v-model="params.base.taxon_name_id"/>
       <ancestor-target
+        class="margin-large-bottom"
         v-model="params.base.ancestor_id_target"
         :taxon-name="params.base.taxon_name_id"/>
-      <collection-object-component v-model="params.base.collection_object_id"/>
-      <biocurations-component v-model="params.base.biocuration_class_id"/>
-      <identifier-component v-model="params.identifier"/>
-      <tags-component v-model="params.base.keyword_ids"/>
-      <users-component v-model="params.user"/>
+      <collection-object-component
+        class="margin-large-bottom"
+        v-model="params.base.collection_object_id"/>
+      <biocurations-component
+        class="margin-large-bottom"
+        v-model="params.base.biocuration_class_id"/>
+      <identifier-component
+        class="margin-large-bottom"
+        v-model="params.identifier"/>
+      <tags-component
+        class="margin-large-bottom"
+        v-model="params.keywords"/>
+      <users-component
+        class="margin-large-bottom"
+        v-model="params.user"/>
     </div>
   </div>
 </template>
@@ -46,7 +61,7 @@ import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
-import TagsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
 import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
@@ -98,7 +113,7 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.base, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.keywords, this.params.base, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },
@@ -129,7 +144,6 @@ export default {
           taxon_name_id: [],
           biocuration_class_id: [],
           collection_object_id: [],
-          keyword_ids: [],
           ancestor_id_target: undefined
         },
         identifier: {
@@ -138,6 +152,10 @@ export default {
           identifier_start: undefined,
           identifier_end: undefined,
           namespace_id: undefined
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         depictions: {},
         collectingEvent: {},

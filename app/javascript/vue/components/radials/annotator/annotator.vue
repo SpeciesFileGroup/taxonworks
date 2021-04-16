@@ -24,20 +24,17 @@
             <div>
               <radial-menu
                 v-if="menuCreated"
-                :menu="menuOptions"
-                :circle-style="pinStyle"
-                @selected="selectComponent"
-                width="400"
-                height="400"/>
+                :options="menuOptions"
+                @onClick="selectComponent"/>
             </div>
           </div>
           <div
             class="radial-annotator-template panel"
             :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
             v-if="currentAnnotator">
-            <h3 class="capitalize view-title">
+            <h2 class="capitalize view-title">
               {{ currentAnnotator.replace("_"," ") }}
-            </h3>
+            </h2>
             <component
               class="radial-annotator-container"
               :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
@@ -74,7 +71,7 @@
 </template>
 <script>
 
-import radialMenu from 'components/radialMenu.vue'
+import RadialMenu from 'components/radials/RadialMenu.vue'
 import modal from 'components/modal.vue'
 import spinner from 'components/spinner.vue'
 
@@ -100,7 +97,7 @@ export default {
   mixins: [CRUD],
   name: 'RadialAnnotator',
   components: {
-    radialMenu,
+    RadialMenu,
     modal,
     spinner,
     notesAnnotator,
@@ -160,7 +157,7 @@ export default {
       default: false
     }
   },
-  data: function () {
+  data () {
     return {
       currentAnnotator: undefined,
       display: false,
@@ -168,7 +165,6 @@ export default {
       globalIdSaved: undefined,
       metadata: undefined,
       title: 'Radial annotator',
-      menuOptions: [],
       defaultTag: undefined,
       tagCreated: false,
       showContextMenu: false
@@ -178,9 +174,59 @@ export default {
     metadataLoaded () {
       return (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload)
     },
+
     menuCreated () {
-      return this.menuOptions.length > 0
+      return this.metadata?.endpoints
     },
+
+    menuOptions () {
+      const endpoints = this.metadata.endpoints || {}
+
+      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
+        name: annotator,
+        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
+        innerPosition: 1.7,
+        svgAttributes: {
+          fill: this.currentAnnotator === annotator ? '#8F8F8F' : undefined
+        },
+        slices: total
+          ? [{
+              label: total.toString(),
+              size: 26,
+              svgAttributes: {
+                fill: '#006ebf',
+                color: '#FFFFFF'
+              }
+            }]
+          : [],
+        icon: Icons[annotator]
+          ? {
+              url: Icons[annotator],
+              width: '20',
+              height: '20'
+            }
+          : undefined
+      }))
+
+      return {
+        width: 400,
+        height: 400,
+        sliceSize: 120,
+        centerSize: 34,
+        margin: 2,
+        middleButton: this.middleButton,
+        css: {
+          class: 'svg-radial-annotator'
+        },
+        svgAttributes: {
+          fontSize: 11,
+          fill: '#FFFFFF',
+          textAnchor: 'middle'
+        },
+        slices: slices
+      }
+    },
+
     metadataCount () {
       if (this.metadata) {
         let totalCounts = 0
@@ -197,14 +243,20 @@ export default {
     isTagged () {
       return this.tagCreated
     },
-    pinStyle () {
+    middleButton () {
       return {
+        name: 'circleButton',
+        radius: 30,
         icon: {
           url: Icons.tags,
           width: '20',
           height: '20'
         },
-        background: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+        svgAttributes: {
+          fontSize: 11,
+          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
+          style: 'cursor: pointer'
+        },
         backgroundHover: this.getDefault() ? (this.isTagged ? '#CE3430' : '#81a553') : '#CACACA'
       }
     }
@@ -256,14 +308,14 @@ export default {
         }
       })
     },
-    selectComponent (event) {
-      if (event === 'circleButton') {
-        if(this.getDefault()) {
+    selectComponent ({ name }) {
+      if (name === 'circleButton') {
+        if (this.getDefault()) {
           this.isTagged ? this.deleteTag() : this.createTag()
         }
       }
       else {
-        this.currentAnnotator = event
+        this.currentAnnotator = name
       }
     },
     closeModal: function () {
@@ -284,33 +336,11 @@ export default {
       this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
         that.metadata = response.body
         that.title = response.body.object_tag
-        that.menuOptions = that.createMenuOptions(response.body.endpoints)
         that.url = response.body.url
       })
     },
-    createMenuOptions: function (annotators) {
-      const menu = []
-
-      for (var key in annotators) {
-        menu.push({
-          label: (key.charAt(0).toUpperCase() + key.slice(1)).replace('_', ' '),
-          total: annotators[key].total,
-          event: key,
-          icon: {
-            url: Icons[key],
-            width: '20',
-            height: '20'
-          }
-        })
-      }
-      return menu
-    },
     setTotal (total) {
-      var that = this
-      const position = this.menuOptions.findIndex(function (element) {
-        return element.event == that.currentAnnotator
-      })
-      this.menuOptions[position].total = total
+      this.metadata.endpoints[this.currentAnnotator].total = total
     },
     eventClose: function () {
       const event = new CustomEvent('annotator:close', {
@@ -351,13 +381,15 @@ export default {
 }
 </script>
 <style lang="scss">
-
+  .svg-radial-annotator {
+    g:hover {
+      cursor: pointer;
+      opacity: 0.9;
+    }
+  }
   .radial-annotator {
     position: relative;
-    .view-title {
-      font-size: 18px;
-      font-weight: 300;
-    }
+
     .modal-close {
       top: 30px;
       right: 20px;

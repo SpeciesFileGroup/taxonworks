@@ -34,6 +34,7 @@ resources :asserted_distributions do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
   end
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
@@ -102,6 +103,7 @@ resources :collection_objects do
     get 'containerize'
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -116,6 +118,8 @@ resources :collection_objects do
     get :select_options, defaults: {format: :json}
     get :preview, defaults: {format: :json}
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
 
@@ -235,6 +239,7 @@ end
 
 resources :extracts do
   concerns [:data_routes]
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -564,6 +569,8 @@ resources :sequences do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sequence_relationships do
@@ -581,6 +588,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
@@ -593,6 +601,8 @@ resources :sources do
   member do
     post :clone
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sqed_depictions, only: [:update] do

@@ -20,7 +20,7 @@ export default async ({ state, commit, dispatch }) => {
 
   saveCE(collectingEvent).then(async response => {
     TW.workbench.alert.create(`Collecting event was successfully ${collectingEvent.id ? 'updated' : 'created'}.`, 'notice')
-    commit(MutationNames.SetCollectingEvent, Object.assign({}, collectingEvent, response.body))
+    commit(MutationNames.SetCollectingEvent, Object.assign({}, collectingEvent, response.body, { roles_attributes: response.body.collector_roles || [] }))
     await dispatch(ActionNames.ProcessGeoreferenceQueue)
     await dispatch(ActionNames.SaveCELabel)
     await dispatch(ActionNames.SaveIdentifier)

@@ -2,14 +2,14 @@
   <div>
     <div v-if="navList">
       <h3>Current</h3>
-        <h3 class="flex-separate middle">
-          {{ navList.current_otu.object_label }}
-          <div class="horizontal-left-content">
-            <otu-radial :globalId="navList.current_otu.global_id"/>
-            <radial-annotator :globalId="navList.current_otu.global_id"/>
-            <radial-object :globalId="navList.current_otu.global_id"/>
-          </div>
-        </h3>
+      <div class="flex-separate middle">
+        {{ navList.current_otu.object_label }}
+        <div class="horizontal-left-content">
+          <otu-radial :globalId="navList.current_otu.global_id"/>
+          <radial-annotator :globalId="navList.current_otu.global_id"/>
+          <radial-object :globalId="navList.current_otu.global_id"/>
+        </div>
+      </div>
       <template v-if="navList.parent_otus.length">
         <h4>Parent</h4>
         <ul class="no_bullets">

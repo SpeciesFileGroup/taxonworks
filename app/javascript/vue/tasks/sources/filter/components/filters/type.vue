@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Type</h2>
+    <h3>Type</h3>
     <ul class="no_bullets context-menu">
       <li v-for="(item, key) in types">
         <label class="capitalize">

@@ -22,8 +22,9 @@
       <div>
         <div v-if="!isCombinationEmpty()">
           <preview-view
-          @onVerbatimChange="newCombination.verbatim_name = $event"
-          :combination="newCombination"/>
+            @onVerbatimChange="newCombination.verbatim_name = $event"
+            :combination="newCombination"
+            :incomplete="incompleteMatch"/>
         </div>
 
         <div class="flexbox">
@@ -122,13 +123,17 @@ export default {
         return this.rankLists[rank] && this.rankLists[rank].length > 1
       }) == undefined)
     },
-    existMatches() {
+    existMatches () {
       for(var key in this.otherMatches) {
         if(this.otherMatches[key].length) {
           return true
         }
       }
       return false
+    },
+    incompleteMatch () {
+      const ranks = Object.entries(this.parseRanks).filter(([key, value]) => value).map(([key, value]) => key)
+      return !!ranks.find(rank => !this.newCombination.protonyms[rank])
     }
   },
   data: function () {

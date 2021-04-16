@@ -79,7 +79,7 @@
           </div>
           <div>
             <h3 v-if="originalCitation">Original citation</h3>
-            <span>{{ originalCitation }}</span>
+            <span v-html="originalCitation"/>
           </div>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default {
           attr[role] ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person?.object_tag || item.organization.name).join('; ')}</b>` : []).filter(arr => arr.length))
     },
     originalCitation () {
-      return this.citations.filter(citation => citation.is_original).map(citation => citation.citation_source_body).join('; ')
+      return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.cached, citation.pages].filter(item => item).join(':')).join('; ')
     }
   },
   data () {

@@ -1,10 +1,26 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      :disabled="!ceId"
-      @click="showModal = true">Add/Current ({{ list.length }})</button>
+    <div>
+      <spinner-component
+        v-if="isLoading"
+        legend="Loading"
+        spinner-position="left"
+        :legend-style="{
+          fontSize: '14px'
+        }"
+        :logo-size="{
+          width: '14px',
+          height: '14px',
+          marginRight: '4px'
+        }"
+      />
+      <button
+        type="button"
+        class="button normal-input button-default"
+        :disabled="!ceId"
+        @click="showModal = true">
+        Add/Current ({{ list.length }})</button>
+    </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
@@ -53,6 +69,7 @@
             class="margin-medium-bottom"
             v-model="biocurations"/>
           <determiner-component v-model="determinations"/>
+          <tag-component v-model="tagList"/>
         </div>
         <div
           class="full_width">
@@ -124,6 +141,7 @@ import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'
 import RepositoryComponent from './Repository'
 import LabelComponent from './Label'
+import TagComponent from './Tags'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import { RouteNames } from 'routes/routes'
@@ -146,14 +164,17 @@ export default {
     RadialAnnotator,
     RadialNavigation,
     PreparationTypes,
-    RepositoryComponent
+    RepositoryComponent,
+    TagComponent
   },
+
   props: {
     ceId: {
       type: [Number, String],
       default: undefined
     }
   },
+
   data () {
     return {
       biocurations: [],
@@ -171,9 +192,11 @@ export default {
       noCreated: [],
       preparationType: undefined,
       repositoryId: undefined,
-      labelType: undefined
+      labelType: undefined,
+      tagList: []
     }
   },
+
   watch: {
     ceId: {
       handler (newVal) {
@@ -186,8 +209,9 @@ export default {
       }
     }
   },
+
   methods: {
-    createCOs (index = 0) {
+    async createCOs (index = 0) {
       this.index = index + 1
       this.isSaving = true
       if (index < this.count) {
@@ -201,30 +225,39 @@ export default {
           repository_id: this.repositoryId,
           preparation_type_id: this.preparationType,
           collecting_event_id: this.ceId,
-          identifiers_attributes: identifier.identifier && identifier.namespace.id ? [{
-            identifier: identifier.identifier,
-            namespace_id: identifier.namespace.id,
-            type: 'Identifier::Local::CatalogNumber',
-            labels_attributes: this.labelType ? [{
-              text_method: 'build_cached',
-              type: this.labelType,
-              total: 1
-            }] : undefined
-          }] : undefined
+          tags_attributes: this.tagList.map(tag => ({ keyword_id: tag.id })),
+          identifiers_attributes: identifier.identifier && identifier.namespace.id
+            ? [{
+                identifier: identifier.identifier,
+                namespace_id: identifier.namespace.id,
+                type: 'Identifier::Local::CatalogNumber',
+                labels_attributes: this.labelType
+                  ? [{
+                      text_method: 'build_cached',
+                      type: this.labelType,
+                      total: 1
+                    }]
+                  : undefined
+              }]
+            : undefined
         }
-
-        CreateCollectionObject(co).then(response => {
+        const promises = []
+        await CreateCollectionObject(co).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
-            CreateTaxonDetermination(determination)
+            promises.push(CreateTaxonDetermination(determination))
           })
           this.biocurations.forEach(biocurationId => {
-            CreateBiocurationClassification({
+            promises.push(CreateBiocurationClassification({
               biocuration_classification: {
                 biocuration_class_id: biocurationId,
                 biological_collection_object_id: response.body.id
               }
-            })
+            }))
+          })
+          index++
+          Promise.all(promises).then(() => {
+            this.createCOs(index)
           })
         }, (error) => {
           this.noCreated.unshift({
@@ -232,7 +265,6 @@ export default {
             namespace: identifier.namespace.name,
             error: error.body
           })
-        }).finally(() => {
           index++
           this.createCOs(index)
         })

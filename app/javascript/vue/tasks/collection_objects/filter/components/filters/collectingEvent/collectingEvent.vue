@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h2>Collecting Event</h2>
-    <h3>Date range</h3>
+    <h3>Collecting Event</h3>
+    <h4>Date range</h4>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date</label>
         <br>
-        <input 
+        <input
           type="date"
           v-model="cEvent.start_date">
       </div>
@@ -28,7 +28,7 @@
       </label>
     </div>
     <div class="field">
-      <h3>Select collecting events</h3>
+      <h4>Select collecting events</h4>
       <smart-selector
         model="collecting_events"
         klass="CollectionObject"

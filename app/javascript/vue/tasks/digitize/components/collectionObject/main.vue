@@ -73,6 +73,10 @@
           <spinner-component
             v-if="!collectionObject.id"
             :show-spinner="false"
+            :legend-style="{
+              color: '#444',
+              textAlign: 'center'
+            }"
             legend="Locked until first save"/>
           <predicates-component
             v-if="projectPreferences"
