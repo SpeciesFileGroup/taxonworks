@@ -29,6 +29,14 @@
           class="no_bullets">
           <li
             v-for="error in list.soft_validations">
+            <tippy-component
+              animation="scale"
+              placement="bottom"
+              size="small"
+              :inertia="true"
+              :arrow="true"
+              :content="error.description">
+              <template v-slot:trigger>
             <span data-icon="warning"/>
             <button
               v-if="error.fixable"
@@ -37,12 +45,12 @@
               @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
               Fix
             </button>
-            <span
-              v-html="error.message"
-              :title="error.description"/>
+                <span v-html="error.message"/>
             <span
               v-if="error.resolution.length"
               v-html="`[${error.resolution.map((path, index) => `<a href='${path}'><span title='Fixable here (may leave page)' class='small-icon icon-without-space' data-icon='blue_wrench'/></a>`).join(', ')}]`"/>
+              </template>
+            </tippy-component>
           </li>
         </ul>
       </div>
@@ -55,8 +63,11 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { SoftValidationFix } from '../request/resources'
+import { TippyComponent } from 'vue-tippy'
 
 export default {
+  components: { TippyComponent },
+
   computed: {
     errors () {
       return this.$store.getters[GetterNames.GetSoftValidation]
