@@ -370,11 +370,6 @@ class Protonym < TaxonName
       end
     else
       return nil
-
-  # RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-  #     Ranks.lookup(:iczn, 'species')
-  # .valid_name_ending
-  #FAMILY_AND_ABOVE_RANK_NAMES
     end
     r.constantize
   end

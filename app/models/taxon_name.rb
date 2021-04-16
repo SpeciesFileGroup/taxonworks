@@ -406,10 +406,6 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
-# @proceps - check these:
-# soft_validate(:sv_missing_author, set: :missing_fields, has_fix: true)
-# soft_validate(:sv_missing_year, set: :missing_fields, has_fix: true)
-
   soft_validate(:sv_validate_name,
                 set: :validate_name,
                 name: 'Name validation',
@@ -424,6 +420,16 @@ class TaxonName < ApplicationRecord
                 set: :missing_fields,
                 name: 'Missing original source',
                 description: 'Original source is not selected' )
+
+  soft_validate(:sv_missing_author,
+                set: :missing_fields,
+                name: 'Missing author',
+                has_fix: true)
+
+  soft_validate(:sv_missing_year,
+                set: :missing_fields,
+                name: 'Missing year',
+                has_fix: true)
 
   soft_validate(:sv_missing_etymology,
                 set: :missing_fields,
@@ -1061,7 +1067,6 @@ class TaxonName < ApplicationRecord
       rank   = i.rank
       gender = i.gender_name if rank == 'genus'
 
-      # @proceps soft validation branch had `superspecies` in here too
       if i.is_genus_or_species_rank?
         if ['genus', 'subgenus', 'species', 'subspecies'].include? (rank)
           data[rank] = [nil, i.name_with_misspelling(gender)]

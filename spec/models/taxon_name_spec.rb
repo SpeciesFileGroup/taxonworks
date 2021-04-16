@@ -1084,3 +1084,4 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 end
 # rspec -t group:nomenclature
+# rspec -t group:soft_validation

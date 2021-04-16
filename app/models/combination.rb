@@ -420,7 +420,7 @@ class Combination < TaxonName
     source_year = source.try(:nomenclature_year)
     target_year = earliest_protonym_year
     if source_year && target_year
-      soft_validations.add(:base, "The combination (#{source_year}) is older than protonyms in the combination (#{target_year}") if source_year < target_year
+      soft_validations.add(:base, "The publication date of combination (#{source_year}) is older than the original publication date of one of the name in the combination (#{target_year}") if source_year < target_year
     end
   end
 

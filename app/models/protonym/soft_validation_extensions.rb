@@ -1413,10 +1413,10 @@ module Protonym::SoftValidationExtensions
 
       soft_validations.add(
         :base, 'Cached values should be updated',
-        success_message: 'Cached values were updated', failure_message:  'Failed to update cached values'
-      ) if !is_cached
+        success_message: 'Cached values were updated',
+        failure_message:  'Failed to update cached values') if !is_cached
     end
-    end
+end
 
 
 
