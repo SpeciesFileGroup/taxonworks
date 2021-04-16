@@ -666,9 +666,8 @@ class TaxonNameRelationship < ApplicationRecord
 #    end
   end
 
-# @proceps - dev branch was significantly different:
 =begin
- 
+# @proceps - dev branch was significantly different:
  def sv_synonym_linked_to_valid_name
  #synonyms and misspellings should be linked to valid names
  if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
@@ -680,8 +679,8 @@ class TaxonNameRelationship < ApplicationRecord
  end
  end
  end
- 
- =end
+=end
+
   def sv_synonym_linked_to_valid_name
     #synonyms and misspellings should be linked to valid names
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)

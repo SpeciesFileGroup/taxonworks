@@ -406,12 +406,9 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
-
 # @proceps - check these:
 # soft_validate(:sv_missing_author, set: :missing_fields, has_fix: true)
 # soft_validate(:sv_missing_year, set: :missing_fields, has_fix: true)
-
-
 
   soft_validate(:sv_validate_name,
                 set: :validate_name,

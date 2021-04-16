@@ -2,14 +2,20 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000275'.freeze
 
-  soft_validate(:sv_no_citation, set: :no_citation, has_fix: true)
+  # @proceps please check
+  soft_validate(
+    :sv_no_citation,
+    set: :no_citation,
+    fix: :sv_fix_no_citation,
+    )
 
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm,
-                                      TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
+      self.collect_descendants_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm,
+        TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm,
+        TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling)
   end
 
   def object_status
@@ -43,7 +49,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   def sv_no_citation
     if self.citations.empty?
-      soft_validations.add(:base, "Citation for misspelling is not provided", fix: :sv_fix_no_citation, success_message: 'Citation is added')
+      soft_validations.add(:base, "Citation for misspelling is not provided", success_message: 'Citation is added')
     end
   end
 
