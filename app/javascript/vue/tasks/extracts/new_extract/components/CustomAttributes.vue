@@ -3,7 +3,7 @@
     <h2>Custom attributes</h2>
     <custom-attributes
       v-if="projectPreferences"
-      :object-id="extract.id"
+      :object-id="extractId"
       object-type="Extract"
       model="Extract"
       :model-preferences="projectPreferences.model_predicate_sets.Extract"
@@ -24,7 +24,9 @@ export default {
   components: { CustomAttributes },
 
   computed: {
-    projectPreferences () { return this.$store.getters[GetterNames.GetProjectPreferences] }
+    projectPreferences () { return this.$store.getters[GetterNames.GetProjectPreferences] },
+
+    extractId () { return this.$store.getters[GetterNames.GetExtract].id }
   },
 
   methods: {

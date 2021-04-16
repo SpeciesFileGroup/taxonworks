@@ -8,7 +8,7 @@
       >
         <label>
           <checkbox-component
-            :val="item.id" 
+            :val="item.id"
             v-model="selected"
             @change="updateList"
           />
@@ -54,7 +54,7 @@ export default {
     }
   },
   watch: {
-    modelList(newVal) {
+    modelList (newVal) {
       this.selected = newVal
     }
   },
