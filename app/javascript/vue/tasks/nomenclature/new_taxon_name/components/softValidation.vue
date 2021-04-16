@@ -28,7 +28,8 @@
           v-for="list in errors[key].list"
           class="no_bullets">
           <li
-            v-for="error in list.soft_validations">
+            v-for="(error, index) in list.soft_validations"
+            :key="index">
             <tippy-component
               animation="scale"
               placement="bottom"
@@ -36,19 +37,19 @@
               :inertia="true"
               :arrow="true"
               :content="error.description">
-              <template v-slot:trigger>
-            <span data-icon="warning"/>
-            <button
-              v-if="error.fixable"
-              type="button"
-              class="button button-submit"
-              @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
-              Fix
-            </button>
+              <template slot="trigger">
+                <span data-icon="warning"/>
+                <button
+                  v-if="error.fixable"
+                  type="button"
+                  class="button button-submit"
+                  @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
+                  Fix
+                </button>
                 <span v-html="error.message"/>
-            <span
-              v-if="error.resolution.length"
-              v-html="`[${error.resolution.map((path, index) => `<a href='${path}'><span title='Fixable here (may leave page)' class='small-icon icon-without-space' data-icon='blue_wrench'/></a>`).join(', ')}]`"/>
+                <span
+                  v-if="error.resolution.length"
+                  v-html="`[${error.resolution.map((path, index) => `<a href='${path}'><span title='Fixable here (may leave page)' class='small-icon icon-without-space' data-icon='blue_wrench'/></a>`).join(', ')}]`"/>
               </template>
             </tippy-component>
           </li>
