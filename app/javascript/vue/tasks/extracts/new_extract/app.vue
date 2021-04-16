@@ -133,6 +133,7 @@ export default {
 
       dispatch(ActionNames.SaveExtract).then(() => {
         dispatch(ActionNames.SaveOriginRelationship)
+        dispatch(ActionNames.SaveIdentifiers)
       })
     },
 

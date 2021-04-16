@@ -50,7 +50,7 @@
     </div>
     <display-list
       :list="identifiers"
-      label="label"
+      label="object_tag"
     />
   </div>
 </template>
@@ -59,6 +59,7 @@
 
 import { GetIdentifierTypes } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
 
 import componentExtend from './mixins/componentExtend'
@@ -97,12 +98,16 @@ export default {
       }
     },
 
+    extractId () {
+      return this.$store.getters[GetterNames.GetExtract].id
+    },
+
     isTypeListLocal () {
       return this.typeListSelected === 'local'
     },
 
     isMissingData () {
-      return !this.namespace || !this.identifier
+      return (!this.namespace && this.typeListSelected !== 'unknown') || !this.identifier
     }
   },
 
@@ -121,18 +126,23 @@ export default {
   watch: {
     existingIdentifier (newVal) {
       this.settings.saveIdentifier = !newVal
+    },
+
+    extractId (newVal) {
+      if (newVal) {
+        this.$store.dispatch(ActionNames.LoadIdentifiers)
+      }
     }
   },
 
   methods: {
     addIdentifier () {
       const data = {
-        namespace_id: this.namespace.id,
-        label: [this.namespace.name, this.identifier].filter(item => item).join(' '),
+        namespace_id: this.namespace?.id,
+        object_tag: [this.namespace?.name || '', this.identifier].filter(item => item).join(' '),
         identifier: this.identifier,
         type: this.typeSelected
       }
-      console.log(data)
 
       this.identifiers.push(data)
     },

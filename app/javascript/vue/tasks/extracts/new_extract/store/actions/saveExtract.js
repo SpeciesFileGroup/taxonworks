@@ -1,7 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { CreateExtract, UpdateExtract, GetSoftValidation } from '../../request/resources'
 
-
 export default ({ state, commit }) => {
   const { extract, repository, identifiers, protocols } = state
   const saveExtract = extract.id ? UpdateExtract : CreateExtract

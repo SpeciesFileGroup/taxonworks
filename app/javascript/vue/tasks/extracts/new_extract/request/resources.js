@@ -2,6 +2,8 @@ import AjaxCall from 'helpers/ajaxCall'
 
 const CreateExtract = data => AjaxCall('post', '/extracts.json', { extract: data })
 
+const CreateIdentifier = data => AjaxCall('post', '/identifiers.json', { identifier: data })
+
 const DestroyExtract = id => AjaxCall('delete', `/extracts/${id}.json`)
 
 const GetExtract = id => AjaxCall('get', `/extracts/${id}.json`)
@@ -9,6 +11,8 @@ const GetExtract = id => AjaxCall('get', `/extracts/${id}.json`)
 const GetExtracts = data => AjaxCall('get', '/extracts.json', { params: data })
 
 const GetSoftValidation = globalId => AjaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } })
+
+const GetIdentifiers = id => AjaxCall('get', `/extracts/${id}/identifiers.json`)
 
 const GetIdentifierTypes = () => AjaxCall('get', '/identifiers/identifier_types')
 
@@ -28,6 +32,7 @@ const UpdateOriginRelationship = data => AjaxCall('post', `/origin_relationships
 
 export {
   CreateExtract,
+  CreateIdentifier,
   CreateOriginRelationship,
   DestroyExtract,
   GetExtract,
@@ -39,5 +44,6 @@ export {
   GetProjectPreferences,
   GetUserPreferences,
   UpdateExtract,
-  UpdateOriginRelationship
+  UpdateOriginRelationship,
+  GetIdentifiers
 }

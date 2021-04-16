@@ -6,7 +6,6 @@ import { GetterFunctions } from '../store/getters/getters'
 import { MutationFunctions } from '../store/mutations/mutations'
 
 import makeExtract from '../const/makeExtract'
-import makeOriginRelationship from '../const/makeOriginRelationship'
 
 Vue.use(Vuex)
 
