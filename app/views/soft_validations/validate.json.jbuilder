@@ -9,6 +9,7 @@ end
 
 json.soft_validations do
   json.array!(@object.soft_validations.soft_validations) do |v|
+    json.description v.description
     json.fixable !v.fix.nil?
     json.attribute v.attribute
     json.fixed v.fixed

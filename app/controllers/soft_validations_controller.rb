@@ -12,6 +12,7 @@ class SoftValidationsController < ApplicationController
   def fix
     @object.soft_validate(soft_validate_params)
     @object.fix_soft_validations
+    render :validate
   end
 
   protected
@@ -27,7 +28,7 @@ class SoftValidationsController < ApplicationController
       only_methods: [],
       except_methods: [],
       except_sets: [],
-    )
+    ).to_h.symbolize_keys
   end
 
 end

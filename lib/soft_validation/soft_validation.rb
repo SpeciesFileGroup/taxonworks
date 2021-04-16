@@ -5,7 +5,7 @@ module SoftValidation
   #
   class SoftValidation
     # @return [Symbol, nil]
-    #   Optional. The method name of the fix that can resolve this soft validation
+    #   The method name of the fix that can resolve this soft validation
     attr_writer :method_instance
 
     # @!attribute attribute
