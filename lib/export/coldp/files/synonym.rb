@@ -3,7 +3,7 @@
 # will apparently handle taxon ids that are not in the taxon table.
 
 # Bigger picture: understand how this maps to core name usage table in CoL
-#   
+#
 module Export::Coldp::Files::Synonym
 
   # @return String
@@ -14,54 +14,57 @@ module Export::Coldp::Files::Synonym
     #'synonym'
     #'ambiguous synonym'
     #'missaplied'
-
-    'synonym' 
+    'synonym'
   end
 
   def self.remarks_field
-    nil 
+    nil
   end
 
   def self.reference_id_field(otu)
     nil
   end
 
+  # This is currently factored to use *no* ActiveRecord instances
   def self.generate(otus, reference_csv = nil)
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{taxonID nameID status remarks referenceID}
 
-      # reddis?
-      unique = {}
+      # Otus are valid and invalid
+      otus.joins(:taxon_name)
+        .where.not(taxon_name_id: nil)
+        .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+        .select('otus.id id, taxon_names.cached cached')
+        .pluck(:id, :cached, :taxon_name_id)
+        .each do |o|
 
-      # otus are valid and invalid
-      
-      otus.each do |o| 
-        next unless o.taxon_name && o.taxon_name.is_valid?
+          #  name = o.taxon_name
+          # original combinations of invalid names are not being handled correclty in reified
 
-        name = o.taxon_name
-        data = ::Catalog::Nomenclature::Entry.new(name)
 
-        data.names.each do |t|
-          # not valid, not a combioantion
-          # reified = !(t.is_valid? || t.is_combination?)
-          id = t.reified_id
+          # Here we grab the hierarch again, and filter it by
+          #   1) allow only invalid names OR names with differing original combinations
+          #   2) of 1) eliminate Combinations with identical names to current placement
+          TaxonName
+            .where(cached_valid_taxon_name_id: o[2]) # == .historical_taxon_names
+            .where("( ((taxon_names.id != taxon_names.cached_valid_taxon_name_id) OR ((taxon_names.cached_original_combination != taxon_names.cached))) AND NOT (taxon_names.type = 'Combination' AND taxon_names.cached = ?))", o[1]) # see name.rb
+            .pluck(:id, :cached, :cached_original_combination, :type)
+            .each do |t|
 
-          next if unique[[o.id, id]] == true
+              # references = reference_id_field(o)
 
-          unique[[o.id, id]] = true
+              reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
 
-          references = reference_id_field(o)
-          csv << [
-            o.id,                                             # taxonID attached to the current valid concept
-            id,                                               # nameID
-            nil,                                              # status TODO def status(taxon_name_id)
-            remarks_field, 
-            references                                        # unclear what this means in TW
-          ]
-
+              csv << [
+                o[0],           # taxonID attached to the current valid concept
+                reified_id,     # nameID
+                nil,            # Status TODO def status(taxon_name_id)
+                remarks_field,
+                nil,            # Unclear what this means in TW
+              ]
+            end
         end
-      end
     end
   end
 

@@ -45,7 +45,7 @@ module Queries
       # @params parent_id[] [Array]
       #   An array of taxon_name_id.
       # @return
-      #   Return all immediate children to any of these parent names
+      #   Return the taxon names with this/these parent_ids
       attr_accessor :parent_id
 
       # @param descendants [Boolean]
@@ -325,7 +325,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(taxon_name_author_ids.length)) unless taxon_name_author_ids_or
-        b = b.as('z1_')
+        b = b.as('tn_z1_')
 
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
@@ -459,7 +459,7 @@ module Queries
           ancestor_facet,
           created_updated_facet,
           taxon_name_classification_facet,
-          matching_keyword_ids,
+          keyword_id_facet,
           matching_taxon_name_author_ids,
           type_metadata_facet,
           otus_facet,

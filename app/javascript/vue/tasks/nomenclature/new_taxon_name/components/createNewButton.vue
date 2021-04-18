@@ -12,6 +12,7 @@
       <div slot="body">Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
       <div slot="footer">
         <button
+          id="confirm-create-newtaxonname"
           @click="reloadPage()"
           type="button"
           class="normal-input button button-default">New
@@ -54,6 +55,17 @@ export default {
       url: RouteNames.NewTaxonName
     }
   },
+
+  watch: {
+    showModal (newVal) {
+      if (newVal) {
+        this.$nextTick(() => {
+          document.querySelector('#confirm-create-newtaxonname').focus()
+        })
+      }
+    }
+  },
+
   methods: {
     reloadPage() {
       window.location.href = this.url

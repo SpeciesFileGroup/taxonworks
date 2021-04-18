@@ -20,7 +20,7 @@ end
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
 end
-match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json} 
+match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
@@ -34,6 +34,7 @@ resources :asserted_distributions do
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
   end
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
@@ -102,6 +103,7 @@ resources :collection_objects do
     get 'containerize'
     get 'dwca', defaults: {format: :json}
     get 'metadata_badge', defaults: {format: :json}
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -114,7 +116,10 @@ resources :collection_objects do
     get :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    get :preview, defaults: {format: :json}
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 match 'collection_objects/by_identifier/:identifier', to: 'collection_objects#by_identifier', via: :get
 
@@ -133,6 +138,7 @@ resources :collecting_events do
   member do
     get :card
     post :clone
+    get :navigation, defaults: {format: :json}
   end
 
   collection do
@@ -239,6 +245,7 @@ end
 
 resources :extracts do
   concerns [:data_routes]
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :geographic_areas, only: [:index, :show] do
@@ -254,7 +261,7 @@ resources :geographic_areas, only: [:index, :show] do
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
   end
-  
+
   member do
     get 'related'
   end
@@ -290,7 +297,7 @@ resources :identifiers, except: [:show] do
     get :identifier_types, {format: :json}
   end
 
-  member do 
+  member do
     get :show, defaults: {format: :json}
   end
 end
@@ -328,7 +335,7 @@ resources :languages, only: [:show] do
   collection do
     get 'autocomplete'
   end
-  collection do 
+  collection do
     get :select_options, defaults: {format: :json}
   end
 end
@@ -371,16 +378,16 @@ resources :observation_matrices do
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
-  member do 
+  member do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
-   #  get :csv
-   #  get :biom
+    #  get :csv
+    #  get :biom
 
-   get :reorder_rows, defaults: {format: :json}
-   get :reorder_columns, defaults: {format: :json}
-  end 
+    get :reorder_rows, defaults: {format: :json}
+    get :reorder_columns, defaults: {format: :json}
+  end
 
 end
 
@@ -558,7 +565,7 @@ resources :sequences do
 
   collection do
     get :select_options, defaults: {format: :json}
-    
+
     post :preview_genbank_batch_file_load
     post :create_genbank_batch_file_load
 
@@ -568,6 +575,8 @@ resources :sequences do
     post :preview_primers_batch_load
     post :create_primers_batch_load
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sequence_relationships do
@@ -585,6 +594,7 @@ end
 resources :sources do
   concerns [:data_routes]
   collection do
+    get :attributes, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     post :preview_bibtex_batch_load # should be get
     post :create_bibtex_batch_load
@@ -597,6 +607,8 @@ resources :sources do
   member do
     post :clone
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 resources :sqed_depictions, only: [:update] do
@@ -648,10 +660,7 @@ resources :taxon_names do
   end
 
   member do
-    get :browse
     get :original_combination, defaults: {format: :json}
-
-    get :catalog, defaults: {format: :json}
   end
 end
 

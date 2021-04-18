@@ -15,7 +15,13 @@ on:
 
 jobs:
   deliver:
-    if: "!(contains(github.event.head_commit.message, '[ci skip]') || contains(github.event.head_commit.message, '[skip ci]'))"
+    if: |
+      !(
+        contains(github.event.head_commit.message, '[ci skip]') ||
+        contains(github.event.head_commit.message, '[ci-skip]') ||
+        contains(github.event.head_commit.message, '[skip ci]') ||
+        contains(github.event.head_commit.message, '[skip-ci]')
+      )
     env:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
@@ -112,5 +118,8 @@ jobs:
         CACHE_HASH: ${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
       run: |
         mkdir -p $CACHE_PATH
-        [ -f ${CACHE_PATH}/${CACHE_HASH} ] || docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>')
+        [ -f ${CACHE_PATH}/${CACHE_HASH} ] || (\
+          rm -f ${CACHE_PATH}/images.tar && \
+          docker save -o ${CACHE_PATH}/images.tar $(docker history -q sfgrp/taxonworks | grep -v '^<missing>') \
+        )
         touch ${CACHE_PATH}/${CACHE_HASH}

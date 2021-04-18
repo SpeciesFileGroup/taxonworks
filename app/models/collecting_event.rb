@@ -214,7 +214,7 @@ class CollectingEvent < ApplicationRecord
   #  When true, cached values are not built
   attr_accessor :no_cached
 
-  #handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
+  # handle_asynchronously :update_dwc_occurrences, run_at: Proc.new { 20.seconds.from_now }
 
   # See also CollectingEvent::GeoLocate
 
@@ -512,6 +512,30 @@ class CollectingEvent < ApplicationRecord
     [start_date_string, end_date_string].compact
   end
 
+  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
+  # .select {|ce| ce.georeferences.empty?}
+  # @param [Boolean] reference_self
+  # @param [Boolean] no_cached
+  # @return [Georeference::VerbatimData, false]
+  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
+  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
+    return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
+    begin
+      CollectingEvent.transaction do
+        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
+        vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
+        a = Georeference::VerbatimData.new(vg_attributes)
+        if a.valid?
+          a.save
+        end
+        return a
+      end
+    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
+      raise
+    end
+    false
+  end
+
 
   # @return [GeographicItem, nil]
   #    a GeographicItem instance representing a translation of the verbatim values, not saved
@@ -667,7 +691,7 @@ class CollectingEvent < ApplicationRecord
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
-      # qu
+      # quick
       r = preferred_georeference.geographic_item.quick_geographic_name_hierarchy # almost never the case, UI not setup to do this
       # slow
       r = preferred_georeference.geographic_item.inferred_geographic_name_hierarchy if r == {} # therefor defaults to slow
@@ -693,10 +717,6 @@ class CollectingEvent < ApplicationRecord
     h[:state] = cached_level1_geographic_name if cached_level1_geographic_name
     h[:county] = cached_level2_geographic_name if cached_level2_geographic_name
     h
-  end
-
-  def has_cached_geographic_names?
-    cached_geographic_name_classification != {}
   end
 
 

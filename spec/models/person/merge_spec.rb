@@ -326,11 +326,19 @@ describe Person, type: :model, group: :people do
     let!(:role1) { SourceAuthor.create(person: person1, role_object: role_object) }
     let!(:role2) { SourceAuthor.create(person: person1b, role_object: role_object) }
 
-
     specify 'can not be merged' do
       expect(person1.merge_with(person1b.id)).to be_falsey
     end
   end 
 
+  specify '#hard_merge, #first_name is preserved' do
+    p_keep = Person.create!(first_name: 'Simon', last_name: 'Smith')
+    p_destroy = Person.create!(first_name: 'S.', last_name: 'Smith')
+
+    p_keep.hard_merge(p_destroy.id)
+    p_keep.reload
+    
+    expect(p_keep.first_name).to eq('Simon')
+  end
   
 end

@@ -1,4 +1,6 @@
-# Methods for 1) generating paths; or 2) generating links.
+# Methods for 1) generating paths; or 2) generating links
+# For helper methods that return individual instances based on some parameters see corresponding
+# helpers.
 module Workbench::NavigationHelper
   
   NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRow ObservationMatrixColumn Note Tag

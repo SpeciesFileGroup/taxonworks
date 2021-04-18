@@ -105,14 +105,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
-  context 'annotations' do
-    let(:keyword) { FactoryBot.create(:valid_keyword) }
-    let!(:tag) { Tag.create(tag_object: ce1, keyword: keyword) }
-
-    specify '#keyword_ids[]' do
-      query.keyword_ids = [keyword.id]
-      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end
+  specify '#keyword_id_and[]' do
+    t = Tag.create(tag_object: ce1, keyword: FactoryBot.create(:valid_keyword))
+    query.keyword_id_and = [t.keyword_id]
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
   specify '#geographic_area_ids' do

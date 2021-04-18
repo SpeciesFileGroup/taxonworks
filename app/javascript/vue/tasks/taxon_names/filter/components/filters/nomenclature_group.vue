@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Nomenclature rank</h2>
+    <h3>Nomenclature rank</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

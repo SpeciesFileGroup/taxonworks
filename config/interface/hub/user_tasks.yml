@@ -20,7 +20,7 @@
 #               unknown: task has not been classified
 #
 ---
-index_filter_task:
+filter_taxon_names_task:
   hub: true
   name: 'Filter nomenclature'
   related:
@@ -70,6 +70,7 @@ comprehensive_collection_object_task:
     - collection_objects
   categories:
     - collection_object
+    - new
   status: prototype
   description: 'An all-in-one interface for digitizing collection objects.'
 new_taxon_name_task:
@@ -241,7 +242,7 @@ index_editor_task:
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
-cite_otus_task_task:
+cite_otus_task:
   hub: true
   name: 'Cite OTUs'
   related:
@@ -379,7 +380,7 @@ observation_matrix_view_task:
     - dna
   status: prototype
   description: 'A very basic visualization of an observation matrix.'
-index_print_labels_task:
+print_labels_task:
   hub: true
   name: 'Print labels'
   related:
@@ -435,7 +436,7 @@ visualize_confidences_task:
   categories:
   status: stable 
   description: 'See a graph of confidences applied per data type.'
-index_dashboard_task:
+observation_matrices_dashboard_task:
   hub: true
   name: 'Observation matrices dashboard'
   related:
@@ -451,14 +452,14 @@ interactive_key_task:
     - matrix
   status: prototype
   description: 'Interactive key based on an observation matrix.'
-index_stats_task:
+nomenclature_stats_task:
   hub: true
   name: 'Nomenclature stats'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'Get counts of names as different ranks.'
+  description: 'Report counts of names at different ranks.'
 export_coldp_task:
   hub: true
   name: 'Catalogue of Life (CoLDP) exports'
@@ -596,6 +597,15 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
+new_collecting_event_task:
+  hub: true
+  name: 'New collecting event'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create a new collecting event.  Quickly add collection objects to the collecting event.  Generate labels and specimen barcodes. Navigate between collecting events with similar properties.'
 filter_images_task:
   hub: true
   name: 'Filter images task'

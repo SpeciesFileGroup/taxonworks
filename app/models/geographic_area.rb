@@ -205,20 +205,21 @@ class GeographicArea < ApplicationRecord
   # @return [Scope] all areas which contain the point specified.
   def self.find_by_lat_long(latitude = 0.0, longitude = 0.0)
     point = ActiveRecord::Base.send(:sanitize_sql_array, ['POINT(:long :lat)', long: longitude, lat: latitude])
-    where_clause = "ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))" \
-      " OR ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))"
-    GeographicArea.joins(:geographic_items).where(where_clause)
+    a = ::GeographicArea.joins(:geographic_items).where("ST_Contains(polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+    b = ::GeographicArea.joins(:geographic_items).where("ST_Contains(multi_polygon::geometry, GeomFromEWKT('srid=4326;#{point}'))")
+    GeographicArea.from("((#{a.to_sql}) UNION (#{b.to_sql})) as geographic_areas")
   end
 
   # @return [Scope]
   #   the finest geographic area in by latitude or longitude, sorted by area, only
   #   areas with shapes (geographic items) are matched
   def self.find_smallest_by_lat_long(latitude = 0.0, longitude = 0.0)
-    ::GeographicArea.select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
-      .find_by_lat_long(
-        latitude,
-        longitude,
-    ).joins(:descendant_hierarchies, :geographic_items).order('sqft').distinct
+    ::GeographicArea
+      .joins(:geographic_items)
+      .merge(GeographicArea.find_by_lat_long(latitude, longitude))
+      .select("geographic_areas.*, ST_Area(#{::GeographicItem::GEOMETRY_SQL.to_sql}) As sqft")
+      .order('sqft')
+      .distinct
   end
 
   # @return [Scope] of areas which have at least one shape
@@ -404,8 +405,8 @@ class GeographicArea < ApplicationRecord
       names = q.strip.split(':')
       names.reverse! if invert
       names.collect { |s| s.strip }
-      r         = GeographicArea.with_name_and_parent_names(names)
-      r         = r.joins(:geographic_items) if has_shape
+      r = GeographicArea.with_name_and_parent_names(names)
+      r = r.joins(:geographic_items) if has_shape
       result[q] = r
     end
     result

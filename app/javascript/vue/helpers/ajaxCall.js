@@ -50,11 +50,17 @@ const ajaxCall = function (type, url, data = {}, config = {}) {
   })
 }
 
-const handleError = function (json) {
+const handleError = (json) => {
   if (typeof json !== 'object') return
-  TW.workbench.alert.create(Object.keys(json).map(key => {
-    return `<span data-icon="warning">${key}:</span> <ul><li>${Array.isArray(json[key]) ? json[key].map(line => capitalize(line)).join('</li><li>') : json[key]}</li></ul>`
-  }).join(''), 'error')
+
+  const removeTitleFor = ['base']
+
+  TW.workbench.alert.create(Object.entries(json).map(([key, errors]) => `
+    ${removeTitleFor.includes(key) ? '' : `<span data-icon="warning">${key}:</span>`}
+      <ul>
+        <li>${Array.isArray(errors) ? errors.map(line => capitalize(line)).join('</li><li>') : errors}</li>
+      </ul>`
+  ).join(''), 'error')
 }
 
 export default ajaxCall

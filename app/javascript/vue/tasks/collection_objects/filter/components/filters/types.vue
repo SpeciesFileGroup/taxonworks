@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2>Types</h2>
-    <h3>Nomenclature code</h3>
+    <h3>Types</h3>
+    <h4>Nomenclature code</h4>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -21,7 +21,7 @@
     <div
       v-if="nomenclature_code"
       class="field">
-      <h3>Types</h3>
+      <h4>Types</h4>
       <ul class="no_bullets">
         <li v-for="(item, type) in types[nomenclature_code]">
           <label class="capitalize">

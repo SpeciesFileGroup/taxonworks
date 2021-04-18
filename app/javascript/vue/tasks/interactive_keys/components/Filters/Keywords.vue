@@ -17,7 +17,7 @@
             :key="keyword.id">
             <label>
               <input
-                v-model="filters.keyword_ids"
+                v-model="filters.keyword_id_and"
                 :value="keyword.id"
                 type="checkbox">
               {{ keyword.name }}

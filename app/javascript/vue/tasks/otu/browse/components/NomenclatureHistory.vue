@@ -210,12 +210,14 @@ export default {
   },
   computed: {
     selectedReferences () {
-      return this.references.map(item => { return this.nomenclature.sources.list[item] })
+      return this.references.map(item => this.nomenclature.sources.list[item])
     },
     itemsList () {
-      return this.references.length ? this.nomenclature.items.filter(item => {
-        return this.selectedReferences.find(ref => { return ref.objects.includes(item.data_attributes['history-object-id']) })
-      }) : this.nomenclature.items
+      return this.references.length
+        ? this.nomenclature.items.filter(item =>
+            this.selectedReferences.find(ref => ref.objects.includes(item.data_attributes['history-object-id']))
+          )
+        : this.nomenclature.items
     },
     preferences: {
       get () {
@@ -271,7 +273,7 @@ export default {
   watch: {
     otu: {
       handler (newVal) {
-        if(newVal) {
+        if (newVal) {
           this.isLoading = true
           GetNomenclatureHistory(this.otu.id).then(response => {
             this.nomenclature = response.body
@@ -286,31 +288,30 @@ export default {
     checkFilter (item) {
       const keysAND = Object.keys(this.preferences.filterSections.and)
       const keysOR = Object.keys(this.preferences.filterSections.or)
-      return (((!this.tabSelected.hasOwnProperty('equal') || 
-        this.tabSelected.equal ?
-        item.data_attributes[this.tabSelected.key] === this.tabSelected.value : 
-        item.data_attributes[this.tabSelected.key] != this.tabSelected.value) || 
-        (this.tabSelected.label === 'All')) && 
+      return (((!this.tabSelected?.equal || 
+        this.tabSelected.equal
+        ? item.data_attributes[this.tabSelected.key] === this.tabSelected.value
+        : item.data_attributes[this.tabSelected.key] != this.tabSelected.value) ||
+        (this.tabSelected.label === 'All')) &&
         keysAND.every(key => {
-          if((this.preferences.filterSections.and[key].every(filter => { return filter.value === false }))) return true
+          if ((this.preferences.filterSections.and[key].every(filter => { return filter.value === false }))) return true
           return this.preferences.filterSections.and[key].every(filter => {
             if (filter.value === undefined) return true
-            return (filter.equal ? 
-            item.data_attributes[filter.key] === filter.value :
-            item.data_attributes[filter.key] !== filter.value)
+            return (filter.equal
+              ? item.data_attributes[filter.key] === filter.value
+              : item.data_attributes[filter.key] !== filter.value)
           })
         }) &&
         keysOR.every(key => {
           return this.preferences.filterSections.or[key].some(filter => {
-            return (filter.equal ? 
-            item.data_attributes[filter.key] === filter.value : 
-            item.data_attributes[filter.key] !== filter.value)
+            return (filter.equal 
+              ? item.data_attributes[filter.key] === filter.value
+              : item.data_attributes[filter.key] !== filter.value)
           })
-        })
-         && 
-        (this.topicsSelected.length ? item.topics.some(topic => {
-          return this.topicsSelected.includes(topic)
-        }) : true))
+        }) &&
+        (this.topicsSelected.length
+          ? item.topics.some(topic => this.topicsSelected.includes(topic))
+          : true))
     },
     filterSource (source) {
       let globalIds = source.objects
@@ -319,11 +320,11 @@ export default {
       }) != undefined)
     },
     getSourceTopics (source) {
-      let globalIds = source.objects
-      let topics = []
-      topics = this.itemsList.filter(item => { return this.checkFilter(item) }).filter(item => { return globalIds.includes(item.data_attributes['history-object-id']) }).map(item => {
-        return item.topics
-      })
+      const globalIds = source.objects
+      const topics = this.itemsList.filter(item => this.checkFilter(item))
+        .filter(item => globalIds.includes(item.data_attributes['history-object-id']))
+        .map(item => item.topics)
+
       return [...new Set([].concat(...topics))]
     }
   }

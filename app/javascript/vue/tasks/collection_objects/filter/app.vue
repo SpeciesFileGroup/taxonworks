@@ -48,7 +48,7 @@
         @result="loadList"
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
-      <div class="full_width">
+      <div class="full_width overflow-scroll">
         <div 
           v-if="recordsFound"
           class="horizontal-left-content flex-separate separate-left separate-bottom">
@@ -80,28 +80,15 @@
             v-if="pagination"
             @nextPage="loadPage"
             :pagination="pagination"/>
-          <div class="horizontal-left-content">
-            <span
-              v-if="list.data.length"
-              class="horizontal-left-content">{{ list.data.length }} records.
-            </span>
-            <div class="margin-small-left">
-              <select v-model="per">
-                <option
-                  v-for="records in maxRecords"
-                  :key="records"
-                  :value="records">
-                  {{ records }}
-                </option>
-              </select>
-              records per page.
-            </div>
-          </div>
+          <pagination-count
+            :pagination="pagination"
+            v-model="per"/>
         </div>
         <list-component
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
+          :list="list"
+          @onSort="list.data = $event"/>
         <h2
           v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.
@@ -117,6 +104,7 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import CsvButton from './components/csvDownload'
 import PaginationComponent from 'components/pagination'
+import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 
 export default {
@@ -124,7 +112,8 @@ export default {
     PaginationComponent,
     FilterComponent,
     ListComponent,
-    CsvButton
+    CsvButton,
+    PaginationCount
   },
   computed: {
     csvFields () {

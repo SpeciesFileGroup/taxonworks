@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Loans</h2>
+    <h3>Loans</h3>
     <ul class="no_bullets">
       <li>
         <label>

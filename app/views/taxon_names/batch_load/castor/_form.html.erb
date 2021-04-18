@@ -1,7 +1,6 @@
 <%= form_tag url, multipart: true do -%>
   <div class="field">
-    <%= label_tag :file, 'Select a file' -%>
-    <br>
+    <%= label_tag :file, 'Select a file' -%><br>
     <%= file_field_tag :file -%>
   </div>
 
@@ -28,11 +27,11 @@
       <br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
         locals: {
-        controller: '/taxon_names',
-        object: '',
-        method: 'parent_taxon_name_id',
-        tag_id: 'parent_taxon_name_id_for_simple_batch_laod',
-        size: 20} %>
+          controller: '/taxon_names',
+          object: '',
+          method: 'parent_taxon_name_id',
+          tag_id: 'parent_taxon_name_id_for_simple_batch_laod',
+          size: 20} %>
     </div>
 
     <div class="field">
@@ -42,15 +41,12 @@
     </div>
 
     <div class="field">
-      <%= label_tag :also_create_otu, 'Also create OTU?' -%>
-      <br>
+      <%= label_tag :also_create_otu, 'Also create OTU?' -%><br>
       <%= check_box_tag :also_create_otu -%>
     </div>
-
 
   <% end %>
 
   <%= content_for :warn_level -%>
-
-  <%= submit_tag submit -%>
+  <%= submit_tag submit, class: (submit == :create ? 'button-submit' :  'button-default') -%>
 <% end %>

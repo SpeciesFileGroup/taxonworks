@@ -45,7 +45,7 @@ export default {
     return {
       options: [
         {
-          label: 'None',
+          label: 'All',
           value: undefined
         },
         {

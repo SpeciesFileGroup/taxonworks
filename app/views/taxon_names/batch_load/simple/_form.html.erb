@@ -50,5 +50,5 @@
 
   <%= content_for :warn_level -%>
 
-  <%= submit_tag submit -%>
+  <%= submit_tag submit, class: (submit == :create ? 'button-submit' :  'button-default') -%>
 <% end %>

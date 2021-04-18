@@ -27,11 +27,16 @@ module SourcesHelper
   end
 
   def source_author_year_tag(source)
-    if source && source.type == 'Source::Bibtex' && source.author_year.present?
-      source.author_year
-    else
-      content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+    res = content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+
+    case source&.type
+    when 'Source::Human'
+      res = source.cached
+    when 'Source::Bibtex'
+      res = source.author_year if source.author_year.present?
     end
+
+    res
   end
 
   def sources_search_form

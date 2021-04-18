@@ -28,7 +28,7 @@ module CollectionObject::DwcExtensions
     otherCatalogNumbers: :dwc_other_catalog_numbers,
     preparations: :dwc_preparations,
     previousIdentifications: :dwc_previous_identifications,
-    recordedBy: :dwc_recorded_by,
+    recordedBy: :dwc_recorded_by,  
     recordedByID: :dwc_recorded_by_id,
     samplingProtocol: :dwc_sampling_protocol,
     scientificName: :dwc_scientific_name,
@@ -265,8 +265,8 @@ module CollectionObject::DwcExtensions
       reload
       @taxonomy = set_taxonomy
     else
-      @taxonomy ||= set_taxonomy
-    end
+    @taxonomy ||= set_taxonomy
+  end
   end
 
   def dwc_kingdom
@@ -373,13 +373,29 @@ module CollectionObject::DwcExtensions
   end
 
   def dwc_event_time
-    a = collecting_event.try(:time_range)
-    a ? a.compact.join('-') : nil
+    return unless collecting_event
+
+    %w{start_time end_time}
+      .map { |t| %w{hour minute second}
+        .map { |p| collecting_event["#{t}_#{p}"] }
+        .map { |p| "%02d" % p if p } # At least two digits
+      }
+      .map { |t| t.compact.join(':') }
+      .reject(&:blank?)
+      .join("/")
   end
 
   def dwc_event_date
-    a = collecting_event.try(:date_range)
-    a ? a.join('-') : nil
+    return unless collecting_event
+
+    %w{start_date end_date}
+      .map { |d| %w{year month day}
+        .map { |p| collecting_event["#{d}_#{p}"] }
+        .map { |p| "%02d" % p if p } # At least two digits
+      }
+      .map { |d| d.compact.join('-') }
+      .reject(&:blank?)
+      .join("/")
   end
 
   def dwc_preparations
@@ -403,7 +419,7 @@ module CollectionObject::DwcExtensions
     when :verbatim
       'Verbatim'
     when :geographic_area
-      'Geographic area shape centroid.' # TODO: standardize
+      'Geographic area shape centroid.'  # TODO: standardize
     else
       nil
     end

@@ -414,7 +414,7 @@ namespace :tw do
 
         @data.topics.merge!(
             'Descriptions' => Topic.find_or_create_by(name: 'description', definition: 'Source has morphological description.', project_id: Current.project_id),
-            'Records' => Topic.find_or_create_by(name: 'distribution', definition: 'Source has data on species distrebution or studied material.', project_id: Current.project_id),
+            'Records' => Topic.find_or_create_by(name: 'distribution', definition: 'Source has data on species distribution or studied material.', project_id: Current.project_id),
             'Pictures' => Topic.find_or_create_by(name: 'illustrations', definition: 'Source has illustrations.', project_id: Current.project_id),
             'Types' => Topic.find_or_create_by(name: 'original description', definition: 'Source has original description.', project_id: Current.project_id),
             'Keys' => Topic.find_or_create_by(name: 'identification key', definition: 'Source has identification key.', project_id: Current.project_id),

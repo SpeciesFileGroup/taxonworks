@@ -1,9 +1,10 @@
-if ENV['CI']
+if !ENV['NO_COVERAGE_REPORT'] && ENV['CI']
   require 'simplecov'
   SimpleCov.start
 
   require 'codecov'
   SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  Codecov.pass_ci_if_error = true
 end
 
 ENV['RAILS_ENV'] ||= 'test'

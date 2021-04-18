@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Type metadata</h2>
+    <h3>Type metadata</h3>
     <ul class="no_bullets">
       <li
         v-for="option in options">

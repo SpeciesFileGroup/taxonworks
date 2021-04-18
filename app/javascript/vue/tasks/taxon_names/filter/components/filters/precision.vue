@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Precision</h2>
+    <h3>Precision</h3>
     <label>
       <input
         v-model="optionValue"

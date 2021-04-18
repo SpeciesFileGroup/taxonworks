@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Authors</h2>
+    <h3>Authors</h3>
     <div class="field label-above">
       <label>Author</label>
       <input

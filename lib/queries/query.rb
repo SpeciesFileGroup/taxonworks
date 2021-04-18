@@ -69,7 +69,7 @@ module Queries
     end
 
     def no_terms?
-      @terms.none?
+      terms.none?
     end
 
     # @return [Array]
@@ -241,12 +241,12 @@ module Queries
       end
     end
 
-    # TODO: rename :cached_matches or similar
+    # !!TODO: rename :cached_matches or similar (this is problematic !!)
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
       return nil if no_terms?
-      table[:cached].matches_any(terms)
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [Arel::Nodes::Matches]

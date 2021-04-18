@@ -105,7 +105,7 @@
             <role-types
               v-model="params.base.role"/>
           </div>
-          <keywords-component v-model="params.base.keyword_ids" />
+          <keywords-component v-model="params.base.keywords" />
           <users-component v-model="params.user"/>
         </div>
       </div>
@@ -158,7 +158,7 @@ import FoundPeople from './components/found_people'
 import MatchPeople from './components/match_people'
 import CompareComponent from './components/compare.vue'
 import Spinner from 'components/spinner.vue'
-import KeywordsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
 import NameField from './components/filters/nameField.vue'
@@ -240,9 +240,12 @@ export default {
           last_name: '',
           first_name: '',
           role: [],
-          keyword_ids: [],
           person_wildcard: [],
           used_in_project_id: []
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         active: {
           active_before_year: undefined,
@@ -272,7 +275,7 @@ export default {
     },
     findPerson (event) {
       event.preventDefault()
-      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.keywords, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
 
       this.clearFoundData()
 

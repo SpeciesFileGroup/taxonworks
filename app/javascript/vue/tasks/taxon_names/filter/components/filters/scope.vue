@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Classification scope</h2>
+    <h3>Classification scope</h3>
     <label>Taxon name</label>
     <autocomplete
       url="/taxon_names/autocomplete"
@@ -8,7 +8,7 @@
       label="label_html"
       placeholder="Search for a taxon name"
       :clear-after="true"
-      :add-params="{ no_leaves: true }"
+      :add-params="autocompleteParams"
       @getItem="setTaxon($event.id)"
     />
     <p
@@ -37,6 +37,10 @@ export default {
   props: {
     value: {
       default: undefined
+    },
+    autocompleteParams: {
+      type: Object,
+      default: () => { return {} }
     }
   },
   data () {

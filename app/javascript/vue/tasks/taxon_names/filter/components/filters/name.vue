@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Taxon</h2>
+    <h3>Taxon</h3>
     <div class="field">
       <label>Name</label>
       <input

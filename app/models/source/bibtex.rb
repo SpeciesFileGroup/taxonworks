@@ -307,6 +307,13 @@ class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
 
+  include Shared::OriginRelationship
+
+  is_origin_for 'Source::Bibtex', 'Source::Verbatim'
+  originates_from 'Source::Bibtex', 'Source::Verbatim'
+
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
+
   # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
 
   # TW required fields (must have one of these fields filled in)

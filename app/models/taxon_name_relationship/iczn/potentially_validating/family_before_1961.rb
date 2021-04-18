@@ -20,7 +20,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961 < Tax
   end
 
   def subject_status
-    'as family name based on genus synonym replaced before 1961'
+    'validated as replacement for family-group name based on genus synonym before 1961'
   end
 
   def self.nomenclatural_priority

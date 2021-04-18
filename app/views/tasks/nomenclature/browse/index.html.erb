@@ -18,7 +18,7 @@
         <span class="margin-medium-right">OTU</span>
         <div class="square-brackets">
           <ul class="no_bullets context-menu">
-            <li><%= otus_redirect(@taxon_name) %></li>
+            <li><%= browse_otu_link(@taxon_name) %></li>
             <li><%= otus_radial_disambiguate(@taxon_name) %></li>
           </ul>
         </div>
@@ -83,6 +83,7 @@
           <div class="flex-wrap-row"> 
             <%= render "summary" %>
             <%= render "soft_validation" %>
+            <%= annotations_summary_tag(@taxon_name) %>
             <div class="panel content fullSize separate-left">
               <div class="attributes">
                 <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 

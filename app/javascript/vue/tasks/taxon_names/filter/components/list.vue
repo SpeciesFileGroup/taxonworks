@@ -3,22 +3,11 @@
     <table class="full_width">
       <thead>
         <tr>
-          <th
-            :class="classSort('name')"
-            @click="sortTable('name')">Name</th>
-          <th
-            :class="classSort('verbatim_author')"
-            @click="sortTable('verbatim_author')">Author</th>
-          <th
-            :class="classSort('year_of_publication')"
-            @click="sortTable('year_of_publication')">Year</th>
-          <th
-            :class="classSort('original_combination')"
-            @click="sortTable('original_combination')">Original combination</th>
+          <th @click="sortTable('name')">Name</th>
+          <th @click="sortTable('cached_author_year')">Author and year</th>
+          <th @click="sortTable('original_combination')">Original combination</th>
           <th>Valid?</th>
-          <th
-            :class="classSort('rank')"
-            @click="sortTable('rank')">Rank</th>
+          <th @click="sortTable('rank')">Rank</th>
           <th>Parent</th>
           <th>Options</th>
         </tr>
@@ -32,8 +21,7 @@
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
               v-html="item.cached_html"/>
           </td>
-          <td>{{item.verbatim_author}}</td>
-          <td>{{ item.year_of_publication }}</td>
+          <td>{{item.cached_author_year}}</td>
           <td v-html="item.original_combination"></td>
           <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
           <td>{{ item.rank }}</td>
@@ -64,6 +52,7 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
+import { sortArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -78,37 +67,13 @@ export default {
   },
   data() {
     return {
-      sortColumns: {
-        name: undefined,
-        verbatim_author: undefined,
-        year_of_publication: undefined,
-        rank: undefined,
-        original_combination: undefined
-      }
+      ascending: false
     }
   },
   methods: {
-    sortTable(sortProperty) {
-      let that = this
-      function compare(a,b) {
-        if (a[sortProperty] < b[sortProperty])
-          return (that.sortColumns[sortProperty] ? -1 : 1)
-        if (a[sortProperty] > b[sortProperty])
-          return (that.sortColumns[sortProperty] ? 1 : -1);
-        return 0
-      }
-      if(this.sortColumns[sortProperty] == undefined) {
-        this.sortColumns[sortProperty] = true
-      }
-      else {
-        this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
-      }
-      this.list.sort(compare);      
-    },
-    classSort(value) {
-      if(this.sortColumns[value] == true) { return 'headerSortDown' }
-      if(this.sortColumns[value] == false) { return 'headerSortUp' }
-      return ''
+    sortTable (sortProperty) {
+      this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
+      this.ascending = !this.ascending
     }
   }
 }

@@ -21,12 +21,22 @@ module CollectingEventsHelper
       collecting_event_collectors_tag(collecting_event),
       collecting_event_coordinates_tag(collecting_event),
       collecting_event_method_habitat_tag(collecting_event),
+      collecting_event_uses_tag(collecting_event)
     ].compact.join(join_string).html_safe
   end
 
+ def collecting_event_uses_tag(collecting_event)
+    return nil if collecting_event.nil?
+    if collecting_event.collection_objects.any?
+      content_tag(:span, 'Uses: ' + collecting_event.collection_objects.count.to_s, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
+    else
+      nil
+    end
+ end
+
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
-    if i = collecting_event.identifiers.first
+    if i = collecting_event.identifiers.load.first
       collecting_event.identifiers.collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
       }.join
@@ -142,8 +152,9 @@ module CollectingEventsHelper
     content_tag(:pre, label_text, class: [:large_type, :word_break] ) # large_type needs to be larger
   end
 
-  # TODO: merge to a general next by identifier class (see also CO
-  #
+
+  # Navigation
+
   # @return [link_to]
   #    this may not work for all identifier types, i.e. those with identifiers like `123.34` or `3434.33X` may not increment correctly
   def collecting_event_browse_previous_by_identifier(collecting_event)
@@ -151,11 +162,13 @@ module CollectingEventsHelper
     o = collecting_event.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
     link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
-    link_to(link_text, browse_collecting_events_task_path(collecting_event_id: o.id), data: {
-      arrow: :previous,
-      'no-turbolinks' => 'true',
-      help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
-      class: 'navigation-item')
+    link_to(
+      link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
+      data: {
+        arrow: :previous,
+        'no-turbolinks' => 'true',
+        help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
+        class: 'navigation-item')
   end
 
   # @return [link_to]
@@ -165,10 +178,16 @@ module CollectingEventsHelper
     o = collecting_event.next_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
     link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
-    link_to(link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
-            data: {arrow: :next,
-                   'no-turbolinks' => 'false',
-                   help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'}, class:'navigation-item')
+    link_to(
+      link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
+      data: {
+        arrow: :next,
+        'no-turbolinks' => 'false',
+        help: 'Sorts by identifier type, namespace, then an conversion of identifier into integer.  Will not work for all identifier types.'},
+        class:'navigation-item')
+  end
+
+  def collecting_event_next_by_start_date(collecting_event)
   end
 
 

@@ -1,6 +1,9 @@
 <template>
   <div id="new_taxon_name_task">
-    <div class="flex-separate middle">
+    <div
+      v-shortkey="[getOSKey, 'f']"
+      @shortkey="focusSearch"
+      class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <div class="horizontal-right-content middle">
         <label
@@ -26,7 +29,7 @@
     <div>
       <nav-header :menu="menu"/>
       <div class="flexbox horizontal-center-content align-start">
-        <div class="ccenter item separate-right">
+        <div class="ccenter item">
           <spinner
             :full-screen="true"
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
@@ -42,10 +45,11 @@
         </div>
         <div
           v-if="getTaxon.id"
-          class="cright item separate-left">
+          class="cright item margin-medium-left">
           <div id="cright-panel">
             <div class="panel content margin-medium-bottom">
               <autocomplete
+                id="taxonname-autocomplete-search"
                 url="/taxon_names/autocomplete"
                 param="term"
                 :add-params="{ 'type[]': 'Protonym' }"
@@ -82,6 +86,7 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from './components/softValidation.vue'
 import Spinner from 'components/spinner.vue'
+import getOSKey from 'helpers/getMacKey'
 
 import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'
@@ -108,6 +113,9 @@ export default {
     ClassificationSection
   },
   computed: {
+    getOSKey () {
+      return getOSKey()
+    },
     getTaxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
@@ -230,6 +238,13 @@ export default {
     },
     loadTaxon (taxon) {
       window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`, '_self')
+    },
+    focusSearch () {
+      if (this.getTaxon.id) {
+        document.querySelector('#taxonname-autocomplete-search input').focus()
+      } else {
+        document.querySelector('.autocomplete-search-bar input').focus()
+      }
     }
   }
 }
@@ -241,12 +256,6 @@ export default {
     margin: 0 auto;
     margin-top: 1em;
     max-width: 1240px;
-
-    .basic-information {
-      .vue-autocomplete-input {
-        width: 300px;
-      }
-    }
 
     .autocomplete-search-bar {
       input {

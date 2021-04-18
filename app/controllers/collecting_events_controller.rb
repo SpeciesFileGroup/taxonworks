@@ -1,7 +1,7 @@
 class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone]
+  before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
   after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
 
   # GET /collecting_events
@@ -52,11 +52,11 @@ class CollectingEventsController < ApplicationController
     @collecting_event = @collecting_event.clone
     if @collecting_event.persisted?
       respond_to do |format|
-        format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Clone successful, on new record.' }
+        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
       end
     else
-      format.html { redirect_to edit_collecting_event_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
+      format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
       format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
     end
   end
@@ -255,11 +255,14 @@ class CollectingEventsController < ApplicationController
     render '/collecting_events/api/v1/autocomplete'
   end
 
+  def navigation
+  end
+
   private
 
   def set_collecting_event
     @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
-    @recent_object    = @collecting_event
+    @recent_object = @collecting_event
   end
 
   def collecting_event_params
@@ -294,19 +297,20 @@ class CollectingEventsController < ApplicationController
   def filter_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :recent,
-      :wkt,
-      :radius,
-      :geo_json,
-      :start_date, # used in date range
-      :end_date,   # used in date range
-      :partial_overlap_dates,
-      :spatial_geographic_areas,
       :collector_ids_or,
-      keyword_ids: [],
+      :end_date,   # used in date range
+      :geo_json,
+      :in_labels,
+      :in_verbatim_locality,
+      :md5_verbatim_label,
+      :partial_overlap_dates,
+      :radius,
+      :recent,
+      :spatial_geographic_areas,
+      :start_date, # used in date range
+      :wkt,
+      keyword_id_and: [],
+      keyword_id_or: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],
       otu_ids: [],
@@ -317,18 +321,18 @@ class CollectingEventsController < ApplicationController
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :recent,
-      :wkt,
-      :radius,
-      :geo_json,
-      :start_date, # used in date range
-      :end_date,   # used in date range
-      :partial_overlap_dates,
-      :spatial_geographic_areas,
       :collector_ids_or,
+      :end_date,   # used in date range
+      :geo_json,
+      :in_labels,
+      :in_verbatim_locality,
+      :md5_verbatim_label,
+      :partial_overlap_dates,
+      :radius,
+      :recent,
+      :spatial_geographic_areas,
+      :start_date, # used in date range
+      :wkt,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],

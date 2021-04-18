@@ -3,15 +3,18 @@
 # For filter queries:
 # !! requires a `query_base` method
 # !! requires `set_identifiers` be called in initialize()
-# 
+#
 # See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
 #
 module Queries::Concerns::Identifiers
 
+
+  include Queries::Helpers
+
   extend ActiveSupport::Concern
 
   included do
-    # Limit to this namespace 
+    # Limit to this namespace
     attr_accessor :namespace_id
 
     # @return [String]
@@ -25,12 +28,18 @@ module Queries::Concerns::Identifiers
     # Match on cached
     attr_accessor :identifier
 
-    # Match like or exact on cached 
+    # Match like or exact on cached
     attr_accessor :identifier_exact
 
     # param identifier_type [Array]
     #   of identifier types
     attr_accessor :identifier_type
+
+    # @return [True, False, nil]
+    #   true - has an identifier
+    #   false - does not have an identifier
+    #   nil - not applied
+    attr_accessor :identifiers
 
     def identifier_start
       ( @identifier_start.to_i - 1 ).to_s
@@ -41,14 +50,16 @@ module Queries::Concerns::Identifiers
     end
   end
 
+
   def set_identifier(params)
     @namespace_id = params[:namespace_id]
     @identifier_start = params[:identifier_start]
     @identifier_end = params[:identifier_end]
     @identifier = params[:identifier]
+    @identifiers = boolean_param(params, :identifiers)
 
-    @identifier_exact = (params[:identifier_exact]&.downcase == 'true' ? true : false) if !params[:identifier_exact].nil?
-    @identifier_type = params[:identifier_type] || [] 
+    @identifier_exact = boolean_param(params, :identifier_exact)
+    @identifier_type = params[:identifier_type] || []
   end
 
   # @return [Arel::Table]
@@ -74,6 +85,17 @@ module Queries::Concerns::Identifiers
     )
   end
 
+  def identifiers_facet
+    return nil if identifiers.nil?
+    if identifiers
+      query_base.joins(:identifiers).distinct
+    else
+      query_base.left_outer_joins(:identifiers)
+        .where(identifiers: {id: nil})
+        .distinct
+    end
+  end
+
   def identifier_facet
     return nil if identifier.blank?
 
@@ -83,14 +105,14 @@ module Queries::Concerns::Identifiers
       identifier_table[:cached].matches('%' + identifier + '%')
 
     w = w.and(identifier_table[:namespace_id].eq(namespace_id)) if namespace_id
-    q.where(w) 
+    q.where(w)
   end
 
   def identifier_type_facet
     return nil if identifier_type.empty?
     q = query_base.joins(:identifiers)
     w = identifier_table[:type].eq_any(identifier_type)
-    q.where(w) 
+    q.where(w)
   end
 
   def identifier_namespace_facet
@@ -148,7 +170,7 @@ module Queries::Concerns::Identifiers
   # See lib/queries/identifiers/autocomplete for autocomplete for identifiers
   #
   # May need to alter base query here
-# 
+#
   def autocomplete_identifier_cached_exact
     query_base.joins(:identifiers).where(with_identifier_cached.to_sql)
   end

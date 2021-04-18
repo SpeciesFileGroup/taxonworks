@@ -25,7 +25,9 @@
       </button>
       <taxon-name-component v-model="params.taxon"/>
       <precision-component v-model="params.base.exact" />
-      <scope-component v-model="params.base.taxon_name_id"/>
+      <scope-component
+        :autocomplete-params="{ no_leaves: true }"
+        v-model="params.base.taxon_name_id"/>
       <related-component
         v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
@@ -37,6 +39,7 @@
       <relationships-component v-model="params.base.taxon_name_relationship"/>
       <status-component v-model="params.base.taxon_name_classification"/>
       <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
+      <tags-component v-model="params.keywords"/>
       <users-component v-model="params.user"/>
       <updated-component v-model="params.base.updated_since"/>
       <children-component v-model="params.base.leaves"/>
@@ -70,6 +73,7 @@ import InRelationshipComponent from './filters/in_relationship'
 import TaxonNameTypeComponent from './filters/taxon_name_type'
 import EtymologyComponent from './filters/etymology'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 
 import { GetTaxonNames } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
@@ -97,14 +101,15 @@ export default {
     AuthorsComponent,
     TaxonNameTypeComponent,
     EtymologyComponent,
-    UsersComponent
+    UsersComponent,
+    TagsComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -140,7 +145,7 @@ export default {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
-        history.pushState(null, null, `/tasks/taxon_names/filter/index?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/taxon_names/filter?${urlParams.toString()}`)
       }, () => {
         this.searching = false
       })
@@ -170,6 +175,10 @@ export default {
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],
           taxon_name_classification: []
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         includes: {
           descendants: undefined,

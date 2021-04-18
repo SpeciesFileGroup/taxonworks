@@ -61,7 +61,6 @@ export default {
     otu: {
       handler (newVal) {
         if(newVal) {
-          console.log(newVal)
           GetCollectionObjects({ otu_ids: [newVal.id], current_determinations: true }).then(response => {
             this.collectionObjects = response.body.data.map((item, index) => { return this.createObject(response.body, index) })
           })
@@ -69,9 +68,6 @@ export default {
       },
       immediate: true
     }
-  },
-  mounted () {
-    
   },
   methods: {
     createObject(list, position) {

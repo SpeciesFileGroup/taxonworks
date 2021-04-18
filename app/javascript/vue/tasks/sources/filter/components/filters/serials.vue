@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Serials</h2>
+    <h3>Serials</h3>
     <fieldset>
       <legend>Serials</legend>
       <smart-selector

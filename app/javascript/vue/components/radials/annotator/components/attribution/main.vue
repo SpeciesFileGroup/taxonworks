@@ -37,9 +37,9 @@
         <label
           :for="`switch-role-${index}`"
           class="capitalize">{{ item }}
-          <span
-            v-if="rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length"
-            data-icon="ok"/>
+          <span v-if="rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length">
+            ({{ rolesList[`${item.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`].length }})
+          </span>
         </label>
       </template>
     </div>
@@ -47,24 +47,47 @@
       <switch-component
         class="margin-medium-bottom"
         v-model="copyrightHolderType"
-        :options="['Person', 'Organization']"/>
-      <role-picker
-        v-if="copyrightHolderType === 'Person'"
-        v-model="roleList"
-        :role-type="roleSelected"/>
-      <div v-else>
+        use-index
+        :options="copyrightHolderOptions"/>
+      <div v-if="copyrightHolderType">
         <organization-picker @getItem="addOrganization"/>
         <display-list
           label="object_tag"
           @delete="removeOrganization"
           :list="organizationList"/>
       </div>
-    </template>
-    <div v-else>
       <role-picker
-        v-if="view"
+        v-else
         v-model="roleList"
         :role-type="roleSelected"/>
+    </template>
+    <div v-else>
+      <template v-if="view">
+        <smart-selector
+          ref="smartSelector"
+          model="people"
+          target="CollectingEvent"
+          klass="CollectingEvent"
+          :params="{ role_type: 'Collector' }"
+          :autocomplete-params="{
+            roles: ['Collector']
+          }"
+          :autocomplete="false"
+          @selected="addRole">
+          <role-picker
+            slot="header"
+            :hidden-list="true"
+            v-model="roleList"
+            ref="rolepicker"
+            :autofocus="false"
+            :role-type="roleSelected"/>
+          <role-picker
+            :create-form="false"
+            v-model="roleList"
+            :autofocus="false"
+            :role-type="roleSelected"/>
+        </smart-selector>
+      </template>
     </div>
     <div class="separate-top">
       <button
@@ -84,18 +107,18 @@ import RolePicker from 'components/role_picker'
 import SwitchComponent from 'components/switch.vue'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtended from '../annotatorExtend.js'
-import Autocomplete from 'components/autocomplete'
 import OrganizationPicker from 'components/organizationPicker'
 import DisplayList from 'components/displayList'
+import SmartSelector from 'components/smartSelector'
 
 export default {
   mixins: [CRUD, AnnotatorExtended],
   components: {
     RolePicker,
     SwitchComponent,
-    Autocomplete,
     OrganizationPicker,
-    DisplayList
+    DisplayList,
+    SmartSelector
   },
   computed: {
     validateFields() {
@@ -105,15 +128,24 @@ export default {
       return this.roleTypes[this.smartSelectorList.findIndex((role) => { return role == this.view })]
     },
     roleList: {
-      get() {
+      get () {
         return this.rolesList[`${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`]
       },
-      set(value) {
+      set (value) {
         this.$set(this.rolesList, `${this.view.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase()}_roles`, value)
       }
     },
     organizationList () {
-      return this.rolesList.copyright_organization_roles.filter(item => { return !item['_destroy'] })
+      return this.rolesList.copyright_organization_roles.filter(item => { return !item?._destroy })
+    },
+    copyrightHolderList () {
+      return this.rolesList.copyright_holder_roles.filter(item => { return !item?._destroy })
+    },
+    copyrightHolderOptions () {
+      return ['person', 'organization'].map(label => {
+        const count = [].concat(this.rolesList.copyright_organization_roles, this.copyrightHolderList).filter(item => item.agent_type === label).length
+        return label + (count ? ` (${count})` : '')
+      })
     }
   },
   data() {
@@ -131,7 +163,7 @@ export default {
         copyright_organization_roles: []
       },
       attribution: this.newAttribution(),
-      copyrightHolderType: 'Person'
+      copyrightHolderType: 0
     }
   },
   watch: {
@@ -164,16 +196,16 @@ export default {
   },
   methods: {
     setAttribution(attribution) {
-      this.attribution.id = attribution.id,
+      this.attribution.id = attribution.id
       this.attribution.copyright_year = attribution.copyright_year
       this.attribution.license = attribution.license
-      this.$set(this.rolesList, 'creator_roles', (attribution.hasOwnProperty('creator_roles') ? attribution.creator_roles : []))
-      this.$set(this.rolesList, 'editor_roles', (attribution.hasOwnProperty('editor_roles') ? attribution.editor_roles : [])) 
-      this.$set(this.rolesList, 'owner_roles', (attribution.hasOwnProperty('owner_roles') ? attribution.owner_roles : []))
-      this.$set(this.rolesList, 'copyright_holder_roles', (attribution.hasOwnProperty('copyright_holder_roles') ? attribution.copyright_holder_roles.filter(item => { return item.agent_type === 'person' }) : []))
-      this.$set(this.rolesList, 'copyright_organization_roles', (attribution.hasOwnProperty('copyright_holder_roles') ? attribution.copyright_holder_roles.filter(item => { return item.agent_type === 'organization' }).map(item => { item.object_tag = item.organization.object_tag; return item }) : []))
+      this.$set(this.rolesList, 'creator_roles', (attribution?.creator_roles ? attribution.creator_roles : []))
+      this.$set(this.rolesList, 'editor_roles', (attribution?.editor_roles ? attribution.editor_roles : []))
+      this.$set(this.rolesList, 'owner_roles', (attribution?.owner_roles ? attribution.owner_roles : []))
+      this.$set(this.rolesList, 'copyright_holder_roles', (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => { return item.agent_type === 'person' }) : []))
+      this.$set(this.rolesList, 'copyright_organization_roles', (attribution?.copyright_holder_roles ? attribution.copyright_holder_roles.filter(item => { return item.agent_type === 'organization' }).map(item => { item.object_tag = item.organization.object_tag; return item }) : []))
     },
-    newAttribution() {
+    newAttribution () {
       return {
         id: undefined,
         copyright_year: undefined,
@@ -189,18 +221,16 @@ export default {
         TW.workbench.alert.create('Attribution was successfully created.', 'notice')
       })
     },
-    updateAttribution() {
+    updateAttribution () {
       this.setRolesAttributes()
-      if(!this.validateFields) {
+      if (!this.validateFields) {
         this.attribution._destroy = true
-        
         this.destroy(`/${this.type}s/${this.attribution.id}`, this.attribution).then(response => {
           this.removeFromList(this.attribution.id)
           TW.workbench.alert.create('Attribution was successfully destroyed.', 'notice')
           this.attribution = this.newAttribution()
         })
-      }
-      else {
+      } else {
         this.update(`/attributions/${this.attribution.id}.json`, { attribution: this.attribution }).then(response => {
           this.setAttribution(response.body)
           TW.workbench.alert.create('Attribution was successfully updated.', 'notice')
@@ -225,22 +255,35 @@ export default {
       this.rolesList.copyright_organization_roles.push({
         organization_id: organization.id,
         type: 'AttributionCopyrightHolder',
-        object_tag: organization.hasOwnProperty('object_tag') ? organization.object_tag : organization.label
+        object_tag: organization?.object_tag ? organization.object_tag : organization.label
       })
     },
     removeOrganization (organization) {
+      const index = organization?.id ?
+        this.rolesList.copyright_organization_roles.findIndex(item => { return item?.id === organization.id }) :
+        this.rolesList.copyright_organization_roles.findIndex(item => { return item?.organization_id === organization.organization_id })
 
-      let index = organization['id'] ? 
-        this.rolesList.copyright_organization_roles.findIndex(item => { return item['id'] === organization.id }) : 
-        this.rolesList.copyright_organization_roles.findIndex(item => { return item['organization_id'] === organization.organization_id })
-
-      if(this.rolesList.copyright_organization_roles[index]['id']) {
+      if (this.rolesList.copyright_organization_roles[index]['id']) {
         this.$set(this.rolesList.copyright_organization_roles[index], '_destroy', true)
       } else {
         this.rolesList.copyright_organization_roles.splice(index, 1)
       }
-      
-    }
+    },
+
+    roleExist (id) {
+      return this.roleList.find(role => !role?._destroy && (role.person_id === id || role?.person?.id === id))
+    },
+
+    addRole (role) {
+      if (!this.roleExist(role.id)) {
+        this.roleList.push({
+          first_name: role.first_name,
+          last_name: role.last_name,
+          person_id: role.id,
+          type: this.roleSelected
+        })
+      }
+    },
   }
 }
 </script>
