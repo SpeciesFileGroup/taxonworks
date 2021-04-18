@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
 
 ### Fixed
+- Documenting source doesn't add source to project [#2172]
 - Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
 - incorrect author string for misspelled combination is fixed
 - Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
@@ -18,7 +19,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
-
 
 ### Changed
 - Updated script predicting masculine, feminine and neuter species name forms
@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
