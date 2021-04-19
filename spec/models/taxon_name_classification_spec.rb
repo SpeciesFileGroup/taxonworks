@@ -94,6 +94,19 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         c.valid?
         expect(c.errors.include?(:type)).to be_falsey
       end
+
+      specify 'not specific relationship' do
+        c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+        c.soft_validate(only_sets: :not_specific_classes)
+        expect(c.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'specific relationship' do
+        c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NoDescription')
+        c.soft_validate(only_sets: :not_specific_classes)
+        expect(c.soft_validations.messages_on(:type).size).to eq(0)
+      end
+
     end
   end
 

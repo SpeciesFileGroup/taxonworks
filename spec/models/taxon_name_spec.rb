@@ -325,6 +325,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               @g = FactoryBot.create(:relationship_genus, name: 'Cus', parent: @family)
               @s = FactoryBot.build(:relationship_species, name: 'dus', parent: @g)
             end
+
             specify 'missing cached values' do
               @s.save
               @s.update_column(:cached_original_combination, 'aaa')

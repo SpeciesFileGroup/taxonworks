@@ -310,6 +310,20 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
            expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
       end
+
+      specify 'not specific relationship' do
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+        r3.soft_validate(only_sets: :not_specific_relationship)
+        expect(r3.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'specific relationship' do
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+        r3.soft_validate(only_sets: :not_specific_relationship)
+        expect(r3.soft_validations.messages_on(:type).size).to eq(0)
+      end
     end
 
     specify 'destroy relationship' do

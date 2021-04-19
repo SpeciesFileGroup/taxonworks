@@ -50,7 +50,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         legal.each do |l|
           specify l do
             s.name = l 
-            s.soft_validate(:validate_name)
+            s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
           end
         end
@@ -61,7 +61,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         illegal.each do |l|
           specify l do
             s.name = l 
-            s.soft_validate(:validate_name)
+            s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
           end
         end

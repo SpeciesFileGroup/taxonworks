@@ -258,11 +258,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         tribe.origin_citation.pages = 95
         tribe.origin_citation.source_id = @subfamily.origin_citation.source_id
         tribe.save
-        @subfamily.soft_validate(:validate_coordinated_names)
+        @subfamily.soft_validate(only_sets: :validate_coordinated_names)
         #original citation pages are different
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_falsey
         @subfamily.fix_soft_validations
-        @subfamily.soft_validate(:validate_coordinated_names)
+        @subfamily.soft_validate(only_sets: :validate_coordinated_names)
         expect(@subfamily.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
@@ -503,10 +503,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         gen.type_species_by_original_designation_or_monotypy = species
         sgen.type_species_by_original_designation_or_monotypy = species
 
-        species.soft_validate(:type_placement)
+        species.soft_validate(only_sets: :type_placement)
         expect(species.soft_validations.messages_on(:base).size).to eq(1)
         species.fix_soft_validations
-        species.soft_validate(:type_placement)
+        species.soft_validate(only_sets: :type_placement)
         expect(species.soft_validations.messages_on(:base).size).to eq(0)
         expect(species.parent_id).to eq(sgen.id)
       end

@@ -180,6 +180,13 @@ class Combination < TaxonName
                 name: 'Combination older than protonyms',
                 description: 'The combination is older than protonyms in the combination' )
 
+  #  soft_validate(:sv_cached_names,
+  #              set: :cached_names,
+  #              fix: :sv_fix_cached_names,
+  #              name: 'Cached names',
+  #              description: 'Check if cached values need to be updated')
+
+
   # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
@@ -434,6 +441,21 @@ class Combination < TaxonName
     duplicate = Combination.not_self(self).where(cached: cached)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
   end
+
+  def sv_cached_names
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if is_cached && cached_html != get_full_name_html
+      is_cached = false
+    end
+
+    soft_validations.add(
+        :base, 'Cached values should be updated',
+        success_message: 'Cached values were updated',
+        failure_message:  'Failed to update cached values') if !is_cached
+  end
+
 
   def set_parent
     names = protonyms

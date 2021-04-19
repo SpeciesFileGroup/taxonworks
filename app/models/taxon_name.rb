@@ -421,15 +421,15 @@ class TaxonName < ApplicationRecord
                 name: 'Missing original source',
                 description: 'Original source is not selected' )
 
+=begin
   soft_validate(:sv_missing_author,
                 set: :missing_fields,
-                name: 'Missing author',
-                has_fix: true)
+                name: 'Missing author')
 
   soft_validate(:sv_missing_year,
                 set: :missing_fields,
-                name: 'Missing year',
-                has_fix: true)
+                name: 'Missing year')
+=end
 
   soft_validate(:sv_missing_etymology,
                 set: :missing_fields,
@@ -1532,14 +1532,13 @@ class TaxonName < ApplicationRecord
     end
   end
 
-# @proceps code was likely moved to Protonym here, on dev there are methods here confirm by removing this
-  def sv_missing_author
-    true # see Protonym
-  end
-
-  def sv_missing_year
-    true # see Protonym
-  end
+  # def sv_missing_author
+  #   true # see Protonym
+  # end
+  #
+  # def sv_missing_year
+  #   true # see Protonym
+  # end
 
   def sv_missing_etymology
     true # see Protonym
@@ -1594,8 +1593,8 @@ class TaxonName < ApplicationRecord
         return true
       end
     rescue
+      false
     end
-    false
   end
 
   # TODO: does this make sense now, with #valid_taxon_name_id in place?
