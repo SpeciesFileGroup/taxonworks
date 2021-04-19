@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
+- Edit inline options on edit/new loan task [#2184]
 
 ### Fixed
 - Previous navigation [#2163]
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
 
 ## [0.16.6] - 2020-03-26
 

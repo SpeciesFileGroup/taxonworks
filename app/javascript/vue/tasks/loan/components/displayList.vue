@@ -46,38 +46,13 @@
           class="table-entrys-list"
           name="list-complete"
           tag="tbody">
-          <tr
+          <row-item
             v-for="item in list"
             :key="item.id"
-            class="list-complete-item">
-            <td>
-              <label class="list-item">
-                <input
-                  @click="switchOption(item)"
-                  type="checkbox"
-                  :checked="editLoanItems.find(value => { return value.id == item.id })"
-                >
-                <span v-html="item.loan_item_object_tag"/>
-              </label>
-            </td>
-            <td v-html="item.date_returned"/>
-            <td v-html="item.disposition"/>
-            <td v-html="item.total"/>
-            <td>
-              <pin-component
-                :object-id="item.loan_item_object_id"
-                :type="item.loan_item_object_type"/>
-            </td>
-            <td>
-              <radial-annotator :global-id="item.global_id"/>
-            </td>
-            <td>
-              <span
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
-            </td>
-          </tr>
+            :item="item"
+            @onUpdate="updateItem"
+            @onDelete="deleteItem"
+          />
         </transition-group>
       </table>
     </div>
@@ -86,68 +61,64 @@
 
 <script>
 
-  import {GetterNames} from '../store/getters/getters'
-  import {MutationNames} from '../store/mutations/mutations'
-  import ActionNames from '../store/actions/actionNames'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import ActionNames from '../store/actions/actionNames'
 
-  import Spinner from 'components/spinner.vue'
-  import Expand from './expand.vue'
-  import PinComponent from 'components/pin.vue'
-  import RadialAnnotator from 'components/radials/annotator/annotator'
+import Spinner from 'components/spinner.vue'
+import Expand from './expand.vue'
+import RowItem from './table/row'
 
-  export default {
-    components: {
-      Spinner,
-      Expand,
-      PinComponent,
-      RadialAnnotator
+export default {
+  components: {
+    RowItem,
+    Spinner,
+    Expand
+  },
+
+  computed: {
+    list () {
+      return this.$store.getters[GetterNames.GetLoanItems]
     },
-    computed: {
-      list() {
-        return this.$store.getters[GetterNames.GetLoanItems]
-      },
-      loan() {
-        return this.$store.getters[GetterNames.GetLoan]
-      },
-      editLoanItems() {
-        return this.$store.getters[GetterNames.GetEditLoanItems]
+    loan () {
+      return this.$store.getters[GetterNames.GetLoan]
+    },
+    editLoanItems () {
+      return this.$store.getters[GetterNames.GetEditLoanItems]
+    }
+  },
+
+  data () {
+    return {
+      selectedItems: [],
+      displayBody: true
+    }
+  },
+
+  methods: {
+    selectAll () {
+      this.$store.commit(MutationNames.SetAllEditLoanItems)
+    },
+
+    unselectAll () {
+      this.$store.commit(MutationNames.CleanEditLoanItems)
+    },
+
+    deleteItem (item) {
+      if (window.confirm('You\'re trying to delete a record. Are you sure want to proceed?')) {
+        this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
       }
     },
-    data: function () {
-      return {
-        selectedItems: [],
-        displayBody: true
-      }
+
+    updateItem (item) {
+      this.$store.dispatch(ActionNames.UpdateLoanItem, item)
     },
-    methods: {
-      selectAll() {
-        this.$store.commit(MutationNames.SetAllEditLoanItems)
-      },
-      unselectAll() {
-        this.$store.commit(MutationNames.CleanEditLoanItems)
-      },
-      deleteItem(item) {
-        if (window.confirm(`You're trying to delete a record. Are you sure want to proceed?`)) {
-          this.$store.dispatch(ActionNames.DeleteLoanItem, item.id)
-        }
-      },
-      switchOption(item) {
-        if (this.editLoanItems.find(value => {
-            return value.id == item.id
-          })) {
-          this.removeSelectedItem(item)
-        } else {
-          this.addSelectedItem(item)
-        }
-      },
-      addSelectedItem(item) {
-        this.$store.commit(MutationNames.AddEditLoanItem, item)
-      },
-      removeSelectedItem(item) {
-        this.$store.commit(MutationNames.RemoveEditLoanItem, item)
-      }
+
+    removeSelectedItem (item) {
+      this.$store.commit(MutationNames.RemoveEditLoanItem, item)
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   .vue-table-container {
