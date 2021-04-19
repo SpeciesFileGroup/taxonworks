@@ -11,6 +11,7 @@ const RouteNames = {
   NomenclatureStats: '/tasks/nomenclature/stats',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+  NewExtract: '/tasks/extracts/new_extract',
   PrintLabel: '/tasks/labels/print_labels',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub'
