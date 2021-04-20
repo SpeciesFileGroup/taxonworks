@@ -12,7 +12,6 @@
         v-for="key in Object.keys(errors)"
         v-if="errors[key].list.length"
         :key="key">
-        <hr>
         <h3>
           {{ errors[key].title }}
           <button
@@ -23,7 +22,6 @@
             <span>Fix all</span>
           </button>
         </h3>
-        <hr>
         <ul
           v-for="list in errors[key].list"
           class="no_bullets">
@@ -35,26 +33,44 @@
               animation="scale"
               placement="bottom"
               size="small"
-              :inertia="true"
-              :arrow="true"
+              inertia
+              arrow
               :content="error.description">
               <template slot="trigger">
                 <span data-icon="warning"/>
               </template>
             </tippy-component>
-                <button
-                  v-if="error.fixable"
-                  type="button"
-                  class="button button-submit"
-                  @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
-                  Fix
-                </button>
-                <span v-html="error.message"/>
-                <span
-                  v-if="error.resolution.length"
-                  v-html="`[${error.resolution.map((path, index) => `<a href='${path}'><span title='Fixable here (may leave page)' class='small-icon icon-without-space' data-icon='blue_wrench'/></a>`).join(', ')}]`"/>
+            <span>
+              <button
+                v-if="error.fixable"
+                type="button"
+                class="button button-submit"
+                @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
+                Fix
+              </button>
+              <span>
+                {{ error.message }}
+                <template v-for="(resolution, index) in error.resolution">
+                  <tippy-component
+                    class="d-inline-block"
+                    animation="scale"
+                    placement="bottom"
+                    size="small"
+                    :key="index"
+                    inertia
+                    arrow
+                    content="Fixable here (may leave page)">
+                    <template slot="trigger">
+                      <a :href="resolution">
+                        <span class='small-icon icon-without-space' data-icon='blue_wrench'/></a>
+                    </template>
+                  </tippy-component>
+                </template>
+              </span>
+            </span>
           </li>
         </ul>
+        <hr>
       </div>
     </div>
   </div>
