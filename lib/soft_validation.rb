@@ -42,7 +42,7 @@ require "active_support/all"
 #     soft_validate(:other_soft_validation_method, set: :some_set)
 #     soft_validate(:yet_another_method, set: :some_other_set )
 #     soft_validate(:described_method, name: 'the validation for X', description: 'this validation does Z')
-#     soft_validate(:a_third_method, resolution: [:route_name, route_name2]) # TODO: resolution is a pointer to route/interface that can resolve the problem !! NOT TESTED
+#     soft_validate(:a_third_method, resolution: [:route_name, route_name2])
 #
 #     soft_validate(:a_fourth_example, fix: :fix_method) # the detected issue can be fully resolved by calling this instance method
 #
@@ -98,14 +98,14 @@ require "active_support/all"
 #
 #   f.clear_soft_validations
 #
-#   f.soft_validate(only_set: [:default])               # only run this set, that is the set of soft validations not otherwise assigned to set
-#   f.soft_validate(only_set: [:some_other_set])        # only run this set of validations
-#   f.soft_validate(except_set: [:some_other_set])      # run all except this soft validation
-#   f.soft_validate(only_method: :some_method)          # run only this method name (all other params ignored)
-#   f.soft_validate(except_method: [:some_method])      # run result except these soft validation methods
-#   f.soft_validate(fixable: true)                      # run all, but only fixable soft validations
-#   f.soft_validate(fixable: false)                     # run all, but NOT fixable soft validations
-#   f.soft_validate(flagged: true)                      # run all, *including* methods flagged by developers as "a-typical", there is no flagged: false, as it is default)
+#   f.soft_validate(only_sets: [:default])           # only run this set, the set of soft validations not assigned to a set
+#   f.soft_validate(only_sets: [:some_other_set])    # only run these sets of validations
+#   f.soft_validate(except_set: [:some_other_set])   # run non-flagged except soft validations in these sets
+#   f.soft_validate(only_methods: :some_method)      # run only this soft validation (all other params ignored)
+#   f.soft_validate(except_methods: [:some_method])  # run result except these soft validation methods
+#   f.soft_validate(fixable: true)                   # run all soft validations that have a fix
+#   f.soft_validate(fixable: false)                  # run all soft validations without a fix
+#   f.soft_validate(flagged: true)                   # run all, *including* methods flagged by developers as "a-typical", there is no flagged: false, as it is default)
 #
 module SoftValidation
 
