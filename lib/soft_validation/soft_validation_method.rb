@@ -87,12 +87,18 @@ module SoftValidation
 
     private
 
-    # @param fixable [Boolean, nil] 
-    #   nil - either, else matching
-    def matches?(fixable, is_flagged)
-      a = fixable.nil? ? true : (fixable? == fixable)
-      b = is_flagged == true ? flagged? == true : true
-
+    # @return Boolean
+    #   true - the soft validation method should be retained
+    #   false - the soft validation method does not match, it will be excluded from soft_validate()
+    # @param is_fixable [Boolean, nil] 
+    #   nil, false - don't require method be fixable to pass
+    #   true - require method to be fixable to pass
+    # @param is_flagged [Boolean] 
+    #    true - allow all
+    #    false - allow only if not flagged 
+    def matches?(is_fixable, include_flagged = false)
+      a = is_fixable.nil? ? true : (is_fixable ? fixable? : true)
+      b = include_flagged == true ? true : !flagged
       a && b
     end
     
