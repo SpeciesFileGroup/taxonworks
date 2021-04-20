@@ -9,6 +9,12 @@ RSpec.describe Documentation, type: :model, group: :documentation do
   context 'validation' do
     before { documentation.valid? } 
 
+    specify 'adds Source to project if not there' do
+      s = FactoryBot.create(:valid_source_bibtex)
+      documentation.update!(documentation_object: s, document: document)
+      expect(ProjectSource.where(source_id: s.id).count).to eq(1)
+    end
+
     specify 'requires #document' do
       expect(documentation.errors.include?(:document)).to be_truthy
     end
