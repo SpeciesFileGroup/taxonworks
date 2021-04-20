@@ -160,25 +160,29 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
-  soft_validate(:sv_combination_duplicates,
-                set: :combination_duplicates,
-                name: 'Duplicate combination',
-                description: 'Combination is a duplicate' )
+  soft_validate(
+    :sv_combination_duplicates,
+    set: :combination_duplicates,
+    name: 'Duplicate combination',
+    description: 'Combination is a duplicate' )
 
-  soft_validate(:sv_year_of_publication_matches_source,
-                set: :dates,
-                name: 'Year of publication does not match the source',
-                description: 'The published date of the combination is not the same as provided by the original publication' )
+  soft_validate(
+    :sv_year_of_publication_matches_source,
+    set: :dates,
+    name: 'Year of publication does not match the source',
+    description: 'The published date of the combination is not the same as provided by the original publication' )
 
-  soft_validate(:sv_year_of_publication_not_older_than_protonyms,
-                set: :dates,
-                name: 'Varbatim year in combination older than in protonyms',
-                description: 'The varbatim year in combination is older than in protonyms in the combination' )
+  soft_validate(
+    :sv_year_of_publication_not_older_than_protonyms,
+    set: :dates,
+    name: 'Varbatim year in combination older than in protonyms',
+    description: 'The varbatim year in combination is older than in protonyms in the combination' )
 
-  soft_validate(:sv_source_not_older_than_protonyms,
-                set: :dates,
-                name: 'Combination older than protonyms',
-                description: 'The combination is older than protonyms in the combination' )
+  soft_validate(
+    :sv_source_not_older_than_protonyms,
+    set: :dates,
+    name: 'Combination older than protonyms',
+    description: 'The combination is older than protonyms in the combination' )
 
   #  soft_validate(:sv_cached_names,
   #              set: :cached_names,
