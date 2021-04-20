@@ -48,7 +48,6 @@ import LockComponent from 'components/lock'
 import componentExtend from './mixins/componentExtend'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { ActionNames } from '../store/actions/actions'
 
 const smartTypes = [{
   label: 'CollectionObject',
@@ -98,10 +97,6 @@ export default {
   },
 
   watch: {
-    extract (newVal) {
-      if (!newVal?.id) return
-      this.$store.dispatch(ActionNames.LoadOriginRelationship, newVal)
-    },
     isExtract (newVal) {
       if (newVal) {
         this.extract.verbatim_anatomical_origin = undefined

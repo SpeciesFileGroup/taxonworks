@@ -7,13 +7,13 @@ import Repository from '../components/Repository'
 import ByComponent from '../components/Role'
 
 const VueComponent = {
-  Origin: OriginComponent,
+  By: ByComponent,
   Made: MadeComponent,
-  Identifier: Identifier,
-  Repository: Repository,
   Protocols: Protocols,
-  CustomAttributes: CustomAttributes,
-  By: ByComponent
+  Identifier: Identifier,
+  Origin: OriginComponent,
+  Repository: Repository,
+  CustomAttributes: CustomAttributes
 }
 
 export {

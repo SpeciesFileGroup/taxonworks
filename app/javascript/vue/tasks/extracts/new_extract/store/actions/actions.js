@@ -5,6 +5,7 @@ import loadExtract from './LoadExtract'
 import loadIdentifiers from './loadIdentifiers'
 import loadRecents from './LoadRecents'
 import loadProjectPreferences from './loadProjectPreferences'
+import loadProtocols from './loadProtocols'
 import loadUserPreferences from './loadUserPreferences'
 import loadOriginRelationship from './loadOriginRelationship'
 import saveExtract from './saveExtract'
@@ -20,6 +21,7 @@ const ActionFunctions = {
   [ActionNames.LoadProjectPreferences]: loadProjectPreferences,
   [ActionNames.LoadUserPreferences]: loadUserPreferences,
   [ActionNames.LoadOriginRelationship]: loadOriginRelationship,
+  [ActionNames.LoadProtocols]: loadProtocols,
   [ActionNames.SaveExtract]: saveExtract,
   [ActionNames.SaveIdentifiers]: saveIdentifiers,
   [ActionNames.SaveOriginRelationship]: saveOriginRelationship,

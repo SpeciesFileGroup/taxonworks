@@ -5,6 +5,7 @@ const ActionNames = {
   LoadIdentifiers: 'loadIdentifiers',
   LoadRecents: 'loadRecents',
   LoadProjectPreferences: 'loadProjectPreferences',
+  LoadProtocols: 'loadProtocols',
   LoadUserPreferences: 'loadUserPreferences',
   LoadOriginRelationship: 'loadOriginRelationship',
   SaveExtract: 'saveExtract',
