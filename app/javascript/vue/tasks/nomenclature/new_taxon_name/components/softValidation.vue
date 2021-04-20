@@ -28,6 +28,7 @@
           v-for="list in errors[key].list"
           class="no_bullets">
           <li
+            class="horizontal-left-content align-start"
             v-for="(error, index) in list.soft_validations"
             :key="index">
             <tippy-component
@@ -39,6 +40,8 @@
               :content="error.description">
               <template slot="trigger">
                 <span data-icon="warning"/>
+              </template>
+            </tippy-component>
                 <button
                   v-if="error.fixable"
                   type="button"
@@ -50,8 +53,6 @@
                 <span
                   v-if="error.resolution.length"
                   v-html="`[${error.resolution.map((path, index) => `<a href='${path}'><span title='Fixable here (may leave page)' class='small-icon icon-without-space' data-icon='blue_wrench'/></a>`).join(', ')}]`"/>
-              </template>
-            </tippy-component>
           </li>
         </ul>
       </div>
