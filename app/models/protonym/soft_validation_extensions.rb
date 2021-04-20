@@ -1341,7 +1341,7 @@ module Protonym::SoftValidationExtensions
             list1 = reduce_list_of_synonyms(possible_primary_homonyms)
             if !list1.empty?
               list1.each do |s|
-                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}")
+                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}") if s.nomenclatural_code == self.nomenclatural_code
               end
             end
           end
