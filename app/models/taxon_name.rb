@@ -67,7 +67,6 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 #   If a subgenus it should ____TODO____ (not?) contain parens.
 #
-#
 # @!attribute etymology
 #   @return [String]
 #   the derivation and history of the name in written form
@@ -157,8 +156,6 @@ class TaxonName < ApplicationRecord
 
   include TaxonName::MatrixHooks
 
-  attr_accessor :foo
-
   # Allows users to provide arbitrary annotations that "over-ride" rank string
   ALTERNATE_VALUES_FOR = [:rank_class].freeze # !! Don't even think about putting this on `name`
 
@@ -177,9 +174,6 @@ class TaxonName < ApplicationRecord
     iczn: 'http://purl.obolibrary.org/obo/NOMEN_0000224'
   }
 
-  delegate :nomenclatural_code, to: :rank_class, allow_nil: true
-  delegate :rank_name, to: :rank_class, allow_nil: true
-
   # @return [Boolean]
   #   When true, also creates an OTU that is tied to this taxon name
   attr_accessor :also_create_otu
@@ -187,6 +181,8 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   When true cached values are not built
   attr_accessor :no_cached
+  delegate :nomenclatural_code, to: :rank_class, allow_nil: true
+  delegate :rank_name, to: :rank_class, allow_nil: true
 
   # TODO: this was not implemented and tested properly
   # I think the intent is *before* save, i.e. the name will change
@@ -195,9 +191,7 @@ class TaxonName < ApplicationRecord
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
   after_save :set_cached_warnings, if: Proc.new {|n| n.no_cached }
-
   after_create :create_otu, if: :also_create_otu
-
   before_destroy :check_for_children, prepend: true
 
   validate :validate_rank_class_class,
@@ -277,8 +271,12 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # TODO: remove
   scope :with_rank_class, -> (rank_class_name) { where(rank_class: rank_class_name) }
+
+  # TODO: remove
   scope :with_parent_taxon_name, -> (parent) { where(parent_id: parent) }
+
   scope :with_base_of_rank_class, -> (rank_class) { where('rank_class LIKE ?', "#{rank_class}%") }
   scope :with_rank_class_including, -> (include_string) { where('rank_class LIKE ?', "%#{include_string}%") }
   scope :project_root, -> (root_id) {where("(taxon_names.rank_class = 'NomenclaturalRank' AND taxon_names.project_id = ?)", root_id)}
@@ -324,7 +322,7 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-
+  
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
@@ -342,18 +340,10 @@ class TaxonName < ApplicationRecord
 
     h1 = h.alias('osch_')
     h2 = h.alias('oschh_')
-    h3 = h.alias('oschhh_')
 
     b = h.project(
-      # h[Arel.star],
-      # r[:subject_taxon_name_id].as('s'),
-      # r[:object_taxon_name_id].as('o'),
-      # h[:ancestor_id].as('aa'),
-      # h[:descendant_id].as('ab'),
-      # h1[:ancestor_id].as('a'),
       h1[:descendant_id].as('b'),
       h2[:ancestor_id].as('c'),
-      # h2[:descendant_id].as('d')
     ).from([h])
 
     b = b.join(r, Arel::Nodes::InnerJoin).on(h[:descendant_id].eq(r[:subject_taxon_name_id]).and(h[:ancestor_id].eq(taxon_name_id)))
@@ -389,7 +379,7 @@ class TaxonName < ApplicationRecord
     b = b.join(c, Arel::Nodes::OuterJoin)
       .on(
         a[:id].eq(c[:ancestor_id])
-    )
+      )
 
     e = c[:generations].not_eq(0)
     f = c[:ancestor_id].not_eq(c[:descendant_id])
@@ -406,21 +396,6 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
-  soft_validate(:sv_validate_name,
-                set: :validate_name,
-                name: 'Name validation',
-                description: 'Name validation' )
-
-  soft_validate(:sv_missing_confidence_level,
-                set: :missing_fields,
-                name: 'Missing confidence level',
-                description: 'To remaind that the taxon spelling have to be compared to the original source' )
-
-  soft_validate(:sv_missing_original_publication,
-                set: :missing_fields,
-                name: 'Missing original source',
-                description: 'Original source is not selected' )
-
 =begin
   soft_validate(:sv_missing_author,
                 set: :missing_fields,
@@ -431,42 +406,46 @@ class TaxonName < ApplicationRecord
                 name: 'Missing year')
 =end
 
-  soft_validate(:sv_missing_etymology,
-                set: :missing_fields,
-                name: 'Missing etymology',
-                description: 'Etymology is not defined' )
+  soft_validate(
+    :sv_parent_is_valid_name,
+    set: :parent_is_valid_name,
+    fix: :sv_fix_parent_is_valid_name,
+    name: 'Parent should be a valid taxon',
+    description: 'When the parent taxon (for example a genus) is treated as a synonym, all subordinate taxa from this taxon should be transferred to the valid taxon' )
 
-  soft_validate(:sv_parent_is_valid_name,
-                set: :parent_is_valid_name,
-                fix: :sv_fix_parent_is_valid_name,
-                name: 'Parent should be a valid taxon',
-                description: 'When the parent taxon (for example a genus) is treated as a synonym, all subordinate taxa from this taxon should be transferred to the valid taxon' )
+  soft_validate(
+    :sv_conflicting_subordinate_taxa,
+    set: :parent_is_valid_name,
+    name: 'Conflicting subordinate taxa',
+    description: 'Unavailable or invalid taxon should not have subordinate taxa' )
 
-  soft_validate(:sv_conflicting_subordinate_taxa,
-                set: :parent_is_valid_name,
-                name: 'Conflicting subordinate taxa',
-                description: 'Unavailable or invalid taxon should not have subordinate taxa' )
+  soft_validate(
+    :sv_cached_names,
+    set: :cached_names,
+    fix: :sv_fix_cached_names,
+    name: 'Cached names',
+    description: 'Check if cached values need to be updated' )
 
-  soft_validate(:sv_cached_names,
-                set: :cached_names,
-                fix: :sv_fix_cached_names,
-                name: 'Cached names',
-                description: 'Check if cached values need to be updated' )
+  # TODO: move to protonym spec?
+  soft_validate(
+    :sv_not_synonym_of_self,
+    set: :not_synonym_of_self,
+    name: 'Not synonym of self',
+    description: 'Taxon has two conflicting relationships (invalidating and validating).' )
 
-  soft_validate(:sv_not_synonym_of_self,
-                set: :not_synonym_of_self,
-                name: 'Not synonym of self',
-                description: 'Taxon has two conflicting relationships (invalidating and validating).' )
+  # TODO: move to protonym spec?
+  soft_validate(
+    :sv_two_unresolved_alternative_synonyms,
+    set: :two_unresolved_alternative_synonyms,
+    name: 'Two conflicting relationships',
+    description: 'Taxon has two conflicting relationships.' )
 
-  soft_validate(:sv_two_unresolved_alternative_synonyms,
-                set: :two_unresolved_alternative_synonyms,
-                name: 'Two conflicting relationships',
-                description: 'Taxon has two conflicting relationships.' )
-
-  soft_validate(:sv_incomplete_combination,
-                set: :incomplete_combination,
-                name: 'Incomplete combination',
-                description: 'Intermediate ranks are missing in combination (either original or subsequent)' )
+  # TODO: move to combination spec?
+  soft_validate(
+    :sv_incomplete_combination,
+    set: :incomplete_combination,
+    name: 'Incomplete combination',
+    description: 'Intermediate ranks are missing in combination (either original or subsequent)' )
 
   # @return [Array of TaxonName]
   #   ordered by rank, a scope-like hack
@@ -1465,14 +1444,12 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  #region Soft validation
-
-   # @proceps - check this method, code was uncommented on sv branch
   def sv_validate_name
     correct_name_format = false
 
     if rank_class
       # TODO: name these Regexp somewhere
+      # TODO: move pertinent checks to base of nomenclature Classes to manage them there
       if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
           (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
           (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
@@ -1493,8 +1470,10 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is havily used now
+  # TODO: this needs to go.
+  def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
     confidence_level_array = [93]
+
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
     soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end

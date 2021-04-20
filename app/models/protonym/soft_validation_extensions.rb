@@ -1,9 +1,12 @@
 module Protonym::SoftValidationExtensions
-
+  
   module Klass
-
-
     VALIDATIONS = {
+      sv_missing_etymology: {
+        set: :missing_fields,
+        name: 'Missing etymology',
+        description: 'Etymology is not defined'
+      },
       sv_validate_parent_rank: {
         set: :validate_parent_rank,
         name: 'Inappropriate parent rank',
@@ -32,19 +35,22 @@ module Protonym::SoftValidationExtensions
       sv_missing_original_genus: {
         set: :missing_relationships,
         name: 'Missing original genus',
-        description: 'Get notification if the original genus is not set for the genus or species-group name'
+        description: 'Get notification if the original genus is not set for the genus or species-group name',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_missing_type_species: {
         set: :missing_relationships,
         name: 'Missing type species',
-        description: 'Get notification if the type species is not set for the genus-group name'
+        description: 'Get notification if the type species is not set for the genus-group name',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_missing_type_genus: {
         set: :missing_relationships,
         name: 'Missing type genus',
-        description: 'Get notification if the type genus is not set for the family-group name'
+        description: 'Get notification if the type genus is not set for the family-group name',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_missing_substitute_name: {
@@ -53,16 +59,18 @@ module Protonym::SoftValidationExtensions
         description: 'Get notification if the taxon is a homonym, but a synonym relationship is not provided'
       },
 
-      sv_missing_part_of_speach: {
+      sv_missing_part_of_speech: {
         set: :missing_classifications,
-        name: 'Missing part of speach',
-        description: 'Part of speach is not set for the species-group name'
+        name: 'Missing part of speech',
+        description: 'Part of speech is not set for the species-group name',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_missing_gender: {
         set: :missing_classifications,
         name: 'Missing grammatical gender',
-        description: 'Grammatical gender is not set for the genus-group name'
+        description: 'Grammatical gender is not set for the genus-group name',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_species_gender_agreement: {
@@ -80,7 +88,7 @@ module Protonym::SoftValidationExtensions
       sv_type_placement: {
         set: :type_placement,
         name: 'Type placement',
-        description: 'Notify if the type is classified outside the taxon. For example, the type species of the genus is not included in this genus'
+        description: 'The type is classified outside the taxon. For example, the type species of the genus is not included in this genus'
       },
 
       sv_type_placement1: {
@@ -93,13 +101,15 @@ module Protonym::SoftValidationExtensions
       sv_primary_types: {
         set: :primary_types,
         name: 'Primary type is not selected',
-        description: 'Primary type is not selected for a species-group taxon'
+        description: 'Primary type is not selected for a species-group taxon',
+        resolution: [:edit_type_material_task]
       },
 
       sv_primary_types_repository: {
         set: :primary_types,
         name: 'Primary type repository is not selected',
-        description: 'Species-group name has a primary type selected, but is does not have type repository'
+        description: 'Species-group name has a primary type selected, but is does not have type repository',
+        resolution: [:edit_type_material_task]
       },
 
       sv_validate_coordinated_names_source: {
@@ -124,11 +134,11 @@ module Protonym::SoftValidationExtensions
       },
 
       sv_validate_coordinated_names_year: {
-        resolution: [:new_taxon_name_task_path],
         set: :validate_coordinated_names,
         fix: :sv_fix_coordinated_names_year,
         name: 'Matching year of coordinated names',
-        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim. When the year is not set for one of the names, it could be automatically set using the Fix'
+        description: 'Two coordinated names (for example a genus and nominotypical subgenus) should have the same verbatim. When the year is not set for one of the names, it could be automatically set using the Fix',
+        resolution: [:new_taxon_name_task],
       },
 
       sv_validate_coordinated_names_gender: {
@@ -138,11 +148,11 @@ module Protonym::SoftValidationExtensions
         description: 'Two coordinated genus-group names (for example a genus and nominotypical subgenus) should have the same grammatical gender. When the gender is not set for one of the names, it could be automatically set using the Fix'
       },
 
-      sv_validate_coordinated_names_part_of_speach: {
+      sv_validate_coordinated_names_part_of_speech: {
         set: :validate_coordinated_names,
-        fix: :sv_fix_coordinated_names_part_of_speach,
-        name: 'Matching part of speach of coordinated names',
-        description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same part of speach. When the part of speach is not set for one of the names, it could be automatically set using the Fix'
+        fix: :sv_fix_coordinated_names_part_of_speech,
+        name: 'Matching part of speech of coordinated names',
+        description: 'Two coordinated species-group names (for example a species and nominotypical subspecies) should have the same part of speech. When the part of speech is not set for one of the names, it could be automatically set using the Fix'
       },
 
       sv_validate_coordinated_names_original_genus: {
@@ -269,9 +279,11 @@ module Protonym::SoftValidationExtensions
       sv_original_combination_relationships: {
         set: :original_combination_relationships,
         name: 'Self original combination relationship',
-        description: 'Taxon istself should be present as a lowest original combination relationship'
+        description: 'Taxon itself should be present as as the lowest original combination relationship',
+        resolution: [:new_taxon_name_task]
       },
 
+      # TODO: names are not taxa, should this be here?
       sv_extant_children: {
         set: :extant_children,
         name: 'Extinct taxon has extant children taxa',
@@ -281,15 +293,16 @@ module Protonym::SoftValidationExtensions
       sv_protonym_to_combination: {
         set: :protonym_to_combination,
         fix: :becomes_combination,
-        flagged: true,
         name: 'Invalid protonym could be converted into a combination',
-        description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger'
+        description: 'Detection of protonyms, which could be not synonym, but subsequent combinations of another protonym. The Fix could convert the protonym into combination. The Fix require manual trigger',
+        flagged: true
       },
 
       sv_missing_roles: {
         set: :missing_roles,
         name: 'Missing taxon author roles',
-        description: 'Taxon author roles are not set'
+        description: 'Taxon author roles are not set',
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_year_is_not_required: {
@@ -326,13 +339,6 @@ module Protonym::SoftValidationExtensions
         name: 'Verbatim year is not required for misspelling',
         description: 'Verbatim year is not required for misspelling. The year of the misspelling is inherited from the correctly spelled protonym. The Fix will delete the year'
       },
-
-      #      sv_cached_names: {
-      #  set: :cached_names,
-      #  fix: :sv_fix_cached_names,
-      #  name: 'Cached names',
-      #  description: 'Check if cached values need to be updated'
-      #}
     }.freeze
 
     VALIDATIONS.each_key do |k|
@@ -377,7 +383,7 @@ module Protonym::SoftValidationExtensions
       end
     end
 
-    def sv_missing_part_of_speach
+    def sv_missing_part_of_speech
       if is_species_rank? && self.part_of_speech_class.nil? && !has_misspelling_relationship? && is_available?
 
         z = TaxonNameClassification.
@@ -626,7 +632,7 @@ module Protonym::SoftValidationExtensions
       return false
     end
 
-    def sv_validate_coordinated_names_part_of_speach
+    def sv_validate_coordinated_names_part_of_speech
       return true unless is_available?
       return true unless is_species_rank?
       list_of_coordinated_names.each do |t|
@@ -636,7 +642,7 @@ module Protonym::SoftValidationExtensions
       end
     end
 
-    def sv_fix_coordinated_names_part_of_speach
+    def sv_fix_coordinated_names_part_of_speech
       return false unless self.part_of_speech_class.nil?
       list_of_coordinated_names.each do |t|
         unless t.part_of_speech_class.nil?

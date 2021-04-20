@@ -42,7 +42,7 @@ require "active_support/all"
 #     soft_validate(:other_soft_validation_method, set: :some_set)
 #     soft_validate(:yet_another_method, set: :some_other_set )
 #     soft_validate(:described_method, name: 'the validation for X', description: 'this validation does Z')
-#     soft_validate(:a_third_method, resolution: [:route_name, route_name2])
+#     soft_validate(:a_third_method, resolution: [:route_name, route_name2]) # Resolution is route name (without _path/_url), id: and model_id: are added to the route.
 #
 #     soft_validate(:a_fourth_example, fix: :fix_method) # the detected issue can be fully resolved by calling this instance method
 #

@@ -17,6 +17,6 @@ json.soft_validations do
     json.success_message v.success_message
     json.failure_message v.failure_message
     json.soft_validation_method v.soft_validation_method
-    json.resolution v.resolution.collect{|r| send(r, "#{@object.class.base_class.name.underscore}_id": @object.id , id: @object.id)}
+    json.resolution v.resolution.collect{|r| send("#{r}_path", "#{@object.class.base_class.name.underscore}_id": @object.id , id: @object.id)}
   end
 end
