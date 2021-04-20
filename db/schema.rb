@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_20_111345) do
+ActiveRecord::Schema.define(version: 2021_04_19_173135) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
