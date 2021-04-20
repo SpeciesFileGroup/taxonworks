@@ -1485,21 +1485,14 @@ class TaxonName < ApplicationRecord
       end
 
       unless correct_name_format
-        #invalid_statuses = TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID
-        #invalid_statuses = invalid_statuses & taxon_name_classifications.pluck(:type)
-        #misspellings = TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING
-
         icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
-        #misspellings = misspellings & taxon_name_relationships.pluck(:type)
         if is_available? && icvcn_species.nil?
-#          if invalid_statuses.empty? && misspellings.empty? && icvcn_species.nil?
           soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
         end
       end
     end
   end
 
-  # @proceps, this is not OK.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is havily used now
     confidence_level_array = [93]
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)

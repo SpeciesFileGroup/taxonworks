@@ -936,6 +936,28 @@ class Protonym < TaxonName
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if is_cached && cached_html != get_full_name_html ||
+        cached_misspelling != get_cached_misspelling ||
+        cached_original_combination != get_original_combination ||
+        cached_original_combination_html != get_original_combination_html ||
+        cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        rank_string =~ /Species/ &&
+            (cached_secondary_homonym != get_genus_species(:current, :self) ||
+                cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+      is_cached = false
+    end
+
+    soft_validations.add(
+        :base, 'Cached values should be updated',
+        success_message: 'Cached values were updated',
+        failure_message:  'Failed to update cached values') if !is_cached
+  end
+
   def set_cached
     super
     set_cached_names_for_dependants
