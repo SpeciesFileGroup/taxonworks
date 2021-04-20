@@ -377,11 +377,30 @@ class Source::Bibtex < Source
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
 
-  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields)
-  soft_validate(:sv_contains_a_writer, set: :recommended_fields)
-  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields)
-  soft_validate(:sv_duplicate_title, set: :duplicate_title)
-  soft_validate(:sv_missing_roles, set: :missing_roles)
+  soft_validate(:sv_has_some_type_of_year,
+                set: :recommended_fields,
+                name: 'Missing year',
+                description: 'There is no year nor is there a stated year associated with this source' )
+
+  soft_validate(:sv_contains_a_writer,
+                set: :recommended_fields,
+                name: 'Missing author',
+                description: 'There is neither author, nor editor associated with this source' )
+
+  soft_validate(:sv_missing_required_bibtex_fields,
+                set: :bibtex_fields,
+                name: 'Missing required BibTex fields',
+                description: 'A title or some other required BibTex fields are missing' )
+
+  soft_validate(:sv_duplicate_title,
+                set: :duplicate_title,
+                name: 'Duplicate title',
+                description: 'Another source with this title exists, it may be duplicate' )
+
+  soft_validate(:sv_missing_roles,
+                set: :missing_roles,
+                name: 'Missing roles',
+                description: 'Author roles are not selected' )
 
   # @param [BibTeX::Name] bibtex_author
   # @return [Person, Boolean] new person, or false

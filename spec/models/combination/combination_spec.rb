@@ -55,7 +55,6 @@ describe Combination, type: :model, group: :nomenclature do
       p.update(original_genus: genus, original_species: p)
       invalidating_relationship
       p.soft_validate(only_sets: :protonym_to_combination, include_flagged: true)
-#      p.soft_validate(only_sets: :protonym_to_combination, include_ancestors: true, only_fixable: true, flagged: true)
       p.fix_soft_validations
       expect(p.type).to eq('Combination')
     end
