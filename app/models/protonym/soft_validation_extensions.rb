@@ -1,13 +1,14 @@
 module Protonym::SoftValidationExtensions
+
   module Klass
+
 
     VALIDATIONS = {
       sv_validate_parent_rank: {
         set: :validate_parent_rank,
         name: 'Inappropriate parent rank',
         description: 'Validates parent rank, for example suggesting "Incertae sedis" relationship for the species which has family as a parent taxon',
-        resolution:  [:new_taxon_name_task],
-        # fix: nil,
+        resolution:  [:new_taxon_name_task]
       },
 
       sv_potential_family_homonyms: {
@@ -1200,6 +1201,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_fix_add_nominotypical_sub
+      return false if list_of_coordinated_names.collect{|r| r.id}.include?(parent_id)
       rank  = rank_string
       p     = self.parent
       prank = p.rank_string
@@ -1339,7 +1341,7 @@ module Protonym::SoftValidationExtensions
             list1 = reduce_list_of_synonyms(possible_primary_homonyms)
             if !list1.empty?
               list1.each do |s|
-                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}")
+                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a homonym or duplicate of #{s.cached_html_name_and_author_year}") if s.nomenclatural_code == self.nomenclatural_code
               end
             end
           end
@@ -1557,27 +1559,6 @@ module Protonym::SoftValidationExtensions
 
     end
 
-    def sv_cached_names
-      is_cached = true
-      is_cached = false if cached_author_year != get_author_and_year
-
-      if is_cached && cached_html != get_full_name_html ||
-          cached_misspelling != get_cached_misspelling ||
-          cached_original_combination != get_original_combination ||
-          cached_original_combination_html != get_original_combination_html ||
-          cached_primary_homonym != get_genus_species(:original, :self) ||
-          cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-          rank_string =~ /Species/ &&
-          (cached_secondary_homonym != get_genus_species(:current, :self) ||
-           cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
-      is_cached = false
-      end
-
-      soft_validations.add(
-        :base, 'Cached values should be updated',
-        success_message: 'Cached values were updated',
-        failure_message:  'Failed to update cached values') if !is_cached
-    end
 end
 
 

@@ -460,7 +460,6 @@ class Combination < TaxonName
         failure_message:  'Failed to update cached values') if !is_cached
   end
 
-
   def set_parent
     names = protonyms
     write_attribute(:parent_id, names.first.parent.id) if names.count > 0 && names.first.parent
