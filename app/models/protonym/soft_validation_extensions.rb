@@ -1364,7 +1364,8 @@ module Protonym::SoftValidationExtensions
             list1 = reduce_list_of_synonyms(possible_primary_homonyms)
             if !list1.empty?
               list1.each do |s|
-                soft_validations.add(:base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a primary homonym or duplicate of #{s.cached_html_name_and_author_year}")
+                soft_validations.add(
+                  :base, "Missing relationship: #{self.cached_html_name_and_author_year} should be a primary homonym or duplicate of #{s.cached_html_name_and_author_year}")
                 #  fix: :sv_fix_add_relationship('iczn_set_as_primary_homonym_of'.to_sym, s.id),
                 #  success_message: 'Primary homonym relationship was added',
                 #  failure_message: 'Fail to add a relationship')
@@ -1423,18 +1424,6 @@ module Protonym::SoftValidationExtensions
       end
     end
 
-    # def sv_missing_author
-    #   if self.author_string.nil? && is_available?
-    #     soft_validations.add(:verbatim_author, 'Author is missing', fix: :sv_fix_missing_author, success_message: 'Author was updated')
-    #   end
-    # end
-    #
-    # def sv_missing_year
-    #   if self.year_integer.nil? && is_available?
-    #     soft_validations.add(:year_of_publication, 'Year is missing', fix: :sv_fix_missing_year, success_message: 'Year was updated')
-    #   end
-    # end
-
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
         z = TaxonName.
@@ -1490,7 +1479,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_year_is_not_required
       if !self.year_of_publication.nil? && self.source && self.year_of_publication == self.source.year
-        soft_validations.add(:year_of_publication, 'Year of publication is not required, it is derived from the source', success_message: 'Year was deleted', failure_message: 'Failed to delete year')
+        soft_validations.add(
+          :year_of_publication, 'Year of publication is not required, it is derived from the source',
+          success_message: 'Year was deleted',
+          failure_message: 'Failed to delete year')
       end
     end
 
@@ -1501,7 +1493,10 @@ module Protonym::SoftValidationExtensions
 
     def sv_author_is_not_required
       if self.verbatim_author && (!self.roles.empty? || (self.source && self.verbatim_author == self.source.authority_name))
-        soft_validations.add(:verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles', success_message: 'Verbatim author was deleted', failure_message:  'Failed to delete verbatim author')
+        soft_validations.add(
+          :verbatim_author, 'Verbatim author is not required, it is derived from the source and taxon name author roles',
+          success_message: 'Verbatim author was deleted',
+          failure_message:  'Failed to delete verbatim author')
       end
     end
 
@@ -1514,7 +1509,8 @@ module Protonym::SoftValidationExtensions
       if !self.roles.empty? && self.source && has_misspelling_relationship?
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
-          success_message: 'Roles were deleted', failure_message:  'Fail to delete roles')
+          success_message: 'Roles were deleted',
+          failure_message:  'Fail to delete roles')
       end
     end
 
@@ -1529,7 +1525,8 @@ module Protonym::SoftValidationExtensions
       if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
-          success_message: 'Verbatim author was deleted', failure_message:  'Failed to delete verbatim author')
+          success_message: 'Verbatim author was deleted',
+          failure_message:  'Failed to delete verbatim author')
       end
     end
 
@@ -1542,7 +1539,8 @@ module Protonym::SoftValidationExtensions
       if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
         soft_validations.add(
           :year_of_publication, 'Year is not required for misspellings and misapplications',
-          success_message: 'Year was deleted', failure_message:  'Failed to delete year')
+          success_message: 'Year was deleted',
+          failure_message:  'Failed to delete year')
       end
     end
 
@@ -1550,21 +1548,7 @@ module Protonym::SoftValidationExtensions
       self.update_column(:year_of_publication, nil)
       return true
     end
-
-    #  def sv_fix_add_relationship(method, object_id)
-    #    begin
-    #      Protonym.transaction do
-    #        self.save
-    #        return true
-    #      end
-    #    rescue
-    #      return false
-    #    end
-    #  false
-    #  end
-
-    end
-
+  end
 end
 
 
