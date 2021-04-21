@@ -361,7 +361,7 @@ class Protonym < TaxonName
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
