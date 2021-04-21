@@ -42,7 +42,7 @@
                   v-if="error.fixable"
                   type="button"
                   class="button button-submit"
-                  @click="runFix([{ global_id: list.global_id, only_methods: [error.soft_validation_method] }])">
+                  @click="runFix([{ global_id: list.instance.global_id, only_methods: [error.soft_validation_method] }])">
                   Fix
                 </button>
                 <span>
@@ -90,7 +90,7 @@ export default {
   },
 
   computed: {
-    validationSections() { 
+    validationSections () {
       return Object.values(this.validations).filter(item => item.list.length)
     }
   },
@@ -109,7 +109,7 @@ export default {
     getFixPresent (list) {
       return list.map(item =>
         Object.assign({}, {
-          global_id: item.global_id,
+          global_id: item.instance.global_id,
           only_methods: item.soft_validations
             .filter(v => v.fixable)
             .map(item => item.soft_validation_method)
