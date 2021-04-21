@@ -7,6 +7,7 @@ namespace :tw do
       LoggedTask.define run_all_import_tasks: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
         logger.info "Running revision #{TaxonworksNet.commit_sha}" if TaxonworksNet.commit_sha
 
+        time_with_no_backup = 0
           # # rake tw:db:restore_last backup_directory=../db_backup/0_pristine_tw_init_all/
         tasks = [
           'start:list_skipped_file_ids',
@@ -138,8 +139,9 @@ namespace :tw do
             logger.info "Task #{task} previously ran on #{checkpoint["start_time"]} (rev #{checkpoint['REVISION'] || 'UNKNOWN'}), " +
                         "and finished on #{checkpoint["end_time"]}. Skipping..."
           else
+            start_time = DateTime.now.utc
             checkpoint = {
-              "start_time" => DateTime.now.utc.to_s,
+              "start_time" => start_time.to_s,
               "REVISION" => TaxonworksNet.commit_sha
             }
             checkpoints.set(task, checkpoint)
@@ -150,12 +152,22 @@ namespace :tw do
 
             Current.project_id = nil
 
-            checkpoint["end_time"] = DateTime.now.utc.to_s
+            end_time = DateTime.now.utc
+            checkpoint["end_time"] = end_time.to_s
             checkpoints.set(task, checkpoint)
 
-            path = "#{@args[:backup_directory]}/#{index}_after_#{task.gsub(':', '_')}/"
-           `rake tw:db:dump backup_directory=#{path} create_backup_directory=true`
-            logger.info "** dumped #{path} **"
+            time_with_no_backup += (end_time - start_time)
+
+            if time_with_no_backup >= ENV["BACKUP_MINUTES_INTERVAL"].to_i*60
+              path = "#{@args[:backup_directory]}/#{"%02d" % index}_after_#{task.gsub(':', '_')}/"
+              FileUtils.mkdir_p(path)
+              db_config = Support::Database.pg_env_args
+              system(db_config[:env], 'pg_dump', '-Fc', *db_config[:args], '-f',
+                File.join(path, "#{Time.now.utc.strftime('%Y-%m-%d_%H%M%S%Z')}.dump")
+              )
+              logger.info "** dumped #{path} **"
+              time_with_no_backup = 0
+            end
           end
         end
 
