@@ -255,16 +255,6 @@ class TaxonNameClassification < ApplicationRecord
   #region Validation
   def validate_uniqueness_of_latinized
     true # moved to subclasses
-#    if /Latinized/.match(self.type_name)
-#      lat = TaxonNameClassification.where(taxon_name_id: self.taxon_name_id).with_type_contains('Latinized').not_self(self)
-#      unless lat.empty?
-#        if /Gender/.match(lat.first.type_name)
-#          errors.add(:taxon_name_id, 'The Gender is already selected')
-#        elsif /PartOfSpeech/.match(lat.first.type_name)
-#          errors.add(:taxon_name_id, 'The Part of speech is already selected')
-#        end
-#      end
-#    end
   end
 
   #endregion
@@ -296,61 +286,6 @@ class TaxonNameClassification < ApplicationRecord
 
   def sv_not_specific_classes
     true # moved to subclasses
-=begin
-    case self.type_name
-      when 'TaxonNameClassification::Iczn::Available'
-        soft_validations.add(:type, 'Please specify if the name is Valid or Invalid')
-      when 'TaxonNameClassification::Iczn::Unavailable'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Unavailable')
-      when 'TaxonNameClassification::Iczn::Available::Invalid'
-        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with appropriate relationship (for example Synonym relationship)')
-      when 'TaxonNameClassification::Iczn::Available::Invalid::Homonym'
-        soft_validations.add(:type, 'Although this status can be used, it is better to replace it with with appropriate relationship (for example Primary Homonym)')
-      when 'TaxonNameClassification::Iczn::Available::Valid'
-        soft_validations.add(:type, 'This status should only be used when one or more conflicting invalidating relationships present in the database (for example, a taxon was used as a synonym in the past, but not now, and a synonym relationship is stored in the database for a historical record). Otherwise, this status should not be used. By default, any name which does not have invalidating relationship is a valid name')
-      when 'TaxonNameClassification::Iczn::Unavailable::Suppressed'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Suppressed')
-      when 'TaxonNameClassification::Iczn::Unavailable::Excluded'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Excluded')
-      when 'TaxonNameClassification::Iczn::Unavailable::NomenNudum'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Nomen Nudum')
-      when 'TaxonNameClassification::Iczn::Unavailable::NonBinomial'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Non Binomial')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished'
-        soft_validations.add(:type, 'Please specify if the name is validly or Invalidly Published')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Invalidly Published')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished'
-        soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished'
-        soft_validations.add(:type, 'Please specify if the name is validly or Invalidly Published')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Invalidly Published')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished'
-        soft_validations.add(:type, 'Please specify if the name is Legitimate or Illegitimate')
-      when 'TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate'
-        soft_validations.add(:type, 'Please specify the reasons for the name being Legitimate')
-      # when 'TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Illegitimate'
-      #   soft_validations.add(:type, 'Please specify the reasons for the name being Illegitimate')
-      when 'TaxonNameClassification::Latinized::PartOfSpeech::Adjective' ||
-           'TaxonNameClassification::Latinized::PartOfSpeech::Participle'
-        t = taxon_name.name
-        if !t.end_with?('us') &&
-          !t.end_with?('a') &&
-          !t.end_with?('um') &&
-          !t.end_with?('is') &&
-          !t.end_with?('e') &&
-          !t.end_with?('or') &&
-          !t.end_with?('er')
-          soft_validations.add(:type, 'Adjective or participle name should end with one of the ' \
-                                              'following endings: -us, -a, -um, -is, -e, -er, -or')
-        end
-    end
-=end
   end
 
   #endregion

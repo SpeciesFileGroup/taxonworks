@@ -590,35 +590,6 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_validate_priority
     true # all validations moved to subclasses
-
-#    unless self.type_class.nomenclatural_priority.nil?
-#      date1 = self.subject_taxon_name.nomenclature_date
-#      date2 = self.object_taxon_name.nomenclature_date
-#      if !!date1 and !!date2
-#        case self.type_class.nomenclatural_priority
-#        when :direct
-#          if date2 > date1 && subject_invalid_statuses.empty?
-#            if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
-#            elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
-#            elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
-#            end
-#          end
-#        when :reverse
-#          if date1 > date2 && subject_invalid_statuses.empty?
-#            if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-#              if self.type_name != 'TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::SubsequentMonotypy|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
-#                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
-#              end
-#            else
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
-#            end
-#          end
-#        end
-#      end
-#    end
   end
 
   def sv_coordinated_taxa
@@ -691,24 +662,6 @@ class TaxonNameRelationship < ApplicationRecord
           return true
         end
       rescue
-      end
-    end
-    false
-  end
-
-  def sv_fix_add_synonym_for_homonym
-    byebug
-    if subject_taxon_name.iczn_set_as_synonym_of.nil?
-      unless subject_taxon_name.iczn_replacement_names.empty?
-        subject_taxon_name.iczn_set_as_synonym_of = object_taxon_name
-        begin
-          TaxonNameRelationship.transaction do
-            save
-            return true
-          end
-        rescue ActiveRecord::RecordInvalid
-          return false
-        end
       end
     end
     false
