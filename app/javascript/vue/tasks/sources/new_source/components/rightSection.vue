@@ -3,7 +3,10 @@
     <div ref="section">
       <documents-component
         class="panel"/>
-      <soft-validation class="soft-validation-box"/>
+      <soft-validation
+        v-if="validations"
+        class="margin-medium-top"
+        :validations="validations"/>
       <matches-component/>
     </div>
   </div>
@@ -12,7 +15,7 @@
 <script>
 
 import DocumentsComponent from './documents'
-import SoftValidation from './softValidation'
+import SoftValidation from 'components/soft_validations/panel'
 import MatchesComponent from './matches'
 import { GetterNames } from '../store/getters/getters'
 export default {
@@ -22,8 +25,8 @@ export default {
     DocumentsComponent
   },
   computed: {
-    source () {
-      return this.$store.getters[GetterNames.GetSource]
+    validations () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
     }
   },
   data () {

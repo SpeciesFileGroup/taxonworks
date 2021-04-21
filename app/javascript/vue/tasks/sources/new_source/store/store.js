@@ -32,7 +32,7 @@ function makeInitialState () {
     documentations: [],
     documents: [],
     source: newSource(),
-    softValidation: []
+    softValidation: undefined
   }
 }
 
