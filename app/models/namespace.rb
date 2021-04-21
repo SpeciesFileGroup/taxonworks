@@ -52,7 +52,9 @@ class Namespace < ApplicationRecord
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
-  # autosave rebuilds the .cache on related records
+  # autosave should resave all, but it clearly doesn't
+  # we also don't want to validte the identifiers on this resave, but rather
+  # just trigger the rebuild of identifiers#cache.  Will have to add an after_save here.
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }

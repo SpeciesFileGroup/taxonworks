@@ -574,6 +574,42 @@ class Protonym < TaxonName
     return n
   end
 
+  def predict_three_forms
+    exception = LATIN_ADJECTIVES[name]
+
+    return exception unless exception.nil?
+    m_name, f_name, n_name = nil, nil, nil
+    case name
+    when /(color|coloris)$/
+      m_name, f_name, n_name = name, name, name
+    when /is$/
+      m_name, f_name, n_name = name, name, name[0..-3] + 'e'
+    when /e$/
+      m_name, f_name, n_name = name[0..-2] + 'is', name[0..-2] + 'is', name
+    when /us$/
+      m_name, f_name, n_name = name, name[0..-3] + 'a', name[0..-3] + 'um'
+    when /er$/
+      m_name, f_name, n_name = name, name[0..-3] + 'ra', name[0..-3] + 'rum'
+    when /(ferum|gerum)$/
+      m_name, f_name, n_name = name[0..-3], name[0..-3] + 'a', name
+    when /(gera|fera)$/
+      m_name, f_name, n_name = name[0..-2], name, name[0..-2] + 'um'
+    when /(brum|frum|grum)$/
+      m_name, f_name, n_name = name[0..-4] + 'er', name[0..-3] + 'a', name
+    when /(bra|gra|fra)$/
+      m_name, f_name, n_name = name[0..-3] + 'er', name, name[0..-2] + 'um'
+    when /(um)$/
+      m_name, f_name, n_name = name[0..-3] + 'us', name[0..-3] + 'a', name
+    when /a$/
+      m_name, f_name, n_name = name[0..-2] + 'us', name, name[0..-2] + 'um'
+    when /(nor|ior|jor)$/
+      m_name, f_name, n_name = name, name, name[0..-3] + 'us'
+    else
+      m_name, f_name, n_name = name, name, name
+    end
+    {masculine_name: m_name, feminine_name: f_name, neuter_name: n_name}
+  end
+
   def genus_suggested_gender
     return nil unless rank_string =~/Genus/
     TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.each do |g|

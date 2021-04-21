@@ -8,18 +8,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Database index on `Identifiers#cached`
+- Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
+- Edit inline options on edit/new loan task [#2184]
 
 ### Fixed
+- Previous navigation [#2163]
+- Documenting source doesn't add source to project [#2172]
 - Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
 - incorrect author string for misspelled combination is fixed
 - Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
 - Show observation matrices count on radial object [#2158]
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
-
+- PK sequence not set up properly on project export
 
 ### Changed
+- Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
 - Changed TaxonName string for superspecies names
 - Updated y18n node package to version 4.0.1 [#2160]
@@ -27,9 +33,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
+[#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
 
 ## [0.16.6] - 2020-03-26
 

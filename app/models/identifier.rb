@@ -43,7 +43,6 @@
 class Identifier < ApplicationRecord
   acts_as_list scope: [:project_id, :identifier_object_type, :identifier_object_id ]
 
-
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
 

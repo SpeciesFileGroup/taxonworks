@@ -55,58 +55,60 @@
 
 <script>
 
-  import ActionNames from '../store/actions/actionNames'
-  import { GetterNames } from '../store/getters/getters'
-  import statusList from '../helpers/status.js'
-  import expand from './expand.vue'
-  import dateDetermination from './dateDetermination.vue'
-  import spinner from 'components/spinner.vue'
+import ActionNames from '../store/actions/actionNames'
+import { GetterNames } from '../store/getters/getters'
+import statusList from '../const/status.js'
+import expand from './expand.vue'
+import dateDetermination from './dateDetermination.vue'
+import spinner from 'components/spinner.vue'
 
-  export default {
-    components: {
-      expand,
-      spinner,
-      dateDetermination
+export default {
+  components: {
+    expand,
+    spinner,
+    dateDetermination
+  },
+
+  computed: {
+    list () {
+      return this.$store.getters[GetterNames.GetEditLoanItems]
     },
-    computed: {
-      list() {
-        return this.$store.getters[GetterNames.GetEditLoanItems]
-      },
-      loan() {
-        return this.$store.getters[GetterNames.GetLoan]
-      }
+
+    loan () {
+      return this.$store.getters[GetterNames.GetLoan]
+    }
+  },
+
+  data () {
+    return {
+      date: undefined,
+      status: undefined,
+      statusList: statusList,
+      displayBody: true
+    }
+  },
+  methods: {
+    updateDate () {
+      this.list.forEach((item) => {
+        const loanItem = {
+          id: item.id,
+          date_returned: this.date
+        }
+        this.$store.dispatch(ActionNames.UpdateLoanItem, loanItem)
+      })
     },
-    data: function () {
-      return {
-        date: undefined,
-        status: undefined,
-        statusList: statusList,
-        displayBody: true
-      }
-    },
-    methods: {
-      updateDate() {
-        var that = this
-        this.list.forEach(function (item) {
-          let loan_item = {
-            id: item.id,
-            date_returned: that.date
-          }
-          that.$store.dispatch(ActionNames.UpdateLoanItem, loan_item)
-        })
-      },
-      updateStatus() {
-        var that = this
-        this.list.forEach(function (item) {
-          let loan_item = {
-            id: item.id,
-            disposition: that.status
-          }
-          that.$store.dispatch(ActionNames.UpdateLoanItem, loan_item)
-        })
-      }
+
+    updateStatus () {
+      this.list.forEach((item) => {
+        const loanItem = {
+          id: item.id,
+          disposition: this.status
+        }
+        this.$store.dispatch(ActionNames.UpdateLoanItem, loanItem)
+      })
     }
   }
+}
 </script>
 <style scoped>
   .column-left {
