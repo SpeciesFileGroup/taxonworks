@@ -99,7 +99,7 @@
               </div>
             </div>
 
-            <div id="validation-panel" class="panel separate-bottom">
+            <div id="validation-panel" class="panel separate-bottom d-none">
               <div class="content">
                 <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
               </div>
