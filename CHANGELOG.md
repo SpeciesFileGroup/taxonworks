@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
 - Local identifiers' cached values not being updated when updating namespace [#2175]
+- Uncertainty sign not populating in label [#2109]
 
 ### Changed
 - Updated script predicting masculine, feminine and neuter species name forms
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
