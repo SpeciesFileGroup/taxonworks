@@ -1,6 +1,6 @@
 require_relative 'soft_validation_helpers'
 
-describe 'SoftValidation', group: :soft_validation do
+describe 'SoftValidation', group: [:soft_validation] do
 
   context 'subclass overiding methods' do
     before do
@@ -103,7 +103,7 @@ describe 'SoftValidation', group: :soft_validation do
       end
 
       specify '.soft_validators false is all' do
-        expect(Softy.soft_validators(fixable: false)).to contain_exactly(:needs_moar_cheez?)
+        expect(Softy.soft_validators(fixable: false)).to contain_exactly(:needs_moar_cheez?, :needs_less_cheez?)
       end
     end
 
