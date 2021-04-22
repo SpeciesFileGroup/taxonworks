@@ -23,7 +23,37 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
   #TODO citeproc gem doesn't currently support lastname without firstname
   let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
 
+  context 'misspelling' do
+    let(:genus) { Protonym.new(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+
+    context 'ICZN names' do
+      let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
+      context 'legal forms' do
+        legal = ['vitis', 'a-aus'] 
+        legal.each do |l|
+          specify l do
+            s.name = l 
+            s.soft_validate(only_sets: [:validate_name])
+            expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
+          end
+        end
+      end
+
+      context 'illegal forms' do
+        illegal = ['aus-aus'] 
+        illegal.each do |l|
+          specify l do
+            s.name = l 
+            s.soft_validate(only_sets: [:validate_name])
+            expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
+          end
+        end
+      end
+    end
+  end
+
   context 'soft_validation' do
+    # TODO: all these need to not be @
     before(:each) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
@@ -34,13 +64,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
-      @subtribe.source = @tribe.source # update_column(:source_id, @tribe.source.id)
-      @subtribe.save
-
-      # @subgenus.update_column(:source_id, @genus.source.id)
-    
-      @subgenus.source = @genus.source # update_column(:source_id, @genus.source.id)
-      @subgenus.save
+      @subtribe.update(source: = @tribe.source)
+      @subgenus.update(source: @genus.source)
     end
 
     specify 'sanity check that project_id is set correctly in factories' do
