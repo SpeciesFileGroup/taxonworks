@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - PK sequence not set up properly on project export
 - Local identifiers' cached values not being updated when updating namespace [#2175]
 - Uncertainty sign not populating in label [#2109]
+- Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
 
 ### Changed
 - Updated script predicting masculine, feminine and neuter species name forms

@@ -151,7 +151,7 @@ export default {
         !this.params.determination.determiner_id.length &&
         !this.params.determination.ancestor_id &&
         !this.params.repository.repository_id &&
-        !this.params.collectingEvents.fields.length &&
+        !Object.keys(this.params.collectingEvents.fields).length &&
         !this.params.collectingEvents.collecting_event_ids.length &&
         !this.params.preparation_type_id.length &&
         Object.keys(this.params.collectingEvents.fields).length <= 1 &&
@@ -297,7 +297,7 @@ export default {
           end_date: undefined,
           partial_overlap_dates: undefined,
           collecting_event_wildcards: [],
-          fields: []
+          fields: {}
         },
         user: {
           user_id: undefined,
