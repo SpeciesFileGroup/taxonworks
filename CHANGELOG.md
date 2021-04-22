@@ -55,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add by-project param for `/api/v1/stats` [#2056] 
 
 ### Fixed
+- Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - `browse_otu_link` handles nil [#2155]
 
 [#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
