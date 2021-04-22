@@ -24,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
+- Local identifiers' cached values not being updated when updating namespace [#2175]
 
 ### Changed
 - Updated script predicting masculine, feminine and neuter species name forms
@@ -40,6 +41,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
 [#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
+[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 
 ## [0.16.6] - 2020-03-26
 
