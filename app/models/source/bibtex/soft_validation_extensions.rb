@@ -190,7 +190,7 @@ module Source::Bibtex::SoftValidationExtensions
       if !title.blank?
         q = Source::Bibtex.where(title: title).where.not(id: id).limit(1).load
         if q.any?
-          soft_validations.add(:title, "Another source, #{q.id} with this title exists, it may be duplicate")
+          soft_validations.add(:title, "Other sources (#{q.count}: #{q.pluck(:id).join(',')}) with this title exists, it may be duplicate")
         end
       end
     end
