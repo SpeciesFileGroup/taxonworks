@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
 - Edit inline options on edit/new loan task [#2184]
 - Shortcut legend on new taxon name task
+- Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
 - Previous navigation [#2163]
@@ -45,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
 [#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
 [#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
+[#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 
 ## [0.16.6] - 2020-03-26
 
