@@ -24,7 +24,17 @@ const createDwcTable = ({ name, qualName, description, examples }) => `
 
 const helpData = {
   section: {
-    dwcTable: {}
+    dwcTable: {},
+    import: {
+      dropzone: `
+      <span>Supported formats:</span>
+      <ul>
+        <li>Darwin Core Archive (DwC-A) ZIP file with meta.xml and data files inside (preferred)</li>
+        <li>Tab-separated values text file (TXT)</li>
+        <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
+      </ul>
+      `
+    }
   }
 }
 

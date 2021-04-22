@@ -17,6 +17,7 @@
         v-if="!validate"/>
       <dropzone
         class="dropzone-card"
+        v-help.section.import.dropzone
         @vdropzone-success="success"
         @vdropzone-sending="sending"
         @vdropzone-queue-complete="completeQueue"
