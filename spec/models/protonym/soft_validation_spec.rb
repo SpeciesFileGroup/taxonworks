@@ -29,11 +29,11 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
     context 'ICZN names' do
       let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
       context 'legal forms' do
-        legal = ['vitis', 'a-aus'] 
+        legal = ['vitis', 'a-nigrum']
         legal.each do |l|
           specify l do
             s.name = l 
-            s.soft_validate(only_sets: [:validate_name])
+            s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
           end
         end
@@ -44,7 +44,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         illegal.each do |l|
           specify l do
             s.name = l 
-            s.soft_validate(only_sets: [:validate_name])
+            s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
           end
         end
@@ -118,6 +118,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(@species.soft_validations.messages_on(:verbatim_author).empty?).to be_truthy
         expect(@species.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
+
       specify 'page is out or range' do
         @genus.source.pages = '1-10, i-v'
         @genus.origin_citation.pages = '11'
@@ -133,6 +134,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         @genus.soft_validate(only_sets: :missing_fields)
         expect(@genus.soft_validations.messages_on(:base).include?('Original citation could be out of the source page range')).to be_falsey
       end
+
       specify 'etymology is missing' do
         @species.soft_validate(only_sets: :missing_fields)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_falsey

@@ -396,6 +396,16 @@ class TaxonName < ApplicationRecord
     TaxonName.with_cached_valid_taxon_name_id(self.id)
   end
 
+  soft_validate(:sv_missing_confidence_level,
+                set: :missing_fields,
+                name: 'Missing confidence level',
+                description: 'To remaind that the taxon spelling have to be compared to the original source' )
+
+  soft_validate(:sv_missing_original_publication,
+                set: :missing_fields,
+                name: 'Missing original source',
+                description: 'Original source is not selected' )
+
 =begin
   soft_validate(:sv_missing_author,
                 set: :missing_fields,
@@ -1444,32 +1454,6 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  def sv_validate_name
-    correct_name_format = false
-
-    if rank_class
-      # TODO: name these Regexp somewhere
-      # TODO: move pertinent checks to base of nomenclature Classes to manage them there
-      if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
-          (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icn && name =~  /^×[a-zA-Z]*$/) ||
-          (nomenclatural_code == :icvcn)
-        correct_name_format = true
-      end
-
-      unless correct_name_format
-        icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
-        if is_available? && icvcn_species.nil?
-          soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
-        end
-      end
-    end
-  end
-
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
     confidence_level_array = [93]
@@ -1603,6 +1587,10 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_relationships
+    true # see validation in Protonym.rb
+  end
+
+  def sv_validate_name
     true # see validation in Protonym.rb
   end
 

@@ -2,11 +2,18 @@ module Protonym::SoftValidationExtensions
   
   module Klass
     VALIDATIONS = {
+      sv_validate_name: {
+          set: :validate_name,
+          name: 'Validate name',
+          description: 'Validate name format'
+      },
+
       sv_missing_etymology: {
         set: :missing_fields,
         name: 'Missing etymology',
         description: 'Etymology is not defined'
       },
+
       sv_validate_parent_rank: {
         set: :validate_parent_rank,
         name: 'Inappropriate parent rank',
@@ -350,6 +357,32 @@ module Protonym::SoftValidationExtensions
     def sv_source_not_older_then_description
       if self.source && self.year_of_publication
         soft_validations.add(:base, 'The year of publication of the taxon and the year in the original reference do not match') if self.try(:source).try(:year) != self.year_of_publication
+      end
+    end
+
+    def sv_validate_name
+      correct_name_format = false
+
+      if rank_class
+        # TODO: name these Regexp somewhere
+        # TODO: move pertinent checks to base of nomenclature Classes to manage them there
+        if (name =~ /^[a-zA-Z]*$/) || # !! should reference NOT_LATIN
+            (nomenclatural_code == :iczn && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icnp && name =~ /^[a-zA-Z]-[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*-[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×\s[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icn && name =~  /^[a-zA-Z]*\s×[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icn && name =~  /^×[a-zA-Z]*$/) ||
+            (nomenclatural_code == :icvcn)
+          correct_name_format = true
+        end
+
+        unless correct_name_format
+          icvcn_species = (nomenclatural_code == :icvcn && self.rank_string =~ /Species/) ? true : nil
+          if is_available? && icvcn_species.nil?
+            soft_validations.add(:name, 'Name should not have spaces or special characters, unless it has a status of misspelling or original misspelling')
+          end
+        end
       end
     end
 
