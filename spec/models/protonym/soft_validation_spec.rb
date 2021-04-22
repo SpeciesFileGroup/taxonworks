@@ -64,7 +64,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       @genus = @subspecies.ancestor_at_rank('genus')
       @subgenus = @subspecies.ancestor_at_rank('subgenus')
       @species = @subspecies.ancestor_at_rank('species')
-      @subtribe.update(source: = @tribe.source)
+      @subtribe.update(source: @tribe.source)
       @subgenus.update(source: @genus.source)
     end
 
