@@ -49,6 +49,8 @@ class Namespace < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
+  after_update :update_local_idenfifiers
+
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
@@ -75,6 +77,10 @@ class Namespace < ApplicationRecord
 
     h[:quick] = (Namespace.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
     h
+  end
+
+  def update_local_idenfifiers
+    Identifier::Local.update_cached(self)
   end
 
 end

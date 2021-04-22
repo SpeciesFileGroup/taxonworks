@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
+- Edit inline options on edit/new loan task [#2184]
+- Shortcut legend on new taxon name task
+- Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
 - Previous navigation [#2163]
@@ -22,6 +25,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
+- Local identifiers' cached values not being updated when updating namespace [#2175]
+- Uncertainty sign not populating in label [#2109]
+- Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
 
 ### Changed
 - Updated script predicting masculine, feminine and neuter species name forms
@@ -32,11 +38,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
+[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
+[#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 
 ## [0.16.6] - 2020-03-26
 
