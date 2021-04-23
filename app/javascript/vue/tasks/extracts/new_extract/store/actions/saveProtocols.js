@@ -5,7 +5,7 @@ export default ({ state, commit }) => {
   const { extract, protocols } = state
   const promises = []
   const newProtocols = protocols.filter(item => !item.id)
-  console.log(newProtocols)
+
   newProtocols.forEach(item => {
     promises.push(CreateProtocol({
       ...item,
