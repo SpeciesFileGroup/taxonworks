@@ -329,7 +329,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature, :soft_valid
       r1 = TaxonNameRelationship.find(r1.id)
       r1.soft_validate(only_sets: :not_specific_relationship)
 
-      # @proceps Nowhere in the fix does the relationship type chagne?
+      # relationship type chagnes
       expect(r1.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective')
       expect(r1.soft_validations.messages_on(:type).empty?).to be_truthy
     end

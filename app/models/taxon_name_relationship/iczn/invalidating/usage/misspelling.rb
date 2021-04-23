@@ -2,12 +2,12 @@ class TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling < TaxonNameR
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000275'.freeze
 
-  # @proceps please check
   soft_validate(
     :sv_no_citation,
     set: :no_citation,
     fix: :sv_fix_no_citation,
-    )
+    name: 'Missing citation',
+    description: 'Missing citation' )
 
 
   def self.disjoint_taxon_name_relationships

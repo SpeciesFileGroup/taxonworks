@@ -74,9 +74,6 @@ describe Combination, type: :model, group: :nomenclature do
       expect(c.valid?).to be_falsey
     end
 
-    # TODO @proceps you used `vite`, I assume because you wanted a harder test- this requires
-    # *WAY* more checking, not sure its worthwhile, I simplified the test to be verbatim == verbatim
-    # c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura vite")
     specify 'uniqueness including original combination different name' do
       species.update(original_genus: genus, original_species: species)
       c = Combination.new(genus: genus, species: species, verbatim_name: "Erythroneura viti")
