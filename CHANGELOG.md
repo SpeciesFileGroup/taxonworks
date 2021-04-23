@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
 
 ### Changed
+- Refactor SoftValidations and params including specs [#1972] [#768]
 - Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
 - Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
@@ -40,6 +42,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
+[#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
+[#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
 [#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
