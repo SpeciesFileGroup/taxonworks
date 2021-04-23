@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
+- Bad `project_token` to API should not raise
 - Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - Previous navigation [#2163]
 - Documenting source doesn't add source to project [#2172]
