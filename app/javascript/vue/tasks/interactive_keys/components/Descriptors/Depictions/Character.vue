@@ -1,20 +1,13 @@
 <template>
-  <div>
-    <label>
-      <input
-        type="checkbox"
-        :value="characterState.id"
-        v-model="selected">
-      <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
-      <div
-        :style="{ opacity: characterState.status === 'useless' ? 0.3 : 1 }"
-        v-for="depiction in depictions"
-        :key="depiction.id">
-        <img
-          class="full_width"
-          :src="depiction.image.alternatives.medium.image_file_url"/>
-      </div>
-    </label>
+  <div @click="addSelected">
+    <div
+      :style="{ opacity: characterState.status === 'useless' ? 0.3 : 1 }"
+      v-for="depiction in depictions"
+      :key="depiction.id">
+      <img
+        class="full_width"
+        :src="depiction.image.alternatives.medium.image_file_url"/>
+    </div>
   </div>
 </template>
 
@@ -56,6 +49,16 @@ export default {
       GetCharacterStateDepictions(this.characterState.id).then(response => {
         this.depictions = response.body
       })
+    },
+
+    addSelected () {
+      const index = this.selected.findIndex(id => id === this.characterState.id)
+
+      if (index === -1) {
+        this.selected.push(this.characterState.id)
+      } else {
+        this.selected.splice(index, 1)
+      }
     }
   }
 }

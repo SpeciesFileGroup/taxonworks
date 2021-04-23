@@ -33,17 +33,34 @@
         {{ descriptor.description }}
       </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
-      <div
-        class="wrapper">
-        <character-state
-          v-for="(character, index) in descriptor.states"
-          :key="index"
-          v-model="selected"
-          :character-state="character"
-        />
-      </div>
+      <template v-for="(row, rIndex) in chunkArray(descriptor.states, 3)">
+        <div
+          class="wrapper"
+          :key="`${rIndex}-depictions`">
+          <character-state
+            v-for="(characterState, index) in row"
+            v-model="selected"
+            :character-state="characterState"
+          />
+        </div>
+        <div
+          :key="`${rIndex}-label`"
+          class="wrapper margin-medium-bottom">
+          <div
+            v-for="(characterState, index) in row"
+            :key="index">
+            <label>
+              <input
+                type="checkbox"
+                :value="characterState.id"
+                v-model="selected">
+              <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
+            </label>
+          </div>
+        </div>
+      </template>
       <div slot="footer">
-      <hr>
+        <hr>
         <button
           type="button"
           class="button normal-input button-default"
@@ -60,6 +77,7 @@
 import ModalComponent from 'components/modal'
 import CharacterState from './Character'
 import { GetDescriptorDepictions } from '../../../request/resources.js'
+import { chunkArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -107,7 +125,9 @@ export default {
         this.$emit('update', this.selected)
       }
       this.$emit('close')
-    }
+    },
+
+    chunkArray: chunkArray
   }
 }
 </script>

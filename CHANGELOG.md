@@ -7,10 +7,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+- Frame overlaps in interactive key task [#2202]
+
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
 
 [#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
+[#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
 
 ## [0.17.0] - 2020-04-23
 
