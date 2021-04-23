@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
+- Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - Previous navigation [#2163]
 - Documenting source doesn't add source to project [#2172]
 - Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
 
 ### Changed
+- Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
 - Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
 - Changed TaxonName string for superspecies names
