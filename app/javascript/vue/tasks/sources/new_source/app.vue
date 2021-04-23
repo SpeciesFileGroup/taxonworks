@@ -104,7 +104,7 @@
       <div class="full_width">
         <component :is="section"/>
       </div>
-      <right-section class="separate-left"/>
+      <right-section class="margin-medium-left"/>
     </div>
     <cross-ref
       v-if="showModal"

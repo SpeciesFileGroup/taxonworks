@@ -221,15 +221,8 @@ describe Source::Bibtex, type: :model, group: :sources do
         let(:serial1) { FactoryBot.create(:valid_serial) } # create so serial1 has an ID
 
         specify 'serial gets converted properly to bibtex #journal' do
-          src.soft_validate(:sv_missing_required_bibtex_fields)
-          expect(src.soft_valid?).to be_truthy
-          expect(src.journal).to eq('Journal of Test Articles')
           src.journal = nil
-          src.soft_validate()
-          expect(src.soft_validations.messages).to include 'This article is missing a journal name.'
           src.update!(serial: serial1)
-          src.soft_validate(:sv_missing_required_bibtex_fields)
-          expect(src.soft_valid?).to be_truthy
           bib = src.to_bibtex
           expect(bib.journal).to eq(serial1.name)
         end
@@ -237,23 +230,9 @@ describe Source::Bibtex, type: :model, group: :sources do
         specify 'issn gets converted properly' do
           issn = FactoryBot.build(:issn_identifier)
           serial1.identifiers << issn
-          expect(serial1.save).to be_truthy
-          src.serial = serial1
-          expect(src.save).to be_truthy
-          src.soft_validate(:sv_missing_required_bibtex_fields)
-          expect(src.soft_valid?).to be_truthy
+          src.update(serial: serial1)
           bib = src.to_bibtex
           expect(bib.issn).to eq(serial1.identifiers.where(type: 'Identifier::Global::Issn').first.identifier)
-        end
-
-        specify 'missing roles' do
-          src.soft_validate(:missing_roles)
-          expect(src.soft_validations.messages_on(:base)).to include('Author roles are not selected.')
-          person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
-          src.authors << person
-          src.save
-          src.soft_validate(:missing_roles)
-          expect(src.soft_validations.messages_on(:base)).to_not include('Author roles are not selected.')
         end
       end
 
@@ -291,12 +270,6 @@ describe Source::Bibtex, type: :model, group: :sources do
         expect(s.valid_bibtex?).to be_falsey # missing a publisher
       end
 
-      specify 'soft_validate bibtex fields - get error messages' do
-        s.soft_validate(:bibtex_fields)
-        expect(s.soft_validations.messages_on(:publisher).empty?).to be_falsey
-        expect(s.soft_validations.messages).to include 'Valid BibTeX requires a publisher to be associated with this source.'
-      end
-
       specify 'make it valid' do
         s.publisher = 'Silly Books Inc'
         expect(s.valid_bibtex?).to be_truthy
@@ -314,9 +287,9 @@ describe Source::Bibtex, type: :model, group: :sources do
     #  end
 
     specify 'with an isbn in a BibTeX::Entry, convert it to an Identifier' do
-      identifier                 = '1-84356-028-3'
+      identifier = '1-84356-028-3'
       valid_gem_bibtex_book.isbn = identifier
-      s                          = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
+      s = Source::Bibtex.new_from_bibtex(valid_gem_bibtex_book)
       expect(s.identifiers.to_a.size).to eq(1)
       expect(s.identifiers.first.identifier).to eq(identifier)
       expect(s.save).to be_truthy
@@ -400,40 +373,40 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'test date related fields' do
       let(:source_bibtex) { FactoryBot.build(:valid_source_bibtex) }
+      let(:msg) {'must be an integer greater than 999 and no more than 2 years in the future' }
 
-      # TODO: break to individual tests
-      specify 'if present year, must be an integer an greater than 999 and no more than 2 years in the future' do
-        error_msg = 'must be an integer greater than 999 and no more than 2 years in the future'
+      specify 'year validation 1' do
         source_bibtex.year = 'test'
         expect(source_bibtex.valid?).to be_falsey
-        expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
+        expect(source_bibtex.errors.messages[:year].include?(msg)).to be_truthy
+      end
+
+      specify 'year validation 2' do
         source_bibtex.year = 2000
         expect(source_bibtex.valid?).to be_truthy
-        source_bibtex.soft_validate
-        expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_truthy
+      end
+
+      specify 'year validation 3' do
         source_bibtex.year = 999
-        expect(source_bibtex.valid?).to be_falsey
-        expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
-        source_bibtex.soft_validate
-        expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_falsey
-        expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s.'
-        source_bibtex.year = 1700
-        expect(source_bibtex.valid?).to be_truthy
-        source_bibtex.soft_validate
-        expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_truthy
+        source_bibtex.valid?
+        expect(source_bibtex.errors.messages[:year].include?(msg)).to be_truthy
+      end
+
+      specify 'year validation 4' do
         source_bibtex.year = Time.now.year + 3
-        expect(source_bibtex.valid?).to be_falsey
-        expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
+        source_bibtex.valid?
+        expect(source_bibtex.errors.messages[:year].include?(msg)).to be_truthy
+      end
+
+      specify 'year validation 3' do
         source_bibtex.year = Time.now.year + 2
         expect(source_bibtex.valid?).to be_truthy
-        source_bibtex.soft_validate
-        expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_truthy
       end
 
       specify 'if month is set, there must be a year' do
-        error_msg           = 'is required when month or stated_year is provided'
+        error_msg = 'is required when month or stated_year is provided'
         source_bibtex.month = 'feb'
-        expect(source_bibtex.valid?).to be_falsey
+        source_bibtex.valid?
         expect(source_bibtex.errors.messages[:year].include?(error_msg)).to be_truthy
       end
 
@@ -499,7 +472,7 @@ describe Source::Bibtex, type: :model, group: :sources do
           source_bibtex.year = 1945
         }
         specify 'if day is present there must be a month' do
-          error_msg         = 'is required when day is provided'
+          error_msg = 'is required when day is provided'
           source_bibtex.day = 31
           expect(source_bibtex.valid?).to be_falsey
           expect(source_bibtex.errors.messages[:month].include?(error_msg)).to be_truthy
@@ -518,10 +491,6 @@ describe Source::Bibtex, type: :model, group: :sources do
 
     context 'on save set cached values - single author' do
       let(:l_src) { FactoryBot.create(:soft_valid_bibtex_source_article) }
-
-      specify 'save src' do
-        expect(l_src.save).to be_truthy
-      end
 
       context 'after save' do
         before {
@@ -578,14 +547,6 @@ describe Source::Bibtex, type: :model, group: :sources do
               source_bibtex.save!
               expect(source_bibtex.cached_author_string).to eq('Thomas, Fowler & Hunt')
               expect(source_bibtex.authority_name).to eq('Thomas, Fowler & Hunt')
-            end
-
-            specify 'valid Source::Bibtex but not valid BibTex::Entry' do
-              l_src.year = nil
-              l_src.soft_validate
-              expect(l_src.soft_validations.messages_on(:year).empty?).to be_falsey
-              expect(l_src.save).to be_truthy
-              expect(l_src.cached_author_string).to eq('Thomas, Fowler & Hunt')
             end
 
             specify 'SourceAuthor role' do
@@ -1150,46 +1111,7 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
-
-  context 'soft validations' do
-    let(:source_bibtex) { FactoryBot.build(:soft_valid_bibtex_source_article) }
-
-    specify 'missing authors 1' do
-      source_bibtex.soft_validate(:recommended_fields)
-      expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_truthy
-    end
-
-    specify 'missing authors 2' do
-      source_bibtex.update(author: nil)
-      source_bibtex.soft_validate(:recommended_fields)
-      expect(source_bibtex.soft_validations.messages_on(:base).empty?).to be_falsey
-      expect(source_bibtex.soft_validations.messages).to include('There is neither author, nor editor associated with this source.')
-    end
-
-    specify 'year is before 1700 (before nomenclature)' do
-      source_bibtex.year = 1699
-      expect(source_bibtex.valid?).to be_truthy
-      source_bibtex.soft_validate()
-      expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_falsey
-      expect(source_bibtex.soft_validations.messages).to include 'This year is prior to the 1700s.'
-      source_bibtex.year = 1700
-      source_bibtex.save
-      source_bibtex.soft_validate()
-      expect(source_bibtex.soft_validations.messages_on(:year).empty?).to be_truthy
-    end
-
-    specify 'unpublished sources require a note' do
-      source_bibtex.bibtex_type = 'unpublished'
-      source_bibtex.soft_validate()
-      expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_falsey
-      expect(source_bibtex.soft_validations.messages).to include 'Valid BibTeX requires a note with an unpublished source.'
-      source_bibtex.note = 'test note 1.'
-      expect(source_bibtex.save).to be_truthy
-      source_bibtex.soft_validate()
-      expect(source_bibtex.soft_validations.messages_on(:note).empty?).to be_truthy
-    end
-  end
-
+  
   context 'nested attributes' do
     let(:person1) { Person::Unvetted.create!(last_name: 'un') }
     let(:person2) { Person::Unvetted.create!(last_name: 'deux') }

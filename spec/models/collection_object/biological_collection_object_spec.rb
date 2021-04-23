@@ -141,28 +141,28 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     let(:o) {Specimen.create}
 
     specify 'determination is missing' do
-      o.soft_validate(:missing_determination)
+      o.soft_validate(only_sets: :missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(1)
     end
 
     specify 'determination not missing' do
       o.update(otus_attributes: [{name: 'name'}])
-      o.soft_validate(:missing_determination)
+      o.soft_validate(only_sets: :missing_determination)
       expect(o.soft_validations.messages_on(:base).count).to eq(0)
     end
 
     specify 'collecting_event missing' do
-      o.soft_validate(:missing_collecting_event)
+      o.soft_validate(only_sets: :missing_collecting_event)
       expect(o.soft_validations.messages_on(:collecting_event_id).count).to eq(1)
     end
 
     specify 'preparation_type missing' do
-      o.soft_validate(:missing_preparation_type)
+      o.soft_validate(only_sets: :missing_preparation_type)
       expect(o.soft_validations.messages_on(:preparation_type_id).count).to eq(1)
     end
 
     specify 'repository missing' do
-      o.soft_validate(:missing_repository)
+      o.soft_validate(only_sets: :missing_repository)
       expect(o.soft_validations.messages_on(:repository_id).count).to eq(1)
     end
   end

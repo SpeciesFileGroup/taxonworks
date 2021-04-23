@@ -24,6 +24,7 @@ export default async ({ state, commit, dispatch }) => {
     await dispatch(ActionNames.ProcessGeoreferenceQueue)
     await dispatch(ActionNames.SaveCELabel)
     await dispatch(ActionNames.SaveIdentifier)
+    await dispatch(ActionNames.LoadSoftValidations)
     commit(MutationNames.UpdateLastSave)
 
     SetParam(RouteNames.NewCollectingEvent, 'collecting_event_id', response.body.id)

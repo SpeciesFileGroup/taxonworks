@@ -15,8 +15,16 @@ br.clear_both {
   text-align: center;
 }
 
-.inline {
+.inline, .d-inline {
   display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+.d-none {
+  display: none !important;
 }
 
 .middle_align {

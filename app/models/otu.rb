@@ -62,7 +62,7 @@ class Otu < ApplicationRecord
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
+  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
