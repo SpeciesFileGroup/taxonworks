@@ -64,7 +64,10 @@ class AssertedDistribution < ApplicationRecord
 
   accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
 
-  soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area)
+  soft_validate(:sv_conflicting_geographic_area,
+                set: :conflicting_geographic_area,
+                name: 'Conflicting geographic area',
+                description: 'Conflicting geographic area' )
 
   # @param [ActionController::Parameters] params
   # @return [Scope]

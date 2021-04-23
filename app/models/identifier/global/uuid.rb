@@ -9,7 +9,6 @@ class Identifier::Global::Uuid < Identifier::Global
 
   validate :using_uuid_class
 
-
   def generate_uuid
     write_attribute(:identifier, SecureRandom.uuid)
   end 

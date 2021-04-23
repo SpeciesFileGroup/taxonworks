@@ -465,13 +465,13 @@ class CollectionObjectsController < ApplicationController
       biocuration_class_ids: [],
       biological_relationship_ids: [],
       collecting_event_ids: [],
+      collector_ids: [], #
       determiner_id: [],
       geographic_area_ids: [],
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
-      collector_ids: [], #
       preparation_type_id: []
       #  user_id: []
       #  collecting_event: {
@@ -521,9 +521,9 @@ class CollectionObjectsController < ApplicationController
       :never_loaned,
       :on_loan,
       :partial_overlap_dates, # CE filter
+      :preparation_type_id,
       :radius,
       :repository,
-      :preparation_type_id,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,

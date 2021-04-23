@@ -98,7 +98,6 @@
       <collecting-event-form
         v-model="collectingEvent"
         :sortable="settings.sortable"
-        :soft-validation="validation"
         class="full_width" />
       <div class="margin-medium-left">
         <div class="panel content">
@@ -120,7 +119,6 @@
         </div>
         <right-section
           :value="collectingEvent"
-          :soft-validation="validation"
           @select="loadCollectingEvent($event.id)"
         />
       </div>
@@ -195,8 +193,7 @@ export default {
       settings: {
         sortable: false
       },
-      showRecent: false,
-      validation: []
+      showRecent: false
     }
   },
   watch: {

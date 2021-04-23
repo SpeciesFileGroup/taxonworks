@@ -118,7 +118,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonStatusList.list
     },
     checkValidation () {
-      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.validations.instance.id)).length
+      return !!this.softValidation.filter(item => this.getStatusCreated.find(created => created.id === item.instance.id)).length
     },
     getStatusCreated () {
       return this.$store.getters[GetterNames.GetTaxonStatusList].filter((item) => item.type.split('::')[1] !== 'Latinized')

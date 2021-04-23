@@ -23,11 +23,8 @@
             <div>
               <radial-menu
                 v-if="menuCreated"
-                :menu="menuOptions"
-                :circle-style="pinStyle"
-                @selected="selectComponent"
-                width="400"
-                height="400"/>
+                :options="menuOptions"
+                @onClick="selectComponent"/>
             </div>
           </div>
           <div
@@ -45,7 +42,8 @@
               :metadata="metadata"
               :global-id="globalId"
               :object-type="metadata.object_type"
-              @updateCount="setTotal"/>
+              @updateCount="setTotal"
+              @close="closeModal"/>
           </div>
         </div>
       </modal>
@@ -67,7 +65,7 @@
 </template>
 <script>
 
-import radialMenu from 'components/radialMenu.vue'
+import RadialMenu from 'components/radials/RadialMenu.vue'
 import modal from 'components/modal.vue'
 import spinner from 'components/spinner.vue'
 
@@ -90,7 +88,7 @@ export default {
   mixins: [CRUD],
   name: 'RadialAnnotator',
   components: {
-    radialMenu,
+    RadialMenu,
     modal,
     spinner,
     data_attributesAnnotator,
@@ -148,7 +146,6 @@ export default {
       globalIdSaved: undefined,
       metadata: undefined,
       title: 'Otu radial',
-      menuOptions: [],
       defaultTag: undefined,
       tagCreated: false,
       hardcodeSections: [
@@ -160,8 +157,55 @@ export default {
     }
   },
   computed: {
+    menuOptions () {
+      const endpoints = this.metadata.endpoints || {}
+
+      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
+        name: annotator,
+        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
+        innerPosition: 1.7,
+        svgAttributes: {
+          fill: this.currentAnnotator === annotator ? '#8F8F8F' : undefined
+        },
+        slices: total
+          ? [{
+              label: total.toString(),
+              size: 26,
+              svgAttributes: {
+                fill: '#006ebf',
+                color: '#FFFFFF'
+              }
+            }]
+          : [],
+        icon: Icons[annotator]
+          ? {
+              url: Icons[annotator],
+              width: '20',
+              height: '20'
+            }
+          : undefined
+      }))
+
+      return {
+        width: 400,
+        height: 400,
+        sliceSize: 120,
+        centerSize: 34,
+        margin: 2,
+        middleButton: this.middleButton,
+        css: {
+          class: 'svg-radial-annotator'
+        },
+        svgAttributes: {
+          fontSize: 11,
+          fill: '#FFFFFF',
+          textAnchor: 'middle'
+        },
+        slices: slices
+      }
+    },
     menuCreated () {
-      return this.menuOptions.length > 0
+      return this.metadata?.endpoints
     },
     metadataCount () {
       if (this.metadata) {
@@ -179,15 +223,18 @@ export default {
     isTagged () {
       return this.tagCreated
     },
-    pinStyle () {
+    middleButton () {
       return {
+        name: 'circleButton',
+        radius: 30,
         icon: {
           url: Icons.tags,
           width: '20',
           height: '20'
         },
-        background: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA',
-        backgroundHover: this.getDefault() ? (this.isTagged ? '#CE3430' : '#81a553') : '#CACACA'
+        svgAttributes: {
+          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA'
+        }
       }
     }
   },
@@ -219,14 +266,14 @@ export default {
         }
       })
     },
-    selectComponent (event) {
-      if (event === 'circleButton') {
-        if(this.getDefault()) {
+    selectComponent ({ name }) {
+      if (name === 'circleButton') {
+        if (this.getDefault()) {
           this.isTagged ? this.deleteTag() : this.createTag()
         }
       }
       else {
-        this.currentAnnotator = event
+        this.currentAnnotator = name
       }
     },
     closeModal: function () {
@@ -249,33 +296,11 @@ export default {
         that.metadata = response.body
         that.metadata.endpoints = Object.assign({}, that.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
         that.title = response.body.object_tag
-        that.menuOptions = that.createMenuOptions(response.body.endpoints)
         that.url = response.body.url
       })
     },
-    createMenuOptions: function (annotators) {
-      const menu = []
-
-      for (var key in annotators) {
-        menu.push({
-          label: (key.charAt(0).toUpperCase() + key.slice(1)).replace('_', ' '),
-          total: annotators[key].total,
-          event: key,
-          icon: {
-            url: Icons[key],
-            width: '20',
-            height: '20'
-          }
-        })
-      }
-      return menu
-    },
     setTotal (total) {
-      var that = this
-      const position = this.menuOptions.findIndex(function (element) {
-        return element.event == that.currentAnnotator
-      })
-      this.menuOptions[position].total = total
+      this.metadata.endpoints[this.currentAnnotator].total = total
     },
     eventClose: function () {
       const event = new CustomEvent('annotator:close', {

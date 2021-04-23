@@ -1,19 +1,20 @@
 const RouteNames = {
-  BrowseOtu: '/tasks/otus/browse',
-  NewTaxonName: '/tasks/nomenclature/new_taxon_name',
-  DigitizeTask: '/tasks/accessions/comprehensive',
-  ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
-  ContentEditorTask: '/tasks/content/editor/index',
-  NomenclatureBySource: '/tasks/nomenclature/by_source',
-  ImageMatrix: '/tasks/matrix_image/matrix_image/index',
-  MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   BrowseNomenclature: '/tasks/nomenclature/browse',
-  NomenclatureStats: '/tasks/nomenclature/stats',
-  TypeMaterial: '/tasks/type_material/edit_type_material',
-  NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
-  PrintLabel: '/tasks/labels/print_labels',
+  BrowseOtu: '/tasks/otus/browse',
+  ContentEditorTask: '/tasks/content/editor/index',
+  DigitizeTask: '/tasks/accessions/comprehensive',
+  ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
-  ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub'
+  ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
+  MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
+  NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
+  NewTaxonName: '/tasks/nomenclature/new_taxon_name',
+  NomenclatureBySource: '/tasks/nomenclature/by_source',
+  NomenclatureStats: '/tasks/nomenclature/stats',
+  ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
+  ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
+  PrintLabel: '/tasks/labels/print_labels',
+  TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
 export {

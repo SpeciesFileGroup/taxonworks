@@ -14,7 +14,7 @@ export default ({ state, commit }, id) => {
     commit(MutationNames.SetSource, source)
 
     LoadSoftValidation(response.body.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
 
     GetSourceDocumentations(id).then(response => {

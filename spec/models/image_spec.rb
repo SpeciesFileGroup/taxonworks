@@ -59,7 +59,7 @@ describe Image, type: :model, group: [:images] do
       k.destroy
       k.run_callbacks(:commit)
     }
-    
+
     specify 'once saved, it should soft validate for duplicate images already saved to database' do
       expect(i.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
       expect(k.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
