@@ -1,7 +1,11 @@
 <template>
-  <div
-    class="padding-small align-end">
-    <label class="flex-separate  flex-wrap-column">
+  <div>
+    <label>
+      <input
+        type="checkbox"
+        :value="characterState.id"
+        v-model="selected">
+      <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
       <div
         :style="{ opacity: characterState.status === 'useless' ? 0.3 : 1 }"
         v-for="depiction in depictions"
@@ -10,13 +14,6 @@
           class="full_width"
           :src="depiction.image.alternatives.medium.image_file_url"/>
       </div>
-      <label>
-        <input
-          type="checkbox"
-          :value="characterState.id"
-          v-model="selected">
-        <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
-      </label>
     </label>
   </div>
 </template>
