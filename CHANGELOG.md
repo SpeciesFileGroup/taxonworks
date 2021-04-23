@@ -7,7 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
+
+[#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
 
 ## [0.17.0] - 2020-04-23
 
