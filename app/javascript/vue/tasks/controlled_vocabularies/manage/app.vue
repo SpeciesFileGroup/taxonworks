@@ -28,10 +28,13 @@
                 type="text"
                 v-model="controlled_vocabulary_term.name">
             </div>
-            <div class="field">
+            <div
+              class="field"
+              v-help.new.definition>
               <label>Definition</label>
               <textarea
                 class="full_width"
+                placeholder="Definition (minimum length 20 characters)"
                 rows="5"
                 v-model="controlled_vocabulary_term.definition">
               </textarea>

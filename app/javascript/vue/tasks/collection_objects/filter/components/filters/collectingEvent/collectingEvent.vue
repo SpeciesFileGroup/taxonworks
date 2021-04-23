@@ -47,8 +47,9 @@
         </li>
       </ul>
     </div>
-    <add-field 
+    <add-field
       ref="fields"
+      :list="cEvent.fields"
       @fields="cEvent.fields = $event"/>
   </div>
 </template>

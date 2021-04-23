@@ -1,10 +1,16 @@
 <template>
   <div class="right-section">
-    <div ref="section">
+    <div
+      class="overflow-y-auto"
+      ref="section">
       <documents-component
+        ref="documents"
         class="panel"/>
-      <soft-validation class="soft-validation-box"/>
-      <matches-component/>
+      <soft-validation
+        v-if="validations"
+        class="margin-medium-top soft-validation-panel"
+        :validations="validations"/>
+      <matches-component ref="matches"/>
     </div>
   </div>
 </template>
@@ -12,7 +18,7 @@
 <script>
 
 import DocumentsComponent from './documents'
-import SoftValidation from './softValidation'
+import SoftValidation from 'components/soft_validations/panel'
 import MatchesComponent from './matches'
 import { GetterNames } from '../store/getters/getters'
 export default {
@@ -22,8 +28,8 @@ export default {
     DocumentsComponent
   },
   computed: {
-    source () {
-      return this.$store.getters[GetterNames.GetSource]
+    validations () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
     }
   },
   data () {
@@ -43,18 +49,30 @@ export default {
   },
   mounted () {
     window.addEventListener('scroll', this.scrollBox)
+    this.scrollBox()
   },
   methods: {
-    scrollBox (event) {
+    scrollBox () {
+      const { documents, matches, section } = this.$refs
       const element = this.$el
-      if (element) {
-        if (element.offsetTop < document.documentElement.scrollTop + 50) {
-          this.$refs.section.classList.add('float-box')
-          this.$refs.section.style.width = `${element.getBoundingClientRect().width}px`
-        } else {
-          this.$refs.section.classList.remove('float-box')
-        }
+      const sectionSize = section.getBoundingClientRect()
+      const documentsSize = documents.$el.getBoundingClientRect()
+      const matchesSize = matches.$el.getBoundingClientRect()
+      const validationsSize = document.querySelector('.soft-validation-panel')?.getBoundingClientRect()?.height || 0
+
+      const totalHeight = documentsSize.height + validationsSize + matchesSize.height
+      const newHeight = (window.innerHeight - sectionSize.top) < totalHeight ? `${(window.innerHeight - sectionSize.top)}px` : 'auto'
+
+      if (element.offsetTop < document.documentElement.scrollTop + 50) {
+        const size = element.getBoundingClientRect()
+
+        this.$refs.section.classList.add('float-box')
+        this.$refs.section.style.width = `${size.width}px`
+      } else {
+        this.$refs.section.classList.remove('float-box')
       }
+
+      this.$refs.section.style.height = newHeight
     }
   }
 }

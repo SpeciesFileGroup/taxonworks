@@ -3,7 +3,7 @@ export const verbatimProperties = {
   Locality: 'verbatim_locality',
   Latitude: 'verbatim_latitude',
   Longitude: 'verbatim_longitude',
-  Geolocation: 'verbatim_geolocation_uncertainty',
+  Geolocation: (ce) => ce.verbatim_geolocation_uncertainty ? `+/-${ce.verbatim_geolocation_uncertainty}m` : undefined,
   Habitat: 'verbatim_habitat',
   DateComponent: 'verbatim_date',
   Collectors: 'verbatim_collectors',

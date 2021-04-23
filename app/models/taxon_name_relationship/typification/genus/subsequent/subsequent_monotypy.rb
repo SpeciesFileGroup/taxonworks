@@ -1,6 +1,6 @@
 class TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentMonotypy < TaxonNameRelationship::Typification::Genus::Subsequent
 
-  soft_validate(:sv_described_after_1930, set: :described_after_1930, has_fix: false)
+  soft_validate(:sv_described_after_1930, set: :described_after_1930)
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

@@ -60,7 +60,10 @@
             </div>
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
-            <soft-validation class="separate-top"/>
+            <soft-validation
+              v-if="checkSoftValidation"
+              class="separate-top"
+              :validations="validations"/>
           </div>
         </div>
       </div>
@@ -84,7 +87,7 @@ import BasicinformationSection from './components/basicInformation.vue'
 import OriginalcombinationSection from './components/pickOriginalCombination.vue'
 import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
-import SoftValidation from './components/softValidation.vue'
+import SoftValidation from 'components/soft_validations/panel.vue'
 import Spinner from 'components/spinner.vue'
 import getOSKey from 'helpers/getMacKey'
 
@@ -113,6 +116,9 @@ export default {
     ClassificationSection
   },
   computed: {
+    validations () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
+    },
     getOSKey () {
       return getOSKey()
     },
@@ -121,6 +127,11 @@ export default {
     },
     getSaving () {
       return this.$store.getters[GetterNames.GetSaving]
+    },
+    checkSoftValidation () {
+      return (this.validations.taxon_name.list.length ||
+      this.validations.taxonStatusList.list.length ||
+      this.validations.taxonRelationshipList.list.length)
     },
     isAutosaveActive: {
       get () {

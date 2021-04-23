@@ -8,13 +8,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
 - Edit inline options on edit/new loan task [#2184]
 - Shortcut legend on new taxon name task
+- Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
+- Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - Previous navigation [#2163]
 - Documenting source doesn't add source to project [#2172]
 - Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
@@ -25,8 +28,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
 - Local identifiers' cached values not being updated when updating namespace [#2175]
+- Uncertainty sign not populating in label [#2109]
+- Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
 
 ### Changed
+- Refactor SoftValidations and params including specs [#1972] [#768]
+- Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
 - Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
 - Changed TaxonName string for superspecies names
@@ -35,6 +42,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
+[#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
+[#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
+[#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
@@ -42,6 +53,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
 [#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
 [#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
+[#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 
 ## [0.16.6] - 2020-03-26
 

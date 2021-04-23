@@ -24,7 +24,7 @@ const makeInitialState = () => {
     geographicArea: undefined,
     georeferences: [],
     tripCode: makeTripIdentifier(),
-    softValidations: [],
+    softValidations: {},
     queueGeoreferences: []
   }
 }

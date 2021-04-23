@@ -94,6 +94,19 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         c.valid?
         expect(c.errors.include?(:type)).to be_falsey
       end
+
+      specify 'not specific relationship' do
+        c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+        c.soft_validate(only_sets: :not_specific_classes)
+        expect(c.soft_validations.messages_on(:type).size).to eq(1)
+      end
+
+      specify 'specific relationship' do
+        c = FactoryBot.build(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NoDescription')
+        c.soft_validate(only_sets: :not_specific_classes)
+        expect(c.soft_validations.messages_on(:type).size).to eq(0)
+      end
+
     end
   end
 
@@ -169,17 +182,17 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
 
     specify 'applicable type and year' do
      c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-     c.soft_validate(:proper_classification)
+     c.soft_validate(only_sets: :proper_classification)
      expect(c.soft_validations.messages_on(:type).empty?).to be_truthy
    end
     specify 'unapplicable type' do
       c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::NotFromGenusName')
-      c.soft_validate(:proper_classification)
+      c.soft_validate(only_sets: :proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'unapplicable year' do
       c = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @species, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::ElectronicPublicationNotInPdfFormat')
-      c.soft_validate(:proper_classification)
+      c.soft_validate(only_sets: :proper_classification)
       expect(c.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'disjoint classes' do
@@ -188,8 +201,8 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
       _r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: s, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
       c1 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Unavailable')
       c2 = FactoryBot.create(:taxon_name_classification, taxon_name: s, type: 'TaxonNameClassification::Iczn::Available::OfficialListOfGenericNamesInZoology')
-      c1.soft_validate(:validate_disjoint_classes)
-      c2.soft_validate(:validate_disjoint_classes)
+      c1.soft_validate(only_sets: :validate_disjoint_classes)
+      c2.soft_validate(only_sets: :validate_disjoint_classes)
       #conflicting with c2
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)
       #conflicting with c1
@@ -197,17 +210,17 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
     end
     specify 'not specific classes: nomen nudum' do
       c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
-      c1.soft_validate(:not_specific_classes)
+      c1.soft_validate(only_sets: :not_specific_classes)
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'not specific classes: homonym' do
       c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Available::Invalid::Homonym')
-      c1.soft_validate(:not_specific_classes)
+      c1.soft_validate(only_sets: :not_specific_classes)
       expect(c1.soft_validations.messages_on(:type).size).to eq(1)
     end
     specify 'not specific classes: CitationOfUnavailableName' do
       c1 = FactoryBot.build_stubbed(:taxon_name_classification, taxon_name: @genus, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum::CitationOfUnavailableName')
-      c1.soft_validate(:not_specific_classes)
+      c1.soft_validate(only_sets: :not_specific_classes)
       expect(c1.soft_validations.messages_on(:type).size).to eq(0)
     end
   end

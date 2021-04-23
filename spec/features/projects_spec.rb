@@ -197,11 +197,5 @@ describe 'Project Handling', type: :feature do
         expect(page).to have_content(/Displaying.*projects/)
       end
     end
-
-    describe 'GET /projects/n' do
-      before { visit project_path(Project.first) }
-      # xspecify 'there is the projects name' do
-      # end
-    end
   end
 end

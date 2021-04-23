@@ -20,7 +20,7 @@ export const parsedProperties = {
   Elevation: ({ ce }) => [
     ce.minimum_elevation,
     ce.maximum_elevation,
-    ce.elevation_precision
+    ce.elevation_precision && `+/-${ce.elevation_precision}`
   ].filter(item => item).map(item => `${item}m`).join(' '),
 
   Time: ({ ce }) => [

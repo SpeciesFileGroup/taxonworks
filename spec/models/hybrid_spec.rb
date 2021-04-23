@@ -30,14 +30,14 @@ describe Hybrid, type: :model, group: [:nomenclature]  do
 
   context 'soft validation' do
     specify 'is soft valid when at least two relationships to non hybrid taxa are required' do
-      valid_hybrid.soft_validate(:hybrid_name_relationships)
+      valid_hybrid.soft_validate(only_sets: :hybrid_name_relationships)
       expect(valid_hybrid.soft_validations.messages_on(:base).count).to eq(0)
     end
 
     specify 'is not soft valid when at least two relationships to non hybrid taxa are required' do
       valid_hybrid.hybrid_relationships.first.destroy
       valid_hybrid.reload
-      valid_hybrid.soft_validate(:hybrid_name_relationships)
+      valid_hybrid.soft_validate(only_sets: :hybrid_name_relationships)
       expect(valid_hybrid.soft_validations.messages_on(:base).count).to eq(1)
     end
   end
