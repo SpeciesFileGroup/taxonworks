@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Local identifiers' cached values not being updated when updating namespace [#2175]
 - Uncertainty sign not populating in label [#2109]
 - Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
+- Fix routes in edit/new observation matrices task [#2198]
 
 ### Changed
 - Refactor SoftValidations and params including specs [#1972] [#768]
@@ -42,18 +43,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
-[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
 [#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
 [#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
+[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
 [#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
+[#2160]: https://github.com/SpeciesFileGroup/taxonworks/issues/2160
+[#2168]: https://github.com/SpeciesFileGroup/taxonworks/issues/2168
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
-[#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
-[#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
-[#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
-[#2184]: https://github.com/SpeciesFileGroup/taxonworks/pull/2184
-[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
+[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2175
+[#2174]: https://github.com/SpeciesFileGroup/taxonworks/issues/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/issues/2184
 [#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
+[#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
 
 ## [0.16.6] - 2020-03-26
 

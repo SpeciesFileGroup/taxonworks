@@ -10,13 +10,13 @@
         <ul class="context-menu">
           <li>
             <a
-              href="/tasks/observation_matrices/observation_matrix_hub/index">
+              :href="routeNames.ObservationMatricesHub">
               Hub
             </a>
           </li>
           <li>
             <a
-              href="/tasks/observation_matrices/dashboard/index">
+              :href="routeNames.ObservationMatricesDashboard">
               Dashboard
             </a>
           </li>
@@ -103,6 +103,7 @@ import ColumnsDynamic from './components/columns/dynamic'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -127,10 +128,13 @@ export default {
     },
     settings () {
       return this.$store.getters[GetterNames.GetSettings]
+    },
+    routeNames () {
+      return RouteNames
     }
   },
 
-  data() {
+  data () {
     return {
       loading: false
     }
