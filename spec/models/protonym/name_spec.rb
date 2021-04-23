@@ -39,33 +39,4 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
     end
   end
-
-  context 'misspelling' do
-    let(:genus) { Protonym.new(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
-
-    context 'ICZN names' do
-      let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
-      context 'legal forms' do
-        legal = ['vitis', 'a-aus'] 
-        legal.each do |l|
-          specify l do
-            s.name = l 
-            s.soft_validate(:validate_name)
-            expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
-          end
-        end
-      end
-
-      context 'illegal forms' do
-        illegal = ['aus-aus'] 
-        illegal.each do |l|
-          specify l do
-            s.name = l 
-            s.soft_validate(:validate_name)
-            expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
-          end
-        end
-      end
-    end
-  end
 end

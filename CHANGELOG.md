@@ -9,9 +9,78 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
+## [0.17.0] - 2020-04-23
+
+### Added
+- Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
+- Database index on `Identifiers#cached`
+- Tests for base #next/#previous [#2163]
+- `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
+- Edit inline options on edit/new loan task [#2184]
+- Shortcut legend on new taxon name task
+- Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
+
+### Fixed
+- Bad `project_token` to API should not raise
+- Descriptor::Qualitative destruction destroys rather than raises when character states unused.
+- Previous navigation [#2163]
+- Documenting source doesn't add source to project [#2172]
+- Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
+- incorrect author string for misspelled combination is fixed
+- Missing data migration for `ObservationMatrixColumnItem::SingleDescriptor` to `ObservationMatrixColumnItem::Single:Descriptor`
+- Show observation matrices count on radial object [#2158]
+- Overflow on New observation matrix [#2168]
+- Clear geographic area after reset [#2174]
+- PK sequence not set up properly on project export
+- Local identifiers' cached values not being updated when updating namespace [#2175]
+- Uncertainty sign not populating in label [#2109]
+- Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
+- Fix routes in edit/new observation matrices task [#2198]
+
+### Changed
+- Refactor SoftValidations and params including specs [#1972] [#768]
+- Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
+- Updated script predicting masculine, feminine and neuter species name forms
+- Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
+- Changed TaxonName string for superspecies names
+- Updated y18n node package to version 4.0.1 [#2160]
+- Replaced Canvas for SVG radial menu
+- Close radial object after select a matrix on observation matrices slice [#2165]
+- Radial menu slices position 
+
+[#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
+[#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
+[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
+[#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
+[#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
+[#2160]: https://github.com/SpeciesFileGroup/taxonworks/issues/2160
+[#2168]: https://github.com/SpeciesFileGroup/taxonworks/issues/2168
+[#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
+[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2175
+[#2174]: https://github.com/SpeciesFileGroup/taxonworks/issues/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/issues/2184
+[#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
+[#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
+
+## [0.16.6] - 2020-03-26
+
+### Added
+- Community stats for `/api/v1/stats` [#2061]
+- Add by-project param for `/api/v1/stats` [#2056] 
+
+### Fixed
+- `browse_otu_link` handles nil [#2155]
+
+[#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
+[#2061]: https://github.com/SpeciesFileGroup/taxonworks/issues/2061
+[#2155]: https://github.com/SpeciesFileGroup/taxonworks/issues/2155
+[#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
+[#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
+
 ## [0.16.5] - 2020-03-25
 
 ### Added
+- softvalidation fix for transfer of type species into coordinate subgenus
 - Link from Browse colleciton object to Browse OTU for current OTU det [#2154]
 - Collection object filter params for preparation and buffered fields [#2118]
 - Added soft_validations and fixes for coordinate name citations and roles.
@@ -38,6 +107,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+- updated softvalidation for non binomial names
+- updated label for species-group rank TaxonName
 - Compute print column divisions with barcode style labels [#1993] 
 - Object tag for TaxonNameRelationship inverted [#2100]
 - Collection object filter, collecting event related params were not being passed [#1807]
@@ -1034,7 +1105,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...development
+[0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
+[0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4
 [0.16.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.2...v0.16.3

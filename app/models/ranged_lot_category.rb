@@ -4,15 +4,15 @@
 #
 # @!attribute name
 #   @return [String]
-#   @todo
+#      a label for the category 
 #
 # @!attribute minimum_value
 #   @return [Integer]
-#   @todo
+#      the minimum number of enumerated objects       
 #
 # @!attribute maximum_value
 #   @return [Integer]
-#   @todo
+#      the maximum number of enumerated objects 
 #
 # @!attribute project_id
 #   @return [Integer]

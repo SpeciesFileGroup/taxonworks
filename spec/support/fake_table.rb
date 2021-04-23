@@ -22,5 +22,4 @@ module FakeTable
   included do 
     self.table_name = 'test_classes' 
   end
-
 end

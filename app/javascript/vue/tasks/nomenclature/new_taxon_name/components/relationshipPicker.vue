@@ -163,7 +163,7 @@ export default {
     },
 
     checkValidation () {
-      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
     },
 
     nomenclaturalCode () {

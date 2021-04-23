@@ -16,17 +16,17 @@ describe 'SoftValidationMethod', group: :soft_validation do
       name: name,
       description: description,
       set: :topings,
-      resolution: resolution 
-    }) 
+      resolution: resolution
+    })
   }
 
   specify '#klass is required' do
     expect{SoftValidation::SoftValidationMethod.new(method: :bar)}.to raise_error SoftValidation::SoftValidationError
-  end 
+  end
 
   specify '#method is required' do
     expect{SoftValidation::SoftValidationMethod.new(klass: 'String')}.to raise_error SoftValidation::SoftValidationError
-  end 
+  end
 
   specify '#resolution must be an array or nil' do
     expect{SoftValidation::SoftValidationMethod.new(klass: 'String', method: :bar, resolution: 'String')}.to raise_error SoftValidation::SoftValidationError
@@ -50,7 +50,7 @@ describe 'SoftValidationMethod', group: :soft_validation do
     end
 
     specify '#klass' do
-      expect(soft_validation_method.klass).to eq(klass) 
+      expect(soft_validation_method.klass).to eq(klass)
     end
 
     specify '#set' do
@@ -59,7 +59,7 @@ describe 'SoftValidationMethod', group: :soft_validation do
   end
 
   context 'instance methods' do
-    context 'without description' do 
+    context 'without description' do
       before {
         soft_validation_method.name = nil
         soft_validation_method.description = nil
@@ -82,6 +82,39 @@ describe 'SoftValidationMethod', group: :soft_validation do
         expect(soft_validation_method.to_s).to eq("#{name}: #{description}")
       end
     end
+  end
+
+  specify '#matches? 1' do
+    soft_validation_method.flagged = true
+    soft_validation_method.fix = :fix
+    expect(soft_validation_method.send(:matches?, true, true)).to eq(true)
+  end
+
+  specify '#matches? 2' do
+    soft_validation_method.flagged = true
+    soft_validation_method.fix = :fix
+    # it is flagged, there is a fix, I don't want flagged
+    expect(soft_validation_method.send(:matches?, true, false)).to eq(false)
+  end
+
+  specify '#matches? 3' do
+    soft_validation_method.flagged = false
+    soft_validation_method.fix = :fix
+    # it is not flagged, there is a fix, include flagged/not)
+    expect(soft_validation_method.send(:matches?, true, true)).to eq(true)
+  end
+
+  specify '#matches? 4' do
+    soft_validation_method.flagged = false
+    soft_validation_method.fix = :fix
+    # it is not flagged, it is fixable
+    expect(soft_validation_method.send(:matches?, false, true)).to eq(true)
+  end
+
+  specify '#matches? 5' do
+    soft_validation_method.flagged = true
+    # it is not flagged, it is fixable
+    expect(soft_validation_method.send(:matches?, true, true)).to eq(false)
   end
 
 end

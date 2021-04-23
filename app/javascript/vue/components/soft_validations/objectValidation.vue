@@ -80,7 +80,7 @@ export default {
   methods: {
     getSoftValidation () {
       AjaxCall('get', '/soft_validations/validate', { params: { global_id: this.globalId } }).then(response => {
-        this.validations = response.body.validations.soft_validations.map(validation => validation.message)
+        this.validations = response.body.soft_validations.map(validation => validation.message)
       })
     },
     setModalView (value) {

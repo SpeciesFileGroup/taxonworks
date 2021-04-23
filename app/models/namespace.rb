@@ -49,10 +49,14 @@ class Namespace < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
+  after_update :update_local_idenfifiers
+
   validates_presence_of :name, :short_name
   validates_uniqueness_of :name, :short_name
 
-  # autosave rebuilds the .cache on related records
+  # autosave should resave all, but it clearly doesn't
+  # we also don't want to validte the identifiers on this resave, but rather
+  # just trigger the rebuild of identifiers#cache.  Will have to add an after_save here.
   has_many :identifiers, autosave: true, dependent: :restrict_with_error, inverse_of: :namespace
 
   scope :used_on_klass, -> (klass) { joins(:identifiers).where(identifiers: {identifier_object_type: klass} ) }
@@ -73,6 +77,10 @@ class Namespace < ApplicationRecord
 
     h[:quick] = (Namespace.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq
     h
+  end
+
+  def update_local_idenfifiers
+    Identifier::Local.update_cached(self)
   end
 
 end

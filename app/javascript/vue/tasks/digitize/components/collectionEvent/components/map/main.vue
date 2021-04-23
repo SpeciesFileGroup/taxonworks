@@ -8,6 +8,7 @@
         class="separate-bottom"
         v-for="component in componentsOrder"
         :key="component"
+        :validations="validations"
         :is="component"/>
     </draggable>
   </div>
@@ -17,11 +18,12 @@
 
 import LeafMap from './map.vue'
 import PrintLabel from './printLabel'
-import SoftValidation from './softValidation'
+import SoftValidation from 'components/soft_validations/panel'
 import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
 
+import { GetSoftValidation } from '../../../../request/resources'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 
@@ -42,6 +44,12 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
+    },
+    lastSave () {
+      return this.$store.getters[GetterNames.GetSettings].lastSave
+    },
+    collectingEvent () {
+      return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
   data () {
@@ -52,7 +60,33 @@ export default {
         'PrintLabel',
         'DepictionComponent'
       ],
-      keyStorage: 'tasks::digitize::mapOrder'
+      keyStorage: 'tasks::digitize::mapOrder',
+      validations: {}
+    }
+  },
+
+  watch: {
+    lastSave: {
+      handler (newVal) {
+        if (newVal && this.collectingEvent.id) {
+          GetSoftValidation(this.collectingEvent.global_id).then(response => {
+            const validations = response.body
+            this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
+          })
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+    collectingEvent (newVal, oldVal) {
+      if (newVal.id && newVal.id != oldVal.id) {
+        GetSoftValidation(this.collectingEvent.global_id).then(response => {
+          const validations = response.body
+          this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
+        })
+      } else if (!newVal.id) {
+        this.validations = {}
+      }
     }
   }
 }

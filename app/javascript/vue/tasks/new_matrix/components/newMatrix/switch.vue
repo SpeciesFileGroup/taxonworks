@@ -2,8 +2,8 @@
   <div class="middle">
     <label class="switch middle">
       <div class="middle space-between-switch-options">
-        <span class="switch-option horizontal-center-content">{{ options[0] }}</span>
-        <span class="switch-option horizontal-center-content">{{ options[1] }}</span>
+        <span class="switch-option horizontal-center-content capitalize">{{ options[0] }}</span>
+        <span class="switch-option horizontal-center-content capitalize">{{ options[1] }}</span>
       </div>
       <input
         type="checkbox"
@@ -12,7 +12,7 @@
     </label>
   </div>
 </template>
-  
+
 <script>
 export default {
   props: {

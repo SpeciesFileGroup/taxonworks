@@ -10,13 +10,13 @@
         <ul class="context-menu">
           <li>
             <a
-              href="/tasks/observation_matrices/observation_matrix_hub/index">
+              :href="routeNames.ObservationMatricesHub">
               Hub
             </a>
           </li>
           <li>
             <a
-              href="/tasks/observation_matrices/dashboard/index">
+              :href="routeNames.ObservationMatricesDashboard">
               Dashboard
             </a>
           </li>
@@ -72,25 +72,17 @@
         </ul>
       </div>
     </div>
-    <div class="flexbox horizontal-center-content align-start">
-      <div class="cleft">
+    <div class="horizontal-left-content align-start">
+      <div class="cleft margin-medium-right">
         <new-matrix/>
         <div
           v-if="matrix.id"
           class="separate-top">
-          <template v-if="isFixed">
-            <rows-fixed v-if="isRow"/>
-            <columns-fixed v-else/>
-          </template>
-          <template v-else>
-            <rows-dynamic v-if="isRow"/>
-            <column-dynamic v-else/>
-          </template>
+          <component :is="`rows-${matrixMode}`"/>
+          <component :is="`columns-${matrixMode}`"/>
         </div>
       </div>
-      <div v-if="matrix.id">
-        <tables-component/>
-      </div>
+      <tables-component v-if="matrix.id"/>
     </div>
   </div>
 </template>
@@ -106,69 +98,57 @@ import PinComponent from 'components/pin.vue'
 import SpinnerComponent from 'components/spinner'
 import RadialNavigation from 'components/radials/navigation/radial'
 
-import rowsDynamic from './components/rows/dynamic'
-import columnDynamic from './components/columns/dynamic'
+import RowsDynamic from './components/rows/dynamic'
+import ColumnsDynamic from './components/columns/dynamic'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
     NewMatrix,
     RowsFixed,
-    rowsDynamic,
+    RowsDynamic,
     TablesComponent,
     columnsFixed,
-    columnDynamic,
+    ColumnsDynamic,
     RadialAnnotator,
     PinComponent,
     SpinnerComponent,
     RadialNavigation
   },
+
   computed: {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
     },
-    isRow () {
-      return (this.$store.getters[GetterNames.GetMatrixView] == 'row' ? true : false) 
+    matrixMode () {
+      return this.$store.getters[GetterNames.GetMatrixMode]
     },
-    isFixed () {
-      return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
+    settings () {
+      return this.$store.getters[GetterNames.GetSettings]
     },
-    columnList () {
-      return this.$store.getters[GetterNames.GetMatrixColumns]
-    },
-    matrixId () {
-      return this.$store.getters[GetterNames.GetMatrix].id
-    },
-    settings: {
-      get () {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
+    routeNames () {
+      return RouteNames
     }
   },
-  data() {
+
+  data () {
     return {
       loading: false
     }
   },
-  mounted() {
-    let that = this
-    let matrixId = location.pathname.split('/')[4]
+
+  created () {
+    const matrixId = location.pathname.split('/')[4]
 
     if (/^\d+$/.test(matrixId)) {
-      that.loading = true
-      that.$store.dispatch(ActionNames.LoadMatrix, matrixId).then(function () {
-        that.loading = false
-      }, () => {
-        that.loading = false
+      this.loading = true
+      this.$store.dispatch(ActionNames.LoadMatrix, matrixId).finally(() => {
+        this.loading = false
       })
     }
-  },
-  methods: {
   }
 }
 
@@ -184,16 +164,7 @@ export default {
       max-width: 500px;
       width: 450px;
     }
-    #cright-panel {
-      width: 350px;
-      max-width: 350px;
-    }
-    .cright-fixed-top {
-      top:68px;
-      width: 1240px;
-      z-index:200;
-      position: fixed;
-    }
+
     .anchor {
        display:block;
        height:65px;
@@ -207,6 +178,11 @@ export default {
         font-size: 0;
         margin: 15px;
         border: 0;
+    }
+
+    table {
+      min-width: 500px;
+      width: 100%;
     }
   }
 </style>

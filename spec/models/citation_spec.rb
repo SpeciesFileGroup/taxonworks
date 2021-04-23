@@ -6,12 +6,13 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   let(:source) { FactoryBot.create(:valid_source) }
   let(:topic) { FactoryBot.create(:valid_topic) }
 
-  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) } 
+  let(:pdf) { fixture_file_upload( Spec::Support::Utilities::Files.generate_pdf(pages: 10) ) }
 
   context 'page links' do
-    let!(:document) { Document.create!( document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')),
-                                       initialize_start_page: 10
-                                      ) } 
+    let!(:document) { Document.create!(
+      document_file: fixture_file_upload( fixture_file_upload( pdf, 'application/pdf')),
+      initialize_start_page: 10
+    ) }
 
     let!(:documentation) { Documentation.create!(documentation_object: source, document: document) }
 
@@ -68,59 +69,61 @@ describe Citation, type: :model, group: [:annotators, :citations] do
   context 'soft validation' do
     let!(:c1) { Citation.create!(citation_object: otu, source: source) }
 
+    let!(:m1) { 'Citation is out of the source page range' }
+
     specify 'no pages' do
       c1.pages = nil
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages)).to include('Citation pages are not provided')
     end
 
     specify 'one page in range 1' do
       c1.pages = '25'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages).empty?).to be_truthy
     end
 
     specify 'one page in range 2' do
       c1.pages = '25-26'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
+      c1.soft_validate(only_sets: :page_range)
       expect(c1.soft_validations.messages_on(:pages).empty?).to be_truthy
     end
 
     specify 'page in out of range 1' do
       c1.pages = '55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
-      expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
+      c1.soft_validate(only_sets: :page_range)
+      expect(c1.soft_validations.messages_on(:pages)).to include(m1)
     end
 
     specify 'page in out of range 2' do
       c1.pages = '15'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
-      expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
+      c1.soft_validate(only_sets: :page_range)
+      expect(c1.soft_validations.messages_on(:pages)).to include(m1)
     end
 
     specify 'page in out of range 3' do
       c1.pages = '15-25'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
-      expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
+      c1.soft_validate(only_sets: :page_range)
+      expect(c1.soft_validations.messages_on(:pages)).to include(m1)
     end
 
     specify 'page in out of range 4' do
       c1.pages = '25-55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
-      expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
+      c1.soft_validate(only_sets: :page_range)
+      expect(c1.soft_validations.messages_on(:pages)).to include(m1)
     end
 
     specify 'page in out of range 5' do
       c1.pages = '15-55'
       source.pages = '20-30'
-      c1.soft_validate(:page_range)
-      expect(c1.soft_validations.messages_on(:pages)).to include('Citation is out of the source page range')
+      c1.soft_validate(only_sets: :page_range)
+      expect(c1.soft_validations.messages_on(:pages)).to include(m1)
     end
   end
 
@@ -166,15 +169,15 @@ describe Citation, type: :model, group: [:annotators, :citations] do
 
     specify '#citation_object_id is required by database' do
       c3.source = source
-        c3.citation_object_type = 'Otu'
-        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
-      end
+      c3.citation_object_type = 'Otu'
+      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+    end
 
     specify '#citation_object_type is required by database' do
       c3.source = source
       c3.citation_object_id = otu.id
-        expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
-      end
+      expect{c3.save}.to raise_error(ActiveRecord::StatementInvalid)
+    end
 
     specify 'source_id is required' do
       c3.citation_object = otu

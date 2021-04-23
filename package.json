@@ -4,6 +4,7 @@
     "@ibm/plex": "^5.1.3",
     "@rails/webpacker": "^5.2.1",
     "@sfgrp/sled": "^0.5.4",
+    "@sfgrp/svg-radial-menu": "^1.0.6",
     "axios": "^0.21.1",
     "dompurify": "^2.2.6",
     "easymde": "^2.14.0",

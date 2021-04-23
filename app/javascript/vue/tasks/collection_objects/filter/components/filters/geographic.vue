@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>Geographic area</h3>
-    <switch-component 
+    <switch-component
       class="separate-bottom"
       v-model="view"
       :options="tabs"/>
@@ -16,7 +16,7 @@
           @getItem="addGeoArea($event.id)"/>
       </div>
       <label>
-        <input 
+        <input
           v-model="geographic.spatial_geographic_areas"
           type="checkbox"/>
         Treat geographic areas as spatial
@@ -116,7 +116,7 @@ export default {
     },
     geographic: {
       handler (newVal, oldVal) {
-        if (!newVal.geo_json.length && oldVal.geo_json.length) {
+        if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
           this.geojson = []
         }
         if (!newVal.geographic_area_ids.length) {
@@ -165,7 +165,7 @@ export default {
           type: geojson.type === 'Point' ? 'Point' : 'Polygon'
         },
         properties: {
-          radius: urlParams.radius ? urlParams.radius : undefined
+          radius: urlParams?.radius
         }
       }
     }

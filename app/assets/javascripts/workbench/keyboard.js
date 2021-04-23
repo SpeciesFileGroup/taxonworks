@@ -51,7 +51,7 @@ Object.assign(TW.workbench.keyboard, {
 										<span class="title">Keyboard shortcuts</span> \
 										<div data-icon="close" class="close small-icon"></div> \
 									</div> \
-									<div class="list"> \
+									<div class="list content"> \
 										<div class="item default-shortcuts"> \
 											<table> \
 											' + generalShortcuts + '\

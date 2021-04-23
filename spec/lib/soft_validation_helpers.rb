@@ -1,9 +1,10 @@
-require 'rails_helper'
+require_relative '../../lib/soft_validation'
+# require 'rails_helper'
 
 # Stub class for testing. Mimics only
 # the ActiveRecord Model methods we need to test, 
 # but see also FakeTable for future refactoring.
-class Softy 
+class Softy
   include SoftValidation
 
   # stub AR ancestors method
@@ -24,7 +25,7 @@ class Softy
   end
 
   def haz_cheezburgers?
-    soft_validations.add(:base, 'hungry!', fix: :cook_cheezburgers, success_message: 'no longer hungry, cooked a cheezeburger') if @hungry
+    soft_validations.add(:base, 'hungry!') if @hungry
   end
 
   def needs_moar_cheez? 
@@ -36,7 +37,7 @@ class Softy
   end
 
   def you_do_it?
-    soft_validations.add(:mohr, 'fix it urselv!', resolution_with: __method__) if true 
+    soft_validations.add(:mohr, 'fix it urselv!') if true 
   end
 
   def cook_cheezburgers
@@ -53,9 +54,22 @@ class OtherSofty < Softy
     ['lezz']
   end
 
-  # Stub ancestors method
+  # Mock ancestors method
   def self.ancestors
     [Softy]
-  end 
+  end
 end
 
+# Stub class for testing, used to ensure that soft validation
+# methods are specific to a class
+class OtherOtherSofty < Softy
+  # soft_validate(:bar)
+  def self.column_names
+    ['lezz']
+  end
+
+  # Mock ancestors method
+  def self.ancestors
+    [Softy]
+  end
+end

@@ -129,22 +129,18 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   context 'soft validation' do
     # Can't miss source, it's required by definition
     specify 'is_absent - False' do
-      o = FactoryBot.create(:valid_otu)
       ga  = FactoryBot.create(:level2_geographic_area)
-      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: true, otu: o)
-
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: false, otu: o)
-      ad2.soft_validate(:conflicting_geographic_area)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga.parent, is_absent: true)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, geographic_area: ga)
+      ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
-
-      o = FactoryBot.create(:valid_otu)
       ga  = FactoryBot.create(:level2_geographic_area)
-      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga, otu: o)
-      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, geographic_area: ga, is_absent: true, otu: o)
-      ad2.soft_validate(:conflicting_geographic_area)
+      _ad1 = FactoryBot.create(:valid_asserted_distribution, geographic_area: ga)
+      ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, otu_id: _ad1.otu_id, geographic_area: ga, is_absent: true)
+      ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
       expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
     end
   end

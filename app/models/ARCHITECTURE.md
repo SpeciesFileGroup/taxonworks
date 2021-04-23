@@ -1,11 +1,7 @@
+# Code Organization
 
+Our general approach to AR based models uses the pattern below.  Please use it. 
 
-Code Organization
-=================
-
-Our general approach to AR based models uses the pattern below.  Please use it.  Identifying sections
-with comments _is not required_ and should only be done if absolutely necessary for use in active
-development.
 
   ```
   class Foo << ApplicationRecord
@@ -21,8 +17,8 @@ development.
     # Class constants
     BLORF = 123
 
-    # Class variables
-    @@foo = 1
+    # We do not use Class variables
+    # @@foo = 1
 
     # Instance variables
     attr_accessor :foo
@@ -47,7 +43,7 @@ development.
     # "Soft" Validations
     soft_validate(:sv_validate_parent_rank, set: :validate_parent_rank)
 
-    # Getters/Setters
+    # Getters/Setters for attr_ attributes
     def wings=(value)
       # ...
     end
@@ -82,5 +78,21 @@ development.
     def attack!
       #...
     end
+
+    # Soft validation methods
+    def sv_safe
+      #...
+    end
+
   end 
-  ```
+```
+
+# Naming methods and variables
+* See `[/ARCHITECTURE.md](/ARCHITECTURE.md)`
+* There is one exception to above, soft validation tests and fixes are prefixed with `sv_`
+
+# Commenting code
+* Do not leave commented out code for reminders etc. after test pass. We can use past commits to look up past work.
+* Prefer inline commenting rather than begin/end
+* Use uppercase `TODO` when referencing
+* Do not use comments to define sections, rather organize code consistently as above

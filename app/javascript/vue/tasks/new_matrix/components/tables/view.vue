@@ -1,5 +1,5 @@
 <template>
-  <div class="flexbox horizontal-left-content align-start margin-medium-left">
+  <div class="horizontal-left-content align-start">
     <div>
       <rows-table
         class="margin-medium-bottom"
@@ -67,10 +67,7 @@
 </template>
 <script>
 
-import { 
-  default as RowsTable,
-  default as ColumnsTable
-} from './table.vue'
+import TableComponent from './table.vue'
 
 import { SortRows, SortColumns } from '../../request/resources'
 import { GetterNames } from '../../store/getters/getters'
@@ -79,12 +76,12 @@ import PaginationComponent from 'components/pagination'
 
 export default {
   components: {
-    RowsTable,
-    ColumnsTable,
+    RowsTable: TableComponent,
+    ColumnsTable: TableComponent,
     PaginationComponent
   },
   computed: {
-    matrixId() {
+    matrixId () {
       return this.$store.getters[GetterNames.GetMatrix].id
     },
     columnsList() {

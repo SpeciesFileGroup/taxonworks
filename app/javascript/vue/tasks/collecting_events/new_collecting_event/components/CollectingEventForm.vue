@@ -18,7 +18,6 @@
             v-for="(componentName) in column"
             v-model="collectingEvent"
             :components-order="componentsOrder"
-            :soft-validation="softValidation"
             :key="componentName"
             :is="componentName"/>
         </draggable>
@@ -47,20 +46,19 @@ export default {
     Draggable,
     ...VueComponents
   },
+
   props: {
     value: {
       type: Object,
       required: true
     },
+
     sortable: {
       type: Boolean,
       default: false
-    },
-    softValidation: {
-      type: Array,
-      default: () => []
     }
   },
+
   computed: {
     lastColumn () {
       return Object.keys(this.componentsOrder).length - 1
@@ -79,6 +77,7 @@ export default {
       }
     }
   },
+
   watch: {
     preferences: {
       handler () {
