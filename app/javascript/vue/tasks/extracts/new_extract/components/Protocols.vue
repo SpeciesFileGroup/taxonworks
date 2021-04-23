@@ -14,7 +14,7 @@
     <display-list
       :list="protocols"
       @deleteIndex="removeProtocol"
-      label="name"/>
+      label="object_tag"/>
   </div>
 </template>
 
@@ -26,6 +26,7 @@ import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { DestroyProtocol } from '../request/resources'
 
 export default {
   mixins: [componentExtend],
@@ -49,11 +50,13 @@ export default {
 
   methods: {
     addProtocol (protocol) {
-      this.protocols.push(protocol)
+      this.protocols.push({ protocol_id: protocol.id })
     },
 
     removeProtocol (index) {
-      this.protocols.splice(index, 1)
+      DestroyProtocol(this.protocols[index].id).then(() => {
+        this.protocols.splice(index, 1)
+      })
     }
   }
 }

@@ -4,9 +4,11 @@ const CreateExtract = data => AjaxCall('post', '/extracts.json', { extract: data
 
 const CreateIdentifier = data => AjaxCall('post', '/identifiers.json', { identifier: data })
 
-const CreateProtocol = data => AjaxCall('post', '/protocol_relationships.json', { protocol_relationships: data })
+const CreateProtocol = data => AjaxCall('post', '/protocol_relationships.json', { protocol_relationship: data })
 
 const DestroyExtract = id => AjaxCall('delete', `/extracts/${id}.json`)
+
+const DestroyProtocol = id => AjaxCall('delete', `/protocol_relationships/${id}.json`)
 
 const GetExtract = id => AjaxCall('get', `/extracts/${id}.json`)
 
@@ -34,7 +36,7 @@ const UpdateProtocol = data => AjaxCall('patch', `/protocol_relationships/${data
 
 const CreateOriginRelationship = data => AjaxCall('post', '/origin_relationships.json', { origin_relationship: data })
 
-const UpdateOriginRelationship = data => AjaxCall('post', `/origin_relationships/${data.id}.json`, { origin_relationship: data })
+const UpdateOriginRelationship = data => AjaxCall('patch', `/origin_relationships/${data.id}.json`, { origin_relationship: data })
 
 export {
   CreateExtract,
@@ -42,6 +44,7 @@ export {
   CreateOriginRelationship,
   CreateProtocol,
   DestroyExtract,
+  DestroyProtocol,
   GetExtract,
   GetExtracts,
   GetIdentifiers,

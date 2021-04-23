@@ -1,4 +1,5 @@
 import addIdentifier from './addIdentifier'
+import addProtocol from './addProtocol'
 import setExtract from './setExtract'
 import setIdentifiers from './setIdentifiers'
 import setRecents from './setRecent'
@@ -13,6 +14,7 @@ import setState from './setState'
 
 const MutationNames = {
   AddIdentifier: 'addIdentifier',
+  AddProtocol: 'addProtocol',
   SetExtract: 'setExtract',
   SetIdentifiers: 'setIdentifiers',
   SetRecents: 'setRecent',
@@ -28,6 +30,7 @@ const MutationNames = {
 
 const MutationFunctions = {
   [MutationNames.AddIdentifier]: addIdentifier,
+  [MutationNames.AddProtocol]: addProtocol,
   [MutationNames.SetExtract]: setExtract,
   [MutationNames.SetIdentifiers]: setIdentifiers,
   [MutationNames.SetRecents]: setRecents,

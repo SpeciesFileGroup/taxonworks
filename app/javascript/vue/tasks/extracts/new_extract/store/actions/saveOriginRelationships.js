@@ -8,6 +8,7 @@ export default ({ state, commit }) => {
   if (!originRelationship.oldObject) return
 
   const data = {
+    id: originRelationship.id,
     old_object_id: originRelationship.oldObject.old_object_id,
     old_object_type: originRelationship.oldObject.old_object_type,
     new_object_type: 'Extract',

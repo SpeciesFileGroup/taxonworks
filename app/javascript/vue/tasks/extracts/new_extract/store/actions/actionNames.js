@@ -11,6 +11,7 @@ const ActionNames = {
   SaveExtract: 'saveExtract',
   SaveIdentifiers: 'saveIdentifiers',
   SaveOriginRelationship: 'saveOriginRelationship',
+  SaveProtocols: 'saveProtocols',
   ResetState: 'resetState'
 }
 
