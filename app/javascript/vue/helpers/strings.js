@@ -7,7 +7,12 @@ function shorten (str, maxLen, separator = ' ') {
   return `${str.substr(0, str.lastIndexOf(separator, maxLen))} ...`
 }
 
+function toSnakeCase (string) {
+  return string.replace(/\.?([A-Z])/g, (x, y) => `_${y.toLowerCase()}`).replace(/^_/, '')
+}
+
 export {
   capitalize,
-  shorten
+  shorten,
+  toSnakeCase
 }

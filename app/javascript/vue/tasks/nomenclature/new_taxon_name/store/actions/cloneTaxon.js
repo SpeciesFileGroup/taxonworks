@@ -1,4 +1,5 @@
-import { createTaxonName, createTaxonRelationship } from '../../request/resources'
+import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
+import { TaxonNameRelationships } from 'routes/endpoints/TaxonNameRelationships.js'
 
 export default function ({ state }, copyValues) {
   const taxon = state.taxon_name
@@ -22,7 +23,7 @@ export default function ({ state }, copyValues) {
   }
 
   state.settings.saving = true
-  createTaxonName({ taxon_name: cloneTaxon }).then(response => {
+  TaxonNames.create({ taxon_name: cloneTaxon }).then(response => {
     const newTaxon = response.body
     const promises = []
     if (copyValues.includes('original_combination')) {
@@ -35,7 +36,7 @@ export default function ({ state }, copyValues) {
             object_taxon_name_id: newTaxon.id,
             type: state.original_combination[key].type
           }
-          createTaxonRelationship({ taxon_name_relationship: relationship }).then(relationshipResponse => {
+          TaxonNameRelationships.create({ taxon_name_relationship: relationship }).then(relationshipResponse => {
             return resolve(relationshipResponse.body)
           })
         }))

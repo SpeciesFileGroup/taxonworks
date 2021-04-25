@@ -80,7 +80,8 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import { GetRelationshipsMetadata, GetTaxonName } from '../../request/resources.js'
+import { GetRelationshipsMetadata } from '../../request/resources.js'
+import { TaxonNames } from 'routes/endpoints/TaxonNames'
 import Autocomplete from 'components/autocomplete'
 import ListComponent from '../relationshipsList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -163,7 +164,7 @@ export default {
           const isSubject = relationship.hasOwnProperty('subject_taxon_name_id')
           const typeName = (isSubject ? 'subject_status_tag' : 'object_status_tag')
           const taxonId = relationship[(isSubject ? 'subject_taxon_name_id' : 'object_taxon_name_id')]
-          GetTaxonName(taxonId).then(taxon => {
+          TaxonNames.find(taxonId).then(taxon => {
             this.relationships.push(
               {
                 type_object: this.mergeLists.all[relationship.type],

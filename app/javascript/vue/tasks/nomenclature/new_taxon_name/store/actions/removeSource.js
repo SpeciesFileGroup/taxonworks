@@ -1,15 +1,15 @@
-import { updateTaxonName } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
+import { TaxonNames } from 'routes/endpoints/TaxonNames'
 
 export default function ({ commit, state }, citationId) {
-  const data = {
+  const taxon_name = {
     id: state.taxon_name.id,
     origin_citation_attributes: {
       id: citationId,
       _destroy: true
     }
   }
-  updateTaxonName(data).then(response => {
+  TaxonNames.update(taxon_name.id, { taxon_name }).then(response => {
     commit(MutationNames.SetCitation, response.body)
   })
 }

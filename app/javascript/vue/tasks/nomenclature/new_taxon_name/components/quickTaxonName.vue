@@ -58,6 +58,7 @@ import Autocomplete from 'components/autocomplete'
 import ModalComponent from 'components/modal'
 import { GetterNames } from '../store/getters/getters'
 import { createTaxonName } from '../request/resources'
+import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
 
 export default {
   components: {
@@ -115,7 +116,7 @@ export default {
       }
     },
     create () {
-      createTaxonName({
+      TaxonNames.create({
         taxon_name: {
           name: this.name,
           rank_class: this.speciesRank,

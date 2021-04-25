@@ -39,6 +39,7 @@
           :key="`${rIndex}-depictions`">
           <character-state
             v-for="(characterState, index) in row"
+            :key="index"
             v-model="selected"
             :character-state="characterState"
           />

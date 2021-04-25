@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Moved endpoints to own model file
+- Permit params on client side
+
 ### Fixed
 - Frame overlaps in interactive key task [#2202]
 
