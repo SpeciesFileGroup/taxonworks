@@ -367,8 +367,8 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
-    t.integer "confidence_object_id", null: false
     t.string "confidence_object_type", null: false
+    t.integer "confidence_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -793,8 +793,8 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.string "vernacularName"
     t.string "waterBody"
     t.string "year"
-    t.integer "dwc_occurrence_object_id"
     t.string "dwc_occurrence_object_type"
+    t.integer "dwc_occurrence_object_id"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id"
@@ -804,18 +804,20 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
   end
 
   create_table "extracts", id: :serial, force: :cascade do |t|
+    t.decimal "quantity_value", null: false
+    t.string "quantity_unit", null: false
     t.string "verbatim_anatomical_origin"
-    t.integer "year_made"
-    t.integer "month_made"
-    t.integer "day_made"
+    t.integer "year_made", null: false
+    t.integer "month_made", null: false
+    t.integer "day_made", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "repository_id"
+    t.decimal "concentration_value"
+    t.string "concentration_unit"
     t.index ["project_id"], name: "index_extracts_on_project_id"
-    t.index ["repository_id"], name: "index_extracts_on_repository_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -1070,7 +1072,7 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.datetime "updated_at", null: false
     t.string "recipient_honorific"
     t.string "recipient_country"
-    t.text "lender_address", default: "Lender's address not provided.", null: false
+    t.text "lender_address", null: false
     t.index ["created_by_id"], name: "index_loans_on_created_by_id"
     t.index ["project_id"], name: "index_loans_on_project_id"
     t.index ["updated_by_id"], name: "index_loans_on_updated_by_id"
@@ -1259,10 +1261,10 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
   end
 
   create_table "origin_relationships", id: :serial, force: :cascade do |t|
-    t.integer "old_object_id", null: false
     t.string "old_object_type", null: false
-    t.integer "new_object_id", null: false
+    t.integer "old_object_id", null: false
     t.string "new_object_type", null: false
+    t.integer "new_object_id", null: false
     t.integer "position"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -1416,8 +1418,8 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
 
   create_table "protocol_relationships", id: :serial, force: :cascade do |t|
     t.integer "protocol_id", null: false
-    t.integer "protocol_relationship_object_id", null: false
     t.string "protocol_relationship_object_type", null: false
+    t.integer "protocol_relationship_object_id", null: false
     t.integer "position", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -2020,7 +2022,6 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
   add_foreign_key "dwc_occurrences", "users", column: "created_by_id"
   add_foreign_key "dwc_occurrences", "users", column: "updated_by_id"
   add_foreign_key "extracts", "projects"
-  add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"

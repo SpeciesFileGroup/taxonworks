@@ -17,7 +17,7 @@ class IdentifiersController < ApplicationController
       }
     end
   end
- 
+
   # GET /identifers/1
   def show
   end
@@ -131,13 +131,13 @@ class IdentifiersController < ApplicationController
     params.permit(
       :query_string,
       :identifier,
-      :namespace_id,
-      :namespace_short_name,
-      :namespace_name,
-      :identifier_object_type,
       :identifier_object_id,
-      :type,
+      :identifier_object_type,
+      :namespace_id,
+      :namespace_name,
+      :namespace_short_name,
       :object_global_id,
+      :type,
       identifier_object_ids: [],
       identifier_object_types: [],
     )

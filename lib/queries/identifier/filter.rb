@@ -17,7 +17,7 @@ module Queries
       attr_accessor :namespace_short_name
       attr_accessor :namespace_name
 
-      attr_accessor :identifier_object_type, :identifier_object_id 
+      attr_accessor :identifier_object_type, :identifier_object_id
       attr_accessor :identifier_object_ids
       attr_accessor :identifier_object_types
 
@@ -34,12 +34,12 @@ module Queries
         @namespace_short_name = params[:namespace_short_name]
         @namespace_name = params[:namespace_name]
 
-        @identifier_object_type = params[:identifier_object_type] 
-        @identifier_object_id = params[:identifier_object_id] 
+        @identifier_object_type = params[:identifier_object_type]
+        @identifier_object_id = params[:identifier_object_id]
 
         # TODO: deprecate, see README.md
-        @identifier_object_ids = params[:identifier_object_ids] || []
-        @identifier_object_types = params[:identifier_object_types] || []
+        @identifier_object_ids = params[:identifier_object_id] || []
+        @identifier_object_types = params[:identifier_object_type] || []
 
         @type = params[:type]
 
@@ -135,7 +135,7 @@ module Queries
       end
 
       def matching_namespace(attribute)
-        v = self.send("namespace_#{attribute}") 
+        v = self.send("namespace_#{attribute}")
         return nil if v.blank?
         o = table
         n = ::Namespace.arel_table
