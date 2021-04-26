@@ -138,8 +138,8 @@ class IdentifiersController < ApplicationController
       :namespace_short_name,
       :object_global_id,
       :type,
-      identifier_object_ids: [],
-      identifier_object_types: [],
+      identifier_object_id: [],
+      identifier_object_type: [],
     )
   end
 
@@ -151,7 +151,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
+    params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
   end
 
 end
