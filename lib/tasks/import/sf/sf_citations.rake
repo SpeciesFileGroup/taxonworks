@@ -1606,7 +1606,7 @@ namespace :tw do
           TaxonNameRelationship.where(project_id: project_id).find_each do |t|
             i += 1
             print "\r#{i}    Fixes applied: #{fixed}"
-            t.soft_validate(fixable: true)
+            t.soft_validate(fixable: true, except_sets: [:coordinated_taxa])
             t.fix_soft_validations
             t.soft_validations.soft_validations.each do |f|
               fixed += 1 if f.fixed?
