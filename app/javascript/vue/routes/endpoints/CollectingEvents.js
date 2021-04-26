@@ -74,6 +74,6 @@ const permitParams = {
   }
 }
 
-export const TaxonNames = {
+export const CollectingEvents = {
   ...baseCRUD('collecting_events', permitParams)
 }
