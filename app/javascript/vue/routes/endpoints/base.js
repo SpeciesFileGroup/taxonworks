@@ -28,7 +28,7 @@ const filterParams = (params, allowParams) => {
 }
 
 export default (model, permitParams) => ({
-  all: (params) => AjaxCall('get', `/${model}.json`),
+  all: () => AjaxCall('get', `/${model}.json`),
 
   create: (data) => AjaxCall('post', `/${model}.json`, filterParams(data, permitParams)),
 

@@ -6,14 +6,14 @@ import setParam from 'helpers/setParam'
 export default ({ state, commit }) => {
   state.settings.saving = true
   if (state.source.id) {
-    Source.update(state.source.id, state.source).then(response => {
+    Source.update(state.source.id, { source: state.source }).then(response => {
       setSource(response.body)
       TW.workbench.alert.create('Source was successfully updated.', 'notice')
     }, () => {
       state.settings.saving = false
     })
   } else {
-    Source.create(state.source).then(response => {
+    Source.create({ source: state.source }).then(response => {
       setSource(response.body)
       TW.workbench.alert.create('Source was successfully created.', 'notice')
     }, () => {
