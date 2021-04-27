@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - Moved endpoints to own model file
 - Permit params on client side
+- OTU picker on new observation matrix [#2209]
 
 ### Fixed
 - Frame overlaps in interactive key task [#2202]
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
 [#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
+[#2209]: https://github.com/SpeciesFileGroup/taxonworks/issues/2209
 [#2211]: https://github.com/SpeciesFileGroup/taxonworks/issues/2211
 
 ## [0.17.0] - 2020-04-23
