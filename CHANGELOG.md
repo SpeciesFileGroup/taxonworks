@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Frame overlaps in interactive key task [#2202]
 - Parse coordinate characters on comprehensive and new collecting event tasks
 - Hide row/column panel on new observation matrix
+- Soft validation section is always visible [#2211]
 
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
 [#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
+[#2211]: https://github.com/SpeciesFileGroup/taxonworks/issues/2211
 
 ## [0.17.0] - 2020-04-23
 

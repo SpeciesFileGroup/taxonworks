@@ -1,5 +1,6 @@
 <template>
   <soft-validations
+    v-if="areValidations"
     class="margin-medium-bottom full_width"
     :validations="validations"/>
 </template>
@@ -37,7 +38,11 @@ export default {
       })
 
       Promise.all(promises).then((list) => {
-        this.$set(this.validations, key, { list, title: key })
+        const validationList = list.filter(item => item.soft_validations.length)
+
+        if (validationList.length) {
+          this.$set(this.validations, key, { list: validationList, title: key })
+        }
       })
     })
   }
