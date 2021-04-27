@@ -14,7 +14,7 @@ export default ({ state, commit }) => {
     commit(MutationNames.SetSource, source)
 
     SoftValidation.find(response.body.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
 
     setParam('/tasks/sources/new_source', 'source_id', response.body.id)

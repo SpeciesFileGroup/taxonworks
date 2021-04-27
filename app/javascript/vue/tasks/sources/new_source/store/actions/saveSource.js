@@ -30,7 +30,7 @@ export default ({ state, commit }) => {
     commit(MutationNames.SetSource, source)
     setParam('/tasks/sources/new_source', 'source_id', source.id)
     SoftValidation.find(source.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
     state.settings.saving = false
     commit(MutationNames.SetLastSave, Date.now() + 100)
