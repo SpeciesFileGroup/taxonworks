@@ -763,6 +763,9 @@ namespace :tw do
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
+          sf_taxa_rank = {}
+          file.each { |r| sf_taxa_rank[r["TaxonNameID"]] = r["RankID"] }
+
           error_counter = 0
           count_found = 0
           no_parent_counter = 0
@@ -947,10 +950,16 @@ namespace :tw do
               nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum' if (status_flags.to_i & 8) == 8
               nomen_dubium = 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium' if status_flags.to_i & 16 == 16
 
+              if name_status == '7' && row['RankID'].to_i <= 20 && sf_taxa_rank[row['AboveID']].to_i > row['RankID'].to_i
+                sf_rank = sf_taxa_rank[row['AboveID']]
+              else
+                sf_rank = row['RankID']
+              end
+
               taxon_name = Protonym.new(
                   name: row['Name'],
                   parent_id: parent_id,
-                  rank_class: get_tw_rank_string[row['RankID']],
+                  rank_class: get_tw_rank_string[sf_rank],
 
                   data_attributes_attributes: [
                       {type: 'ImportAttribute',
