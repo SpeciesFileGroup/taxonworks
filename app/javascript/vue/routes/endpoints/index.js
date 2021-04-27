@@ -1,3 +1,4 @@
+import { AssertedDistribution } from './AssertedDistribution'
 import { BiocurationClassification } from './BiocurationClassification'
 import { Citation } from './Citation'
 import { CollectingEvent } from './CollectingEvents'
@@ -6,6 +7,8 @@ import { Combination } from './Combination'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
 import { Depiction } from './Depiction'
 import { Identifier } from './Identifier'
+import { Namespace } from './Namespace'
+import { Otu } from './Otu'
 import { PreparationType } from './PreparationType'
 import { Repository } from './Repository'
 import { SoftValidation } from './SoftValidation'
@@ -14,9 +17,9 @@ import { TaxonName } from './TaxonName'
 import { TaxonNameClassification } from './TaxonNameClassifications'
 import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { TypeMaterial } from './TypeMaterial'
-import { Namespace } from './Namespace'
 
 export {
+  AssertedDistribution,
   BiocurationClassification,
   Citation,
   CollectingEvent,
@@ -26,6 +29,7 @@ export {
   Depiction,
   Identifier,
   Namespace,
+  Otu,
   PreparationType,
   Repository,
   SoftValidation,
