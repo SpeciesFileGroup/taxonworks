@@ -21,10 +21,9 @@
 
 import TableList from 'components/table_list'
 import SpinnerComponent from 'components/spinner'
-import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/modal'
-
-import { GetRecentSources } from '../request/resources'
+import { ActionNames } from '../store/actions/actions'
+import { Source } from 'routes/endpoints'
 
 export default {
   components: {
@@ -44,7 +43,7 @@ export default {
   methods: {
     getSources () {
       this.searching = true
-      GetRecentSources().then(response => {
+      Source.where({ per: 10, recent: true }).then(response => {
         this.sources = response.body
         this.searching = false
       })

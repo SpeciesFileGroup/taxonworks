@@ -1,4 +1,4 @@
-import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, dispatch }, taxon) {
@@ -14,7 +14,7 @@ export default function ({ commit, dispatch }, taxon) {
   }
 
   return new Promise((resolve, reject) => {
-    TaxonNames.create({ taxon_name }).then(response => {
+    TaxonName.create({ taxon_name }).then(response => {
       history.pushState(null, null, `/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.body.id}`)
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
       commit(MutationNames.SetTaxon, response.body)

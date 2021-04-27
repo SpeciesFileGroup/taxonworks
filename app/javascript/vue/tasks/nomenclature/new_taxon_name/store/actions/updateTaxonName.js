@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
+import { TaxonName } from 'routes/endpoints'
 
 export default function ({ commit, state, dispatch }, taxon) {
   commit(MutationNames.SetSaving, true)
@@ -24,7 +24,7 @@ export default function ({ commit, state, dispatch }, taxon) {
       delete state.taxon_name.origin_citation_attributes
     }
 
-    TaxonNames.update(taxon_name.id, { taxon_name }).then(response => {
+    TaxonName.update(taxon_name.id, { taxon_name }).then(response => {
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully updated.`, 'notice')
       if (!response.body.hasOwnProperty('taxon_name_author_roles')) {
         response.body.taxon_name_author_roles = []

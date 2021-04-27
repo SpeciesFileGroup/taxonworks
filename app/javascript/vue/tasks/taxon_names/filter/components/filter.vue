@@ -75,7 +75,7 @@ import EtymologyComponent from './filters/etymology'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 
-import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
+import { TaxonName } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -135,7 +135,7 @@ export default {
     searchForTaxonNames (params) {
       this.searching = true
 
-      TaxonNames.index(params).then(response => {
+      TaxonName.where(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.request.responseURL)

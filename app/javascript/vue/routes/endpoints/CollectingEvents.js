@@ -74,6 +74,6 @@ const permitParams = {
   }
 }
 
-export const CollectingEvents = {
+export const CollectingEvent = {
   ...baseCRUD('collecting_events', permitParams)
 }

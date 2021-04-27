@@ -15,7 +15,7 @@ const permitParams = {
   }
 }
 
-export const TaxonNameClassifications = {
+export const TaxonNameClassification = {
   ...baseCRUD('taxon_name_classifications', permitParams),
   types: () => AjaxCall('get', '/taxon_name_classifications/taxon_name_classification_types')
 }

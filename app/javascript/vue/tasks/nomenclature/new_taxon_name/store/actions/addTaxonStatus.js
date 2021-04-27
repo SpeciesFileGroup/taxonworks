@@ -1,4 +1,4 @@
-import { TaxonNameClassifications } from 'routes/endpoints/TaxonNameClassifications'
+import { TaxonNameClassification } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ dispatch, commit, state }, status) {
@@ -12,7 +12,7 @@ export default function ({ dispatch, commit, state }, status) {
       }
     }
     return new Promise(function (resolve, reject) {
-      TaxonNameClassifications.create(newClassification).then(response => {
+      TaxonNameClassification.create(newClassification).then(response => {
         Object.defineProperty(response.body, 'type', { value: status.type })
         Object.defineProperty(response.body, 'object_tag', { value: status.name })
         commit(MutationNames.AddTaxonStatus, response.body)

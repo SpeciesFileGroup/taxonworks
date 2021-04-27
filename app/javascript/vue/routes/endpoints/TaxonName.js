@@ -39,12 +39,16 @@ const permitParams = {
   }
 }
 
-export const TaxonNames = {
+export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
   loadRanks: () => AjaxCall('get', `/${model}/ranks`),
 
   classifications: (id) => AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
 
-  relationships: (id, params) => AjaxCall('get', `/${model}/${id}/taxon_name_relationships.json`, { params })
+  relationships: (id, params) => AjaxCall('get', `/${model}/${id}/taxon_name_relationships.json`, { params }),
+
+  parse: (params) => AjaxCall('get', '/taxon_names/parse', { params }),
+
+  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name: name }})
 }

@@ -28,7 +28,7 @@
 
 import Autocomplete from 'components/autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { TaxonNames } from 'routes/endpoints/TaxonNames.js'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     setTaxon (id) {
-      TaxonNames.find(id).then(response => {
+      TaxonName.find(id).then(response => {
         this.selectedTaxon = response.body
         this.$emit('input', [response.body.id])
       })

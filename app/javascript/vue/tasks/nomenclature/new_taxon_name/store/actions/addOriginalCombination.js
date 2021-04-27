@@ -1,4 +1,4 @@
-import { TaxonNameRelationships } from 'routes/endpoints/TaxonNameRelationships'
+import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, state, dispatch }, data) {
@@ -9,7 +9,7 @@ export default function ({ commit, state, dispatch }, data) {
   }
 
   return new Promise((resolve, reject) => {
-    TaxonNameRelationships.create({ taxon_name_relationship }).then(response => {
+    TaxonNameRelationship.create({ taxon_name_relationship }).then(response => {
       commit(MutationNames.AddOriginalCombination, response.body)
       dispatch('loadSoftValidation', 'original_combination')
       resolve(response.body)

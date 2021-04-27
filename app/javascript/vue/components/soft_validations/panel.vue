@@ -76,7 +76,7 @@
 
 <script>
 
-import { SoftValidationFix } from './request/resources'
+import { SoftValidation } from 'routes/endpoints'
 import { TippyComponent } from 'vue-tippy'
 
 export default {
@@ -99,7 +99,7 @@ export default {
     runFix (fixItems) {
       const promises = []
 
-      fixItems.forEach(params => { promises.push(SoftValidationFix(params)) })
+      fixItems.forEach(params => { promises.push(SoftValidation.fix(params.global_id, params)) })
 
       Promise.all(promises).then(() => {
         location.reload()

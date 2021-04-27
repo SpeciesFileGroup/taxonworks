@@ -1,9 +1,9 @@
-import { CloneSource, LoadSoftValidation } from '../../request/resources'
+import { Source, SoftValidation } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
-  CloneSource(state.source.id).then(response => {
+  Source.clone(state.source.id).then(response => {
     const source = response.body
 
     const authors = source.author_roles
@@ -13,7 +13,7 @@ export default ({ state, commit }) => {
 
     commit(MutationNames.SetSource, source)
 
-    LoadSoftValidation(response.body.global_id).then(response => {
+    SoftValidation.find(response.body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
     })
 

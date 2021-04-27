@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { TaxonNames } from 'routes/endpoints/TaxonNames'
+import { TaxonName } from 'routes/endpoints'
 
 export default function ({ commit, state }, citationId) {
   const taxon_name = {
@@ -9,7 +9,7 @@ export default function ({ commit, state }, citationId) {
       _destroy: true
     }
   }
-  TaxonNames.update(taxon_name.id, { taxon_name }).then(response => {
+  TaxonName.update(taxon_name.id, { taxon_name }).then(response => {
     commit(MutationNames.SetCitation, response.body)
   })
 }

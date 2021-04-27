@@ -1,8 +1,8 @@
-import { TaxonNameRelationships } from 'routes/endpoints/TaxonNameRelationships'
+import { TaxonNameRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, dispatch }, relationship) {
-  return TaxonNameRelationships.destroy(relationship.id).then(response => {
+  return TaxonNameRelationship.destroy(relationship.id).then(response => {
     commit(MutationNames.RemoveTaxonRelationship, relationship)
     dispatch('loadSoftValidation', 'taxonRelationshipList')
     dispatch('loadSoftValidation', 'original_combination')
