@@ -1,5 +1,6 @@
 import { AssertedDistribution } from './AssertedDistribution'
 import { BiocurationClassification } from './BiocurationClassification'
+import { BiologicalRelationship } from './BiologicalRelationship'
 import { Citation } from './Citation'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
@@ -21,6 +22,7 @@ import { TypeMaterial } from './TypeMaterial'
 export {
   AssertedDistribution,
   BiocurationClassification,
+  BiologicalRelationship,
   Citation,
   CollectingEvent,
   CollectionObject,
