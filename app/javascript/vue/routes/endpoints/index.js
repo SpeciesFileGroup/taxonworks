@@ -2,6 +2,7 @@ import { AssertedDistribution } from './AssertedDistribution'
 import { BiocurationClassification } from './BiocurationClassification'
 import { BiologicalRelationship } from './BiologicalRelationship'
 import { Citation } from './Citation'
+import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
@@ -17,6 +18,7 @@ import { Source } from './Source'
 import { TaxonName } from './TaxonName'
 import { TaxonNameClassification } from './TaxonNameClassifications'
 import { TaxonNameRelationship } from './TaxonNameRelationships'
+import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
 
 export {
@@ -24,6 +26,7 @@ export {
   BiocurationClassification,
   BiologicalRelationship,
   Citation,
+  CitationTopic,
   CollectingEvent,
   CollectionObject,
   Combination,
@@ -39,5 +42,6 @@ export {
   TaxonName,
   TaxonNameClassification,
   TaxonNameRelationship,
+  Topic,
   TypeMaterial
 }

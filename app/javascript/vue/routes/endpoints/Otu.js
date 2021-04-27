@@ -1,4 +1,4 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
 
 const permitParams = {
   otu: {
@@ -9,5 +9,6 @@ const permitParams = {
 }
 
 export const Otu = {
-  ...baseCRUD('otus', permitParams)
+  ...baseCRUD('otus', permitParams),
+  ...annotations('otus')
 }

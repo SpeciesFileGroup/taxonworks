@@ -44,3 +44,7 @@ export default (model, permitParams) => ({
 export {
   filterParams
 }
+
+export const annotations = (model) => ({
+  citations: (id) => AjaxCall('get', `/${model}/${id}/citations.json`)
+})
