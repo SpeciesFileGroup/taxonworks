@@ -4,4 +4,14 @@ json.extract! extract, :id,
 :year_made, :month_made, :day_made,
 :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
+# TODO: move to shared
+if extract.extractor_roles.any?
+  json.extractor_roles(extract.extractor_roles) do |role|
+    json.extract! role, :id, :position, :type
+    json.person do
+      json.partial! '/people/base_attributes', person: role.person 
+    end
+  end
+end 
+
 json.partial! '/shared/data/all/metadata', object: extract
