@@ -19,6 +19,21 @@ namespace :tw do
           count_found = 0
           not_found = 0
 
+          nomenclator_id_lut = {}
+          nomenclator_is_species_lut = {}
+
+
+          CSV.foreach(@args[:data_directory] + 'tblCites.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            nomenclator_id_lut[[row["TaxonNameID"], row["RefID"]]] = row["NomenclatorID"]
+          end
+
+          CSV.foreach(@args[:data_directory] + 'tblNomenclator.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            nomenclator_is_species_lut[row["NomenclatorID"]] =
+              row["SpeciesNameID"].to_i != 0 &&
+              row["SubspeciesNameID"].to_i == 0 &&
+              row["InfrasubspeciesNameID"].to_i == 0
+          end
+
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
@@ -32,6 +47,7 @@ namespace :tw do
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
+            # Maybe ignore or use only when cannot be extracted from nomenclator of original citation
             if get_tw_taxon_name_id[row['OriginalGenusID']]
               original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]
             else
@@ -50,6 +66,17 @@ namespace :tw do
                   created_by_id: get_tw_user_id[row['CreatedBy']],
                   updated_by_id: get_tw_user_id[row['ModifiedBy']],
                   project_id: get_tw_project_id[row['FileID']])
+            end
+
+            if species_protonym.rank_class.rank_name =~ /Subspecies/i # Handle some [SPECIES NOT SPECIFIED] cases
+              if species_protonym.original_species.nil? && nomenclator_is_species_lut[ nomenclator_id_lut[ [row["TaxonNameID"], row["RefID"]] ] ]
+                TaxonNameRelationship::OriginalCombination::OriginalSpecies.find_or_create_by!(
+                  subject_taxon_name_id: species_id,
+                  object_taxon_name_id: species_id,
+                  created_by_id: get_tw_user_id[row['CreatedBy']],
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
+                  project_id: get_tw_project_id[row['FileID']])
+              end
             end
           end
         end
