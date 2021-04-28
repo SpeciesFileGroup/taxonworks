@@ -128,20 +128,6 @@ export default {
     }
   },
   watch: {
-    rankData: {
-      handler (newVal) {
-        //this.loadRankTable()
-      },
-      deep: true
-    },
-    ranks: {
-      handler (newVal, oldVal) {
-        if (newVal.length) {
-          //this.loadRankTable()
-        }
-      },
-      deep: true
-    },
     rankTable: {
       handler (newVal) {
         if (newVal.data.length === this.limit) {
@@ -149,11 +135,6 @@ export default {
         }
       },
       deep: true
-    },
-    combinations (newVal) {
-      if (this.taxon) {
-        //this.loadRankTable()
-      }
     },
     taxon (newVal) {
       this.halt = true
@@ -187,11 +168,9 @@ export default {
       })
     },
     orderRanks (list) {
-      let rankNames = [...new Set(this.getRankNames(this.rankList))]
-      let ranksOrder = rankNames.filter(rank => {
-        return list.includes(rank)
-      })
-      return ranksOrder
+      const rankNames = [...new Set(this.getRankNames(this.rankList))]
+
+      return rankNames.filter(rank => list.includes(rank))
     },
     getRankNames (list, nameList = []) {
       for (var key in list) {

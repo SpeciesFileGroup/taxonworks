@@ -46,5 +46,9 @@ export {
 }
 
 export const annotations = (model) => ({
-  citations: (id) => AjaxCall('get', `/${model}/${id}/citations.json`)
+  citations: (id) => AjaxCall('get', `/${model}/${id}/citations.json`),
+
+  depictions: (id) => AjaxCall('get', `/${model}/${id}/documentation`),
+
+  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation`)
 })

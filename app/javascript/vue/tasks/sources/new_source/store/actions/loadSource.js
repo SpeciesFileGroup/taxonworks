@@ -1,5 +1,4 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetSourceDocumentations } from '../../request/resources'
 import { Source, SoftValidation } from 'routes/endpoints'
 
 import setParam from 'helpers/setParam'
@@ -18,7 +17,7 @@ export default ({ state, commit }, id) => {
       commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
 
-    GetSourceDocumentations(id).then(response => {
+    Source.documentation(id).then(response => {
       commit(MutationNames.SetDocumentation, response.body)
     })
 

@@ -49,10 +49,9 @@
 
 import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
-import { MutationNames } from '../store/mutations/mutations'
 import ModalComponent from 'components/modal'
-import { GetSerialMatch } from '../request/resources'
-import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { Serial } from 'routes/endpoints'
 
 export default {
   components: {
@@ -70,11 +69,11 @@ export default {
     getSource () {
       this.searching = true
       AjaxCall('get', `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`).then(response => {
-        if(response.body.title) {
+        if (response.body.title) {
           response.body.roles_attributes = []
           this.$store.commit(MutationNames.SetSource, response.body)
           this.$emit('close', true)
-          GetSerialMatch(response.body.journal).then(response => {
+          Serial.where({ name: response.body.journal }).then(response => {
             if (response.body.length) {
               this.$store.commit(MutationNames.SetSerialId, response.body[0].id)
             }
