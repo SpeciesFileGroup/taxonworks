@@ -119,7 +119,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym < TaxonNameRelationship
     elsif subject_genus != object_genus && !subject_genus.nil?
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
     end
-    if self.type_name != new_relationship_name
+    if new_relationship_name && self.type_name != new_relationship_name
       self.update_columns(type: new_relationship_name)
       return true
     end

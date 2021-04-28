@@ -76,7 +76,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
     elsif (subject_type != object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && !o.get_primary_type.empty? && !s.has_same_primary_type(o))
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
     end
-    if self.type_name != new_relationship_name
+    if new_relationship_name && self.type_name != new_relationship_name
       self.update_columns(type: new_relationship_name)
       return true
     end
