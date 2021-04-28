@@ -77,16 +77,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
     end
     if self.type_name != new_relationship_name
-      self.type = new_relationship_name
-      begin
-        TaxonNameRelationship.transaction do
-          self.save
-          return true
-        end
-      rescue
-      end
+      self.update_columns(type: new_relationship_name)
+      return true
     end
-
     false
   end
 end

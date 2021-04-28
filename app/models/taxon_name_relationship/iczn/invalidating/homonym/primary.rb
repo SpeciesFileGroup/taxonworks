@@ -53,6 +53,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary < TaxonNameRel
       soft_validations.add(:type, "Primary homonyms #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
     end
   end
+
   def sv_not_specific_relationship
     true
   end
