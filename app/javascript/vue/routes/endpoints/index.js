@@ -8,6 +8,8 @@ import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
 import { Depiction } from './Depiction'
+import { Descriptor } from './Descriptor'
+import { GeographicArea } from './GeographicArea'
 import { Identifier } from './Identifier'
 import { Namespace } from './Namespace'
 import { Otu } from './Otu'
@@ -20,6 +22,8 @@ import { TaxonNameClassification } from './TaxonNameClassifications'
 import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
+import { ObservationMatrix } from './ObservationMatrix'
+import { ObservationMatrixColumnItem} from './ObservationMatrixColumnItem'
 
 export {
   AssertedDistribution,
@@ -32,6 +36,8 @@ export {
   Combination,
   ControlledVocabularyTerm,
   Depiction,
+  Descriptor,
+  GeographicArea,
   Identifier,
   Namespace,
   Otu,
@@ -43,5 +49,7 @@ export {
   TaxonNameClassification,
   TaxonNameRelationship,
   Topic,
-  TypeMaterial
+  TypeMaterial,
+  ObservationMatrix,
+  ObservationMatrixColumnItem
 }
