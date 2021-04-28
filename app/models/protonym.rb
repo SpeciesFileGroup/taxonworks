@@ -104,9 +104,9 @@ class Protonym < TaxonName
     end
   end
 
-  # TODO: this is not really needed
+  # TODO: remove
   scope :named, -> (name) {where(name: name)}
-
+  
   scope :with_name_in_array, -> (array) {where('name in (?)', array)}
 
   # find classifications for taxon
@@ -313,7 +313,7 @@ class Protonym < TaxonName
   end
 
   # @return [Array]
-  #    all descendant and ancestor protonyms for this Protonym
+  #   all descendant and ancestor protonyms for this Protonym
   def ancestors_and_descendants
     Protonym.ancestors_and_descendants_of(self).not_self(self).to_a
   end

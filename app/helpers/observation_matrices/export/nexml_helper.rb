@@ -21,7 +21,9 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}")
+                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}") do 
+                  xml.bar(id: '')
+                end
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -59,6 +61,7 @@ module ObservationMatrices::Export::NexmlHelper
     end # end characters
 
     d = m.continuous_descriptors.order('observation_matrix_columns.position').load
+
     # continuous characters
     xml.characters(
       id: "continuous_character_block_#{m.id}",
@@ -204,4 +207,34 @@ module ObservationMatrices::Export::NexmlHelper
 
     return opt[:target]
   end
+
+  def nexml_depictions(options = {})
+    opt = {target: '', descriptors: []}.merge!(options)
+    xml = Builder::XmlMarkup.new(target: opt[:target])
+    m = opt[:observation_matrix]
+
+    xml.depictions do
+      if true # character state options
+
+        xml.character_state_depictions(
+          id: "character_state_depiction_block_#{m.id}",
+          otus: "otu_block_#{m.id}",
+          #   'xsi:type' => 'nex:StandardCells',
+          label:  "Character state depictions for matrix #{m.name}"
+        ) do
+          ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
+            xml.meta(
+              'xsi:type' => 'ResourceMeta', 
+              'rel' => 'foaf:depiction',
+              'about' => "cs_#{d.depiction_object.descriptor_id}_#{d.depiction_object_id}",
+              'href' => "http://example.org/my/image.jpg"
+            ) 
+          end
+        end
+      end
+
+      opt[:target]
+    end
+  end
+
 end

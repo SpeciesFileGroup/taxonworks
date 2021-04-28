@@ -79,6 +79,7 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
+  # TODO: isolate to an include file sensu protonym
   soft_validate(
     :sv_validate_required_relationships,
     set: :validate_required_relationships,

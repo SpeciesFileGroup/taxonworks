@@ -105,17 +105,16 @@ class Image < ApplicationRecord
   end
 
   # @return [Hash]
+  # returns a hash of EXIF data if present, empty hash if not.do
+  # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
   def exif
-    # returns a hash of EXIF data if present, empty hash if not.do
-    # EXIF data tags/specifications -  http://web.archive.org/web/20131018091152/http://exif.org/Exif2-2.PDF
-
     ret_val = {} # return value
 
     unless self.new_record? # only process if record exists
       tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
-                  .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
+        .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
       # might be able to tmp.split("\n").collect { |b|
       # b.gsub("exif:", "").split("=")
       # }.inject(ret_val) { |hsh, c|
@@ -127,6 +126,7 @@ class Image < ApplicationRecord
   end
 
   # @return [Nil]
+  #  currently handling this client side
   def gps_data
     # if there is EXIF data, pulls out geographic coordinates & returns hash of lat/long in decimal degrees
     # (5 digits after decimal point if available)
