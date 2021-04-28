@@ -23,7 +23,9 @@ import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
 import { ObservationMatrix } from './ObservationMatrix'
-import { ObservationMatrixColumnItem} from './ObservationMatrixColumnItem'
+import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
+import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
+import { ObservationMatrixRow } from './ObservationMatrixRow'
 
 export {
   AssertedDistribution,
@@ -51,5 +53,7 @@ export {
   Topic,
   TypeMaterial,
   ObservationMatrix,
-  ObservationMatrixColumnItem
+  ObservationMatrixColumnItem,
+  ObservationMatrixRowItem,
+  ObservationMatrixRow
 }

@@ -42,7 +42,9 @@ const permitParams = {
 export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
-  loadRanks: () => AjaxCall('get', `/${model}/ranks`),
+  ranks: () => AjaxCall('get', `/${model}/ranks`),
+
+  rankTable: (params) => AjaxCall('get', `/${model}/rank_table`, { params }),
 
   classifications: (id) => AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
 

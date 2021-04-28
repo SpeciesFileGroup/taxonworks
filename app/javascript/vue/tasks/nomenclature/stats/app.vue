@@ -42,7 +42,7 @@
             @click="loadRankTable">
             Search
           </button>
-          <taxon-name v-if="Object.keys(rankList).length"/>
+          <taxon-name-component v-if="Object.keys(rankList).length"/>
           <ranks-filter
             title="Count columns"
             :taxon-name="taxon"
@@ -76,12 +76,12 @@
 
 import RankTable from './components/table'
 import JsonBar from './components/headerBar'
-import TaxonName from './components/filters/taxonName'
+import TaxonNameComponent from './components/filters/taxonName'
 import RanksFilter from './components/filters/ranks'
 import CombinationsFilter from './components/filters/combinations'
 import SpinnerComponent from 'components/spinner'
 
-import { GetRanksTable } from './request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
@@ -90,7 +90,7 @@ export default {
   components: {
     SpinnerComponent,
     RanksFilter,
-    TaxonName,
+    TaxonNameComponent,
     CombinationsFilter,
     RankTable,
     JsonBar
@@ -178,7 +178,7 @@ export default {
         limit: this.limit
       }
       this.isLoading = true
-      GetRanksTable(this.taxon.id, params).then(response => {
+      TaxonName.rankTable(params).then(response => {
         this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
         this.isLoading = false

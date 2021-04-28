@@ -7,7 +7,7 @@
 <script>
 
 import SoftValidations from 'components/soft_validations/panel'
-import AjaxCall from 'helpers/ajaxCall'
+import { SoftValidation } from 'routes/endpoints'
 
 export default {
   components: { SoftValidations },
@@ -33,7 +33,7 @@ export default {
       const section = this.globalIds[key]
 
       section.forEach(globalId => {
-        promises.push(AjaxCall('get', '/soft_validations/validate', { params: { global_id: globalId } }).then(({ body }) => body))
+        promises.push(SoftValidation.find(globalId).then(({ body }) => body))
       })
 
       Promise.all(promises).then((list) => {

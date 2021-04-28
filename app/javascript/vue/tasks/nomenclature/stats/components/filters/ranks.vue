@@ -38,9 +38,9 @@
 
 <script>
 
-import { LoadRanks } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   props: {
@@ -97,7 +97,7 @@ export default {
     }
   },
   mounted () {
-    LoadRanks().then(response => {
+    TaxonName.ranks().then(response => {
       this.ranks = response.body
     })
   }
