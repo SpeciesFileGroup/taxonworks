@@ -22,6 +22,7 @@ namespace :tw do
           nomenclator_id_lut = {}
           nomenclator_is_species_lut = {}
 
+          subspecies_original_genus_id_lut = {}
 
           CSV.foreach(@args[:data_directory] + 'tblCites.txt', col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
             nomenclator_id_lut[[row["TaxonNameID"], row["RefID"]]] = row["NomenclatorID"]
@@ -35,6 +36,11 @@ namespace :tw do
           end
 
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
+
+          CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            subspecies_original_genus_id_lut[[row["AboveID"], row["Name"]]] = row["OriginalGenusID"] if row["RankID"] == "5"
+          end
+
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
           file.each_with_index do |row, i|
@@ -42,20 +48,24 @@ namespace :tw do
             next if skipped_file_ids.include? row['FileID'].to_i
             next if excluded_taxa.include? taxon_name_id
             next unless row['RankID'].to_i < 11 # only look at species and subspecies
-            next if row['OriginalGenusID'] == '0'
+
+            # OriginalGenusID, integer, 4 bytes, = tblTaxa.TaxonNameID, used only for species-group taxa **other than a species that has subspecies**
+            sf_original_genus_id = row['OriginalGenusID']
+            sf_original_genus_id = subspecies_original_genus_id_lut[ [row["TaxonNameID"], row["Name"]] ] if sf_original_genus_id == '0'
+            next if sf_original_genus_id == '0'
 
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
 
             # Maybe ignore or use only when cannot be extracted from nomenclator of original citation
-            if get_tw_taxon_name_id[row['OriginalGenusID']]
-              original_genus_id = get_tw_taxon_name_id[row['OriginalGenusID']]
+            if get_tw_taxon_name_id[sf_original_genus_id]
+              original_genus_id = get_tw_taxon_name_id[sf_original_genus_id]
             else
-              logger.error "TW Original Genus not found: SF.OriginalGenusID = #{row['OriginalGenusID']}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
+              logger.error "TW Original Genus not found: SF.OriginalGenusID = #{sf_original_genus_id}, SF.FileID = #{row['FileID']} (not_found #{not_found += 1}) \n"
               next
             end
 
-            logger.info "Working with SF.TaxonNameID = #{taxon_name_id}, TW.taxon_name_id = #{species_id}, SF.OriginalGenusID = #{row['OriginalGenusID']}, TW.original_genus_id = #{original_genus_id} (count #{count_found += 1}) \n"
+            logger.info "Working with SF.TaxonNameID = #{taxon_name_id}, TW.taxon_name_id = #{species_id}, SF.OriginalGenusID = #{sf_original_genus_id}, TW.original_genus_id = #{original_genus_id} (count #{count_found += 1}) \n"
 
             species_protonym = Protonym.find(species_id)
             if species_protonym.original_genus.nil?
