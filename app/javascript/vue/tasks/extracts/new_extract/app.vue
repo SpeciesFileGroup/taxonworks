@@ -6,7 +6,7 @@
         <input
           type="checkbox"
           v-model="settings.sortable">
-        Sort fields
+        Sortable fields
       </label>
     </div>
     <navbar-component>
