@@ -34,7 +34,7 @@
           <button
             type="button"
             class="button normal-input button-default"
-            v-shortkey="[getOSKey, 'n']"
+            v-shortkey="[OSKey, 'n']"
             @shortkey="resetState"
             @click="resetState">
             New

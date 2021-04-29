@@ -7,7 +7,7 @@ export default ({ state, commit }) => {
   const { extract, repository } = state
   const saveExtract = extract.id ? UpdateExtract : CreateExtract
 
-  extract.repository_id = repository?.id
+  extract.repository_id = repository?.id || null
 
   return saveExtract(extract).then(({ body }) => {
     SetParam(RouteNames.NewExtract, 'extract_id', body.id)

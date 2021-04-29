@@ -23,7 +23,7 @@
           <span class="separate-right"> {{ repository.object_tag }}</span>
           <span
             class="circle-button button-default btn-undo"
-            @click="setRepository({})"/>
+            @click="setRepository(undefined)"/>
         </div>
       </template>
     </fieldset>
