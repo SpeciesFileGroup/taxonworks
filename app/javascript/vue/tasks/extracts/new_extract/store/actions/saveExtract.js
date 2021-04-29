@@ -10,6 +10,8 @@ export default ({ state, commit }) => {
   extract.repository_id = repository?.id || null
 
   return saveExtract(extract).then(({ body }) => {
+    body.roles_attributes = body.extractor_roles || []
+
     SetParam(RouteNames.NewExtract, 'extract_id', body.id)
     commit(MutationNames.SetExtract, body)
     GetSoftValidation(body.global_id).then(response => {

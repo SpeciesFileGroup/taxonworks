@@ -5,7 +5,7 @@ import SetParam from 'helpers/setParam.js'
 
 export default ({ state, commit }) => {
   const initState = makeInitialState()
-  const { settings: { lock }, recents } = state
+  const { settings: { lock }, recents, preferences } = state
 
   Object.entries(lock).forEach(([key, isLocked]) => {
     if (isLocked) {
@@ -16,6 +16,7 @@ export default ({ state, commit }) => {
   })
 
   initState.recents = recents
+  initState.preferences = preferences
 
   commit(MutationNames.SetState, initState)
   SetParam(RouteNames.NewExtract, 'extract_id')

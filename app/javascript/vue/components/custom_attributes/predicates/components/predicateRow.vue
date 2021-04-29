@@ -42,22 +42,23 @@ export default {
       required: false
     }
   },
+
   data() {
     return {
-      data_attribute: this.newDataAttribute() 
+      data_attribute: this.newDataAttribute()
     }
   },
+
   watch: {
-    existing(newVal) {
-      if(newVal) {
+    existing (newVal) {
+      if (newVal) {
         this.data_attribute = newVal
-      }
-      else {
+      } else {
         this.data_attribute = this.newDataAttribute()
       }
     },
     data_attribute: {
-      handler(newVal) {
+      handler () {
         this.updatePredicate()
       },
       deep: true
@@ -73,19 +74,17 @@ export default {
         value: this.value
       }
     },
-    updatePredicate() {
+    updatePredicate () {
       let data
 
-      if(this.data_attribute.value.length == 0 && this.data_attribute.hasOwnProperty('id')) {
+      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
         data = {
           id: this.data_attribute.id,
           _destroy: true
         }
-      }
-      else {
+      } else {
         data = this.data_attribute
       }
-      
       this.$emit('onUpdate', data)
     }
   }

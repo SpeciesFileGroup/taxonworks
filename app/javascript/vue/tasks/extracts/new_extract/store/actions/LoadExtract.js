@@ -7,7 +7,8 @@ import { RouteNames } from 'routes/routes'
 export default ({ commit, dispatch }, id) => {
   GetExtract(id).then(({ body }) => {
     SetParam(RouteNames.NewExtract, 'extract_id', id)
-    commit(MutationNames.SetExtract, { ...body, roles_attributes: [] })
+    body.roles_attributes = body.extractor_roles || []
+    commit(MutationNames.SetExtract, body)
 
     dispatch(ActionNames.LoadOriginRelationship, body)
     dispatch(ActionNames.LoadProtocols, body)
