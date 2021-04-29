@@ -36,7 +36,9 @@
           @click="setYear">
           This year
         </button>
-        <lock-component/>
+        <lock-component
+          v-model="settings.lock.made"
+          class="margin-small-left"/>
       </div>
     </div>
   </div>

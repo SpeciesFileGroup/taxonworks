@@ -1,5 +1,6 @@
 import { CreateOriginRelationship, UpdateOriginRelationship } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
+import parseOrigin from '../../helpers/parseOrigin'
 
 export default ({ state, commit }) => {
   const { extract, originRelationship } = state
@@ -16,6 +17,6 @@ export default ({ state, commit }) => {
   }
 
   saveFn(data).then(({ body }) => {
-    commit(MutationNames.SetOriginRelationship, body)
+    commit(MutationNames.SetOriginRelationship, parseOrigin(body))
   })
 }

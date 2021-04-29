@@ -14,7 +14,7 @@ const makeInitialState = () => {
     settings: {
       isLoading: false,
       lock: {
-        date: false,
+        made: false,
         identifiers: false,
         lock: false,
         originRelationship: false,

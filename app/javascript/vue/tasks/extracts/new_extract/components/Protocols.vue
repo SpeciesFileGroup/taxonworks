@@ -9,7 +9,7 @@
         @selected="addProtocol"/>
       <lock-component
         class="margin-small-left"
-        v-model="settings.lock.protocol"/>
+        v-model="settings.lock.protocols"/>
     </div>
     <display-list
       :list="protocols"

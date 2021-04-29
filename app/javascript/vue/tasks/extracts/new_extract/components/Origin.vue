@@ -8,7 +8,7 @@
           :options="tabsOptions"/>
         <lock-component
           class="margin-small-left"
-          v-model="settings.lock.origin"/>
+          v-model="settings.lock.originRelationship"/>
       </div>
 
       <smart-selector

@@ -38,7 +38,9 @@
         <identifier-component
           class="margin-small-bottom"
           v-model="identifier"/>
+      </template>
 
+      <div class="horizontal-left-content margin-small-top">
         <button
           type="button"
           class="button button-submit normal-input"
@@ -46,7 +48,10 @@
           @click="addIdentifier(); resetIdentifier()">
           Add
         </button>
-      </template>
+        <lock-component
+          class="margin-small-left"
+          v-model="settings.lock.identifiers"/>
+      </div>
     </div>
     <display-list
       :list="identifiers"
@@ -60,7 +65,6 @@
 
 import { GetIdentifierTypes, DestroyIdentifier } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
-import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
 
 import componentExtend from './mixins/componentExtend'
@@ -68,6 +72,7 @@ import SelectType from './Identifiers/SelectType'
 import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from 'components/displayList'
+import LockComponent from 'components/lock'
 
 export default {
   mixins: [componentExtend],
@@ -76,7 +81,8 @@ export default {
     DisplayList,
     SelectType,
     NamespaceComponent,
-    IdentifierComponent
+    IdentifierComponent,
+    LockComponent
   },
 
   data () {
@@ -108,7 +114,13 @@ export default {
     },
 
     isMissingData () {
-      return (!this.namespace && this.typeListSelected !== 'unknown') || !this.identifier
+      if (this.typeListSelected === 'local') {
+        return !this.namespace || !this.identifier
+      } else if (this.typeListSelected === 'global') {
+        return !this.typeSelected || !this.identifier
+      }
+
+      return this.typeListSelected ? !this.identifier : true
     }
   },
 
@@ -122,18 +134,6 @@ export default {
       })
       this.typeList = body
     })
-  },
-
-  watch: {
-    existingIdentifier (newVal) {
-      this.settings.saveIdentifier = !newVal
-    },
-
-    extractId (newVal) {
-      if (newVal) {
-        this.$store.dispatch(ActionNames.LoadIdentifiers)
-      }
-    }
   },
 
   methods: {

@@ -12,6 +12,7 @@ export default ({ commit, dispatch }, id) => {
 
     dispatch(ActionNames.LoadOriginRelationship, body)
     dispatch(ActionNames.LoadProtocols, body)
+    dispatch(ActionNames.LoadIdentifiers, body)
 
     GetSoftValidation(body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body)
