@@ -24,6 +24,9 @@
         class="button circle-button btn-undo button-default"
         type="button"
         @click="originRelationship = {}"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="settings.lock.originRelationship"/>
     </div>
 
     <label>

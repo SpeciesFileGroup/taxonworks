@@ -40,6 +40,8 @@ const CreateOriginRelationship = data => AjaxCall('post', '/origin_relationships
 
 const UpdateOriginRelationship = data => AjaxCall('patch', `/origin_relationships/${data.id}.json`, { origin_relationship: data })
 
+const UpdateUserPreferences = (id, data) => AjaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
+
 export {
   CreateExtract,
   CreateIdentifier,
@@ -60,5 +62,6 @@ export {
   GetUserPreferences,
   UpdateExtract,
   UpdateOriginRelationship,
-  UpdateProtocol
+  UpdateProtocol,
+  UpdateUserPreferences
 }

@@ -70,6 +70,7 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
+import { UpdateUserPreferences } from './request/resources'
 
 import NavbarComponent from 'components/navBar'
 import MadeComponent from './components/Made'
@@ -92,7 +93,8 @@ export default {
 
   data () {
     return {
-      componentsOrder: Object.keys(VueComponent)
+      componentsOrder: Object.keys(VueComponent),
+      keyStorage: 'tasks::extract::componentsOrder'
     }
   },
 
@@ -110,10 +112,33 @@ export default {
       }
     },
 
+    preferences: {
+      get () {
+        return this.$store.getters[GetterNames.GetUserPreferences]
+      },
+
+      set (value) {
+        this.$store.commit(MutationNames.SetUserPreferences, value)
+      }
+    },
+
     OSKey
   },
 
-  created () {
+  watch: {
+    preferences: {
+      handler () {
+        const newOrder = this.preferences.layout[this.keyStorage]
+
+        if (this.componentsOrder.every(componentName => newOrder?.includes(componentName))) {
+          this.componentsOrder = newOrder
+        }
+      },
+      deep: true
+    }
+  },
+
+  mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const extractId = urlParams.get('extract_id')
 
@@ -126,7 +151,12 @@ export default {
   },
 
   methods: {
-    updatePreferences () {},
+    updatePreferences () {
+      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+        this.preferences = response.body.preferences
+        // this.componentsOrder = response.body.preferences.layout[this.keyStorage]
+      })
+    },
 
     saveExtract () {
       const { dispatch } = this.$store
