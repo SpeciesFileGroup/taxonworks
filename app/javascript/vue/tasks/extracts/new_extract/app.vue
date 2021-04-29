@@ -21,7 +21,7 @@
           <button
             type="button"
             class="button normal-input button-submit margin-small-right"
-            v-shortkey="[getOSKey, 's']"
+            v-shortkey="[OSKey, 's']"
             @shortkey="saveExtract"
             @click="saveExtract">
             Save
@@ -77,7 +77,7 @@ import RepositoryComponent from './components/Repository'
 import Draggable from 'vuedraggable'
 import SoftValidation from './components/SoftValidation.vue'
 import RecentComponent from './components/Recent'
-import getOSKey from 'helpers/getMacKey.js'
+import OSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -110,7 +110,7 @@ export default {
       }
     },
 
-    getOSKey: getOSKey
+    OSKey
   },
 
   created () {
@@ -132,6 +132,7 @@ export default {
       const { dispatch } = this.$store
 
       dispatch(ActionNames.SaveExtract).then(() => {
+        TW.workbench.alert.create('Extract was saved successfully', 'notice')
         dispatch(ActionNames.SaveOriginRelationship)
         dispatch(ActionNames.SaveIdentifiers)
         dispatch(ActionNames.SaveProtocols)

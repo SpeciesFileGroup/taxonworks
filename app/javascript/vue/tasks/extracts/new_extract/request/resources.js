@@ -8,6 +8,8 @@ const CreateProtocol = data => AjaxCall('post', '/protocol_relationships.json', 
 
 const DestroyExtract = id => AjaxCall('delete', `/extracts/${id}.json`)
 
+const DestroyIdentifier = id => AjaxCall('delete', `/identifiers/${id}.json`)
+
 const DestroyProtocol = id => AjaxCall('delete', `/protocol_relationships/${id}.json`)
 
 const GetExtract = id => AjaxCall('get', `/extracts/${id}.json`)
@@ -45,6 +47,7 @@ export {
   CreateProtocol,
   DestroyExtract,
   DestroyProtocol,
+  DestroyIdentifier,
   GetExtract,
   GetExtracts,
   GetIdentifiers,

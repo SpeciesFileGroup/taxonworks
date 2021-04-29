@@ -49,14 +49,18 @@ export default {
   },
 
   methods: {
-    addProtocol (protocol) {
-      this.protocols.push({ protocol_id: protocol.id })
+    addProtocol ({ id, object_tag }) {
+      this.protocols.push({ protocol_id: id, object_tag })
     },
 
     removeProtocol (index) {
-      DestroyProtocol(this.protocols[index].id).then(() => {
+      if (this.protocols[index].id) {
+        DestroyProtocol(this.protocols[index].id).then(() => {
+          this.protocols.splice(index, 1)
+        })
+      } else {
         this.protocols.splice(index, 1)
-      })
+      }
     }
   }
 }

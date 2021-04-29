@@ -51,13 +51,14 @@
     <display-list
       :list="identifiers"
       label="object_tag"
+      @deleteIndex="removeIdentifier"
     />
   </div>
 </template>
 
 <script>
 
-import { GetIdentifierTypes } from '../request/resources'
+import { GetIdentifierTypes, DestroyIdentifier } from '../request/resources'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { MutationNames } from '../store/mutations/mutations'
@@ -141,7 +142,8 @@ export default {
         namespace_id: this.namespace?.id,
         object_tag: [this.namespace?.name || '', this.identifier].filter(item => item).join(' '),
         identifier: this.identifier,
-        type: this.typeSelected
+        type: this.typeSelected,
+        identifier_object_type: 'Extract'
       }
 
       this.identifiers.push(data)
@@ -150,6 +152,16 @@ export default {
     resetIdentifier () {
       this.namespace = undefined
       this.identifier = undefined
+    },
+
+    removeIdentifier (index) {
+      if (this.identifiers[index].id) {
+        DestroyIdentifier(this.identifiers[index].id).then(() => {
+          this.identifiers.splice(index, 1)
+        })
+      } else {
+        this.identifiers.splice(index, 1)
+      }
     }
   }
 }
