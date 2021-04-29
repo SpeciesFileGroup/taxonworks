@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div class="flex-separate middle">
       <h1>New extract</h1>
       <label>
         <input
