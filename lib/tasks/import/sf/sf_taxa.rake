@@ -950,7 +950,7 @@ namespace :tw do
               nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum' if (status_flags.to_i & 8) == 8
               nomen_dubium = 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium' if status_flags.to_i & 16 == 16
 
-              if name_status == '7' && row['RankID'].to_i <= 20 && sf_taxa_rank[row['AboveID']].to_i > row['RankID'].to_i
+              if name_status == '7' && row['RankID'].to_i <= 20 && row['AboveID'] != '0' && sf_taxa_rank[row['AboveID']].to_i > row['RankID'].to_i
                 sf_rank = sf_taxa_rank[row['AboveID']]
               else
                 sf_rank = row['RankID']
