@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+- jsconfig.json for Visual Studio Code
 
 ## [0.17.1] - 2020-04-30
 
