@@ -142,7 +142,7 @@ export default {
 </script>
 <style scoped>
 
-/deep/ .modal-container {
+::v-deep .modal-container {
   width: 1024px;
   overflow-y: scroll;
   max-height: 80vh;

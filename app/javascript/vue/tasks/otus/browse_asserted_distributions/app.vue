@@ -139,7 +139,7 @@ export default {
       width: 400px;
       min-width: 400px;
     }
-    /deep/ .vue-autocomplete-input {
+    ::v-deep .vue-autocomplete-input {
       width: 100%;
     }
   }

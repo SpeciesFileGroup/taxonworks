@@ -1,4 +1,5 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
   collecting_event: {
@@ -75,5 +76,8 @@ const permitParams = {
 }
 
 export const CollectingEvent = {
-  ...baseCRUD('collecting_events', permitParams)
+  ...baseCRUD('collecting_events', permitParams),
+  ...annotations('collecting_events'),
+
+  clone: (id) => AjaxCall('post', `/collecting_events/${id}/clone`)
 }

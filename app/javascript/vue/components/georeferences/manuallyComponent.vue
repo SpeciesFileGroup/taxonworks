@@ -97,7 +97,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     max-width: 300px;
   }
 </style>

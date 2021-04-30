@@ -34,11 +34,11 @@ export default (model, permitParams) => ({
 
   destroy: (id) => AjaxCall('delete', `/${model}/${id}.json`),
 
-  find: (id) => AjaxCall('get', `/${model}/${id}.json`),
+  find: (id, params) => AjaxCall('get', `/${model}/${id}.json`, { params }),
 
   update: (id, data) => AjaxCall('patch', `/${model}/${id}.json`, filterParams(data, permitParams)),
 
-  where: (params) => AjaxCall('get', `/${model}.json`, { params: params })
+  where: (params) => AjaxCall('get', `/${model}.json`, { params })
 })
 
 export {
@@ -48,7 +48,7 @@ export {
 export const annotations = (model) => ({
   citations: (id) => AjaxCall('get', `/${model}/${id}/citations.json`),
 
-  depictions: (id) => AjaxCall('get', `/${model}/${id}/documentation`),
+  depictions: (id) => AjaxCall('get', `/${model}/${id}/depictions.json`),
 
-  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation`)
+  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation.json`)
 })

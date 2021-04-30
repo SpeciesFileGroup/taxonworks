@@ -214,7 +214,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
    width: 600px; 
   }
   .preview-box {
