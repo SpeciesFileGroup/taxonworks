@@ -80,6 +80,8 @@ export const CollectingEvent = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
+  attributes: () => AjaxCall('get', `/${controller}/attributes`),
+
   clone: (id) => AjaxCall('post', `/${controller}/${id}/clone`),
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),

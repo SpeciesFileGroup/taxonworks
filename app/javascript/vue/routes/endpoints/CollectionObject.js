@@ -1,7 +1,7 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
 import AjaxCall from 'helpers/ajaxCall'
 
-const model = 'collection_objects'
+const controller = 'collection_objects'
 const permitParams = {
   collection_object: {
     total: Number,
@@ -46,7 +46,10 @@ const permitParams = {
 }
 
 export const CollectionObject = {
-  ...baseCRUD(model, permitParams),
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
 
-  depictions: (id) => AjaxCall('get', `/${model}/${id}/depictions.json`)
+  dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
+
+  dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params })
 }

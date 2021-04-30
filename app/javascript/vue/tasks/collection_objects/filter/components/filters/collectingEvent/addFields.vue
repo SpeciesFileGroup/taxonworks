@@ -91,6 +91,7 @@
 <script>
 
 import { GetCEAttributes } from '../../../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const TYPES = {
@@ -146,7 +147,7 @@ export default {
     }
   },
   mounted () {
-    GetCEAttributes().then(response => {
+    CollectingEvent.attributes().then(response => {
       this.fields = response.body
       const urlParams = URLParamsToJSON(location.href)
       if (Object.keys(urlParams).length) {

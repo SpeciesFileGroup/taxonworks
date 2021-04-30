@@ -21,8 +21,10 @@ import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
 import { ObservationMatrixRow } from './ObservationMatrixRow'
 import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
+import { People } from './People'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
+import { ProjectMember } from './ProjectMember'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
 import { SoftValidation } from './SoftValidation'
@@ -60,8 +62,10 @@ export {
   ObservationMatrixRow,
   ObservationMatrixRowItem,
   Otu,
+  People,
   PreparationType,
   Project,
+  ProjectMember,
   Repository,
   Serial,
   SoftValidation,
