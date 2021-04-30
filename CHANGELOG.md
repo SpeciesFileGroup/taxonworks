@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.17.1] - 2020-04-30
+
 ### Added
 - Moved endpoints to own model file
 - Permit params on client side
@@ -1127,8 +1131,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...development
-[0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...development
+[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
+[0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4
