@@ -763,6 +763,11 @@ namespace :tw do
           path = @args[:data_directory] + 'sfTaxaByTaxonNameStr.txt'
           file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
 
+          parent_lut = {}
+          CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8') do |row|
+            parent_lut[row['TaxonNameID']] = row['AboveID']
+          end
+
           sf_taxa_rank = {}
           file.each { |r| sf_taxa_rank[r["TaxonNameID"]] = r["RankID"] }
 
@@ -862,6 +867,10 @@ namespace :tw do
               # logger.info "get_sf_new_parent_id.has_key? parent_id = #{parent_id}"
             else
               parent_id = get_tw_taxon_name_id[row['AboveID']]
+              if parent_id.nil?
+                parent_id = get_tw_taxon_name_id[ parent_lut[row['AboveID']] ]
+                logger.warn "Replaced parent with next ancestor for SF.TaxonNameID = #{sf_taxon_name_id} (error #{no_parent_counter += 1})! Set to parent_id = #{parent_id}" unless parent_id.nil?
+              end
             end
 
             if parent_id == nil
