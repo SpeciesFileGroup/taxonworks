@@ -7,7 +7,7 @@
       class="item item1 column-medium flex-wrap-column full_width ">
       <div
         v-for="(item, index) in properties" class="horizontal-left-content"
-        v-if="!item['_destroy']">
+        v-if="!item._destroy">
         <span
           class="cursor-pointer button circle-button btn-delete"
           @click="removeProperty(index)"/>

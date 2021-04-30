@@ -87,7 +87,7 @@
 <script>
 
 import Autocomplete from 'components/autocomplete.vue'
-import { GetTaxonName } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -168,13 +168,10 @@ export default {
   },
   methods: {
     checkRankSelected (taxon) {
-      if (this.rankChoose && taxon.id == this.rankChoose.id) {
-        return true
-      }
-      return false
+      return this.rankChoose && taxon.id === this.rankChoose.id
     },
-    expandList: function () {
-      this.displaySearch = false;
+    expandList () {
+      this.displaySearch = false
       this.expanded = true
     },
     inOrder (list) {
@@ -187,7 +184,7 @@ export default {
       return newOrder
     },
     getFromAutocomplete (event) {
-      GetTaxonName(event.id).then(response => {
+      TaxonName.find(event.id).then(response => {
         this.selectTaxon(response.body)
         this.haltWatcher = true
         this.displaySearch = false
@@ -201,9 +198,7 @@ export default {
     setFocus () {
       if (this.$refs.rankRadio.length > 1) {
         if (this.selected) {
-          this.$refs.rankRadio[this.list.findIndex((taxon) => {
-            return taxon == this.selected
-          })].$el.focus()
+          this.$refs.rankRadio[this.list.findIndex((taxon) => taxon === this.selected)].$el.focus()
         } else {
           this.$refs.rankRadio[0].$el.focus()
         }
@@ -212,10 +207,7 @@ export default {
       }
     },
     isSelected (taxon) {
-      if (this.selected) {
-        return this.selected.id == taxon.id
-      }
-      return false
+      return this.selected?.id === taxon.id
     }
   }
 }

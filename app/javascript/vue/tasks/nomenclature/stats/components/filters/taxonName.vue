@@ -33,10 +33,10 @@
 <script>
 
 import Autocomplete from 'components/autocomplete'
-import { GetTaxonName } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { RouteNames } from 'routes/routes'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -69,20 +69,20 @@ export default {
     },
     checkRank (taxon) {
       const ranksFilter = [...new Set(this.getRankNames(this.ranksList))]
-      return ranksFilter.find(rank => { return taxon.rank === rank })
+      return ranksFilter.find(rank => taxon.rank === rank)
     },
     getTaxon (event) {
-      GetTaxonName(event.id).then(response => {
+      TaxonName.find(event.id).then(response => {
         if (this.checkRank(response.body)) {
           this.taxon = response.body
           history.pushState(null, null, `${RouteNames.NomenclatureStats}?taxon_name_id=${this.taxon.id}`)
         } else {
-          TW.workbench.alert.create(`Please choose a taxon with a governed code of nomenclature.`, 'alert')
+          TW.workbench.alert.create('Please choose a taxon with a governed code of nomenclature.', 'alert')
         }
       })
     },
     getRankNames (list, nameList = []) {
-      for (var key in list) {
+      for (const key in list) {
         if (typeof list[key] === 'object') {
           this.getRankNames(list[key], nameList)
         } else {

@@ -88,13 +88,13 @@
 
 <script>
 
-import { GetParse, GetCombination } from '../request/resources'
 import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MatchGroup from './matchGroup.vue'
+import { Combination, TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -114,7 +114,7 @@ export default {
     },
     acceptTaxonIds: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
   computed: {
@@ -153,7 +153,7 @@ export default {
       if (newVal) {
         this.setRankList(newVal).then(response => {
           if (response.body.data.existing_combination_id) {
-            GetCombination(response.body.data.existing_combination_id).then(response => {
+            Combination.find(response.body.data.existing_combination_id).then(response => {
               this.newCombination = response.body
             })
           }
@@ -174,12 +174,12 @@ export default {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
-        GetParse(literalString).then(response => {
+        TaxonName.parse({ query_string: literalString }).then(response => {
           if (combination) {
-            let ranks = Object.keys(combination.protonyms)
+            const ranks = Object.keys(combination.protonyms)
             ranks.forEach(rank => {
-              let protonym = combination.protonyms[rank]
-              if (!response.body.data.protonyms[rank].find(item => { item.id === protonym.id })) {
+              const protonym = combination.protonyms[rank]
+              if (!response.body.data.protonyms[rank].find(item => item.id === protonym.id)) {
                 response.body.data.protonyms[rank].push(protonym)
               }
             })
