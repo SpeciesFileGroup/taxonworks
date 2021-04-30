@@ -10,6 +10,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 - jsconfig.json for Visual Studio Code
 
+### Fixed
+- Hide soft validation section if is empty in New collecting events task
+
 ## [0.17.1] - 2020-04-30
 
 ### Added

@@ -22,6 +22,7 @@ import { ObservationMatrixRow } from './ObservationMatrixRow'
 import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
 import { PreparationType } from './PreparationType'
+import { Project } from './Project'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
 import { SoftValidation } from './SoftValidation'
@@ -33,6 +34,7 @@ import { TaxonNameClassification } from './TaxonNameClassifications'
 import { TaxonNameRelationship } from './TaxonNameRelationships'
 import { Topic } from './Topic'
 import { TypeMaterial } from './TypeMaterial'
+import { User } from './User'
 
 export {
   AssertedDistribution,
@@ -59,6 +61,7 @@ export {
   ObservationMatrixRowItem,
   Otu,
   PreparationType,
+  Project,
   Repository,
   Serial,
   SoftValidation,
@@ -69,5 +72,6 @@ export {
   TaxonNameClassification,
   TaxonNameRelationship,
   Topic,
-  TypeMaterial
+  TypeMaterial,
+  User
 }

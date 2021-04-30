@@ -29,10 +29,7 @@
 <script>
 
 import Draggable from 'vuedraggable'
-import {
-  GetUserPreferences,
-  UpdateUserPreferences
-} from '../request/resources.js'
+import { User } from 'routes/endpoints'
 
 import {
   ComponentMap,
@@ -105,13 +102,13 @@ export default {
     }
   },
   created () {
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.preferences = response.body
     })
   },
   methods: {
     updatePreferences () {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
         this.preferences.layout = response.body.preferences
         this.componentsOrder = response.body.preferences.layout[this.keyStorage]
       })
