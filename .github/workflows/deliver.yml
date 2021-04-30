@@ -3,7 +3,7 @@ name: deliver
 on:
   push:
     branches:
-      - staged-imports-indexed-fields
+      - staged-imports
 jobs:
   deliver:
     if: |
@@ -55,7 +55,7 @@ jobs:
     - name: Push image to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       env:
-        DOCKER_TAG: 'staged-imports-indexed-fields'
+        DOCKER_TAG: 'staged-imports'
       run: |
         docker tag sfgrp/taxonworks:latest sfgrp/taxonworks:$DOCKER_TAG
         docker push sfgrp/taxonworks:$DOCKER_TAG
