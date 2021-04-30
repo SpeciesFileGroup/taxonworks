@@ -22,7 +22,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
 - Switch selector on new observation matrix
-- Increment pdf filesize to 512mbs [#2212]
+- Increment pdf filesize to 512MB [#2212]
+- Updated gems and npm packages
 
 [#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
 [#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
