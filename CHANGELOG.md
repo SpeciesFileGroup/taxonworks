@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Parse coordinate characters on comprehensive and new collecting event tasks
 - Hide row/column panel on new observation matrix
 - Soft validation section is always visible [#2211]
+- Ambiguous column problem in query for previous/next collecting event navigation.
 
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
