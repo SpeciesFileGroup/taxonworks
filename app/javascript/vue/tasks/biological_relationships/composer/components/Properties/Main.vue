@@ -24,7 +24,9 @@
             <span
               @click="editProperty(item)"
               class="button button-circle btn-edit"/>
-            <span class="margin-small-left" v-html="item.object_tag"></span>
+            <span
+              class="margin-small-left"
+              v-html="item.object_tag"/>
           </td>
         </tr>
       </draggable>
@@ -35,32 +37,37 @@
 <script>
 
 import Draggable from 'vuedraggable'
-import { GetProperties } from '../../request/resource'
 import NewProperty from './NewProperty'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   components: {
     Draggable,
     NewProperty
   },
+
   data () {
     return {
       list: [],
       drag: false
     }
   },
+
   mounted () {
-    GetProperties().then(response => {
+    ControlledVocabularyTerm.where({ type: ['BiologicalProperty'] }).then(response => {
       this.list = response.body
     })
   },
+
   methods: {
     addProperty (property) {
       this.list.unshift(property)
     },
-    updateProperty(property) {
-      this.$set(this.list, this.list.findIndex(item => { return item.id === property.id }), property)
+
+    updateProperty (property) {
+      this.$set(this.list, this.list.findIndex(item => item.id === property.id), property)
     },
+
     editProperty (property) {
       this.$refs.property.setProperty(property)
     }

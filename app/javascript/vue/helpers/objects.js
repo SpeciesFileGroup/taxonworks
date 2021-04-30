@@ -13,7 +13,10 @@ const isJSON = (str) => {
   }
 }
 
+const isObject = (value) => typeof value === 'object' && value !== null
+
 export {
   copyObjectByProperties,
-  isJSON
+  isJSON,
+  isObject
 }

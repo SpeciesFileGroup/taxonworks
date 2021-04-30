@@ -1,9 +1,9 @@
-import { loadSoftValidation } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
+import { SoftValidation } from 'routes/endpoints'
 
 export default function ({ commit, state }, type) {
   let validations = []
-  let promises = []
+  const promises = []
 
   if (Array.isArray(state[type])) {
     validations = state[type]
@@ -15,7 +15,7 @@ export default function ({ commit, state }, type) {
 
   validations.forEach(function (element) {
     promises.push(
-      loadSoftValidation(element.global_id).then(response => {
+      SoftValidation.find(element.global_id).then(response => {
         return Object.assign(response.body, { global_id: element.global_id })
       })
     )

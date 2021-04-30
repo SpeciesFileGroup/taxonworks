@@ -152,7 +152,7 @@ import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
-import { GetCollectionObject } from './request/resources'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -215,7 +215,7 @@ export default {
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     } else if (/^\d+$/.test(collectionObjectId)) {
-      GetCollectionObject(collectionObjectId).then(response => {
+      CollectionObject.find(collectionObjectId).then(response => {
         const ceId = response.body.collecting_event_id
         if (ceId) {
           this.loadCollectingEvent(ceId)

@@ -129,6 +129,7 @@ export default {
       documentation: this.newDocumentation(),
       isPublic: undefined,
       dropzone: {
+        maxFilesize: 512,
         timeout: 0,
         paramName: 'documentation[document_attributes][document_file]',
         url: '/documentation',

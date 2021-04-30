@@ -26,7 +26,8 @@
 
 <script>
 
-import { GetPreparationTypes } from '../request/resources'
+import { PreparationType } from 'routes/endpoints'
+
 export default {
   computed: {
     preparationGroups () {
@@ -42,7 +43,7 @@ export default {
     }
   },
   async mounted () {
-    this.preparationTypes = (await GetPreparationTypes()).body
+    this.preparationTypes = (await PreparationType.all()).body
     this.preparationTypes.push({
       id: undefined,
       name: 'None'

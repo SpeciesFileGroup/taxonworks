@@ -14,24 +14,24 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
+import { parseCoordinateCharacters } from 'helpers/georeferences'
 import convertDMS from '../../../../helpers/parseDMS.js'
 
 export default {
   computed: {
-    isCoordinate() {
-      if(this.longitude && this.longitude.length) {
+    isCoordinate () {
+      if (this.longitude && this.longitude.length) {
         return convertDMS(this.longitude)
-      }
-      else {
+      } else {
         return true
       }
     },
     longitude: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_longitude
       },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionEventLongitude, value)
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionEventLongitude, parseCoordinateCharacters(value))
       }
     }
   }

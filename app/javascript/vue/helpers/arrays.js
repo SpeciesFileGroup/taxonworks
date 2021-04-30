@@ -1,8 +1,9 @@
 function chunkArray (arr, chunkSize) {
   const results = []
+  const tmpArr = arr.slice()
 
-  while (arr.length) {
-    results.push(arr.splice(0, chunkSize))
+  while (tmpArr.length) {
+    results.push(tmpArr.splice(0, chunkSize))
   }
 
   return results
