@@ -1,4 +1,5 @@
 import { AssertedDistribution } from './AssertedDistribution'
+import { Attribution } from './Attribution'
 import { BiocurationClassification } from './BiocurationClassification'
 import { BiologicalRelationship } from './BiologicalRelationship'
 import { Citation } from './Citation'
@@ -15,6 +16,7 @@ import { Documentation } from './Documentation'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
 import { Identifier } from './Identifier'
+import { Image } from './Image'
 import { Label } from './Label'
 import { Namespace } from './Namespace'
 import { ObservationMatrix } from './ObservationMatrix'
@@ -30,6 +32,7 @@ import { Repository } from './Repository'
 import { Serial } from './Serial'
 import { SoftValidation } from './SoftValidation'
 import { Source } from './Source'
+import { SqedDepiction } from './SqedDepiction'
 import { Tag } from './Tag'
 import { TaxonDetermination } from './TaxonDetermination'
 import { TaxonName } from './TaxonName'
@@ -41,6 +44,7 @@ import { User } from './User'
 
 export {
   AssertedDistribution,
+  Attribution,
   BiocurationClassification,
   BiologicalRelationship,
   Citation,
@@ -57,6 +61,7 @@ export {
   GeographicArea,
   Georeference,
   Identifier,
+  Image,
   Label,
   Namespace,
   ObservationMatrix,
@@ -72,6 +77,7 @@ export {
   Serial,
   SoftValidation,
   Source,
+  SqedDepiction,
   Tag,
   TaxonDetermination,
   TaxonName,
