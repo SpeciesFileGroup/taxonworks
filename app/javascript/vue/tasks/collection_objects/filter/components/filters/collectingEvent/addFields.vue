@@ -90,7 +90,6 @@
 
 <script>
 
-import { GetCEAttributes } from '../../../request/resources'
 import { CollectingEvent } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
