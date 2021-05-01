@@ -18,30 +18,33 @@
 import Autocomplete from 'components/autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetOtu } from '../request/resources'
+import { Otu } from 'routes/endpoints'
 
 export default {
   name: 'PanelTop',
-  components: {
-    Autocomplete
-  },
+
+  components: { Autocomplete },
+
   computed: {
     display () {
       return this.$store.getters[GetterNames.ActiveOtuPanel]
     }
   },
-  mounted () {
+
+  created () {
     this.getParams()
   },
+
   methods: {
     loadOtu (id) {
-      GetOtu(id).then(response => {
+      Otu.find(id).then(response => {
         this.$store.commit(MutationNames.SetOtuSelected, response.body)
       })
     },
-    getParams() {
-      var url = new URL(window.location.href);
-      var otuId = url.searchParams.get('otu_id');
+
+    getParams () {
+      const url = new URL(window.location.href)
+      const otuId = url.searchParams.get('otu_id')
       if (otuId != null && Number.isInteger(Number(otuId))) {
         this.loadOtu(otuId)
       }

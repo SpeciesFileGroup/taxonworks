@@ -6,6 +6,7 @@ import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { Content } from './Content'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
 import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
@@ -47,6 +48,7 @@ export {
   CollectingEvent,
   CollectionObject,
   Combination,
+  Content,
   ControlledVocabularyTerm,
   Depiction,
   Descriptor,

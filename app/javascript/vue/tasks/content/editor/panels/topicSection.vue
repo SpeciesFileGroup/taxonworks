@@ -13,7 +13,7 @@
       <div class="slide-panel-category">
         <ul class="slide-panel-category-content">
           <li
-            v-for="(item, index) in topics"
+            v-for="item in topics"
             :key="item.id"
             class="slide-panel-category-item"
             :class="{ selected : (topic && (item.id == topic['id'])) }"
@@ -28,18 +28,20 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { Topic } from 'routes/endpoints'
 import NewTopic from './newTopic.vue'
-import { GetTopics } from '../request/resources'
 
 export default {
-  data: function () {
+  components: {
+    NewTopic
+  },
+
+  data () {
     return {
       topics: []
     }
   },
-  components: {
-    NewTopic
-  },
+
   computed: {
     active () {
       return this.$store.getters[GetterNames.ActiveTopicPanel]
@@ -53,16 +55,18 @@ export default {
       }
     }
   },
-  mounted () {
+
+  created () {
     this.loadList()
   },
+
   methods: {
     loadTopic (item) {
       this.topic = item
       TW.views.shared.slideout.closeHideSlideoutPanel('[data-panel-name="topic_list"]')
     },
     loadList () {
-      GetTopics().then(response => {
+      Topic.all().then(response => {
         this.topics = response.body
         this.getParams()
       })

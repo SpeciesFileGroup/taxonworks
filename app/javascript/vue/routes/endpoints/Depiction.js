@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
   depiction: {
@@ -37,5 +38,7 @@ const permitParams = {
 }
 
 export const Depiction = {
-  ...baseCRUD('depictions', permitParams)
+  ...baseCRUD('depictions', permitParams),
+
+  sort: data => AjaxCall('patch', '/depictions/sort', data)
 }
