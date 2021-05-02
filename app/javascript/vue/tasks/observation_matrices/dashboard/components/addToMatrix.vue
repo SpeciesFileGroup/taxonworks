@@ -59,7 +59,7 @@
 import ModalComponent from 'components/modal'
 import SpinnerComponent from 'components/spinner'
 import { RouteNames } from 'routes/routes'
-import { GetObservationMatrices, CreateObservationMatrixRow } from '../request/resources'
+import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'
 
 export default {
   components: {
@@ -85,7 +85,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          GetObservationMatrices().then(response => {
+          ObservationMatrix.all().then(response => {
             this.observationMatrices = response.body
             this.isLoading = false
           })
@@ -105,7 +105,7 @@ export default {
         }
       })
 
-      data.forEach(row => { promises.push(CreateObservationMatrixRow(row)) })
+      data.forEach(row => { promises.push(ObservationMatrixRowItem({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
