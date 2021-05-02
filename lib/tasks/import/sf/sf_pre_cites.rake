@@ -52,7 +52,7 @@ namespace :tw do
             # OriginalGenusID, integer, 4 bytes, = tblTaxa.TaxonNameID, used only for species-group taxa **other than a species that has subspecies**
             sf_original_genus_id = row['OriginalGenusID']
             sf_original_genus_id = subspecies_original_genus_id_lut[ [row["TaxonNameID"], row["Name"]] ] if sf_original_genus_id == '0'
-            next if sf_original_genus_id == '0'
+            next if sf_original_genus_id.to_i == 0
 
             species_id = get_tw_taxon_name_id[taxon_name_id]
             next unless species_id
