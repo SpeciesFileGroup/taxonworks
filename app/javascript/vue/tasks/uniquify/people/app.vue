@@ -47,7 +47,7 @@
     <spinner
       v-if="isLoading || isSaving"
       :full-screen="true"
-      :legend="isLoading ? 'Loading...' : `Merging... ${this.mergeList.length} persons remaining...`"
+      :legend="isLoading ? 'Loading...' : `Merging... ${this.peopleRemain} persons remaining...`"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div
       v-show="activeJSONRequest"
@@ -203,6 +203,7 @@ export default {
       showMatch: true,
       showFound: true,
       showSearch: true,
+      peopleRemain: 0,
       params: this.initParams()
     }
   },
@@ -298,6 +299,7 @@ export default {
       })
     },
     mergePeople () {
+      this.peopleRemain = this.mergeList.length
       this.processMerge(this.mergeList)
     },
     processMerge (mergeList) {
@@ -314,7 +316,9 @@ export default {
         if (personIndex > -1) {
           this.$set(this.foundPeople, personIndex, this.selectedPerson)
         }
+      }).finally(() => {
         if (mergeList.length) {
+          this.peopleRemain--
           this.processMerge(mergeList)
         } else {
           this.isSaving = false

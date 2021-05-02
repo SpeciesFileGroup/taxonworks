@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hide row/column panel on new observation matrix
 - Soft validation section is always visible [#2211]
 - Ambiguous column problem in query for previous/next collecting event navigation.
+- Merge people count [#2218]
 
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2209]: https://github.com/SpeciesFileGroup/taxonworks/issues/2209
 [#2211]: https://github.com/SpeciesFileGroup/taxonworks/issues/2211
 [#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
+[#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
 
 ## [0.17.0] - 2020-04-23
 
