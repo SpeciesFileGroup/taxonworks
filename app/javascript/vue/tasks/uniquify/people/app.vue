@@ -163,8 +163,7 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
 import NameField from './components/filters/nameField.vue'
 import InProject from './components/filters/inProject.vue'
-
-import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
@@ -284,7 +283,7 @@ export default {
       this.displayCount = true
       this.expandPeople = true
 
-      GetPeopleList(params).then(response => {
+      People.where(params).then(response => {
         this.foundPeople = response.body
         this.urlRequest = response.request.responseURL
         this.isLoading = false
@@ -292,7 +291,7 @@ export default {
     },
     getPerson (id) {
       this.isLoading = true
-      GetPeople(id).then(response => {
+      People.find(id).then(response => {
         this.foundPeople = [response.body]
         this.selectedPerson = response.body
         this.isLoading = false
@@ -304,10 +303,8 @@ export default {
     processMerge (mergeList) {
       const mergePerson = mergeList.pop()
       this.isSaving = true
-      const params = {
-        person_to_destroy: mergePerson.id
-      }
-      PersonMerge(this.selectedPerson.id, params).then(({ body }) => {
+
+      People.merge(this.selectedPerson.id, { person_to_destroy: mergePerson.id }).then(({ body }) => {
         const personIndex = this.foundPeople.findIndex(person => person.id === this.selectedPerson.id)
 
         this.selectedPerson = body
@@ -349,7 +346,7 @@ export default {
     getMatchPeople (params) {
       const data = params || this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
       this.mergeList = []
-      GetPeopleList(data).then(response => {
+      People.where(data).then(response => {
         this.matchPeople = response.body
       })
     }
