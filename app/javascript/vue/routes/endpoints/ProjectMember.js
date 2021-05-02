@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'project_members'
 const permitParams = {
   project_member: {
     project_id: Number,
@@ -9,5 +11,9 @@ const permitParams = {
 }
 
 export const ProjectMember = {
-  ...baseCRUD('project_members', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  updateClipboard: (params) => AjaxCall('put', `/${controller}/update_clipboard.json`, { project_member: { clipboard: params } }),
+
+  clipboard: () => AjaxCall('get', `/${controller}/clipboard.json`)
 }

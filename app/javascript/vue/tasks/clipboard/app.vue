@@ -8,7 +8,7 @@
         :key="index"
         class="slide-panel-category-item">
         <div class="full_width padding-large-right">
-          <p>Shortcut: <b>{{ keyCode[actionKey] }} {{ isLinux ? '+ Shift' : '' }} + {{ index }}</b></p>
+          <p>Shortcut: <b>{{ actionKey }} {{ isLinux ? '+ Shift' : '' }} + {{ index }}</b></p>
           <div class="middle">
             <textarea
               class="full_width"
@@ -20,24 +20,25 @@
       </li>
     </ul>
     <p class="slide-panel-category-content">
-      Use <b>{{ keyCode[actionKey] }} + C + Number</b> to copy a text to the clipboard box
+      Use <b>{{ actionKey }} + {{ keyCopy }} + Number</b> to copy a text to the clipboard box
     </p>
   </div>
 </template>
 <script>
 
-import { GetClipboard, UpdateClipboard } from './request/resources'
+import { ProjectMember } from 'routes/endpoints'
 
 export default {
   computed: {
-    actionKey() {
-      return (navigator.platform.indexOf('Mac') > -1 ? 17 : 18)
+    actionKey () {
+      return (navigator.platform.indexOf('Mac') > -1 ? 'Control' : 'Alt')
     },
     isLinux () {
       return window.navigator.userAgent.indexOf('Linux') > -1
     }
   },
-  data() {
+
+  data () {
     return {
       clipboard: {
         1: '',
@@ -46,43 +47,39 @@ export default {
         4: '',
         5: ''
       },
-      keyCode: {
-        17: 'Ctrl',
-        18: 'Alt'
-      },
-      keys: []
+      keys: [],
+      keyCopy: 'C'
     }
   },
-  mounted () {
-    document.addEventListener('turbolinks:load', (event) => {
-      document.removeEventListener('keydown', this.KeyPress)
+
+  created () {
+    document.addEventListener('turbolinks:load', () => {
+      document.removeEventListener('keydown', this.keyPressed)
       document.removeEventListener('keyup', this.removeKey)
     })
-    document.addEventListener('keydown', this.KeyPress)
+    document.addEventListener('keydown', this.keyPressed)
     document.addEventListener('keyup', this.removeKey)
-    GetClipboard().then(response => {
+    ProjectMember.clipboard().then(response => {
       Object.assign(this.clipboard, response.body.clipboard)
     })
   },
+
   methods: {
     isInput () {
       return (document.activeElement.tagName === 'INPUT' ||
           document.activeElement.tagName === 'TEXTAREA')
     },
-    KeyPress (e) {
-      this.addKey(e)
-      const evtobj = window.event ? event : e
-      if (this.keys.includes(this.actionKey)) {
-        if (this.keys.includes(67) && (this.keys.length == 3)) {
-          const keys = this.keys.filter(key => { return (key > 48 && key < 54) })
+    keyPressed ({ key }) {
+      const isClipboardKey = Object.keys(this.clipboard).includes(key)
+      const iskeyCopyPressed = !!this.keys.find(key => key.toUpperCase() === this.keyCopy)
 
-          keys.forEach(item => {
-            this.setClipboard((item - 48))
-          })
+      this.addKey(key)
+
+      if (this.keys.includes(this.actionKey) && isClipboardKey) {
+        if (iskeyCopyPressed) {
+          this.setClipboard(key)
         } else {
-          if (evtobj.keyCode > 48 && evtobj.keyCode < 54) {
-            this.pasteClipboard((evtobj.keyCode - 48))
-          }
+          this.pasteClipboard(key)
         }
       }
     },
@@ -95,7 +92,7 @@ export default {
       }
     },
     saveClipboard () {
-      UpdateClipboard(this.clipboard).then(response => {
+      ProjectMember.updateClipboard(this.clipboard).then(response => {
         this.clipboard = response.body.clipboard
       })
     },
@@ -103,20 +100,17 @@ export default {
       const textSelected = window.getSelection().toString()
 
       if (textSelected.length > 0) {
-        console.log(textSelected)
         this.clipboard[index] = textSelected
         this.saveClipboard()
       }
     },
-    addKey (e) {
-      const evtobj = window.event ? event : e
-      if (!this.keys.includes(evtobj.keyCode)) {
-        this.keys.push(evtobj.keyCode)
+    addKey (key) {
+      if (!this.keys.includes(key)) {
+        this.keys.push(key)
       }
     },
-    removeKey (e) {
-      const evtobj = window.event ? event : e
-      const position = this.keys.findIndex(key => { return evtobj.keyCode === key })
+    removeKey ({ key }) {
+      const position = this.keys.findIndex(keyStore => keyStore === key)
 
       if (position > -1) {
         this.keys.splice(position, 1)
