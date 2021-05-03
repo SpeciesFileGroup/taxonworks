@@ -173,7 +173,7 @@ class CollectionObjectsController < ApplicationController
     @collection_object.destroy
     respond_to do |format|
       if @collection_object.destroyed?
-        format.html { destroy_redirect @collection_object, notice: 'CollectionObject was successfully destroyed.' }
+        format.html { redirect_to after_destroy_path, notice: 'CollectionObject was successfully destroyed.' }
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collection_object, notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; ') }
@@ -339,7 +339,7 @@ class CollectionObjectsController < ApplicationController
 
   private
 
-  def destroy_redirect
+  def after_destroy_path
     if request.referer =~ /tasks\/collection_objects\/browse/
       if o = @collection_object.next_by_identifier
         browse_collection_objects_path(collection_object_id: o.id)

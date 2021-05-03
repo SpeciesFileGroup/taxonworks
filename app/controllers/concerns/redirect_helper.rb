@@ -12,7 +12,7 @@ module RedirectHelper
         show_params = { controller: controller_name, action: 'show', id: object.id.to_s }
 
         # NOTE: url_for resolves to index action if object is not persisted
-        back_location = url_for(object) if back_params == show_params
+        back_location = url_for(object.metamorphosize) if back_params == show_params
       rescue; end
     end
 
