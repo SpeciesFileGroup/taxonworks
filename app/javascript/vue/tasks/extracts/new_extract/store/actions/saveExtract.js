@@ -17,6 +17,8 @@ export default ({ state: { extract, repository }, commit }) => {
     SoftValidation.find(body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body)
     })
+
+    commit(MutationNames.SetLastSave, Date.now())
     return body
   })
 }

@@ -9,39 +9,10 @@
         Sortable fields
       </label>
     </div>
-    <navbar-component>
-      <div class="flex-separate middle">
-        <span
-          v-if="extract.id"
-          v-html="extract.object_tag"/>
-        <span v-else>
-          New
-        </span>
-        <div class="horizontal-right-content">
-          <button
-            type="button"
-            class="button normal-input button-submit margin-small-right"
-            v-shortkey="[OSKey, 's']"
-            @shortkey="saveExtract"
-            @click="saveExtract">
-            Save
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default margin-small-right">
-            Recent
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default"
-            v-shortkey="[OSKey, 'n']"
-            @shortkey="resetState"
-            @click="resetState">
-            New
-          </button>
-        </div>
-      </div>
-    </navbar-component>
+    <navbar-component
+      @onSave="saveExtract"
+      @onReset="resetState"
+    />
     <div class="flexbox">
       <div class="item">
         <draggable
@@ -57,7 +28,8 @@
         </draggable>
       </div>
       <div class="item margin-medium-left">
-        <recent-component />
+        <recent-component
+          @onLoad="loadExtract"/>
         <soft-validation />
       </div>
     </div>
@@ -72,20 +44,15 @@ import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
 import { User } from 'routes/endpoints'
 
-import NavbarComponent from 'components/navBar'
-import MadeComponent from './components/Made'
-import RepositoryComponent from './components/Repository'
+import NavbarComponent from './components/Navbar.vue'
 import Draggable from 'vuedraggable'
 import SoftValidation from './components/SoftValidation.vue'
 import RecentComponent from './components/Recent'
-import OSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
     Draggable,
     NavbarComponent,
-    MadeComponent,
-    RepositoryComponent,
     SoftValidation,
     RecentComponent,
     ...VueComponent
@@ -99,10 +66,6 @@ export default {
   },
 
   computed: {
-    extract () {
-      return this.$store.getters[GetterNames.GetExtract]
-    },
-
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -122,7 +85,9 @@ export default {
       }
     },
 
-    OSKey
+    extract () {
+      return this.$store.getters[GetterNames.GetExtract]
+    }
   },
 
   watch: {
@@ -135,15 +100,21 @@ export default {
         }
       },
       deep: true
+    },
+    extract: {
+      handler (newVal) {
+        this.$store.commit(MutationNames.SetLastChange, Date.now())
+      },
+      deep: true
     }
   },
 
-  mounted () {
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const extractId = urlParams.get('extract_id')
 
     if (/^\d+$/.test(extractId)) {
-      this.$store.dispatch(ActionNames.LoadExtract, extractId)
+      this.loadExtract({ id: extractId })
     }
 
     this.$store.dispatch(ActionNames.LoadProjectPreferences)
@@ -159,17 +130,37 @@ export default {
 
     saveExtract () {
       const { dispatch } = this.$store
+      const promise = []
 
       dispatch(ActionNames.SaveExtract).then(() => {
         TW.workbench.alert.create('Extract was saved successfully', 'notice')
-        dispatch(ActionNames.SaveOriginRelationship)
-        dispatch(ActionNames.SaveIdentifiers)
-        dispatch(ActionNames.SaveProtocols)
+        promise.push(dispatch(ActionNames.SaveOriginRelationship))
+        promise.push(dispatch(ActionNames.SaveIdentifiers))
+        promise.push(dispatch(ActionNames.SaveProtocols))
+      })
+
+      Promise.all(promise).then(() => {
+        this.$nextTick(() => {
+          this.$store.commit(MutationNames.SetLastChange, 0)
+        })
       })
     },
 
     resetState () {
       this.$store.dispatch(ActionNames.ResetState)
+      this.$nextTick(() => {
+        this.$store.commit(MutationNames.SetLastChange, 0)
+      })
+    },
+
+    removeRecent (extract) {
+      this.$store.dispatch(ActionNames.RemoveExtract, extract)
+    },
+
+    loadExtract ({ id }) {
+      this.$store.dispatch(ActionNames.LoadExtract, id).then(() => {
+        this.$store.commit(MutationNames.SetLastChange, 0)
+      })
     }
   }
 }

@@ -1,14 +1,24 @@
 <template>
   <div>
     <h2>Identifier</h2>
-    <div class="flex-wrap-column middle align-start full_width">
+    <div class="full_width">
       <template v-if="typeListSelected">
-        <span class="capitalize">{{ typeListSelected }}</span>
-        <button
-          class="button button-default"
-          @click="typeListSelected = undefined">
-          Change
-        </button>
+        <div class="horizontal-left-content middle">
+          <span class="capitalize">{{ typeListSelected }}</span>
+          <tippy-component
+            animation="scale"
+            placement="bottom"
+            size="small"
+            inertia
+            arrow
+            content="Change">
+            <template slot="trigger">
+              <button
+                class="button button-circle button-default btn-undo"
+                @click="typeListSelected = undefined"/>
+            </template>
+          </tippy-component>
+        </div>
         <select-type
           :list="typeList[typeListSelected]"
           v-model="typeSelected"/>
@@ -66,6 +76,7 @@
 import { Identifier } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { TippyComponent } from 'vue-tippy'
 
 import componentExtend from './mixins/componentExtend'
 import SelectType from './Identifiers/SelectType'
@@ -82,7 +93,8 @@ export default {
     SelectType,
     NamespaceComponent,
     IdentifierComponent,
-    LockComponent
+    LockComponent,
+    TippyComponent
   },
 
   data () {
@@ -146,7 +158,7 @@ export default {
         identifier_object_type: 'Extract'
       }
 
-      this.identifiers.push(data)
+      this.$store.commit(MutationNames.AddIdentifier, data)
     },
 
     resetIdentifier () {
@@ -156,12 +168,9 @@ export default {
 
     removeIdentifier (index) {
       if (this.identifiers[index].id) {
-        Identifier.destroy(this.identifiers[index].id).then(() => {
-          this.identifiers.splice(index, 1)
-        })
-      } else {
-        this.identifiers.splice(index, 1)
+        Identifier.destroy(this.identifiers[index].id)
       }
+      this.$store.commit(MutationNames.RemoveIdentifierByIndex, index)
     }
   }
 }

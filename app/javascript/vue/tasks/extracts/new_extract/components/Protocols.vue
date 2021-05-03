@@ -50,17 +50,14 @@ export default {
 
   methods: {
     addProtocol ({ id, object_tag }) {
-      this.protocols.push({ protocol_id: id, object_tag })
+      this.$store.commit(MutationNames.AddProtocol, { protocol_id: id, object_tag })
     },
 
     removeProtocol (index) {
       if (this.protocols[index].id) {
-        ProtocolRelationship.destroy(this.protocols[index].id).then(() => {
-          this.protocols.splice(index, 1)
-        })
-      } else {
-        this.protocols.splice(index, 1)
+        ProtocolRelationship.destroy(this.protocols[index].id)
       }
+      this.$store.commit(MutationNames.RemoveProtocol, this.protocols[index].id)
     }
   }
 }

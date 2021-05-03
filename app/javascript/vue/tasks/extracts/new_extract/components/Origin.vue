@@ -29,11 +29,6 @@
         v-model="settings.lock.originRelationship"/>
     </div>
 
-    <label>
-      <input
-        type="checkbox">
-      Substract from origin
-    </label>
     <label v-if="!isExtract">
       Verbatim anatomical origin
       <input

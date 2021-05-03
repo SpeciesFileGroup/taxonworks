@@ -8,4 +8,6 @@ export default (state, identifier) => {
   } else {
     state.identifiers.push(identifier)
   }
+
+  state.lastChange = Date.now()
 }

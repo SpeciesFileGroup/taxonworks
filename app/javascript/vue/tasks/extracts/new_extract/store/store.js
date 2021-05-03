@@ -29,6 +29,8 @@ const makeInitialState = () => {
     },
     extract: makeExtract(),
     identifiers: [],
+    lastChange: 0,
+    lastSave: 0,
     originRelationship: {},
     recents: [],
     protocols: [],

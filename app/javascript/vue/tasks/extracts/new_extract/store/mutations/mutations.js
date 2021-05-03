@@ -11,6 +11,10 @@ import setOriginRelationship from './setOriginRelationship'
 import setRepository from './setRepository'
 import setProtocols from './setProtocols'
 import setState from './setState'
+import setLastChange from './setLastChange'
+import setLastSave from './setLastSave'
+import removeProtocol from './removeProtocol'
+import removeIdentifierByIndex from './removeIdentifierByIndex'
 
 const MutationNames = {
   AddIdentifier: 'addIdentifier',
@@ -25,7 +29,11 @@ const MutationNames = {
   SetOriginRelationship: 'setOriginRelationship',
   SetRepository: 'setRepository',
   SetProtocols: 'setProtocols',
-  SetState: 'setState'
+  SetState: 'setState',
+  SetLastChange: 'setLastChange',
+  SetLastSave: 'setLastSave',
+  RemoveIdentifierByIndex: 'removeIdentifierByIndex',
+  RemoveProtocol: 'removeProtocol'
 }
 
 const MutationFunctions = {
@@ -41,7 +49,11 @@ const MutationFunctions = {
   [MutationNames.SetOriginRelationship]: setOriginRelationship,
   [MutationNames.SetRepository]: setRepository,
   [MutationNames.SetProtocols]: setProtocols,
-  [MutationNames.SetState]: setState
+  [MutationNames.SetState]: setState,
+  [MutationNames.SetLastChange]: setLastChange,
+  [MutationNames.SetLastSave]: setLastSave,
+  [MutationNames.RemoveIdentifierByIndex]: removeIdentifierByIndex,
+  [MutationNames.RemoveProtocol]: removeProtocol
 }
 
 export {

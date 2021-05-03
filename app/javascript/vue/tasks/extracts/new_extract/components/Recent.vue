@@ -5,8 +5,8 @@
       :attributes="['object_tag']"
       :list="list"
       edit
-      @edit="loadExtract"
-      @delete="removeRecent"
+      @edit="$emit('onLoad', $event)"
+      @delete="$emit('onDelete', $event)"
     />
   </div>
 </template>
@@ -31,13 +31,7 @@ export default {
   },
 
   methods: {
-    removeRecent (extract) {
-      this.$store.dispatch(ActionNames.RemoveExtract, extract)
-    },
 
-    loadExtract ({ id }) {
-      this.$store.dispatch(ActionNames.LoadExtract, id)
-    }
   }
 }
 </script>

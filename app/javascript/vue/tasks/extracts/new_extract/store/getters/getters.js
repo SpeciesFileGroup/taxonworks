@@ -8,6 +8,8 @@ import getProjectPreferences from './getProjectPreferences'
 import getOriginRelationship from './getOriginRelationship'
 import getRepository from './getRepository'
 import getProtocols from './getProtocols'
+import getLastSave from './getLastSave'
+import getLastChange from './getLastChange'
 
 const GetterNames = {
   GetRecent: 'getRecent',
@@ -19,7 +21,9 @@ const GetterNames = {
   GetProjectPreferences: 'getProjectPreferences',
   GetOriginRelationship: 'getOriginRelationship',
   GetRepository: 'getRepository',
-  GetProtocols: 'getProtocols'
+  GetProtocols: 'getProtocols',
+  GetLastSave: 'getLastSave',
+  GetLastChange: 'getLastChange'
 }
 
 const GetterFunctions = {
@@ -32,7 +36,9 @@ const GetterFunctions = {
   [GetterNames.GetUserPreferences]: getUserPreferences,
   [GetterNames.GetOriginRelationship]: getOriginRelationship,
   [GetterNames.GetRepository]: getRepository,
-  [GetterNames.GetProtocols]: getProtocols
+  [GetterNames.GetProtocols]: getProtocols,
+  [GetterNames.GetLastSave]: getLastSave,
+  [GetterNames.GetLastChange]: getLastChange
 }
 
 export {

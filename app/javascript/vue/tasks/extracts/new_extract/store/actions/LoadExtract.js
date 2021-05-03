@@ -5,17 +5,22 @@ import { RouteNames } from 'routes/routes'
 import { Extract, SoftValidation } from 'routes/endpoints'
 
 export default ({ commit, dispatch }, id) => {
-  Extract.find(id).then(({ body }) => {
+  return Extract.find(id).then(({ body }) => {
+    const promises = []
     SetParam(RouteNames.NewExtract, 'extract_id', id)
     body.roles_attributes = body.extractor_roles || []
-    commit(MutationNames.SetExtract, body)
 
-    dispatch(ActionNames.LoadOriginRelationship, body)
-    dispatch(ActionNames.LoadProtocols, body)
-    dispatch(ActionNames.LoadIdentifiers, body)
+    commit(MutationNames.SetExtract, body)
+    promises.push(dispatch(ActionNames.LoadOriginRelationship, body))
+    promises.push(dispatch(ActionNames.LoadProtocols, body))
+    promises.push(dispatch(ActionNames.LoadIdentifiers, body))
 
     SoftValidation.find(body.global_id).then(response => {
       commit(MutationNames.SetSoftValidation, response.body)
+    })
+
+    Promise.all(promises).then(() => {
+      commit(MutationNames.SetLastChange, 0)
     })
   })
 }
