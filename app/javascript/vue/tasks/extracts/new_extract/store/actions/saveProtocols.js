@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateProtocol } from '../../request/resources'
+import { ProtocolRelationship } from 'routes/endpoints'
 
 export default ({ state, commit }) => {
   const { extract, protocols } = state
@@ -7,10 +7,12 @@ export default ({ state, commit }) => {
   const newProtocols = protocols.filter(item => !item.id)
 
   newProtocols.forEach(item => {
-    promises.push(CreateProtocol({
-      ...item,
-      protocol_relationship_object_id: extract.id,
-      protocol_relationship_object_type: 'Extract'
+    promises.push(ProtocolRelationship.create({
+      protocol_relationship: {
+        ...item,
+        protocol_relationship_object_id: extract.id,
+        protocol_relationship_object_type: 'Extract'
+      }
     }).then(({ body }) => {
       commit(MutationNames.AddProtocol, body)
     }))

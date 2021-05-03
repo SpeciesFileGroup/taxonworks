@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
   identifier: {
@@ -13,5 +14,7 @@ const permitParams = {
 }
 
 export const Identifier = {
-  ...baseCRUD('identifiers', permitParams)
+  ...baseCRUD('identifiers', permitParams),
+
+  types: () => AjaxCall('get', '/identifiers/identifier_types')
 }

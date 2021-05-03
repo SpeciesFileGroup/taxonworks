@@ -1,11 +1,8 @@
-import { CreateOriginRelationship, UpdateOriginRelationship } from '../../request/resources'
+import { OriginRelationship } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import parseOrigin from '../../helpers/parseOrigin'
 
-export default ({ state, commit }) => {
-  const { extract, originRelationship } = state
-  const saveFn = originRelationship.id ? UpdateOriginRelationship : CreateOriginRelationship
-
+export default ({ state: { extract, originRelationship }, commit }) => {
   if (!originRelationship.oldObject) return
 
   const data = {
@@ -16,7 +13,11 @@ export default ({ state, commit }) => {
     new_object_id: extract.id
   }
 
-  saveFn(data).then(({ body }) => {
+  const saveOriginRelationshio = originRelationship.id
+    ? OriginRelationship.update(originRelationship.id, { origin_relationship: data })
+    : OriginRelationship.create({ origin_relationship: data })
+
+  saveOriginRelationshio.then(({ body }) => {
     commit(MutationNames.SetOriginRelationship, parseOrigin(body))
   })
 }

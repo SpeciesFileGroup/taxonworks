@@ -37,7 +37,7 @@ import componentExtend from './mixins/componentExtend'
 import LockComponent from 'components/lock'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetRepository } from '../request/resources'
+import { Repository } from 'routes/endpoints'
 
 export default {
   mixins: [componentExtend],
@@ -68,7 +68,7 @@ export default {
   watch: {
     extract (newVal) {
       if (newVal.repository_id) {
-        GetRepository(newVal.id).then(({ body }) => {
+        Repository.find(newVal.id).then(({ body }) => {
           this.setRepository(body)
         })
       }

@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetExtracts } from '../../request/resources'
+import { Extract } from 'routes/endpoints'
 
 export default ({ commit }) => {
-  GetExtracts({ recent: true, per: 12 }).then(({ body }) => {
+  Extract.where({ recent: true, per: 12 }).then(({ body }) => {
     commit(MutationNames.SetRecents, body)
   })
 }

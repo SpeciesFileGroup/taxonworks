@@ -1,8 +1,8 @@
-import { GetUserPreferences } from '../../request/resources'
+import { User } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }) => {
-  GetUserPreferences().then(({ body }) => {
+  User.preferences().then(({ body }) => {
     commit(MutationNames.SetUserPreferences, body)
   })
 }

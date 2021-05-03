@@ -26,7 +26,7 @@ import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { DestroyProtocol } from '../request/resources'
+import { ProtocolRelationship } from 'routes/endpoints'
 
 export default {
   mixins: [componentExtend],
@@ -55,7 +55,7 @@ export default {
 
     removeProtocol (index) {
       if (this.protocols[index].id) {
-        DestroyProtocol(this.protocols[index].id).then(() => {
+        ProtocolRelationship.destroy(this.protocols[index].id).then(() => {
           this.protocols.splice(index, 1)
         })
       } else {

@@ -63,7 +63,7 @@
 
 <script>
 
-import { GetIdentifierTypes, DestroyIdentifier } from '../request/resources'
+import { Identifier } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -125,7 +125,7 @@ export default {
   },
 
   created () {
-    GetIdentifierTypes().then(({ body }) => {
+    Identifier.types().then(({ body }) => {
       const list = body
       const keys = Object.keys(body)
       keys.forEach(key => {
@@ -156,7 +156,7 @@ export default {
 
     removeIdentifier (index) {
       if (this.identifiers[index].id) {
-        DestroyIdentifier(this.identifiers[index].id).then(() => {
+        Identifier.destroy(this.identifiers[index].id).then(() => {
           this.identifiers.splice(index, 1)
         })
       } else {

@@ -70,7 +70,7 @@ import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 import { VueComponent } from './const/components'
-import { UpdateUserPreferences } from './request/resources'
+import { User } from 'routes/endpoints'
 
 import NavbarComponent from 'components/navBar'
 import MadeComponent from './components/Made'
@@ -152,9 +152,8 @@ export default {
 
   methods: {
     updatePreferences () {
-      UpdateUserPreferences(this.preferences.id, { [this.keyStorage]: this.componentsOrder }).then(response => {
+      User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {
         this.preferences = response.body.preferences
-        // this.componentsOrder = response.body.preferences.layout[this.keyStorage]
       })
     },
 

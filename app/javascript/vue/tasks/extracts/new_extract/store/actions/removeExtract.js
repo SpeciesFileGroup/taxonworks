@@ -1,11 +1,11 @@
-import { DestroyExtract } from '../../request/resources'
+import { Extract } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ state, commit }, extract) => {
   const { recents } = state
   const index = recents.findIndex(item => item.id === extract.id)
 
-  DestroyExtract(extract.id).then(() => {
+  Extract.destroy(extract.id).then(() => {
     recents.splice(index, 1)
     commit(MutationNames.SetRecents, recents)
   })

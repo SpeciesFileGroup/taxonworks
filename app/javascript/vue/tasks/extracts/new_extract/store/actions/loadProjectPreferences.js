@@ -1,8 +1,8 @@
-import { GetProjectPreferences } from '../../request/resources'
+import { Project } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }) => {
-  GetProjectPreferences().then(({ body }) => {
+  Project.preferences().then(({ body }) => {
     commit(MutationNames.SetProjectPreferences, body)
   })
 }
