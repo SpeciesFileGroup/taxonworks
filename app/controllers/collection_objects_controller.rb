@@ -418,8 +418,10 @@ class CollectionObjectsController < ApplicationController
       :buffered_other_labels,
       :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
       :depictions,
+      :determiner_id_or,
       :dwc_indexed,
       :end_date,
       :exact_buffered_collecting_event,
@@ -441,12 +443,13 @@ class CollectionObjectsController < ApplicationController
       :never_loaned,
       :on_loan,
       :partial_overlap_dates,
-      :radius,
+      :preparation_type_id,
+      :radius,  # CE filter
       :repository,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
-      :start_date,
+      :start_date,  # CE filter
       :taxon_determinations,
       :type_material,
       :type_specimen_taxon_name_id,
@@ -455,18 +458,22 @@ class CollectionObjectsController < ApplicationController
       :user_id,
       :user_target,
       :validity,
+      :with_buffered_collecting_event,
+      :with_buffered_determinations,
+      :with_buffered_other_labels,
       :wkt,
       biocuration_class_ids: [],
       biological_relationship_ids: [],
       collecting_event_ids: [],
+      collector_ids: [], #
       determiner_id: [],
       geographic_area_ids: [],
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
+      preparation_type_id: []
       #  user_id: []
-
       #  collecting_event: {
       #   :recent,
       #   keyword_id_and: []
@@ -489,10 +496,12 @@ class CollectionObjectsController < ApplicationController
       :buffered_other_labels,
       :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
       :depictions,
+      :determiner_id_or,
       :dwc_indexed,
-      :end_date,
+      :end_date,  # CE filter
       :exact_buffered_collecting_event,
       :exact_buffered_determinations,
       :exact_buffered_other_labels,
@@ -507,11 +516,12 @@ class CollectionObjectsController < ApplicationController
       :in_labels,
       :in_verbatim_locality,
       :loaned,
-      :md5_verbatim_label,
+      :md5_verbatim_label, # CE filter
       :namespace_id,
       :never_loaned,
       :on_loan,
-      :partial_overlap_dates,
+      :partial_overlap_dates, # CE filter
+      :preparation_type_id,
       :radius,
       :repository,
       :repository_id,
@@ -526,16 +536,21 @@ class CollectionObjectsController < ApplicationController
       :user_id,
       :user_target,
       :validity,
-      :wkt,
+      :with_buffered_collecting_event,
+      :with_buffered_determinations,
+      :with_buffered_other_labels,
+      :wkt, # CE filter
       biocuration_class_ids: [],
       biological_relationship_ids: [],
       collecting_event_ids: [],
+      collector_ids: [],
       determiner_id: [],
-      geographic_area_ids: [],
+      geographic_area_ids: [], # CE filter
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
       otu_ids: [],
+      preparation_type_id: [],
 
       #  collecting_event: {
       #   :recent,

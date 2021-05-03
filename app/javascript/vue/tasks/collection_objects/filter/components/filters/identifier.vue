@@ -8,6 +8,22 @@
         type="text"
         v-model="identifier.identifier">
     </div>
+    <h4>Namespace</h4>
+    <smart-selector
+      class="margin-medium-top"
+      model="namespaces"
+      klass="CollectionObject"
+      pin-section="Namespaces"
+      pin-type="Namespace"
+      @selected="setNamespace"/>
+    <div
+      v-if="namespace"
+      class="middle flex-separate separate-top">
+      <span v-html="namespace.name"/>
+      <span
+        class="button button-circle btn-undo button-default"
+        @click="unsetNamespace"/>
+    </div>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -42,22 +58,6 @@
           v-model="identifier.identifier_end">
       </div>
     </div>
-    <h3>Namespace</h3>
-    <smart-selector
-      class="margin-medium-top"
-      model="namespaces"
-      klass="CollectionObject"
-      pin-section="Namespaces"
-      pin-type="Namespace"
-      @selected="setNamespace"/>
-    <div
-      v-if="namespace"
-      class="middle flex-separate separate-top">
-      <span v-html="namespace.name"/>
-      <span
-        class="button button-circle btn-undo button-default"
-        @click="unsetNamespace"/>
-    </div>
   </div>
 </template>
 
@@ -65,7 +65,7 @@
 
 import SmartSelector from 'components/smartSelector'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetNamespace } from '../../request/resources'
+import { Namespace } from 'routes/endpoints'
 
 export default {
   components: {
@@ -89,8 +89,8 @@ export default {
   },
   watch: {
     identifier: {
-      handler(newVal) {
-        if(!newVal.identifier || !newVal.identifier.length) {
+      handler (newVal) {
+        if (!newVal.identifier || !newVal.identifier.length) {
           this.identifier.identifier_exact = undefined
         }
       },
@@ -122,7 +122,7 @@ export default {
     this.identifier.identifier_start = urlParams.identifier_start
     this.identifier.identifier_end = urlParams.identifier_end
     if (urlParams.namespace_id) {
-      GetNamespace(urlParams.namespace_id).then(response => {
+      Namespace.find(urlParams.namespace_id).then(response => {
         this.setNamespace(response.body)
       })
     }
@@ -141,7 +141,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

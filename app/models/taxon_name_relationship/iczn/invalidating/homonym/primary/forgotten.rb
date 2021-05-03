@@ -2,7 +2,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000106'.freeze
 
-  soft_validate(:sv_forgotten_homonym, set: :specific_relationship, has_fix: false)
+  soft_validate(:sv_forgotten_homonym, set: :specific_relationship)
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +

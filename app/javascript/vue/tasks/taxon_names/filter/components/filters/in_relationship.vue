@@ -4,7 +4,7 @@
     <smart-selector
       class="separate-bottom"
       :options="options"
-      v-model="view" 
+      v-model="view"
     />
     <div class="separate-top">
       <tree-display
@@ -43,7 +43,7 @@
         @getItem="addRelationship"
         placeholder="Search"
         event-send="autocompleteRelationshipSelected"
-        param="term" 
+        param="term"
       />
     </div>
     <display-list
@@ -59,10 +59,10 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import { GetRelationshipsMetadata } from '../../request/resources.js'
 import Autocomplete from 'components/autocomplete'
 import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { TaxonNameRelationship } from 'routes/endpoints'
 
 const OPTIONS = {
   common: 'common',
@@ -77,17 +77,20 @@ export default {
     Autocomplete,
     DisplayList
   },
+
   props: {
     value: {
 
     }
   },
+
   computed: {
     smartOptions() {
       return OPTIONS
     }
   },
-  data() {
+
+  data () {
     return {
       options: Object.values(OPTIONS),
       lists: [],
@@ -100,24 +103,26 @@ export default {
       typeSelected: undefined
     }
   },
+
   watch: {
     value(newVal) {
-      if(newVal.length || !this.relationshipSelected.length) return
+      if (newVal.length || !this.relationshipSelected.length) return
       this.relationshipSelected = []
     },
     relationshipSelected(newVal) {
       this.$emit('input', newVal.map(relationship => { return relationship.type }))
     }
   },
-  mounted () {
-    GetRelationshipsMetadata().then(response => {
+
+  created () {
+    TaxonNameRelationship.types().then(response => {
       this.relationshipsList = response.body
       this.merge()
 
       const params = URLParamsToJSON(location.href)
       if (params.taxon_name_relationship_type) {
         params.taxon_name_relationship_type.forEach(type => {
-          let data = this.mergeLists.all[type]
+          const data = this.mergeLists.all[type]
           data.type = type
           data.name = this.mergeLists.all[type].subject_status_tag
           this.addRelationship(data)
@@ -125,10 +130,11 @@ export default {
       }
     })
   },
+
   methods: {
-    merge() {
-      let nomenclatureCodes = Object.keys(this.relationshipsList)
-      let newList = {
+    merge () {
+      const nomenclatureCodes = Object.keys(this.relationshipsList)
+      const newList = {
         all: {},
         common: {},
         tree: {}
@@ -145,6 +151,7 @@ export default {
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
+
     getTreeList (list, ranksList) {
       for (var key in list) {
         if (key in ranksList) {
@@ -154,19 +161,18 @@ export default {
         this.getTreeList(list[key], ranksList)
       }
     },
+
     removeItem(relationship) {
-      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => {
-        return item.type == relationship.type
-      }),1)
+      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type),1)
     },
+
     addRelationship(item) {
       this.relationshipSelected.push(item)
       this.view = OPTIONS.common
     },
-    filterAlreadyPicked: function (type) {
-      return this.relationshipSelected.find(function (item) {
-        return (item.type == type)
-      })
+
+    filterAlreadyPicked (type) {
+      return this.relationshipSelected.find(item => item.type === type)
     }
   }
 }

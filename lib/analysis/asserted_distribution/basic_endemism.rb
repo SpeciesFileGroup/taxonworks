@@ -4,6 +4,8 @@ module TaxonWorks
     module AssertedDistribution
 
       module BasicEndemism
+
+
         # @param taxon_name [TaxonName] required
         # @param geographic_area [GeographicArea] required
         # @return [Hash]

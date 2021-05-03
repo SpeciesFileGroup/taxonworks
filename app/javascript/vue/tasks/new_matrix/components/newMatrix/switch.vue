@@ -1,18 +1,26 @@
 <template>
   <div class="middle">
-    <label class="switch middle">
-      <div class="middle space-between-switch-options">
-        <span class="switch-option horizontal-center-content">{{ options[0] }}</span>
-        <span class="switch-option horizontal-center-content">{{ options[1] }}</span>
-      </div>
-      <input
-        type="checkbox"
-        v-model="checked">
-      <div class="slider"/>
-    </label>
+    <span class="switch-option horizontal-center-content capitalize">
+      <component :is="checked ? 'span' : 'b'">{{ options[1] }}</component>
+    </span>
+    <div
+      title="Lock / Unlock">
+      <label class="switch-lock">
+        <input
+          v-model="checked"
+          type="checkbox">
+        <span>
+          <em class="arrow left"></em>
+          <strong></strong>
+        </span>
+      </label>
+    </div>
+    <span class="switch-option horizontal-center-content capitalize">
+      <component :is="!checked ? 'span' : 'b'">{{ options[0] }}</component>
+    </span>
   </div>
 </template>
-  
+
 <script>
 export default {
   props: {
@@ -26,10 +34,10 @@ export default {
   },
   computed: {
     checked: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
+      set (value) {
         this.$emit('input', value)
       }
     }
@@ -37,57 +45,39 @@ export default {
 }
 </script>
 
-<style scoped>
-
-    .space-between-switch-options {
-      padding: 4px;
+<style lang="scss" scoped>
+    .arrow {
+      border: solid black;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
     }
+
+    .left {
+      transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+    }
+
     .switch-option {
       width: 75px;
     }
-    .switch input {
-      display: none;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 150px;
-      height: 24px;
-      justify-content: space-around;
-      border-radius: 3px;
-      border:1px solid #efefef;
-      border-right: 0px;    
-      background-color: #efefef;
-      box-shadow:inset 0px 1px 4px 0px rgba(0,0,0,0.1); 
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      -webkit-transition: .4s;
-      transition: .4s;
+
+    .switch-lock input + span em {
+      background-color: transparent;
     }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 75px;
-      left: -2px;
-      bottom: -2px;
-      border-radius: 3px;
-      border:1px solid #efefef;
-      background-color: #FFF;
-      transition: .3s;
+    .switch-lock input + span em:after {
+      border: transparent;
     }
 
-    input:checked + .slider:before {
-      -webkit-transform: translateX(75px);
-      -ms-transform: translateX(75px);
-      transform: translateX(75px);
+    .switch-lock input:checked + span em {
+      transform-origin: center;
+      transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      left: 26px;
+    }
+
+    .switch-lock input:checked + span:before {
+      background: #E4ECFA;
     }
 
 </style>

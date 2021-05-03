@@ -202,10 +202,11 @@ class Source < ApplicationRecord
 
   ignore_whitespace_on(:verbatim_contents)
 
-  ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-                          :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
+  ALTERNATE_VALUES_FOR = [
+    :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
+    :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  # @return [Boolean]
+    # @return [Boolean]
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
@@ -237,7 +238,6 @@ class Source < ApplicationRecord
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
-#        a.soft_validate() # why?
         sources.push(a)
       end
       return sources, nil
@@ -263,7 +263,6 @@ class Source < ApplicationRecord
             if a.save
               valid += 1
             end
-#            a.soft_validate()
           else
             # error_msg = a.errors.messages.to_s
           end

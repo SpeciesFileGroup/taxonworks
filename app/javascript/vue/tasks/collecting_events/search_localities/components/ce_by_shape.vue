@@ -34,50 +34,61 @@
   </div>
 </template>
 <script>
-  
-  import Spinner from 'components/spinner'
-  import lMap from './leafletMap.vue'
-  import AjaxCall from 'helpers/ajaxCall'
 
-  export default {
-    components: {
-      lMap,
-      Spinner,
+import Spinner from 'components/spinner'
+import lMap from './leafletMap.vue'
+import { CollectingEvent } from 'routes/endpoints'
+
+export default {
+  components: {
+    lMap,
+    Spinner
+  },
+
+  data () {
+    return {
+      geographicAreaList: [],
+      collectingEventList: [],
+      shapes: [], // intended for eventual multiple shapes paradigm
+      isLoading: false
+    }
+  },
+
+  methods: {
+    clearTheMap () {
+      this.$refs.leaflet.clearFound()
+      this.$refs.leaflet.removeLayers()
+      this.shapes = []
     },
-    data() {
-      return {
-        geographicAreaList: [],
-        collectingEventList: [],
-        shapes: [], // intended for eventual multiple shapes paradigm
-        isLoading: false
-      }
+
+    getShapesData(geojsonShape) {
+      this.$refs.leaflet.clearFound()
+      const shapeText = this.shapes[this.shapes.length - 1]
+      const params = {
+        geo_json: JSON.stringify({
+          type: "MultiPolygon",
+          coordinates: [shapeText.geometry.coordinates]
+        })
+      } // take only last shape pro tem
+
+      this.isLoading = true
+      CollectingEvent.where(params).then(response => {
+        this.$emit('jsonUrl', response.request.responseURL)
+        this.collectingEventList = response.body
+        this.$emit('collectingEventList', this.collectingEventList)
+        this.isLoading = false
+      })
+      this.$emit('searchShape', this.shapes[this.shapes.length - 1])
     },
-    methods: {
-      clearTheMap() {
-        this.$refs.leaflet.clearFound()
-        this.$refs.leaflet.removeLayers()
-        this.shapes = []
-      },
-      getShapesData(geojsonShape) {
-        this.$refs.leaflet.clearFound()
-        this.isLoading = true;
-        let shapeText = this.shapes[this.shapes.length - 1];
-        let params = { geo_json: JSON.stringify({ type: "MultiPolygon", coordinates: [shapeText.geometry.coordinates] })};  // take only last shape pro tem
-        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
-          this.$emit('jsonUrl', response.request.responseURL)
-          this.collectingEventList = response.body
-          this.$emit('collectingEventList', this.collectingEventList);
-          this.isLoading = false;
-        });
-        this.$emit("searchShape", this.shapes[this.shapes.length - 1])
-      },
-      editedShape(shape) {
-        this.shapes.push(shape)
-      },
-      addShape(newShapes) {
-        this.shapes.push(newShapes)
-        this.$refs.leaflet.removeLayers()
-      }
+
+    editedShape (shape) {
+      this.shapes.push(shape)
     },
-  }
+
+    addShape (newShapes) {
+      this.shapes.push(newShapes)
+      this.$refs.leaflet.removeLayers()
+    }
+  },
+}
 </script>

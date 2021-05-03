@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>Determinations</h3>
-    <label>Taxon name</label>
+    <h4>Taxon name</h4>
     <div class="field">
       <autocomplete
         url="/taxon_names/autocomplete"
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="field">
-      <label>Otu</label>
+      <h4>Otu</h4>
       <autocomplete
         url="/otus/autocomplete"
         placeholder="Select an otu"
@@ -49,26 +49,30 @@
         display="label"
         @getItem="addOtu($event.id)" />
     </div>
-    <div class="field">
-      <label>Determiner</label>
-      <autocomplete
-        url="/people/autocomplete"
-        placeholder="Select a determiner"
-        param="term"
-        clear-after
-        label="label_html"
-        :add-params="{
-          'roles[]': 'Determiner'
-        }"
-        @getItem="addDeterminer($event.id)"/>
-      <display-list
-        soft-delete
-        :list="determiners"
-        :delete-warning="false"
-        @deleteIndex="removePerson"
-        label="cached"/>
-    </div>
     <div class="field separate-top">
+      <ul class="no_bullets table-entrys-list">
+        <li
+          class="middle flex-separate list-complete-item"
+          v-for="(otu, index) in otusStore"
+          :key="otu.id">
+          <span v-html="otu.object_tag"/>
+          <span
+            class="btn-delete button-circle"
+            @click="removeOtu(index)"/>
+        </li>
+      </ul>
+    </div>
+    <div class="field">
+      <determiner-component
+        role="Determiner"
+        title="Determiner"
+        klass="CollectionObject"
+        param-people="determiner_id"
+        param-any="determiner_id_or"
+        v-model="determination"/>
+    </div>
+
+    <div class="field">
       <ul class="no_bullets">
         <li
           v-for="item in currentDeterminationsOptions"
@@ -84,33 +88,23 @@
         </li>
       </ul>
     </div>
-    <div class="field separate-top">
-      <ul class="no_bullets table-entrys-list">
-        <li
-          class="middle flex-separate list-complete-item"
-          v-for="(otu, index) in otusStore"
-          :key="otu.id">
-          <span v-html="otu.object_tag"/>
-          <span
-            class="btn-delete button-circle"
-            @click="removeOtu(index)"/>
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 
 <script>
 
 import Autocomplete from 'components/autocomplete'
+import DeterminerComponent from './shared/people'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName, GetOtu, GetPerson } from '../../request/resources'
-import DisplayList from 'components/displayList'
+import {
+  TaxonName,
+  Otu
+} from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
-    DisplayList
+    DeterminerComponent
   },
 
   props: {
@@ -176,56 +170,53 @@ export default {
         if (!newVal.ancestor_id) {
           this.taxon = undefined
         }
-        if (!newVal.determiner_id.length) {
-          this.determiners = []
-        }
       },
       deep: true
     }
   },
 
   created () {
-    const { ancestor_id, otu_ids, validity, current_determinations, determiner_id } = URLParamsToJSON(location.href)
+    const {
+      ancestor_id,
+      validity,
+      current_determinations,
+      otu_ids = []
+    } = URLParamsToJSON(location.href)
     if (ancestor_id) {
       this.setTaxon(ancestor_id)
     }
-    if (otu_ids) {
-      otu_ids.forEach(id => { this.addOtu(id) })
-    }
-    if (determiner_id) {
-      determiner_id.forEach(id => { this.addDeterminer(id) })
-    }
+
+    otu_ids.forEach(id => { this.addOtu(id) })
+
     this.determination.validity = validity
     this.determination.current_determinations = current_determinations
   },
 
   methods: {
     addOtu (id) {
-      GetOtu(id).then(response => {
+      Otu.find(id).then(response => {
         this.determination.otu_ids.push(response.body.id)
         this.otusStore.push(response.body)
       })
     },
+
     setTaxon (id) {
-      GetTaxonName(id).then(response => {
+      TaxonName.find(id).then(response => {
         this.taxon = response.body
         this.determination.ancestor_id = response.body.id
       })
     },
-    addDeterminer (id) {
-      GetPerson(id).then(({ body }) => {
-        this.determiners.push(body)
-        this.determination.determiner_id.push(body.id)
-      })
-    },
+
     removeTaxon () {
       this.taxon = undefined
       this.determination.ancestor_id = undefined
     },
+
     removePerson (index) {
       this.determiners.splice(index, 1)
       this.determination.determiner_id.splice(index, 1)
     },
+
     removeOtu (index) {
       this.determination.otu_ids.splice(index, 1)
       this.otusStore.splice(index, 1)
@@ -234,7 +225,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

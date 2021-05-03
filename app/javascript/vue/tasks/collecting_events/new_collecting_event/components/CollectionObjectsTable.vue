@@ -145,13 +145,11 @@ import TagComponent from './Tags'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import { RouteNames } from 'routes/routes'
-
 import {
-  GetCollectionObjects,
-  CreateBiocurationClassification,
-  CreateCollectionObject,
-  CreateTaxonDetermination
-} from '../request/resources.js'
+  BiocurationClassification,
+  CollectionObject,
+  TaxonDetermination
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -242,18 +240,22 @@ export default {
             : undefined
         }
         const promises = []
-        await CreateCollectionObject(co).then(response => {
+        await CollectionObject({ collection_object: co }).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
-            promises.push(CreateTaxonDetermination(determination))
+            promises.push(TaxonDetermination.create({ taxon_determination: determination }))
           })
           this.biocurations.forEach(biocurationId => {
-            promises.push(CreateBiocurationClassification({
+            promises.push(BiocurationClassification.create({
               biocuration_classification: {
                 biocuration_class_id: biocurationId,
                 biological_collection_object_id: response.body.id
               }
             }))
+          })
+          index++
+          Promise.all(promises).then(() => {
+            this.createCOs(index)
           })
         }, (error) => {
           this.noCreated.unshift({
@@ -261,11 +263,8 @@ export default {
             namespace: identifier.namespace.name,
             error: error.body
           })
-        }).finally(() => {
           index++
-          Promise.all(promises).then(() => {
-            this.createCOs(index)
-          })
+          this.createCOs(index)
         })
       } else {
         this.isSaving = false
@@ -277,7 +276,7 @@ export default {
     },
     loadTable () {
       this.isLoading = true
-      GetCollectionObjects({ collecting_event_ids: [this.ceId] }).then(response => {
+      CollectionObject.where({ collecting_event_ids: [this.ceId] }).then(response => {
         this.list = response.body
         this.isLoading = false
       })

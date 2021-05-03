@@ -95,8 +95,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .matches-panel {
-    min-height: 500px;
-  }
-</style>

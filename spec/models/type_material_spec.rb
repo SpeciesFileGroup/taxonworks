@@ -123,47 +123,47 @@ describe TypeMaterial, type: :model, group: :nomenclature do
     context 'only one primary type' do
       specify 'for neotype' do
         iczn_type.type_type = 'neotype' 
-        iczn_type.soft_validate(:single_primary_type)
+        iczn_type.soft_validate(only_sets: :single_primary_type)
         expect(iczn_type.soft_validations.messages_on(:type_type).count).to eq(1)
       end
 
       specify 'for syntype' do
         iczn_type.type_type = 'syntypes'
-        iczn_type.soft_validate(:single_primary_type)
+        iczn_type.soft_validate(only_sets: :single_primary_type)
         expect(iczn_type.soft_validations.messages_on(:type_type).count).to eq(1)
       end
     end
 
     context 'missing source' do
       specify 'source is nil' do
-        iczn_type.soft_validate(:type_source)
+        iczn_type.soft_validate(only_sets: :type_source)
         expect(iczn_type.soft_validations.messages_on(:base).count).to eq(1)
       end
 
       specify 'source is nil for lectotype' do
         species.source = source1
-        iczn_lectotype.soft_validate(:type_source)
+        iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
       end
 
       specify 'source is the same for lectotype' do
         iczn_lectotype.source = source1
         species.source = source1
-        iczn_lectotype.soft_validate(:type_source)
+        iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
       end
 
       specify 'source is older for lectotype' do
         iczn_lectotype.source = source1
         species.source = source2
-        iczn_lectotype.soft_validate(:type_source)
+        iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(1)
       end
 
       specify 'source is properly set for lectotype' do
         iczn_lectotype.source = source2
         species.source = source1
-        iczn_lectotype.soft_validate(:type_source)
+        iczn_lectotype.soft_validate(only_sets: :type_source)
         expect(iczn_lectotype.soft_validations.messages_on(:base).count).to eq(0)
       end
     end

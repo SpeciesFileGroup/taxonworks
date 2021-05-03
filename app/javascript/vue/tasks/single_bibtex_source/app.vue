@@ -15,7 +15,7 @@
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px'}"/>
 
-     <p> <i> Creates a single record. For multiple records use a Source batch loader.</i> </p>
+    <p> <i> Creates a single record. For multiple records use a Source batch loader.</i> </p>
     <div class="flexbox">
       <div class="flexbox">
         <div class="separate-right">
@@ -28,7 +28,7 @@
           <br>
           <button
             class="button normal-input button-default"
-            @click="parseBibtex(false)"
+            @click="parseBibtex"
             :disabled="!enableParseBibtex"
             type="submit">Parse BibTeX
           </button>
@@ -52,13 +52,13 @@
         </div>
       </div>
     </div>
-      <div
-        class="flex-separate top">
-        <div>
-          <h2>Recently created</h2>
-          <table-recent :list="recentCreated"/>
-        </div>
+    <div
+      class="flex-separate top">
+      <div>
+        <h2>Recently created</h2>
+        <table-recent :list="recentCreated"/>
       </div>
+    </div>
   </div>
 </template>
 
@@ -67,7 +67,7 @@ import BibtexInput from './components/bibtex_input'
 import TableBibtex from './components/tableBibtex'
 import Spinner from '../../components/spinner.vue'
 import TableRecent from './components/recentTable'
-import AjaxCall from 'helpers/ajaxCall'
+import { Source } from 'routes/endpoints'
 
 export default {
   components: {
@@ -76,67 +76,76 @@ export default {
     TableRecent,
     Spinner
   },
+
   computed: {
-    enableParseBibtex() {
-      return this.bibtexInput.length > 0;
+    enableParseBibtex () {
+      return this.bibtexInput.length > 0
     },
-    enableCreateBibtex() {
-      return (!this.parsedBibtex.hasOwnProperty('status') && Object.keys(this.parsedBibtex).length); //Object.keys(this.parsedBibtex).length;
+
+    enableCreateBibtex () {
+      return (!this.parsedBibtex.hasOwnProperty('status') && Object.keys(this.parsedBibtex).length)
     },
-    showCreatedSourceID() {
-      let retVal = '';
-      if(this.parsedBibtex.source) {
-        if(this.parsedBibtex.source.id) {
-          retVal = 'Created Source: ' + this.parsedBibtex.source.id;
+
+    showCreatedSourceID () {
+      let retVal = ''
+      if (this.parsedBibtex.source) {
+        if (this.parsedBibtex.source.id) {
+          retVal = 'Created Source: ' + this.parsedBibtex.source.id
         }
       }
-      return retVal;
+      return retVal
     }
   },
-  data() {
+
+  data () {
     return {
       bibtexInput: '',
       isLoading: false,
       parsedBibtex: {},
       recentCreated: []
-    };
-  },
-  watch: {
-    parsedBibtex() {
-      this.isLoading = false;
     }
   },
-  mounted() {
+
+  watch: {
+    parsedBibtex () {
+      this.isLoading = false
+    }
+  },
+
+  created () {
     this.loadRecent()
   },
+
   methods: {
-    loadRecent() {
-      AjaxCall('get', '/sources.json?recent=true&per=15').then(response => {
+    loadRecent () {
+      Source.where({ recent: true, per: 15 }).then(response => {
         this.recentCreated = response.body
       })
     },
-    parseBibtex(create) {
-      let params = {
-        bibtex_input: this.bibtexInput,
-      }
-      this.isLoading = true;
-      AjaxCall('get', '/sources/parse.json', { params: params }).then(response => {
-        this.parsedBibtex = response.body; 
-        this.unlockCreate = !response.body.hasOwnProperty('status');
-        this.isLoading = false;
-      });
+
+    parseBibtex () {
+      this.isLoading = true
+
+      Source.parse({ bibtex_input: this.bibtexInput }).then(response => {
+        this.parsedBibtex = response.body
+        this.unlockCreate = !response.body.hasOwnProperty('status')
+        this.isLoading = false
+      })
     },
-    resetApp() {
-      this.bibtexInput = '';
-      this.clearParsedData();
+
+    resetApp () {
+      this.bibtexInput = ''
+      this.clearParsedData()
     },
-    createSource() {
-      this.isLoading = true;
-      AjaxCall('post', '/sources.json', { bibtex_input: this.bibtexInput }).then(response => {
+
+    createSource () {
+      this.isLoading = true
+
+      Source.create({ bibtex_input: this.bibtexInput }).then(response => {
         this.parsedBibtex = {}
         this.recentCreated.unshift(response.body)
         this.bibtexInput = ''
-        this.isLoading = false;
+        this.isLoading = false
       })
     }
   }

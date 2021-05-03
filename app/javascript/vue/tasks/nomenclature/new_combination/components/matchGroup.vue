@@ -28,7 +28,6 @@
 <script>
 
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import { GetTaxonName } from '../request/resources'
 
 export default {
   components: {
@@ -46,14 +45,14 @@ export default {
   },
   methods: {
     inOrder (list) {
-      let newOrder = list.slice(0)
+      const newOrder = list.slice(0)
       newOrder.sort((a, b) => {
         if (a.original_combination < b.original_combination) { return -1 }
         if (a.original_combination > b.original_combination) { return 1 }
         return 0
       })
       return newOrder
-    },
+    }
   }
 }
 </script>

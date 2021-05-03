@@ -21,7 +21,7 @@
       class="button normal-input button-default"
       @click="showModal = true">New predicate
     </button>
-    <predicate-modal 
+    <predicate-modal
       v-if="showModal"
       @close="showModal = false"
       @onNew="newPredicate" />
@@ -33,44 +33,50 @@
 import PredicateModal from './newPredicate'
 import CheckboxComponent from './checkboxComponent'
 
-import { GetPredicates, CreateControlledVocabularyTerm } from '../request/resources.js'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   components: {
     PredicateModal,
     CheckboxComponent
   },
+
   props: {
     modelList: {
       type: Array,
       default: () => { return [] }
     }
   },
-  data() {
+
+  data () {
     return {
       list: [],
       selected: [],
       showModal: false
     }
   },
+
   watch: {
     modelList (newVal) {
       this.selected = newVal
     }
   },
-  mounted() {
-    GetPredicates().then(response => {
+
+  created () {
+    ControlledVocabularyTerm.where({ type: ['Predicate'] }).then(response => {
       this.list = response.body
     })
   },
+
   methods: {
-    newPredicate(predicate) {
-      CreateControlledVocabularyTerm(predicate).then(response => {
+    newPredicate (predicate) {
+      ControlledVocabularyTerm.create({ controlled_vocabulary_term: predicate }).then(response => {
         TW.workbench.alert.create('Predicate was successfully created.', 'notice')
         this.list.push(response.body)
       })
     },
-    updateList() {
+
+    updateList () {
       this.$emit('onUpdate', this.selected)
     }
   }

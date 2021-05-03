@@ -53,7 +53,7 @@
 
 <script>
 
-import { GetControlledVocabularyTerms, DestroyControlledVocabularyTerm } from '../request/resources'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
 import PinComponent from 'components/pin.vue'
 
@@ -77,10 +77,10 @@ export default {
   },
   watch: {
     type: {
-      handler(newVal, oldVal) {
+      handler (newVal, oldVal) {
         if (newVal !== oldVal) {
           this.isLoading = true
-          GetControlledVocabularyTerms({ 'type[]': newVal }).then(response => {
+          ControlledVocabularyTerm.where({ 'type[]': newVal }).then(response => {
             this.list = response.body
             this.isLoading = false
           })
@@ -94,9 +94,9 @@ export default {
       this.$emit('edit', this.list[index])
     },
     removeCTV (index) {
-      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.isLoading = true
-        DestroyControlledVocabularyTerm(this.list[index].id).then(response => {
+        ControlledVocabularyTerm.destroy(this.list[index].id).then(response => {
           this.list.splice(index, 1)
           this.isLoading = false
         })

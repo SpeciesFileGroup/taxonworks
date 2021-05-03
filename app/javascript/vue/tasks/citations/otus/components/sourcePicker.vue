@@ -14,8 +14,7 @@
     </div>
     <modal
       @close="showModal = false"
-      v-if="showModal"
-      @sourcepicker="loadSource">
+      v-if="showModal">
       <h3 slot="header">Select source</h3>
       <div
         slot="body"
@@ -25,7 +24,7 @@
           min="2"
           param="term"
           placeholder="Find source"
-          event-send="sourcepicker"
+          @getItem="loadSource"
           label="label"
           :autofocus="true"/>
       </div>
@@ -36,28 +35,31 @@
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { Source } from 'routes/endpoints'
 import Autocomplete from 'components/autocomplete.vue'
 import Modal from 'components/modal.vue'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  data: function () {
+  data () {
     return {
       showModal: false
     }
   },
+
   components: {
     Autocomplete,
     Modal
   },
+
   computed: {
     source () {
       return this.$store.getters[GetterNames.GetSourceSelected]
     }
   },
+
   methods: {
-    loadSource: function (item) {
-      AjaxCall('get', `/sources/${item.id}.json`).then(response => {
+    loadSource (item) {
+      Source.find(item.id).then(response => {
         this.$store.commit(MutationNames.SetSourceSelected, response.body)
         this.showModal = false
       })

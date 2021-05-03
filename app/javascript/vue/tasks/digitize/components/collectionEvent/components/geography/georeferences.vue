@@ -14,7 +14,7 @@
       v-if="!verbatimGeoreferenceAlreadyCreated"
       type="button"
       class="button normal-input button-submit"
-      :disabled="!collectingEvent.id"
+      :disabled="!collectingEvent.id || !existCoordinates"
       @click="$refs.georeference.createVerbatimShape()">
       Create georeference from verbatim
     </button>
@@ -52,6 +52,7 @@ import { GetterNames } from '../../../../store/getters/getters.js'
 import { ActionNames } from '../../../../store/actions/actions'
 
 import { truncateDecimal } from 'helpers/math.js'
+import convertDMS from 'helpers/parseDMS.js'
 
 export default {
   components: {
@@ -62,11 +63,17 @@ export default {
     collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     },
-    lat() {
+    lat () {
       return parseFloat(this.collectingEvent.verbatim_latitude)
     },
-    lng() {
+    lng () {
       return parseFloat(this.collectingEvent.verbatim_longitude)
+    },
+    existCoordinates () {
+      const lat = this.collectingEvent.verbatim_latitude
+      const lng = this.collectingEvent.verbatim_longitude
+
+      return convertDMS(lat) && convertDMS(lng)
     },
     geolocationUncertainty () {
       return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_geolocation_uncertainty

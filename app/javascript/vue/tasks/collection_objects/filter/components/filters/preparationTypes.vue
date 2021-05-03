@@ -26,9 +26,9 @@
 
 <script>
 
-import { GetPreparationTypes } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { sortArray } from 'helpers/arrays'
+import { PreparationType } from 'routes/endpoints'
 
 export default {
   props: {
@@ -56,7 +56,7 @@ export default {
   },
 
   async created () {
-    this.preparationTypes = sortArray((await GetPreparationTypes()).body, 'name')
+    this.preparationTypes = sortArray((await PreparationType.all()).body, 'name')
     this.selected = URLParamsToJSON(location.href).preparation_type_id || []
   }
 }

@@ -5,16 +5,16 @@ module Shared::IsData::Navigation
   end
 
   def base_navigation_next
-    t = self.class.base_class.name.tableize
-    base = self.class.base_class.order("#{t}.id ASC").where(["#{t}.id > ?", id]).limit(1)
-    return base.with_project_id(project_id) if respond_to?(:project_id)
+    base_class = self.class.base_class
+    base = base_class.order(id: :ASC).where(base_class.arel_table[:id].gt(id)).limit(1)
+    return base.where(project_id: project_id) if respond_to?(:project_id)
     base
   end
 
   def base_navigation_previous
-    t = self.class.base_class.name.tableize
-    base = self.class.base_class.order("#{t}.id DESC").where(["#{t}.id<> ?", id]).limit(1)
-    return  base.with_project_id(project_id) if respond_to?(:project_id)
+    base_class = self.class.base_class
+    base = base_class.order(id: :DESC).where(base_class.arel_table[:id].lt(id)).limit(1)
+    return  base.where(project_id: project_id) if respond_to?(:project_id)
     base
   end
 

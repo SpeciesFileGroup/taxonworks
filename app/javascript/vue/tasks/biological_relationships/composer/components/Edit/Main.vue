@@ -39,8 +39,8 @@
 
 import PropertyBox from './PropertyBox'
 import RelationshipBox from './Relationship'
-import { CreateBiologicalRelationship, UpdateBiologicalRelationship } from '../../request/resource'
 import PreviewTable from './PreviewTable'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   components: {
@@ -58,13 +58,16 @@ export default {
     validate () {
       return this.biological_relationship.name
     },
-    objectString() {
-      return this.object.filter(item => { return !item['_destroy']}).map(item => { return item.hasOwnProperty('biological_property') ? item.biological_property.name : item.name }).join(', ')
+
+    objectString () {
+      return this.object.filter(item => !item?._destroy).map(item => item?.biological_property?.name || item.name).join(', ')
     },
-    subjectString() {
-      return this.subject.filter(item => { return !item['_destroy']}).map(item => { return item.hasOwnProperty('biological_property') ? item.biological_property.name : item.name }).join(', ')
+
+    subjectString () {
+      return this.subject.filter(item => !item?._destroy).map(item => item?.biological_property?.name || item.name).join(', ')
     }
   },
+
   data () {
     return {
       flip: false,
@@ -73,6 +76,7 @@ export default {
       biological_relationship: undefined
     }
   },
+
   watch: {
     biologicalRelationship: {
       handler (newVal) {
@@ -80,19 +84,21 @@ export default {
       }
     }
   },
+
   created () {
     this.reset()
   },
+
   methods: {
-    setBiologicalRelationship(newVal) {
+    setBiologicalRelationship (newVal) {
       this.biological_relationship.id = newVal.id
       this.biological_relationship.name = newVal.name
       this.biological_relationship.definition = newVal.definition
       this.biological_relationship.inverted_name = newVal.inverted_name
       this.biological_relationship.is_transitive = newVal.is_transitive
       this.biological_relationship.is_reflexive = newVal.is_reflexive
-      this.object = newVal.object_biological_relationship_types.map(item => { item.created = true; return item })
-      this.subject = newVal.subject_biological_relationship_types.map(item => { item.created = true; return item })
+      this.object = newVal.object_biological_relationship_types.map(item => ({ ...item, created: true }))
+      this.subject = newVal.subject_biological_relationship_types.map(item => ({ ...item, created: true }))
     },
     flipValues () {
       if (!this.biologicalRelationship.id) return
@@ -103,31 +109,32 @@ export default {
       this.flip = !this.flip
     },
     saveBiologicalRelationship () {
-      const object = this.object.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: item.hasOwnProperty('biological_property_id') ? item.biological_property_id : item.id } })
-      const subject = this.subject.filter(item => { return !item['created'] }).map(item => { return { type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: item.hasOwnProperty('biological_property_id') ? item.biological_property_id : item.id } })
+      const object = this.object.filter(item => !item?.created).map(item => ({ type: 'BiologicalRelationshipType::BiologicalRelationshipObjectType', biological_property_id: item?.biological_property_id || item.id }))
+      const subject = this.subject.filter(item => !item?.created).map(item => ({ type: 'BiologicalRelationshipType::BiologicalRelationshipSubjectType', biological_property_id: item?.biological_property_id || item.id }))
       const removed = this.getDestroyed(this.subject).concat(this.getDestroyed(this.object))
-      
-      let data = this.biological_relationship
-      
+      const data = this.biological_relationship
+
       data.biological_relationship_types_attributes = subject.concat(object, removed)
 
-      if(data.id) {
-        UpdateBiologicalRelationship(data).then(response => {
+      if (data.id) {
+        BiologicalRelationship.update(data.id, { biological_relationship: data }).then(response => {
           this.$emit('update', response.body)
           TW.workbench.alert.create('Biological relationship was successfully updated.', 'notice')
         })
       }
       else {
-        CreateBiologicalRelationship(data).then(response => {
+        BiologicalRelationship.create({ biological_relationship: data }).then(response => {
           this.setBiologicalRelationship(response.body)
           this.$emit('update', response.body)
           TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
         })
       }
     },
-    getDestroyed(value) {
-      return value.filter(item => { return item['_destroy'] }).map(item => { return { _destroy: item._destroy, id: item.id } })
+
+    getDestroyed (value) {
+      return value.filter(item => item?._destroy).map(item => ({ _destroy: item._destroy, id: item.id }))
     },
+
     reset () {
       this.biological_relationship = {
         id: undefined,

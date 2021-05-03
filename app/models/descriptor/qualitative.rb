@@ -3,7 +3,7 @@
 #
 class Descriptor::Qualitative < Descriptor 
 
-  has_many :character_states, foreign_key: :descriptor_id, inverse_of: :descriptor
+  has_many :character_states, foreign_key: :descriptor_id, inverse_of: :descriptor, dependent: :destroy
 
   accepts_nested_attributes_for :character_states, allow_destroy: true, reject_if: :reject_character_states
 

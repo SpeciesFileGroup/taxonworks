@@ -58,9 +58,10 @@ describe Identifier::Global, type: :model, group: :identifiers do
       id = 'http://abc.net/bar/22'
       expect(otu.identifiers << Identifier::Global::Uri.new(identifier: id)).to be_truthy
       p = FactoryBot.create(:valid_project, name: 'New Project')
-      i = Identifier::Global::Uri.new(identifier:        id,
-                                      identifier_object: FactoryBot.create(:valid_otu, project_id: p.id),
-                                      project_id:        p.id)
+      i = Identifier::Global::Uri.new(
+        identifier: id,
+        identifier_object: FactoryBot.create(:valid_otu, project_id: p.id),
+        project_id: p.id)
       expect(i.valid?).to be_truthy
       expect(i.errors.include?(:identifier)).to be_falsey
     end
@@ -79,11 +80,10 @@ describe Identifier::Global, type: :model, group: :identifiers do
   end
 
   describe 'soft validation' do
-
     specify 'responding URI' do
       global_identifier.identifier = 'http://data.nhm.ac.uk/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
       VCR.use_cassette('responding URI') do
-        global_identifier.soft_validate(:resolved)
+        global_identifier.soft_validate(only_sets: [:resolved])
       end
       expect(global_identifier.soft_validations.messages_on(:identifier).empty?).to be_truthy
     end
@@ -91,7 +91,7 @@ describe Identifier::Global, type: :model, group: :identifiers do
     specify 'non-responding URI' do
       global_identifier.identifier = 'http://sandbox.speciesfile.org/object/a9bdc16d-c9ba-4e32-9311-d5250af2b5ac'
       VCR.use_cassette('non-responding URI') do
-        global_identifier.soft_validate(:resolved)
+        global_identifier.soft_validate(only_sets: [:resolved])
       end
       expect(global_identifier.soft_validations.messages_on(:identifier).count).to eq(1)
     end

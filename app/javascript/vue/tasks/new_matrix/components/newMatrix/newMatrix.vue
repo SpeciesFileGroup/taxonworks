@@ -4,35 +4,39 @@
       <h3>Matrix</h3>
     </div>
     <div class="body">
-      <div class="flex-separate">
-        <div class="field">
-          <label>Name</label><br>
+      <div class="field label-above">
+        <label>Name</label>
+        <div class="horizontal-left-content full_width">
           <input
             v-model="matrixName"
+            class="full_width margin-small-right"
             type="text">
+          <button
+            v-if="!matrix.id"
+            @click="create"
+            class="normal-input button button-submit"
+            type="button">Create
+          </button>
+          <button
+            v-else
+            @click="updateMatrix"
+            class="normal-input button button-submit"
+            type="button">Update
+          </button>
         </div>
       </div>
-      <button
-        v-if="!matrix.id"
-        @click="create"
-        class="normal-input button button-submit"
-        type="button">Create
-      </button>
-      <button
-        v-else
-        @click="updateMatrix"
-        class="normal-input button button-submit"
-        type="button">Update
-      </button>
-      <div class="separate-top">
-        <label class="separate-top">Select:</label>
-        <switch-component
-          :options="['Column', 'Row']"
-          v-model="matrixView"/>
-        <switch-component
-          :options="['Fixed', 'Dynamic']"
-          v-model="matrixMode"/>
-      </div>
+      <template v-if="matrix.id">
+        <hr>
+        <div>
+          <switch-component
+            class="margin-small-bottom"
+            :options="['Column', 'Row']"
+            v-model="matrixView"/>
+          <switch-component
+            :options="['fixed', 'dynamic']"
+            v-model="matrixMode"/>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -52,10 +56,10 @@ export default {
   },
   computed: {
     matrixName: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetMatrix].name
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixName, value)
       }
     },
@@ -68,18 +72,18 @@ export default {
       }
     },
     matrixView: {
-      get() {
-        return (this.$store.getters[GetterNames.GetMatrixView] == 'column' ? true : false)
+      get () {
+        return this.$store.getters[GetterNames.GetMatrixView] === 'column'
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixView, (value ? 'column' : 'row'))
       }
     },
     matrixMode: {
-      get() {
-        return (this.$store.getters[GetterNames.GetMatrixMode] == 'fixed' ? true : false)
+      get () {
+        return this.$store.getters[GetterNames.GetMatrixMode] === 'fixed'
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetMatrixMode, (value ? 'fixed' : 'dynamic'))
       }
     },

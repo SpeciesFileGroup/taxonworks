@@ -66,7 +66,7 @@ import PreviewLabels from './components/PreviewLabels'
 import NavbarComponent from 'components/navBar'
 import LabelForm from './components/LabelForm'
 import { RouteNames } from 'routes/routes'
-import { GetLabels, GetLabel, RemoveLabel, UpdateLabel, CreateLabel } from './request/resources.js'
+import { Label } from 'routes/endpoints'
 
 export default {
   components: {
@@ -105,10 +105,10 @@ export default {
     const urlParams = new URLSearchParams(window.location.search)
     const labelId = urlParams.get('label_id')
 
-    GetLabels().then(response => {
+    Label.all().then(response => {
       this.list = response.body
       if (/^\d+$/.test(labelId)) {
-        GetLabel(labelId).then(r => {
+        Label.find(labelId).then(r => {
           const index = this.list.findIndex(item => item.id === Number(labelId))
 
           if (index > -1) {
@@ -122,30 +122,29 @@ export default {
   },
   methods: {
     removeLabel (label) {
-      RemoveLabel(label.id).then(() => {
+      Label.destroy(label.id).then(() => {
         this.list.splice(this.list.findIndex(item => item.id === label.id), 1)
         TW.workbench.alert.create('Label item was successfully destroyed.', 'notice')
       })
     },
     deleteLabels () {
-      this.labels.forEach((label, index) => {
+      this.labels.forEach(label => {
         this.removeLabel(label)
       })
       this.labels = []
     },
     createLabel (label) {
-      CreateLabel(label).then(response => {
+      Label.create({ label }).then(response => {
         this.list.unshift(response.body)
         TW.workbench.alert.create('Label item was successfully created.', 'notice')
       })
     },
     updateLabel (label) {
-      UpdateLabel(label).then(response => {
-        const index = this.list.findIndex(item => {
-          return item.id === label.id
-        })
-        TW.workbench.alert.create('Label item was successfully updated.', 'notice')
+      Label.update(label.id, { label }).then(response => {
+        const index = this.list.findIndex(item => item.id === label.id)
+
         this.$set(this.list, index, response.body)
+        TW.workbench.alert.create('Label item was successfully updated.', 'notice')
       })
     },
     editLabel (label) {

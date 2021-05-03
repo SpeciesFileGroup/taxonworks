@@ -297,18 +297,18 @@ class CollectingEventsController < ApplicationController
   def filter_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :recent,
-      :wkt,
-      :radius,
-      :geo_json,
-      :start_date, # used in date range
-      :end_date,   # used in date range
-      :partial_overlap_dates,
-      :spatial_geographic_areas,
       :collector_ids_or,
+      :end_date,   # used in date range
+      :geo_json,
+      :in_labels,
+      :in_verbatim_locality,
+      :md5_verbatim_label,
+      :partial_overlap_dates,
+      :radius,
+      :recent,
+      :spatial_geographic_areas,
+      :start_date, # used in date range
+      :wkt,
       keyword_id_and: [],
       keyword_id_or: [],
       spatial_geographic_area_ids: [],
@@ -321,18 +321,18 @@ class CollectingEventsController < ApplicationController
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :in_labels,
-      :md5_verbatim_label,
-      :in_verbatim_locality,
-      :recent,
-      :wkt,
-      :radius,
-      :geo_json,
-      :start_date, # used in date range
-      :end_date,   # used in date range
-      :partial_overlap_dates,
-      :spatial_geographic_areas,
       :collector_ids_or,
+      :end_date,   # used in date range
+      :geo_json,
+      :in_labels,
+      :in_verbatim_locality,
+      :md5_verbatim_label,
+      :partial_overlap_dates,
+      :radius,
+      :recent,
+      :spatial_geographic_areas,
+      :start_date, # used in date range
+      :wkt,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],

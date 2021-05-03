@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./app/javascript/vue",
+    "paths": {
+      "*": ["./*"],
+    }
+  },
+  "exclude": ["node_modules"],
+  "include": ["app/javascript/vue/**/*"]
+}

@@ -9,7 +9,7 @@
     
     .center-icon {
       background-position: center;
-      padding-left: auto;
+      padding-left: initial;
       min-height: auto;
     }
 
@@ -279,3 +279,11 @@
     [data-icon="warning"] {
       background-image: image-url("attention.svg");
     } 
+
+    [data-icon="w_wrench"] {
+      background-image: image-url("w_wrench.svg");
+    }
+
+    [data-icon="blue_wrench"] {
+      background-image: image-url("blue_wrench.svg");
+    }

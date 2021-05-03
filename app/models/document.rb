@@ -46,7 +46,6 @@ class Document < ApplicationRecord
   before_destroy :check_for_documentation, prepend: true
 
   has_many :documentation, dependent: :destroy, inverse_of: :document
-
   has_many :sources, through: :documentation, source_type: 'Source', source: 'documentation_object'
 
   has_attached_file :document_file,

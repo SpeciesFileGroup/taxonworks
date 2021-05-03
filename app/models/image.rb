@@ -42,6 +42,7 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
+
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -87,7 +88,7 @@ class Image < ApplicationRecord
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
-  validates_attachment_size :image_file, greater_than: 1.kilobytes
+  validate :image_dimensions_too_short
 
   soft_validate(:sv_duplicate_image?)
 
@@ -400,6 +401,17 @@ class Image < ApplicationRecord
     blob = img.to_blob
     img.destroy!
     blob
+  end
+
+  def image_dimensions_too_short
+    return unless original = image_file.queued_for_write[:original]
+
+    dimensions = Paperclip::Geometry.from_file(original)
+
+    errors.add(:image_file, "width must be at least 16 pixels") if dimensions.width < 16
+    errors.add(:image_file, "height must be at least 16 pixels") if dimensions.height < 16
+  rescue
+    errors.add(:image_file, "unable to extract image dimensions")
   end
 
 end

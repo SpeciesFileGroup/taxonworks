@@ -75,8 +75,8 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import { GeographicArea } from 'routes/endpoints'
 import SmartSelector from 'components/smartSelector.vue'
-import { GetGeographicAreaByCoords } from '../../request/resources.js'
 import convertDMS from 'helpers/parseDMS.js'
 import ModalComponent from 'components/modal'
 
@@ -128,7 +128,7 @@ export default {
       this.$store.dispatch(ActionNames.LoadGeographicArea, item?.id)
     },
     getByCoords (lat, long) {
-      GetGeographicAreaByCoords(lat, long).then(response => {
+      GeographicArea.coordinates({ latitude: lat, longitude: long, geo_json: true }).then(response => {
         this.areasByCoors = response.body
       })
     },

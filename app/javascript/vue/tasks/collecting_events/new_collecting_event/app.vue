@@ -98,7 +98,6 @@
       <collecting-event-form
         v-model="collectingEvent"
         :sortable="settings.sortable"
-        :soft-validation="validation"
         class="full_width" />
       <div class="margin-medium-left">
         <div class="panel content">
@@ -120,7 +119,6 @@
         </div>
         <right-section
           :value="collectingEvent"
-          :soft-validation="validation"
           @select="loadCollectingEvent($event.id)"
         />
       </div>
@@ -154,7 +152,7 @@ import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
-import { GetCollectionObject } from './request/resources'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -195,8 +193,7 @@ export default {
       settings: {
         sortable: false
       },
-      showRecent: false,
-      validation: []
+      showRecent: false
     }
   },
   watch: {
@@ -218,7 +215,7 @@ export default {
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     } else if (/^\d+$/.test(collectionObjectId)) {
-      GetCollectionObject(collectionObjectId).then(response => {
+      CollectionObject.find(collectionObjectId).then(response => {
         const ceId = response.body.collecting_event_id
         if (ceId) {
           this.loadCollectingEvent(ceId)

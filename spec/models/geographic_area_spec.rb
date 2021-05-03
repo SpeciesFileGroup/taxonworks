@@ -503,23 +503,35 @@ describe GeographicArea, type: :model, group: [:geo, :shared_goe] do
     end
 
     specify('are_contained_in') do
-      expect(GeographicArea.are_contained_in(area_p2b).map(&:name)).to contain_exactly('East Boxia', # country
-                                                                                       'East Boxia', # state
-                                                                                       'Big Boxia',
-                                                                                       'Q',
-                                                                                       'QUP2',
-                                                                                       'QU',
-                                                                                       'P2',
-                                                                                       'Great Northern Land Mass')
+      expect(GeographicArea.are_contained_in(area_p2b).map(&:name)).to contain_exactly(
+        'East Boxia', # country
+        'East Boxia', # state
+        'Big Boxia',
+        'Q',
+        'QUP2',
+        'QU',
+        'P2',
+        'Great Northern Land Mass')
     end
 
-    specify('find_by_lat_long') do
+    specify('#find_by_lat_long') do
       point = gr_n3_ob.geographic_item.geo_object
-      expect(GeographicArea.find_by_lat_long(point.y, point.x)).to contain_exactly(area_r,
-                                                                                   area_rn3,
-                                                                                   area_old_boxia,
-                                                                                   area_n3,
-                                                                                   area_land_mass)
+      expect(GeographicArea.find_by_lat_long(point.y, point.x)).to contain_exactly(
+        area_r,
+        area_rn3,
+        area_old_boxia,
+        area_n3,
+        area_land_mass)
+    end
+
+    specify('#find_smallest_by_lat_long') do
+      point = gr_n3_ob.geographic_item.geo_object
+      expect(GeographicArea.find_smallest_by_lat_long(point.y, point.x)).to contain_exactly(
+        area_r,
+        area_rn3,
+        area_old_boxia,
+        area_n3,
+        area_land_mass)
     end
   end
 
