@@ -74,13 +74,15 @@ class ObservationMatrixColumnItemsController < ApplicationController
     respond_to do |format|
 
       if @observation_matrix_column_item.destroyed?
-        format.html {
-          redirect_to observation_matrix_column_items_url,
-          notice: 'Matrix column item was successfully destroyed.' }
+        format.html { destroy_redirect @observation_matrix_column_item,
+          notice: 'Matrix column item was successfully destroyed.'
+        }
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Observation matrix column item was not destroyed, ' + @observation_matrix_column_item.errors.full_messages.join('; '))}
-        format.json {render json: @observation_matrix_column_item.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @observation_matrix_column_item,
+          notice: 'Observation matrix column item was not destroyed, ' + @observation_matrix_column_item.errors.full_messages.join('; ')
+        }
+        format.json { render json: @observation_matrix_column_item.errors, status: :unprocessable_entity }
       end
     end
   end

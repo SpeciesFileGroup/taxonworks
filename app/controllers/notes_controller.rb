@@ -72,8 +72,7 @@ class NotesController < ApplicationController
     @note.destroy
     respond_to do |format|
       # TODO: probably needs to be changed
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice:            'Note was successfully destroyed.') }
+      format.html { destroy_redirect @note, notice: 'Note was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
