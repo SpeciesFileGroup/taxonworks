@@ -74,11 +74,11 @@ class CitationsController < ApplicationController
     @citation.destroy
     respond_to do |format|
       if @citation.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @citation, notice: 'Citation was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; '))}
-        format.json {render json: @citation.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @citation, notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; ') }
+        format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
   end

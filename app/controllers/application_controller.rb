@@ -17,4 +17,5 @@ class ApplicationController < ActionController::Base
   include ForgeryProtection
   include PaginationHeaders
   include RequestType
+  include RedirectHelper
 end
