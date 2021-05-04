@@ -6,6 +6,8 @@ module Queries::Concerns::Polymorphic
     attr_accessor :polymorphic_ids
     attr_accessor :object_global_id
 
+    attr_accessor :global_object
+
     def self.polymorphic_klass(klass)
       define_singleton_method(:annotating_class){klass} 
     end
@@ -26,11 +28,19 @@ module Queries::Concerns::Polymorphic
 
   # @return [ActiveRecord object, nil]
   def object_for
-    if o = GlobalID::Locator.locate(object_global_id)
-      o
+    if @global_object = GlobalID::Locator.locate(object_global_id)
+      @global_object
     else
       nil
     end
+  end
+
+  def global_object_id
+    object_for&.id
+  end
+
+  def global_object_type
+    object_for&.type
   end
 
   # TODO: Dry with polymorphic_params
