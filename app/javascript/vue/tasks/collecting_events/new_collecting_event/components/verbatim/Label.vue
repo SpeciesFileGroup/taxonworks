@@ -18,13 +18,13 @@
 <script>
 
 import extendCE from '../mixins/extendCE'
-import { ParseVerbatim } from '../../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   mixins: [extendCE],
   methods: {
     parseData () {
-      ParseVerbatim(this.collectingEvent.verbatim_label).then(response => {
+      CollectingEvent.parseVerbatimLabel({ verbatim_label: this.collectingEvent.verbatim_label }).then(response => {
         if (response.body) {
           this.parsableData = response.body
 

@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
 const permitParams = {
   geographic_area: {
@@ -16,5 +17,7 @@ const permitParams = {
 }
 
 export const GeographicArea = {
-  ...baseCRUD('geographic_areas', permitParams)
+  ...baseCRUD('geographic_areas', permitParams),
+
+  coordinates: (params) => AjaxCall('get', '/geographic_areas/by_lat_long', { params })
 }

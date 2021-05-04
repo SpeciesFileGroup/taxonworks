@@ -108,10 +108,10 @@
 
 <script>
 
-import { GetTypes } from '../../request/resources.js'
-import ActionNames from '../../store/actions/actionNames.js'
+import { TypeMaterial } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
+import ActionNames from '../../store/actions/actionNames.js'
 import BlockLayout from '../../../../components/blockLayout.vue'
 import SmartSelector from 'components/smartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
@@ -142,7 +142,7 @@ export default {
         return this.$store.getters[GetterNames.GetTypeMaterial].taxon
       },
       set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialTaxon)
+        this.$store.commit(MutationNames.SetTypeMaterialTaxon, value)
       }
     },
     type: {
@@ -176,11 +176,6 @@ export default {
     }
   },
   watch: {
-    taxonIdFormOtu (newVal) {
-      if (newVal) {
-        // this.getTaxon(newVal)
-      }
-    },
     origin_citation_attributes: {
       handler (newVal) {
         this.citation = newVal
@@ -192,17 +187,16 @@ export default {
       this.$refs.sourceSmartSelector.refresh()
     }
   },
-  mounted: function () {
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const taxonId = urlParams.get('taxon_name_id')
 
-    GetTypes().then(response => {
+    TypeMaterial.types().then(response => {
       this.types = response.body
     })
 
     if (/^\d+$/.test(taxonId)) {
       this.selectTaxon(taxonId)
-      // this.getTaxon(taxonId)
     }
   },
   methods: {
@@ -223,7 +217,7 @@ export default {
     },
     destroyTypeMateria (item) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-        this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then((response) => {
+        this.$store.dispatch(ActionNames.RemoveTypeMaterial, item).then(() => {
           TW.workbench.alert.create('Type material was successfully destroyed.', 'notice')
         })
       }

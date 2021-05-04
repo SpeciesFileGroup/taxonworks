@@ -8,6 +8,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- jsconfig.json for Visual Studio Code
+
+### Fixed
+- Hide soft validation section if is empty in New collecting events task
+- 404 error when deleting records from data interfaces
+
+## [0.17.1] - 2020-04-30
+
+### Added
 - Moved endpoints to own model file
 - Permit params on client side
 - OTU picker on new observation matrix [#2209]
@@ -18,17 +27,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hide row/column panel on new observation matrix
 - Soft validation section is always visible [#2211]
 - Ambiguous column problem in query for previous/next collecting event navigation.
+- Merge people count [#2218]
 
 ### Changed
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
 - Switch selector on new observation matrix
-- Increment pdf filesize to 512mbs [#2212]
+- Increment pdf filesize to 512MB [#2212]
+- Updated gems and npm packages
 
 [#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
 [#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
 [#2209]: https://github.com/SpeciesFileGroup/taxonworks/issues/2209
 [#2211]: https://github.com/SpeciesFileGroup/taxonworks/issues/2211
 [#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
+[#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
 
 ## [0.17.0] - 2020-04-23
 
@@ -1126,8 +1138,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...development
-[0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...development
+[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
+[0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4

@@ -93,6 +93,10 @@
 
 <script>
 
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions.js'
+import { CollectingEvent, CollectionObject } from 'routes/endpoints'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from 'components/smartSelector.vue'
@@ -101,12 +105,7 @@ import BlockMap from './components/map/main.vue'
 import BlockLayout from 'components/blockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
-import { GetterNames } from '../../store/getters/getters.js'
-import { MutationNames } from '../../store/mutations/mutations.js'
-import { ActionNames } from '../../store/actions/actions.js'
 import PinComponent from 'components/pin.vue'
-
-import { CloneCollectionEvent, GetCollectionObjects } from '../../request/resources.js'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 
@@ -168,14 +167,14 @@ export default {
         this.subsequentialUses = 0
       }
       if (newVal.id) {
-        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.id] })).body.length
+        this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.id] })).body.length
       } else {
         this.alreadyUsed = 0
       }
     },
     async collectionObject (newVal, oldVal) {
       if (newVal?.id !== oldVal?.id && newVal.collecting_event_id) {
-        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
+        this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
       }
     }
   },
@@ -188,7 +187,7 @@ export default {
       this.$store.dispatch(ActionNames.NewCollectionEvent)
     },
     cloneCE () {
-      CloneCollectionEvent(this.collectingEvent.id).then(response => {
+      CollectingEvent.clone(this.collectingEvent.id).then(response => {
         this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response.body))
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })

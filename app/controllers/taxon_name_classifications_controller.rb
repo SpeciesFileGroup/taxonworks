@@ -76,8 +76,7 @@ class TaxonNameClassificationsController < ApplicationController
   def destroy
     @taxon_name_classification.destroy!
     respond_to do |format|
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice:            'Taxon name classification was successfully destroyed.') }
+      format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

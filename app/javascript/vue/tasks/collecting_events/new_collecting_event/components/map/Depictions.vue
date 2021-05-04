@@ -53,7 +53,7 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { GetDepictions, DestroyDepiction } from '../../request/resources.js'
+import { CollectingEvent, Depiction } from 'routes/endpoints'
 import GeoreferenceTypes from '../../const/georeferenceTypes'
 import Dropzone from 'components/dropzone.vue'
 import extendCE from '../mixins/extendCE.js'
@@ -126,7 +126,7 @@ export default {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.coordinatesEXIF = []
-        GetDepictions(newVal.id).then(response => {
+        CollectingEvent.depictions(newVal.id).then(response => {
           this.figuresList = response.body
         })
       } else {
@@ -196,7 +196,7 @@ export default {
     },
     removeDepiction (depiction) {
       if (window.confirm('Are you sure want to proceed?')) {
-        DestroyDepiction(depiction.id).then(response => {
+        Depiction.destroy(depiction.id).then(response => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
           this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
           this.$emit('delete', depiction)

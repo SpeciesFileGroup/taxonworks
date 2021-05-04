@@ -131,7 +131,7 @@ export default {
     height: 60vh;
   }
 
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     min-width: 80vw;
     min-height: 60vh;
   }
