@@ -52,5 +52,7 @@ export const TaxonName = {
 
   parse: (params) => AjaxCall('get', '/taxon_names/parse', { params }),
 
-  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name: name }})
+  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name: name }}),
+
+  otus: (id) => AjaxCall('get', `/${model}/${id}/otus.json`, { headers: { 'Cache-Control': 'no-cache' } })
 }

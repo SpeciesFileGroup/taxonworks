@@ -27,7 +27,7 @@
 <script>
 
 import ActionNames from '../../store/actions/actionNames'
-import { DestroyDepiction } from '../../request/resources.js'
+import { Depiction } from 'routes/endpoints'
 
 import dropzone from 'components/dropzone.vue'
 import depictionImage from './depictionImage.vue'
@@ -78,56 +78,57 @@ export default {
     }
   },
   watch: {
-    objectValue (newVal, oldVal) {      
+    objectValue (newVal, oldVal) {
       if (newVal.id && (newVal.id != oldVal.id)) {
         this.$refs.depiction.setOption('autoProcessQueue', true)
         this.$refs.depiction.processQueue()
         this.getDepictions(newVal.id).then(response => {
           this.figuresList = response.body
         })
-      } else {
-        if(!newVal.id) {
-          this.figuresList = []
-          this.$refs.depiction.setOption('autoProcessQueue', false)
-        }
+      } else if (!newVal.id) {
+        this.figuresList = []
+        this.$refs.depiction.setOption('autoProcessQueue', false)
       }
     }
   },
   methods: {
-    'success': function (file, response) {
+    success (file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
       this.$emit('create', response)
     },
-    'sending': function (file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.objectValue.id)
       formData.append('depiction[depiction_object_type]', this.objectType)
     },
-    'addedfile': function () {
+
+    addedfile () {
       if (!this.objectValue.id && !this.creatingType) {
         this.creatingType = true
         this.$store.dispatch(ActionNames[this.actionSave]).then((response) => {
-          var that = this
-          setTimeout(function () {
-            that.$refs.depiction.setOption('autoProcessQueue', true)
-            that.$refs.depiction.processQueue()
-            that.creatingType = false
+          setTimeout(() => {
+            this.$refs.depiction.setOption('autoProcessQueue', true)
+            this.$refs.depiction.processQueue()
+            this.creatingType = false
           }, 500)
         }, () => {
           this.creatingType = false
         })
       }
     },
+
     removeDepiction (depiction) {
-      if (window.confirm(`Are you sure want to proceed?`)) {
-        DestroyDepiction(depiction.id).then(response => {
+      if (window.confirm('Are you sure want to proceed?')) {
+        Depiction.destroy(depiction.id).then(() => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
+          this.figuresList.splice(this.figuresList.findIndex(figure => figure.id == depiction.id), 1)
           this.$emit('delete', depiction)
         })
       }
     },
-    error(event) {
+
+    error (event) {
       TW.workbench.alert.create(`There was an error uploading the image: ${event.xhr.responseText}`, 'error')
     }
   }

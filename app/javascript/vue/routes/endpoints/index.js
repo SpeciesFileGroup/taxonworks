@@ -1,12 +1,15 @@
 import { AssertedDistribution } from './AssertedDistribution'
 import { Attribution } from './Attribution'
 import { BiocurationClassification } from './BiocurationClassification'
+import { BiologicalAssociation } from './BiologicalAssociation'
 import { BiologicalRelationship } from './BiologicalRelationship'
 import { Citation } from './Citation'
 import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { Container } from './Container'
+import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
 import { Depiction } from './Depiction'
@@ -46,12 +49,15 @@ export {
   AssertedDistribution,
   Attribution,
   BiocurationClassification,
+  BiologicalAssociation,
   BiologicalRelationship,
   Citation,
   CitationTopic,
   CollectingEvent,
   CollectionObject,
   Combination,
+  Container,
+  ContainerItem,
   Content,
   ControlledVocabularyTerm,
   Depiction,
