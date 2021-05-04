@@ -61,15 +61,8 @@ import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
 import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import SpinnerComponent from 'components/spinner'
-import { 
-  GetObservation, 
-  DestroyObservation, 
-  UpdateObservation, 
-  UpdateDepiction,
-  DestroyDepiction,
-  CreateObservation
-  } from '../request/resources'
 
+import { Observation, Depiction } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -98,29 +91,26 @@ export default {
     }
   },
   computed: {
-    getImage() {
-      return Image
-    },
     observationMoved: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetObservationMoved]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetObservationMoved, value)
       }
     },
     depictionMoved: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetDepictionMoved]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetDepictionMoved, value)
       }
     },
-    observationsMedia() {
+    observationsMedia () {
       return this.observations
     },
-    existObservations() {
+    existObservations () {
       return this.observations.length > 0
     }
   },
@@ -154,10 +144,11 @@ export default {
     row: {
       handler () {
         this.isLoading = true
-        GetObservation(this.row.row_object.global_id, this.column.descriptor.id).then(response => {
-          this.observations = response.body.filter((item) => {
-            return item.type == 'Observation::Media'
-          })
+        Observation.where({
+          observation_object_global_id: this.row.row_object.global_id,
+          descriptor_id: this.column.descriptor.id
+        }).then(response => {
+          this.observations = response.body.filter((item) => item.type === 'Observation::Media')
           this.isLoading = false
         })
       },
@@ -166,100 +157,103 @@ export default {
     }
   },
   methods: {
-    removedObservationFromList(event) {
-      if(this.observationsMedia[0].depictions.length == 1) {
-          this.observations.splice(event.oldIndex, 1)
-      }
-      else {
-        let index = this.observations.findIndex(item => {
-          return item.id == this.observationsMedia[0].id
-        })
+    removedObservationFromList (event) {
+      if (this.observationsMedia[0].depictions.length === 1) {
+        this.observations.splice(event.oldIndex, 1)
+      } else {
+        const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
         this.observations[index].depictions.splice([event.oldIndex], 1)
       }
     },
-    movedObservation(event) {
-      if(this.observationsMedia.length) {
+
+    movedObservation () {
+      if (this.observationsMedia.length) {
         this.updateDepiction()
-      }
-      else {
-        let newObservation = {
+      } else {
+        const newObservation = {
           descriptor_id: this.column.descriptor_id,
           type: 'Observation::Media',
-          [this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id,
+          [this.row.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id,
         }
-        CreateObservation(newObservation).then(response => {
+        Observation.create(newObservation).then(response => {
           this.observations.push(response.body)
-          this.updateDepiction()         
+          this.updateDepiction()
         })
       }
     },
-    updateDepiction() {
-     let newDepiction = {
+
+    updateDepiction () {
+      const depiction = {
         id: this.depictionMoved.id,
-        depiction_object_id: this.observationsMedia[0].id, 
-        depiction_object_type: this.observationsMedia[0].base_class,
+        depiction_object_id: this.observationsMedia[0].id,
+        depiction_object_type: this.observationsMedia[0].base_class
       }
-      let changeObservation = {
+      const observation = {
         id: this.observationMoved.id,
-        depictions_attributes: [newDepiction]
+        depictions_attributes: [depiction]
       }
-      UpdateObservation(changeObservation).then(response => {
-        if(!response.body.hasOwnProperty('depictions')) {
-          DestroyObservation(response.body.id)
+
+      Observation.update({ observation }).then(response => {
+        if (!response.body.hasOwnProperty('depictions')) {
+          Observation.destroy(response.body.id)
         }
       })
       this.$store.commit(MutationNames.SetIsSaving, true)
-      UpdateDepiction(newDepiction).then((response) => {
-        let index = this.observations.findIndex(item => {
-          return item.id == this.observationsMedia[0].id
-        })
-        if(this.observations[index].hasOwnProperty('depictions'))
+      Depiction.update(depiction.id, { depiction }).then((response) => {
+        const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
+
+        if (this.observations[index].hasOwnProperty('depictions')) {
           this.observations[index].depictions.push(response.body)
-        else
-          this.$set(this.observations[index],'depictions', [response.body])
+        } else {
+          this.$set(this.observations[index], 'depictions', [response.body])
+        }
         this.depictionMoved = undefined
         this.observationMoved = undefined
         this.$store.commit(MutationNames.SetIsSaving, false)
-      })      
+      })
     },
-    setObservationDragged(event) {
+
+    setObservationDragged (event) {
       this.depictionMoved = this.observationsMedia[0].depictions[event.oldIndex]
       this.observationMoved = this.observationsMedia[0]
     },
-    removeDepiction(depiction) {
+
+    removeDepiction (depiction) {
       this.$store.commit(MutationNames.SetIsSaving, true)
-      DestroyDepiction(depiction.id).then(() => {
-        let index = this.observations[0].depictions.findIndex(item => {
-          return item.id === depiction.id
-        })
+      Depiction.destroy(depiction.id).then(() => {
+        const index = this.observations[0].depictions.findIndex(item => item.id === depiction.id)
+
         this.observations[0].depictions.splice(index, 1)
-        if(!this.observations[0].depictions.length) {
-          DestroyObservation(this.observations[0].id).then(() => {
+        if (!this.observations[0].depictions.length) {
+          Observation.destroy(this.observations[0].id).then(() => {
             this.observations.splice(0, 1)
             this.$store.commit(MutationNames.SetIsSaving, false)
           })
-        }
-        else {
+        } else {
           this.$store.commit(MutationNames.SetIsSaving, false)
         }
       })
     },
-    success(file, response) {
+
+    success (file, response) {
       this.observations.push(response)
       this.$refs.depictionObs.removeFile(file)
       this.$emit('create', response)
     },
-    sending(file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.column.descriptor_id)
       formData.append('observation[type]', 'Observation::Media')
       formData.append(`observation[${this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
     },
-    successDepic(file, response) {
+
+    successDepic (file, response) {
       this.observations[0].depictions.push(response)
       this.$refs.depictionDepic.removeFile(file)
       this.$emit('create', response)
     },
-    sendingDepic(file, xhr, formData) {
+
+    sendingDepic (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.observations[0].id)
       formData.append('depiction[depiction_object_type]', this.observations[0].base_class)
     },
