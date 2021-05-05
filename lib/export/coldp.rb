@@ -23,7 +23,7 @@ module Export
       ::Otu.joins(taxon_name: [:ancestor_hierarchies]).where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
     end
 
-    def self.export(otu_id)
+    def self.export(otu_id, prefer_unlabelled_otus: false)
       otus = otus(otu_id)
 
       # source_id => [csv_array]
@@ -38,8 +38,10 @@ module Export
           zipfile.get_output_stream("#{ft}.csv") { |f| f.write m.generate(otus, ref_csv) }
         end
 
-        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate( Otu.find(otu_id), ref_csv) }
-        zipfile.get_output_stream('Taxon.csv') { |f| f.write Export::Coldp::Files::Taxon.generate( otus, otu_id, ref_csv) }
+        zipfile.get_output_stream('Name.csv') { |f| f.write Export::Coldp::Files::Name.generate(Otu.find(otu_id), ref_csv) }
+        zipfile.get_output_stream('Taxon.csv') do |f|
+          f.write Export::Coldp::Files::Taxon.generate(otus, otu_id, ref_csv, prefer_unlabelled_otus: prefer_unlabelled_otus)
+        end
 
         # Sort the refs by full citation string
         sorted_refs = ref_csv.values.sort{|a,b| a[1] <=> b[1]}
@@ -57,7 +59,7 @@ module Export
       zip_file_path
     end
 
-    def self.download(otu, request = nil)
+    def self.download(otu, request = nil, prefer_unlabelled_otus: false)
       file_path = ::Export::Coldp.export(otu.id)
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
@@ -71,7 +73,7 @@ module Export
       )
     end
 
-    def self.download_async(otu, request = nil)
+    def self.download_async(otu, request = nil, prefer_unlabelled_otus: false)
       download = ::Download.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
@@ -80,7 +82,7 @@ module Export
         expires: 2.days.from_now
       )
 
-      ColdpCreateDownloadJob.perform_later(otu, download)
+      ColdpCreateDownloadJob.perform_later(otu, download, prefer_unlabelled_otus: prefer_unlabelled_otus)
 
       download
     end
