@@ -1,4 +1,3 @@
-import { CreateObservation } from '../../request/resources'
 import ActionNames from './actionNames'
 
 export default function ({ commit, state, dispatch }, data) {

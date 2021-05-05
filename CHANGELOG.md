@@ -12,7 +12,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
-- 404 error when deleting records from data interfaces
+- 404 error when deleting records from data interfaces [#2223]
+
+[#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 
 ## [0.17.1] - 2020-04-30
 

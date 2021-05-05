@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'observation_matrices'
 const permitParams = {
   observation_matrix: {
     name: String
@@ -7,5 +9,9 @@ const permitParams = {
 }
 
 export const ObservationMatrix = {
-  ...baseCRUD('observation_matrices', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  columns: (id) => AjaxCall('get', `/${controller}/${id}/observation_matrix_columns.json`),
+
+  rows: (id, params) => AjaxCall('get', `/${controller}/${id}/observation_matrix_rows.json`, { params })
 }

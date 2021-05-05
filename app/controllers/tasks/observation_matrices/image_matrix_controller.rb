@@ -20,6 +20,7 @@ class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
         :observation_matrix_id,
         :language_id,
         :row_filter,
+        :otu_filter,
         :sorting,
         :eliminate_unknown,
         :error_tolerance,

@@ -22,7 +22,9 @@ import { Identifier } from './Identifier'
 import { Image } from './Image'
 import { Label } from './Label'
 import { Namespace } from './Namespace'
+import { Observation } from './Observation'
 import { ObservationMatrix } from './ObservationMatrix'
+import { ObservationMatrixColumn } from './ObservationMatrixColumn'
 import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
 import { ObservationMatrixRow } from './ObservationMatrixRow'
 import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
@@ -70,7 +72,9 @@ export {
   Image,
   Label,
   Namespace,
+  Observation,
   ObservationMatrix,
+  ObservationMatrixColumn,
   ObservationMatrixColumnItem,
   ObservationMatrixRow,
   ObservationMatrixRowItem,
