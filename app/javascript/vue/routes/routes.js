@@ -1,8 +1,10 @@
 const RouteNames = {
+  BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   ContentEditorTask: '/tasks/content/editor/index',
   DigitizeTask: '/tasks/accessions/comprehensive',
+  DwcImport: '/tasks/dwca_import/index',  
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',
@@ -14,8 +16,7 @@ const RouteNames = {
   ObservationMatricesDashboard: '/tasks/observation_matrices/dashboard',
   ObservationMatricesHub: '/tasks/observation_matrices/observation_matrix_hub',
   PrintLabel: '/tasks/labels/print_labels',
-  TypeMaterial: '/tasks/type_material/edit_type_material',
-  DwcImport: '/tasks/dwca_import/index'
+  TypeMaterial: '/tasks/type_material/edit_type_material'
 }
 
 export {
