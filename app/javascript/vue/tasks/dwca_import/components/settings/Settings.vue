@@ -15,7 +15,8 @@
       }">
       <h3 slot="header">Settings</h3>
       <div slot="body">
-        <containerize-checbox/>
+        <div><containerize-checkbox/></div>
+        <div><restrict-to-nomenclature-checkbox/></div>
         <h3>Catalog number namespace mapping</h3>
         <table class="full_width">
           <thead>
@@ -48,11 +49,13 @@ import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 import ModalComponent from 'components/modal'
 import RowComponent from './Row'
-import ContainerizeChecbox from './Containerize'
+import ContainerizeCheckbox from './Containerize'
+import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'
 
 export default {
   components: {
-    ContainerizeChecbox,
+    ContainerizeCheckbox,
+    RestrictToNomenclatureCheckbox,
     ModalComponent,
     RowComponent
   },

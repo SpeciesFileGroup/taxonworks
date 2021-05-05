@@ -3,34 +3,50 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order family} # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
 
+  class ImportProtonym
+    class CreateIfNotExists
+      def self.execute(origins, parent, name)
+        Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+          unless protonym&.persisted?
+            raise DatasetRecord::DarwinCore::InvalidData.new({
+              origins[name.object_id] => name[:rank_class].present? ?
+              protonym.errors.messages.values.flatten :
+              ["Rank for #{name[:name]} could not be determined. Please create this taxon name manually and retry."]
+            })
+          end
+        end
+      end
+    end
+
+    class MatchExisting
+      def self.execute(origins, parent, name)
+        Protonym.find_by(name.merge({ parent: parent })).tap do |protonym|
+          if protonym.nil?
+            raise DatasetRecord::DarwinCore::InvalidData.new({
+              origins[name.object_id] =>
+              ["Protonym #{name[:name]} not found with that name and/or classification. Importing new names is disabled by import settings."]
+            })
+          end
+        end
+      end
+    end
+  end
+
   def import
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
         names, origins = parse_taxon_class
+        import_protonym_strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym::MatchExisting : ImportProtonym::CreateIfNotExists
 
         innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
-          predicted_rank = false
-
           unless name[:rank_class]
             name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
-            unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
-              name.delete(:rank_class)
-            else
-              predicted_rank = true
-            end
+            name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
           end
 
-          Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
-            unless protonym.persisted?
-              raise DarwinCore::InvalidData.new({
-                origins[name.object_id] => predicted_rank ?
-                protonym.errors.messages.values.flatten :
-                ["Rank for #{name[:name]} could not be determined. Please create this taxon name manually and retry."]
-              })
-            end
-          end
+          import_protonym_strategy.execute(origins, parent, name)
         end
 
         attributes = parse_record_level_class

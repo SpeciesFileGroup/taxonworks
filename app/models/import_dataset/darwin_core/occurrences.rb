@@ -130,6 +130,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     !!self.metadata.dig("import_settings", "containerize_dup_cat_no")
   end
 
+  def restrict_to_existing_nomenclature?
+    !!self.metadata.dig("import_settings", "restrict_to_existing_nomenclature")
+  end
+
   private
 
   def get_catalog_number_namespace_mapping(institution_code, collection_code)
