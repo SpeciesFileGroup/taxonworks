@@ -72,22 +72,21 @@
         @getItem="findRow($event.id, $event.position)"
       />
     </template>
-    <template v-if="matrixId">
-      <view-component
-        v-if="viewMode"
+    <template v-if="matrixId && !viewMode">
+      <matrix-table
         class="separate-table"
-        :matrix-id="matrixId"/>
-      <template v-else>
-        <matrix-table
-          class="separate-table"
-          ref="matrixTable"
-          :columns="observationColumns"
-          :rows="observationRows"/>
-        <pagination-component
-          :pagination="pagination"
-          @nextPage="getRows($event.page)"/>
-      </template>
+        ref="matrixTable"
+        :columns="observationColumns"
+        :rows="observationRows"/>
+      <pagination-component
+        :pagination="pagination"
+        @nextPage="getRows($event.page)"/>
     </template>
+    <view-component
+      v-if="viewMode"
+      class="separate-table"
+      :matrix-id="matrixId"
+      :otus-id="otuFilter"/>
   </div>
 </template>
 
@@ -140,7 +139,8 @@ export default {
       pagination: {},
       maxPerPage: 3,
       otu_ids: undefined,
-      viewMode: false
+      viewMode: false,
+      otuFilter: []
     }
   },
 
@@ -150,6 +150,13 @@ export default {
     const rowIdParam = urlParams.get('row_id')
     const rowPositionParam = urlParams.get('row_position')
     const otuIdsParam = urlParams.get('otu_ids')
+    const otuFilterParam = urlParams.get('otu_filter')
+
+console.log(otuFilterParam)
+    if (otuFilterParam) {
+      this.otuFilter = otuFilterParam
+      this.viewMode = true
+    }
     if (otuIdsParam) {
       this.otu_ids = otuIdsParam
     }

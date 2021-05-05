@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - jsconfig.json for Visual Studio Code
+- Image matrix viewer in Image matrix
+- Image matrix button in observation dashboard task
 
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task

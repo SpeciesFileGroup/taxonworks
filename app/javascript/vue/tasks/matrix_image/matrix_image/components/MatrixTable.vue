@@ -37,9 +37,11 @@
                 :checked="!collapseRows.includes(row.id)"
                 v-model="collapseRows"/>
             </td>
-            <td
-              class="object-cell"
-              v-html="row.row_object.object_tag"/>
+            <td class="object-cell">
+              <a
+                v-html="row.row_object.object_tag"
+                :href="browseOtu(row.row_object.id)"/>
+            </td>
             <template>
               <template v-for="(column, cIndex) in columns">
                 <td
@@ -64,11 +66,13 @@
 <script>
 
 import CellComponent from './Cell.vue'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
     CellComponent
   },
+
   props: {
     rows: {
       type: Array,
@@ -79,21 +83,29 @@ export default {
       default: () => { return [] }
     }
   },
-  data() {
+
+  data () {
     return {
       collapseRows: [],
       collapseColumns: []
     }
   },
+
   methods: {
-    reset() {
+    browseOtu (id) {
+      return `${RouteNames.BrowseOtu}?otu_id=${id}`
+    },
+
+    reset () {
       this.collapseRows = []
       this.collapseColumns = []
     },
-    collapseAll() {
+
+    collapseAll () {
       this.collapseRows = this.rows.map(row => { return row.id })
       this.collapseColumns = this.columns.map(column => { return column.id })
     },
+
     filterCell(columnId, rowId) {
       return this.collapseColumns.includes(columnId) || this.collapseRows.includes(rowId)
     }
