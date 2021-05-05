@@ -722,7 +722,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # higherClassification: [Several protonyms with ranks determined automatically when possible. Classification lower or at genus level is ignored and extracted from scientificName instead]
     higherClassification = (
-      get_field_value(:higherClassification)&.split('|') || []
+      get_field_value(:higherClassification)&.split(/:|\|/) || []
     ).map! { |n| normalize_value!(n); {rank_class: nil, name: n} }
 
     curr = 0
