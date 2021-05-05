@@ -200,5 +200,9 @@ export default {
       background-color: transparent;
     }
   }
+
+  .otu_tag_taxon_name {
+    white-space: normal
+  }
 }
 </style>

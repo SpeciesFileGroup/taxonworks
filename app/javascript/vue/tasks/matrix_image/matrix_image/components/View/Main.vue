@@ -1,41 +1,38 @@
 <template>
   <div>
     <spinner-component v-if="isLoading"/>
-    <table>
-      <thead>
-        <tr>
-          <th class="object-cell"/>
-          <th
-            v-for="descriptor in descriptors"
-            class="header-cell"
-            :key="descriptor.id">
-            <label class="header-label cursor-pointer">
-              {{ descriptor.name }}
-            </label>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          class="row-cell"
-          v-for="(row, index) in rows">
-          <td class="object-cell">
-            <a
-              v-html="row.object.object_tag"
-              :href="browseOtu(row.object.id)"/>
-          </td>
-          <td
-            v-for="rCol in row.depictions"
-            class="padding-cell">
-            <div
-              v-for="depiction in rCol"
-              :key="depiction.id">
-              <img :src="depiction.image.alternatives.thumb.image_file_url">
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div
+      class="grid-table"
+      :style="columns">
+      <div class="otu-cell"/>
+      <div
+        v-for="descriptor in descriptors"
+        :key="descriptor.id">
+        <div class="header-cell">
+          <label class="header-label cursor-pointer">
+            {{ descriptor.name }}
+          </label>
+        </div>
+      </div>
+      <template
+        v-for="(row, index) in rows">
+        <div class="otu-cell padding-small">
+          <a
+            v-html="row.object.object_tag"
+            :href="browseOtu(row.object.id)"/>
+        </div>
+        <div
+          v-for="(rCol, rIndex) in row.depictions"
+          class="image-cell padding-small"
+          :key="rIndex">
+          <div
+            v-for="depiction in rCol"
+            :key="depiction.id">
+            <img :src="depiction.image.alternatives.medium.image_file_url">
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -44,7 +41,6 @@
 import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import { RouteNames } from 'routes/routes'
-import depiction from 'components/radials/object/images/depiction'
 
 export default {
   components: {
@@ -67,6 +63,12 @@ export default {
       rows: [],
       showTable: false,
       isLoading: false
+    }
+  },
+
+  computed: {
+    columns () {
+      return { 'grid-template-columns': `200px repeat(${this.descriptors.length}, min-content)` }
     }
   },
 
@@ -96,3 +98,24 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .grid-table {
+    display: grid;
+    gap: 4px;
+
+    .image-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background-color: white;
+    }
+
+    .otu-cell {
+      display: flex;
+      align-items: center;
+      justify-content: left;
+      background-color: white;
+    }
+  }
+</style>
