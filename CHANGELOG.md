@@ -13,11 +13,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix button in observation dashboard task
 - Image matrix link in Interactive keys task
 
+### Changed
+- Warning message on nuke action in Grid digitize task [#2229]
+
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
 
+
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
+[#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
 
 ## [0.17.1] - 2020-04-30
 
