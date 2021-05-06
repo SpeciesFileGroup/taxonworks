@@ -77,9 +77,13 @@
         <new-matrix/>
         <div
           v-if="matrix.id"
-          class="separate-top">
-          <component :is="`rows-${matrixMode}`"/>
-          <component :is="`columns-${matrixMode}`"/>
+          class="margin-medium-top">
+          <component
+            v-if="isRowView"
+            :is="`rows-${matrixMode}`"/>
+          <component
+            v-else
+            :is="`columns-${matrixMode}`"/>
         </div>
       </div>
       <tables-component v-if="matrix.id"/>
@@ -122,6 +126,9 @@ export default {
   computed: {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
+    },
+    isRowView () {
+      return this.$store.getters[GetterNames.GetMatrixView] === 'row'
     },
     matrixMode () {
       return this.$store.getters[GetterNames.GetMatrixMode]

@@ -90,17 +90,7 @@ export default {
     return {
       display: 'Drop',
       optionList: ['Drop', 'Pick'],
-      isPublic: false,
-      dropzone: {
-        timeout: 0,
-        paramName: 'documentation[document_attributes][document_file]',
-        url: '/documentation',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        dictDefaultMessage: 'Drop documents here',
-        acceptedFiles: 'application/pdf, text/plain'
-      }
+      isPublic: false
     }
   },
 

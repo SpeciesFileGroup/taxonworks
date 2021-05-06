@@ -1,8 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetGeoreferences } from '../../request/resources'
+import { Georeference } from 'routes/endpoints'
 
 export default ({ commit }, ceId) => {
-  GetGeoreferences(ceId).then(response => {
+  Georeference.where({ collecting_event_id: ceId }).then(response => {
     commit(MutationNames.SetGeoreferences, response.body)
   })
 }

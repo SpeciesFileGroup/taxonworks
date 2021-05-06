@@ -75,7 +75,7 @@ import EtymologyComponent from './filters/etymology'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 
-import { GetTaxonNames } from '../request/resources.js'
+import { TaxonName } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -135,7 +135,7 @@ export default {
     searchForTaxonNames (params) {
       this.searching = true
 
-      GetTaxonNames(params).then(response => {
+      TaxonName.where(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.request.responseURL)
@@ -217,7 +217,7 @@ export default {
 }
 </script>
 <style scoped>
->>> .btn-delete {
+::v-deep .btn-delete {
     background-color: #5D9ECE;
   }
 </style>

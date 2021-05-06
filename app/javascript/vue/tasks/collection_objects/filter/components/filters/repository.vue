@@ -83,7 +83,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

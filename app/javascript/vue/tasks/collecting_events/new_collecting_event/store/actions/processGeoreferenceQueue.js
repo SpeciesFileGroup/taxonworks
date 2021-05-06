@@ -1,16 +1,19 @@
-import { CreateGeoreference, UpdateGeoreference } from '../../request/resources'
+import { Georeference } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default async ({ state, commit }) => {
+export default async ({ state: { collectingEvent, queueGeoreferences }, commit }) => {
   const promises = []
 
-  state.queueGeoreferences.forEach(georeference => {
-    const saveGeoreference = georeference.id ? UpdateGeoreference : CreateGeoreference
-
-    georeference.collecting_event_id = state.collectingEvent.id
-    promises.push(saveGeoreference(georeference).then(response => {
-      commit(MutationNames.AddGeoreference, response.body)
-    }))
+  queueGeoreferences.forEach(georeference => {
+    georeference.collecting_event_id = collectingEvent.id
+    promises.push(
+      (georeference.id
+        ? Georeference.update(georeference.id, { georeference: georeference })
+        : Georeference.create({ georeference: georeference })
+      ).then(response => {
+        commit(MutationNames.AddGeoreference, response.body)
+      })
+    )
   })
 
   Promise.all(promises).then(() => {
