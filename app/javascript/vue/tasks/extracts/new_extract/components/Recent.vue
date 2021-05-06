@@ -1,6 +1,6 @@
 <template>
-  <div class="panel content">
-    <h2>Recent</h2>
+  <div class="">
+    <h3>Recent</h3>
     <table-list
       :header="['Extract', 'Updated at', '']"
       :attributes="['object_tag', 'updated_at']"
