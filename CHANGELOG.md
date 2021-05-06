@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - jsconfig.json for Visual Studio Code
 - Image matrix viewer in Image matrix
 - Image matrix button in observation dashboard task
+- Image matrix link in Interactive keys task
 
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
