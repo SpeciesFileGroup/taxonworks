@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <h2>Made</h2>
-    <div class="horizontal-left-content align-end">
+  <block-layout>
+    <h3 slot="header">Made</h3>
+    <div
+      slot="body"
+      class="horizontal-left-content align-end">
       <div class="label-above margin-small-right">
         <label>Day</label>
         <input
@@ -41,18 +43,21 @@
           class="margin-small-left"/>
       </div>
     </div>
-  </div>
+  </block-layout>
 </template>
 
 <script>
 
 import LockComponent from 'components/lock'
 import componentExtend from './mixins/componentExtend'
+import BlockLayout from 'components/blockLayout.vue'
 
 export default {
   mixins: [componentExtend],
+
   components: {
-    LockComponent
+    LockComponent,
+    BlockLayout
   },
 
   methods: {
@@ -62,9 +67,11 @@ export default {
       this.extract.month_made = today.getMonth() + 1
       this.extract.year_made = today.getFullYear()
     },
+
     setYear () {
-      const today = new Date()
-      this.extract.year_made = today.getFullYear()
+      this.extract.day_made = undefined
+      this.extract.month_made = undefined
+      this.extract.year_made = (new Date()).getFullYear()
     }
   }
 }

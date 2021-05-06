@@ -65,7 +65,7 @@ export default {
     }
   },
   methods: {
-    newDataAttribute() {
+    newDataAttribute () {
       return {
         type: 'InternalAttribute',
         controlled_vocabulary_term_id: this.predicateObject.id,

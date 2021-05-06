@@ -19,7 +19,7 @@
       </template>
       <a
         v-else
-        href="/controlled_vocabulary_terms/new">Create a term (Predicate) 
+        href="/controlled_vocabulary_terms/new">Create a term (Predicate)
       </a>
     </fieldset>
   </div>
@@ -57,10 +57,10 @@ export default {
     return {
       loading: true,
       createdList: [],
-      predicatesList: [],
       list: [],
       data_attributes: [],
-      modelPreferencesIds: undefined
+      modelPreferencesIds: undefined,
+      predicatesList: []
     }
   },
   watch: {
@@ -76,7 +76,7 @@ export default {
       }
     }
   },
-  mounted () {
+  created () {
     this.loadPreferences()
   },
   methods: {
@@ -96,6 +96,8 @@ export default {
         promises.push(GetPredicates(ids).then(response => {
           this.predicatesList = response.body
         }))
+      } else {
+        this.predicatesList = []
       }
 
       if (this.objectId) {

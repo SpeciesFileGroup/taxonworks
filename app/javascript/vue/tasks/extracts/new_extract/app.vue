@@ -21,7 +21,7 @@
           @end="updatePreferences"
           :disabled="!settings.sortable">
           <component
-            class="panel content margin-medium-bottom"
+            class="margin-medium-bottom"
             v-for="componentName in componentsOrder"
             :key="componentName"
             :is="componentName"/>

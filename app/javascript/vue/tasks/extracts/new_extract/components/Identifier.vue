@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <h2>Identifier</h2>
-    <div class="full_width">
+  <block-layout>
+    <h3 slot="header">Identifier</h3>
+    <div
+      slot="body"
+      class="full_width">
       <template v-if="typeListSelected">
         <div class="horizontal-left-content middle">
           <span class="capitalize">{{ typeListSelected }}</span>
@@ -68,7 +70,7 @@
       label="object_tag"
       @deleteIndex="removeIdentifier"
     />
-  </div>
+  </block-layout>
 </template>
 
 <script>
@@ -84,6 +86,7 @@ import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from 'components/displayList'
 import LockComponent from 'components/lock'
+import BlockLayout from 'components/blockLayout.vue'
 
 export default {
   mixins: [componentExtend],
@@ -94,7 +97,8 @@ export default {
     NamespaceComponent,
     IdentifierComponent,
     LockComponent,
-    TippyComponent
+    TippyComponent,
+    BlockLayout
   },
 
   data () {

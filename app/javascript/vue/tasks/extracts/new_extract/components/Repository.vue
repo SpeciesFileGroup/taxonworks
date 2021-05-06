@@ -1,7 +1,11 @@
 <template>
-  <div>
-    <h2>Repository</h2>
-    <fieldset class="fieldset">
+  <block-layout>
+    <div slot="header">
+      <h3>Repository</h3>
+    </div>
+    <fieldset
+      slot="body"
+      class="fieldset">
       <legend>Repository</legend>
       <div class="margin-small-bottom horizontal-left-content align-start">
         <smart-selector
@@ -27,7 +31,7 @@
         </div>
       </template>
     </fieldset>
-  </div>
+  </block-layout>
 </template>
 
 <script>
@@ -38,13 +42,15 @@ import LockComponent from 'components/lock'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Repository } from 'routes/endpoints'
+import BlockLayout from 'components/blockLayout.vue'
 
 export default {
   mixins: [componentExtend],
 
   components: {
     LockComponent,
-    SmartSelector
+    SmartSelector,
+    BlockLayout
   },
 
   props: {

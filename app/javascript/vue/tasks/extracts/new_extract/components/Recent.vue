@@ -1,8 +1,9 @@
 <template>
-  <div>
+  <div class="panel content">
+    <h2>Recent</h2>
     <table-list
-      :header="['Extract', '']"
-      :attributes="['object_tag']"
+      :header="['Extract', 'Updated at', '']"
+      :attributes="['object_tag', 'updated_at']"
       :list="list"
       edit
       @edit="$emit('onLoad', $event)"

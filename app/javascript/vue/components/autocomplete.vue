@@ -97,13 +97,13 @@ export default {
       this.type = newVal
     },
     type (newVal) {
-      if (this.type.length < Number(this.min)) {
+      if (this.type?.length < Number(this.min)) {
         this.json = []
       }
       this.$emit('input', newVal)
     },
     sendLabel (val) {
-      this.type = (val ? val : '')
+      this.type = val || ''
     }
   },
 

@@ -1,11 +1,16 @@
 <template>
-  <div>
-    <h2>Protocols</h2>
-    <div class="horizontal-left-content align-start">
+  <block-layout>
+    <h3 slot="header">Protocols</h3>
+    <div slot="options">
+      <a href="/protocols/new">Create new</a>
+    </div>
+    <div
+      slot="body"
+      class="horizontal-left-content align-start">
       <smart-selector
         class="full_width"
         model="protocols"
-        klass="extract"
+        klass="Extract"
         @selected="addProtocol"/>
       <lock-component
         class="margin-small-left"
@@ -15,7 +20,7 @@
       :list="protocols"
       @deleteIndex="removeProtocol"
       label="object_tag"/>
-  </div>
+  </block-layout>
 </template>
 
 <script>
@@ -27,6 +32,7 @@ import DisplayList from 'components/displayList'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ProtocolRelationship } from 'routes/endpoints'
+import BlockLayout from 'components/blockLayout.vue'
 
 export default {
   mixins: [componentExtend],
@@ -34,7 +40,8 @@ export default {
   components: {
     LockComponent,
     SmartSelector,
-    DisplayList
+    DisplayList,
+    BlockLayout
   },
 
   computed: {
