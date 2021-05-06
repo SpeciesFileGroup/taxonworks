@@ -21,6 +21,8 @@ import { Georeference } from './Georeference'
 import { Identifier } from './Identifier'
 import { Image } from './Image'
 import { Label } from './Label'
+import { Loan } from './Loan'
+import { LoanItem } from './LoanItem'
 import { Namespace } from './Namespace'
 import { Observation } from './Observation'
 import { ObservationMatrix } from './ObservationMatrix'
@@ -71,6 +73,8 @@ export {
   Identifier,
   Image,
   Label,
+  Loan,
+  LoanItem,
   Namespace,
   Observation,
   ObservationMatrix,
