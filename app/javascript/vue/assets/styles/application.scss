@@ -1,4 +1,5 @@
-$font-prefix: '../../../node_modules/@ibm/plex';
+$font-prefix: '../../../../../node_modules/@ibm/plex';
+@import './variables/palette.scss';
 @import 'node_modules/@ibm/plex/scss/ibm-plex.scss';
 @import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 @import './filter.scss';
