@@ -92,8 +92,6 @@
 
 import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
-import orderSmartSelector from 'helpers/smartSelector/orderSmartSelector.js'
-import selectFirstSmartOption from 'helpers/smartSelector/selectFirstSmartOption'
 import SmartSelector from 'components/smartSelector'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
