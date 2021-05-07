@@ -480,6 +480,7 @@ namespace :tw do
 
 
           cites_id_done = {}
+          nomenclator_is_synonym_lut = {}
           missing_cites = []
 
           file_ids = Set[]
@@ -615,6 +616,18 @@ namespace :tw do
                       nomenclator: [row['NewNameStatusID'], nomenclator_components, nomenclator_stem]
                     }
                   ) if nomenclator_is_synonym
+                end
+
+                nomenclator_is_synonym_lut[ [row["TaxonNameID"], row["NomenclatorID"]] ] = row["SeqNum"] if nomenclator_is_synonym
+
+                if !nomenclator_is_synonym && synonym_taxa[row['TaxonNameID']]
+                  if nomenclator_is_synonym_lut[ [row["TaxonNameID"], row["NomenclatorID"]] ].to_i < row["SeqNum"].to_i
+                    nomenclator_is_synonym = true
+
+                    logger.warn(
+                      "FORWARDED_VIRTUAL_NOTE[rank_pass='#{rank_pass}']: FileID=#{row['FileID']}, TaxonNameID=#{row['TaxonNameID']}, SeqNum=#{row['SeqNum']}"
+                    )
+                  end
                 end
 
                 # if nomenclator_id != '0' && get_nomenclator_metadata[nomenclator_id]
