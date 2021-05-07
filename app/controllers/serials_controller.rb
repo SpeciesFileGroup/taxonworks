@@ -78,8 +78,8 @@ class SerialsController < ApplicationController
         format.html { redirect_to serials_url }
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; '))}
-        format.json {render json: @serial.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @serial, notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; ') }
+        format.json { render json: @serial.errors, status: :unprocessable_entity }
       end
     end
   end

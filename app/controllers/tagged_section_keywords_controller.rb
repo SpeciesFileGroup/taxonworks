@@ -38,8 +38,8 @@ class TaggedSectionKeywordsController < ApplicationController
   def destroy
     @tagged_section_keyword.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tagged section keyword was successfully destroyed.')}
-      format.json {head :no_content}
+      format.html { destroy_redirect @tagged_section_keyword, notice: 'Tagged section keyword was successfully destroyed.' }
+      format.json { head :no_content }
     end
   end
 

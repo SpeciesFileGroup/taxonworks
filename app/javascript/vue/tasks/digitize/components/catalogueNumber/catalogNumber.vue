@@ -94,11 +94,10 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
-
-import { CheckForExistingIdentifier } from '../../request/resources.js'
+import { Identifier } from 'routes/endpoints'
+import SmartSelector from 'components/smartSelector.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'
@@ -180,15 +179,17 @@ export default {
       this.identifier = incrementIdentifier(this.identifier)
     },
     checkIdentifier () {
-      const that = this
-
       if (this.saveRequest) {
         clearTimeout(this.saveRequest)
       }
       if (this.identifier) {
         this.saveRequest = setTimeout(() => {
-          CheckForExistingIdentifier(that.namespace, that.identifier).then(response => {
-            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
+          Identifier.where({
+            type: 'Identifier::Local::CatalogNumber',
+            namespace_id: this.namespace,
+            identifier: this.identifier
+          }).then(response => {
+            this.existingIdentifier = (response.body.length > 0 ? response.body[0] : undefined)
           })
         }, this.delay)
       }

@@ -10,7 +10,8 @@ const permitParams = {
     set_new_api_access_token: String,
     is_project_administrator: Boolean,
     is_flagged_for_password_reset: Boolean,
-    is_administrator: Boolean
+    is_administrator: Boolean,
+    layout: Object
   }
 }
 

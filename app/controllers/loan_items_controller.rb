@@ -69,7 +69,7 @@ class LoanItemsController < ApplicationController
   def destroy
     @loan_item.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was successfully destroyed.')}
+      format.html { destroy_redirect @loan_item, notice: 'Loan item was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

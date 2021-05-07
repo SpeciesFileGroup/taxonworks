@@ -127,6 +127,7 @@ export default {
       } else {
         this.openMatrixRowCoder()
       }
+      this.show = false
     },
     openModal () {
       this.loading = true

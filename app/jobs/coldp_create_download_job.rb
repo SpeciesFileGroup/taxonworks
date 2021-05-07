@@ -9,9 +9,9 @@ class ColdpCreateDownloadJob < ApplicationJob
     2
   end
 
-  def perform(otu, download)
+  def perform(otu, download, prefer_unlabelled_otus: false)
     begin
-      download.source_file_path = ::Export::Coldp.export(otu.id)
+      download.source_file_path = ::Export::Coldp.export(otu.id, prefer_unlabelled_otus: prefer_unlabelled_otus)
       download.save
     rescue => ex
       ExceptionNotifier.notify_exception(ex,

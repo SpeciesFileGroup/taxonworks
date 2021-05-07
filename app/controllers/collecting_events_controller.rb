@@ -81,11 +81,11 @@ class CollectingEventsController < ApplicationController
     @collecting_event.destroy
     respond_to do |format|
       if @collecting_event.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; '))}
-        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; ') }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
       end
     end
   end
