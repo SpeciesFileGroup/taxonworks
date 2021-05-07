@@ -27,6 +27,10 @@ module TaxonNamesHelper
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
+    taxon_name_label(taxon_name)
+  end
+
+  def taxon_name_label(taxon_name)
     return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
