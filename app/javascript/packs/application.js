@@ -10,7 +10,7 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Styles
-require('../style/application.scss')
+require('../vue/assets/styles/application.scss')
 require('leaflet/dist/leaflet.css')
 
 require('../vue/config.js')

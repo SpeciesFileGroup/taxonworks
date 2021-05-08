@@ -64,13 +64,7 @@ import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
-
-import {
-  GetObservationMatrices,
-  GetObservationRow,
-  CreateObservationMatrixRow,
-  GetObservationMatrix
-} from 'tasks/observation_matrices/dashboard/request/resources'
+import { ObservationMatrix, ObservationMatrixRow, ObservationMatrixRowItem } from 'routes/endpoints'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -81,11 +75,11 @@ export default {
   computed: {
     alreadyInMatrices () {
       return this.matrices.filter(item => {
-        return this.rows.find(row => { return item.id === row.observation_matrix_id })
+        return this.rows.find(row => item.id === row.observation_matrix_id)
       })
     },
     alreadyInCurrentMatrix () {
-      return this.rows.filter(row => { return this.selectedMatrix.id === row.observation_matrix_id })
+      return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
     }
   },
   data () {
@@ -118,7 +112,7 @@ export default {
   mounted () {
     this.loading = true
     this.show = true
-    GetObservationMatrices().then(response => {
+    ObservationMatrix.all().then(response => {
       this.matrices = response.body.sort((a, b) => {
         const compareA = a.object_tag
         const compareB = b.object_tag
@@ -132,7 +126,7 @@ export default {
       })
       this.loading = false
     })
-    GetObservationRow({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
+    ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
       this.rows = response.body
     })
   },
@@ -161,8 +155,8 @@ export default {
               [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id,
               type: this.types[this.metadata.object_type].type
             }
-            CreateObservationMatrixRow(data).then(response => {
-              GetObservationRow({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
+            ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(response => {
+              ObservationMatrixRow.where({ [this.types[this.metadata.object_type].propertyName]: this.metadata.object_id }).then(response => {
                 this.rows = response.body
                 resolve(response)
               })
@@ -172,7 +166,7 @@ export default {
       })
     },
     setMatrix (id) {
-      GetObservationMatrix(id).then(response => {
+      ObservationMatrix.find(id).then(response => {
         this.selectedMatrix = response.body
         this.loadMatrix(this.selectedMatrix)
       })

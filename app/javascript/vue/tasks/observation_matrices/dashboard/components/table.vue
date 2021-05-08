@@ -19,7 +19,10 @@
           Unselect all
         </button>
         <add-to-matrix
+          class="margin-small-right"
           :selected-ids="selectedIds"/>
+        <button-image-matrix
+          :otuIds="selectedIds"/>
       </div>
       <ul class="no_bullets context-menu">
         <li>
@@ -99,13 +102,15 @@
 import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from 'components/spinner'
-import addToMatrix from './addToMatrix'
+import AddToMatrix from './addToMatrix'
+import ButtonImageMatrix from './buttonImageMatrix.vue'
 
 export default {
   components: {
     ModalList,
     SpinnerComponent,
-    addToMatrix
+    AddToMatrix,
+    ButtonImageMatrix
   },
   props: {
     tableList: {

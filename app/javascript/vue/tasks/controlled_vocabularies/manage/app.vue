@@ -88,8 +88,7 @@
 
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import { CONTROLLED_VOCABULARY_TERM } from './constants/controlled_vocabulary_term'
-
-import { CreateControlledVocabularyTerm, UpdateControlledVocabularyTerm, GetControlledVocabularyTerm } from './request/resources'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 import SwitchComponent from 'components/switch.vue'
 import ListComponent from './components/List.vue'
@@ -142,7 +141,7 @@ export default {
     const ctvId = urlParams.get('controlled_vocabulary_term_id')
 
     if (/^\d+$/.test(ctvId)) {
-      GetControlledVocabularyTerm(ctvId).then(response => {
+      ControlledVocabularyTerm.find(ctvId).then(response => {
         this.view = response.body.type
         this.setCTV(response.body)
       })
@@ -151,10 +150,14 @@ export default {
 
   methods: {
     createCTV (e) {
-      this.isSaving = true
-      const saveFn = this.controlled_vocabulary_term.id ? UpdateControlledVocabularyTerm : CreateControlledVocabularyTerm
+      const controlled_vocabulary_term = this.controlled_vocabulary_term
+      const savePromise = this.controlled_vocabulary_term.id
+        ? ControlledVocabularyTerm.update(controlled_vocabulary_term.id, { controlled_vocabulary_term })
+        : ControlledVocabularyTerm.create({ controlled_vocabulary_term })
 
-      saveFn(this.controlled_vocabulary_term).then(({ body }) => {
+      this.isSaving = true
+
+      savePromise.then(({ body }) => {
         TW.workbench.alert.create(`${body.type} was successfully ${this.controlled_vocabulary_term.id ? 'updated' : 'created'}.`, 'notice')
         this.$refs.list.addCTV(body)
         this.newCTV()

@@ -57,7 +57,7 @@ import Modal from 'components/modal.vue'
 import childOfParent from '../helpers/childOfParent'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetPredictedRank } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -98,13 +98,6 @@ export default {
     }
   },
   watch: {
-    ranks: {
-      handler: function (val, oldVal) {
-        //this.refresh()
-      },
-      deep: true,
-      immediate: true
-    },
     parent: {
       handler: function (newVal, oldVal) {
         if (oldVal) {
@@ -113,11 +106,9 @@ export default {
           }
         }
         if (newVal && !this.taxon.id) {
-          GetPredictedRank(newVal.id, this.taxon.name).then(response => {
+          TaxonName.predictedRank(newVal.id, this.taxon.name).then(response => {
             if (response.body.predicted_rank.length) {
               this.rankClass = response.body.predicted_rank
-            } else {
-              //this.refresh()
             }
           })
         }
@@ -132,7 +123,7 @@ export default {
 
           const that = this
           this.timer = setTimeout(() => {
-            GetPredictedRank(that.parent.id, that.taxon.name).then(response => {
+            TaxonName.predictedRank(that.parent.id, that.taxon.name).then(response => {
               if (response.body.predicted_rank.length) {
                 that.rankClass = response.body.predicted_rank
               }

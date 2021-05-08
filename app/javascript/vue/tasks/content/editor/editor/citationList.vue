@@ -18,8 +18,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetContentCitations, DeleteCitation } from '../request/resources'
-import AjaxCall from 'helpers/ajaxCall'
+import { Content, Citation } from 'routes/endpoints'
 
 export default {
   computed: {
@@ -46,12 +45,12 @@ export default {
   },
   methods: {
     removeItem (index, item) {
-      DeleteCitation(item.id).then(() => {
+      Citation.destroy(item.id).then(() => {
         this.$store.commit(MutationNames.RemoveCitation, index)
       })
     },
     loadContent () {
-      GetContentCitations(this.content.id).then(response => {
+      Content.citations(this.content.id).then(response => {
         this.$store.commit(MutationNames.SetCitationList, response.body)
       })
     }

@@ -54,27 +54,29 @@
 </template>
 <script>
 
-import { GetPeople } from '../request/resources'
+import { People } from 'routes/endpoints'
 import Autocomplete from 'components/autocomplete'
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   props: {
     value: {
       type: Array,
       required: true
     },
+
     selectedPerson: {
       type: Object,
       default: undefined
     },
+
     matchPeople: {
       type: Array,
       required: true
     }
   },
+
   computed: {
     selectedMergePerson: {
       get () {
@@ -84,6 +86,7 @@ export default {
         this.$emit('input', value)
       }
     },
+
     selectAll: {
       get () {
         return this.matchList.length && this.selectedMergePerson.length === this.matchList.length
@@ -92,23 +95,27 @@ export default {
         this.selectedMergePerson = value ? this.matchList : []
       }
     },
+
     matchList () {
       return this.matchPeople.filter(person => this.selectedPerson.id !== person.id)
     }
   },
+
   methods: {
     addToList (person) {
       person.cached = person.label
-      GetPeople(person.id).then(response => {
+      People.find(person.id).then(response => {
         if (!this.selectedMergePerson.find(p => p.id === response.body.id)) {
           this.selectedMergePerson.push(response.body)
           this.$emit('addToList', response.body)
         }
       })
     },
+
     getRoles (person) {
       return person.roles ? [...new Set(person.roles.map(r => r.role_object_type))].join(', ') : ''
     },
+
     yearValue (value) {
       return value || '?'
     }

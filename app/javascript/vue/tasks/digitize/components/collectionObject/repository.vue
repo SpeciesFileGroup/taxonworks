@@ -37,7 +37,7 @@
 import SmartSelector from 'components/smartSelector'
 import LockComponent from 'components/lock'
 
-import { GetRepository } from '../../request/resources.js'
+import { Repository } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
@@ -72,7 +72,7 @@ export default {
   watch: {
     repository(newVal, oldVal) {
       if (newVal) {
-        GetRepository(newVal).then(response => {
+        Repository.find(newVal).then(response => {
           this.setRepository(response.body)
         })
       }

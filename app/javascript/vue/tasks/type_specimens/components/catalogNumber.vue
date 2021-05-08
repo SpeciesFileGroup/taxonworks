@@ -48,7 +48,7 @@
 <script>
 
 import SmartSelector from 'components/smartSelector.vue'
-import { CheckForExistingIdentifier, GetNamespace } from '../request/resources.js'
+import { Identifier, Namespace } from 'routes/endpoints'
 
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -97,7 +97,7 @@ export default {
       handler (newVal, oldVal) {
         if (newVal.namespace_id) {
           if (newVal.namespace_id !== oldVal.namespace_id) {
-            GetNamespace(newVal.namespace_id).then(response => {
+            Namespace.find(newVal.namespace_id).then(response => {
               this.namespace = response.body
             })
           }
@@ -110,15 +110,17 @@ export default {
   },
   methods: {
     checkIdentifier () {
-      const that = this
-
       if (this.saveRequest) {
         clearTimeout(this.saveRequest)
       }
       if (this.isIdentifierDataSet) {
         this.saveRequest = setTimeout(() => {
-          CheckForExistingIdentifier(that.namespace.id, that.identifier.identifier).then(response => {
-            that.existingIdentifier = (response.body.length > 0 ? response.body[0] : false)
+          Identifier.where({
+            type: 'Identifier::Local::CatalogNumber',
+            namespace_id: this.namespace.id,
+            identifier: this.identifier.identifier
+          }).then(response => {
+            this.existingIdentifier = (response.body.length > 0 ? response.body[0] : false)
           })
         }, this.delay)
       }

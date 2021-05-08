@@ -1,11 +1,11 @@
-import { loadTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 import filterObject from '../../helpers/filterObject'
 
 export default function ({ commit, dispatch }, id) {
   return new Promise(function (resolve, reject) {
-    loadTaxonName(id).then(response => {
+    TaxonName.find(id).then(response => {
       if (response.body.hasOwnProperty('parent')) {
         commit(MutationNames.SetNomenclaturalCode, response.body.nomenclatural_code)
         commit(MutationNames.SetTaxon, filterObject(response.body))

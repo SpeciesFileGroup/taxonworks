@@ -71,9 +71,6 @@ export default {
     validateSqedObject () {
       return validateSqed(this.getSqed)
     },
-    createNewCO () {
-      return this.$store.getters[GetterNames.GetNewCOForSqed]
-    },
     getYear () {
       return this.$store.getters[GetterNames.GetYearCopyright]
     },
@@ -119,7 +116,7 @@ export default {
       return this.pixels ? `A scale of ${this.pixels} pixels per centimeter will be added` : 'The scale of pixels per centimeter will be displayed here when defined.'
     },
     showPeopleAndLicense () {
-      if (this.imagesBy.length || this.license.length || this.source !== undefined) {
+      if (this.imagesBy.length || this.license.length || this.source) {
         return `${this.imagesBy}${this.imagesBy.length > 0 ? ' ' : ''}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : ''}${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
       }
       return 'The attribution summary will be displayed here when defined.'
@@ -127,9 +124,7 @@ export default {
     objectsForDepictions () {
       if (!this.validateDepic) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
 
-      const tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
-        return item.label
-      })
+      const tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => item.label)
       return tmp.length ? `Depicts some: ${tmp.join(', ')}` : 'A depiction summary will be displayed here when defined.'
     }
   },

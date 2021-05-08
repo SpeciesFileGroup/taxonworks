@@ -30,8 +30,7 @@
 import ModalComponent from 'components/modal.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import SpinnerComponent from 'components/spinner'
-
-import { CreateRow } from '../request/resources'
+import { ObservationMatrixRowItem } from 'routes/endpoints'
 
 export default {
   components: {
@@ -39,13 +38,15 @@ export default {
     OtuPicker,
     SpinnerComponent
   },
+
   props: {
     matrixId: {
       type: [Number, String],
       required: true
     }
   },
-  data() {
+
+  data () {
     return {
       types: [
         {
@@ -64,19 +65,19 @@ export default {
       saving: false
     }
   },
+
   methods: {
-    createRow(object) {
-      let data = {
+    createRow (object) {
+      const observation_matrix_row_item = {
         observation_matrix_id: this.matrixId,
         type: this.type.type,
         [this.type.label === 'Otu' ? 'otu_id' : 'collection_object_id']: object.id
       }
       this.saving = true
-      CreateRow(data).then(response => {
+      ObservationMatrixRowItem.create({ observation_matrix_row_item }).then(response => {
         TW.workbench.alert.create('Row item was successfully created.', 'notice')
         this.$emit('create', response.body)
-        this.saving = false
-      }, () => {
+      }).finally(() => {
         this.saving = false
       })
     }

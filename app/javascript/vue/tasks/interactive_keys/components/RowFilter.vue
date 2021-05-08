@@ -16,6 +16,22 @@
       }">
       <h3 slot="header">Row filter</h3>
       <div slot="body">
+        <div class="margin-small-bottom">
+          <button
+            type="button"
+            class="button normal-input button-default"
+            @click="closeAndApply">
+            Apply filter
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            @click="openImageMatrix">
+            Open image matrix
+          </button>
+          <link-image-matrix
+            :otu-ids="this.rowFilter"/>
+        </div>
         <button
           v-if="allSelected"
           type="button"
@@ -58,6 +74,8 @@
           @click="openImageMatrix">
           Open image matrix
         </button>
+        <link-image-matrix
+          :otu-ids="this.rowFilter"/>
       </div>
     </modal-component>
   </div>
@@ -68,6 +86,7 @@
 import ModalComponent from 'components/modal'
 import ExtendResult from './extendResult'
 import RanksList from '../const/ranks'
+import LinkImageMatrix from 'tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
@@ -76,7 +95,8 @@ import { RouteNames } from 'routes/routes'
 export default {
   mixins: [ExtendResult],
   components: {
-    ModalComponent
+    ModalComponent,
+    LinkImageMatrix
   },
   computed: {
     remaining () {

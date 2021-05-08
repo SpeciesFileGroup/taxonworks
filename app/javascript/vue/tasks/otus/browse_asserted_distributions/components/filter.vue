@@ -12,7 +12,7 @@
       :full-screen="true"
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching" 
+      v-if="searching"
     />
     <div class="content">
       <otu-component v-model="params.base.otu_id"/>
@@ -26,7 +26,7 @@
 import OtuComponent from './filters/otu'
 import NavBarComponent from './navBar'
 
-import { GetOtuAssertedDistribution } from '../request/resources.js'
+import { AssertedDistribution } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 
@@ -59,38 +59,38 @@ export default {
     }
   },
   methods: {
-    resetFilter() {
+    resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    search() {
-      this.searching = true
-      let params = Object.assign({}, this.params.base)
+    search () {
+      const params = Object.assign({}, this.params.base)
 
-      GetOtuAssertedDistribution(params).then(response => {
+      this.searching = true
+      AssertedDistribution.where(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.request.responseURL)
-        this.searching = false
-        if(this.result.length == 500) {
+        if (this.result.length === 500) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-      }, () => { 
+      }).finally(() => {
         this.searching = false
       })
     },
-    initParams() {
+    initParams () {
       return {
         base: {
           otu_id: undefined,
-          geo_json: true,
+          geo_json: true
         }
       }
     },
-    filterEmptyParams(object) {
-      let keys = Object.keys(object)
+    filterEmptyParams (object) {
+      const keys = Object.keys(object)
+
       keys.forEach(key => {
-        if(object[key] === '') {
+        if (object[key] === '') {
           delete object[key]
         }
       })
@@ -100,7 +100,7 @@ export default {
 }
 </script>
 <style scoped>
->>> .btn-delete {
+::v-deep .btn-delete {
     background-color: #5D9ECE;
   }
 </style>

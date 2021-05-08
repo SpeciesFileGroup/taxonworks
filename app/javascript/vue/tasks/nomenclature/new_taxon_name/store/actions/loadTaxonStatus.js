@@ -1,9 +1,9 @@
-import { loadTaxonStatus } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default function ({ commit, dispatch }, id) {
   return new Promise(function (resolve, reject) {
-    loadTaxonStatus(id).then(response => {
+    TaxonName.classifications(id).then(response => {
       commit(MutationNames.SetTaxonStatusList, response.body)
       dispatch('loadSoftValidation', 'taxonStatusList')
     })
