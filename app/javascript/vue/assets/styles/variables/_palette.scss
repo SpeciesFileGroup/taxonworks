@@ -1,9 +1,17 @@
 $tw-colors: (
   'background': #f7f8fc,
+  'black': #444444,
   'create': #9ccc65,
   'data': #006ebf,
   'primary': #5D9ECE,
   'remove': #F44336,
   'secondary': #5a1321,
-  'warning': #ff8c00
+  'warning': #ff8c00,
+  'white': #FFFFFF
 );
+
+:export {
+  @each $key, $value in $tw-colors {
+    #{unquote($key)}: $value;
+  }
+}

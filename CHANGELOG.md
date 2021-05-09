@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- citation experiment `/api/v1/cite/count_valid_species?taxon_name=Pteromalus` [#2230]
 - jsconfig.json for Visual Studio Code
 - Image matrix viewer in Image matrix
 - Image matrix button in observation dashboard task
@@ -20,7 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
 
-
+[#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 [#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
 
