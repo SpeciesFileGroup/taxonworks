@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Warning message on nuke action in Grid digitize task [#2229]
 - Upgraded from Ruby version 2.7.2 to 2.7.3
 - Upgraded to Node 14 LTS
+- Updated Ruby gems and Node packages
 
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
