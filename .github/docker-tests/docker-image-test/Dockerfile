@@ -1,4 +1,4 @@
-FROM ruby:2.7.2
+FROM ruby:2.7.3
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \
