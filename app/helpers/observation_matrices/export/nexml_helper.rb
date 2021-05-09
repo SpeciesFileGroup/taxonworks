@@ -21,9 +21,7 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}") do 
-                  xml.bar(id: '')
-                end
+                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}")
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -226,8 +224,8 @@ module ObservationMatrices::Export::NexmlHelper
             xml.meta(
               'xsi:type' => 'ResourceMeta', 
               'rel' => 'foaf:depiction',
-              'about' => "cs_#{d.depiction_object.descriptor_id}_#{d.depiction_object_id}",
-              'href' => "http://example.org/my/image.jpg"
+              'about' => "cs#{d.depiction_object_id}",
+              'href' => root_url + d.image.image_file.url(:large)[1..-1]
             ) 
           end
         end
