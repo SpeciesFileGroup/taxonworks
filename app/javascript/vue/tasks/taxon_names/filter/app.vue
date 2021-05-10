@@ -55,28 +55,14 @@
         <div
           class="flex-separate margin-medium-bottom"
           :class="{ 'separate-left': activeFilter }">
-          <pagination-component
-            v-if="pagination && list.length"
-            @nextPage="loadPage"
-            :pagination="pagination"/>
-          <div
-            v-if="list.length"
-            class="horizontal-left-content">
-            <span
-              class="horizontal-left-content">{{ list.length }} records.
-            </span>
-            <div class="margin-small-left">
-              <select v-model="per">
-                <option
-                  v-for="records in maxRecords"
-                  :key="records"
-                  :value="records">
-                  {{ records }}
-                </option>
-              </select>
-              records per page.
-            </div>
-          </div>
+          <template v-if="pagination && list.length">
+            <pagination-component
+              @nextPage="loadPage"
+              :pagination="pagination"/>
+            <pagination-count
+              :pagination="pagination"
+              v-model="per"/>
+          </template>
         </div>
         <list-component
           :class="{ 'separate-left': activeFilter }"
@@ -97,6 +83,7 @@ import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
 import CsvComponent from './components/convertCsv'
 import PaginationComponent from 'components/pagination'
+import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
 
 export default {
@@ -104,7 +91,8 @@ export default {
     FilterComponent,
     ListComponent,
     CsvComponent,
-    PaginationComponent
+    PaginationComponent,
+    PaginationCount
   },
   data () {
     return {

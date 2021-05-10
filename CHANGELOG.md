@@ -15,7 +15,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix viewer in Image matrix
 - Image matrix button in observation dashboard task
 - Image matrix link in Interactive keys task
-- export scss vars to javascript
+- Export scss vars to javascript
+- Pagination count in Filter nomenclature
 
 ### Changed
 - Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
