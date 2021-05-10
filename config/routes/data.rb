@@ -242,8 +242,9 @@ resources :extracts do
   collection do
     get :select_options, defaults: {format: :json}
   end
+
+  resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
-resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 
 resources :geographic_areas, only: [:index, :show] do
 
