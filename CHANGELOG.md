@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+-  New extract task interface [#1934]
 - citation experiment `/api/v1/cite/count_valid_species?taxon_name=Pteromalus` [#2230]
 - jsconfig.json for Visual Studio Code
 - Image matrix viewer in Image matrix
@@ -15,6 +16,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix link in Interactive keys task
 
 ### Changed
+- Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
+- Removed quantification fields from Extract
 - Warning message on nuke action in Grid digitize task [#2229]
 - Upgraded from Ruby version 2.7.2 to 2.7.3
 - Upgraded to Node 14 LTS
@@ -24,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
 
+[#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 [#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
