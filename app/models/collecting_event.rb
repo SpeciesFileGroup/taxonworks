@@ -292,7 +292,7 @@ class CollectingEvent < ApplicationRecord
             unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
   soft_validate(:sv_georeference_matches_verbatim, set: :georeference)

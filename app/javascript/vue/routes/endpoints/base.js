@@ -50,5 +50,9 @@ export const annotations = (model) => ({
 
   depictions: (id) => AjaxCall('get', `/${model}/${id}/depictions.json`),
 
-  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation.json`)
+  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation.json`),
+
+  identifiers: (id) => AjaxCall('get', `/${model}/${id}/identifiers.json`),
+
+  protocolRelationships: (id) => AjaxCall('get', `/${model}/${id}/protocol_relationships.json`)
 })

@@ -530,6 +530,7 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
+  # TODO: move to filter
   # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
   # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'

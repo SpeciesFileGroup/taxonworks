@@ -32,12 +32,8 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
 
   let(:invalid_attributes) {
     {
-      quantity_value: nil,
-      quantity_unit: nil,
-      concentration_value: nil,
-      concentration_unit: nil,
       verbatim_anatomical_origin: nil,
-      year_made: nil,
+      year_made: -10,
       month_made: nil,
       day_made: nil
     }
@@ -116,7 +112,7 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
     context 'with valid params' do
       let(:new_attributes) {
         attributes = valid_attributes
-        attributes['quantity_value'] = 1000
+        attributes['year_made'] = 2020
         attributes
       }
 
@@ -127,7 +123,7 @@ RSpec.describe ExtractsController, type: :controller, group: :extract do
         # expect_any_instance_of(Extract).to receive(:update).with(update_params)
         put :update, params: {id: extract.to_param, extract: new_attributes}, session: valid_session
         extract.reload
-        expect(extract.quantity_value == new_attributes['quantity_value']).to be true
+        expect(extract.year_made == new_attributes['year_made']).to be true
       end
 
       it 'assigns the requested extract as @extract' do
