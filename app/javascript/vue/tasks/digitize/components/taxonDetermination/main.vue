@@ -154,7 +154,7 @@ import { RouteNames } from 'routes/routes'
 
 import SmartSelector from 'components/smartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import LockComponent from 'components/lock'
 import Draggable from 'vuedraggable'

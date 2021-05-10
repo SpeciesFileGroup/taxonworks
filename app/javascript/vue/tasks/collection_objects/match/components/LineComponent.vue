@@ -66,7 +66,7 @@
 
 import ModalComponent from 'components/modal'
 import CompareComponent from './CompareComponent'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 
 export default {
   components: {

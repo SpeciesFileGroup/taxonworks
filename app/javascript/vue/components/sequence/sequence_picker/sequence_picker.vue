@@ -65,7 +65,7 @@
 </template>
 <script>
 
-import Autocomplete from '../../autocomplete.vue'
+import Autocomplete from '../../ui/autocomplete.vue'
 import ModalComponent from 'components/modal.vue'
 import AjaxCall from 'helpers/ajaxCall'
 

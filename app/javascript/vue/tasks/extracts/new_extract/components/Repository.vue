@@ -42,7 +42,7 @@ import LockComponent from 'components/lock'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Repository } from 'routes/endpoints'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],

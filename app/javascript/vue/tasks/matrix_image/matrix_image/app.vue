@@ -101,7 +101,7 @@ import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import PaginationComponent from 'components/pagination.vue'
 
 import { GetterNames } from './store/getters/getters'

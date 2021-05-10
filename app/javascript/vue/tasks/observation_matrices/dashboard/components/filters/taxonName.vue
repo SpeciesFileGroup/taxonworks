@@ -28,7 +28,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 

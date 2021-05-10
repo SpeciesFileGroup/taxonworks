@@ -59,7 +59,7 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { TaxonNameClassification } from 'routes/endpoints'

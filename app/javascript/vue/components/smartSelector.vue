@@ -95,7 +95,7 @@
 
 import SwitchComponents from 'components/switch'
 import AjaxCall from 'helpers/ajaxCall'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
 import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from 'components/getDefaultPin'

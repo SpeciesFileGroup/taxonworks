@@ -76,7 +76,7 @@
   </div>
 </template>
 <script>
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import ModeSwitch from './mode_switch'
 import Spinner from 'components/spinner'
 import lMap from './leafletMap.vue'

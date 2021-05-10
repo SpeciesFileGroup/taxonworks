@@ -80,7 +80,7 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import ListComponent from '../relationshipsList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { TaxonName, TaxonNameRelationship } from 'routes/endpoints'

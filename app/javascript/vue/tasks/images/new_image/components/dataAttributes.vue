@@ -64,7 +64,7 @@
 <script>
 
 import SmartSelector from 'components/smartSelector'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import TableList from 'components/table_list'
 import SwitchComponent from 'components/switch'
 

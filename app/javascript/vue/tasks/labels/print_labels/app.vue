@@ -58,12 +58,12 @@
 
 <script>
 
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 import StyleSelector from './components/StyleSelector'
 import LayoutComponent from './components/Layout'
 import TableComponent from './components/Table/TableComponent'
 import PreviewLabels from './components/PreviewLabels'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import LabelForm from './components/LabelForm'
 import { RouteNames } from 'routes/routes'
 import { Label } from 'routes/endpoints'

@@ -16,7 +16,7 @@
       </slot>
       <div class="horizontal-left-content">
         <slot name="options"/>
-        <expand-component 
+        <expand-component
           v-if="expand"
           v-model="expanded"/>
       </div>
@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import ExpandComponent from './expand.vue'
-import SpinnerComponent from './spinner.vue'
+import ExpandComponent from 'components/expand.vue'
+import SpinnerComponent from 'components/spinner.vue'
 
 export default {
   components: {

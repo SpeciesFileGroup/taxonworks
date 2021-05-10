@@ -129,7 +129,7 @@
 <script>
 
 import { RouteNames } from 'routes/routes'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
 
@@ -140,7 +140,7 @@ import SetParam from 'helpers/setParam'
 
 import PinComponent from 'components/pin'
 import RightSection from './components/RightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 import ParseData from './components/parseData'
 
 import CollectingEventForm from './components/CollectingEventForm'

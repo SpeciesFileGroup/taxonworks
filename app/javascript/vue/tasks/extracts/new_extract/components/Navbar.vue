@@ -46,7 +46,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { TippyComponent } from 'vue-tippy'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import OSKey from 'helpers/getMacKey.js'
 
 export default {

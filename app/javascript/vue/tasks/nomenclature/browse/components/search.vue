@@ -19,7 +19,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { RouteNames } from 'routes/routes'
 
 const SettingsStore = {

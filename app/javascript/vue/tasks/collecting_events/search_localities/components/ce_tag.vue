@@ -49,7 +49,7 @@
   </div>
 </template>
 <script>
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import Spinner from 'components/spinner'
 import { CollectingEvent } from 'routes/endpoints'
 

@@ -35,7 +35,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Otu } from 'routes/endpoints'
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import Modal from 'components/modal.vue'
 
 export default {

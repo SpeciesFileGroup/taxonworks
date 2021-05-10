@@ -97,7 +97,7 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import DefaultPin from 'components/getDefaultPin.vue'
 import { People } from 'routes/endpoints'
 

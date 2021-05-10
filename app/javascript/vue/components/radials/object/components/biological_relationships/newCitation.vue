@@ -50,7 +50,7 @@
 
 <script>
 import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import LockComponent from 'components/lock.vue'
 import { convertType } from 'helpers/types'
 

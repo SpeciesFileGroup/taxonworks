@@ -34,7 +34,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import ModalComponent from 'components/modal'
 import { RouteNames } from 'routes/routes'
 import { ObservationMatrix } from 'routes/endpoints'
