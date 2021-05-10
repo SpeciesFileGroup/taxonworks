@@ -261,6 +261,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.16.3] - 2021-02-26
 ### Added
+- Added `destroyed_redirect` to object radial JSON
 - Additional date recognition format in date RegEx
 - Pagination on Browse Annotations [#1438]
 - New combination for subgenus [#748]
@@ -274,6 +275,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Race condition problem when generating dwc_occurrences indexing
 
 ### Changed
+- Removed `allow_destroy` from object radial JSON
 - Pagination in Filter sources
 - Replaced geckodriver-helper with webdrivers gem
 - Improvement sort table on collection object, source and nomenclature filters

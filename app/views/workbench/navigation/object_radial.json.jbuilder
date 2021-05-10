@@ -32,10 +32,6 @@ if @data
     json.recent_url resource + '?recent=true'
   end
 
-  if @data['edit']
-    json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
-  end
-
   if @data['home']
     json.home send("#{@data['home']}_path", "#{resource.singularize}_id" => @object.id)
   end
@@ -44,7 +40,16 @@ if @data
     json.new send("#{@data['new']}_path")
   end
 
+  if @data['edit']
+    json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
+  end
+
+  if @data['destroyed_redirect']
+    json.destroy_redirect send("#{@data['destroyed_redirect']}_path")
+  end
+
   json.destroy @object.is_destroyable?(sessions_current_user)
+
 end
 
 json.partial! '/pinboard_items/pinned', object: @object
