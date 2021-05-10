@@ -289,6 +289,7 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
+      :not_specified,
       :otus,
       :page,
       :per,
@@ -328,6 +329,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :otus,
+      :not_specified,
 #     :page, # TODO: yes or no?
 #     :per,
       :taxon_name_type,
