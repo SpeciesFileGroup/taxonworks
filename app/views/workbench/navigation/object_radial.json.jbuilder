@@ -45,7 +45,7 @@ if @data
   end
 
   if @data['destroyed_redirect']
-    json.destroy_redirect send("#{@data['destroyed_redirect']}_path")
+    json.destroyed_redirect send("#{@data['destroyed_redirect']}_path")
   end
 
 end
