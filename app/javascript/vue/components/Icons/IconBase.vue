@@ -13,7 +13,7 @@
     >
       {{ name }} icon
     </title>
-    <g :fill="color">
+    <g :fill="selectedColor">
       <path
         v-for="(path, index) in iconPaths"
         :key="index"
@@ -25,7 +25,7 @@
 
 <script>
 
-import colors from 'assets/styles/variables/_palette.scss'
+import paletteColors from 'assets/styles/variables/_exports.scss'
 import { convertToUnit } from 'helpers/style'
 import { Icons } from './icons.js'
 
@@ -86,12 +86,6 @@ export default {
     }
   },
 
-  data () {
-    return {
-      colors
-    }
-  },
-
   computed: {
     isComponentExist () {
       return this.$options.components[this.iconName]
@@ -99,6 +93,10 @@ export default {
 
     iconPaths () {
       return Icons[this.name]?.paths || []
+    },
+
+    selectedColor () {
+      return paletteColors[this.color] || this.color
     },
 
     iconSize () {
@@ -115,9 +113,8 @@ export default {
       return (explicitSize && SIZE_MAP[explicitSize]) || convertToUnit(this.size)
     }
   },
-
   created () {
-    console.log(colors)
+    console.log(paletteColors)
   }
 }
 </script>

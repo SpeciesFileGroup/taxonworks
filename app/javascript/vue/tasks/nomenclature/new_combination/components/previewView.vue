@@ -27,21 +27,37 @@
       <edit-in-place
         legend="Click to edit verbatim"
         v-model="verbatimField"/>
-      <span 
+      <tippy-component
         v-if="verbatimField"
-        class="separate-left"
-        title="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature"
-        data-icon="warning"/>
+        animation="scale"
+        placement="bottom"
+        size="small"
+        inertia
+        arrow
+        content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature">
+        <template slot="trigger">
+          <v-icon
+            class="margin-small-left"
+            name="attention"
+            color="attention"
+            small
+          />
+        </template>
+      </tippy-component>
     </h3>
   </div>
 </template>
 <script>
 
 import EditInPlace from 'components/editInPlace.vue'
+import { TippyComponent } from 'vue-tippy'
+import VIcon from 'components/Icons/IconBase'
 
 export default {
   components: {
-    EditInPlace
+    TippyComponent,
+    EditInPlace,
+    VIcon
   },
   props: {
     combination: {
@@ -59,7 +75,7 @@ export default {
     }
   },
   watch: {
-    verbatimField(newVal) {
+    verbatimField (newVal) {
       this.$emit('onVerbatimChange', newVal)
     }
   },
