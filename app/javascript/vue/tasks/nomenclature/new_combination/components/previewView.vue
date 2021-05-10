@@ -6,8 +6,11 @@
       <span>
         <i>
           <span
-            v-for="rank in reverse(combination.protonyms)"
-            v-if="combination.protonyms[rank]"> {{ combination.protonyms[rank].name }}
+            v-for="rank in Object.keys(combination.protonyms)"
+            :key="rank">
+            <template v-if="combination.protonyms[rank]">
+              {{ combination.protonyms[rank].name }}
+            </template>
           </span>
         </i>
         <template v-if="incomplete">
@@ -50,7 +53,7 @@ export default {
       default: false
     }
   },
-  data() {
+  data () {
     return {
       verbatimField: ''
     }
@@ -60,7 +63,7 @@ export default {
       this.$emit('onVerbatimChange', newVal)
     }
   },
-  mounted() {
+  mounted () {
     this.verbatimField = this.combination.verbatim_name
   },
   methods: {
@@ -70,10 +73,7 @@ export default {
       })]
     },
     showAuthorCitation (taxon) {
-      return (taxon.hasOwnProperty('origin_citation') && taxon.origin_citation.hasOwnProperty('citation_source_body') ? taxon.origin_citation.citation_source_body : undefined)
-    },
-    reverse (value) {
-      return Object.keys(value).splice(0).reverse()
+      return taxon?.origin_citation?.citation_source_body || undefined
     }
   }
 }

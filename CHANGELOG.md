@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
+- Rank order on New combination preview
 
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
