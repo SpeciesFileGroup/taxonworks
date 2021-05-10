@@ -17,11 +17,11 @@ module Queries
       attr_accessor :namespace_short_name
       attr_accessor :namespace_name
 
-      # @param identifier_object_type [Array, String] 
+      # @param identifier_object_type [Array, String]
       #    like 'Otu'
       #    or ['Otu', 'Specimen'
       attr_accessor :identifier_object_type
-      
+
       attr_accessor :identifier_object_id
 
       attr_accessor :identifier_object_ids
@@ -40,13 +40,13 @@ module Queries
         @namespace_name = params[:namespace_name]
         @type = params[:type]
 
-        @identifier_object_type = params[:idtifier_object_type]
+        @identifier_object_type = params[:identifier_object_type]
         @identifier_object_id = params[:identifier_object_id]
 
         # See Queries::Concerns::Polymorphic
         @object_global_id = params[:object_global_id]
         set_polymorphic_ids(params)
-       
+
       end
 
       def identifier_object_type
