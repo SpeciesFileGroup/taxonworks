@@ -55,7 +55,7 @@
 
 <script>
 
-import { CreateProperty, UpdateProperty } from '../../request/resource'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import ModalComponent from 'components/modal'
 
 export default {
@@ -73,15 +73,15 @@ export default {
       this.showModal = true
       this.controlVocabularyTerm = this.resetCVT()
     },
-    save() {
-      if(this.controlVocabularyTerm.id) {
-        UpdateProperty(this.controlVocabularyTerm).then(response => {
+    save () {
+      if (this.controlVocabularyTerm.id) {
+        ControlledVocabularyTerm.update(this.controlVocabularyTerm.id, { controlled_vocabulary_term: this.controlVocabularyTerm }).then(response => {
           this.$emit('update', response.body)
           this.showModal = false
           this.controlVocabularyTerm = this.resetCVT()
         })
       } else {
-        CreateProperty(this.controlVocabularyTerm).then(response => {
+        ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.controlVocabularyTerm }).then(response => {
           this.$emit('create', response.body)
           this.showModal = false
           this.controlVocabularyTerm = this.resetCVT()

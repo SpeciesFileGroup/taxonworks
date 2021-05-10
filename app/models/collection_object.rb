@@ -87,7 +87,7 @@ class CollectionObject < ApplicationRecord
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -530,6 +530,7 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
+  # TODO: move to filter
   # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
   # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'

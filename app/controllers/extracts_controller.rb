@@ -6,8 +6,17 @@ class ExtractsController < ApplicationController
   # GET /extracts
   # GET /extracts.json
   def index
-    @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+      respond_to do |format|
+      format.html do
+        @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @extracts = Queries::Extract::Filter.
+        new(filter_params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500)
+      }
+      end
   end
 
   # GET /extracts/1
@@ -76,14 +85,85 @@ class ExtractsController < ApplicationController
     end
   end
 
+  # GET /extracts/select_options
+  def select_options
+    @extracts = Extract.select_optimized(sessions_current_user_id, sessions_current_project_id)
+  end
+
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_extract
       @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
     end
 
+    def filter_params
+      params.permit(
+        :id,
+        :user_date_end,
+        :user_date_start,
+        :user_id,
+        :identifier,
+        :identifier_end,
+        :identifier_exact,
+        :identifier_start,
+        :identifier_type,
+        :recent,
+        :repository_id,
+        repository_id: [],
+      )
+    end
+
     # Never trust parameters from the scary internet, only allow the white list through.
     def extract_params
-      params.require(:extract).permit(:quantity_value, :quantity_unit, :concentration_value, :concentration_unit, :verbatim_anatomical_origin, :year_made, :month_made, :day_made)
+      params.require(:extract).permit(
+        :repository_id,
+        :verbatim_anatomical_origin,
+        :year_made,
+        :month_made,
+        :day_made,
+
+        roles_attributes: [
+          :id,
+          :_destroy,
+          :type,
+          :person_id,
+          :position,
+          person_attributes: [
+            :last_name,
+            :first_name,
+            :suffix, :prefix
+          ]
+        ],
+
+        identifiers_attributes: [
+          :id,
+          :namespace_id,
+          :identifier,
+          :type,
+          :_destroy
+        ],
+
+        data_attributes_attributes: [
+          :id,
+          :_destroy,
+          :controlled_vocabulary_term_id,
+          :type,
+          :attribute_subject_id,
+          :attribute_subject_type,
+          :value
+        ],
+
+        protocol_relationships_attributes: [
+          :id,
+          :_destroy,
+          :protocol_id
+        ],
+
+        origin_relationships_attributes: [
+          :id,
+          :_destroy,
+          :old_object_id,
+          :old_object_type
+        ]
+      )
     end
 end

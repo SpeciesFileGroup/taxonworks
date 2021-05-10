@@ -23,30 +23,32 @@
 
 <script>
 
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { GetPreparationTypes } from '../../request/resources'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../store/getters/getters.js'
+import { PreparationType } from 'routes/endpoints'
 
-  export default {
-    computed: {
-      collectionObject: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObject]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObject, value)
-        }
+export default {
+  computed: {
+    collectionObject: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
       }
-    },
-    data () {
-      return {
-        coTypes: []
-      }
-    },
-    mounted() {
-      GetPreparationTypes().then(response => {
-        this.coTypes = response.body
-      })
     }
+  },
+
+  data () {
+    return {
+      coTypes: []
+    }
+  },
+
+  created () {
+    PreparationType.all().then(response => {
+      this.coTypes = response.body
+    })
   }
+}
 </script>

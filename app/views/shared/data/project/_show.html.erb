@@ -75,7 +75,7 @@
       </div>    
       <div class="flex-wrap-row"> 
         <div class="panels-container">
-          <div id="attributes-panel" class="panel separate-left separate-right attributes-panel separate-bottom">
+          <div id="attributes-panel" class="panel separate-left margin-medium-right attributes-panel separate-bottom">
             <div class="break_words content">
               <div class="title-section"> 
                 <h2>Attributes</h2>
@@ -88,7 +88,7 @@
             </div>
           </div>
           <div class="flex-wrap-row"> 
-            <div id="related-panel" class="panel separate-left separate-bottom">
+            <div id="related-panel" class="panel separate-bottom">
               <div class="content"> 
                 <div class="title-section">
                   <h2>Associated</h2>
@@ -99,7 +99,7 @@
               </div>
             </div>
 
-            <div id="validation-panel" class="panel separate-left separate-bottom">
+            <div id="validation-panel" class="panel separate-bottom d-none">
               <div class="content">
                 <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
               </div>

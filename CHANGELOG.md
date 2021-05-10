@@ -8,11 +8,74 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- "Not specified" facet to Filter nomenclature [#2226]
+- New extract task interface [#1934]
+- citation experiment `/api/v1/cite/count_valid_species?taxon_name=Pteromalus` [#2230]
+- jsconfig.json for Visual Studio Code
+- Image matrix viewer in Image matrix
+- Image matrix button in observation dashboard task
+- Image matrix link in Interactive keys task
+
+### Changed
+- Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
+- Removed quantification fields from Extract
+- Warning message on nuke action in Grid digitize task [#2229]
+- Upgraded from Ruby version 2.7.2 to 2.7.3
+- Upgraded to Node 14 LTS
+- Updated Ruby gems and Node packages
+
+### Fixed
+- Hide soft validation section if is empty in New collecting events task
+- 404 error when deleting records from data interfaces [#2223]
+
+[#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
+[#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
+[#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
+[#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
+[#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
+
+## [0.17.1] - 2020-04-30
+
+### Added
+- Moved endpoints to own model file
+- Permit params on client side
+- OTU picker on new observation matrix [#2209]
+
+### Fixed
+- Frame overlaps in interactive key task [#2202]
+- Parse coordinate characters on comprehensive and new collecting event tasks
+- Hide row/column panel on new observation matrix
+- Soft validation section is always visible [#2211]
+- Ambiguous column problem in query for previous/next collecting event navigation.
+- Merge people count [#2218]
+
+### Changed
+- Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
+- Switch selector on new observation matrix
+- Increment pdf filesize to 512MB [#2212]
+- Updated gems and npm packages
+
+[#2201]: https://github.com/SpeciesFileGroup/taxonworks/issues/2201
+[#2202]: https://github.com/SpeciesFileGroup/taxonworks/issues/2202
+[#2209]: https://github.com/SpeciesFileGroup/taxonworks/issues/2209
+[#2211]: https://github.com/SpeciesFileGroup/taxonworks/issues/2211
+[#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
+[#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
+
+## [0.17.0] - 2020-04-23
+
+### Added
+- Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
 - `create_backup_directory` flag to create backup directory if it does not exist for taxonworks rake tasks requiring `backup_directory`.
+- Edit inline options on edit/new loan task [#2184]
+- Shortcut legend on new taxon name task
+- Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
+- Bad `project_token` to API should not raise
+- Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - Previous navigation [#2163]
 - Documenting source doesn't add source to project [#2172]
 - Added missing params biocuration_class_ids and biological_relationship_ids to collection_objects_controller filter params. [skip-ci]
@@ -22,8 +85,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Overflow on New observation matrix [#2168]
 - Clear geographic area after reset [#2174]
 - PK sequence not set up properly on project export
+- Local identifiers' cached values not being updated when updating namespace [#2175]
+- Uncertainty sign not populating in label [#2109]
+- Pressing the reset button doesn't reset the by attribute facet in Filter collection object [#2180]
+- Fix routes in edit/new observation matrices task [#2198]
 
 ### Changed
+- Refactor SoftValidations and params including specs [#1972] [#768]
+- Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
 - Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
 - Changed TaxonName string for superspecies names
@@ -32,11 +101,19 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Close radial object after select a matrix on observation matrices slice [#2165]
 - Radial menu slices position 
 
+[#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
+[#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
+[#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
+[#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
 [#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
+[#2160]: https://github.com/SpeciesFileGroup/taxonworks/issues/2160
+[#2168]: https://github.com/SpeciesFileGroup/taxonworks/issues/2168
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
-[#2160]: https://github.com/SpeciesFileGroup/taxonworks/pull/2160
-[#2168]: https://github.com/SpeciesFileGroup/taxonworks/pull/2168
-[#2174]: https://github.com/SpeciesFileGroup/taxonworks/pull/2174
+[#2175]: https://github.com/SpeciesFileGroup/taxonworks/issues/2175
+[#2174]: https://github.com/SpeciesFileGroup/taxonworks/issues/2174
+[#2184]: https://github.com/SpeciesFileGroup/taxonworks/issues/2184
+[#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
+[#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
 
 ## [0.16.6] - 2020-03-26
 
@@ -1081,7 +1158,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...development
+[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
+[0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
 [0.16.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.3...v0.16.4

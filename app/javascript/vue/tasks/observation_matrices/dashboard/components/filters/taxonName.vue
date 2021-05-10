@@ -29,7 +29,7 @@
 <script>
 
 import Autocomplete from 'components/autocomplete'
-import { GetTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     getTaxon (event) {
-      GetTaxonName(event.id).then(response => {
+      TaxonName.find(event.id).then(response => {
         this.$store.commit(MutationNames.SetTaxon, response.body)
         this.$emit('input', response.body)
       })
@@ -70,7 +70,7 @@ export default {
   .field-year {
     width: 60px;
   }
-  /deep/ .vue-autocomplete-list {
+  ::v-deep .vue-autocomplete-list {
     min-width: 800px;
   }
 </style>

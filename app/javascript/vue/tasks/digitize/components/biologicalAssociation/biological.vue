@@ -34,8 +34,8 @@
 
 import TagItem from '../shared/item_tag.vue'
 import SmartSelector from 'components/smartSelector.vue'
-import { GetBiologicalRelationships } from '../../request/resources.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     loadTabList () {
-      GetBiologicalRelationships().then(response => {
+      BiologicalRelationship.all().then(response => {
         this.allItems = response.body
       })
     },

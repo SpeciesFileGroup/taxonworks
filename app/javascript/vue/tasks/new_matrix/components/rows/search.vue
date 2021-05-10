@@ -16,7 +16,12 @@
         </label>
       </template>
       <div class="field">
+        <otu-picker
+          v-if="isOtuType"
+          clear-after
+          @getItem="createRowItem($event.id)"/>
         <autocomplete
+          v-else
           min="2"
           :placeholder="`Select a ${type}`"
           label="label_html"
@@ -35,17 +40,25 @@ import Autocomplete from 'components/autocomplete.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
+import OtuPicker from 'components/otu/otu_picker/otu_picker'
 
 export default {
   components: {
-    Autocomplete
+    Autocomplete,
+    OtuPicker
   },
+
   computed: {
-    matrix() {
+    matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
+    },
+
+    isOtuType () {
+      return this.type === 'Otu'
     }
   },
-  data() {
+
+  data () {
     return {
       autocomplete_type: {
         Otu: '/otus/autocomplete',
@@ -55,8 +68,9 @@ export default {
       type: 'Otu'
     }
   },
+
   methods: {
-    createRowItem(id) {
+    createRowItem (id) {
       const data = {
         observation_matrix_id: this.matrix.id,
         type: this.types[this.type]

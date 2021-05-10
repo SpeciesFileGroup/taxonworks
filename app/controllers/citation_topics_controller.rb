@@ -38,7 +38,7 @@ class CitationTopicsController < ApplicationController
   def destroy
     @citation_topic.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was successfully destroyed.')}
+      format.html { destroy_redirect @citation_topic, notice: 'Citation topic was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

@@ -10,13 +10,13 @@
         <ul class="context-menu">
           <li>
             <a
-              href="/tasks/observation_matrices/observation_matrix_hub/index">
+              :href="routeNames.ObservationMatricesHub">
               Hub
             </a>
           </li>
           <li>
             <a
-              href="/tasks/observation_matrices/dashboard/index">
+              :href="routeNames.ObservationMatricesDashboard">
               Dashboard
             </a>
           </li>
@@ -77,9 +77,13 @@
         <new-matrix/>
         <div
           v-if="matrix.id"
-          class="separate-top">
-          <component :is="`rows-${matrixMode}`"/>
-          <component :is="`columns-${matrixMode}`"/>
+          class="margin-medium-top">
+          <component
+            v-if="isRowView"
+            :is="`rows-${matrixMode}`"/>
+          <component
+            v-else
+            :is="`columns-${matrixMode}`"/>
         </div>
       </div>
       <tables-component v-if="matrix.id"/>
@@ -103,6 +107,7 @@ import ColumnsDynamic from './components/columns/dynamic'
 
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -122,15 +127,21 @@ export default {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
     },
+    isRowView () {
+      return this.$store.getters[GetterNames.GetMatrixView] === 'row'
+    },
     matrixMode () {
       return this.$store.getters[GetterNames.GetMatrixMode]
     },
     settings () {
       return this.$store.getters[GetterNames.GetSettings]
+    },
+    routeNames () {
+      return RouteNames
     }
   },
 
-  data() {
+  data () {
     return {
       loading: false
     }

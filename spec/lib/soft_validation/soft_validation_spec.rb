@@ -5,15 +5,15 @@ describe 'SoftValidation (instance)', group: :soft_validation do
   let(:soft_validation) {SoftValidation::SoftValidation.new}
   context 'attributes' do
     specify 'attribute' do
-      expect(soft_validation).to respond_to(:attribute) 
+      expect(soft_validation).to respond_to(:attribute)
     end
 
     specify 'message' do
       expect(soft_validation).to respond_to(:message)
     end
 
-    specify 'fix' do
-      expect(soft_validation).to respond_to(:fix)
+    specify 'soft_validation_method' do
+      expect(soft_validation).to respond_to(:soft_validation_method)
     end
 
     specify 'resolution' do
@@ -29,7 +29,7 @@ describe 'SoftValidation (instance)', group: :soft_validation do
     end
 
     specify 'fixed' do
-      expect(soft_validation).to respond_to(:fixed) 
+      expect(soft_validation).to respond_to(:fixed)
       soft_validation.fixed = :fixed
       expect(soft_validation.fixed?).to be_truthy
     end
@@ -38,8 +38,11 @@ describe 'SoftValidation (instance)', group: :soft_validation do
   specify 'result_message()' do
     soft_validation.failure_message = 'a'
     soft_validation.success_message = 'a'
-    expect(soft_validation).to respond_to(:result_message) 
+    expect(soft_validation).to respond_to(:result_message)
+  end
+
+  specify 'to_json' do
+    expect(soft_validation.to_json).to be_truthy
   end
 
 end
-

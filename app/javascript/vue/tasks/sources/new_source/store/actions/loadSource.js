@@ -1,10 +1,10 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetSource, GetSourceDocumentations, LoadSoftValidation } from '../../request/resources'
+import { Source, SoftValidation } from 'routes/endpoints'
 
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }, id) => {
-  GetSource(id).then(response => {
+  Source.find(id).then(response => {
     const source = response.body
     const authors = source.author_roles
     const editors = source.editor_roles
@@ -13,11 +13,11 @@ export default ({ state, commit }, id) => {
     source.roles_attributes = people
     commit(MutationNames.SetSource, source)
 
-    LoadSoftValidation(response.body.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+    SoftValidation.find(response.body.global_id).then(response => {
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
     })
 
-    GetSourceDocumentations(id).then(response => {
+    Source.documentation(id).then(response => {
       commit(MutationNames.SetDocumentation, response.body)
     })
 

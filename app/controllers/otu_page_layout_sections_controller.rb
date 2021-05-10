@@ -38,7 +38,7 @@ class OtuPageLayoutSectionsController < ApplicationController
   def destroy
     @otu_page_layout_section.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was successfully destroyed.')}
+      format.html { destroy_redirect @otu_page_layout_section, notice: 'Otu page layout section was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

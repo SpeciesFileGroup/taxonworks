@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_18_165155) do
+ActiveRecord::Schema.define(version: 2021_05_06_161114) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -478,6 +479,7 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
+    t.index ["attribute_subject_id"], name: "index_data_attributes_on_attribute_subject_id"
     t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
     t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id"
     t.index ["created_by_id"], name: "index_data_attributes_on_created_by_id"

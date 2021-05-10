@@ -30,8 +30,18 @@ describe Image, type: :model, group: [:images] do
     it { is_expected.to validate_attachment_content_type(:image_file).
                   allowing('image/png', 'image/gif').
                   rejecting('text/plain', 'text/xml') }
-    it { is_expected.to validate_attachment_size(:image_file).
-                  greater_than(1.kilobytes) }
+  end
+
+  context 'dimensions validation' do
+    it 'rejects tiny images' do
+      image = FactoryBot.build(:very_tiny_image)
+      image.save
+      expect(image.errors[:image_file]).to contain_exactly("height must be at least 16 pixels", "width must be at least 16 pixels")
+    end
+
+    it 'accepts larger images' do
+      expect(i).to be_valid
+    end
   end
 
   # paperclip MD5 add-on tests
@@ -59,7 +69,7 @@ describe Image, type: :model, group: [:images] do
       k.destroy
       k.run_callbacks(:commit)
     }
-    
+
     specify 'once saved, it should soft validate for duplicate images already saved to database' do
       expect(i.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'
       expect(k.soft_validations.messages).to include 'This image is a duplicate of an image already stored.'

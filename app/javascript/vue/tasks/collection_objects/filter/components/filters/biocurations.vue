@@ -25,7 +25,7 @@
 
 <script>
 
-import { GetBiocurations } from '../../request/resources'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -51,11 +51,10 @@ export default {
     }
   },
   mounted () {
-    GetBiocurations().then(response => {
-      this.biocurations = response.body
-    })
     const urlParams = URLParamsToJSON(location.href)
-    this.selectedBiocurations = urlParams.biocuration_class_ids ? urlParams.biocuration_class_ids : []
+
+    this.selectedBiocurations = urlParams.biocuration_class_ids || []
+    ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => { this.biocurations = response.body })
   }
 }
 </script>

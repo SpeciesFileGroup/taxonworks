@@ -80,10 +80,10 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import { GetRelationshipsMetadata, GetTaxonName } from '../../request/resources.js'
 import Autocomplete from 'components/autocomplete'
 import ListComponent from '../relationshipsList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { TaxonName, TaxonNameRelationship } from 'routes/endpoints'
 
 const OPTIONS = {
   common: 'common',
@@ -152,7 +152,7 @@ export default {
     }
   },
   mounted () {
-    GetRelationshipsMetadata().then(response => {
+    TaxonNameRelationship.types().then(response => {
       this.relationshipsList = response.body
       this.merge()
 
@@ -163,7 +163,7 @@ export default {
           const isSubject = relationship.hasOwnProperty('subject_taxon_name_id')
           const typeName = (isSubject ? 'subject_status_tag' : 'object_status_tag')
           const taxonId = relationship[(isSubject ? 'subject_taxon_name_id' : 'object_taxon_name_id')]
-          GetTaxonName(taxonId).then(taxon => {
+          TaxonName.find(taxonId).then(taxon => {
             this.relationships.push(
               {
                 type_object: this.mergeLists.all[relationship.type],
@@ -248,7 +248,7 @@ export default {
 }
 </script>
 <style scoped>
->>> .vue-autocomplete-input {
+::v-deep .vue-autocomplete-input {
   width: 100%;
 }
 

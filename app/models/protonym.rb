@@ -17,6 +17,10 @@ class Protonym < TaxonName
   include Protonym::SoftValidationExtensions::Instance
   include Protonym::Becomes
 
+  # @return [Boolean]
+  #   memoize `#is_avaiable?`
+  attr_reader :is_available
+
   alias_method :original_combination_source, :source
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
@@ -221,8 +225,13 @@ class Protonym < TaxonName
     return list
   end
 
-  def is_available?
-    !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+  def is_available?(refresh = false)
+    if !refresh
+      @is_available ||= !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+    else
+      @is_available = !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+    end
+    @is_available
   end
 
   # @return [Protonym]
@@ -352,7 +361,7 @@ class Protonym < TaxonName
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
@@ -361,11 +370,6 @@ class Protonym < TaxonName
       end
     else
       return nil
-
-#      RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-#      Ranks.lookup(:iczn, 'species')
-# .valid_name_ending
-#FAMILY_AND_ABOVE_RANK_NAMES
     end
     r.constantize
   end
@@ -932,6 +936,28 @@ class Protonym < TaxonName
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if is_cached && cached_html != get_full_name_html ||
+        cached_misspelling != get_cached_misspelling ||
+        cached_original_combination != get_original_combination ||
+        cached_original_combination_html != get_original_combination_html ||
+        cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        rank_string =~ /Species/ &&
+            (cached_secondary_homonym != get_genus_species(:current, :self) ||
+                cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative))
+      is_cached = false
+    end
+
+    soft_validations.add(
+        :base, 'Cached values should be updated',
+        success_message: 'Cached values were updated',
+        failure_message:  'Failed to update cached values') if !is_cached
+  end
+
   def set_cached
     super
     set_cached_names_for_dependants
@@ -961,40 +987,5 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
-
-  # Validate whether cached names need to be rebuilt.
-  #
-  # TODO: this is kind of pointless, we generate
-  # all the values need for cached, names, at that point
-  # the cached values should just be persisted
-  # The logic here also duplicates the tracking
-  # needed for building cached names.
-  #
-  # Refactor this to single methods, one each to validate
-  # cached name?
-  #
-  def sv_cached_names
-    is_cached = true
-    is_cached = false if cached_author_year != get_author_and_year
-
-    if is_cached && cached_html != get_full_name_html ||
-      cached_misspelling != get_cached_misspelling ||
-      cached_original_combination != get_original_combination ||
-      cached_original_combination_html != get_original_combination_html ||
-      cached_primary_homonym != get_genus_species(:original, :self) ||
-      cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-      rank_string =~ /Species/ &&
-        (cached_secondary_homonym != get_genus_species(:current, :self) ||
-          cached_secondary_homonym_alternative_spelling != get_genus_species(:current,
-                                                                             :alternative))
-      is_cached = false
-    end
-
-    soft_validations.add(
-      :base, 'Cached values should be updated',
-      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
-    ) if !is_cached
-  end
-
 end
 

@@ -64,7 +64,7 @@ class DataAttributesController < ApplicationController
   def destroy
     @data_attribute.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was successfully destroyed.')}
+      format.html { destroy_redirect @data_attribute, notice: 'Data attribute was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

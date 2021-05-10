@@ -68,7 +68,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was successfully destroyed.')}
+      format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

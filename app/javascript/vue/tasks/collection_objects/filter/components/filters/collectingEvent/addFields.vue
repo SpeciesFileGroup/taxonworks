@@ -5,13 +5,13 @@
       <div class="field separate-right full_width">
         <label>Field</label>
         <br>
-        <select 
+        <select
           class="normal-input full_width"
           v-model="selectedField">
           <option
             :value="field"
             :key="field.name"
-            v-if="!selectedFields.find(item => { return item.param === field.name })"
+            v-if="!selectedFields.find(item => item.param === field.name)"
             v-for="field in fields">
             {{ field.name }}
           </option>
@@ -38,7 +38,7 @@
           Value
         </label>
         <br>
-        <input 
+        <input
           class="full_width"
           :type="types[selectedField.type]"
           v-model="fieldValue">
@@ -90,7 +90,7 @@
 
 <script>
 
-import { GetCEAttributes } from '../../../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 const TYPES = {
@@ -101,8 +101,14 @@ const TYPES = {
 }
 
 export default {
+  props: {
+    list: {
+      type: Object,
+      required: true
+    }
+  },
   computed: {
-    types() {
+    types () {
       return TYPES
     }
   },
@@ -118,8 +124,8 @@ export default {
   watch: {
     selectedFields: {
       handler (newVal) {
-        let matches = newVal.filter(item => { return item.exact }).map(item => { return item.param })
-        let fields = {
+        const matches = newVal.filter(item => { return item.exact }).map(item => { return item.param })
+        const fields = {
           collecting_event_wildcards: matches
         }
         newVal.forEach(item => {
@@ -129,12 +135,18 @@ export default {
       },
       deep: true
     },
-    selectedField() {
+    selectedField () {
       this.fieldValue = undefined
+    },
+    list (newVal, oldVal) {
+      if (Object.keys(newVal).length === 0 && Object.keys(oldVal).length > 1) {
+        this.selectedFields = []
+        this.resetFields()
+      }
     }
   },
   mounted () {
-    GetCEAttributes().then(response => {
+    CollectingEvent.attributes().then(response => {
       this.fields = response.body
       const urlParams = URLParamsToJSON(location.href)
       if (Object.keys(urlParams).length) {

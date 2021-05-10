@@ -292,10 +292,10 @@ class CollectingEvent < ApplicationRecord
             unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
-  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
+  soft_validate(:sv_georeference_matches_verbatim, set: :georeference)
 
   # @param [String]
   def verbatim_label=(value)
@@ -1157,12 +1157,12 @@ class CollectingEvent < ApplicationRecord
       if (a.latitude.to_f !=  d_lat)
         soft_validations.add(
           :base,
-        "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
+          "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
       end
       if (a.longitude.to_f != d_long)
         soft_validations.add(
-            :base,
-            "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
+          :base,
+          "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
       end
     end
   end

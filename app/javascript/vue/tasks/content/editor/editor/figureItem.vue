@@ -31,7 +31,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
-import { UpdateDepiction, DeleteDepiction } from '../request/resources.js'
+import { Depiction } from 'routes/endpoints'
 
 export default {
   props: ['figure'],
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     deleteDepiction () {
-      DeleteDepiction(this.depiction.id).then(() => {
+      Depiction.destroy(this.depiction.id).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
@@ -68,7 +68,7 @@ export default {
         figure_label: this.depiction.figure_label
       }
 
-      UpdateDepiction(this.depiction.id, depiction).then(() => {
+      Depiction.update(this.depiction.id, { depiction }).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     }
