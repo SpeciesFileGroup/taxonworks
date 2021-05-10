@@ -92,7 +92,7 @@ export default {
     },
     loadPredicates (ids) {
       const promises = []
-      if (ids.length) {
+      if (ids?.length) {
         promises.push(GetPredicates(ids).then(response => {
           this.predicatesList = response.body
         }))
