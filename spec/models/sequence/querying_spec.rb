@@ -7,11 +7,11 @@ RSpec.describe Sequence, type: :model, group: [:dna, :matrix, :descriptor] do
   let!(:object2) { Specimen.create! }
   let!(:object3) { Lot.create!(total: 5) }
 
-  let!(:extract1) { Extract.create!(origin: object1, quantity_value: 22, quantity_unit: 'ml', is_made_now: true )  }
-  let!(:extract2) { Extract.create!(origin: object2, quantity_value: 22, quantity_unit: 'ml', is_made_now: true)  }
-  let!(:extract3) { Extract.create!(origin: object3, quantity_value: 22, quantity_unit: 'ml', is_made_now: true)  }
+  let!(:extract1) { Extract.create!(origin: object1, is_made_now: true )  }
+  let!(:extract2) { Extract.create!(origin: object2, is_made_now: true)  }
+  let!(:extract3) { Extract.create!(origin: object3, is_made_now: true)  }
 
-  let!(:extract_other) { Extract.create!(origin: object1, quantity_value: 22, quantity_unit: 'ml', is_made_now: true)  }
+  let!(:extract_other) { Extract.create!(origin: object1, is_made_now: true)  }
 
   let!(:fwd_primer) { Sequence.create!(sequence: 'TTT', sequence_type: :dna, name: 'FWD')  }
   let!(:rev_primer) { Sequence.create!(sequence: 'AAA', sequence_type: :dna, name: 'REV')  }

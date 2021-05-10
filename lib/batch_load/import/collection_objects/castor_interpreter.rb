@@ -51,8 +51,6 @@ module BatchLoad
           extract_identifiers.push(extract_identifier_genbank) if sample_code_identifier_text.present?
 
           extract_attributes = {
-            quantity_value: 0,
-            quantity_unit: 0,
             verbatim_anatomical_origin: row['taxon_name'],
             year_made: 2015,
             month_made: 10,

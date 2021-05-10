@@ -38,7 +38,6 @@ class Extract < ApplicationRecord
   has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
 
-  # validates_presence_of :quantity_value
   attr_accessor :is_made_now
 
   before_validation :set_made, if: -> {is_made_now}
