@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added `destroyed_redirect` to object radial JSON
 - "Not specified" facet to Filter nomenclature [#2226]
 - New extract task interface [#1934]
 - citation experiment `/api/v1/cite/count_valid_species?taxon_name=Pteromalus` [#2230]
@@ -19,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Pagination count in Filter nomenclature
 
 ### Changed
+- Removed `allow_destroy` from object radial JSON
 - Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
 - Removed quantification fields from Extract
 - Warning message on nuke action in Grid digitize task [#2229]
@@ -261,7 +263,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [0.16.3] - 2021-02-26
 ### Added
-- Added `destroyed_redirect` to object radial JSON
 - Additional date recognition format in date RegEx
 - Pagination on Browse Annotations [#1438]
 - New combination for subgenus [#748]
@@ -275,7 +276,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Race condition problem when generating dwc_occurrences indexing
 
 ### Changed
-- Removed `allow_destroy` from object radial JSON
+
 - Pagination in Filter sources
 - Replaced geckodriver-helper with webdrivers gem
 - Improvement sort table on collection object, source and nomenclature filters
