@@ -367,7 +367,10 @@ export default {
           this.eventDestroy()
           this.deleted = true
         }
-        if (window.location.pathname == this.metadata.resource_path) {
+
+        if (this.metadata.destroyed_redirect) {
+          window.open(this.metadata.destroyed_redirect, '_self')
+        } else if (window.location.pathname === this.metadata.resource_path) {
           window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
         } else {
           window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
