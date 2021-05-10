@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix viewer in Image matrix
 - Image matrix button in observation dashboard task
 - Image matrix link in Interactive keys task
+- export scss vars to javascript
 
 ### Changed
 - Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded from Ruby version 2.7.2 to 2.7.3
 - Upgraded to Node 14 LTS
 - Updated Ruby gems and Node packages
+- node-sass to dart-sass
 
 ### Fixed
 - Hide soft validation section if is empty in New collecting events task
