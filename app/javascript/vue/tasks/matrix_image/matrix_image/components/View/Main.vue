@@ -15,20 +15,36 @@
         </div>
       </div>
       <template
-        v-for="(row, index) in rows">
-        <div class="otu-cell padding-small">
+        v-for="(row, rIndex) in rows">
+        <div
+          :key="rIndex"
+          class="otu-cell padding-small">
           <a
             v-html="row.object.object_tag"
             :href="browseOtu(row.object.id)"/>
         </div>
         <div
-          v-for="(rCol, rIndex) in row.depictions"
+          v-for="(rCol, cIndex) in row.depictions"
           class="image-cell padding-small"
-          :key="rIndex">
+          :key="`${rIndex} ${cIndex}`">
           <div
             v-for="depiction in rCol"
             :key="depiction.id">
-            <img :src="depiction.image.alternatives.medium.image_file_url">
+            <tippy-component
+              animation="scale"
+              placement="bottom"
+              size="small"
+              arrow-size="small"
+              inertia
+              arrow
+              :trigger="depiction.image.citations.length
+                ? 'mouseenter focus'
+                : 'manual'"
+              :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
+              <template slot="trigger">
+                <img :src="depiction.image.alternatives.medium.image_file_url">
+              </template>
+            </tippy-component>
           </div>
         </div>
       </template>
@@ -40,11 +56,13 @@
 
 import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
+import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
-    SpinnerComponent
+    SpinnerComponent,
+    TippyComponent
   },
   props: {
     matrixId: {

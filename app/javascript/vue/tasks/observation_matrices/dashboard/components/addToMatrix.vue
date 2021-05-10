@@ -41,6 +41,13 @@
             @click="openInteractiveKeys(matrix.id)">
             Open in interactive keys
           </button>
+          <button
+            v-if="matrix && matrix.is_media_matrix"
+            type="button"
+            class="button normal-input button-default margin-small-left"
+            @click="openImageMatrix(matrix.id)">
+            Image matrix
+          </button>
         </div>
       </div>
     </modal-component>
@@ -111,6 +118,9 @@ export default {
     },
     openInteractiveKeys (id) {
       window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}`, '_self')
+    },
+    openImageMatrix (id) {
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_blank')
     }
   }
 }
