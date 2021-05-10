@@ -4,6 +4,7 @@ module Queries::Concerns::Polymorphic
 
   included do
     attr_accessor :polymorphic_ids
+
     attr_accessor :object_global_id
 
     attr_accessor :global_object
@@ -40,7 +41,11 @@ module Queries::Concerns::Polymorphic
   end
 
   def global_object_type
-    object_for&.type
+    if object_for
+      object_for&.class.name
+    else
+      nil
+    end
   end
 
   # TODO: Dry with polymorphic_params

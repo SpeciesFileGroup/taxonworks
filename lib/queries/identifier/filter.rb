@@ -24,12 +24,9 @@ module Queries
 
       attr_accessor :identifier_object_id
 
-      attr_accessor :identifier_object_ids
+      attr_accessor :object_global_id
 
       attr_accessor :type
-
-      # Probably turn it into component parts
-      attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -46,7 +43,6 @@ module Queries
         # See Queries::Concerns::Polymorphic
         @object_global_id = params[:object_global_id]
         set_polymorphic_ids(params)
-
       end
 
       def identifier_object_type
@@ -57,14 +53,9 @@ module Queries
         [@identifier_object_id, global_object_id].flatten.compact
       end
 
-      def object_global_type_value
-
-      end
-
       def object_global_id_value
         object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
       end
-
 
      # Rich - destroy all this
 
@@ -103,10 +94,9 @@ module Queries
           matching_cached,
           matching_identifier_attribute(:identifier),
           matching_identifier_attribute(:namespace_id),
-          matching_identifier_attribute(:identifier_object_type),
-          matching_identifier_attribute(:identifier_object_id),
           matching_identifier_attribute(:type),
-          matching_identifier_object_types,
+          matching_identifier_object_id,
+          matching_identifier_object_type,
           matching_polymorphic_ids
         ].compact
 
@@ -138,12 +128,12 @@ module Queries
       end
 
       # @return [Arel::Node, nil]
-      def matching_identifier_object_ids
-        identifier_object_ids.empty? ? nil : table[:identifier_object_id].eq_any(matching_identifier_object_ids)
+      def matching_identifier_object_id
+        identifier_object_id.empty? ? nil : table[:identifier_object_id].eq_any(identifier_object_id)
       end
 
       # @return [Arel::Node, nil]
-      def matching_identifier_object_types
+      def matching_identifier_object_type
         identifier_object_type.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_type)
       end
 

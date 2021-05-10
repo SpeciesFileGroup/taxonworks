@@ -38,20 +38,22 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     #      Failure/Error: object_for&.type
     #      NoMethodError:
     #        undefined method `type' for #<Otu:0x00007fe3b3a76540>
+    #           -- this was a bad method in concerns/polymorphic.rb ... maybe
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # no params make it, so everything is returned
   end
 
-  specify '#missmatched_object_id?' do
-    query.object_global_id = o1.to_global_id.to_s
-    query.identifier_object_id = o1.id + 99
-    expect(query.missmatched_object_id?).to be_truthy
-  end
+  # not used, remove
+# specify '#missmatched_object_id?' do
+#   query.object_global_id = o1.to_global_id.to_s
+#   query.identifier_object_id = o1.id + 99
+#   expect(query.missmatched_object_id?).to be_truthy
+# end
 
-  specify '#missmatch_with_global_object?' do
-    query.object_global_id = o1.to_global_id.to_s
-    query.identifier_object_id = o1.id + 99
-    expect(query.missmatch_with_global_object?).to be_truthy
-  end
+# specify '#missmatch_with_global_object?' do
+#   query.object_global_id = o1.to_global_id.to_s
+#   query.identifier_object_id = o1.id + 99
+#   expect(query.missmatch_with_global_object?).to be_truthy
+# end
 
 
   specify '#query_string' do
@@ -99,12 +101,12 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
-  specify '#identifier_object_ids' do
-    query.identifier_object_ids = [o1.id, 99]
+  specify '#identifier_object_id 2' do
+    query.identifier_object_id = [o1.id, 99]
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
-  specify '#type' do
+  specify '#identifier_type' do
     query.type = 'Identifier::Local::CatalogNumber'
     expect(query.all.map(&:id)).to contain_exactly( i2.id, i3.id)
   end
@@ -119,8 +121,8 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly(i3.id)
   end
 
-  specify 'matching_identifier_object_types[] #1' do
-    query.identifier_object_types = %w{Otu CollectionObject}
+  specify 'matching_identifier_object_type[] #1' do
+    query.identifier_object_type = %w{Otu CollectionObject}
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
