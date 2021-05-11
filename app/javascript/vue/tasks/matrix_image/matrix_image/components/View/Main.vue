@@ -1,10 +1,18 @@
 <template>
   <div>
     <spinner-component v-if="isLoading"/>
+    <div>
+      <button
+        class="button normal-input button-default"
+        @click="hideRows = []">
+        Unhide
+      </button>
+    </div>
     <div
       class="grid-table"
       :style="columns">
-      <div class="otu-cell"/>
+      <div />
+      <div />
       <div
         v-for="descriptor in descriptors"
         :key="descriptor.id">
@@ -16,41 +24,52 @@
       </div>
       <template
         v-for="(row, rIndex) in rows">
-        <div
-          :key="rIndex"
-          class="otu-cell padding-small">
-          <a
-            v-html="row.object.object_tag"
-            :href="browseOtu(row.object.id)"/>
-        </div>
-        <div
-          v-for="(rCol, cIndex) in row.depictions"
-          class="image-cell padding-small"
-          :key="`${rIndex} ${cIndex}`">
+        <template v-if="!hideRows.includes(rIndex)">
           <div
-            v-for="depiction in rCol"
-            :key="depiction.id">
-            <tippy-component
-              animation="scale"
-              placement="bottom"
-              size="small"
-              arrow-size="small"
-              inertia
-              arrow
-              :trigger="depiction.image.citations.length
-                ? 'mouseenter focus'
-                : 'manual'"
-              :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
-              <template slot="trigger">
-                <image-viewer
-                  :depiction="depiction"
-                >
-                  <img :src="depiction.image.alternatives.medium.image_file_url">
-                </image-viewer>
-              </template>
-            </tippy-component>
+            class="image-cell"
+            :key="rIndex">
+            <input
+              type="checkbox"
+              v-model="hideRows"
+              :value="rIndex">
           </div>
-        </div>
+          <div
+            :key="`${rIndex}-o`"
+            class="otu-cell padding-small">
+            <a
+              v-html="row.object.object_tag"
+              :href="browseOtu(row.object.id)"/>
+            <radial-object :global-id="row.object.global_id" />
+          </div>
+          <div
+            v-for="(rCol, cIndex) in row.depictions"
+            class="image-cell padding-small"
+            :key="`${rIndex} ${cIndex}`">
+            <div
+              v-for="depiction in rCol"
+              :key="depiction.id">
+              <tippy-component
+                animation="scale"
+                placement="bottom"
+                size="small"
+                arrow-size="small"
+                inertia
+                arrow
+                :trigger="depiction.image.citations.length
+                  ? 'mouseenter focus'
+                  : 'manual'"
+                :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
+                <template slot="trigger">
+                  <image-viewer
+                    :depiction="depiction"
+                  >
+                    <img :src="depiction.image.alternatives.medium.image_file_url">
+                  </image-viewer>
+                </template>
+              </tippy-component>
+            </div>
+          </div>
+        </template>
       </template>
     </div>
   </div>
@@ -61,6 +80,7 @@
 import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import RadialObject from 'components/radials/object/radial'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 
@@ -68,7 +88,8 @@ export default {
   components: {
     SpinnerComponent,
     TippyComponent,
-    ImageViewer
+    ImageViewer,
+    RadialObject
   },
   props: {
     matrixId: {
@@ -86,13 +107,14 @@ export default {
       descriptors: [],
       rows: [],
       showTable: false,
-      isLoading: false
+      isLoading: false,
+      hideRows: []
     }
   },
 
   computed: {
     columns () {
-      return { 'grid-template-columns': `200px repeat(${this.descriptors.length}, min-content)` }
+      return { 'grid-template-columns': `50px 200px repeat(${this.descriptors.length}, min-content)` }
     }
   },
 
