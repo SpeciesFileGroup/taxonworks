@@ -4,7 +4,7 @@
     <div>
       <button
         class="button normal-input button-default"
-        @click="hideRows = []">
+        @click="resetView">
         Unhide
       </button>
     </div>
@@ -13,15 +13,21 @@
       :style="columns">
       <div />
       <div />
-      <div
-        v-for="descriptor in descriptors"
-        :key="descriptor.id">
-        <div class="header-cell">
-          <label class="header-label cursor-pointer">
-            {{ descriptor.name }}
-          </label>
+      <template v-for="(descriptor, index) in descriptors">
+        <div
+          v-if="!hideColumn.includes(index)"
+          :key="descriptor.id">
+          <div class="header-cell">
+            <label class="header-label cursor-pointer">
+              <input
+                type="checkbox"
+                :value="index"
+                v-model="hideColumn">
+              {{ descriptor.name }}
+            </label>
+          </div>
         </div>
-      </div>
+      </template>
       <template
         v-for="(row, rIndex) in rows">
         <template v-if="!hideRows.includes(rIndex)">
@@ -41,34 +47,36 @@
               :href="browseOtu(row.object.id)"/>
             <radial-object :global-id="row.object.global_id" />
           </div>
-          <div
-            v-for="(rCol, cIndex) in row.depictions"
-            class="image-cell padding-small"
-            :key="`${rIndex} ${cIndex}`">
+          <template v-for="(rCol, cIndex) in row.depictions">
             <div
-              v-for="depiction in rCol"
-              :key="depiction.id">
-              <tippy-component
-                animation="scale"
-                placement="bottom"
-                size="small"
-                arrow-size="small"
-                inertia
-                arrow
-                :trigger="depiction.image.citations.length
-                  ? 'mouseenter focus'
-                  : 'manual'"
-                :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
-                <template slot="trigger">
-                  <image-viewer
-                    :depiction="depiction"
-                  >
-                    <img :src="depiction.image.alternatives.medium.image_file_url">
-                  </image-viewer>
-                </template>
-              </tippy-component>
+              class="image-cell padding-small"
+              v-if="!hideColumn.includes(cIndex)"
+              :key="`${rIndex} ${cIndex}`">
+              <div
+                v-for="depiction in rCol"
+                :key="depiction.id">
+                <tippy-component
+                  animation="scale"
+                  placement="bottom"
+                  size="small"
+                  arrow-size="small"
+                  inertia
+                  arrow
+                  :trigger="depiction.image.citations.length
+                    ? 'mouseenter focus'
+                    : 'manual'"
+                  :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
+                  <template slot="trigger">
+                    <image-viewer
+                      :depiction="depiction"
+                    >
+                      <img :src="depiction.image.alternatives.medium.image_file_url">
+                    </image-viewer>
+                  </template>
+                </tippy-component>
+              </div>
             </div>
-          </div>
+          </template>
         </template>
       </template>
     </div>
@@ -94,7 +102,7 @@ export default {
   props: {
     matrixId: {
       type: [Number, String],
-      default: undefined
+      default: undefined 
     },
     otusId: {
       type: [String, Array],
@@ -108,13 +116,20 @@ export default {
       rows: [],
       showTable: false,
       isLoading: false,
-      hideRows: []
+      hideRows: [],
+      hideColumn: []
     }
   },
 
   computed: {
     columns () {
-      return { 'grid-template-columns': `50px 200px repeat(${this.descriptors.length}, min-content)` }
+      return { 'grid-template-columns': `50px 200px ${this.repeatColumn}` }
+    },
+
+    repeatColumn () {
+      return this.descriptors.length !== this.hideColumn.length
+        ? `repeat(${this.descriptors.length - this.hideColumn.length}, min-content)`
+        : ''
     }
   },
 
@@ -140,6 +155,10 @@ export default {
   methods: {
     browseOtu (id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
+    },
+    resetView () {
+      this.hideRows = []
+      this.hideColumn = []
     }
   }
 }
