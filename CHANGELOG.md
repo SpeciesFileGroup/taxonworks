@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - node-sass to dart-sass
 
 ### Fixed
+- JSON for geographic area parents (no parent raise)
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
 - Rank order on New combination preview
