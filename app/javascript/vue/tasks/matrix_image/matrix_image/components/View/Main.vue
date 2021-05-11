@@ -42,7 +42,11 @@
                 : 'manual'"
               :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
               <template slot="trigger">
-                <img :src="depiction.image.alternatives.medium.image_file_url">
+                <image-viewer
+                  :depiction="depiction"
+                >
+                  <img :src="depiction.image.alternatives.medium.image_file_url">
+                </image-viewer>
               </template>
             </tippy-component>
           </div>
@@ -56,13 +60,15 @@
 
 import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
     SpinnerComponent,
-    TippyComponent
+    TippyComponent,
+    ImageViewer
   },
   props: {
     matrixId: {
