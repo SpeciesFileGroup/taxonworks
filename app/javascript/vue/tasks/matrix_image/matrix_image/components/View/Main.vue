@@ -71,6 +71,18 @@
                       :depiction="depiction"
                     >
                       <img :src="depiction.image.alternatives.medium.image_file_url">
+                      <div
+                        class="panel content full_width margin-small-right"
+                        slot="infoColumn">
+                        <h3>Image matrix</h3>
+                        <ul class="no_bullets">
+                          <li>Column: <b>{{ descriptors[cIndex].name }}</b></li>
+                          <li>Row: <a
+                            v-html="row.object.object_tag"
+                            :href="browseOtu(row.object.id)"/>
+                          </li>
+                        </ul>
+                      </div>
                     </image-viewer>
                   </template>
                 </tippy-component>
