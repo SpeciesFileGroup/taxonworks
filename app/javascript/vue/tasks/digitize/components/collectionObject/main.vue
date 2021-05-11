@@ -112,7 +112,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
 
-import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
+import { GetCollectionObjectDepictions } from '../../request/resources.js'
 import { CollectionObject, Depiction, User } from 'routes/endpoints'
 
 export default {

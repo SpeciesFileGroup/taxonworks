@@ -116,16 +116,19 @@
         </div>
       </div>
     </v-modal>
-    <div
-      class="cursor-pointer"
-      @click="viewMode = true">
-      <slot>
-        <img
-          class="img-thumb"
-          :src="depiction.image.alternatives.thumb.image_file_url"
-          :height="depiction.image.alternatives.thumb.height"
-          :width="depiction.image.alternatives.thumb.width">
-      </slot>
+    <div>
+      <div
+        class="cursor-pointer"
+        @click="viewMode = true">
+        <slot>
+          <img
+            class="img-thumb"
+            :src="depiction.image.alternatives.thumb.image_file_url"
+            :height="depiction.image.alternatives.thumb.height"
+            :width="depiction.image.alternatives.thumb.width">
+        </slot>
+      </div>
+      <slot name="thumbfooter" />
     </div>
   </div>
 </template>
