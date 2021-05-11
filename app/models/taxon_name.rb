@@ -1124,6 +1124,8 @@ class TaxonName < ApplicationRecord
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
       name = w.join(' ')
     end
+    
+    m = name
     m = Utilities::Italicize.taxon_name(name) if is_italicized?
     m = '† ' + m if is_fossil?
     m
