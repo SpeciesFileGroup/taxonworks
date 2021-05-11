@@ -10,6 +10,7 @@
         v-for="item in figuresList"
         :key="item.id"
         :depiction="item"
+        edit
       />
     </div>
   </section-panel>
@@ -17,7 +18,7 @@
 
 <script>
 
-import ImageViewer from './ImageViewer'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
 import SectionPanel from '../shared/sectionPanel'
 import extendSection from '../shared/extendSections'
 import { GetterNames } from '../../store/getters/getters'
