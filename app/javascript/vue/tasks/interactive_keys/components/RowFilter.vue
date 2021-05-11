@@ -57,6 +57,20 @@
       </div>
       <div slot="footer">
         <button
+          v-if="allSelected"
+          type="button"
+          class="button normal-input button-default margin-small-bottom"
+          @click="unselectAll">
+          Unselect all
+        </button>
+        <button
+          v-else
+          type="button"
+          class="button normal-input button-default margin-small-bottom"
+          @click="selectAll">
+          Select all
+        </button>
+        <button
           type="button"
           class="button normal-input button-default"
           @click="closeAndApply">
