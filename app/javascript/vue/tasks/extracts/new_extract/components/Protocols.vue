@@ -26,7 +26,7 @@
 <script>
 
 import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'
 import { GetterNames } from '../store/getters/getters'

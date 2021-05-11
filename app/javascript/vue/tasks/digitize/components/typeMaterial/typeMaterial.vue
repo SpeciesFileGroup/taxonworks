@@ -113,7 +113,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
 import ActionNames from '../../store/actions/actionNames.js'
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import GetOSKey from 'helpers/getMacKey'
 

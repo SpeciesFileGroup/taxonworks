@@ -33,27 +33,23 @@
 </template>
 
 <script>
-  export default {
-    props: {
-      containerClass: {
-        type: Object,
-        default: () => {
-          return {}
-        }
-      },
-      containerStyle: {
-        type: Object,
-        default: () => {
-          return {}
-        }
-      }
+export default {
+  props: {
+    containerClass: {
+      type: Object,
+      default: () => ({})
     },
-    mounted: function () {
-      document.addEventListener('keydown', (e) => {
-        if (e.keyCode === 27) {
-          this.$emit('close')
-        }
-      })
+    containerStyle: {
+      type: Object,
+      default: () => ({})
     }
+  },
+  mounted () {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.$emit('close')
+      }
+    })
   }
+}
 </script>

@@ -116,7 +116,7 @@
 import { GetterNames } from '../store/getters/getters'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import BlockLayout from'components/layout/BlockLayout'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import Autocomplete from 'components/ui/Autocomplete'
 import AjaxCall from 'helpers/ajaxCall'

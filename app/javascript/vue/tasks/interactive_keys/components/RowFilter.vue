@@ -83,7 +83,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import ExtendResult from './extendResult'
 import RanksList from '../const/ranks'
 import LinkImageMatrix from 'tasks/observation_matrices/dashboard/components/buttonImageMatrix.vue'

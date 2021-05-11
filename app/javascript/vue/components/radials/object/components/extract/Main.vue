@@ -15,7 +15,7 @@
 
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import DisplayList from 'components/displayList.vue'
 
 export default {

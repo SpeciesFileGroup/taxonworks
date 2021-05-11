@@ -56,7 +56,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import { RouteNames } from 'routes/routes'
 import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'

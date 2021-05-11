@@ -193,7 +193,7 @@
 
 import SectionPanel from './shared/sectionPanel'
 import { GetNomenclatureHistory } from '../request/resources.js'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import YearPicker from './nomenclature/yearsPick'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'

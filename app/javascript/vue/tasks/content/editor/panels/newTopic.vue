@@ -44,7 +44,7 @@
 <script>
 import { MutationNames } from '../store/mutations/mutations'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: { Modal },

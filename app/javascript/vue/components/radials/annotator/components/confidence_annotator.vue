@@ -83,7 +83,7 @@
   import CRUD from '../request/crud.js'
   import annotatorExtend from '../components/annotatorExtend.js'
   import autocomplete from 'components/ui/Autocomplete.vue'
-  import modal from 'components/modal.vue'
+  import modal from 'components/ui/Modal.vue'
   import ListItems from './shared/listItems.vue'
 
   export default {

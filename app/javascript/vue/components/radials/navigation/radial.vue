@@ -61,7 +61,7 @@
 <script>
 
 import RadialMenu from 'components/radials/RadialMenu.vue'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import Spinner from 'components/spinner.vue'
 
 import CRUD from './request/crud'

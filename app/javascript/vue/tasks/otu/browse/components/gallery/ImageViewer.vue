@@ -96,7 +96,7 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import AjaxCall from 'helpers/ajaxCall'
 import { capitalize } from 'helpers/strings.js'

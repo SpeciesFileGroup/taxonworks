@@ -34,7 +34,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal.vue'
+import ModalComponent from 'components/ui/Modal.vue'
 import SpinnerComponent from 'components/spinner'
 import { ObservationMatrixColumnItem, Descriptor } from 'routes/endpoints'
 

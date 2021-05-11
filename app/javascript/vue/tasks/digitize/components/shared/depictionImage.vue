@@ -66,7 +66,7 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import ZoomImage from './zoomImage'
 import { Depiction } from 'routes/endpoints'

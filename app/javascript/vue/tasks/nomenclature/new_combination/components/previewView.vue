@@ -51,7 +51,7 @@
 
 import EditInPlace from 'components/editInPlace.vue'
 import { TippyComponent } from 'vue-tippy'
-import VIcon from 'components/Icons/IconBase'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {

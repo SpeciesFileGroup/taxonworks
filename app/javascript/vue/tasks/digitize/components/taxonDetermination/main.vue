@@ -152,7 +152,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CreatePerson from '../../helpers/createPerson.js'
