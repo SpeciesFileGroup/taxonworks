@@ -1116,17 +1116,17 @@ class TaxonName < ApplicationRecord
 
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
-    n = name
-    # n = verbatim_name.blank? ? name : verbatim_name
-    return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    if !n.blank? && is_hybrid?
-      w = n.split(' ')
+    #m = name
+    # m = verbatim_name.blank? ? name : verbatim_name
+    return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
+    if !name.blank? && is_hybrid?
+      w = name.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
-      n = w.join(' ')
+      name = w.join(' ')
     end
-    n = Utilities::Italicize.taxon_name(n) if is_italicized?
-    n = '† ' + n if is_fossil?
-    n
+    m = Utilities::Italicize.taxon_name(name) if is_italicized?
+    m = '† ' + m if is_fossil?
+    m
   end
 
   # @return [String]
