@@ -569,8 +569,8 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
   end
 
   create_table "documentation", id: :serial, force: :cascade do |t|
-    t.string "documentation_object_type", null: false
     t.integer "documentation_object_id", null: false
+    t.string "documentation_object_type", null: false
     t.integer "document_id", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -588,7 +588,7 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
   create_table "documents", id: :serial, force: :cascade do |t|
     t.string "document_file_file_name", null: false
     t.string "document_file_content_type", null: false
-    t.bigint "document_file_file_size", null: false
+    t.integer "document_file_file_size", null: false
     t.datetime "document_file_updated_at", null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
@@ -806,20 +806,18 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
   end
 
   create_table "extracts", id: :serial, force: :cascade do |t|
-    t.decimal "quantity_value", null: false
-    t.string "quantity_unit", null: false
     t.string "verbatim_anatomical_origin"
-    t.integer "year_made", null: false
-    t.integer "month_made", null: false
-    t.integer "day_made", null: false
+    t.integer "year_made"
+    t.integer "month_made"
+    t.integer "day_made"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "concentration_value"
-    t.string "concentration_unit"
+    t.bigint "repository_id"
     t.index ["project_id"], name: "index_extracts_on_project_id"
+    t.index ["repository_id"], name: "index_extracts_on_repository_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -982,7 +980,7 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
     t.datetime "updated_at", null: false
     t.string "image_file_file_name"
     t.string "image_file_content_type"
-    t.bigint "image_file_file_size"
+    t.integer "image_file_file_size"
     t.datetime "image_file_updated_at"
     t.integer "updated_by_id", null: false
     t.text "image_file_meta"
@@ -1044,8 +1042,8 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "loan_item_object_type"
     t.integer "loan_item_object_id"
+    t.string "loan_item_object_type"
     t.integer "total"
     t.string "disposition"
     t.index ["created_by_id"], name: "index_loan_items_on_created_by_id"
@@ -1347,8 +1345,8 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
   end
 
   create_table "pinboard_items", id: :serial, force: :cascade do |t|
-    t.string "pinned_object_type", null: false
     t.integer "pinned_object_id", null: false
+    t.string "pinned_object_type", null: false
     t.integer "user_id", null: false
     t.integer "project_id", null: false
     t.integer "position", null: false
@@ -1412,7 +1410,7 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
     t.datetime "updated_at", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
-    t.jsonb "preferences", default: "{}", null: false
+    t.jsonb "preferences", default: {}, null: false
     t.string "api_access_token"
     t.index ["created_by_id"], name: "index_projects_on_created_by_id"
     t.index ["updated_by_id"], name: "index_projects_on_updated_by_id"
@@ -1673,8 +1671,8 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
     t.string "boundary_finder", null: false
     t.boolean "has_border", null: false
     t.string "layout", null: false
-    t.jsonb "metadata_map", default: "{}", null: false
-    t.jsonb "specimen_coordinates", default: "{}", null: false
+    t.jsonb "metadata_map", default: {}, null: false
+    t.jsonb "specimen_coordinates", default: {}, null: false
     t.integer "project_id", null: false
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
@@ -2024,6 +2022,7 @@ ActiveRecord::Schema.define(version: 2021_05_06_161114) do
   add_foreign_key "dwc_occurrences", "users", column: "created_by_id"
   add_foreign_key "dwc_occurrences", "users", column: "updated_by_id"
   add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"
