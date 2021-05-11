@@ -812,9 +812,10 @@ class Protonym < TaxonName
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       dependants.each do |i|
-        columns_to_update = {
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html,
+        n = i.get_full_name
+        i.columns_to_update = {
+          cached: n,
+          cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date
         }
@@ -833,9 +834,10 @@ class Protonym < TaxonName
 
       # Update values in Combinations
       combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |j|
+        n = j.get_full_name
         j.update_columns(
-          cached: j.get_full_name,
-          cached_html: j.get_full_name_html,
+          cached: n,
+          cached_html: j.get_full_name_html(n),
           cached_author_year: j.get_author_and_year,
           cached_nomenclature_date: j.nomenclature_date)
       end
@@ -845,9 +847,10 @@ class Protonym < TaxonName
       end
 
       classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        n = i.get_full_name
         i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html,
+          cached: n,
+          cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end

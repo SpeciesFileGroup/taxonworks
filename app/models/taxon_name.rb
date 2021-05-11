@@ -1094,7 +1094,6 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-#    return name if not_binomial?
     return name if rank_class.to_s =~ /Icvcn/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
 
