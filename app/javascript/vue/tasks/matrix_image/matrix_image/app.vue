@@ -19,7 +19,7 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
-        <li>
+        <li v-if="!viewMode">
           <autocomplete
             url="/observation_matrices/autocomplete"
             param="term"
@@ -56,7 +56,10 @@
           </li>
         </template>
         <li>
-          <a href="/tasks/observation_matrices/observation_matrix_hub">Back to observation matrix hub</a>
+          <a :href="RouteNames.ObservationMatricesDashboard">Observation matrix dashboard</a>
+        </li>
+        <li>
+          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
         </li>
       </ul>
     </div>
@@ -125,7 +128,8 @@ export default {
   computed: {
     isSaving () {
       return this.$store.getters[GetterNames.GetIsSaving]
-    }
+    },
+    RouteNames: () => RouteNames
   },
 
   data () {
@@ -152,7 +156,6 @@ export default {
     const otuIdsParam = urlParams.get('otu_ids')
     const otuFilterParam = urlParams.get('otu_filter')
 
-console.log(otuFilterParam)
     if (otuFilterParam) {
       this.otuFilter = otuFilterParam
       this.viewMode = true
