@@ -813,7 +813,7 @@ class Protonym < TaxonName
 
       dependants.each do |i|
         n = i.get_full_name
-        i.columns_to_update = {
+        columns_to_update = {
           cached: n,
           cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
