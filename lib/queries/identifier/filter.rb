@@ -57,36 +57,6 @@ module Queries
         object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
       end
 
-     # Rich - destroy all this
-
-    # def missmatched_object_id?
-    #   return false if @identifier_object_id.blank? || @object_global_id.blank?
-    #   o = GlobalID::Locator.locate(object_global_id)
-    #   !(o.id == @identifier_object_id)
-    # end
-
-    # def missmatched_object_type?
-    #   return false if @identifier_object_id.blank? || @object_global_id.blank?
-    #   o = GlobalID::Locator.locate(object_global_id)
-    #   !(o.class.base_class.name == @identifier_object_type)
-    # end
-
-    # def missmatch_with_global_object?
-    #   missmatched_object_id? || missmatched_object_type?
-    # end
-
-    # def identifier_object_id
-    #   return nil if missmatch_with_global_object?
-    #   return @identifier_object_id if @identifier_object_id
-    #   object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
-    # end
-
-    # def identifier_object_type
-    #   return nil if missmatch_with_global_object?
-    #   return @identifier_object_type if @identifier_object_type
-    #   object_global_id ? GlobalID::Locator.locate(object_global_id).class.base_class.name : nil
-    # end
-
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = [

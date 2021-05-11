@@ -18,7 +18,7 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     # type=&namespace_id=3&identifier=862422
 
     query.type = 'Identifier::Local::CatalogNumber'
-    # query.identifier_object_id = i2.identifier_object.id
+    query.identifier_object_id = i2.identifier_object.id
     query.identifier = i2.identifier
 
     expect(query.all.map(&:id)).to contain_exactly(i2.id)
@@ -26,8 +26,6 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   specify '#object_global_id 1' do
     query.object_global_id = o1.to_global_id.to_s
-    # "gid://taxon-works/Otu/1"
-    # query.all => undefined method `type' for #<Otu:0x00007fc49d0553c0>
     expect(query.all.map(&:id)).to contain_exactly(i1.id)
   end
 
