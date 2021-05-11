@@ -3,7 +3,7 @@
 All (hopefully) notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
+This project <em>does not yet</em> adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
 
@@ -17,7 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix link in Interactive keys task
 
 ### Changed
-- Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
+- Plural params for identifiers API endpoint merged to array single form. e.g., identifier_object_ids[]=47&identifier_object_ids[]=2232 => identifier_object_id[]=47&identifier_object_id[]=2232. [#2195] 
 - Removed quantification fields from Extract
 - Warning message on nuke action in Grid digitize task [#2229]
 - Upgraded from Ruby version 2.7.2 to 2.7.3
@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
 
+[#2195]: https://github.com/SpeciesFileGroup/taxonworks/pull/2195
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
