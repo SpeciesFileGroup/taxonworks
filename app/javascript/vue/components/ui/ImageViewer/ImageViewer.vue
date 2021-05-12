@@ -68,6 +68,7 @@
         <hr>
 
         <div class="flex-separate">
+          <slot name="infoColumn" />
           <div
             v-if="!edit"
             class="full_width panel content">

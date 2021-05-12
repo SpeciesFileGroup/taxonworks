@@ -170,12 +170,13 @@ export default {
       if (this.observationsMedia.length) {
         this.updateDepiction()
       } else {
-        const newObservation = {
+        const observation = {
           descriptor_id: this.column.descriptor_id,
           type: 'Observation::Media',
           [this.row.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id,
         }
-        Observation.create(newObservation).then(response => {
+
+        Observation.create({ observation }).then(response => {
           this.observations.push(response.body)
           this.updateDepiction()
         })
@@ -193,7 +194,7 @@ export default {
         depictions_attributes: [depiction]
       }
 
-      Observation.update({ observation }).then(response => {
+      Observation.update(observation.id, { observation }).then(response => {
         if (!response.body.hasOwnProperty('depictions')) {
           Observation.destroy(response.body.id)
         }
