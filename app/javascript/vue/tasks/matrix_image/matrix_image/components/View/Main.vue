@@ -8,9 +8,14 @@
         Unhide
       </button>
     </div>
-    <div
-      class="grid-table"
-      :style="columns">
+    <table-grid
+      :columns="columnsCount"
+      :column-width="{
+        default: 'min-content',
+        0: '50px',
+        1: '200px'
+      }"
+      gap="4">
       <div />
       <div />
       <template v-for="(descriptor, index) in descriptors">
@@ -47,6 +52,7 @@
               :href="browseOtu(row.object.id)"/>
             <radial-object :global-id="row.object.global_id" />
           </div>
+
           <template v-for="(rCol, cIndex) in row.depictions">
             <div
               class="image-cell padding-small"
@@ -91,7 +97,7 @@
           </template>
         </template>
       </template>
-    </div>
+    </table-grid>
   </div>
 </template>
 
@@ -101,15 +107,18 @@ import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialObject from 'components/radials/object/radial'
+import TableGrid from 'components/layout/Table/TableGrid.vue'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
     SpinnerComponent,
     TippyComponent,
     ImageViewer,
-    RadialObject
+    RadialObject,
+    TableGrid
   },
   props: {
     matrixId: {
@@ -134,14 +143,8 @@ export default {
   },
 
   computed: {
-    columns () {
-      return { 'grid-template-columns': `50px 200px ${this.repeatColumn}` }
-    },
-
-    repeatColumn () {
-      return this.descriptors.length !== this.hideColumn.length
-        ? `repeat(${this.descriptors.length - this.hideColumn.length}, min-content)`
-        : ''
+    columnsCount () {
+      return this.descriptors.length - this.hideColumn.length + 2
     }
   },
 
@@ -153,14 +156,16 @@ export default {
 
     retrieveDepictions.then(({ body }) => {
       this.descriptors = Object.values(body.list_of_descriptors)
+      this.descriptors.unshift({ name: 'OTU depictions' })
       this.rows = Object.values(body.depiction_matrix)
         .filter(row => [].concat(...row.depictions).length)
         .map(observation => ({
           ...observation,
-          depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
+          depictions: [[], ...observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))]
         }))
     }).finally(() => {
       this.isLoading = false
+      this.loadOtuDepictions()
     })
   },
 
@@ -168,31 +173,33 @@ export default {
     browseOtu (id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
     },
+
     resetView () {
       this.hideRows = []
       this.hideColumn = []
+    },
+
+    async loadOtuDepictions () {
+      this.rows.forEach(async item => {
+        this.$set(item.depictions, 0, (await Otu.depictions(item.object.id)).body)
+      })
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-  .grid-table {
-    display: grid;
-    gap: 4px;
+  .image-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
+  }
 
-    .image-cell {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      background-color: white;
-    }
-
-    .otu-cell {
-      display: flex;
-      align-items: center;
-      justify-content: left;
-      background-color: white;
-    }
+  .otu-cell {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    background-color: white;
   }
 </style>

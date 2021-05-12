@@ -26,19 +26,19 @@ module Utilities::Italicize
   # @return [String, nil]
   def self.taxon_name(string)
     # Don't use .blank?, anticipate moving out of Rails
-    st = string
+    st = string.dup
     return nil if st.nil? || st == ''
 
     # May need to revert to this 1:1 form if we find that an individual COMBINATION_INJECTS element are found > 1 per name 
     # TaxonName::COMBINATION_INJECTIONS.collect{|a| Regexp.escape(a)  }.each do |r|
     #   string.gsub!(/(#{r})/, '</i>\1<i>')
     # end
-    
+
     st = st.gsub(/(#{COMBINATION_INJECTION_REGEX})/, '</i>\1<i>')
-    st = "<i>#{st}</i>".
-        gsub('<i> ', ' <i>').
-        gsub(')</i>', '</i>)').
-        gsub('<i></i>', '')
+        st = "<i>#{st}</i>".
+            gsub('<i> ', ' <i>').
+            gsub(')</i>', '</i>)').
+            gsub('<i></i>', '')
     st
   end
 
