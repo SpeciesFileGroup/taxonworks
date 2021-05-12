@@ -921,7 +921,12 @@ namespace :tw do
               user_name = "NoName_#{no_name_counter += 1}"
             end
 
-            if unique_auth_users[au_id]
+            if au_id.to_i <= 0
+              unique_auth_users[au_id].each do |fu_id|
+                get_tw_user_id[fu_id] = Current.user_id.to_s # @ Making user.id into string for consistency of all hash values being strings
+                logger.info "Assigned system user #{au_id}:#{fu_id} to import user"
+              end
+            elsif unique_auth_users[au_id]
               logger.info "is a unique user, creating:  #{i}: #{user_name}"
 
               user = User.new(
