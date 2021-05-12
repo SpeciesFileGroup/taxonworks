@@ -241,8 +241,25 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
+  has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
+
+  # TODO: ARELize
   scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  scope :that_is_invalid, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+
+  def self.that_is_really_invalid
+    a = TaxonName.that_is_invalid
+    b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
+    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+  end
+
+  # TODO optimize to use joins
+  def self.that_is_really_valid
+    # TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+    TaxonName.that_is_valid.where.not(
+      id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+    )
+  end
 
   scope :with_type, -> (type) {where(type: type)}
 
@@ -322,7 +339,7 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  
+
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
@@ -354,7 +371,7 @@ class TaxonName < ApplicationRecord
       )
 
     # This was particularly useful in debugging the join chain:
-    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a} 
+    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a}
 
     b = b.as('abc')
 
@@ -502,7 +519,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @see .out_of_scope_combinations
-  def out_of_scope_combinations 
+  def out_of_scope_combinations
     ::TaxonName
       .where(project_id: project_id)
       .out_of_scope_combinations(id)
@@ -751,6 +768,8 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
+  #
+  # TODO: does not check TaxonNameClassification
   def is_valid?
     id == cached_valid_taxon_name_id
   end
@@ -1124,7 +1143,7 @@ class TaxonName < ApplicationRecord
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
       name = w.join(' ')
     end
-    
+
     m = name
     m = Utilities::Italicize.taxon_name(name) if is_italicized?
     m = '† ' + m if is_fossil?

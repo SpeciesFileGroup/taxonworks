@@ -105,7 +105,7 @@ module Export::Coldp::Files::Taxon
   def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: false)
 
     # Until we have RC5 articulations we are temporarily glossing over the fact
-    # that one taoxn name can be used for many OTUs.  Track to see that
+    # that one taxon name can be used for many OTUs.  Track to see that
     # an OTU with a given taxon name does not already exist
     #   taxon_name_id: otu_id (the value is not needed)
     observed_taxon_name_ids = { }
@@ -130,8 +130,9 @@ module Export::Coldp::Files::Taxon
         remarks
       }
 
+      # TODO: make OTUS incoming only valid
       otus.each do |o|
-        next unless o.taxon_name_id && o.taxon_name.is_valid?
+        next unless o.taxon_name_id && o.taxon_name.is_valid? # TODO: Should be *really* valid
 
         # TODO: remove once RC5 better modelled
         next if observed_taxon_name_ids[o.taxon_name_id]

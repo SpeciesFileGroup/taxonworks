@@ -1,3 +1,7 @@
+
+
+# The names table includes
+# * All names strings, even if hanging (= not attached to OTUs/Taxa)
 module Export::Coldp::Files::Name
 
   def self.code_field(taxon_name)
@@ -159,7 +163,7 @@ module Export::Coldp::Files::Name
         remarks
       }
 
-      otu.taxon_name.self_and_descendants.that_is_valid
+      otu.taxon_name.self_and_descendants.that_is_really_valid # TODO update method when unified valid/invalid
         .pluck(:id, :cached)
         .each do |name|
 
