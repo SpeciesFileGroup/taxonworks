@@ -26,7 +26,7 @@
             @vdropzone-sending="sending"
             @vdropzone-success="success"
             :dropzone-options="dropzoneObservation"/>
-          </div>
+        </div>
       </template>
 
       <draggable-component
@@ -49,9 +49,9 @@
         </template>
       </draggable-component>
     </div>
-    <div
+    <v-icon
       v-if="!show && existObservations"
-      class="background-cell-image"/>
+      name="image"/>
   </div>
 </template>
 
@@ -61,6 +61,7 @@ import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
 import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import SpinnerComponent from 'components/spinner'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 import { Observation, Depiction } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
@@ -71,25 +72,27 @@ export default {
     DropzoneComponent,
     DraggableComponent,
     SpinnerComponent,
-    DepictionModalViewer
+    DepictionModalViewer,
+    VIcon
   },
+
   props: {
     row: {
       type: Object,
       required: true
     },
+
     column: {
       type: Object,
       required: true
     },
-    index: {
-      type: [Number, String]
-    },
+
     show: {
       type: Boolean,
       default: true
     }
   },
+
   computed: {
     observationMoved: {
       get () {
@@ -114,7 +117,8 @@ export default {
       return this.observations.length > 0
     }
   },
-  data() {
+
+  data () {
     return {
       observations: [],
       isLoading: true,
@@ -125,7 +129,7 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop<br>image<br>here',
+        dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
       },
       dropzoneDepiction: {
@@ -135,11 +139,12 @@ export default {
         headers: {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        dictDefaultMessage: 'Drop<br>image<br>here',
+        dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
       }
     }
   },
+
   watch: {
     row: {
       handler () {
@@ -156,6 +161,7 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     removedObservationFromList (event) {
       if (this.observationsMedia[0].depictions.length === 1) {
@@ -245,7 +251,7 @@ export default {
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.column.descriptor_id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.row.row_object.base_class == 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
+      formData.append(`observation[${this.row.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
     },
 
     successDepic (file, response) {
@@ -276,15 +282,6 @@ export default {
     margin: 1em 0 !important;
   }
 
-  .background-cell-image {
-    width: 25px;
-    height: 20px;
-    background-size: 20px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-image: url('../assets/images/image.svg')
-  }
-  
   .matrix-image-draggable {
     min-height: 100px;
     box-sizing: content-box;

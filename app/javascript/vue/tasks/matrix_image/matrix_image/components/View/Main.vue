@@ -23,7 +23,9 @@
           v-if="!hideColumn.includes(index)"
           :key="descriptor.id">
           <div class="header-cell">
-            <label class="header-label cursor-pointer">
+            <label
+              class="header-label cursor-pointer ellipsis"
+              :title="descriptor.name">
               <input
                 type="checkbox"
                 :value="index"
@@ -37,7 +39,7 @@
         v-for="(row, rIndex) in rows">
         <template v-if="!hideRows.includes(rIndex)">
           <div
-            class="image-cell"
+            class="observation-cell"
             :key="rIndex">
             <input
               type="checkbox"
@@ -55,7 +57,7 @@
 
           <template v-for="(rCol, cIndex) in row.depictions">
             <div
-              class="image-cell padding-small"
+              class="observation-cell padding-small"
               v-if="!hideColumn.includes(cIndex)"
               :key="`${rIndex} ${cIndex}`">
               <div
@@ -123,8 +125,9 @@ export default {
   props: {
     matrixId: {
       type: [Number, String],
-      default: undefined 
+      default: undefined
     },
+
     otusId: {
       type: [String, Array],
       default: () => []
@@ -149,19 +152,18 @@ export default {
   },
 
   created () {
-    this.isLoading = true
     const retrieveDepictions = this.otusId.length
       ? ajaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: this.otusId } })
       : ajaxCall('get', `/tasks/observation_matrices/image_matrix/${this.matrixId}/key`)
 
+    this.isLoading = true
     retrieveDepictions.then(({ body }) => {
       this.descriptors = Object.values(body.list_of_descriptors)
-      this.descriptors.unshift({ name: 'OTU depictions' })
       this.rows = Object.values(body.depiction_matrix)
         .filter(row => [].concat(...row.depictions).length)
         .map(observation => ({
           ...observation,
-          depictions: [[], ...observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))]
+          depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
         }))
     }).finally(() => {
       this.isLoading = false
@@ -179,27 +181,20 @@ export default {
       this.hideColumn = []
     },
 
-    async loadOtuDepictions () {
-      this.rows.forEach(async item => {
-        this.$set(item.depictions, 0, (await Otu.depictions(item.object.id)).body)
+    loadOtuDepictions () {
+      const promises = this.rows.map(item => Otu.depictions(item.object.id))
+
+      Promise.all(promises).then(responses => {
+        const rowDepictions = responses.map(({ body }) => body)
+
+        if (rowDepictions.some(depictions => depictions.length)) {
+          rowDepictions.forEach((depictions, index) => {
+            this.rows[index].depictions.unshift(depictions)
+          })
+          this.descriptors.unshift({ name: 'OTU depictions' })
+        }
       })
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-  .image-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: white;
-  }
-
-  .otu-cell {
-    display: flex;
-    align-items: center;
-    justify-content: left;
-    background-color: white;
-  }
-</style>
