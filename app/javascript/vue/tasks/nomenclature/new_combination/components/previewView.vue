@@ -6,7 +6,7 @@
       <span>
         <i>
           <span
-            v-for="rank in Object.keys(combination.protonyms)"
+            v-for="rank in Object.keys(combination.protonyms).reverse()"
             :key="rank">
             <template v-if="combination.protonyms[rank]">
               {{ combination.protonyms[rank].name }}
