@@ -308,9 +308,7 @@ describe Combination, type: :model, group: :nomenclature do
     specify 'chached_valid_taxon_name_id for Combination' do
       combination.update(genus: genus, species: species)
       expect(species.cached_valid_taxon_name_id).to eq(species.id)
-      expect(species.cached_is_valid).to be_truthy
       expect(combination.cached_valid_taxon_name_id).to eq(species.id)
-      expect(combination.cached_is_valid).to be_falsey
     end
   end
 

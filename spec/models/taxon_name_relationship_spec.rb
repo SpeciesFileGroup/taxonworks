@@ -286,11 +286,9 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
         g2.reload
         expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
-        expect(g2.cached_is_valid).to be_falsey
         r1.destroy!
         g2.reload
         expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
-        expect(g2.cached_is_valid).to be_truthy
       end
 
       specify 'create misspelling relationship' do
