@@ -8,7 +8,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
-- Added 'cached_is_valid' column to 'taxon_names' [#2242]
 - Added `destroyed_redirect` to object radial JSON
 - "Not specified" facet to Filter nomenclature [#2226]
 - New extract task interface [#1934]

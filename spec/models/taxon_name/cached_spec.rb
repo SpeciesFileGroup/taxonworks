@@ -409,7 +409,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
               species.reload
               combination.reload
               expect(species.cached_valid_taxon_name_id).to eq(species_syn.id)
-              expect(species.cached_is_valid).to be_falsey
               expect(combination.cached_valid_taxon_name_id).to eq(species_syn.id)
             end
           end
