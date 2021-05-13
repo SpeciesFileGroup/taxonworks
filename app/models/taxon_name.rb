@@ -121,11 +121,7 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
-#   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a claster of taxon_names which should be shown on the same Browse Nomenclature page.
-#
-# @!cached_is_valid
-#   @return [Boolean]
-#   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
+#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_relationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
 
@@ -756,7 +752,7 @@ class TaxonName < ApplicationRecord
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
   def is_valid?
-    cached_is_valid
+    id == cached_valid_taxon_name_id
   end
 
   # @return [Boolean]
@@ -924,7 +920,6 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
-      cached_is_valid: nil,
       cached_original_combination: nil,
       cached_nomenclature_date: nil
     )
@@ -951,9 +946,7 @@ class TaxonName < ApplicationRecord
   end
 
   def set_cached_valid_taxon_name_id
-    v = is_combination? ? false : !unavailable_or_invalid?
-    update_columns(cached_valid_taxon_name_id: get_valid_taxon_name.id,
-                   cached_is_valid: v)
+    update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
   end
 
   def set_cached_warnings
