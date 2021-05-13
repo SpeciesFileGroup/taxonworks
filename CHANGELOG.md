@@ -18,6 +18,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix link in Interactive keys task
 - Export scss vars to javascript
 - Pagination count in Filter nomenclature
+- OTU depictions column on view mode in Image matrix task
+- Grid table component
+- SVG Icon component
 
 ### Changed
 - Removed `allow_destroy` from object radial JSON
@@ -28,6 +31,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Upgraded to Node 14 LTS
 - Updated Ruby gems and Node packages
 - node-sass to dart-sass
+- Refactor image matrix edit table
+- Webpack configuration to export sass vars
 
 ### Fixed
 - JSON for geographic area parents (no parent raise)
@@ -35,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - 404 error when deleting records from data interfaces [#2223]
 - Rank order on New combination preview
 - Redirect after destroy a combination [#2169]
+- Drag and drop depictions in Image Matrix
 
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169

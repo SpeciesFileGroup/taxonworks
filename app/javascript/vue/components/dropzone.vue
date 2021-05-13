@@ -157,7 +157,6 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      console.log(Object.assign({}, { maxFilesize: this.maxFileSizeInMB }, this.dropzoneOptions))
       this.dropzone = new Dropzone(element, Object.assign({}, { maxFilesize: this.maxFileSizeInMB }, this.dropzoneOptions))
     }
     // Handle the dropzone events
