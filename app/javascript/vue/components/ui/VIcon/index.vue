@@ -112,9 +112,6 @@ export default {
 
       return (explicitSize && SIZE_MAP[explicitSize]) || convertToUnit(this.size)
     }
-  },
-  created () {
-    console.log(paletteColors)
   }
 }
 </script>

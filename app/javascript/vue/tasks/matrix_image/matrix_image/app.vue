@@ -177,7 +177,7 @@ export default {
     },
     addRow (row) {
       this.showRowModal = false
-      if (row.hasOwnProperty('otu_id')) {
+      if (row.otu_id) {
         Otu.find(row.otu_id).then(response => {
           row.row_object = response.body
           this.observationRows.push(row)
@@ -198,7 +198,7 @@ export default {
       promises.push(ObservationMatrix.find(id).then(response => { this.observationMatrix = response.body }))
       promises.push(ObservationMatrix.columns(id).then(response => { this.observationColumns = response.body }))
 
-      Promise.all(promises).then(() => { 
+      Promise.all(promises).then(() => {
         if (rowId && position) {
           this.findRow(rowId, Number(position))
         } else {
@@ -207,16 +207,24 @@ export default {
       })
     },
 
-    getRows (page) {
-      return new Promise((resolve, reject) => {
-        ObservationMatrix.rows(this.matrixId, {
-          page,
-          per: this.maxPerPage,
-          otu_ids: this.otu_ids
-        }).then(response => {
-          this.observationRows = response.body
-          this.pagination = GetPagination(response)
-          return resolve(response.body)
+    async getRows (page) {
+      return ObservationMatrix.rows(this.matrixId, {
+        page,
+        per: this.maxPerPage,
+        otu_ids: this.otu_ids
+      }).then(response => {
+        this.observationRows = response.body
+        this.pagination = GetPagination(response)
+        this.loadOtusDepiction(this.observationRows.map(item => item.row_object.id))
+      })
+    },
+
+    loadOtusDepiction (ids) {
+      const promises = ids.map(id => Otu.depictions(id))
+
+      Promise.all(promises).then(responses => {
+        responses.forEach(({ body }, index) => {
+          this.$set(this.observationRows[index], 'otuDepictions', body)
         })
       })
     },

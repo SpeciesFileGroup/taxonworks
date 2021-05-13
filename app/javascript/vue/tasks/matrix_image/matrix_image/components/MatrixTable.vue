@@ -1,10 +1,11 @@
 <template>
   <table-grid
-    :columns="columns.length + 2"
+    :columns="imageColums.length + this.staticColumns"
     :column-width="{
       default: 'auto',
       0: '50px',
       1: '200px',
+      2: collapseColumns.includes('otu') ? '40px' : 'auto',
       ...hideColumns
     }"
     gap="4">
@@ -14,10 +15,22 @@
       </div>
     </div>
     <div/>
-    <template v-for="(column, index) in columns">
+    <div v-if="existingOTUDepictions">
+      <div class="header-cell">
+        <label
+          class="header-label cursor-pointer ellipsis"
+          title="OTU depictions">
+          <input
+            type="checkbox"
+            value="otu"
+            v-model="collapseColumns">
+          OTU depictions
+        </label>
+      </div>
+    </div>
+    <template v-for="(column, index) in imageColums">
       <div
         class="header-cell"
-        v-if="column.descriptor.type == 'Descriptor::Media'"
         :key="column.id"
         :class="{ 'collapse-cell': collapseColumns.includes(index)}">
         <div class="header-cell">
@@ -33,15 +46,13 @@
         </div>
       </div>
     </template>
-
-    <template v-for="(row, rIndex) in rows">
+    <template v-for="(row, index) in rows">
       <div
         :key="row.id"
         class="observation-cell">
         <input
           type="checkbox"
-          :value="row.id"
-          :checked="!collapseRows.includes(row.id)"
+          :value="index"
           v-model="collapseRows">
       </div>
       <div
@@ -51,18 +62,23 @@
           v-html="row.row_object.object_tag"
           :href="browseOtu(row.row_object.id)"/>
       </div>
-      <div
-        v-for="(column, cIndex) in columns"
+      <cell-depiction
+        v-if="existingOTUDepictions"
         class="observation-cell padding-small edit-cell"
-        :key="`${row.id} ${column.id}`">
-        <cell-component
-          v-if="column.descriptor.type == 'Descriptor::Media'"
-          class="full_width"
-          :index="rIndex + cIndex"
-          :column="column"
-          :show="!filterCell(cIndex, row.id)"
-          :row="row"/>
-      </div>
+        :key="`${row.id}-c`"
+        :show="!filterCell('otu', index)"
+        :depictions="row.otuDepictions"/>
+      <template v-for="(column, cIndex) in imageColums">
+        <div
+          class="observation-cell padding-small edit-cell"
+          :key="`${row.id} ${column.id}`">
+          <cell-component
+            class="full_width"
+            :column="column"
+            :show="!filterCell(cIndex, index)"
+            :row="row"/>
+        </div>
+      </template>
     </template>
   </table-grid>
 </template>
@@ -70,13 +86,15 @@
 <script>
 
 import CellComponent from './Cell.vue'
+import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
 import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
     TableGrid,
-    CellComponent
+    CellComponent,
+    CellDepiction
   },
 
   props: {
@@ -99,7 +117,19 @@ export default {
 
   computed: {
     hideColumns () {
-      return Object.assign({}, ...this.collapseColumns.map(position => ({ [position + 2]: '40px' })))
+      return Object.assign({}, ...this.collapseColumns.map(position => ({ [position + this.staticColumns]: '40px' })))
+    },
+
+    imageColums () {
+      return this.columns.filter(column => column.descriptor.type === 'Descriptor::Media')
+    },
+
+    staticColumns () {
+      return this.existingOTUDepictions ? 3 : 2
+    },
+
+    existingOTUDepictions () {
+      return this.rows.some(row => row.otuDepictions?.length)
     }
   },
 
@@ -118,8 +148,8 @@ export default {
       this.collapseColumns = this.columns.map(column => column.id)
     },
 
-    filterCell (columnId, rowId) {
-      return this.collapseColumns.includes(columnId) || this.collapseRows.includes(rowId)
+    filterCell (cIndex, index) {
+      return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
     }
   }
 }

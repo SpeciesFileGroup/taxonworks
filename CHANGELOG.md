@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU depictions column on view mode in Image matrix task
 - Grid table component
 - SVG Icon component
+- OTU depictions draggable in image matrix
 
 ### Changed
 - Removed `allow_destroy` from object radial JSON
