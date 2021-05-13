@@ -147,7 +147,8 @@ export default {
 
   watch: {
     row: {
-      handler () {
+      handler (newVal, oldVal) {
+        if (newVal.id === oldVal?.id) return
         this.isLoading = true
         Observation.where({
           observation_object_global_id: this.row.row_object.global_id,
@@ -196,20 +197,21 @@ export default {
         depiction_object_type: this.observationsMedia[0].base_class
       }
       const observation = {
-        id: this.observationMoved.id,
+        id: this.observationMoved?.id,
         depictions_attributes: [depiction]
       }
-
-      Observation.update(observation.id, { observation }).then(response => {
-        if (!response.body.hasOwnProperty('depictions')) {
-          Observation.destroy(response.body.id)
-        }
-      })
+      if (observation.id) {
+        Observation.update(observation.id, { observation }).then(({ body }) => {
+          if (!body?.depictions) {
+            Observation.destroy(body.id)
+          }
+        })
+      }
       this.$store.commit(MutationNames.SetIsSaving, true)
       Depiction.update(depiction.id, { depiction }).then((response) => {
         const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
 
-        if (this.observations[index].hasOwnProperty('depictions')) {
+        if (this.observations[index]?.depictions) {
           this.observations[index].depictions.push(response.body)
         } else {
           this.$set(this.observations[index], 'depictions', [response.body])
