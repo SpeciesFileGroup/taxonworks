@@ -239,15 +239,17 @@ class TaxonNameClassification < ApplicationRecord
 #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
 #          end
           vn = t.get_valid_taxon_name
-          vn.update_column(:cached_valid_taxon_name_id, vn.id)  # update self too!
+          vn.update_columns(cached_valid_taxon_name_id: vn.id,
+                            cached_is_valid: !vn.unavailable_or_invalid?)  # update self too!
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(cached_valid_taxon_name_id: vn.id,
+                             cached_is_valid: false)
             s.combination_list_self.each do |c|
-              c.update_column(:cached_valid_taxon_name_id, vn.id)
+              c.update_columns(cached_valid_taxon_name_id: vn.id)
             end
           end
           t.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
+            c.update_columns(cached_valid_taxon_name_id: vn.id)
           end
         end
       end
