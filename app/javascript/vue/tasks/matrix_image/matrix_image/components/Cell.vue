@@ -211,7 +211,7 @@ export default {
       Depiction.update(depiction.id, { depiction }).then((response) => {
         const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
 
-        if (this.observations[index]?.depictions) {
+        if (this.observations[index]?.depictions?.length) {
           this.observations[index].depictions.push(response.body)
         } else {
           this.$set(this.observations[index], 'depictions', [response.body])
