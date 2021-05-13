@@ -1,86 +1,110 @@
 <template>
-  <div>
-    <table>
-      <thead>
-        <tr>
-          <th class="checkbox-cell">
-            <label class="header-label">Collapse</label>
-          </th>
-          <th class="object-cell"/>
-          <template v-for="column in columns">
-            <th 
-              :key="column.id"
-              class="header-cell"
-              v-if="column.descriptor.type == 'Descriptor::Media'"
-              :class="{ 'collapse-cell': collapseColumns.includes(column.id)}">
-              <label class="header-label cursor-pointer">
-                <input
-                  type="checkbox"
-                  :value="column.id"
-                  v-model="collapseColumns">
-                {{ column.descriptor.name }}
-              </label>
-            </th>
-          </template>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="(row, rIndex) in rows">
-          <tr
-            class="row-cell"
-            :key="row.row_id"
-            :data-matrix-id="row.id">
-            <td class="checkbox-cell">
-              <input
-                type="checkbox"
-                :value="row.id"
-                :checked="!collapseRows.includes(row.id)"
-                v-model="collapseRows"/>
-            </td>
-            <td class="object-cell">
-              <a
-                v-html="row.row_object.object_tag"
-                :href="browseOtu(row.row_object.id)"/>
-            </td>
-            <template>
-              <template v-for="(column, cIndex) in columns">
-                <td
-                  v-if="column.descriptor.type == 'Descriptor::Media'"
-                  :class="{ [!filterCell(column.id, row.id) ? 'padding-cell' : 'collapse-cell']: true }"
-                  :key="column.id">
-                  <cell-component 
-                    :index="rIndex + cIndex"
-                    :column="column"
-                    :show="!filterCell(column.id, row.id)"
-                    :row="row"/>
-                </td>
-              </template>
-            </template>
-          </tr>
-        </template>
-      </tbody>
-    </table>
-  </div>
+  <table-grid
+    :columns="imageColums.length + this.staticColumns"
+    :column-width="{
+      default: 'auto',
+      0: '50px',
+      1: '200px',
+      2: collapseColumns.includes('otu') ? '40px' : 'auto',
+      ...hideColumns
+    }"
+    gap="4">
+    <div>
+      <div class="header-cell">
+        <label class="header-label">Collapse</label>
+      </div>
+    </div>
+    <div/>
+    <div v-if="existingOTUDepictions">
+      <div class="header-cell">
+        <label
+          class="header-label cursor-pointer ellipsis"
+          title="OTU depictions">
+          <input
+            type="checkbox"
+            value="otu"
+            v-model="collapseColumns">
+          OTU depictions
+        </label>
+      </div>
+    </div>
+    <template v-for="(column, index) in imageColums">
+      <div
+        class="header-cell"
+        :key="column.id"
+        :class="{ 'collapse-cell': collapseColumns.includes(index)}">
+        <div class="header-cell">
+          <label
+            class="header-label cursor-pointer ellipsis"
+            :title="column.descriptor.name">
+            <input
+              type="checkbox"
+              :value="index"
+              v-model="collapseColumns">
+            {{ column.descriptor.name }}
+          </label>
+        </div>
+      </div>
+    </template>
+    <template v-for="(row, index) in rows">
+      <div
+        :key="row.id"
+        class="observation-cell">
+        <input
+          type="checkbox"
+          :value="index"
+          v-model="collapseRows">
+      </div>
+      <div
+        :key="`${row.id}-b`"
+        class="otu-cell padding-small">
+        <a
+          v-html="row.row_object.object_tag"
+          :href="browseOtu(row.row_object.id)"/>
+      </div>
+      <cell-depiction
+        v-if="existingOTUDepictions"
+        class="observation-cell padding-small edit-cell"
+        :key="`${row.id}-c`"
+        :show="!filterCell('otu', index)"
+        :depictions="row.otuDepictions"/>
+      <template v-for="(column, cIndex) in imageColums">
+        <div
+          class="observation-cell padding-small edit-cell"
+          :key="`${row.id} ${column.id}`">
+          <cell-component
+            class="full_width"
+            :column="column"
+            :show="!filterCell(cIndex, index)"
+            :row="row"/>
+        </div>
+      </template>
+    </template>
+  </table-grid>
 </template>
 
 <script>
 
 import CellComponent from './Cell.vue'
+import CellDepiction from './CellDepiction'
+import TableGrid from 'components/layout/Table/TableGrid'
 import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
-    CellComponent
+    TableGrid,
+    CellComponent,
+    CellDepiction
   },
 
   props: {
     rows: {
       type: Array,
-      default: () => { return [] }
+      default: () => ([])
     },
     columns: {
       type: Array,
-      default: () => { return [] }
+      default: () => ([])
     }
   },
 
@@ -88,6 +112,24 @@ export default {
     return {
       collapseRows: [],
       collapseColumns: []
+    }
+  },
+
+  computed: {
+    hideColumns () {
+      return Object.assign({}, ...this.collapseColumns.map(position => ({ [position + this.staticColumns]: '40px' })))
+    },
+
+    imageColums () {
+      return this.columns.filter(column => column.descriptor.type === 'Descriptor::Media')
+    },
+
+    staticColumns () {
+      return this.existingOTUDepictions ? 3 : 2
+    },
+
+    existingOTUDepictions () {
+      return this.rows.some(row => row.otuDepictions?.length)
     }
   },
 
@@ -102,12 +144,12 @@ export default {
     },
 
     collapseAll () {
-      this.collapseRows = this.rows.map(row => { return row.id })
-      this.collapseColumns = this.columns.map(column => { return column.id })
+      this.collapseRows = this.rows.map(row => row.id)
+      this.collapseColumns = this.columns.map(column => column.id)
     },
 
-    filterCell(columnId, rowId) {
-      return this.collapseColumns.includes(columnId) || this.collapseRows.includes(rowId)
+    filterCell (cIndex, index) {
+      return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
     }
   }
 }
@@ -115,94 +157,47 @@ export default {
 
 <style lang="scss">
 #vue-matrix-image {
-  table {
-    max-width: 100vh;
-    max-height: calc(100vh - 170px);
-    font-size: 12px;
-  }
-  .padding-cell {
-    padding: 1em;
-    vertical-align: top;
-    max-width: 100px;
-    min-width: 100px;
-    font-size: 12px;
+  .observation-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: white;
   }
 
-  .collapse-cell {
-    max-width: 50px !important;
-    min-width: 28px !important;
-    padding: 0px;
+  .otu-cell {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    background-color: white;
   }
 
-  .checkbox-cell {
-    position: relative;
-    min-width: 18px;
-    max-width: 18px;
-    font-size: 12px;
-  }
-
-  .object-cell {
-    font-size: 12px;
-    min-width: 200px !important;
-    max-width: 200px !important;
-  }
-
-  tbody {
-    display: block;
-    max-height: calc(100vh - 380px);
-    overflow-y: auto;
-    tr:hover {
-      background-color: initial !important;
-      border-width: 1px !important;
-      td {
-        margin: 0;
-        border-width: 1px !important;
-      }
-    }
-  }
-  .row-cell { 
-    td {
-      border-bottom: 1px solid #e5e5e5;
-      border-left: 1px solid #e5e5e5;
-    }
-  }
-  .row-cell:hover {
-    background-color: #FFFFFF;
-    td {
-      border-left:1px solid #e5e5e5;
-    }
-  }
   .header-label {
     transform: rotate(-30deg);
     position: absolute;
     transform-origin: 0 0;
-    width: 200px;
+    width: 150px;
     bottom: 0;
     left: 0;
   }
+
+  .edit-cell {
+    justify-content: start;
+  }
+
   .header-cell {
-    min-width: 100px;
     position: relative;
     text-align: left;
-  }
-  thead {
-    display: block;
-    tr {
-      height: 0px !important;
-      min-height: 0px !important;
-      background-color: transparent;
-    }
-    th {
-      max-height: 0px !important;
-      min-height: 0px !important;
-      border-left: 1px solid transparent;
-      border-bottom: 1px solid #e5e5e5;
-      background-color: transparent;
-    }
   }
 
   .otu_tag_taxon_name {
     white-space: normal
+  }
+
+  .ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 </style>
