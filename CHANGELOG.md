@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Grid table component
 - SVG Icon component
 - OTU depictions draggable in image matrix
+- Observations depictions in Browse OTU
 
 ### Changed
 - Removed `allow_destroy` from object radial JSON
