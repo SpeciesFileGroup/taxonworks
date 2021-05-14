@@ -129,7 +129,7 @@ export default {
         if (this.geoId && newVal && newVal.geographic_area_id === this.geoId) return
         this.geoId = newVal.geographic_area_id
         if (newVal.geographic_area_id) {
-          GeographicArea.find(newVal.geographic_area_id).then(response => {
+          GeographicArea.find(newVal.geographic_area_id, { geo_json: true }).then(response => {
             this.selectGeographicArea(response.body)
             this.geographicAreaShape = response.body
           })
