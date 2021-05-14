@@ -1,12 +1,12 @@
 <template>
-  <div @click="addSelected">
+  <div>
     <div
+      @click="addSelected"
+      class="depiction-medium-image"
       :style="{ opacity: characterState.status === 'useless' ? 0.3 : 1 }"
       v-for="depiction in depictions"
       :key="depiction.id">
-      <img
-        class="full_width"
-        :src="depiction.image.alternatives.medium.image_file_url"/>
+      <img :src="depiction.image.alternatives.medium.image_file_url">
     </div>
   </div>
 </template>

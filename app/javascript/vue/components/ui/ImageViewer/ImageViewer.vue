@@ -122,12 +122,13 @@
         class="cursor-pointer"
         @click="viewMode = true">
         <slot>
-          <div class="depiction-thumb-image">
+          <div 
+            :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"
-              :src="depiction.image.alternatives.thumb.image_file_url"
-              :height="depiction.image.alternatives.thumb.height"
-              :width="depiction.image.alternatives.thumb.width">
+              :src="depiction.image.alternatives[thumbSize].image_file_url"
+              :height="depiction.image.alternatives[thumbSize].height"
+              :width="depiction.image.alternatives[thumbSize].width">
           </div>
         </slot>
       </div>
@@ -160,6 +161,11 @@ export default {
     edit: {
       type: Boolean,
       default: false
+    },
+
+    thumbSize: {
+      type: String,
+      default: 'thumb'
     }
   },
 
@@ -221,6 +227,15 @@ export default {
     justify-content: center;
     width: 100px;
     height: 100px;
+    border: 1px solid black;
+  }
+
+  .depiction-medium-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 300px;
+    height: 300px;
     border: 1px solid black;
   }
 
