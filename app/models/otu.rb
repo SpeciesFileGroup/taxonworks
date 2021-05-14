@@ -164,7 +164,7 @@ class Otu < ApplicationRecord
     # TODO: Unify to a single query
 
     candidates = TaxonName.joins(:otus, :descendant_hierarchies)
-      .that_is_valid
+      .that_is_really_valid
       .where.not(id: taxon_name_id)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
       .where.not(rank_class: skip_ranks)
