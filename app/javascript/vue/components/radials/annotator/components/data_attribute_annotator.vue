@@ -69,7 +69,7 @@
 
 import CRUD from '../request/crud.js'
 import AnnotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import TableList from './shared/tableList'
 import ListItems from './shared/listItems'
 

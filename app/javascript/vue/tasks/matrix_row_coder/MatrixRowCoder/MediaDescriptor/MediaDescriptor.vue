@@ -65,7 +65,7 @@ import { GetterNames } from '../../store/getters/getters'
 
 import summaryView from '../SummaryView/SummaryView.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DropzoneComponent from 'components/dropzone'
 import DepictionModal from 'components/depictionModalViewer/depictionModalViewer.vue'
 

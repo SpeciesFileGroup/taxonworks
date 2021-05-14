@@ -50,7 +50,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'

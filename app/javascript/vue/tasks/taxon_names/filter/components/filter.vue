@@ -42,12 +42,13 @@
       <tags-component v-model="params.keywords"/>
       <users-component v-model="params.user"/>
       <updated-component v-model="params.base.updated_since"/>
-      <children-component v-model="params.base.leaves"/>
-      <metadata-component v-model="params.base.type_metadata" />
       <citations-component v-model="params.base.citations"/>
-      <authors-component v-model="params.base.authors"/>
-      <otus-component v-model="params.base.otus"/>
-      <etymology-component v-model="params.base.etymology"/>
+      <with-component
+        v-for="(param, key) in params.with"
+        :key="key"
+        :param="key"
+        :title="key.replaceAll('_', ' ')"
+        v-model="params.with[key]"/>
     </div>
   </div>
 </template>
@@ -60,20 +61,16 @@ import UpdatedComponent from './filters/updated'
 import ValidityComponent from './filters/validity'
 import RelatedComponent from './filters/related'
 import CitationsComponent from './filters/citations'
-import OtusComponent from './filters/otus'
-import AuthorsComponent from './filters/authors'
-import MetadataComponent from './filters/type_metadata'
 import RelationshipsComponent from './filters/relationships'
 import ScopeComponent from './filters/scope'
 import StatusComponent from './filters/status'
 import RankComponent from './filters/nomenclature_group'
 import CodeComponent from './filters/nomenclature_code'
-import ChildrenComponent from './filters/children'
 import InRelationshipComponent from './filters/in_relationship'
 import TaxonNameTypeComponent from './filters/taxon_name_type'
-import EtymologyComponent from './filters/etymology'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
+import WithComponent from 'tasks/sources/filter/components/filters/with'
 
 import { TaxonName } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
@@ -90,26 +87,22 @@ export default {
     RankComponent,
     CodeComponent,
     CitationsComponent,
-    OtusComponent,
-    MetadataComponent,
     RelationshipsComponent,
     SpinnerComponent,
     ScopeComponent,
     StatusComponent,
-    ChildrenComponent,
     InRelationshipComponent,
-    AuthorsComponent,
     TaxonNameTypeComponent,
-    EtymologyComponent,
     UsersComponent,
-    TagsComponent
+    TagsComponent,
+    WithComponent
   },
   computed: {
     getMacKey () {
       return GetMacKey()
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -157,20 +150,23 @@ export default {
           author: undefined,
           year: undefined
         },
+        with: {
+          leaves: undefined,
+          type_metadata: undefined,
+          otus: undefined,
+          authors: undefined,
+          etymology: undefined,
+          not_specified: undefined
+        },
         base: {
+          citations: undefined,
+          validity: undefined,
           taxon_name_type: undefined,
           exact: undefined,
           updated_since: undefined,
-          validity: undefined,
-          type_metadata: undefined,
-          citations: undefined,
-          otus: undefined,
-          authors: undefined,
           descendants: undefined,
           nomenclature_group: undefined,
           nomenclature_code: undefined,
-          leaves: undefined,
-          etymology: undefined,
           taxon_name_id: [],
           taxon_name_relationship: [],
           taxon_name_relationship_type: [],

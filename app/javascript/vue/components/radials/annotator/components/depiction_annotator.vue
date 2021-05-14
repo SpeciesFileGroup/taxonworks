@@ -188,11 +188,11 @@
 import CRUD from '../request/crud.js'
 import Dropzone from 'components/dropzone.vue'
 import annotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import OtuPicker from 'components/otu/otu_picker/otu_picker'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD, annotatorExtend],

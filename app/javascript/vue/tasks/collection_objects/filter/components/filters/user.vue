@@ -67,7 +67,7 @@
 
 <script>
 
-import { GetUsers } from '../../request/resources'
+import { ProjectMember } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -117,7 +117,7 @@ export default {
     }
   },
   mounted () {
-    GetUsers().then(response => {
+    ProjectMember.all().then(response => {
       this.users = response.body
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })

@@ -50,7 +50,7 @@
 </template>
 <script>
 
-  import Autocomplete from 'components/autocomplete';
+  import Autocomplete from 'components/ui/Autocomplete';
   import RadialAnnotator from 'components/radials/annotator/annotator.vue';
   import PinComponent from 'components/pin.vue'
   import RadialObject from 'components/radials/navigation/radial.vue'

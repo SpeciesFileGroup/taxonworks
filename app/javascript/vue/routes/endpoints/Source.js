@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import ajaxCall from 'helpers/ajaxCall'
+import AjaxCall from 'helpers/ajaxCall'
 
 const model = 'sources'
 const permitParams = {
@@ -70,5 +70,7 @@ export const Source = {
   ...baseCRUD(model, permitParams),
   ...annotations(model),
 
-  clone: (id) => ajaxCall('post', `/${model}/${id}/clone`)
+  clone: id => AjaxCall('post', `/${model}/${id}/clone`),
+
+  parse: params => AjaxCall('get', `/${model}/parse.json`, { params })
 }

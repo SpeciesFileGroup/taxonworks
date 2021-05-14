@@ -31,7 +31,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import PinComponent from 'components/pin'
 
 export default {

@@ -148,7 +148,7 @@ class ImageMatrix
     @depiction_matrix = descriptors_hash_initiate
     ###delete temporary data
     @row_hash = nil
-    @rows_with_filter = nil
+    @rows_with_filter = []
     @descriptors_with_filter = nil
   end
 
@@ -208,7 +208,7 @@ class ImageMatrix
   end
 
   def get_rows_with_filter
-    return nil if @observation_matrix.nil?
+    return [] if @observation_matrix.nil?
     @observation_matrix.observation_matrix_rows.order(:position)
   end
 

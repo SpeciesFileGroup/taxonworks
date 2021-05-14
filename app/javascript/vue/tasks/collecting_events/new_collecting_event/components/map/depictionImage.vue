@@ -64,8 +64,8 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
-import { UpdateDepiction } from '../../request/resources'
+import { Depiction } from 'routes/endpoints'
+import Modal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
 export default {
@@ -101,13 +101,12 @@ export default {
   },
   methods: {
     updateDepiction () {
-      let depiction = {
-        depiction: {
-          caption: this.depiction.caption,
-          figure_label: this.depiction.figure_label
-        }
+      const depiction = {
+        caption: this.depiction.caption,
+        figure_label: this.depiction.figure_label
       }
-      UpdateDepiction(this.depiction.id, depiction).then(response => {
+
+      Depiction.update(this.depiction.id, { depiction }).then(response => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
         this.editing = false
       })

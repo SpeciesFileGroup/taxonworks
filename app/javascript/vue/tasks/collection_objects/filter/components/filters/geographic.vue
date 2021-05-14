@@ -61,9 +61,9 @@
 <script>
 
 import SwitchComponent from 'components/switch'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
-import { GetGeographicArea } from '../../request/resources'
+import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -149,7 +149,7 @@ export default {
       this.geographic_areas.splice(index, 1)
     },
     addGeoArea (id) {
-      GetGeographicArea(id).then(response => {
+      GeographicArea.find(id).then(response => {
         this.geographic.geo_json = undefined
         this.geographic.radius = undefined
         this.geographic.geographic_area_ids.push(id)

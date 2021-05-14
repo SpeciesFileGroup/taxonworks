@@ -49,7 +49,7 @@
 
 import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { MutationNames } from '../store/mutations/mutations'
 import { Serial } from 'routes/endpoints'
 

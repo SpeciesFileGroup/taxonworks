@@ -13,6 +13,26 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     Source.destroy_all
   end
 
+  context 'quick test' do
+    let(:genus) { Protonym.create(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let(:original_genus) { Protonym.create(name: 'Bus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let!(:species) { Protonym.create!(
+      name: 'vulnerata',
+      rank_class: Ranks.lookup(:iczn, 'species'),
+      parent: genus,
+      original_genus: original_genus,
+      verbatim_author: 'Fitch & Say',
+      year_of_publication: 1800) }
+
+    specify '#not_specified 1' do
+      species.update!(parent: root, original_genus: nil)
+
+      # !! At this point species.cached == "</i>[<i></i>GENUS NOT SPECIFIED<i></i>]<i> vulnerata". See #2236
+
+      expect(species.reload.cached).to eq('[GENUS NOT SPECIFIED] vulnerata')
+    end
+  end
+
   context 'when #no_cached = true then NO_CACHED_MESSAGE is used with' do
     let(:n) {Protonym.create(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root, no_cached: true) }
 

@@ -48,7 +48,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { CollectingEvent } from 'routes/endpoints'
 
 export default {

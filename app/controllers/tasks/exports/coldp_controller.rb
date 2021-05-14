@@ -9,9 +9,9 @@ class Tasks::Exports::ColdpController < ApplicationController
     @otu = Otu.where(project_id: sessions_current_project_id).find(params.require(:otu_id))
     if @otu.taxon_name
       if Rails.env == 'development'
-        download = ::Export::Coldp.download(@otu, request.url)
+        download = ::Export::Coldp.download(@otu, request.url, prefer_unlabelled_otus: !!params[:prefer_unlabelled_otus])
       else
-        download = ::Export::Coldp.download_async(@otu, request.url)
+        download = ::Export::Coldp.download_async(@otu, request.url, prefer_unlabelled_otus: !!params[:prefer_unlabelled_otus])
       end
       redirect_to file_download_path(download)
     else

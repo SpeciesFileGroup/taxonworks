@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="radial-annotator">
-      <modal
+      <modal-component
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
@@ -18,7 +18,7 @@
         <div
           slot="body"
           class="flex-separate">
-          <spinner v-if="!menuCreated" />
+          <spinner-component v-if="!menuCreated" />
           <div class="radial-annotator-menu">
             <div>
               <radial-menu
@@ -46,7 +46,7 @@
               @close="closeModal"/>
           </div>
         </div>
-      </modal>
+      </modal-component>
       <span
         v-if="showBottom"
         :title="buttonTitle"
@@ -66,8 +66,8 @@
 <script>
 
 import RadialMenu from 'components/radials/RadialMenu.vue'
-import modal from 'components/modal.vue'
-import spinner from 'components/spinner.vue'
+import ModalComponent from 'components/ui/Modal.vue'
+import SpinnerComponent from 'components/spinner.vue'
 
 import CRUD from './request/crud'
 
@@ -81,6 +81,7 @@ import taxon_determinationsAnnotator from './components/taxon_determinations/tax
 import observation_matricesAnnotator from './components/observation_matrices/main.vue'
 import collecting_eventAnnotator from './components/collecting_event/main.vue'
 import origin_relationshipsAnnotator from './components/origin_relationship/main'
+import extractsAnnotator from './components/extract/Main.vue'
 
 import Icons from './images/icons.js'
 
@@ -89,8 +90,9 @@ export default {
   name: 'RadialAnnotator',
   components: {
     RadialMenu,
-    modal,
-    spinner,
+    ModalComponent,
+    SpinnerComponent,
+    extractsAnnotator,
     data_attributesAnnotator,
     biological_associationsAnnotator,
     asserted_distributionsAnnotator,

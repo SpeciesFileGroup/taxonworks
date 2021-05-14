@@ -124,81 +124,89 @@
   </div>
 </template>
 <script>
-  import MonthSelect from './month_select'
-  import Spinner from 'components/spinner'
-  import AjaxCall from 'helpers/ajaxCall'
+import MonthSelect from './month_select'
+import Spinner from 'components/spinner'
+import { CollectingEvent } from 'routes/endpoints'
 
-  export default {
-    components: {
-      MonthSelect,
-      Spinner
-    },
-    data() {
-      return {
-        parameters: {
-          start_date_day: '',
-          end_date_day: '',
-          start_date_month: '',
-          end_date_month: '',
-          start_date_year: '',
-          end_date_year: '',
-          start_date: '',
-          end_date: '',
-          in_verbatim_locality: '',
-          in_labels: '',
-          identifier_text: '',
-          shape: ''
-        },
-        collectingEventList: [],
-        isLoading:  false,
-        haveParams: false,
-      }
-    },
-    watch: {
+export default {
+  components: {
+    MonthSelect,
+    Spinner
+  },
+
+  data () {
+    return {
       parameters: {
-        handler(newVal) {
-          this.disableFind()
-        },
-        deep: true
-      }
+        start_date_day: '',
+        end_date_day: '',
+        start_date_month: '',
+        end_date_month: '',
+        start_date_year: '',
+        end_date_year: '',
+        start_date: '',
+        end_date: '',
+        in_verbatim_locality: '',
+        in_labels: '',
+        identifier_text: '',
+        shape: ''
+      },
+      collectingEventList: [],
+      isLoading: false,
+      haveParams: false
+    }
+  },
+
+  watch: {
+    parameters: {
+      handler () {
+        this.disableFind()
+      },
+      deep: true
+    }
+  },
+
+  methods: {
+    setTodaysDateForStart () {
+      this.parameters.start_date = this.makeISODate(new Date())
     },
-    methods: {
-      setTodaysDateForStart() {
-        this.parameters.start_date = this.makeISODate(new Date());
-      },
-      setTodaysDateForEnd() {
-        this.parameters.end_date = this.makeISODate(new Date());
-      },
-      getFilterData() {
-        const params = {}
-        const keys = Object.keys(this.parameters)
-        for (let i=0; i<keys.length; i++) {
-            if (this.parameters[keys[i]].length) {
-              params[keys[i]] = this.parameters[keys[i]]
-            }
+
+    setTodaysDateForEnd () {
+      this.parameters.end_date = this.makeISODate(new Date())
+    },
+
+    getFilterData () {
+      const params = {}
+      const keys = Object.keys(this.parameters)
+
+      for (let i=0; i<keys.length; i++) {
+        if (this.parameters[keys[i]].length) {
+          params[keys[i]] = this.parameters[keys[i]]
         }
-        this.isLoading = true;
-        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
-          this.collectingEventList = response.body
-          this.$emit('jsonUrl', response.request.responseURL)
-          if(this.collectingEventList) {
-            this.$emit('collectingEventList', this.collectingEventList)
-          }
-          this.isLoading = false;
-        });
-      },
-      makeISODate(date) {
-        return date.toISOString().slice(0,10)
-      },
-      disableFind() {
-        let count = 0
-        Object.values(this.parameters).forEach(param => {
-          count += param.length
-        })
-        this.haveParams = (count > 0)
       }
+      this.isLoading = true
+      CollectingEvent.where(params).then(response => {
+        this.collectingEventList = response.body
+        this.$emit('jsonUrl', response.request.responseURL)
+        if (this.collectingEventList) {
+          this.$emit('collectingEventList', this.collectingEventList)
+        }
+        this.isLoading = false
+      })
     },
+
+    makeISODate (date) {
+      return date.toISOString().slice(0,10)
+    },
+
+    disableFind () {
+      let count = 0
+      Object.values(this.parameters).forEach(param => {
+        count += param.length
+      })
+      this.haveParams = (count > 0)
+    }
   }
+}
 </script>
 <style scoped>
   label {

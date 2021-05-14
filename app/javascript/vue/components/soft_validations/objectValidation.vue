@@ -37,7 +37,7 @@
 
 <script>
 
-import ModalComponent from '../modal'
+import ModalComponent from 'components/ui/Modal.vue'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {

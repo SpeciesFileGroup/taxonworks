@@ -54,9 +54,9 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import { NavigateCollectingEvents } from '../request/resources'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
@@ -85,7 +85,7 @@ export default {
     collectingEventId (newVal) {
       if (newVal) {
         this.isLoading = true
-        NavigateCollectingEvents(this.collectingEvent.id).then(response => {
+        CollectingEvent.navigation(this.collectingEvent.id).then(response => {
           this.navigate = response.body
         }).finally(() => {
           this.isLoading = false
@@ -94,7 +94,7 @@ export default {
     }
   },
   methods: {
-    setModalView(value) {
+    setModalView (value) {
       this.showModal = value
     },
     loadCE (id) {

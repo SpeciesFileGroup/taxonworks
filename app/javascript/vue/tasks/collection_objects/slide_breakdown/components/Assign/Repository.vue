@@ -28,7 +28,7 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { GetRepository } from '../../request/resource'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import SharedComponent from '../shared/lock.js'
 
 export default {

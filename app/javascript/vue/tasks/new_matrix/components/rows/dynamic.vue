@@ -70,7 +70,7 @@ import {
 } from '../shared/tag_list'
 
 import smartTaxonList from './dynamic/smartList'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import SpinnerComponent from 'components/spinner'
 import { GetSmartSelector } from '../../request/resources'
 import { ActionNames } from '../../store/actions/actions'

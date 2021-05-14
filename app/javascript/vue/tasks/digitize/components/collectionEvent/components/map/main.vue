@@ -18,12 +18,12 @@
 
 import LeafMap from './map.vue'
 import PrintLabel from './printLabel'
-import SoftValidation from 'components/soft_validations/panel'
+import SoftValidationComponent from 'components/soft_validations/panel'
 import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
 
-import { GetSoftValidation } from '../../../../request/resources'
+import { SoftValidation } from 'routes/endpoints'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 
@@ -34,7 +34,7 @@ export default {
     DepictionComponent,
     PrintLabel,
     Draggable,
-    SoftValidation
+    SoftValidationComponent
   },
   computed: {
     settings: {
@@ -55,7 +55,7 @@ export default {
   data () {
     return {
       componentsOrder: [
-        'SoftValidation',
+        'SoftValidationComponent',
         'LeafMap',
         'PrintLabel',
         'DepictionComponent'
@@ -69,7 +69,7 @@ export default {
     lastSave: {
       handler (newVal) {
         if (newVal && this.collectingEvent.id) {
-          GetSoftValidation(this.collectingEvent.global_id).then(response => {
+          SoftValidation.find(this.collectingEvent.global_id).then(response => {
             const validations = response.body
             this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
           })
@@ -80,7 +80,7 @@ export default {
     },
     collectingEvent (newVal, oldVal) {
       if (newVal.id && newVal.id != oldVal.id) {
-        GetSoftValidation(this.collectingEvent.global_id).then(response => {
+        SoftValidation.find(this.collectingEvent.global_id).then(response => {
           const validations = response.body
           this.validations = validations.soft_validations.lenght ? { collectingEvent: { list: validations, title: 'Collecting event' } } : {}
         })

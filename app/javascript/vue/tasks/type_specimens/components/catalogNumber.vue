@@ -47,7 +47,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import { Identifier, Namespace } from 'routes/endpoints'
 
 import { GetterNames } from '../store/getters/getters'

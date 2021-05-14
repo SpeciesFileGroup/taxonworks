@@ -13,8 +13,8 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import { GetOtu } from '../../request/resources'
+import Autocomplete from 'components/ui/Autocomplete'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
@@ -44,7 +44,7 @@ export default {
       }
     },
     loadOtu (id) {
-      GetOtu(id).then(response => {
+      Otu.find(id).then(response => {
         this.otu = response.body
         this.$emit('input', id)
       })

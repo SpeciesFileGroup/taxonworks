@@ -46,7 +46,7 @@
 
 <script>
 
-import { GetNavigationOtu } from '../request/resources'
+import { Otu } from 'routes/endpoints'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import OtuRadial from 'components/radials/object/radial'
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     loadNav(id) {
-      GetNavigationOtu(id).then(response => {
+      Otu.navigation(id).then(response => {
         this.navList = response.body
       })
     }

@@ -149,12 +149,12 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import { GetOtu, GetOtus, CreateOtu } from '../../request/resources.js'
+import { Otu, TaxonName } from 'routes/endpoints'
 import { RouteNames } from 'routes/routes'
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import LockComponent from 'components/lock'
 import Draggable from 'vuedraggable'
@@ -260,8 +260,8 @@ export default {
       this.$refs.rolepicker.reset()
     },
     otuId(newVal) {
-      if(newVal) {
-        GetOtu(newVal).then(response => {
+      if (newVal) {
+        Otu.find(newVal).then(response => {
           this.otuSelected = response.body.object_tag
           this.otu = response.body
         })
@@ -285,14 +285,14 @@ export default {
       this.otuId = otuId
     }
     if (/^\d+$/.test(taxonId)) {
-      GetOtus(taxonId).then(response => {
+      TaxonName.otus(taxonId).then(response => {
         if (response.body.length) {
           if (response.body.length === 1) {
             this.setOtu(response.body[0])
           }
           this.$refs.smartSelector.addToList('quick', response.body[0])
         } else {
-          CreateOtu(taxonId).then(otu => {
+          Otu.create({ otu: { taxon_name_id: taxonId } }).then(otu => {
             this.setOtu(otu)
             this.$refs.smartSelector.addToList('quick', otu.body)
           })
@@ -302,12 +302,10 @@ export default {
   },
   methods: {
     roleExist (id) {
-      return (this.roles.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.person_id == id
-      }) ? true : false)
+      return !!this.roles.find((role) => !role.hasOwnProperty('_destroy') && role.person_id === id)
     },
     addRole (role) {
-      if(!this.roleExist(role.id)) {
+      if (!this.roleExist(role.id)) {
         this.roles.push(CreatePerson(role, 'Determiner'))
       }
     },

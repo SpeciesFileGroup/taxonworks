@@ -53,7 +53,7 @@ class ContainerItemsController < ApplicationController
   def destroy
     @container_item.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was successfully destroyed.')}
+      format.html { destroy_redirect @container_item, notice: 'Container item was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

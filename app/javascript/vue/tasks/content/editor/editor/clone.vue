@@ -32,8 +32,8 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import { GetContents } from '../request/resources'
-import Modal from 'components/modal.vue'
+import { Content } from 'routes/endpoints'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: {
@@ -75,7 +75,7 @@ export default {
     loadContent () {
       if (this.disabled) return
 
-      GetContents({ topic_id: this.topic.id }).then(response => {
+      Content.where({ topic_id: this.topic.id }).then(response => {
         this.contents = response.body.filter(c => c.id !== this.content.id)
       })
     },

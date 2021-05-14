@@ -56,7 +56,7 @@ module PeopleHelper
     if t.count == 0
       a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
     elsif t.count > 0
-      a = a + content_tag(:span, "#{person.roles.size} #{"use".pluralize(t)}", class: [:feedback, 'feedback-thin', 'feedback-primary'] ) + ' '
+      a = a + content_tag(:span, "#{person.roles.size} #{"use".pluralize(t)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count: t.count}) + ' '
       a = a + content_tag(:span, "#{person.roles.collect{|r| r.class.human_name}.uniq.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
     else
       ''

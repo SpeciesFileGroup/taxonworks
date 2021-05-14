@@ -17,7 +17,7 @@ json.previous_by do
   json.without_collecting_event @collection_object.base_navigation_previous.where(collecting_event: nil).first&.id 
   json.without_georeferences @collection_object.base_navigation_previous.left_outer_joins(:georeferences).where(georeferences: {id: nil}).first&.id 
   json.without_determiners @collection_object.base_navigation_previous.left_outer_joins(:roles).where(roles: {id: nil, type: 'TaxonDeterminer'}).first&.id
-  end
+end
 
 json.next_by do
   json.id @collection_object.next&.id
@@ -29,6 +29,4 @@ json.next_by do
   json.without_collecting_event @collection_object.base_navigation_next.where(collecting_event: nil).first&.id 
   json.without_georeferences @collection_object.base_navigation_next.left_outer_joins(:georeferences).where(georeferences: {id: nil}).first&.id 
   json.without_determiners @collection_object.base_navigation_next.left_outer_joins(:roles).where(roles: {id: nil, type: 'TaxonDeterminer'}).first&.id
-  end
-
-
+end

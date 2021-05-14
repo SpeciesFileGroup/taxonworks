@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -70,11 +70,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; '))}
-        format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -289,6 +289,7 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
+      :not_specified,
       :otus,
       :page,
       :per,
@@ -328,6 +329,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :otus,
+      :not_specified,
 #     :page, # TODO: yes or no?
 #     :per,
       :taxon_name_type,

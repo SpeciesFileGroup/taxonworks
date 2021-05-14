@@ -135,7 +135,7 @@
 
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import IdentifiersComponent from './Identifiers'
 import DeterminerComponent from './Determiner'

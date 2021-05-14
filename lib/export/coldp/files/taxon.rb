@@ -17,6 +17,11 @@ module Export::Coldp::Files::Taxon
     lifezone: 'https://api.catalogue.life/datapackage#Taxon.lifezone',                       # from https://api.catalogue.life/vocab/lifezone
   }
 
+  SKIPPED_RANKS = %w{
+    NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
+    NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
+  }
+
   # @param predicate [:symbol]
   #   a key from IRI_MAP
   def self.predicate_value(otu, predicate)
@@ -97,7 +102,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, root_otu_id = nil, reference_csv = nil )
+  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: false)
 
     # Until we have RC5 articulations we are temporarily glossing over the fact
     # that one taoxn name can be used for many OTUs.  Track to see that
@@ -156,7 +161,7 @@ module Export::Coldp::Files::Taxon
 
         parent_id = nil
         if root_otu_id != o.id
-          if pid = o.parent_otu_id
+          if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)
             parent_id = pid
           else
             # there is no OTU parent for the hierarchy, at present we just flat skip this OTU

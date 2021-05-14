@@ -21,7 +21,7 @@
 
 import TableList from 'components/table_list'
 import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { ActionNames } from '../store/actions/actions'
 import { Source } from 'routes/endpoints'
 

@@ -1,5 +1,7 @@
 import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'people'
 const permitParams = {
   person: {
     type: String,
@@ -16,6 +18,10 @@ const permitParams = {
 }
 
 export const People = {
-  ...baseCRUD('people', permitParams),
-  ...annotations('people')
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
+
+  roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`),
+
+  merge: (id, params) => AjaxCall('post', `/people/${id}/merge`, params)
 }

@@ -40,8 +40,8 @@
 
 <script>
 
-import { GetTypes } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { TypeMaterial } from 'routes/endpoints'
 
 export default {
   props: {
@@ -72,7 +72,7 @@ export default {
     }
   },
   mounted () {
-    GetTypes().then(response => {
+    TypeMaterial.types().then(response => {
       this.types = response.body
     })
     const urlParams = URLParamsToJSON(location.href)

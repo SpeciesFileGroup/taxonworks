@@ -30,7 +30,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import GeoreferenceTypes from '../../../const/georeferenceTypes'
 
 export default {

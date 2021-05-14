@@ -54,7 +54,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
