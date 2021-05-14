@@ -15,7 +15,7 @@
       </div>
     </div>
     <div/>
-    <div v-if="existingOTUDepictions">
+    <div v-show="existingOTUDepictions">
       <div class="header-cell">
         <label
           class="header-label cursor-pointer ellipsis"
@@ -63,7 +63,7 @@
           :href="browseOtu(row.row_object.id)"/>
       </div>
       <cell-depiction
-        v-if="existingOTUDepictions"
+        v-show="existingOTUDepictions"
         class="observation-cell padding-small edit-cell"
         :key="`${row.id}-c`"
         :show="!filterCell('otu', index)"

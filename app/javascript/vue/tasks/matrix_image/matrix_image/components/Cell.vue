@@ -35,7 +35,7 @@
         @add="movedObservation"
         @choose="setObservationDragged"
         @remove="removedObservationFromList">
-        <template v-if="observationsMedia.length && observationsMedia[0].hasOwnProperty('depictions')">
+        <template v-if="observationsMedia[0] && observationsMedia[0].hasOwnProperty('depictions')">
           <div
             v-for="depiction in observationsMedia[0].depictions"
             :key="depiction.id"
@@ -208,13 +208,18 @@ export default {
         })
       }
       this.$store.commit(MutationNames.SetIsSaving, true)
-      Depiction.update(depiction.id, { depiction }).then((response) => {
-        const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
+      Depiction.update(depiction.id, { depiction }).then(({ body }) => {
+        const observation = this.observations[0]
 
-        if (this.observations[index]?.depictions?.length) {
-          this.observations[index].depictions.push(response.body)
+        if (observation?.depictions?.length) {
+          const index = observation.depictions.findIndex(depiction => depiction.id === body.id)
+          if (index > 0) {
+            this.$set(observation.depictions, index, body)
+          } else {
+            observation.depictions.push(body)
+          }
         } else {
-          this.$set(this.observations[index], 'depictions', [response.body])
+          this.$set(this.observations[0], 'depictions', [body])
         }
         this.depictionMoved = undefined
         this.observationMoved = undefined

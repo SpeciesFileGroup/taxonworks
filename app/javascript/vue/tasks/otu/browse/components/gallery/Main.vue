@@ -10,6 +10,7 @@
         v-for="item in imagesList"
         :key="item.id"
         :depiction="item"
+        thumb-size="medium"
         edit
       />
     </div>
