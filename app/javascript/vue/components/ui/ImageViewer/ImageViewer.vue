@@ -234,7 +234,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 300px;
+    max-width: 300px;
     height: 300px;
     border: 1px solid black;
   }
