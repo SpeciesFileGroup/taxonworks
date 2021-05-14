@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - SVG Icon component
 - OTU depictions draggable in image matrix
 - Observations depictions in Browse OTU
+- `Ctrl/Alt + V` shortcut for New Collecting event in Comprehensive task [#2248]
 
 ### Changed
 - Removed `allow_destroy` from object radial JSON
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - node-sass to dart-sass
 - Refactor image matrix edit table
 - Webpack configuration to export sass vars
+- Images size in image section on Browse otu
 
 ### Fixed
 - JSON for geographic area parents (no parent raise)
@@ -50,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
+[#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
 
 ## [0.17.1] - 2020-04-30
 
