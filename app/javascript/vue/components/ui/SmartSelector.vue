@@ -50,40 +50,40 @@
         </div>
       </template>
       <template v-else>
-      <ul
-        v-if="view && view != 'search'"
-        class="no_bullets"
-        :class="{ 'flex-wrap-row': inline }">
-        <template v-for="item in lists[view]">
-          <li
-            class="margin-small-bottom"
-            v-if="filterItem(item)"
-            :key="item.id">
-            <template
-              v-if="buttons">
-              <button
-                type="button"
-                class="button normal-input tag_button"
-                :class="buttonClass"
-                v-html="item[label]"
-                @click.prevent="sendObject(item)"/>
-            </template>
-            <template
-              v-else>
-              <label class="cursor-pointer">
-                <input
-                  :name="name"
-                  @click="sendObject(item)"
-                  :value="item"
-                  :checked="selectedItem && item.id == selectedItem.id"
-                  type="radio">
-                <span v-html="item[label]"/>
-              </label>
-            </template>
-          </li>
-        </template>
-      </ul>
-    </template>
+        <ul
+          v-if="view && view != 'search'"
+          class="no_bullets"
+          :class="{ 'flex-wrap-row': inline }">
+          <template v-for="item in lists[view]">
+            <li
+              class="margin-small-bottom"
+              v-if="filterItem(item)"
+              :key="item.id">
+              <template
+                v-if="buttons">
+                <button
+                  type="button"
+                  class="button normal-input tag_button"
+                  :class="buttonClass"
+                  v-html="item[label]"
+                  @click.prevent="sendObject(item)"/>
+              </template>
+              <template
+                v-else>
+                <label class="cursor-pointer">
+                  <input
+                    :name="name"
+                    @click="sendObject(item)"
+                    :value="item"
+                    :checked="selectedItem && item.id == selectedItem.id"
+                    type="radio">
+                  <span v-html="item[label]"/>
+                </label>
+              </template>
+            </li>
+          </template>
+        </ul>
+      </template>
     </template>
     <slot :name="view" />
     <slot />
@@ -287,6 +287,10 @@ export default {
         }
         this.options = this.options.concat(this.addTabs)
         this.options = OrderSmart(this.options)
+      }).catch(() => {
+        this.options = []
+        this.lists = []
+        this.view = undefined
       })
     },
     addToList (listName, item) {
@@ -302,10 +306,8 @@ export default {
       const keys = Object.keys(this.customList)
       if (keys.length) {
         keys.forEach(key => {
-          if (this.lists[key]) {
-            this.$set(this.lists, key, this.customList[key])
-          } else {
-            this.$set(this.lists, key, this.customList[key])
+          this.$set(this.lists, key, this.customList[key])
+          if (!this.lists[key]) {
             this.options.push(key)
             this.options = OrderSmart(this.options)
           }
