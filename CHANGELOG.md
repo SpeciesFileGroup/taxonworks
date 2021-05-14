@@ -47,9 +47,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Redirect after destroy a combination [#2169]
 - Drag and drop depictions in Image Matrix
 - Georeference error message in comprehensive task [#2222]
+- Number of uses not displayed in Uniquify people task [#2219]
 
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169
+[#2219]: https://github.com/SpeciesFileGroup/taxonworks/pull/2219
 [#2222]: https://github.com/SpeciesFileGroup/taxonworks/pull/2222
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
