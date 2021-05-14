@@ -122,11 +122,13 @@
         class="cursor-pointer"
         @click="viewMode = true">
         <slot>
-          <img
-            class="img-thumb"
-            :src="depiction.image.alternatives.thumb.image_file_url"
-            :height="depiction.image.alternatives.thumb.height"
-            :width="depiction.image.alternatives.thumb.width">
+          <div class="depiction-thumb-image">
+            <img
+              class="img-thumb"
+              :src="depiction.image.alternatives.thumb.image_file_url"
+              :height="depiction.image.alternatives.thumb.height"
+              :width="depiction.image.alternatives.thumb.width">
+          </div>
         </slot>
       </div>
       <slot name="thumbfooter" />
@@ -216,6 +218,7 @@ export default {
   .depiction-thumb-image {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 100px;
     height: 100px;
     border: 1px solid black;
