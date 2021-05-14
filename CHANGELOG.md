@@ -25,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observations depictions in Browse OTU
 
 ### Changed
+- CollectingEvent autocomplete/object_Tag only shows verbatim lat/long
 - Removed `allow_destroy` from object radial JSON
 - Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
 - Removed quantification fields from Extract
