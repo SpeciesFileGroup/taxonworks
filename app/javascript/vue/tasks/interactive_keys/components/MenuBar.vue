@@ -66,8 +66,8 @@
 
 <script>
 
-import NavComponent from 'components/navBar'
-import Autocomplete from 'components/autocomplete'
+import NavComponent from 'components/layout/NavBar'
+import Autocomplete from 'components/ui/Autocomplete'
 import SetParam from 'helpers/setParam'
 import SortingComponent from './Filters/Sorting.vue'
 import IdentifierRank from './Filters/IdentifierRank'

@@ -27,7 +27,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal.vue'
+import ModalComponent from 'components/ui/Modal.vue'
 import OtuPicker from 'components/otu/otu_picker/otu_picker.vue'
 import SpinnerComponent from 'components/spinner'
 import { ObservationMatrixRowItem } from 'routes/endpoints'

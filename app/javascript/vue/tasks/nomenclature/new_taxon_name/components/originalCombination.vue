@@ -66,7 +66,7 @@ import Draggable from 'vuedraggable'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import AjaxCall from 'helpers/ajaxCall'
 

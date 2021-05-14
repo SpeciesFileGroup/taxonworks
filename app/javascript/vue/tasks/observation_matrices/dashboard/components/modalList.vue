@@ -65,7 +65,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
 import {
@@ -127,6 +127,7 @@ export default {
       } else {
         this.openMatrixRowCoder()
       }
+      this.show = false
     },
     openModal () {
       this.loading = true

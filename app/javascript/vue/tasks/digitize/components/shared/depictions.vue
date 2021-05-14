@@ -14,11 +14,19 @@
     <div
       class="flex-wrap-row"
       v-if="figuresList.length">
-      <depictionImage
+      <image-viewer
         v-for="item in figuresList"
         @delete="removeDepiction"
         :key="item.id"
-        :depiction="item"/>
+        :depiction="item"
+        edit
+      >
+        <div slot="thumbfooter">
+          <button
+            @click="removeDepiction(item)"
+            class="button circle-button btn-delete"/>
+        </div>
+      </image-viewer>
     </div>
   </div>
 
@@ -27,15 +35,14 @@
 <script>
 
 import ActionNames from '../../store/actions/actionNames'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
+import Dropzone from 'components/dropzone.vue'
 import { Depiction } from 'routes/endpoints'
-
-import dropzone from 'components/dropzone.vue'
-import depictionImage from './depictionImage.vue'
 
 export default {
   components: {
-    depictionImage,
-    dropzone
+    ImageViewer,
+    Dropzone
   },
   props: {
     actionSave: {
@@ -122,7 +129,7 @@ export default {
       if (window.confirm('Are you sure want to proceed?')) {
         Depiction.destroy(depiction.id).then(() => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex(figure => figure.id == depiction.id), 1)
+          this.figuresList.splice(this.figuresList.findIndex(figure => figure.id === depiction.id), 1)
           this.$emit('delete', depiction)
         })
       }

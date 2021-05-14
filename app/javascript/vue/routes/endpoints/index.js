@@ -16,11 +16,14 @@ import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
+import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
 import { Identifier } from './Identifier'
 import { Image } from './Image'
 import { Label } from './Label'
+import { Loan } from './Loan'
+import { LoanItem } from './LoanItem'
 import { Namespace } from './Namespace'
 import { Observation } from './Observation'
 import { ObservationMatrix } from './ObservationMatrix'
@@ -29,10 +32,12 @@ import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
 import { ObservationMatrixRow } from './ObservationMatrixRow'
 import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
+import { OriginRelationship } from './OriginRelationship'
 import { People } from './People'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
+import { ProtocolRelationship } from './ProtocolRelationship'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
 import { SoftValidation } from './SoftValidation'
@@ -66,11 +71,14 @@ export {
   Descriptor,
   Document,
   Documentation,
+  Extract,
   GeographicArea,
   Georeference,
   Identifier,
   Image,
   Label,
+  Loan,
+  LoanItem,
   Namespace,
   Observation,
   ObservationMatrix,
@@ -79,10 +87,12 @@ export {
   ObservationMatrixRow,
   ObservationMatrixRowItem,
   Otu,
+  OriginRelationship,
   People,
   PreparationType,
   Project,
   ProjectMember,
+  ProtocolRelationship,
   Repository,
   Serial,
   SoftValidation,

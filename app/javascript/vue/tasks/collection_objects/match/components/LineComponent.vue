@@ -64,9 +64,9 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import CompareComponent from './CompareComponent'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 
 export default {
   components: {

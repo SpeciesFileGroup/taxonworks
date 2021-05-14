@@ -49,7 +49,7 @@
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from 'routes/endpoints'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 
 export default {

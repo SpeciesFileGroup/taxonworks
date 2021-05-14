@@ -39,7 +39,7 @@
             class="button normal-input button-default margin-small-left"
             :disabled="!matrix"
             @click="openInteractiveKeys(matrix.id)">
-            Interactive keys
+            Open in interactive keys
           </button>
           <button
             v-if="matrix && matrix.is_media_matrix"
@@ -56,7 +56,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import { RouteNames } from 'routes/routes'
 import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'
@@ -120,7 +120,7 @@ export default {
       window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}`, '_self')
     },
     openImageMatrix (id) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_self')
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_blank')
     }
   }
 }

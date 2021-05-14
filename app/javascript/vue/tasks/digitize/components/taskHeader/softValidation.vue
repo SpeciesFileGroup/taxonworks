@@ -49,7 +49,7 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { SoftValidation } from 'routes/endpoints'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {

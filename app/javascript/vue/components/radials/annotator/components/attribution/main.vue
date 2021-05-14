@@ -109,7 +109,7 @@ import CRUD from '../../request/crud.js'
 import AnnotatorExtended from '../annotatorExtend.js'
 import OrganizationPicker from 'components/organizationPicker'
 import DisplayList from 'components/displayList'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD, AnnotatorExtended],

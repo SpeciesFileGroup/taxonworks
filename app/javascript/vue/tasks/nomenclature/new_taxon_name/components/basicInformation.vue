@@ -78,8 +78,8 @@ import ParentPicker from './parentPicker.vue'
 import CheckExist from './findExistTaxonName.vue'
 import RankSelector from './rankSelector.vue'
 import HardValidation from './hardValidation.vue'
-import ModalComponent from 'components/modal'
-import BlockLayout from 'components/blockLayout'
+import ModalComponent from 'components/ui/Modal'
+import BlockLayout from'components/layout/BlockLayout'
 
 export default {
   components: {

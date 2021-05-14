@@ -39,7 +39,7 @@ import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
 import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {

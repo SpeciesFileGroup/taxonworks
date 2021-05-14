@@ -1,0 +1,7 @@
+$font-prefix: '../../../node_modules/@ibm/plex';
+@import '../vue/assets/styles/variables/_palette.scss';
+@import '../vue/assets/styles/variables/_exports.scss';
+@import 'node_modules/@ibm/plex/scss/ibm-plex.scss';
+@import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+@import '../vue/assets/styles/filter.scss';
+@import '../vue/assets/styles/labels.scss';

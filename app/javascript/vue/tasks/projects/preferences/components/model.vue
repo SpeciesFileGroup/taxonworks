@@ -7,7 +7,7 @@
         :key="item.value"
       >
         <label>
-          <input 
+          <input
             type="radio"
             name="model"
             :value="item.value"
@@ -40,13 +40,17 @@ export default {
         {
           label: 'Collecting Event',
           value: 'CollectingEvent'
+        },
+        {
+          label: 'Extract',
+          value: 'Extract'
         }
       ],
       selected: undefined
     }
   },
   methods: {
-    selectOption(item) {
+    selectOption (item) {
       this.selected = item
       this.$emit('onSelect', item)
     }

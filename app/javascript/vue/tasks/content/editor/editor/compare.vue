@@ -32,7 +32,7 @@
 
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import { GetterNames } from '../store/getters/getters'
 import { Content } from 'routes/endpoints'
 

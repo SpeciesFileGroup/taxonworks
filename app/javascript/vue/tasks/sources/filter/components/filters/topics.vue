@@ -23,7 +23,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetKeyword } from '../../request/resources'

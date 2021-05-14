@@ -13,7 +13,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { Otu } from 'routes/endpoints'
 
 export default {

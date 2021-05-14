@@ -189,16 +189,18 @@ class TaxonNameClassification < ApplicationRecord
         t = taxon_name
 
         if type_name =~ /(Fossil|Hybrid|Candidatus)/
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html,
+            cached: n,
+            cached_html: t.get_full_name_html(n),
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
         elsif type_name =~ /Latinized::PartOfSpeach/
+          n = t.get_full_name
           t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
+              cached: n,
+              cached_html: t.get_full_name_html(n),
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html
           )
@@ -207,16 +209,18 @@ class TaxonNameClassification < ApplicationRecord
           end
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
         elsif type_name =~ /Latinized::Gender/
           t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
@@ -224,9 +228,10 @@ class TaxonNameClassification < ApplicationRecord
           end
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
+            n = t1.get_full_name
             t1.update_columns(
-                cached: t1.get_full_name,
-                cached_html: t1.get_full_name_html
+                cached: n,
+                cached_html: t1.get_full_name_html(n)
             )
           end
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)

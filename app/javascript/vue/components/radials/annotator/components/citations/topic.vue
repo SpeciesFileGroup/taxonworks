@@ -41,7 +41,7 @@
 <script>
 
 import CRUD from '../../request/crud'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD],

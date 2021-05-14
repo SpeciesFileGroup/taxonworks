@@ -30,7 +30,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import extendCE from '../mixins/extendCE.js'
 

@@ -2,7 +2,7 @@
   <div>
     <h1>Project - Customize attributes.</h1>
     <a
-      v-if="Object.keys(preferences)" 
+      v-if="Object.keys(preferences)"
       :href="`/projects/${preferences.id}`">Back</a>
     <div class="horizontal-left-content align-start">
       <model-component

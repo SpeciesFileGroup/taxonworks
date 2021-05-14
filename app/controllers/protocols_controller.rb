@@ -100,7 +100,13 @@ class ProtocolsController < ApplicationController
     render json: data
   end
 
+
+  def select_options
+    @protocols = Protocol.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:klass))
+  end
+
   private
+
   def set_protocol
     @protocol = Protocol.where(project_id: sessions_current_project_id).find(params[:id])
   end

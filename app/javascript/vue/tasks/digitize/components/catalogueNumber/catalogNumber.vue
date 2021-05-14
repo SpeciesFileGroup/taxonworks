@@ -97,7 +97,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { Identifier } from 'routes/endpoints'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import validateComponent from '../shared/validate.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import incrementIdentifier from '../../helpers/incrementIdentifier.js'

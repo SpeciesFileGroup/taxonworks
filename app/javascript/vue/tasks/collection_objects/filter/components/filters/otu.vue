@@ -93,7 +93,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from './shared/people'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import {

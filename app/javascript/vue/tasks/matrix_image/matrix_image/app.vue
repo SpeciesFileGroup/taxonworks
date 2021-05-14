@@ -19,7 +19,7 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
-        <li>
+        <li v-if="!viewMode">
           <autocomplete
             url="/observation_matrices/autocomplete"
             param="term"
@@ -56,7 +56,10 @@
           </li>
         </template>
         <li>
-          <a href="/tasks/observation_matrices/observation_matrix_hub">Back to observation matrix hub</a>
+          <a :href="RouteNames.ObservationMatricesDashboard">Observation matrix dashboard</a>
+        </li>
+        <li>
+          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
         </li>
       </ul>
     </div>
@@ -72,22 +75,21 @@
         @getItem="findRow($event.id, $event.position)"
       />
     </template>
-    <template v-if="matrixId">
-      <view-component
-        v-if="viewMode"
+    <template v-if="matrixId && !viewMode">
+      <matrix-table
         class="separate-table"
-        :matrix-id="matrixId"/>
-      <template v-else>
-        <matrix-table
-          class="separate-table"
-          ref="matrixTable"
-          :columns="observationColumns"
-          :rows="observationRows"/>
-        <pagination-component
-          :pagination="pagination"
-          @nextPage="getRows($event.page)"/>
-      </template>
+        ref="matrixTable"
+        :columns="observationColumns"
+        :rows="observationRows"/>
+      <pagination-component
+        :pagination="pagination"
+        @nextPage="getRows($event.page)"/>
     </template>
+    <view-component
+      v-if="viewMode"
+      class="separate-table"
+      :matrix-id="matrixId"
+      :otus-id="otuFilter"/>
   </div>
 </template>
 
@@ -102,7 +104,7 @@ import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import PaginationComponent from 'components/pagination.vue'
 
 import { GetterNames } from './store/getters/getters'
@@ -126,7 +128,8 @@ export default {
   computed: {
     isSaving () {
       return this.$store.getters[GetterNames.GetIsSaving]
-    }
+    },
+    RouteNames: () => RouteNames
   },
 
   data () {
@@ -140,7 +143,8 @@ export default {
       pagination: {},
       maxPerPage: 3,
       otu_ids: undefined,
-      viewMode: false
+      viewMode: false,
+      otuFilter: []
     }
   },
 
@@ -150,6 +154,12 @@ export default {
     const rowIdParam = urlParams.get('row_id')
     const rowPositionParam = urlParams.get('row_position')
     const otuIdsParam = urlParams.get('otu_ids')
+    const otuFilterParam = urlParams.get('otu_filter')
+
+    if (otuFilterParam) {
+      this.otuFilter = otuFilterParam
+      this.viewMode = true
+    }
     if (otuIdsParam) {
       this.otu_ids = otuIdsParam
     }
@@ -167,7 +177,7 @@ export default {
     },
     addRow (row) {
       this.showRowModal = false
-      if (row.hasOwnProperty('otu_id')) {
+      if (row.otu_id) {
         Otu.find(row.otu_id).then(response => {
           row.row_object = response.body
           this.observationRows.push(row)
@@ -188,7 +198,7 @@ export default {
       promises.push(ObservationMatrix.find(id).then(response => { this.observationMatrix = response.body }))
       promises.push(ObservationMatrix.columns(id).then(response => { this.observationColumns = response.body }))
 
-      Promise.all(promises).then(() => { 
+      Promise.all(promises).then(() => {
         if (rowId && position) {
           this.findRow(rowId, Number(position))
         } else {
@@ -197,16 +207,24 @@ export default {
       })
     },
 
-    getRows (page) {
-      return new Promise((resolve, reject) => {
-        ObservationMatrix.rows(this.matrixId, {
-          page,
-          per: this.maxPerPage,
-          otu_ids: this.otu_ids
-        }).then(response => {
-          this.observationRows = response.body
-          this.pagination = GetPagination(response)
-          return resolve(response.body)
+    async getRows (page) {
+      return ObservationMatrix.rows(this.matrixId, {
+        page,
+        per: this.maxPerPage,
+        otu_ids: this.otu_ids
+      }).then(response => {
+        this.observationRows = response.body
+        this.pagination = GetPagination(response)
+        this.loadOtusDepiction(this.observationRows.map(item => item.row_object.id))
+      })
+    },
+
+    loadOtusDepiction (ids) {
+      const promises = ids.map(id => Otu.depictions(id))
+
+      Promise.all(promises).then(responses => {
+        responses.forEach(({ body }, index) => {
+          this.$set(this.observationRows[index], 'otuDepictions', body)
         })
       })
     },

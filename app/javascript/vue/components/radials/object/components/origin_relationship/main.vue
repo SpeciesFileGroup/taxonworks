@@ -84,10 +84,18 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
 import Draggable from 'vuedraggable'
+
+const controllerRoute = {
+  AssertedDistribution: 'asserted_distributions',
+  Extract: 'extracts',
+  Lot: 'collection_objects',
+  Sequence: 'sequences',
+  Specimen: 'collection_objects'
+}
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -120,7 +128,7 @@ export default {
     },
 
     modelSelected () {
-      return this.typeList[this.typeSelected]
+      return controllerRoute[this.typeSelected]
     }
   },
 

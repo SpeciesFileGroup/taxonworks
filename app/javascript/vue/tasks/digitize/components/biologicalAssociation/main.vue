@@ -120,7 +120,7 @@ import Biological from './biological.vue'
 import Related from './related.vue'
 import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import LockComponent from 'components/lock.vue'
 
 import { GetterNames } from '../../store/getters/getters.js'

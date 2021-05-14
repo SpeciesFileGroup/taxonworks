@@ -5,10 +5,13 @@
 # Valid attributes (* required)
 #   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4 
 #   recent: - defaults to true if not provided, if false no recent list is shown
-#   allow_destroy: - false if no
 #   edit: over-ride data->edit
 #   new: over-ride data->new
-#   home: where requested, use this path rather than show
+#   home: where requested, use this path rather than show (?! Not implemented !?)
+#   destroy_redirect: if destoyed, go here
+#
+# `:config:`
+#    recent: true !! TODO: what is this?!
 #
 # `:tasks` should be ordered consistently when possible:
 #    * hub
@@ -32,6 +35,7 @@ Combination:
     - otu_distribution_data_task
   edit: new_combination_task
   new: new_combination_task
+  destroyed_redirect: browse_nomenclature_task 
   config:
     recent: true
 CollectionObject:
@@ -65,6 +69,13 @@ Descriptor:
 Document:
   tasks:
     - gnfinder_task
+  config: 
+    recent: true
+Extract:
+  tasks:
+    - new_extract_task 
+  new: new_extract_task
+  edit: new_extract_task 
   config: 
     recent: true
 GeographicArea:
