@@ -56,7 +56,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'

@@ -67,7 +67,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters'
 import ColumnMixin from './shared/columnMixin.js'
 

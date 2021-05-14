@@ -1,5 +1,5 @@
 import { RouteNames } from 'routes/routes.js'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {

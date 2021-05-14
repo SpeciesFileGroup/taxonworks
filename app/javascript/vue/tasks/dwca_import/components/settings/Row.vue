@@ -33,7 +33,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { GetNamespace, UpdateCatalogueNumber } from '../../request/resources.js'
 import SpinnerComponent from 'components/spinner'
 

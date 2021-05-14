@@ -47,7 +47,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import RowComponent from './Row'
 import ContainerizeCheckbox from './Containerize'
 import RestrictToNomenclatureCheckbox from './RestrictToNomenclature'

@@ -24,7 +24,7 @@
 
 <script>
 
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import ImportModal from './ImportModal'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
