@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - SVG Icon component
 - OTU depictions draggable in image matrix
 - Observations depictions in Browse OTU
+- `Ctrl/Alt + V` shortcut for New Collecting event in Comprehensive task [#2248]
 
 ### Changed
 - CollectingEvent autocomplete/object_Tag only shows verbatim lat/long
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - node-sass to dart-sass
 - Refactor image matrix edit table
 - Webpack configuration to export sass vars
+- Images size in image section on Browse otu
 
 ### Fixed
 - JSON for geographic area parents (no parent raise)
@@ -44,13 +46,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Rank order on New combination preview
 - Redirect after destroy a combination [#2169]
 - Drag and drop depictions in Image Matrix
+- Georeference error message in comprehensive task [#2222]
 
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169
+[#2222]: https://github.com/SpeciesFileGroup/taxonworks/pull/2222
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
+[#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
 
 ## [0.17.1] - 2020-04-30
 

@@ -1,6 +1,10 @@
 <template>
-  <block-layout :warning="!collectingEvent.id">
-    <div slot="header">
+  <block-layout
+    :warning="!collectingEvent.id">
+    <div
+      v-shortkey="[platformKey, 'v']"
+      @shortkey="openNewCollectingEvent"
+      slot="header">
       <h3>Collecting Event</h3>
     </div>
     <div
@@ -97,6 +101,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { CollectingEvent, CollectionObject } from 'routes/endpoints'
+import { RouteNames } from 'routes/routes'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
@@ -108,6 +113,7 @@ import RadialObject from 'components/radials/navigation/radial.vue'
 import PinComponent from 'components/pin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -123,6 +129,8 @@ export default {
     LockComponent
   },
   computed: {
+    platformKey,
+
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
@@ -192,8 +200,16 @@ export default {
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
     },
+
     openBrowse () {
       window.open(`/tasks/collecting_events/browse?collecting_event_id=${this.collectingEvent.id}`)
+    },
+
+    openNewCollectingEvent () {
+      window.open(this.collectingEvent.id
+        ? `${RouteNames.NewCollectingEvent}?collecting_event_id=${this.collectingEvent.id}`
+        : RouteNames.NewCollectingEvent
+      )
     }
   }
 }
