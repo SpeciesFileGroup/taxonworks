@@ -1,25 +1,23 @@
 import { MutationNames } from '../mutations/mutations'
 import { Source, SoftValidation } from 'routes/endpoints'
+import { SmartSelectorRefresh } from 'helpers/smartSelector'
 
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }) => {
   state.settings.saving = true
-  if (state.source.id) {
-    Source.update(state.source.id, { source: state.source }).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully updated.', 'notice')
-    }, () => {
-      state.settings.saving = false
-    })
-  } else {
-    Source.create({ source: state.source }).then(response => {
-      setSource(response.body)
-      TW.workbench.alert.create('Source was successfully created.', 'notice')
-    }, () => {
-      state.settings.saving = false
-    })
-  }
+
+  const saveSource = state.source.id
+    ? Source.update(state.source.id, { source: state.source })
+    : Source.create({ source: state.source })
+
+  saveSource.then(response => {
+    setSource(response.body)
+    SmartSelectorRefresh()
+    TW.workbench.alert.create('Source was successfully saved.', 'notice')
+  }).finally(() => {
+    state.settings.saving = false
+  })
 
   function setSource (source) {
     const authors = source.author_roles
