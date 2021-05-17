@@ -191,7 +191,10 @@ class ImageMatrix
   def descriptors_with_keywords
     if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
-      Descriptor.where('descriptors.id IN (?)', d).not_weight_zero.order(:position)
+      ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
+      return [] if ds.empty?
+      descriptors = ds.sort{|a,b| a.observation_matrix_columns.first.try(:position).to_i <=> b.observation_matrix_columns.first.try(:position).to_i}
+      descriptors
     elsif @keyword_ids
       descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
     else
@@ -291,7 +294,7 @@ class ImageMatrix
           .joins("INNER JOIN images ON depictions.image_id = images.id")
           .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
           .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-          .where('observations.otu_id IN (?)', @otu_id_filter_array)
+          .where("observations.type = 'Observation::Media' AND observations.otu_id IN (?)", @otu_id_filter_array)
           .where('observations.project_id = (?)', @project_id)
           .order('depictions.position')
   end
@@ -320,7 +323,6 @@ class ImageMatrix
       descriptor[:type] = d.type
       descriptor[:name] = d.target_name(:key, language)
       descriptor[:weight] = d.weight
-      descriptor[:position] = d.position
       descriptor[:description] = d.description
       h[d.id] = descriptor
       n += 1
