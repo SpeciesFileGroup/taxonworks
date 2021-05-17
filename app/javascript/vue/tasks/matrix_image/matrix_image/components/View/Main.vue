@@ -158,7 +158,7 @@ export default {
 
     this.isLoading = true
     retrieveDepictions.then(({ body }) => {
-      this.descriptors = Object.values(body.list_of_descriptors)
+      this.descriptors = body.list_of_descriptors
       this.rows = Object.values(body.depiction_matrix)
         .filter(row => [].concat(...row.depictions).length)
         .map(observation => ({
