@@ -28,10 +28,16 @@
       </button>
       <geographic-area
         class="margin-large-bottom margin-medium-top"
-        v-model="params.geographic"/>
+        v-model="params.geographic"
+      />
+      <filter-identifiers
+        class="margin-large-bottom"
+        v-model="params.identifier"
+      />
       <users-component
         class="margin-large-bottom"
-        v-model="params.user"/>
+        v-model="params.user"
+      />
       <filter-attributes
         v-model="params.collectingEvents"/>
       <with-component
@@ -51,6 +57,7 @@
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getMacKey.js'
 
+import FilterIdentifiers from 'tasks/collection_objects/filter/components/filters/identifier'
 import GeographicArea from 'tasks/collection_objects/filter/components/filters/geographic'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
@@ -65,7 +72,8 @@ export default {
     WithComponent,
     UsersComponent,
     GeographicArea,
-    FilterAttributes
+    FilterAttributes,
+    FilterIdentifiers
   },
   computed: {
     platformKey,
@@ -99,7 +107,7 @@ export default {
     },
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
@@ -134,6 +142,13 @@ export default {
           geographic_area: undefined,
           georeferences: undefined,
           identifiers: undefined
+        },
+        identifier: {
+          identifier: undefined,
+          identifier_exact: undefined,
+          identifier_start: undefined,
+          identifier_end: undefined,
+          namespace_id: undefined
         },
         keywords: {
           keyword_id_and: [],

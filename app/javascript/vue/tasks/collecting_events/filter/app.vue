@@ -71,21 +71,6 @@
           <div class="horizontal-left-content">
             <csv-button
               :list="list"/>
-            <span class="separate-left separate-right">|</span>
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = ceIds"
-              class="button normal-input button-default">
-              Select all
-            </button>
           </div>
         </div>
         <div
