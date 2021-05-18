@@ -8,6 +8,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Status to TaxonName autocomplete [#2086]
+
+### Changed
+
+### Fixed
+
+[#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
+
+## [0.18.0] - 2020-XX-XX
+
+### Added
+
 - Added `destroyed_redirect` to object radial JSON
 - "Not specified" facet to Filter nomenclature [#2226]
 - New extract task interface [#1934]
@@ -57,7 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
 [#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
 
-## [0.17.1] - 2020-04-30
+## [0.17.1] - 2021-04-30
 
 ### Added
 - Moved endpoints to own model file
@@ -85,7 +97,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
 [#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
 
-## [0.17.0] - 2020-04-23
+## [0.17.0] - 2021-04-23
 
 ### Added
 - Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
@@ -138,7 +150,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 [#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
 
-## [0.16.6] - 2020-03-26
+## [0.16.6] - 2021-03-26
 
 ### Added
 - Community stats for `/api/v1/stats` [#2061]
@@ -153,7 +165,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
 [#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
 
-## [0.16.5] - 2020-03-25
+## [0.16.5] - 2021-03-25
 
 ### Added
 - softvalidation fix for transfer of type species into coordinate subgenus
@@ -225,7 +237,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 [#2135]: https://github.com/SpeciesFileGroup/taxonworks/issues/2135
 
-## [0.16.4] - 2020-03-09
+## [0.16.4] - 2021-03-09
 
 ### Added
 - Multiple presnece/absence params for collection objects filter [#2080] 
@@ -449,7 +461,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1988]: https://github.com/SpeciesFileGroup/taxonworks/issues/1988
 [#1990]: https://github.com/SpeciesFileGroup/taxonworks/issues/1990
 
-## [0.15.1] - 2020-12-14
+## [0.15.1] - 2021-12-14
 ### Added
 - `Person` can not be active for > 119 years
 - Show buffered values in `Task - Browse collection objects` [#1931]
@@ -491,7 +503,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
 [#1921]: https://github.com/SpeciesFileGroup/taxonworks/issues/1921
 
-## [0.15.0] - 2020-11-30
+## [0.15.0] - 2021-11-30
 
 ### Added
 - Export project database task [#1868]
@@ -1182,7 +1194,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
 [0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
 [0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
