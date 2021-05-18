@@ -1,6 +1,15 @@
 <template>
   <div>
     <spinner-component v-if="isLoading"/>
+    <div class="horizontal-left-content margin-medium-bottom">
+      <filter-rank v-model="filters.identified_to_rank" />
+      <filter-language
+        v-if="languages.length"
+        v-model="filters.language_id"
+        class="margin-small-right"
+        :language-list="languages"
+      />
+    </div>
     <div>
       <button
         class="button normal-input button-default"
@@ -110,12 +119,16 @@ import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialObject from 'components/radials/object/radial'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
+import FilterLanguage from 'tasks/interactive_keys/components/Filters/Language'
+import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
+    FilterLanguage,
+    FilterRank,
     SpinnerComponent,
     TippyComponent,
     ImageViewer,
@@ -137,11 +150,16 @@ export default {
   data () {
     return {
       descriptors: [],
+      hideColumn: [],
+      hideRows: [],
+      isLoading: false,
+      languages: [],
       rows: [],
       showTable: false,
-      isLoading: false,
-      hideRows: [],
-      hideColumn: []
+      filters: {
+        language_id: undefined,
+        identified_to_rank: undefined
+      }
     }
   },
 
@@ -151,24 +169,17 @@ export default {
     }
   },
 
-  created () {
-    const retrieveDepictions = this.otusId.length
-      ? ajaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: this.otusId } })
-      : ajaxCall('get', `/tasks/observation_matrices/image_matrix/${this.matrixId}/key`)
+  watch: {
+    filters: {
+      handler () {
+        this.loadMatrix()
+      },
+      deep: true
+    }
+  },
 
-    this.isLoading = true
-    retrieveDepictions.then(({ body }) => {
-      this.descriptors = body.list_of_descriptors
-      this.rows = Object.values(body.depiction_matrix)
-        .filter(row => [].concat(...row.depictions).length)
-        .map(observation => ({
-          ...observation,
-          depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
-        }))
-    }).finally(() => {
-      this.isLoading = false
-      this.loadOtuDepictions()
-    })
+  created () {
+    this.loadMatrix()
   },
 
   methods: {
@@ -193,6 +204,27 @@ export default {
           })
           this.descriptors.unshift({ name: 'OTU depictions' })
         }
+      })
+    },
+
+    loadMatrix () {
+      const retrieveDepictions = this.otusId.length
+        ? ajaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: this.otusId, ...this.filters } })
+        : ajaxCall('get', `/tasks/observation_matrices/image_matrix/${this.matrixId}/key`, { params: this.filters })
+
+      this.isLoading = true
+      retrieveDepictions.then(({ body }) => {
+        this.languages = body.descriptor_available_languages || []
+        this.descriptors = body.list_of_descriptors
+        this.rows = Object.values(body.depiction_matrix)
+          .filter(row => [].concat(...row.depictions).length)
+          .map(observation => ({
+            ...observation,
+            depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
+          }))
+      }).finally(() => {
+        this.isLoading = false
+        this.loadOtuDepictions()
       })
     }
   }
