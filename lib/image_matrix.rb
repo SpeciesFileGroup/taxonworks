@@ -135,7 +135,6 @@ class ImageMatrix
     @language_to_use = language_to_use
     @keyword_ids = keyword_ids
     @descriptor_available_keywords = descriptor_available_keywords
-    @descriptors_with_filter = descriptors_with_keywords
     @row_filter = row_filter
     @otu_filter = otu_filter
     @row_id_filter_array = row_filter_array
@@ -143,6 +142,7 @@ class ImageMatrix
     @rows_with_filter = get_rows_with_filter
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
+    @descriptors_with_filter = descriptors_with_keywords
     ###main_logic
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
@@ -158,7 +158,7 @@ class ImageMatrix
 
   def descriptors
     return nil if @observation_matrix.nil?
-    @observation_matrix.descriptors.not_weight_zero.order(:position)
+    @observation_matrix.descriptors.where("descriptors.type = 'Descriptor::Media'").not_weight_zero
   end
 
   def descriptor_available_languages
@@ -192,14 +192,14 @@ class ImageMatrix
     if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
       ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
-      return [] if ds.empty?
-      descriptors = ds.sort{|a,b| a.observation_matrix_columns.first.try(:position).to_i <=> b.observation_matrix_columns.first.try(:position).to_i}
-      descriptors
     elsif @keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
+      ds = descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
     else
-      descriptors
+      ds = descriptors
     end
+    return [] if ds.nil? || ds.empty?
+    ds = ds.sort{|a,b| a.observation_matrix_columns.first.try(:position).to_i <=> b.observation_matrix_columns.first.try(:position).to_i}
+    ds
   end
 
   def row_filter_array
@@ -282,7 +282,7 @@ class ImageMatrix
       otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
       if h[otu_collection_object]
         descriptor_index = @list_of_descriptors[o.descriptor_id][:index]
-        h[otu_collection_object][:depictions][descriptor_index] += [o]                                                                #??????
+        h[otu_collection_object][:depictions][descriptor_index] += [o]
       end
     end
     h
@@ -316,7 +316,7 @@ class ImageMatrix
     language = @language_id.blank? ? nil : @language_id.to_i
     n = 0
     h = {}
-    descriptors_with_keywords.each do |d|
+    @descriptors_with_filter.each do |d|
       descriptor = {}
       descriptor[:index] = n
       descriptor[:id] = d.id
