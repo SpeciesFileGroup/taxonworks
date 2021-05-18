@@ -9,17 +9,10 @@
         <div class="image-container">
           <template>
             <img
-              class="img-maxsize img-fullsize"
-              v-if="fullSizeImage"
-              @click="fullSizeImage = false"
-              :src="depiction.image.image_file_url">
-            <img
-              v-else
-              class="img-maxsize img-normalsize"
-              @click="fullSizeImage = true"
-              :src="depiction.image.alternatives.medium.image_file_url"
-              :height="depiction.image.alternatives.medium.height"
-              :width="depiction.image.alternatives.medium.width">
+              :class="['img-maxsize', this.fullSizeImage ? 'img-fullsize' : 'img-normalsize']"
+              @click="fullSizeImage = !fullSizeImage"
+              :src="urlSrc"
+            >
           </template>
         </div>
 
@@ -126,7 +119,7 @@
             :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"
-              :src="depiction.image.alternatives[thumbSize].image_file_url"
+              :src="thumbUrlSrc"
               :height="depiction.image.alternatives[thumbSize].height"
               :width="depiction.image.alternatives[thumbSize].width">
           </div>
@@ -142,9 +135,14 @@ import VModal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import { capitalize } from 'helpers/strings.js'
 import { Image, Depiction } from 'routes/endpoints'
+import { imageSVGViewBox } from 'helpers/images'
 
 const roleTypes = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
 const roleLabel = (role) => capitalize(role.replace('_roles', '').replaceAll('_', ' '))
+const IMG_MAX_SIZES = {
+  thumb: 100,
+  medium: 300
+}
 
 export default {
   components: {
@@ -175,8 +173,38 @@ export default {
         roleTypes.map(role =>
           attr[role] ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person?.object_tag || item.organization.name).join('; ')}</b>` : []).filter(arr => arr.length))
     },
+
     originalCitation () {
       return this.citations.filter(citation => citation.is_original).map(citation => [citation.source.cached, citation.pages].filter(item => item).join(':')).join('; ')
+    },
+
+    urlSrc () {
+      const depiction = this.depiction
+      const image = this.image
+
+      return this.hasSVGBox
+        ? imageSVGViewBox(depiction.image.id, depiction.svg_view_box, image.width, image.height)
+        : image.image_file_url
+    },
+
+    hasSVGBox () {
+      return this.depiction.svg_view_box != null
+    },
+
+    thumbUrlSrc () {
+      const depiction = this.depiction
+
+      return this.hasSVGBox
+        ? imageSVGViewBox(depiction.image.id, depiction.svg_view_box, IMG_MAX_SIZES[this.thumbSize], IMG_MAX_SIZES[this.thumbSize])
+        : this.thumbImage.image_file_url
+    },
+
+    image () {
+      return this.fullSizeImage ? this.depiction.image : this.depiction.image.alternatives.medium
+    },
+
+    thumbImage () {
+      return this.depiction.image.alternatives[this.thumbSize]
     }
   },
 

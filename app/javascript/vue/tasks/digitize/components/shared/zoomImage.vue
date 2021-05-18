@@ -2,9 +2,12 @@
   <div>
     <button
       type="button"
-      class="button button-default"
+      class="button button-default button-circle"
       @click="show = true">
-      Zoom
+      <v-icon
+        x-small
+        color="white"
+        name="expand"/>
     </button>
     <div
       v-if="show"
@@ -29,13 +32,19 @@
 </template>
 
 <script>
+
+import VIcon from 'components/ui/VIcon/index'
+
 export default {
+  components: { VIcon },
+
   props: {
     imageUrl: {
       type: String,
       required: true
-    },
+    }
   },
+
   data () {
     return {
       show: false,
@@ -45,16 +54,16 @@ export default {
       flip: false
     }
   },
+
   watch: {
     show (newVal) {
       if (this.image) return
-      let that = this
-      let image = new Image()
-      
+      const image = new Image()
+
       image.onload = () => {
-        that.width = image.width
-        that.height = image.height
-        that.image = image
+        this.width = image.width
+        this.height = image.height
+        this.image = image
       }
       image.src = this.imageUrl
     }
