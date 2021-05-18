@@ -71,7 +71,7 @@ module Queries
 
       # TODO: singularize and handle array or single
       # @return [Array]
-      attr_accessor :otu_ids
+      attr_accessor :otu_id
 
       # TODO: singularize and handle array or single
       # @return [Array]
@@ -94,7 +94,7 @@ module Queries
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
-        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
+        @otu_id = params[:otu_id].blank? ? [] : params[:otu_id]
         @radius = params[:radius].blank? ? 100 : params[:radius]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
@@ -228,8 +228,8 @@ module Queries
       end
 
       def matching_otu_ids
-        return nil if otu_ids.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_ids}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+        return nil if otu_id.empty?
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
       end
 
       def matching_verbatim_locality

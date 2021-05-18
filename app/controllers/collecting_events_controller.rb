@@ -313,7 +313,7 @@ class CollectingEventsController < ApplicationController
       keyword_id_or: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],
-      otu_ids: [],
+      otu_id: [],
       collector_ids: [],
     )
   end
@@ -336,7 +336,7 @@ class CollectingEventsController < ApplicationController
       keyword_ids: [],
       spatial_geographic_area_ids: [],
       geographic_area_ids: [],
-      otu_ids: [],
+      otu_id: [],
       collector_ids: [],
     )
   end

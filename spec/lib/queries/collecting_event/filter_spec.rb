@@ -8,14 +8,14 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     verbatim_locality: 'Out there',
     start_date_year: 2010,
     start_date_month: 2,
-    start_date_day: 18) 
+    start_date_day: 18)
   }
 
   let!(:ce2) { CollectingEvent.create(
-    verbatim_locality: 'Out there, under the stars', 
+    verbatim_locality: 'Out there, under the stars',
     verbatim_trip_identifier: 'Foo manchu',
-    start_date_year: 2000, 
-    start_date_month: 2, 
+    start_date_year: 2000,
+    start_date_month: 2,
     start_date_day: 18,
     print_label: 'THERE: under the stars:18-2-2000') }
 
@@ -24,7 +24,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
 
     specify '#otu_ids' do
-      q = Queries::CollectingEvent::Filter.new(otu_ids: [o.id])
+      q = Queries::CollectingEvent::Filter.new(otu_id: [o.id])
       expect(q.all).to contain_exactly(ce1)
     end
   end
@@ -101,7 +101,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
   end
 
   specify '#recent' do
-    query.recent = 1 
+    query.recent = 1
     expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
@@ -121,7 +121,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:point_lat) { '10.0' }
     let(:point_long) { '10.0' }
 
-   
+
    # let(:factory_polygon) { RSPEC_GEO_FACTORY.polygon(point_lat, point_long) }
    let(:factory_point) { RSPEC_GEO_FACTORY.point(point_lat, point_long) }
     let(:geographic_item) { GeographicItem::Point.create!( point: factory_point ) }
@@ -138,18 +138,18 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     let(:wkt_multipolygon) { 'MULTIPOLYGON ( ((5 5, 15 5, 15 15, 5 15, 5 5)), ((20 35, 35 35, 40 40, 20 35)) )' }
 
     let(:geo_json_polygon) {
-      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }' 
+      '{ "type": "Polygon","coordinates": [[ [5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0] ]] }'
     }
 
     specify '#wkt (POINT)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end 
+    end
 
     specify '#wkt (POLYGON)' do
       query.wkt = wkt_point
       expect(query.all.map(&:id)).to contain_exactly(ce1.id)
-    end 
+    end
 
     specify '#wkt (MULTIPOLYGON)' do
       query.wkt = wkt_multipolygon
