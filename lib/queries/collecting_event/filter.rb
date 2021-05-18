@@ -20,7 +20,7 @@ module Queries
         collector_ids_or
         spatial_geographic_areas
         wkt
-        geographic_area_ids
+        geographic_area_id
         start_date
         end_date
         radius
@@ -63,7 +63,7 @@ module Queries
       #   match only CollectionObjects mapped to CollectingEvents that
       #   have these specific ids.  No spatial calculations are included
       #   in this parameter by default.  See 'spatial_geographic_areas = true'.
-      attr_accessor :geographic_area_ids
+      attr_accessor :geographic_area_id
 
       # @return [Array]
       #   values are ATTRIBUTES that should be wildcarded
@@ -90,7 +90,7 @@ module Queries
         @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
         @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
         @geo_json = params[:geo_json]
-        @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+        @geographic_area_id = params[:geographic_area_id].blank? ? [] : params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
@@ -204,8 +204,8 @@ module Queries
 
        # TODO: throttle by size?
        def matching_spatial_via_geographic_area_ids
-          return nil unless spatial_geographic_areas && !geographic_area_ids.empty?
-          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_ids).ids
+          return nil unless spatial_geographic_areas && !geographic_area_id.empty?
+          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
@@ -223,8 +223,8 @@ module Queries
       end
 
       def matching_geographic_area_ids
-        return nil if geographic_area_ids.empty? || spatial_geographic_areas
-        table[:geographic_area_id].eq_any(geographic_area_ids)
+        return nil if geographic_area_id.empty? || spatial_geographic_areas
+        table[:geographic_area_id].eq_any(geographic_area_id)
       end
 
       def matching_otu_ids

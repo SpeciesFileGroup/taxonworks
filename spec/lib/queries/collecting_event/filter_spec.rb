@@ -113,7 +113,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
   specify '#geographic_area_ids' do
     ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-    query.geographic_area_ids = [ce1.geographic_area_id]
+    query.geographic_area_id = [ce1.geographic_area_id]
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
