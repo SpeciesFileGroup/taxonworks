@@ -1463,7 +1463,7 @@ class TaxonName < ApplicationRecord
   end
 
   def sv_missing_original_publication
-    if is_family_or_genus_or_species_rank?
+    if rank_class.nil? || is_family_or_genus_or_species_rank?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.try(:pages).blank?
