@@ -99,7 +99,6 @@ class ImageMatrix
   # @!list_of_descriptors
   #   @return [Array]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
-  # Each descriptor has an attribute :status, which could be 'used', 'useful', 'useless' for further identification
   attr_accessor :list_of_descriptors
 
   # @!depiction_matrix
@@ -215,12 +214,6 @@ class ImageMatrix
     @observation_matrix.observation_matrix_rows.order(:position)
   end
 
-  ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
-  ##                     :object_at_rank,   ### (converted to OTU or TN)
-  ##                     :row_id,
-  ##                     :otu_id,
-  ##                     :errors,           ### (calculated number of errors)
-  ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
     h = {}
     if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
@@ -239,17 +232,20 @@ class ImageMatrix
       end
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
+
       if @identified_to_rank == 'otu'
         h[otu_collection_object][:object_at_rank] = r.current_otu || r
       elsif @identified_to_rank
-        h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        case r.class.to_s
+        when 'Otu'
+          h[otu_collection_object][:object_at_rank] = r&.taxon_name&.valid_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        when 'ObservationMatrixRow'
+          h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        end
       else
         h[otu_collection_object][:object_at_rank] = r
       end
       h[otu_collection_object][:otu_id] = r.class.to_s == 'Otu' ? r.id : r.otu_id
-      h[otu_collection_object][:errors] = 0
-      h[otu_collection_object][:error_descriptors] = []
-      h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
     end
     h
   end
