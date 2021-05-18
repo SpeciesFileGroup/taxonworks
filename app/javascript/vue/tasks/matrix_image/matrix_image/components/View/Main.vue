@@ -6,7 +6,7 @@
       <filter-language
         v-if="languages.length"
         v-model="filters.language_id"
-        class="margin-small-right"
+        class="margin-small-left"
         :language-list="languages"
       />
     </div>
