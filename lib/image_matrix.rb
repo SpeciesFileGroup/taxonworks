@@ -234,7 +234,12 @@ class ImageMatrix
       h[otu_collection_object][:object] = r
 
       if @identified_to_rank == 'otu'
-        h[otu_collection_object][:object_at_rank] = r.current_otu || r
+        case r.class.to_s
+        when 'Otu'
+          h[otu_collection_object][:object_at_rank] = r
+        when 'ObservationMatrixRow'
+          h[otu_collection_object][:object_at_rank] = r.current_otu || r
+        end
       elsif @identified_to_rank
         case r.class.to_s
         when 'Otu'
