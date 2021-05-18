@@ -56,11 +56,6 @@ class ImageMatrix
   # Returns observation_matrix_citation as an object
   attr_accessor :observation_matrix_citation
 
-  # @!descriptor_available_languages
-  #   @return [Array of Objects or null]
-  # Returns the list of available Languages used as translations for descriptors and character_states (in translations are available)
-  attr_accessor :descriptor_available_languages
-
   # @!descriptors
   #   @return [null]
   # Temporary attribute. Used for validation.
@@ -80,6 +75,11 @@ class ImageMatrix
   #   @return [null]
   # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
+
+  # @!descriptor_available_languages
+  #   @return [Array of Objects or null]
+  # Returns the list of available Languages used as translations for descriptors (in translations are available)
+  attr_accessor :descriptor_available_languages
 
   # @!rows_with_filter
   #   @return [null]
@@ -130,9 +130,7 @@ class ImageMatrix
     @project_id = project_id
     @observation_matrix = find_observation_matrix
     @observation_matrix_citation = @observation_matrix&.source
-    @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
-    @language_to_use = language_to_use
     @keyword_ids = keyword_ids
     @descriptor_available_keywords = descriptor_available_keywords
     @row_filter = row_filter
@@ -143,6 +141,8 @@ class ImageMatrix
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
     @descriptors_with_filter = descriptors_with_keywords
+    @descriptor_available_languages = descriptor_available_languages_list
+    @language_to_use = language_to_use
     ###main_logic
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
@@ -161,9 +161,9 @@ class ImageMatrix
     @observation_matrix.descriptors.where("descriptors.type = 'Descriptor::Media'").not_weight_zero
   end
 
-  def descriptor_available_languages
-    return nil if descriptors.nil?
-    descriptor_ids = descriptors.pluck(:id)
+  def descriptor_available_languages_list
+    return nil if @descriptors_with_filter.nil?
+    descriptor_ids = @descriptors_with_filter.collect{|i| i.id}
     languages = Language.joins(:alternate_value_translations)
                     .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
                     .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
@@ -176,7 +176,7 @@ class ImageMatrix
   def language_to_use
     return nil if @language_id.blank?
     l = Language.where(id: @language_id).first
-    return nil if l.nil? || !descriptor_available_languages.to_a.include?(l)
+    return nil if l.nil? || !@descriptor_available_languages.to_a.include?(l)
     l
   end
 
