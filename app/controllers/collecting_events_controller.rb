@@ -312,9 +312,9 @@ class CollectingEventsController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       spatial_geographic_area_ids: [],
-      geographic_area_ids: [],
+      geographic_area_id: [],
       otu_id: [],
-      collector_ids: [],
+      collector_id: [],
     )
   end
 
@@ -335,9 +335,9 @@ class CollectingEventsController < ApplicationController
       :wkt,
       keyword_ids: [],
       spatial_geographic_area_ids: [],
-      geographic_area_ids: [],
+      geographic_area_id: [],
       otu_id: [],
-      collector_ids: [],
+      collector_id: [],
     )
   end
 

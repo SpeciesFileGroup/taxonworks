@@ -16,7 +16,7 @@ module Queries
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_ids
+      PARAMS = %w{collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
@@ -69,13 +69,13 @@ module Queries
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
-      # TODO: singularize and handle array or single
+      # DONE: singularize and handle array or single
       # @return [Array]
       attr_accessor :otu_id
 
-      # TODO: singularize and handle array or single
+      # DONE: singularize and handle array or single
       # @return [Array]
-      attr_accessor :collector_ids
+      attr_accessor :collector_id
 
       # @return [Boolean]
       # @param collector_ids_or [String]
@@ -87,7 +87,7 @@ module Queries
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_ids = params[:collector_ids].blank? ? [] : params[:collector_ids]
+        @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
         @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
         @geo_json = params[:geo_json]
         @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
@@ -138,7 +138,7 @@ module Queries
 
       # TODO: dry with Source, TaxonName, etc.
       def collector_ids_facet
-        return nil if collector_ids.empty?
+        return nil if collector_id.empty?
         o = table
         r = ::Role.arel_table
 
@@ -155,11 +155,11 @@ module Queries
         )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(collector_ids)
+        f = c[:person_id].eq_any(collector_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(collector_ids.length)) unless collector_ids_or
+        b = b.having(a['id'].count.eq(collector_id.length)) unless collector_ids_or
         b = b.as('col_z_')
 
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
