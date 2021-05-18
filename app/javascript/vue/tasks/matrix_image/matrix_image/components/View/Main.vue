@@ -60,7 +60,7 @@
             class="otu-cell padding-small">
             <a
               v-html="row.object.object_tag"
-              :href="browseOtu(row.object.id)"/>
+              :href="browseLink(row.object)"/>
             <radial-object :global-id="row.object.global_id" />
           </div>
 
@@ -96,7 +96,7 @@
                           <li>Column: <b>{{ descriptors[cIndex].name }}</b></li>
                           <li>Row: <a
                             v-html="row.object.object_tag"
-                            :href="browseOtu(row.object.id)"/>
+                            :href="browseLink(row.object)"/>
                           </li>
                         </ul>
                       </div>
@@ -124,6 +124,12 @@ import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 import { Otu } from 'routes/endpoints'
+
+const BROWSE_LINK = {
+  CollectionObject: id => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
+  Otu: id => `${RouteNames.BrowseOtu}?otu_id=${id}`,
+  TaxonName: id => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+}
 
 export default {
   components: {
@@ -183,8 +189,8 @@ export default {
   },
 
   methods: {
-    browseOtu (id) {
-      return `${RouteNames.BrowseOtu}?otu_id=${id}`
+    browseLink (object) {
+      return BROWSE_LINK[object.base_class](object.id)
     },
 
     resetView () {
