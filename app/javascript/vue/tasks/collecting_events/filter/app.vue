@@ -27,6 +27,22 @@
             Append results
           </label>
         </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showList">
+            Show list
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="showMap">
+            Show map
+          </label>
+        </li>
       </ul>
     </div>
     <div
@@ -83,11 +99,18 @@
             :pagination="pagination"
             v-model="per"/>
         </div>
-        <list-component
-          v-model="ids"
-          :class="{ 'separate-left': activeFilter }"
-          :list="list"
-          @onSort="list.data = $event"/>
+        <div class="horizontal-left-content align-start">
+          <list-component
+            v-if="showList"
+            v-model="ids"
+            :class="{ 'separate-left': activeFilter }"
+            :list="list"
+            @onSort="list.data = $event"/>
+          <map-component
+            class="panel content margin-small-left full_width"
+            v-if="showMap"
+            :georeferences="georeferences" />
+        </div>
         <h2
           v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.
@@ -105,6 +128,11 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import PaginationCount from 'components/pagination/PaginationCount'
 import GetPagination from 'helpers/getPagination'
+import MapComponent from './components/Map.vue'
+import { Georeference } from 'routes/endpoints'
+import { chunkArray } from 'helpers/arrays'
+
+const CHUNK_ARRAY_SIZE = 40
 
 export default {
   components: {
@@ -112,7 +140,8 @@ export default {
     FilterComponent,
     ListComponent,
     CsvButton,
-    PaginationCount
+    PaginationCount,
+    MapComponent
   },
 
   computed: {
@@ -124,6 +153,7 @@ export default {
   data () {
     return {
       list: [],
+      georeferences: [],
       urlRequest: '',
       activeFilter: true,
       activeJSONRequest: false,
@@ -132,7 +162,9 @@ export default {
       ids: [],
       pagination: undefined,
       maxRecords: [50, 100, 250, 500, 1000],
-      per: 500
+      per: 500,
+      showList: true,
+      showMap: false
     }
   },
 
@@ -140,6 +172,10 @@ export default {
     per (newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
+    },
+    list (newVal) {
+      
+      this.loadGeoreferences(newVal)
     }
   },
 
@@ -170,6 +206,21 @@ export default {
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
+
+    async loadGeoreferences (list) {
+      const idLists = chunkArray(list.map(ce => ce.id), CHUNK_ARRAY_SIZE)
+      const promises = []
+
+      idLists.forEach(ids => {
+        promises.push(Georeference.where({ collecting_event_ids: ids }))
+      })
+
+      Promise.all(promises).then(responses => {
+        const lists = responses.map(response => response.body)
+        this.georeferences = lists.flat()
+      })
+    },
+
     getPagination: GetPagination
   }
 }

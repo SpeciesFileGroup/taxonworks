@@ -174,24 +174,25 @@ export default {
     }
   },
   methods: {
-    resizeMap (mutationsList, observer) {
-      if (this.$el.clientWidth != this.mapSize) {
-        this.$nextTick(() => {
-          this.mapSize = this.$el.clientWidth
-          const bounds = this.drawnItems.getBounds()
-          if (Object.keys(bounds).length) {
-            if (this.fitBounds) {
-              this.mapObject.fitBounds(bounds)
-            }
-          }
-          this.mapObject.invalidateSize()
-        })
-      }
+    resizeMap (width) {
+      const bounds = this.drawnItems.getBounds()
+
+      this.mapSize = width
+      this.mapObject.invalidateSize()
+
+      this.$nextTick(() => {
+        if (Object.keys(bounds).length && this.fitBounds) {
+          this.mapObject.fitBounds(bounds)
+        }
+      })
     },
     initEvents () {
-      this.mapSize = this.$el.clientWidth
-      this.observeMap = new MutationObserver(this.resizeMap)
-      this.observeMap.observe(this.$el, { attributes: true, childList: true, subtree: true })
+      this.observeMap = new ResizeObserver(entries => {
+        const { width } = entries[0].contentRect
+
+        this.resizeMap(width)
+      })
+      this.observeMap.observe(this.$el)
     },
     destroyed () {
       this.observeMap.disconnect()
