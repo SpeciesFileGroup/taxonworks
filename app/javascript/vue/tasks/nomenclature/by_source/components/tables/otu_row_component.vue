@@ -2,7 +2,7 @@
   <tr>
     <td> 
       <a
-        :href="`/otus/${otu.id}`"
+        :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
         v-html="otu.object_tag"/>
     </td>
     <td>
@@ -23,6 +23,7 @@
   </tr>
 </template>
 <script>
+  import { RouteNames } from 'routes/routes'
   import RadialAnnotator from 'components/radials/annotator/annotator'
   import OtuRadial from 'components/otu/otu'
   export default {
@@ -42,6 +43,9 @@
         autoSave: undefined,
         time: 3000
       }
+    },
+    computed: {
+      RouteNames
     },
     methods: {
       changePage() {
