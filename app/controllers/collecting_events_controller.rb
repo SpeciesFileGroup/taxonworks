@@ -297,33 +297,38 @@ class CollectingEventsController < ApplicationController
   def filter_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collector_id,
       :collector_ids_or,
       :end_date,   # used in date range
       :geo_json,
+      :geographic_area_id,
       :in_labels,
       :in_verbatim_locality,
       :md5_verbatim_label,
+      :otu_id,
       :partial_overlap_dates,
       :radius,
       :recent,
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      collector_id: [],
+      geographic_area_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
-      spatial_geographic_area_ids: [],
-      geographic_area_id: [],
       otu_id: [],
-      collector_id: [],
+      spatial_geographic_area_ids: [],
     )
   end
 
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collector_id,
       :collector_ids_or,
       :end_date,   # used in date range
       :geo_json,
+      :geographic_area_id,
       :in_labels,
       :in_verbatim_locality,
       :md5_verbatim_label,
@@ -333,11 +338,11 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
-      keyword_ids: [],
-      spatial_geographic_area_ids: [],
-      geographic_area_id: [],
-      otu_id: [],
       collector_id: [],
+      geographic_area_id: [],
+      keyword_ids: [],
+      otu_id: [],
+      spatial_geographic_area_ids: [],
     )
   end
 

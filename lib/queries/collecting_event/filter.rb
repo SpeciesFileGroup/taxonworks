@@ -111,6 +111,10 @@ module Queries
         end
       end
 
+      def geographic_area_id
+        [@geographic_area_id].flatten.compact
+      end
+
       # @return [Arel::Table]
       def table
         ::CollectingEvent.arel_table
