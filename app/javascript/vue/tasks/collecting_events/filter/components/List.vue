@@ -12,15 +12,16 @@
           <th>Options</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody @mouseout="$emit('onRowHover', undefined)">
         <tr
           v-for="item in list"
-          :key="item.id">
+          :key="item.id"
+          @mouseover="$emit('onRowHover', item)">
           <td
             v-for="(value, property) in properties"
             :key="property"
             v-html="item[property]"/>
-          <td class="options-column">
+          <td>
             <div class="horizontal-left-content">
               <radial-object :global-id="item.global_id"/>
               <radial-annotator
@@ -78,15 +79,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  table {
-    margin-top: 0px;
-  }
-  tr {
-    height: 44px;
-  }
-  .options-column {
-    width: 130px;
-  }
-</style>

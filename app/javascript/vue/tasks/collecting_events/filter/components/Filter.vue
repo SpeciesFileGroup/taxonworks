@@ -34,6 +34,10 @@
         class="margin-large-bottom"
         v-model="params.identifier"
       />
+      <filter-keywords
+        class="margin-large-bottom"
+        v-model="params.keywords"
+      />
       <users-component
         class="margin-large-bottom"
         v-model="params.user"
@@ -62,6 +66,7 @@ import GeographicArea from 'tasks/collection_objects/filter/components/filters/g
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import FilterAttributes from 'tasks/collection_objects/filter/components/filters/collectingEvent/collectingEvent'
+import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { CollectingEvent } from 'routes/endpoints'
@@ -73,7 +78,8 @@ export default {
     UsersComponent,
     GeographicArea,
     FilterAttributes,
-    FilterIdentifiers
+    FilterIdentifiers,
+    FilterKeywords
   },
   computed: {
     platformKey,

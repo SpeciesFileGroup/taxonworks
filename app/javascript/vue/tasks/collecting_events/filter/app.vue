@@ -84,18 +84,21 @@
             :pagination="pagination"
             v-model="per"/>
         </div>
+
         <div class="horizontal-left-content align-start">
           <list-component
             v-if="showList"
             v-model="ids"
             :class="{ 'separate-left': activeFilter }"
             :list="list"
+            @onRowHover="setRowHover"
             @onSort="list.data = $event"/>
           <map-component
             class="panel content margin-small-left full_width"
             v-if="showMap"
-            :georeferences="georeferences" />
+            :geojson="geojson" />
         </div>
+
         <h2
           v-if="alreadySearch && !list"
           class="subtle middle horizontal-center-content no-found-message">No records found.
@@ -132,6 +135,21 @@ export default {
   computed: {
     ceIds () {
       return this.list.map(item => item.id)
+    },
+
+    geojson () {
+      return this.georeferences.map(georeference => {
+        const ceId = this.rowHover?.id
+        const geojson = georeference.geo_json
+
+        geojson.properties.marker = {
+          icon: georeference.collecting_event_id === ceId
+            ? 'red'
+            : 'blue'
+        }
+
+        return geojson
+      })
     }
   },
 
@@ -149,7 +167,8 @@ export default {
       maxRecords: [50, 100, 250, 500, 1000],
       per: 500,
       showList: true,
-      showMap: false
+      showMap: false,
+      rowHover: undefined
     }
   },
 
@@ -159,7 +178,6 @@ export default {
       this.loadPage(1)
     },
     list (newVal) {
-      
       this.loadGeoreferences(newVal)
     }
   },
@@ -204,6 +222,10 @@ export default {
         const lists = responses.map(response => response.body)
         this.georeferences = lists.flat()
       })
+    },
+
+    setRowHover (item) {
+      this.rowHover = item
     },
 
     getPagination: GetPagination

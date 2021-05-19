@@ -17,6 +17,7 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
+import { Icon } from 'components/georeferences/icons'
 
 export default {
   props: {
@@ -278,25 +279,29 @@ export default {
       this.addGeoJsonLayer(geoJsonFeatures)
     },
     addGeoJsonLayer (geoJsonLayers) {
-      const that = this
       let index = -1
 
       L.geoJson(geoJsonLayers, {
-        style: function (feature) {
+        style: (feature) => {
           index = index + 1
-          return that.randomShapeStyle(index)
+          return this.randomShapeStyle(index)
         },
-        filter: function (feature) {
+        filter: (feature) => {
           if (feature.properties.hasOwnProperty('geographic_area')) {
-            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties.hasOwnProperty('is_absent') && feature.properties.is_absent ? that.stripeShapeStyle(index) : that.randomShapeStyle(index), { pmIgnore: true })))
+            this.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? this.stripeShapeStyle(index) : this.randomShapeStyle(index), { pmIgnore: true })))
             return false
           }
           return true
         },
+
         onEachFeature: this.onMyFeatures,
-        pointToLayer: function (feature, latlng) {
-          let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
+        pointToLayer: (feature, latlng) => {
+          const shape = feature.properties.hasOwnProperty('radius')
+            ? this.addJsonCircle(feature)
+            : this.createMarker(feature, latlng)
+
           Object.assign(shape, { feature: feature })
+
           return shape
         }
       }).addTo(this.drawnItems)
@@ -304,15 +309,21 @@ export default {
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
           this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()))
-        }
-        else if (this.geographicArea.getLayers().length) {
-          this.mapObject.fitBounds(this.geographicArea.getBounds())
-        }
-        else {
-          this.mapObject.fitBounds([0,0])
+        } else {
+          this.mapObject.fitBounds(this.geographicArea.getLayers().length
+            ? this.mapObject.fitBounds(this.geographicArea.getBounds())
+            : [0, 0])
         }
       }
     },
+
+    createMarker (feature, latlng) {
+      const icon = Icon[feature?.properties?.marker?.icon] || Icon.blue
+      const marker = L.marker(latlng, { icon })
+
+      return marker
+    },
+
     getLayersCount (group) {
       return group.getLayers()[0]._layers ? Object.keys(group.getLayers()[0]._layers).length : undefined
     },

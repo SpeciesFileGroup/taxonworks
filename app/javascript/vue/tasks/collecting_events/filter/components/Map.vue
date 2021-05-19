@@ -15,15 +15,9 @@ export default {
   components: { LeafletMap },
 
   props: {
-    georeferences: {
+    geojson: {
       type: Array,
       default: () => []
-    }
-  },
-
-  computed: {
-    geojson () {
-      return this.georeferences.map(item => item.geo_json)
     }
   }
 
