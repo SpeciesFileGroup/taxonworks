@@ -1066,13 +1066,13 @@ class CollectingEvent < ApplicationRecord
   end
 
   def level2_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    return cached_level2_name if cached_level2_name
+    cache_geographic_names[:county]
   end
 
   def cached_level0_name
     return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    cache_geographic_names[:country]
   end
 
   # @return [CollectingEvent]

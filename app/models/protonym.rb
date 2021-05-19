@@ -490,7 +490,11 @@ class Protonym < TaxonName
   end
 
   def is_genus_or_species_rank?
-    is_species_rank? || is_genus_rank?
+    GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
+  end
+
+  def is_family_or_genus_or_species_rank?
+    FAMILY_AND_GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
   end
 
   def is_family_rank?

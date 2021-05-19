@@ -12,7 +12,7 @@
 <script>
 
 import { GetterNames } from '../../store/getters/getters'
-import TagItem from '../../../../components/tag_item.vue'
+import TagItem from 'components/tag_item.vue'
 
 export default {
   components: {
