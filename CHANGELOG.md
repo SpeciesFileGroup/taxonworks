@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Status to TaxonName autocomplete [#2086]
+- otu_filter param to interactive keys task
 
 ### Changed
 
