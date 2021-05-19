@@ -132,7 +132,7 @@ module Export::Coldp::Files::Taxon
 
       # TODO: make OTUS incoming only valid
       otus.each do |o|
-        next unless o.taxon_name_id && o.taxon_name.is_valid? # TODO: Should be *really* valid
+       #  next unless o.taxon_name_id && o.taxon_name.is_valid? # TODO: Should be *really* valid
 
         # TODO: remove once RC5 better modelled
         next if observed_taxon_name_ids[o.taxon_name_id]

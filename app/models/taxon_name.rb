@@ -259,10 +259,10 @@ class TaxonName < ApplicationRecord
 
   # TODO optimize to use joins
   def self.that_is_really_valid
-    # TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
-    TaxonName.that_is_valid.where.not(
-      id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
-    )
+  #    TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+   TaxonName.that_is_valid.where.not(
+     id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+   )
   end
 
   scope :with_type, -> (type) {where(type: type)}
@@ -773,9 +773,13 @@ class TaxonName < ApplicationRecord
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
   #
-  # TODO: does not check TaxonNameClassification
+  # TODO: when all values are calculated THEN make this an alias of cached_is_valid
   def is_valid?
-    cached_is_valid
+    if !cached_is_valid.nil?
+      return cached_is_valid
+    else
+      return !unavailable_or_invalid?
+    end
   end
 
   # @return [Boolean]
