@@ -12,9 +12,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
 
-[#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+### Changed
 
-\-
+- Updated Ruby gems
+
+[#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
+[#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
 
 ## [0.18.0] - 2020-05-14
 
