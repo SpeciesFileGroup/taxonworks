@@ -3,7 +3,7 @@
     <v-modal
       v-if="viewMode"
       @close="viewMode = false"
-      :container-style="{ width: ((fullSizeImage ? `${depiction.image.width}px` : '500px') )}">
+      :container-style="{ width: `${depiction.image.width}px` }">
       <h3 slot="header">View</h3>
       <div slot="body">
         <div class="image-container">
@@ -309,6 +309,9 @@ export default {
     .image-container {
       display: flex;
       justify-content: center;
+      img {
+        border: 1px solid black;
+      }
     }
     hr {
         height: 1px;
