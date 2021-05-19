@@ -24,7 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
 
 
-## [0.18.0] - 2020-05-14
+## [0.18.0] - 2021-05-14
 
 ### Added
 
@@ -500,12 +500,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1988]: https://github.com/SpeciesFileGroup/taxonworks/issues/1988
 [#1990]: https://github.com/SpeciesFileGroup/taxonworks/issues/1990
 
-<<<<<<< HEAD
-## [0.15.1] - 2021-12-14
-=======
 ## [0.15.1] - 2020-12-14
 
->>>>>>> 82960fa921726c4b7545743d7287b22b62f0a54a
 ### Added
 
 - `Person` can not be active for > 119 years
@@ -549,7 +545,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1914]: https://github.com/SpeciesFileGroup/taxonworks/issues/1914
 [#1921]: https://github.com/SpeciesFileGroup/taxonworks/issues/1921
 
-## [0.15.0] - 2021-11-30
+## [0.15.0] - 2020-11-30
 
 ### Added
 
