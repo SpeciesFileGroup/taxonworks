@@ -86,7 +86,7 @@
               <span class="feedback feedback-secondary feedback-thin line-nowrap">{{ yearValue(selectedPerson.year_active_start) }} - {{ yearValue(selected.year_active_end) }}</span>
             </td>
             <td>
-              <span class="feedback feedback-thin feedback-primary">{{ selected.roles ? selected.roles.length : '?' }}</span>
+              <span class="feedback feedback-thin feedback-primary">{{ selected.roles ? selected.roles.length : selected.usedCount || '?' }}</span>
             </td>
             <td>{{ getRoles(selected) }}</td>
           </tr>
@@ -148,9 +148,17 @@ export default {
       }
     },
     async addToList (person) {
-      person = await this.selectPerson(person)
-      this.$emit('addToList', person)
-      this.selected = person
+      const personObj = await this.selectPerson(person)
+
+      if (person?.label_html) {
+        let element = document.createElement('span')
+        element.innerHTML = person.label_html
+        element = element.querySelector('[data-count]')
+        personObj.usedCount = element.getAttribute('data-count')
+      }
+
+      this.$emit('addToList', personObj)
+      this.selected = personObj
     },
     async selectPerson (person) {
       this.selected = person

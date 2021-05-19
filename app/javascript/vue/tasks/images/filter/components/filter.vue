@@ -63,7 +63,7 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
-import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
+import ScopeComponent from 'tasks/nomenclature/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'

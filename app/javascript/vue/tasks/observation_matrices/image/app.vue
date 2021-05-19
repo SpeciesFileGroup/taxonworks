@@ -66,6 +66,7 @@
     <h3 v-if="observationMatrix">{{ observationMatrix.object_tag }}</h3>
     <template v-if="observationMatrix">
       <autocomplete
+        class="separate-autocomplete"
         url="/observation_matrix_rows/autocomplete"
         param="term"
         label="label"
@@ -77,7 +78,6 @@
     </template>
     <template v-if="matrixId && !viewMode">
       <matrix-table
-        class="separate-table"
         ref="matrixTable"
         :columns="observationColumns"
         :rows="observationRows"/>
@@ -87,7 +87,6 @@
     </template>
     <view-component
       v-if="viewMode"
-      class="separate-table"
       :matrix-id="matrixId"
       :otus-id="otuFilter"/>
   </div>
@@ -245,7 +244,7 @@ export default {
 }
 </script>
 <style scoped>
-.separate-table {
-  margin-top: 100px;
+.separate-autocomplete {
+  margin-bottom: 100px;
 }
 </style>
