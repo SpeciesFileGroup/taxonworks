@@ -135,10 +135,12 @@ import VModal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import { capitalize } from 'helpers/strings.js'
 import { Image, Depiction } from 'routes/endpoints'
-import { imageSVGViewBox } from 'helpers/images'
+import { imageSVGViewBox, imageScale } from 'helpers/images'
 
-const roleTypes = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
+const CONVERT_IMAGE_TYPES = ['image/tiff']
+const ROLE_TYPES = ['creator_roles', 'owner_roles', 'copyright_holder_roles', 'editor_roles']
 const roleLabel = (role) => capitalize(role.replace('_roles', '').replaceAll('_', ' '))
+
 const IMG_MAX_SIZES = {
   thumb: 100,
   medium: 300
@@ -170,7 +172,7 @@ export default {
   computed: {
     attributionsList () {
       return this.attributions.map(attr =>
-        roleTypes.map(role =>
+        ROLE_TYPES.map(role =>
           attr[role] ? `${roleLabel(role)}: <b>${attr[role].map(item => item?.person?.object_tag || item.organization.name).join('; ')}</b>` : []).filter(arr => arr.length))
     },
 
@@ -181,10 +183,13 @@ export default {
     urlSrc () {
       const depiction = this.depiction
       const image = this.image
+      const { width, height } = this.image
 
       return this.hasSVGBox
         ? imageSVGViewBox(depiction.image.id, depiction.svg_view_box, image.width, image.height)
-        : image.image_file_url
+        : CONVERT_IMAGE_TYPES.includes(image.content_type)
+          ? imageScale(depiction.image.id, `0 0 ${width} ${height}`, width, height)
+          : image.image_file_url
     },
 
     hasSVGBox () {
