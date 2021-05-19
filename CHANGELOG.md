@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
+- Reset selected ids on new search in observation matrices dashboard
 
 ### Changed
 - Updated Ruby gems

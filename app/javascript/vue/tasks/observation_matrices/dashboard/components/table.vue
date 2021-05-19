@@ -163,6 +163,7 @@ export default {
     tableList: {
       handler (newVal) {
         this.sorting = true
+        this.selectedIds = []
         setTimeout(() => {
           this.tableRanks = this.tableList
           this.$nextTick(() => {
