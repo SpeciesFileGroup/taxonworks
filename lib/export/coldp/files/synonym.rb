@@ -33,7 +33,7 @@ module Export::Coldp::Files::Synonym
 
       # Otus are valid (only valid) # and invalid (but we should make them only valid)
       otus.joins(:taxon_name)
-        .where.not(taxon_name_id: nil) # TODO: shouldn't be required based on joins()
+        # .where.not(taxon_name_id: nil) # TODO: shouldn't be required based on joins()
         # .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') # TODO: doesn't catch invalid names from classifications
         .select('otus.id id, taxon_names.cached cached')
         .pluck(:id, :cached, :taxon_name_id)
