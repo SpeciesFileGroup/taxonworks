@@ -102,7 +102,7 @@ module Export::Coldp::Files::Taxon
     nil
   end
 
-  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: false)
+  def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
 
     # Until we have RC5 articulations we are temporarily glossing over the fact
     # that one taxon name can be used for many OTUs.  Track to see that
@@ -130,34 +130,12 @@ module Export::Coldp::Files::Taxon
         remarks
       }
 
-      # TODO: make OTUS incoming only valid
       otus.each do |o|
-       #  next unless o.taxon_name_id && o.taxon_name.is_valid? # TODO: Should be *really* valid
-
-        # TODO: remove once RC5 better modelled
-        next if observed_taxon_name_ids[o.taxon_name_id]
-
-        observed_taxon_name_ids[o.taxon_name_id] = o.id
-
-        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
-
-        sources = o.sources
-        source = o.source
-
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
         # !! Handle this edge case
 
         # TODO: alter way parent is set to conform to CoLDP status
-        # Consider:
-        #    OTUs/ranks are excluded :
-        # Need the next highest valid parent not in this list!!
-        # %w{
-        #   NomenclaturalRank::Iczn::SpeciesGroup::Supersuperspecies
-        #   NomenclaturalRank::Iczn::SpeciesGroup::Superspecies
-        # }
-        #
-        # Also:
         #   For OTUs with combinations we might have to change the parenthood?!
 
         parent_id = nil
@@ -165,18 +143,31 @@ module Export::Coldp::Files::Taxon
           if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)
             parent_id = pid
           else
+            puts Rainbow('WARNING no parent!!').bold.yellow
             # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
             # curators can use the create OTUs for valid ids to resolve this data issue
             next
           end
         end
 
+        # TODO: This was excluding OTUs that were being excluded downstream previously
+        # This should never happen now since parent ambiguity is caught above!
+        # can be removed in theory
+        # TODO: remove once RC5 better modelled
+        next if observed_taxon_name_ids[o.taxon_name_id]
+        observed_taxon_name_ids[o.taxon_name_id] = o.id
+
+        # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
+
+        sources = o.sources
+        source = o.source
+
         parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
           o.id,                                      # ID
           parent_id,                                 # parentID
-          o.taxon_name&.id,                          # nameID
+          o.taxon_name.id,                           # nameID
           provisional(o),                            # provisional
           according_to_id(o),                        # accordingToID
           scrutinizer(o),                            # scrutinizer

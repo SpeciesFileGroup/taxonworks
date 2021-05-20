@@ -30,7 +30,7 @@ module Export
         .where(taxon_name_id: TaxonName.that_is_really_valid)
     end
 
-    def self.export(otu_id, prefer_unlabelled_otus: false)
+    def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
       # source_id => [csv_array]
@@ -66,8 +66,11 @@ module Export
       zip_file_path
     end
 
-    def self.download(otu, request = nil, prefer_unlabelled_otus: false)
-      file_path = ::Export::Coldp.export(otu.id)
+    def self.download(otu, request = nil, prefer_unlabelled_otus: true)
+      file_path = ::Export::Coldp.export(
+        otu.id,
+        prefer_unlabelled_otus: prefer_unlabelled_otus
+      )
       name = "coldp_otu_id_#{otu.id}_#{DateTime.now}.zip"
 
       ::Download.create!(
@@ -80,7 +83,7 @@ module Export
       )
     end
 
-    def self.download_async(otu, request = nil, prefer_unlabelled_otus: false)
+    def self.download_async(otu, request = nil, prefer_unlabelled_otus: true)
       download = ::Download.create!(
         name: "ColDP Download for #{otu.otu_name} on #{Time.now}.",
         description: 'A zip file containing CoLDP formatted data.',
@@ -93,6 +96,7 @@ module Export
 
       download
     end
+
 
     # TODO - perhaps a utilities file --
 
