@@ -3,7 +3,7 @@
     :geojson="geojson"
     resize
     width="100%"
-    fit-bounds
+    :zoom-bounds="15"
   />
 </template>
 

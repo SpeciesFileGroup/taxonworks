@@ -66,7 +66,8 @@ export default {
         date_start_string: 'Date start',
         cached_level0_geographic_name: 'Level 1',
         cached_level1_geographic_name: 'Level 2',
-        cached_level2_geographic_name: 'Level 3'
+        cached_level2_geographic_name: 'Level 3',
+        georeferencesCount: 'Points'
 
       }
     }
@@ -79,3 +80,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  tr:hover {
+    background-color: #BBDDBB
+  }
+</style>

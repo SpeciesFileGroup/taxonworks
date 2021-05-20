@@ -21,29 +21,25 @@ import { Icon } from 'components/georeferences/icons'
 
 export default {
   props: {
+    zoomAnimate: {
+      type: Boolean,
+      default: false
+    },
     width: {
       type: String,
-      default: () => {
-        return '500px'
-      }
+      default: '500px'
     },
     height: {
       type: String,
-      default: () => {
-        return '500px'
-      }
+      default: '500px'
     },
     zoom: {
       type: Number,
-      default: () => {
-        return 18
-      }
+      default: 18
     },
     drawControls: {
       type: Boolean,
-      default: () => {
-        return false
-      }
+      default: false
     },
     drawCircle: {
       type: Boolean,
@@ -95,9 +91,7 @@ export default {
     },
     center: {
       type: Array,
-      default: () => {
-        return [0, 0]
-      }
+      default: () => [0, 0]
     },
     resize: {
       type: Boolean,
@@ -105,9 +99,7 @@ export default {
     },
     geojson: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     zoomOnClick: {
       type: Boolean,
@@ -116,6 +108,10 @@ export default {
     fitBounds: {
       type: Boolean,
       default: true
+    },
+    zoomBounds: {
+      type: Number,
+      default: undefined
     }
   },
   data () {
@@ -142,6 +138,18 @@ export default {
       restoreRow: undefined
     }
   },
+
+  computed: {
+    fitBoundsOptions () {
+      return {
+        maxZoom: this.zoomBounds,
+        zoom: {
+          animate: this.zoomAnimate
+        }
+      }
+    }
+  },
+
   watch: {
     geojson: {
       handler (newVal) { 
@@ -183,7 +191,7 @@ export default {
 
       this.$nextTick(() => {
         if (Object.keys(bounds).length && this.fitBounds) {
-          this.mapObject.fitBounds(bounds)
+          this.mapObject.fitBounds(bounds, this.fitBoundsOptions)
         }
       })
     },
@@ -308,11 +316,12 @@ export default {
 
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()))
+          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()), this.fitBoundsOptions)
         } else {
           this.mapObject.fitBounds(this.geographicArea.getLayers().length
-            ? this.mapObject.fitBounds(this.geographicArea.getBounds())
-            : [0, 0])
+            ? this.geographicArea.getBounds()
+            : [0, 0]
+          , this.fitBoundsOptions)
         }
       }
     },
@@ -394,9 +403,9 @@ export default {
       const layer = e.target
       if (this.fitBounds) {
         if (layer instanceof L.Marker || layer instanceof L.Circle) {
-          this.mapObject.fitBounds([layer.getLatLng()])
+          this.mapObject.fitBounds([layer.getLatLng()], this.fitBoundsOptions)
         } else {
-          this.mapObject.fitBounds(e.target.getBounds())
+          this.mapObject.fitBounds(e.target.getBounds(), this.fitBoundsOptions)
         }
       }
     }

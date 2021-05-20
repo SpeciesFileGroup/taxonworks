@@ -138,13 +138,17 @@ export default {
     },
 
     geojson () {
-      return this.georeferences.map(georeference => {
-        const ceId = this.rowHover?.id
+      const ceId = this.rowHover?.id
+      const georeferences = ceId
+        ? this.georeferences.filter(item => item.collecting_event_id === ceId)
+        : this.georeferences
+
+      return georeferences.map(georeference => {
         const geojson = georeference.geo_json
 
         geojson.properties.marker = {
           icon: georeference.collecting_event_id === ceId
-            ? 'red'
+            ? 'green'
             : 'blue'
         }
 
@@ -221,11 +225,18 @@ export default {
       Promise.all(promises).then(responses => {
         const lists = responses.map(response => response.body)
         this.georeferences = lists.flat()
+        this.setCEWithGeoreferences()
       })
     },
 
     setRowHover (item) {
       this.rowHover = item
+    },
+
+    setCEWithGeoreferences () {
+      this.list.forEach((ce, index) => {
+        this.$set(this.list[index], 'georeferencesCount', this.georeferences.filter(item => item.collecting_event_id === ce.id).length)
+      })
     },
 
     getPagination: GetPagination
