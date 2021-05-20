@@ -11,7 +11,7 @@ module Queries
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
-      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
+      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
@@ -90,7 +90,7 @@ module Queries
         @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
         @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
         @geo_json = params[:geo_json]
-        @geographic_area_id = params[:geographic_area_id].blank? ? [] : params[:geographic_area_id]
+        @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
@@ -226,7 +226,7 @@ module Queries
         table[:md5_of_verbatim_label].eq(md5)
       end
 
-      def matching_geographic_area_ids
+      def matching_geographic_area_id
         return nil if geographic_area_id.empty? || spatial_geographic_areas
         table[:geographic_area_id].eq_any(geographic_area_id)
       end
@@ -249,7 +249,7 @@ module Queries
 
         clauses += [
           between_date_range,
-          matching_geographic_area_ids,
+          matching_geographic_area_id,
           matching_verbatim_label_md5,
           matching_any_label,
           matching_verbatim_locality,

@@ -111,8 +111,8 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
 
-  specify '#geographic_area_ids' do
-    ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
+  specify '#geographic_area_id[]' do
+    ce1.update!(geographic_area: FactoryBot.create(:valid_geographic_area))
     query.geographic_area_id = [ce1.geographic_area_id]
     expect(query.all.map(&:id)).to contain_exactly(ce1.id)
   end
