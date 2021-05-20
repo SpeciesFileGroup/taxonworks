@@ -32,13 +32,14 @@ module Export::Coldp::Files::Synonym
       csv << %w{taxonID nameID status remarks referenceID}
 
       # Otus are valid (only valid) # and invalid (but we should make them only valid)
-      otus.joins(:taxon_name)
-        # .where.not(taxon_name_id: nil) # TODO: shouldn't be required based on joins()
-        # .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') # TODO: doesn't catch invalid names from classifications
-        .select('otus.id id, taxon_names.cached cached')
+      otus.select('otus.id id, taxon_names.cached cached, otus.taxon_name_id taxon_name_id')
         .pluck(:id, :cached, :taxon_name_id)
         .each do |o|
-
+     
+      # .joins(:taxon_name)
+        # .where.not(taxon_name_id: nil) # TODO: shouldn't be required based on joins()
+        # .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') # TODO: doesn't catch invalid names from classifications
+   
           #  name = o.taxon_name
           # original combinations of invalid names are not being handled correclty in reified
 
