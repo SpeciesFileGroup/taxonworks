@@ -248,7 +248,7 @@ class Image < ApplicationRecord
   # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
-    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i).sharpen(0x1)
+    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i) #.sharpen(0x1)
     c.destroy!
     resized
   end
@@ -266,24 +266,24 @@ class Image < ApplicationRecord
         scaled = c.resize(
           params[:box_width].to_i,
           (params[:box_height].to_f / ratio * box_ratio).to_i
-        ).sharpen(0x1)
+        ) #.sharpen(0x1)
       else # tall into wide
         scaled = c.resize(
           (params[:box_width ].to_f * ratio / box_ratio).to_i,
           params[:box_height].to_i
-        ).sharpen(0x1)
+        ) #.sharpen(0x1)
       end
     else # <
       if ratio > 1 # wide into tall
         scaled = c.resize(
           params[:box_width].to_i,
           (params[:box_height].to_f / ratio * box_ratio).to_i
-        ).sharpen(0x1)
+        ) #.sharpen(0x1)
       else # tall into tall # TODO: or 1:1?!
         scaled = c.resize(
           (params[:box_width ].to_f * ratio / box_ratio ).to_i,
           (params[:box_height].to_f ).to_i
-        ).sharpen(0x1)
+        ) #.sharpen(0x1)
       end
     end
     c.destroy!
