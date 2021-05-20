@@ -58,7 +58,7 @@
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import SpinnerComponent from 'components/spinner'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import { TaxonName } from 'routes/endpoints'
 
 export default {

@@ -43,7 +43,7 @@ import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from 'routes/endpoints'
 import CloneLabel from './cloneLabel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {

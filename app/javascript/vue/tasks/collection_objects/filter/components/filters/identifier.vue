@@ -63,7 +63,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Namespace } from 'routes/endpoints'
 

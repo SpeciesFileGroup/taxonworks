@@ -52,8 +52,8 @@
 
 <script>
 
-import Modal from '../modal.vue'
-import Spinner from '../spinner.vue'
+import Modal from 'components/ui/Modal.vue'
+import Spinner from 'components/spinner.vue'
 import OtuRadial from 'components/radials/object/radial'
 import { GetOtu, GetOtus, CreateOtu } from './request/resources'
 

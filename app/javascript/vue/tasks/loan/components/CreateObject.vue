@@ -57,7 +57,7 @@
 import { createLoanItem } from '../request/resources'
 import { MutationNames } from '../store/mutations/mutations'
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
 export default {
   components: { Autocomplete },

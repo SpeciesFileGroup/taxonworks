@@ -20,10 +20,10 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import componentExtend from './mixins/componentExtend'
 import RolePicker from 'components/role_picker'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 import { CreatePerson } from 'helpers/persons/createPerson'
 
 export default {

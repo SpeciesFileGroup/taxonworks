@@ -51,7 +51,7 @@
 
 <script>
 import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
 export default {
   components: {

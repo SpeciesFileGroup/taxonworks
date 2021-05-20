@@ -121,6 +121,7 @@ function makeInitialState () {
       collecting_events: [],
       georeferences: []
     },
+    observationsDepictions: [],
     userId: undefined
   }
 }

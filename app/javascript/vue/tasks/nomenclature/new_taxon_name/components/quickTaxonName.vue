@@ -54,8 +54,8 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import ModalComponent from 'components/modal'
+import Autocomplete from 'components/ui/Autocomplete'
+import ModalComponent from 'components/ui/Modal'
 import { GetterNames } from '../store/getters/getters'
 import { TaxonName } from 'routes/endpoints'
 

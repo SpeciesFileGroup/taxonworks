@@ -16,6 +16,8 @@ json.geographic_area_type do
   json.extract! geographic_area.geographic_area_type, :id, :name
 end
 
-json.parent do
-  json.extract! geographic_area.parent, :name
+if geographic_area.parent_id
+  json.parent do
+    json.extract! geographic_area.parent, :name
+  end
 end

@@ -38,7 +38,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import TableList from 'components/table_list'
 
 import { GetterNames } from '../store/getters/getters.js'

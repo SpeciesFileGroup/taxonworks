@@ -91,7 +91,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
 import { CreateDetermination } from '../../request/resources'
 import { CreatePerson } from 'helpers/persons/createPerson'

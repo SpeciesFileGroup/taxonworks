@@ -114,7 +114,7 @@
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'

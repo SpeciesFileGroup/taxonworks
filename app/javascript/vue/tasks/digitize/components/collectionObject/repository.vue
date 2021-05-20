@@ -34,7 +34,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import LockComponent from 'components/lock'
 
 import { Repository } from 'routes/endpoints'

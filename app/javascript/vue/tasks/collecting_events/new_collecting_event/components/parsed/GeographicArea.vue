@@ -76,9 +76,9 @@
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import { GeographicArea } from 'routes/endpoints'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import convertDMS from 'helpers/parseDMS.js'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 import extendCE from '../mixins/extendCE'
 

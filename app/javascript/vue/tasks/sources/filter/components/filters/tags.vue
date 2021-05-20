@@ -50,7 +50,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import RowItem from './shared/RowItem'
 import { GetKeyword } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'

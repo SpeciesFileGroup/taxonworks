@@ -1,10 +1,10 @@
 <template>
-  <a
-    :class="{ disabled: !this.otuIds.length }"
+  <button
+    class="button normal-input button-default"
     :disabled="!otuIds.length"
-    :href="openImageMatrix">
+    @click="openImageMatrix">
     Image matrix
-  </a>
+  </button>
 </template>
 
 <script>
@@ -19,9 +19,9 @@ export default {
     }
   },
 
-  computed: {
+  methods: {
     openImageMatrix () {
-      return this.otuIds.length ? `${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}` : false
+      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}`, '_blank')
     }
   }
 }

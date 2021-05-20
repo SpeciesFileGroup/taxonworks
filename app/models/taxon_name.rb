@@ -1094,7 +1094,6 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-#    return name if not_binomial?
     return name if rank_class.to_s =~ /Icvcn/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
 
@@ -1117,17 +1116,19 @@ class TaxonName < ApplicationRecord
 
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
-    n = name
-    # n = verbatim_name.blank? ? name : verbatim_name
-    return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    if !n.blank? && is_hybrid?
-      w = n.split(' ')
+    #m = name
+    # m = verbatim_name.blank? ? name : verbatim_name
+    return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
+    if !name.blank? && is_hybrid?
+      w = name.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
-      n = w.join(' ')
+      name = w.join(' ')
     end
-    n = Utilities::Italicize.taxon_name(n) if is_italicized?
-    n = '† ' + n if is_fossil?
-    n
+    
+    m = name
+    m = Utilities::Italicize.taxon_name(name) if is_italicized?
+    m = '† ' + m if is_fossil?
+    m
   end
 
   # @return [String]
@@ -1457,14 +1458,12 @@ class TaxonName < ApplicationRecord
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
     confidence_level_array = [93]
-
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
     soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
 
   def sv_missing_original_publication
-    if true #!self.cached_misspelling && !self.name_is_misapplied?
-
+    if rank_class.nil? || is_family_or_genus_or_species_rank?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.try(:pages).blank?

@@ -97,7 +97,7 @@ import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
 import LockComponent from 'components/lock'
 import SpinnerComponent from 'components/spinner'
-import NavBarComponent from 'components/navBar'
+import NavBarComponent from 'components/layout/NavBar'
 import OSKey from 'helpers/getMacKey'
 
 import { Source, AssertedDistribution } from 'routes/endpoints'

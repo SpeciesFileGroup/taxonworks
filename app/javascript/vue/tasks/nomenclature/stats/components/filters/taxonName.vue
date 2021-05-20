@@ -32,7 +32,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { RouteNames } from 'routes/routes'

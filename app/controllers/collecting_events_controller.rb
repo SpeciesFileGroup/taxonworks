@@ -261,7 +261,7 @@ class CollectingEventsController < ApplicationController
   private
 
   def set_collecting_event
-    @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
+    @collecting_event = CollectingEvent.where(project_id: sessions_current_project_id).find(params[:id])
     @recent_object = @collecting_event
   end
 

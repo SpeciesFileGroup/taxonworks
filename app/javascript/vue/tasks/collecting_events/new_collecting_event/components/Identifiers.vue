@@ -54,7 +54,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 
 export default {
   components: {

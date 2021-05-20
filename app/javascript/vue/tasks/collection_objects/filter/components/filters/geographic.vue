@@ -61,7 +61,7 @@
 <script>
 
 import SwitchComponent from 'components/switch'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
 import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'

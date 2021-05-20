@@ -63,7 +63,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import ListEntrys from './listEntrys.vue'
 
 import getRankGroup from '../helpers/getRankGroup'

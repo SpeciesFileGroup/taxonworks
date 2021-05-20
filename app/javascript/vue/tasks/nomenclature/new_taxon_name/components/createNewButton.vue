@@ -31,7 +31,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import { RouteNames } from 'routes/routes'
 
 export default {

@@ -50,7 +50,7 @@
 
 import LockComponent from 'components/lock'
 import componentExtend from './mixins/componentExtend'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],

@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import showForThisGroup from './helpers/showForThisGroup'
 import AuthorSection from './components/sourcePicker.vue'
 import RelationshipSection from './components/relationshipPicker.vue'
