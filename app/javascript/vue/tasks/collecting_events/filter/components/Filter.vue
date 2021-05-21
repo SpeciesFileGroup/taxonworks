@@ -30,9 +30,16 @@
         class="margin-large-bottom margin-medium-top"
         v-model="params.geographic"
       />
+      <filter-determinations
+        class="margin-large-bottom"
+        v-model="params.determination"/>
       <filter-identifiers
         class="margin-large-bottom"
         v-model="params.identifier"
+      />
+      <filter-material
+        class="margin-large-bottom"
+        v-model="params.types"
       />
       <filter-keywords
         class="margin-large-bottom"
@@ -67,8 +74,10 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 import FilterAttributes from 'tasks/collection_objects/filter/components/filters/collectingEvent/collectingEvent'
 import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import FilterDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
+import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
 
+import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
 
 export default {
@@ -78,8 +87,10 @@ export default {
     UsersComponent,
     GeographicArea,
     FilterAttributes,
+    FilterDeterminations,
     FilterIdentifiers,
-    FilterKeywords
+    FilterKeywords,
+    FilterMaterial
   },
   computed: {
     platformKey,
@@ -113,7 +124,7 @@ export default {
     },
     searchCollectingEvents () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
@@ -156,6 +167,14 @@ export default {
           identifier_end: undefined,
           namespace_id: undefined
         },
+        determination: {
+          determiner_id_or: [],
+          determiner_id: [],
+          otu_ids: [],
+          current_determinations: undefined,
+          ancestor_id: undefined,
+          validity: undefined
+        },
         keywords: {
           keyword_id_and: [],
           keyword_id_or: []
@@ -183,7 +202,11 @@ export default {
           radius: undefined,
           spatial_geographic_areas: undefined,
           geographic_area_ids: []
-        }
+        },
+        types: {
+          is_type: [],
+          type_type: []
+        },
       }
     },
 
