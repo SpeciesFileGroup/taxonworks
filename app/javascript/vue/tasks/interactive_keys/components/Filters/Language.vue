@@ -1,10 +1,10 @@
 <template>
   <div>
     <label class="display-block">Language</label>
-    <select v-model="filters.language_id">
+    <select v-model="languageSelected">
       <option :value="undefined"/>
       <option
-        v-for="language in observationMatrix.descriptor_available_languages"
+        v-for="language in languageList"
         :key="language.id"
         :value="language.id">
         {{ language.english_name }}
@@ -16,26 +16,32 @@
 <script>
 
 import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
 
 export default {
+  props: {
+    value: {
+      type: Number,
+      default: undefined
+    },
+    languageList: {
+      type: Array,
+      default: () => []
+    }
+  },
+
   computed: {
-    filters: {
+    languageSelected: {
       get () {
-        return this.$store.getters[GetterNames.GetParamsFilter]
+        return this.value
       },
       set (value) {
-        this.$store.commit(MutationNames.SetParamsFilter, value)
+        this.$emit('input', value)
       }
     },
+
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     }
-  },
-  data () {
-    return {
-      values: [0, 1, 2]
-    }
-  },
+  }
 }
 </script>

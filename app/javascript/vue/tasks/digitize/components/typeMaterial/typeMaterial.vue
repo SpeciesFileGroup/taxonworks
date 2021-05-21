@@ -3,16 +3,16 @@
     <div slot="header">
       <h3>Type material</h3>
       <span
-        v-shortkey="[getOSKey(), 'm']"
+        v-shortkey="[platformKey, 'm']"
         @shortkey="switchTypeMaterial"/>
       <span
-        v-shortkey="[getOSKey(), 't']"
+        v-shortkey="[platformKey, 't']"
         @shortkey="switchNewTaxonName"/>
       <span
-        v-shortkey="[getOSKey(), 'o']"
+        v-shortkey="[platformKey, 'o']"
         @shortkey="switchBrowseOtu"/>
       <span
-        v-shortkey="[getOSKey(), 'b']"
+        v-shortkey="[platformKey, 'b']"
         @shortkey="switchBrowseNomenclature"/>
     </div>
     <div slot="body">
@@ -29,12 +29,22 @@
           <radial-annotator
             :global-id="item.global_id"
             type="annotations"/>
+          <button
+            type="button"
+            class="button circle-button button-default"
+            @click="editTypeMaterial(item)">
+            <v-icon
+              x-small
+              name="pencil"
+              color="white"
+            />
+          </button>
           <span
             class="button circle-button btn-delete"
             @click="destroyTypeMateria(item)"/>
         </li>
       </ul>
-      <div v-show="!typeMaterials.length">
+      <div v-show="!typeMaterials.length || editMode">
         <div class="separate-bottom">
           <fieldset>
             <legend>Taxon name</legend>
@@ -83,6 +93,7 @@
           <smart-selector
             ref="sourceSmartSelector"
             model="sources"
+            klass="TypeMaterial"
             pin-section="Sources"
             pin-type="Source"
             @selected="selectSource"
@@ -108,31 +119,40 @@
 
 <script>
 
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial, Source } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
 import ActionNames from '../../store/actions/actionNames.js'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import GetOSKey from 'helpers/getMacKey'
+import VIcon from 'components/ui/VIcon/index'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   components: {
     BlockLayout,
     SmartSelector,
-    RadialAnnotator
+    RadialAnnotator,
+    VIcon
   },
   computed: {
+    platformKey,
+
     taxonIdFormOtu () {
-      const tmpOtu = this.$store.getters[GetterNames.GetTmpData].otu
-      return (tmpOtu && tmpOtu.hasOwnProperty('taxon_name_id')) ? tmpOtu.taxon_name_id : undefined
+      const otu = this.$store.getters[GetterNames.GetTmpData].otu
+      return otu?.taxon_name_id
     },
     checkForTypeList () {
       return this.types && this.taxon
     },
-    typeMaterial () {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
+    typeMaterial: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterial, value)
+      }
     },
     typeMaterials () {
       return this.$store.getters[GetterNames.GetTypeMaterials]
@@ -167,6 +187,7 @@ export default {
   },
   data () {
     return {
+      editMode: false,
       types: undefined,
       sourceSelected: undefined,
       origin_citation_attributes: {
@@ -175,6 +196,7 @@ export default {
       }
     }
   },
+
   watch: {
     origin_citation_attributes: {
       handler (newVal) {
@@ -182,11 +204,14 @@ export default {
       },
       deep: true
     },
+
     lastSave (newVal) {
+      this.editMode = false
       this.$refs.smartSelector.refresh()
       this.$refs.sourceSmartSelector.refresh()
     }
   },
+
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const taxonId = urlParams.get('taxon_name_id')
@@ -199,6 +224,7 @@ export default {
       this.selectTaxon(taxonId)
     }
   },
+
   methods: {
     switchNewTaxonName () {
       window.open(`/tasks/nomenclature/new_taxon_name${this.taxon ? `?taxon_name_id=${this.taxon.id}` : ''}`, '_self')
@@ -226,13 +252,24 @@ export default {
       this.origin_citation_attributes.source_id = source.id
       this.sourceSelected = source
     },
+
     newCitation () {
       this.origin_citation_attributes = {
         source_id: undefined,
         pages: undefined
       }
     },
-    getOSKey: GetOSKey
+
+    editTypeMaterial ({ id, origin_citation, protonym_id, type_type }) {
+      Source.find(origin_citation.source.id).then(({ body }) => {
+        this.selectSource(body)
+        this.origin_citation_attributes.id = origin_citation.id
+      })
+      this.typeMaterial.id = id
+      this.selectTaxon(protonym_id)
+      this.type = type_type
+      this.editMode = true
+    }
   }
 }
 </script>

@@ -117,7 +117,7 @@ export default {
       this.$emit('close')
     },
     openInteractiveKeys (id) {
-      window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}`, '_self')
+      window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
     },
     openImageMatrix (id) {
       window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_blank')
