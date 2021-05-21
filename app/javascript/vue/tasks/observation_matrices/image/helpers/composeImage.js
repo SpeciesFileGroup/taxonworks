@@ -1,6 +1,7 @@
 export default (id, image) => {
   return {
     id: id,
+    global_id: image.global_id,
     image_file_url: image.original_url,
     width: image.width,
     height: image.height,

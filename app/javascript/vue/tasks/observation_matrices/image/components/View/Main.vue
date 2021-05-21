@@ -72,39 +72,37 @@
               <div
                 v-for="depiction in rCol"
                 :key="depiction.id">
-                <template v-if="depiction.image">
-                  <tippy-component
-                    animation="scale"
-                    placement="bottom"
-                    size="small"
-                    arrow-size="small"
-                    inertia
-                    arrow
-                    :trigger="depiction.image.citations.length
-                      ? 'mouseenter focus'
-                      : 'manual'"
-                    :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
-                    <template slot="trigger">
-                      <image-viewer
-                        :depiction="depiction"
-                      >
-                        <img :src="depiction.image.alternatives.medium.image_file_url">
-                        <div
-                          class="panel content full_width margin-small-right"
-                          slot="infoColumn">
-                          <h3>Image matrix</h3>
-                          <ul class="no_bullets">
-                            <li>Column: <b>{{ descriptors[cIndex].name }}</b></li>
-                            <li>Row: <a
-                              v-html="row.object.object_tag"
-                              :href="browseLink(row.object)"/>
-                            </li>
-                          </ul>
-                        </div>
-                      </image-viewer>
-                    </template>
-                  </tippy-component>
-                </template>
+                <tippy-component
+                  animation="scale"
+                  placement="bottom"
+                  size="small"
+                  arrow-size="small"
+                  inertia
+                  arrow
+                  :trigger="!!depiction.source_cached
+                    ? 'mouseenter focus'
+                    : 'manual'"
+                  :content="depiction.source_cached">
+                  <template slot="trigger">
+                    <image-viewer
+                      :depiction="depiction"
+                    >
+                      <img :src="depiction.image.alternatives.medium.image_file_url">
+                      <div
+                        class="panel content full_width margin-small-right"
+                        slot="infoColumn">
+                        <h3>Image matrix</h3>
+                        <ul class="no_bullets">
+                          <li>Column: <b>{{ descriptors[cIndex].name }}</b></li>
+                          <li>Row: <a
+                            v-html="row.object.object_tag"
+                            :href="browseLink(row.object)"/>
+                          </li>
+                        </ul>
+                      </div>
+                    </image-viewer>
+                  </template>
+                </tippy-component>
               </div>
             </div>
           </template>
