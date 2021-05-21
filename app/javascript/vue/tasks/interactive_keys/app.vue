@@ -71,17 +71,31 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
       }
-    }
+    },
+    matrixFilter: {
+      get () {
+        return this.$store.getters[GetterNames.GetFilter]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetParamsFilter, value)
+      }
+    },
   },
+
   data () {
     return {
       countToRefreshMode: 250
     }
   },
-  mounted () {
+
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
+    const otuIds = urlParams.get('otu_filter')
 
+    if (otuIds) {
+      this.matrixFilter.otu_filter = otuIds
+    }
     if (/^\d+$/.test(matrixId)) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, matrixId).then(() => {
         this.settings.refreshOnlyTaxa = this.observationMatrix.remaining.length >= this.countToRefreshMode

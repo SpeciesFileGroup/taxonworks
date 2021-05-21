@@ -8,15 +8,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Status to TaxonName autocomplete [#2086]
+- otu_filter param to interactive keys task
 
+### Changed
+
+### Fixed
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
+- Reset selected ids on new search in observation matrices dashboard
+- Tiff images are not render on image viewer
 
+### Changed
+- Updated Ruby gems
+
+[#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
+[#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
 
-\-
 
-## [0.18.0] - 2020-05-14
+## [0.18.0] - 2021-05-14
 
 ### Added
 
@@ -36,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - OTU depictions draggable in image matrix
 - Observations depictions in Browse OTU
 - `Ctrl/Alt + V` shortcut for New Collecting event in Comprehensive task [#2248]
+- Zoom button in comprehensive form
 
 ### Changed
 
@@ -62,6 +74,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Drag and drop depictions in Image Matrix
 - Georeference error message in comprehensive task [#2222]
 - Number of uses not displayed in Uniquify people task [#2219]
+- SVG Image box in comprehensive [#2262]
 
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
 [#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169
@@ -73,7 +86,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
 [#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
 
-## [0.17.1] - 2020-04-30
+## [0.17.1] - 2021-04-30
 
 ### Added
 
@@ -104,7 +117,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
 [#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
 
-## [0.17.0] - 2020-04-23
+## [0.17.0] - 2021-04-23
 
 ### Added
 
@@ -160,7 +173,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 [#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
 
-## [0.16.6] - 2020-03-26
+## [0.16.6] - 2021-03-26
 
 ### Added
 
@@ -177,7 +190,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
 [#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
 
-## [0.16.5] - 2020-03-25
+## [0.16.5] - 2021-03-25
 
 ### Added
 
@@ -252,7 +265,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 [#2135]: https://github.com/SpeciesFileGroup/taxonworks/issues/2135
 
-## [0.16.4] - 2020-03-09
+## [0.16.4] - 2021-03-09
 
 ### Added
 
@@ -1276,9 +1289,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
+<<<<<<< HEAD
+
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
+=======
 [unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
 [0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...v0.17.1
+>>>>>>> 82960fa921726c4b7545743d7287b22b62f0a54a
 [0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5

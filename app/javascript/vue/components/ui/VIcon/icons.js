@@ -6,10 +6,12 @@ import { pencil } from './Paths/pencil'
 import { pin } from './Paths/pin'
 import { trash } from './Paths/trash'
 import { undo } from './Paths/undo.js'
+import { expand } from './Paths/expand'
 
 const Icons = {
   attention,
   download,
+  expand,
   hexagon,
   image,
   pencil,

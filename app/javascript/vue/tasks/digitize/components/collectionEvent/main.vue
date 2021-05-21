@@ -22,12 +22,10 @@
             pin-type="CollectingEvent"
             v-model="collectingEvent"
             @selected="setCollectingEvent"/>
-          <div class="horizontal-right-content">
-            <lock-component
-              class="circle-button-margin"
-              v-model="locked.collecting_event"
-            />
-          </div>
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.collecting_event"
+          />
         </div>
         <div>
           <span data-icon="warning"/>

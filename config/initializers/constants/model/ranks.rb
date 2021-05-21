@@ -92,6 +92,10 @@ GENUS_AND_SPECIES_RANK_NAMES_ICTV = ( GENUS_RANK_NAMES_ICTV + SPECIES_RANK_NAMES
 # Assignable ranks for genus and species groups, for ICN, ICNP, and ICZN
 GENUS_AND_SPECIES_RANK_NAMES = ( GENUS_RANK_NAMES + SPECIES_RANK_NAMES ).freeze
 
+# Assignable ranks for family, genus and species groups, for ICN, ICNP, and ICZN
+FAMILY_AND_GENUS_AND_SPECIES_RANK_NAMES = ( FAMILY_RANK_NAMES + GENUS_AND_SPECIES_RANK_NAMES ).freeze
+
+
 module RankHelper
   def self.rank_attributes(rank)
     rank.ordered_ranks.inject([]) {|ary, r| 
@@ -143,4 +147,5 @@ ORIGINAL_COMBINATION_RANKS = %w{
   TaxonNameRelationship::OriginalCombination::OriginalSubvariety
   TaxonNameRelationship::OriginalCombination::OriginalForm
   TaxonNameRelationship::OriginalCombination::OriginalSubform
-}
+}.freeze
+

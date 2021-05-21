@@ -19,7 +19,7 @@
             pin-type="Serial"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.serial_id"/>
           <a
             class="margin-small-top margin-small-left"
