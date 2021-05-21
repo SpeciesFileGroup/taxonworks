@@ -1,12 +1,6 @@
 import AjaxCall from 'helpers/ajaxCall'
 import { MutationNames } from '../mutations/mutations'
-import { Depiction } from 'routes/endpoints'
-
-const loadDepictions = async (depictions) => {
-  const promises = depictions.map(depiction => Depiction.find(depiction.id))
-
-  return Promise.all(promises).then(responses => responses.map(response => response.body))
-}
+import composeImage from 'tasks/observation_matrices/image/helpers/composeImage'
 
 export default async ({ state, commit }, otus) => {
   const key = (await AjaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: otus.map(otu => otu.id).join('|') } })).body
@@ -14,9 +8,12 @@ export default async ({ state, commit }, otus) => {
   const depictions = descriptors
     .map((item, index) => key.depiction_matrix
       .map(otuRow => otuRow.depictions[index]
-        .filter(item => item.depiction_object_type === 'Observation')))
+        .filter(item => item.depiction_object_type === 'Observation')
+        .map(depiction => ({
+          ...depiction,
+          image: composeImage(depiction.image_id, key.image_hash[depiction.image_id])
+        }))))
     .flat(2)
 
-  console.log(depictions)
-  commit(MutationNames.SetObservationsDepictions, await loadDepictions(depictions))
+  commit(MutationNames.SetObservationsDepictions, depictions)
 }

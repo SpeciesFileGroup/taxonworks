@@ -117,6 +117,7 @@
 <script>
 
 import ajaxCall from 'helpers/ajaxCall'
+import composeImage from '../../helpers/composeImage'
 import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialObject from 'components/radials/object/radial'
@@ -125,8 +126,7 @@ import FilterLanguage from 'tasks/interactive_keys/components/Filters/Language'
 import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
-import { Otu, Depiction } from 'routes/endpoints'
-import { async } from 'pdfjs-dist'
+import { Otu } from 'routes/endpoints'
 
 const BROWSE_LINK = {
   CollectionObject: id => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
@@ -234,31 +234,12 @@ export default {
                 .filter(depiction => depiction.depiction_object_type === 'Observation')
                 .map(depiction => ({
                   ...depiction,
-                  image: this.composeImage(depiction.image_id, body.image_hash[depiction.image_id])
+                  image: composeImage(depiction.image_id, body.image_hash[depiction.image_id])
                 })))
           }))
       }).finally(() => {
         this.isLoading = false
       })
-    },
-
-    composeImage (id, image) {
-      return {
-        id: id,
-        image_file_url: image.original_url,
-        width: image.width,
-        height: image.height,
-        content_type: image.image_file_content_type,
-        citations: [],
-        alternatives: {
-          medium: {
-            image_file_url: image.medium_url,
-          },
-          thumb: {
-            image_file_url: image.medium_url
-          }
-        }
-      }
     }
   }
 }
