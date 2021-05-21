@@ -229,31 +229,36 @@ export default {
           .filter(row => [].concat(...row.depictions).length)
           .map(observation => ({
             ...observation,
-            depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
+            depictions: observation.depictions
+              .map(obsDepictions => obsDepictions
+                .filter(depiction => depiction.depiction_object_type === 'Observation')
+                .map(depiction => ({
+                  ...depiction,
+                  image: this.composeImage(depiction.image_id, body.image_hash[depiction.image_id])
+                })))
           }))
       }).finally(() => {
         this.isLoading = false
-        this.getAllDepictions(this.rows)
       })
     },
 
-    async getAllDepictions (rows, index = 0) {
-      const row = rows[index]
-      const rowDepictions = await Promise.all(row.depictions.map(list => this.loadDepictions(list)))
-
-      this.$set(this.rows[index], 'depictions', rowDepictions)
-
-      index++
-
-      if (index < rows.length) {
-        this.getAllDepictions(rows, index)
+    composeImage (id, image) {
+      return {
+        id: id,
+        image_file_url: image.original_url,
+        width: image.width,
+        height: image.height,
+        content_type: image.image_file_content_type,
+        citations: [],
+        alternatives: {
+          medium: {
+            image_file_url: image.medium_url,
+          },
+          thumb: {
+            image_file_url: image.medium_url
+          }
+        }
       }
-    },
-
-    async loadDepictions (depictions) {
-      const promises = depictions.map(depiction => Depiction.find(depiction.id))
-
-      return Promise.all(promises).then(responses => responses.map(response => response.body))
     }
   }
 }
