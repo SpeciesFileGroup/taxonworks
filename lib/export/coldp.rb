@@ -28,6 +28,7 @@ module Export
       Otu.joins(taxon_name: [:ancestor_hierarchies])
         .where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
         .where(taxon_name_id: TaxonName.that_is_really_valid)
+        .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)')
     end
 
     def self.export(otu_id, prefer_unlabelled_otus: true)
