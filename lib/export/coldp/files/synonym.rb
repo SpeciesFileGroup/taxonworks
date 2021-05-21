@@ -55,11 +55,9 @@ module Export::Coldp::Files::Synonym
 
           b = TaxonName.where(cached_valid_taxon_name_id: o[2])
             .where("(taxon_names.cached_original_combination != taxon_names.cached)")
+            .where("taxon_names.id != ?", o[2])
             .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
 
-
-          #b = Protonym.that_is_really_invalid.where(cached_valid_taxon_name_id: o[2])
-          # b = base.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID })
           c = TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
 
 
