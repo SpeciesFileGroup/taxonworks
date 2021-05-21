@@ -37,6 +37,10 @@
         class="margin-large-bottom"
         v-model="params.identifier"
       />
+      <filter-collectors
+        class="margin-large-bottom"
+        v-model="params.collectors"
+      />
       <filter-material
         class="margin-large-bottom"
         v-model="params.types"
@@ -76,6 +80,7 @@ import FilterAttributes from 'tasks/collection_objects/filter/components/filters
 import FilterKeywords from 'tasks/sources/filter/components/filters/tags'
 import FilterDeterminations from 'tasks/collection_objects/filter/components/filters/otu'
 import FilterMaterial from 'tasks/collection_objects/filter/components/filters/types'
+import FilterCollectors from 'tasks/collection_objects/filter/components/filters/shared/people'
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectingEvent } from 'routes/endpoints'
@@ -90,7 +95,8 @@ export default {
     FilterDeterminations,
     FilterIdentifiers,
     FilterKeywords,
-    FilterMaterial
+    FilterMaterial,
+    FilterCollectors
   },
   computed: {
     platformKey,
