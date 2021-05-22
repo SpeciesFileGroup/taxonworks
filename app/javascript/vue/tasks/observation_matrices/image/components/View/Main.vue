@@ -35,11 +35,22 @@
             <label
               class="header-label cursor-pointer ellipsis"
               :title="descriptor.name">
-              <input
-                type="checkbox"
-                :value="index"
-                v-model="hideColumn">
-              {{ descriptor.name }}
+              <tippy-component
+                animation="scale"
+                placement="bottom"
+                size="small"
+                arrow-size="small"
+                inertia
+                arrow
+                content="Hide">
+                <template slot="trigger">
+                  <input
+                    type="checkbox"
+                    :value="index"
+                    v-model="hideColumn">
+                  {{ descriptor.name }}
+                </template>
+              </tippy-component>
             </label>
           </div>
         </div>
@@ -50,10 +61,21 @@
           <div
             class="observation-cell"
             :key="rIndex">
-            <input
-              type="checkbox"
-              v-model="hideRows"
-              :value="rIndex">
+            <tippy-component
+              animation="scale"
+              placement="bottom"
+              size="small"
+              arrow-size="small"
+              inertia
+              arrow
+              content="Hide">
+              <template slot="trigger">
+                <input
+                  type="checkbox"
+                  v-model="hideRows"
+                  :value="rIndex">
+              </template>
+            </tippy-component>
           </div>
           <div
             :key="`${rIndex}-o`"
