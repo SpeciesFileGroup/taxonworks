@@ -237,7 +237,6 @@ export default {
     },
 
     success (file, response) {
-      console.log(response)
       this.$emit('addDepiction', response.depictions[0])
       this.$refs.depictionObs.removeFile(file)
     },
