@@ -8,7 +8,15 @@
 
 <script>
 
+import mixinSizes from '../mixins/sizes.js'
+import mixinColor from '../mixins/colors.js'
+
 export default {
+  mixins: [
+    mixinSizes,
+    mixinColor
+  ],
+
   props: {
     disabled: {
       type: Boolean,
