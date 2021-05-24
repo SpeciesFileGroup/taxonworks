@@ -1,29 +1,35 @@
-import setMatrix from './setMatrix'
+import setObservationMatrix from './setObservationMatrix'
 import setObservations from './setObservations'
 import setObservationColumns from './setObservationColumns'
 import setObservationRows from './setObservationRows'
 import setObservationMoved from './setObservationMoved'
 import setIsSaving from './setIsSaving'
 import setDepictionMoved from './setDepictionMoved'
+import addDepiction from './addDepiction'
+import removeDepiction from './removeDepiction'
 
 const MutationNames = {
-  SetMatrix: 'setMatrix',
+  AddDepiction: 'addDepiction',
+  SetObservationMatrix: 'setObservationMatrix',
   SetObservations: 'setObservations',
   SetObservationColumns: 'setObservationColumns',
   SetObservationRows: 'setObservationRows',
   SetObservationMoved: 'setObservationMoved',
   SetIsSaving: 'setIsSaving',
-  SetDepictionMoved: 'setDepictionMoved'
+  SetDepictionMoved: 'setDepictionMoved',
+  RemoveDepiction: 'removeDepiction'
 }
 
 const MutationFunctions = {
-  [MutationNames.SetMatrix]: setMatrix,
+  [MutationNames.AddDepiction]: addDepiction,
+  [MutationNames.SetObservationMatrix]: setObservationMatrix,
   [MutationNames.SetObservations]: setObservations,
   [MutationNames.SetObservationColumns]: setObservationColumns,
   [MutationNames.SetObservationRows]: setObservationRows,
   [MutationNames.SetObservationMoved]: setObservationMoved,
   [MutationNames.SetIsSaving]: setIsSaving,
-  [MutationNames.SetDepictionMoved]: setDepictionMoved
+  [MutationNames.SetDepictionMoved]: setDepictionMoved,
+  [MutationNames.RemoveDepiction]: removeDepiction
 }
 
 export {

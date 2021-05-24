@@ -36,47 +36,50 @@
         <div class="header-cell">
           <label
             class="header-label cursor-pointer ellipsis"
-            :title="column.descriptor.name">
+            :title="column.name">
             <input
               type="checkbox"
               :value="index"
               v-model="collapseColumns">
-            {{ column.descriptor.name }}
+            {{ column.name }}
           </label>
         </div>
       </div>
     </template>
-    <template v-for="(row, index) in rows">
+    <template v-for="(row, rowIndex) in rows">
       <div
-        :key="row.id"
+        :key="row.object.id"
         class="observation-cell">
         <input
           type="checkbox"
-          :value="index"
+          :value="rowIndex"
           v-model="collapseRows">
       </div>
       <div
-        :key="`${row.id}-b`"
+        :key="`${row.object.id}-b`"
         class="otu-cell padding-small">
         <a
-          v-html="row.row_object.object_tag"
-          :href="browseOtu(row.row_object.id)"/>
+          v-html="row.object.object_tag"
+          :href="browseOtu(row.object.id)"/>
       </div>
       <cell-depiction
         v-show="existingOTUDepictions"
         class="observation-cell padding-small edit-cell"
-        :key="`${row.id}-c`"
-        :show="!filterCell('otu', index)"
-        :depictions="row.otuDepictions"/>
-      <template v-for="(column, cIndex) in imageColums">
+        :key="`${row.object.id}-c`"
+        :show="!filterCell('otu', rowIndex)"
+        :depictions="row.otuDepictions || []"/>
+      <template v-for="(depictions, columnIndex) in row.depictions">
         <div
           class="observation-cell padding-small edit-cell"
-          :key="`${row.id} ${column.id}`">
-          <cell-component
+          :key="`${columnIndex} ${row.object.id}`">
+          <cell-observation
             class="full_width"
-            :column="column"
-            :show="!filterCell(cIndex, index)"
-            :row="row"/>
+            :column="imageColums[columnIndex]"
+            :show="!filterCell(columnIndex, rowIndex)"
+            :row-object="row.object"
+            :depictions="depictions"
+            @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
+            @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"/>
         </div>
       </template>
     </template>
@@ -85,15 +88,16 @@
 
 <script>
 
-import CellComponent from './Cell.vue'
+import CellObservation from './CellObservation.vue'
 import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
 import { RouteNames } from 'routes/routes'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     TableGrid,
-    CellComponent,
+    CellObservation,
     CellDepiction
   },
 
@@ -121,7 +125,7 @@ export default {
     },
 
     imageColums () {
-      return this.columns.filter(column => column.descriptor.type === 'Descriptor::Media')
+      return this.columns.filter(column => column.type === 'Descriptor::Media')
     },
 
     staticColumns () {
@@ -150,6 +154,22 @@ export default {
 
     filterCell (cIndex, index) {
       return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
+    },
+
+    addDepiction ({ rowIndex, columnIndex, depiction }) {
+      this.$store.commit(MutationNames.AddDepiction, {
+        rowIndex,
+        columnIndex,
+        depiction
+      })
+    },
+
+    removeDepiction ({ rowIndex, columnIndex, index }) {
+      this.$store.commit(MutationNames.RemoveDepiction, {
+        rowIndex,
+        columnIndex,
+        index
+      })
     }
   }
 }

@@ -137,7 +137,7 @@
 <script>
 
 import ajaxCall from 'helpers/ajaxCall'
-import composeImage from '../../helpers/composeImage'
+import composeImage from '../../utils/composeImage'
 import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialObject from 'components/radials/object/radial'

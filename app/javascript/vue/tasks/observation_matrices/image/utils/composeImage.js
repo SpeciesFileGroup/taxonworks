@@ -12,7 +12,7 @@ export default (id, image) => {
         image_file_url: image.medium_url
       },
       thumb: {
-        image_file_url: image.medium_url
+        image_file_url: image.thumb_url
       }
     }
   }
