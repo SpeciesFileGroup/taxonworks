@@ -111,8 +111,16 @@ module Queries
         end
       end
 
+      def collector_id
+        [@collector_id].flatten.compact
+      end
+
       def geographic_area_id
         [@geographic_area_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
       end
 
       # @return [Arel::Table]
