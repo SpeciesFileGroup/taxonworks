@@ -309,6 +309,7 @@ class CollectingEventsController < ApplicationController
       :partial_overlap_dates,
       :radius,
       :recent,
+      :spatial_geographic_area_id,
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
@@ -317,7 +318,7 @@ class CollectingEventsController < ApplicationController
       keyword_id_and: [],
       keyword_id_or: [],
       otu_id: [],
-      spatial_geographic_area_ids: [],
+      spatial_geographic_area_id: [],
     )
   end
 
@@ -333,16 +334,19 @@ class CollectingEventsController < ApplicationController
       :in_verbatim_locality,
       :md5_verbatim_label,
       :partial_overlap_dates,
+      :otu_id,
       :radius,
       :recent,
+      :spatial_geographic_area_id,
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
       collector_id: [],
       geographic_area_id: [],
-      keyword_ids: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
       otu_id: [],
-      spatial_geographic_area_ids: [],
+      spatial_geographic_area_id: [],
     )
   end
 
