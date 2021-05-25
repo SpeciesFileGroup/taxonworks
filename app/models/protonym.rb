@@ -129,7 +129,6 @@ class Protonym < TaxonName
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
-  scope :with_name_base, -> (base_string) {where('"taxon_names"."name" LIKE ?', "#{base_string}%")}
 
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
@@ -202,9 +201,12 @@ class Protonym < TaxonName
         search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-
-            z = Protonym.that_is_valid.with_name_base(Protonym.family_group_base(self.name))
-            search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
+            if self.cached_is_valid
+              z = Protonym.family_group_base(self.name)
+              search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
+            else
+              search_name = nil
+            end
           else
             search_name = self.name
           end
@@ -212,8 +214,9 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-        if !search_name.nil? && r.empty?
+#        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+#        if !search_name.nil? && r.empty?
+        if !search_name.nil? && is_available?
           list = Protonym
             .that_is_valid
             .ancestors_and_descendants_of(self)
@@ -474,11 +477,6 @@ class Protonym < TaxonName
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
     taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
-
-   #taxon_name_relationships.each do |tr|
-   #  return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
-   #end
-   #false
   end
 
   # Same as is_original_name?!
@@ -879,7 +877,6 @@ class Protonym < TaxonName
 
   protected
 
-  # TODO: move to Protonym
   def check_new_parent_class
     if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: parent_id_was)
