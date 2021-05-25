@@ -9,12 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Status to TaxonName autocomplete [#2086]
+- otu_filter param to interactive keys task
 
 ### Changed
 
 ### Fixed
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
+- Reset selected ids on new search in observation matrices dashboard
+- Tiff images are not render on image viewer
 
 ### Changed
 - Updated Ruby gems

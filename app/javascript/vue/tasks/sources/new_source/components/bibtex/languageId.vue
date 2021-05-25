@@ -13,7 +13,7 @@
             :filter-ids="languageId"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.language_id"/>
         </div>
         <div

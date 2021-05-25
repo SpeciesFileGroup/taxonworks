@@ -4,6 +4,9 @@
       <h1>Observation matrices dashboard</h1>
       <ul class="context-menu">
         <li>
+          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
+        </li>
+        <li>
           <label>
             <input
               type="checkbox"
@@ -59,6 +62,7 @@ import JsonBar from './components/headerBar'
 import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -67,6 +71,8 @@ export default {
     JsonBar
   },
   computed: {
+    RouteNames: () => RouteNames,
+
     rankTable: {
       get () {
         return this.$store.getters[GetterNames.GetRankTable]
