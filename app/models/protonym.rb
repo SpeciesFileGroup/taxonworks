@@ -198,9 +198,10 @@ class Protonym < TaxonName
     if self.rank_string
       r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       if r.blank?
-        search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+        search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
         if !!search_rank
           if search_rank =~ /Family/
+            # TODO: family_group_base is not a scope
             z = Protonym.that_is_valid.family_group_base(self.name)
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
@@ -212,9 +213,12 @@ class Protonym < TaxonName
 
         r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
         if !search_name.nil? && r.empty?
-          list = Protonym.ancestors_and_descendants_of(self).not_self(self).that_is_valid.
-            with_rank_class_including(search_rank).
-            where('name in (?)', search_name)
+          list = Protonym
+            .that_is_valid
+            .ancestors_and_descendants_of(self)
+            .not_self(self)
+            .with_rank_class_including(search_rank)
+            .where('name in (?)', search_name)
         else
           list = []
         end

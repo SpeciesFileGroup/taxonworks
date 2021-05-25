@@ -84,11 +84,17 @@ module OtusHelper
     otu.taxon_name&.parent&.otus&.all || []
   end
 
+  # See also otus#ancestor_otu_ids ?
   def parents_by_nomenclature(otu)
     above = [ ]
     if otu.taxon_name_id
-      otu.taxon_name.ancestors.select('taxon_names.*, taxon_name_hierarchies.generations').that_is_valid.joins(:otus).distinct.reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
-        above.push [t.cached, t.otus.to_a]
+      otu.taxon_name
+        .select('taxon_names.*, taxon_name_hierarchies.generations')
+        .ancestors
+        .that_is_valid.joins(:otus)
+        .distinct
+        .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
+          above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
       end
     end
     above

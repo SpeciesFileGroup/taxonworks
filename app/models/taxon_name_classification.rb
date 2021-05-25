@@ -60,8 +60,6 @@ class TaxonNameClassification < ApplicationRecord
 
   after_save :set_cached
   after_destroy :set_cached
-  #  after_save :set_cached_names_for_taxon_names
-  # after_destroy :set_cached_names_for_taxon_names
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -204,9 +202,11 @@ class TaxonNameClassification < ApplicationRecord
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html
           )
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             n = t1.get_full_name
@@ -223,9 +223,11 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html(n)
             )
           end
+
           TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_cached_original_combinations
           end
+
           TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
             t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
             n = t1.get_full_name
