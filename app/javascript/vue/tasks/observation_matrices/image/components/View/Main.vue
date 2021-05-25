@@ -27,36 +27,23 @@
       gap="4">
       <div />
       <div />
-      <template v-for="(descriptor, index) in descriptors">
-        <div
+      <cell-header
+        v-show="!hideColumn.includes('otu') && existingOTUDepictions"
+        v-model="hideColumn"
+        title="OTU depictions"
+        index="otu"
+      />
+      <template v-for="(descriptor, index) in observationColumns">
+        <cell-header
           v-if="!hideColumn.includes(index)"
-          :key="descriptor.id">
-          <div class="header-cell">
-            <label
-              class="header-label cursor-pointer ellipsis"
-              :title="descriptor.name">
-              <tippy-component
-                animation="scale"
-                placement="bottom"
-                size="small"
-                arrow-size="small"
-                inertia
-                arrow
-                content="Hide">
-                <template slot="trigger">
-                  <input
-                    type="checkbox"
-                    :value="index"
-                    v-model="hideColumn">
-                  {{ descriptor.name }}
-                </template>
-              </tippy-component>
-            </label>
-          </div>
-        </div>
+          v-model="hideColumn"
+          :key="descriptor.id"
+          :title="descriptor.name"
+          :index="index"
+        />
       </template>
       <template
-        v-for="(row, rIndex) in rows">
+        v-for="(row, rIndex) in observationRows">
         <template v-if="!hideRows.includes(rIndex)">
           <div
             class="observation-cell"
@@ -86,47 +73,24 @@
             <radial-object :global-id="row.object.global_id" />
           </div>
 
+          <cell-depiction
+            v-show="!hideColumn.includes('otu') && existingOTUDepictions"
+            class="observation-cell padding-small"
+            :key="`${rIndex}-d`"
+            descriptor="OTU depictions"
+            :object="row.object"
+            :depictions="row.objectDepictions"
+          />
+
           <template v-for="(rCol, cIndex) in row.depictions">
-            <div
-              class="observation-cell padding-small"
+            <cell-depiction
               v-if="!hideColumn.includes(cIndex)"
-              :key="`${rIndex} ${cIndex}`">
-              <div
-                v-for="depiction in rCol"
-                :key="depiction.id">
-                <tippy-component
-                  animation="scale"
-                  placement="bottom"
-                  size="small"
-                  arrow-size="small"
-                  inertia
-                  arrow
-                  :trigger="!!depiction.source_cached
-                    ? 'mouseenter focus'
-                    : 'manual'"
-                  :content="depiction.source_cached">
-                  <template slot="trigger">
-                    <image-viewer
-                      :depiction="depiction"
-                    >
-                      <img :src="depiction.image.alternatives.medium.image_file_url">
-                      <div
-                        class="panel content full_width margin-small-right"
-                        slot="infoColumn">
-                        <h3>Image matrix</h3>
-                        <ul class="no_bullets">
-                          <li>Column: <b>{{ descriptors[cIndex].name }}</b></li>
-                          <li>Row: <a
-                            v-html="row.object.object_tag"
-                            :href="browseLink(row.object)"/>
-                          </li>
-                        </ul>
-                      </div>
-                    </image-viewer>
-                  </template>
-                </tippy-component>
-              </div>
-            </div>
+              class="observation-cell padding-small"
+              :key="`${rIndex} ${cIndex}`"
+              :descriptor="observationColumns[cIndex].name"
+              :object="row.object"
+              :depictions="rCol"
+            />
           </template>
         </template>
       </template>
@@ -136,14 +100,14 @@
 
 <script>
 
-import ajaxCall from 'helpers/ajaxCall'
-import composeImage from '../../utils/composeImage'
 import SpinnerComponent from 'components/spinner'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import CellHeader from './CellHeader.vue'
 import RadialObject from 'components/radials/object/radial'
 import TableGrid from 'components/layout/Table/TableGrid.vue'
 import FilterLanguage from 'tasks/interactive_keys/components/Filters/Language'
 import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank'
+import CellDepiction from './CellDepiction.vue'
+import { GetterNames } from '../../store/getters/getters'
 import { TippyComponent } from 'vue-tippy'
 import { RouteNames } from 'routes/routes'
 import { Otu } from 'routes/endpoints'
@@ -160,7 +124,8 @@ export default {
     FilterRank,
     SpinnerComponent,
     TippyComponent,
-    ImageViewer,
+    CellDepiction,
+    CellHeader,
     RadialObject,
     TableGrid
   },
@@ -178,7 +143,6 @@ export default {
 
   data () {
     return {
-      descriptors: [],
       hideColumn: [],
       hideRows: [],
       isLoading: false,
@@ -194,26 +158,45 @@ export default {
 
   computed: {
     columnsCount () {
-      return this.descriptors.length - this.hideColumn.length + 2
-    }
-  },
+      return this.observationColumns.length - this.hideColumn.length + this.staticColumns
+    },
 
-  watch: {
-    filters: {
-      handler () {
-        this.loadMatrix()
-      },
-      deep: true
-    }
-  },
+    staticColumns () {
+      return this.existingOTUDepictions ? 3 : 2
+    },
 
-  created () {
-    this.loadMatrix()
+    observationColumns () {
+      return this.$store.getters[GetterNames.GetObservationColumns]
+    },
+
+    observationMatrix () {
+      return this.$store.getters[GetterNames.GetObservationMatrix]
+    },
+
+    observationRows () {
+      return this.$store.getters[GetterNames.GetObservationRows]
+    },
+
+    observationLanguages () {
+      return this.$store.getters[GetterNames.GetObservationLanguages]
+    },
+
+    existingOTUDepictions () {
+      return this.observationRows.some(row => row.objectDepictions?.length)
+    }
   },
 
   methods: {
     browseLink (object) {
-      return BROWSE_LINK[object.base_class](object.id)
+      const objectClass = {
+        otu_id: 'Otu',
+        collection_object_id: 'CollectionObject',
+        taxon_name_id: 'TaxonName'
+      }
+
+      const [property, klass] = Object.entries(objectClass).find(([key, value]) => object[key])
+
+      return BROWSE_LINK[klass](object[property])
     },
 
     resetView () {
@@ -233,32 +216,6 @@ export default {
           })
           this.descriptors.unshift({ name: 'OTU depictions' })
         }
-      })
-    },
-
-    loadMatrix () {
-      const retrieveDepictions = this.otusId.length
-        ? ajaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: this.otusId, ...this.filters } })
-        : ajaxCall('get', `/tasks/observation_matrices/image_matrix/${this.matrixId}/key`, { params: this.filters })
-
-      this.isLoading = true
-      retrieveDepictions.then(({ body }) => {
-        this.languages = body.descriptor_available_languages || []
-        this.descriptors = body.list_of_descriptors
-        this.rows = Object.values(body.depiction_matrix)
-          .filter(row => [].concat(...row.depictions).length)
-          .map(observation => ({
-            ...observation,
-            depictions: observation.depictions
-              .map(obsDepictions => obsDepictions
-                .filter(depiction => depiction.depiction_object_type === 'Observation')
-                .map(depiction => ({
-                  ...depiction,
-                  image: composeImage(depiction.image_id, body.image_hash[depiction.image_id])
-                })))
-          }))
-      }).finally(() => {
-        this.isLoading = false
       })
     }
   }

@@ -1,6 +1,7 @@
 import setObservationMatrix from './setObservationMatrix'
 import setObservations from './setObservations'
 import setObservationColumns from './setObservationColumns'
+import setObservationLanguages from './setObservationLanguages'
 import setObservationRows from './setObservationRows'
 import setObservationMoved from './setObservationMoved'
 import setIsSaving from './setIsSaving'
@@ -13,6 +14,7 @@ const MutationNames = {
   SetObservationMatrix: 'setObservationMatrix',
   SetObservations: 'setObservations',
   SetObservationColumns: 'setObservationColumns',
+  SetObservationLanguages: 'setObservationLanguages',
   SetObservationRows: 'setObservationRows',
   SetObservationMoved: 'setObservationMoved',
   SetIsSaving: 'setIsSaving',
@@ -25,6 +27,7 @@ const MutationFunctions = {
   [MutationNames.SetObservationMatrix]: setObservationMatrix,
   [MutationNames.SetObservations]: setObservations,
   [MutationNames.SetObservationColumns]: setObservationColumns,
+  [MutationNames.SetObservationLanguages]: setObservationLanguages,
   [MutationNames.SetObservationRows]: setObservationRows,
   [MutationNames.SetObservationMoved]: setObservationMoved,
   [MutationNames.SetIsSaving]: setIsSaving,

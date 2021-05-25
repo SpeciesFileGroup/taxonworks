@@ -67,7 +67,7 @@
         class="observation-cell padding-small edit-cell"
         :key="`${row.object.id}-c`"
         :show="!filterCell('otu', rowIndex)"
-        :depictions="row.otuDepictions || []"/>
+        :depictions="row.objectDepictions || []"/>
       <template v-for="(depictions, columnIndex) in row.depictions">
         <div
           class="observation-cell padding-small edit-cell"
@@ -133,7 +133,7 @@ export default {
     },
 
     existingOTUDepictions () {
-      return this.rows.some(row => row.otuDepictions?.length)
+      return this.rows.some(row => row.objectDepictions?.length)
     }
   },
 

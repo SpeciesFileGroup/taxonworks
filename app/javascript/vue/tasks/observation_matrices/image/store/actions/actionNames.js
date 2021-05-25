@@ -1,6 +1,7 @@
 const ActionNames = {
   CreateObservation: 'createObservation',
-  LoadObservationMatrix: 'loadObservationMatrix'
+  LoadObservationMatrix: 'loadObservationMatrix',
+  LoadOtuDepictions: 'loadOtuDepictions'
 }
 
 export default ActionNames

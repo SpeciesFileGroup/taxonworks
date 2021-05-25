@@ -19,25 +19,15 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
-        <li v-if="!viewMode">
-          <autocomplete
-            url="/observation_matrices/autocomplete"
-            param="term"
-            label="label_html"
-            clear-after
-            placeholder="Select a matrix"
-            @getItem="loadMatrix($event.id)"
-          />
+        <li>
+          <label class="cursor-pointer middle">
+            <input
+              v-model="viewMode"
+              type="checkbox">
+            View mode
+          </label>
         </li>
         <template v-if="matrixId">
-          <li>
-            <label class="cursor-pointer middle">
-              <input
-                v-model="viewMode"
-                type="checkbox">
-              View mode
-            </label>
-          </li>
           <li>
             <span
               class="cursor-pointer"
@@ -64,26 +54,12 @@
       </ul>
     </div>
     <h3 v-if="observationMatrix">{{ observationMatrix.object_tag }}</h3>
-    <template v-if="observationMatrix">
-      <autocomplete
-        class="separate-autocomplete"
-        url="/observation_matrix_rows/autocomplete"
-        param="term"
-        label="label"
-        placeholder="Search a row"
-        :clear-after="true"
-        :add-params="{ observation_matrix_id: matrixId }"
-        @getItem="findRow($event.id, $event.position)"
-      />
-    </template>
-    <template v-if="matrixId && !viewMode">
+    <template v-if="!viewMode">
       <matrix-table
+        class="separate-autocomplete"
         ref="matrixTable"
         :columns="observationColumns"
         :rows="observationRows"/>
-      <pagination-component
-        :pagination="pagination"
-        @nextPage="getRows($event.page)"/>
     </template>
     <view-component
       v-if="viewMode"
@@ -94,8 +70,7 @@
 
 <script>
 import {
-  Otu,
-  ObservationMatrix
+  Otu
 } from 'routes/endpoints'
 
 import MatrixTable from './components/MatrixTable.vue'
@@ -103,10 +78,6 @@ import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import PaginationComponent from 'components/pagination.vue'
-import GetPagination from 'helpers/getPagination.js'
-import scrollParentToChild from 'helpers/scrollParentToChild.js'
 import setParam from 'helpers/setParam'
 
 import { GetterNames } from './store/getters/getters'
@@ -119,17 +90,21 @@ export default {
     MatrixTable,
     SpinnerComponent,
     RowModal,
-    ColumnModal,
-    PaginationComponent,
-    Autocomplete
+    ColumnModal
   },
 
   computed: {
     isSaving () {
       return this.$store.getters[GetterNames.GetIsSaving]
     },
+    matrixId () {
+      return this.observationMatrix?.id
+    },
     observationColumns () {
       return this.$store.getters[GetterNames.GetObservationColumns]
+    },
+    observationMatrix () {
+      return this.$store.getters[GetterNames.GetObservationMatrix]
     },
     observationRows () {
       return this.$store.getters[GetterNames.GetObservationRows]
@@ -139,13 +114,10 @@ export default {
 
   data () {
     return {
-      observationMatrix: undefined,
       showRowModal: false,
       showColumnModal: false,
-      matrixId: undefined,
       pagination: {},
       maxPerPage: 3,
-      otu_ids: undefined,
       viewMode: false,
       otuFilter: []
     }
@@ -154,22 +126,19 @@ export default {
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const obsIdParam = urlParams.get('observation_matrix_id')
-    const rowIdParam = urlParams.get('row_id')
-    const rowPositionParam = urlParams.get('row_position')
-    const otuIdsParam = urlParams.get('otu_ids')
     const otuFilterParam = urlParams.get('otu_filter')
 
+    this.viewMode = (urlParams.get('view') === 'true')
 
     if (otuFilterParam) {
       this.otuFilter = otuFilterParam
-      this.viewMode = true
     }
-    if (otuIdsParam) {
-      this.otu_ids = otuIdsParam
-    }
-    if (/^\d+$/.test(obsIdParam)) {
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, { observation_matrix_id: obsIdParam })
-      this.loadMatrix(obsIdParam, /^\d+$/.test(rowIdParam) ? rowIdParam : undefined, /^\d+$/.test(rowPositionParam) ? rowPositionParam : undefined)
+
+    if (/^\d+$/.test(obsIdParam) || otuFilterParam) {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, {
+        observation_matrix_id: (/^\d+$/.test(obsIdParam) && obsIdParam) || 0,
+        otu_filter: otuFilterParam
+      })
     }
   },
 
@@ -177,9 +146,11 @@ export default {
     resetTable () {
       this.$refs.matrixTable.reset()
     },
+
     collapseAll () {
       this.$refs.matrixTable.collapseAll()
     },
+
     addRow (row) {
       this.showRowModal = false
       if (row.otu_id) {
@@ -195,61 +166,16 @@ export default {
       this.observationColumns.push(column)
     },
 
-    loadMatrix (id, rowId = undefined, position = undefined) {
-      const promises = []
-
-      this.matrixId = id
+    loadMatrix (id) {
+      this.$store.dispatch(ActionNames.LoadObservationMatrix, { observation_matrix_id: id })
       setParam(RouteNames.ImageMatrix, 'observation_matrix_id', id)
-      promises.push(ObservationMatrix.find(id).then(response => { this.observationMatrix = response.body }))
-
-      Promise.all(promises).then(() => {
-        if (rowId && position) {
-          this.findRow(rowId, Number(position))
-        } else {
-          this.getRows(1)
-        }
-      })
-    },
-
-    async getRows (page) {
-      // return ObservationMatrix.rows(this.matrixId, {
-      //   page,
-      //   per: this.maxPerPage,
-      //   otu_ids: this.otu_ids
-      // }).then(response => {
-      //   // this.observationRows = response.body
-      //   this.pagination = GetPagination(response)
-      //   this.loadOtusDepiction(this.observationRows.map(item => item.row_object.id))
-      // })
-    },
-
-    loadOtusDepiction (ids) {
-      const promises = ids.map(id => Otu.depictions(id))
-
-      Promise.all(promises).then(responses => {
-        responses.forEach(({ body }, index) => {
-          // this.$set(this.observationRows[index], 'otuDepictions', body)
-        })
-      })
-    },
-
-    findRow (rowId, position) {
-      if (this.observationRows.find(item => item.id === rowId)) {
-        scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
-      } else {
-        const page = Math.ceil((position) / this.maxPerPage)
-        this.getRows(page).then(() => {
-          this.$nextTick(() => {
-            scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
-          })
-        })
-      }
     }
+
   }
 }
 </script>
 <style scoped>
 .separate-autocomplete {
-  margin-bottom: 100px;
+  margin-top: 100px;
 }
 </style>
