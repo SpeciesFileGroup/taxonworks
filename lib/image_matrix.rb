@@ -338,7 +338,7 @@ class ImageMatrix
   end
 
   def build_image_hash
-    if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
+    if !@otu_filter.blank?
       img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
     else
       img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
