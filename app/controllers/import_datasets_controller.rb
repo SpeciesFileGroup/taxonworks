@@ -75,7 +75,7 @@ class ImportDatasetsController < ApplicationController
   # DELETE /import_datasets/1.json
   def destroy
     ImportDataset.transaction do
-      DatasetRecordField.where(import_dataset: @import_dataset).delete_all # TODO: Make this happen transparently when destroying ImportDataset/DatasetRecord
+      @import_dataset.dataset_record_fields.delete_all # TODO: Make this happen transparently when destroying ImportDataset/DatasetRecord
       @import_dataset.destroy
     end
     respond_to do |format|

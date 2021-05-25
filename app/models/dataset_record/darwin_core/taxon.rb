@@ -9,32 +9,42 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     %i{genus subgenus species infraspecies}
   ]
 
+  PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies)
+
   def import
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
 
-        fields_mapping = get_fields_mapping
-        
         unless metadata["is_synonym"]
-          nomenclature_code = import_dataset.metadata["nomenclature_code"].downcase.to_sym
+          nomenclature_code = (get_field_value("nomenclaturalCode") || import_dataset.metadata["nomenclature_code"]).downcase.to_sym
           parse_results_details = Biodiversity::Parser.parse(get_field_value("scientificName") || "")[:details]&.values&.first
+
+          parse_results = Biodiversity::Parser.parse(get_field_value(:scientificName) || "")
+          parse_results_details = parse_results[:details]
+          parse_results_details = (parse_results_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_results_details.values.first : nil if parse_results_details
+
+          raise DarwinCore::InvalidData.new({
+            "scientificName": parse_results[:qualityWarnings] ?
+              parse_results[:qualityWarnings].map { |q| q[:warning] } :
+              ["Unable to parse scientific name. Please make sure it is correctly spelled."]
+          }) unless (1..3).include?(parse_results[:quality]) && parse_results_details
 
           raise "UNKNOWN NAME DETAILS COMBINATION" unless KNOWN_KEYS_COMBINATIONS.include?(parse_results_details.keys - [:authorship])
 
-          name_key = (parse_results_details.keys - [:authorship]).last
+          name_key = parse_results_details[:uninomial] ? :uninomial : (parse_results_details.keys - [:authorship]).last
           name_details = parse_results_details[name_key]
 
           name = name_details.kind_of?(Array) ? name_details.first[:value] : name_details
 
-          authorship = parse_results_details.dig(:authorship, :normalized)
+          authorship = parse_results_details.dig(:authorship, :normalized) || get_field_value("scientificNameAuthorship")
           rank = get_field_value("taxonRank")
           is_hybrid = metadata["is_hybrid"] # TODO: NO...
 
           if metadata["parent"].nil?
             parent = project.root_taxon_name
           else
-            parent = TaxonName.find(get_parent(fields_mapping).metadata["imported_objects"]["taxon_name"]["id"])
+            parent = TaxonName.find(get_parent.metadata["imported_objects"]["taxon_name"]["id"])
           end
 
           protonym_attributes = {
@@ -75,16 +85,12 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         if status == "Imported"
           taxon_id = get_field_value("taxonID")
 
-          raise "FIX!!"
-
-          DatasetRecord::DarwinCore::Taxon
-            .where(import_dataset: self.import_dataset, status: "NotReady")
-            .where("data_fields -> :parent_field ->> 'value' = :parent_id OR data_fields -> :accepted_field ->> 'value' = :accepted_id",
-              {
-                parent_field: fields_mapping["parentNameUsageID"], parent_id: taxon_id,
-                accepted_field: fields_mapping["acceptedNameUsageID"], accepted_id: taxon_id
-              }
-            ).each { |r| r.update!(status: "Ready") }
+          import_dataset.core_records.where(status: "NotReady")
+            .where(id: import_dataset.core_records_fields
+              .at([get_fields_mapping["parentNameUsageID"], get_fields_mapping["acceptedNameUsageID"]])
+              .with_value(taxon_id)
+              .select(:dataset_record_id)
+            ).update_all(status: "Ready")
         end
       end
     rescue StandardError => e
@@ -104,15 +110,17 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   private
 
-  def get_parent(fields_mapping)
-    import_dataset.dataset_records.where("data_fields -> #{fields_mapping["taxonID"]} ->> 'value' = ?", data_fields[fields_mapping["parentNameUsageID"]]["value"]).first
+  def get_parent
+    import_dataset.core_records.where(id: import_dataset.core_records_fields
+      .at(get_fields_mapping["taxonID"])
+      .with_value(get_field_value("parentNameUsageID"))
+      .select(:dataset_record_id)
+    ).first
   end
 
   def data_field_changed(index, value)
-    fields_mapping = get_fields_mapping
-
-    if fields_mapping[index] == "parentNameUsageID" && status == "NotReady"
-      self.status = "Ready" if ["Ready", "Imported"].include? get_parent(fields_mapping)&.status
+    if get_fields_mapping[index] == "parentNameUsageID" && status == "NotReady"
+      self.status = "Ready" if ["Ready", "Imported"].include? get_parent&.status
     end
   end
 end

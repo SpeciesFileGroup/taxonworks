@@ -107,7 +107,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
       fields_mapping = self.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
 
-      query = ready ? dataset_records.where(status: 'NotReady') : dataset_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
+      query = ready ? core_records.where(status: 'NotReady') : core_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
       query.where(
         id: core_records_fields.at(fields_mapping["institutionCode"]).with_value(institution_code).select(:dataset_record_id)
       ).where(

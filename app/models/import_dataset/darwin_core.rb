@@ -11,7 +11,7 @@ class ImportDataset::DarwinCore < ImportDataset
 
     self.metadata = {
       core_headers: [],
-      nomenclatural_code: nil,
+      nomenclature_code: nil,
     }
   end
 
@@ -117,19 +117,19 @@ class ImportDataset::DarwinCore < ImportDataset
     old_uuid = self.metadata['import_uuid']
     start_import do
       lock_time = Time.now - lock_time
-      start_id = self.metadata['import_start_id']
       filters = self.metadata['import_filters'] if filters.nil?
       retry_errored = self.metadata['import_retry_errored'] if retry_errored.nil?
+      start_id = self.metadata['import_start_id'] if retry_errored
 
       status = ["Ready"]
       status << "Errored" if retry_errored
-      records = dataset_records.where(status: status).order(:id).limit(max_records) #.preload_fields
+      records = core_records.where(status: status).order(:id).limit(max_records) #.preload_fields
       filters&.each do |key, value|
-        records = records.where(id: DatasetRecordField.at(key.to_i).with_value(value).select(:dataset_record_id))
+        records = records.where(id: core_records_fields.at(key.to_i).with_value(value).select(:dataset_record_id))
       end
       records = records.where(id: start_id..) if start_id
 
-      records = dataset_records.where(id: record_id) if record_id
+      records = core_records.where(id: record_id) if record_id
 
       records = records.all
       start_time = Time.now - lock_time
@@ -168,7 +168,7 @@ class ImportDataset::DarwinCore < ImportDataset
   def stage
     if status == "Staging" # ActiveJob being retried could cause this state
       transaction do
-        DatasetRecordField.where(import_dataset: self).delete_all
+        core_records_fields.delete_all
         dataset_records.delete_all
       end
     end

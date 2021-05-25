@@ -15,7 +15,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     update!(metadata: {
       core_headers: headers[:core],
       extensions_headers: headers[:extensions],
-      nomenclature_code: "ICN"
+      nomenclature_code: "ICZN"
     })
 
     parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r["scientificName"] || "" })
