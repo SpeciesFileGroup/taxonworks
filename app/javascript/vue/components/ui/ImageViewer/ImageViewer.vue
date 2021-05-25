@@ -3,7 +3,7 @@
     <v-modal
       v-if="viewMode"
       @close="viewMode = false"
-      :container-style="{ width: `${depiction.image.width}px` }">
+      :container-style="{ width: `${depiction.image.width}px`, minWidth: '700px' }">
       <h3 slot="header">View</h3>
       <div slot="body">
         <div class="image-container">

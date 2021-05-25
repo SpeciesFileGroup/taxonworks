@@ -35,11 +35,22 @@
             <label
               class="header-label cursor-pointer ellipsis"
               :title="descriptor.name">
-              <input
-                type="checkbox"
-                :value="index"
-                v-model="hideColumn">
-              {{ descriptor.name }}
+              <tippy-component
+                animation="scale"
+                placement="bottom"
+                size="small"
+                arrow-size="small"
+                inertia
+                arrow
+                content="Hide">
+                <template slot="trigger">
+                  <input
+                    type="checkbox"
+                    :value="index"
+                    v-model="hideColumn">
+                  {{ descriptor.name }}
+                </template>
+              </tippy-component>
             </label>
           </div>
         </div>
@@ -50,10 +61,21 @@
           <div
             class="observation-cell"
             :key="rIndex">
-            <input
-              type="checkbox"
-              v-model="hideRows"
-              :value="rIndex">
+            <tippy-component
+              animation="scale"
+              placement="bottom"
+              size="small"
+              arrow-size="small"
+              inertia
+              arrow
+              content="Hide">
+              <template slot="trigger">
+                <input
+                  type="checkbox"
+                  v-model="hideRows"
+                  :value="rIndex">
+              </template>
+            </tippy-component>
           </div>
           <div
             :key="`${rIndex}-o`"
@@ -79,10 +101,10 @@
                   arrow-size="small"
                   inertia
                   arrow
-                  :trigger="depiction.image.citations.length
+                  :trigger="!!depiction.source_cached
                     ? 'mouseenter focus'
                     : 'manual'"
-                  :content="depiction.image.citations.map(citation => citation.citation_source_body).join('; ')">
+                  :content="depiction.source_cached">
                   <template slot="trigger">
                     <image-viewer
                       :depiction="depiction"
@@ -115,6 +137,7 @@
 <script>
 
 import ajaxCall from 'helpers/ajaxCall'
+import composeImage from '../../helpers/composeImage'
 import SpinnerComponent from 'components/spinner'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import RadialObject from 'components/radials/object/radial'
@@ -226,11 +249,16 @@ export default {
           .filter(row => [].concat(...row.depictions).length)
           .map(observation => ({
             ...observation,
-            depictions: observation.depictions.map(obsDepictions => obsDepictions.filter(depiction => depiction.depiction_object_type === 'Observation'))
+            depictions: observation.depictions
+              .map(obsDepictions => obsDepictions
+                .filter(depiction => depiction.depiction_object_type === 'Observation')
+                .map(depiction => ({
+                  ...depiction,
+                  image: composeImage(depiction.image_id, body.image_hash[depiction.image_id])
+                })))
           }))
       }).finally(() => {
         this.isLoading = false
-        this.loadOtuDepictions()
       })
     }
   }

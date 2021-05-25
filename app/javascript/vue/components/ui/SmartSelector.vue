@@ -56,7 +56,6 @@
           :class="{ 'flex-wrap-row': inline }">
           <template v-for="item in lists[view]">
             <li
-              class="margin-small-bottom"
               v-if="filterItem(item)"
               :key="item.id">
               <template

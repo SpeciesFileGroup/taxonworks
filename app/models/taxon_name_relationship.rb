@@ -377,7 +377,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_string)
             soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
             soft_validations.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.subject_taxon_name.rank_class.rank_name} rank of #{self.subject_taxon_name.cached_html}")
           end
