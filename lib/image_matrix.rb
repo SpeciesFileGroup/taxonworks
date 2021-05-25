@@ -357,7 +357,20 @@ class ImageMatrix
       i[:original_url] = d.image_file.url
       i[:medium_url] = d.image_file.url(:medium)
       i[:thumb_url] = d.image_file.url(:thumb)
+      i[:citations] = []
       h[d.id] = i
+    end
+
+    cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
+    cit.each do |c|
+      i = {}
+      i[:id] = c.id
+      i[:source_id] = c.source_id
+      i[:pages] = c.pages
+      i[:is_original] = c.is_original
+      #i[:citation_object_id] = c.citation_object_id
+      #i[:citation_object_type] = c.citation_object_type
+      h[c.citation_object_id][:citations].push(i)
     end
     h
   end
