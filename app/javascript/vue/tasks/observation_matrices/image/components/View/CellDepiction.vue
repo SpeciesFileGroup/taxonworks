@@ -26,9 +26,11 @@
               <h3>Image matrix</h3>
               <ul class="no_bullets">
                 <li>Column: <b>{{ descriptor }}</b></li>
-                <li>Row: <a
-                  v-html="object.object_tag"
-                  :href="browseLink(object)"/>
+                <li>Row:
+                  <cell-link
+                    :label="object.object_tag"
+                    :row-object="object"
+                  />
                 </li>
               </ul>
             </div>
@@ -42,18 +44,14 @@
 <script>
 
 import { TippyComponent } from 'vue-tippy'
-import { RouteNames } from 'routes/routes'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
-const BROWSE_LINK = {
-  CollectionObject: id => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
-  Otu: id => `${RouteNames.BrowseOtu}?otu_id=${id}`,
-  TaxonName: id => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
-}
+import CellLink from '../CellLink'
 
 export default {
   components: {
     ImageViewer,
-    TippyComponent
+    TippyComponent,
+    CellLink
   },
 
   props: {
@@ -70,19 +68,6 @@ export default {
     descriptor: {
       type: String,
       required: true
-    }
-  },
-  methods: {
-    browseLink (object) {
-      const objectClass = {
-        otu_id: 'Otu',
-        collection_object_id: 'CollectionObject',
-        taxon_name_id: 'TaxonName'
-      }
-
-      const [property, klass] = Object.entries(objectClass).find(([key, value]) => object[key])
-
-      return BROWSE_LINK[klass](object[property])
     }
   }
 }

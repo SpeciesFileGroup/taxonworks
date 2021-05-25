@@ -58,9 +58,10 @@
       <div
         :key="`${row.object.id}-b`"
         class="otu-cell padding-small">
-        <a
-          v-html="row.object.object_tag"
-          :href="browseOtu(row.object.id)"/>
+        <cell-link
+          :row-object="row.object"
+          :label="row.object.object_tag"
+        />
       </div>
       <cell-depiction
         v-show="existingOTUDepictions"
@@ -91,6 +92,7 @@
 import CellObservation from './CellObservation.vue'
 import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
+import CellLink from './CellLink.vue'
 import { RouteNames } from 'routes/routes'
 import { MutationNames } from '../store/mutations/mutations'
 
@@ -98,7 +100,8 @@ export default {
   components: {
     TableGrid,
     CellObservation,
-    CellDepiction
+    CellDepiction,
+    CellLink
   },
 
   props: {
@@ -138,10 +141,6 @@ export default {
   },
 
   methods: {
-    browseOtu (id) {
-      return `${RouteNames.BrowseOtu}?otu_id=${id}`
-    },
-
     reset () {
       this.collapseRows = []
       this.collapseColumns = []

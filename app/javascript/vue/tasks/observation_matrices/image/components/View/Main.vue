@@ -4,10 +4,10 @@
     <div class="horizontal-left-content margin-medium-bottom">
       <filter-rank v-model="filters.identified_to_rank" />
       <filter-language
-        v-if="languages.length"
+        v-if="observationLanguages.length"
         v-model="filters.language_id"
         class="margin-small-left"
-        :language-list="languages"
+        :language-list="observationLanguages"
       />
     </div>
     <div>
@@ -67,9 +67,10 @@
           <div
             :key="`${rIndex}-o`"
             class="otu-cell padding-small">
-            <a
-              v-html="row.object.object_tag"
-              :href="browseLink(row.object)"/>
+            <cell-link
+              :label="row.object.object_tag"
+              :row-object="row.object"
+            />
             <radial-object :global-id="row.object.global_id" />
           </div>
 
@@ -107,16 +108,10 @@ import TableGrid from 'components/layout/Table/TableGrid.vue'
 import FilterLanguage from 'tasks/interactive_keys/components/Filters/Language'
 import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank'
 import CellDepiction from './CellDepiction.vue'
+import CellLink from '../CellLink.vue'
+
 import { GetterNames } from '../../store/getters/getters'
 import { TippyComponent } from 'vue-tippy'
-import { RouteNames } from 'routes/routes'
-import { Otu } from 'routes/endpoints'
-
-const BROWSE_LINK = {
-  CollectionObject: id => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
-  Otu: id => `${RouteNames.BrowseOtu}?otu_id=${id}`,
-  TaxonName: id => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
-}
 
 export default {
   components: {
@@ -127,7 +122,8 @@ export default {
     CellDepiction,
     CellHeader,
     RadialObject,
-    TableGrid
+    TableGrid,
+    CellLink
   },
   props: {
     matrixId: {
@@ -146,10 +142,8 @@ export default {
       hideColumn: [],
       hideRows: [],
       isLoading: false,
-      languages: [],
       rows: [],
-      showTable: false,
-      filters: {
+      filters: { // TODO: Move and create a filter in vuex store
         language_id: undefined,
         identified_to_rank: undefined
       }
@@ -187,36 +181,9 @@ export default {
   },
 
   methods: {
-    browseLink (object) {
-      const objectClass = {
-        otu_id: 'Otu',
-        collection_object_id: 'CollectionObject',
-        taxon_name_id: 'TaxonName'
-      }
-
-      const [property, klass] = Object.entries(objectClass).find(([key, value]) => object[key])
-
-      return BROWSE_LINK[klass](object[property])
-    },
-
     resetView () {
       this.hideRows = []
       this.hideColumn = []
-    },
-
-    loadOtuDepictions () {
-      const promises = this.rows.map(item => Otu.depictions(item.object.id))
-
-      Promise.all(promises).then(responses => {
-        const rowDepictions = responses.map(({ body }) => body)
-
-        if (rowDepictions.some(depictions => depictions.length)) {
-          rowDepictions.forEach((depictions, index) => {
-            this.rows[index].depictions.unshift(depictions)
-          })
-          this.descriptors.unshift({ name: 'OTU depictions' })
-        }
-      })
     }
   }
 }
