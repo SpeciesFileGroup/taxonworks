@@ -22,11 +22,6 @@
               <button-citation
                 :global-id="depiction.image.global_id"
               />
-              <button
-                class="button circle-button btn-delete"
-                type="button"
-                @delete="removeDepiction"
-              />
             </div>
           </image-viewer>
         </div>
@@ -71,9 +66,6 @@ export default {
   methods: {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
-    },
-    removeDepiction() {
-      
     }
   }
 }
