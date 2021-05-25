@@ -65,6 +65,8 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
+#   If at all possible this field SHOULD NOT be used, it has very little downstream inference use.
+#
 #   If a subgenus it should ____TODO____ (not?) contain parens.
 #
 # @!attribute etymology
@@ -82,10 +84,6 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @attribute cached_author_year
 #   @return [String, nil]
 #      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
-#
-# @!attribute cached_higher_classification
-#   @return [String]
-#   a concatenated list of higher rank taxa. !! Currently deprecated.
 #
 # @!attribute cached_original_combination
 #   @return [String]
