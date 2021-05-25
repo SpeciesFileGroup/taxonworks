@@ -245,22 +245,23 @@ class TaxonName < ApplicationRecord
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
 
-  # TODO: ARELize
-  scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :that_is_invalid, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+  # scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  # scope :that_is_invalid, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 
-  def self.that_is_really_invalid
-    a = TaxonName.that_is_invalid
+  def self.that_is_invalid
+    a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
     b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
 
-  # TODO optimize to use joins
-  def self.that_is_really_valid
-  #    TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
-   TaxonName.that_is_valid.where.not(
-     id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
-   )
+  # TODO optimize to use joins if performance issues?
+  def self.that_is_valid
+    # Alt format:  TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+    TaxonName
+      .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+      .where.not(
+        id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+      )
   end
 
   scope :with_type, -> (type) {where(type: type)}
@@ -964,6 +965,7 @@ class TaxonName < ApplicationRecord
       cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
+    set_cached_is_valid
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
@@ -971,10 +973,13 @@ class TaxonName < ApplicationRecord
     set_cached_author_year
   end
 
+  def set_cached_is_valid
+    update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
+  end
+
   def set_cached_valid_taxon_name_id
     v = is_combination? ? false : !unavailable_or_invalid?
-    update_columns(cached_valid_taxon_name_id: get_valid_taxon_name.id,
-                   cached_is_valid: v)
+    update_column(:cached_is_valid, v)
   end
 
   def set_cached_warnings
