@@ -147,8 +147,8 @@ export default {
     },
 
     collapseAll () {
-      this.collapseRows = this.rows.map(row => row.id)
-      this.collapseColumns = this.columns.map(column => column.id)
+      this.collapseRows = [...Array(this.rows.length).keys()]
+      this.collapseColumns = ['otu', ...Array(this.columns.length).keys()]
     },
 
     filterCell (cIndex, index) {

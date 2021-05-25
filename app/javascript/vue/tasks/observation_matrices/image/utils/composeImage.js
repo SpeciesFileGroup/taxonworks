@@ -6,7 +6,7 @@ export default (id, image) => {
     width: image.width,
     height: image.height,
     content_type: image.image_file_content_type,
-    citations: [],
+    citations: image.citations,
     alternatives: {
       medium: {
         image_file_url: image.medium_url
