@@ -8,6 +8,7 @@ import setIsSaving from './setIsSaving'
 import setDepictionMoved from './setDepictionMoved'
 import addDepiction from './addDepiction'
 import removeDepiction from './removeDepiction'
+import removeOtuDepiction from './removeOtuDepiction'
 
 const MutationNames = {
   AddDepiction: 'addDepiction',
@@ -19,7 +20,8 @@ const MutationNames = {
   SetObservationMoved: 'setObservationMoved',
   SetIsSaving: 'setIsSaving',
   SetDepictionMoved: 'setDepictionMoved',
-  RemoveDepiction: 'removeDepiction'
+  RemoveDepiction: 'removeDepiction',
+  RemoveOtuDepiction: 'removeOtuDepiction'
 }
 
 const MutationFunctions = {
@@ -32,7 +34,8 @@ const MutationFunctions = {
   [MutationNames.SetObservationMoved]: setObservationMoved,
   [MutationNames.SetIsSaving]: setIsSaving,
   [MutationNames.SetDepictionMoved]: setDepictionMoved,
-  [MutationNames.RemoveDepiction]: removeDepiction
+  [MutationNames.RemoveDepiction]: removeDepiction,
+  [MutationNames.RemoveOtuDepiction]: removeOtuDepiction
 }
 
 export {

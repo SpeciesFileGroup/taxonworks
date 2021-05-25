@@ -68,7 +68,8 @@
         class="observation-cell padding-small edit-cell"
         :key="`${row.object.id}-c`"
         :show="!filterCell('otu', rowIndex)"
-        :depictions="row.objectDepictions || []"/>
+        :depictions="row.objectDepictions || []"
+        @removeDepiction="removeOtuDepiction({ rowIndex, index: $event })"/>
       <template v-for="(depictions, columnIndex) in row.depictions">
         <div
           class="observation-cell padding-small edit-cell"
@@ -167,6 +168,13 @@ export default {
       this.$store.commit(MutationNames.RemoveDepiction, {
         rowIndex,
         columnIndex,
+        index
+      })
+    },
+
+    removeOtuDepiction ({ rowIndex, index }) {
+      this.$store.commit(MutationNames.RemoveOtuDepiction, {
+        rowIndex,
         index
       })
     }

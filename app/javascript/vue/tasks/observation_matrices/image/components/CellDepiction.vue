@@ -4,7 +4,8 @@
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         :group="{ name: 'cells', put: false }"
-        @choose="setObservationDragged">
+        @choose="setObservationDragged"
+        @remove="removeDepiction">
         <div
           v-for="depiction in depictions"
           :key="depiction.id"
@@ -67,6 +68,9 @@ export default {
   methods: {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
+    },
+    removeDepiction ({ oldIndex }) {
+      this.$emit('removeDepiction', oldIndex)
     }
   }
 }
