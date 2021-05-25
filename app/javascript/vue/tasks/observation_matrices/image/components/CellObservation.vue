@@ -233,20 +233,22 @@ export default {
     },
 
     removeDepiction (depiction) {
-      this.$store.commit(MutationNames.SetIsSaving, true)
-      Depiction.destroy(depiction.id).then(() => {
-        const index = this.depictions.findIndex(item => item.id === depiction.id)
-        const observationId = this.observationId
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.$store.commit(MutationNames.SetIsSaving, true)
+        Depiction.destroy(depiction.id).then(() => {
+          const index = this.depictions.findIndex(item => item.id === depiction.id)
+          const observationId = this.observationId
 
-        this.$emit('removeDepiction', index)
-        if (!this.depictions.length) {
-          Observation.destroy(observationId).then(() => {
+          this.$emit('removeDepiction', index)
+          if (!this.depictions.length) {
+            Observation.destroy(observationId).then(() => {
+              this.$store.commit(MutationNames.SetIsSaving, false)
+            })
+          } else {
             this.$store.commit(MutationNames.SetIsSaving, false)
-          })
-        } else {
-          this.$store.commit(MutationNames.SetIsSaving, false)
-        }
-      })
+          }
+        })
+      }
     },
 
     success (file, response) {

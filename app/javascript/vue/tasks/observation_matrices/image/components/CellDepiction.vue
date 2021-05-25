@@ -21,6 +21,7 @@
                 :global-id="depiction.image.global_id"/>
               <button-citation
                 :global-id="depiction.image.global_id"
+                :citations="depiction.image.citations"
               />
             </div>
           </image-viewer>
