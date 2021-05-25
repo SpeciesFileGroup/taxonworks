@@ -129,6 +129,7 @@ class Protonym < TaxonName
   scope :with_primary_homonym_alternative_spelling, -> (primary_homonym_alternative_spelling) {where(cached_primary_homonym_alternative_spelling: primary_homonym_alternative_spelling)}
   scope :with_secondary_homonym, -> (secondary_homonym) {where(cached_secondary_homonym: secondary_homonym)}
   scope :with_secondary_homonym_alternative_spelling, -> (secondary_homonym_alternative_spelling) {where(cached_secondary_homonym_alternative_spelling: secondary_homonym_alternative_spelling)}
+  scope :with_name_base, -> (base_string) {where('"taxon_names"."name" LIKE ?', "#{base_string}%")}
 
   # TODO, move to IsData or IsProjectData
   scope :with_project, -> (project_id) {where(project_id: project_id)}
@@ -154,10 +155,10 @@ class Protonym < TaxonName
   end
 
   def self.family_group_name_at_rank(name_string, rank_string)
-    if name_string == family_group_base(name_string)
+    if name_string == Protonym.family_group_base(name_string)
       name_string
     else
-      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+      Protonym.family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
     end
   end
 
@@ -201,8 +202,8 @@ class Protonym < TaxonName
         search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-            # TODO: family_group_base is not a scope
-            z = Protonym.that_is_valid.family_group_base(self.name)
+
+            z = Protonym.with_name_base(Protonym.family_group_base(self.name)).that_is_valid
             search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
           else
             search_name = self.name
