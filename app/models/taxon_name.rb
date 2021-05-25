@@ -245,8 +245,8 @@ class TaxonName < ApplicationRecord
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
 
-  # scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  # scope :that_is_invalid, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+  scope :with_same_cached_valid_id, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  scope :with_different_cached_valid_id, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 
   def self.that_is_invalid
     a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
