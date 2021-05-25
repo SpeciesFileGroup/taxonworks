@@ -104,10 +104,10 @@ module Export::Coldp::Files::Taxon
 
   def self.generate(otus, root_otu_id = nil, reference_csv = nil, prefer_unlabelled_otus: true)
 
-    # Until we have RC5 articulations we are temporarily glossing over the fact
-    # that one taxon name can be used for many OTUs.  Track to see that
+    # Until we have RC5 articulations we are simplifying handling the fact
+    # that one taxon name can be used for many OTUs. Track to see that
     # an OTU with a given taxon name does not already exist
-    #   taxon_name_id: otu_id (the value is not needed)
+    #   `taxon_name_id: nil`  - uniquify via Ruby hash keys
     observed_taxon_name_ids = { }
 
     CSV.generate(col_sep: "\t") do |csv|
@@ -133,7 +133,7 @@ module Export::Coldp::Files::Taxon
       otus.each do |o|
         # !! When a name is a synonmy (combination), but that combination has no OTU
         # !! then the parent of the name in the taxon table is nil
-        # !! Handle this edge case
+        # !! Handle this edge case (probably resolved now)
 
         # TODO: alter way parent is set to conform to CoLDP status
         #   For OTUs with combinations we might have to change the parenthood?!
@@ -143,9 +143,9 @@ module Export::Coldp::Files::Taxon
           if pid = o.parent_otu_id(skip_ranks: SKIPPED_RANKS, prefer_unlabelled_otus: prefer_unlabelled_otus)
             parent_id = pid
           else
-            puts Rainbow('WARNING no parent!!').bold.yellow
+            puts 'WARNING no parent!!'
             # there is no OTU parent for the hierarchy, at present we just flat skip this OTU
-            # curators can use the create OTUs for valid ids to resolve this data issue
+            # Curators can use the create OTUs for valid ids to resolve this data issue
             next
           end
         end
@@ -155,7 +155,7 @@ module Export::Coldp::Files::Taxon
         # can be removed in theory
         # TODO: remove once RC5 better modelled
         next if observed_taxon_name_ids[o.taxon_name_id]
-        observed_taxon_name_ids[o.taxon_name_id] = o.id
+        observed_taxon_name_ids[o.taxon_name_id] = nil
 
         # TODO: Use o.coordinate_otus to summarize accross different instances of the OTU
 
@@ -165,9 +165,9 @@ module Export::Coldp::Files::Taxon
         parent_id = (root_otu_id == o.id ? nil : parent_id )
 
         csv << [
-          o.id,                                      # ID
-          parent_id,                                 # parentID
-          o.taxon_name.id,                           # nameID
+          o.id,                                      # ID (Taxon)
+          parent_id,                                 # parentID (Taxon)
+          o.taxon_name.id,                           # nameID (Name)
           provisional(o),                            # provisional
           according_to_id(o),                        # accordingToID
           scrutinizer(o),                            # scrutinizer

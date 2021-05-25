@@ -13,18 +13,13 @@ module Export
     FILETYPES = %w{Description Name Synonym VernacularName}.freeze
 
     # @return [Scope]
-    #   Should return the full set of Otus (= Taxa in CoLDP) that are to be sent.
-    #
-    # At present otus are only valid (intent) # a mix of valid and invalid
+    #  A full set of valid only Otus (= Taxa in CoLDP) that are to be sent.
+    #  !! At present no OTU with a `name` is sent.  In the future this may
+    #  !! need to change.
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
 
-      # TODO: make these only valid OTUS
-      # Old (valid and invalid)
-      # ::Otu.joins(taxon_name: [:ancestor_hierarchies]).where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id).where(TaxonName.that_is_really_valid.arel.exists)
-
-      # TODO: recheck, this should
       Otu.joins(taxon_name: [:ancestor_hierarchies])
         .where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
         .where(taxon_name_id: TaxonName.that_is_really_valid)
@@ -34,7 +29,7 @@ module Export
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
 
-      # source_id => [csv_array]
+      # source_id: [csv_array]
       ref_csv = {}
 
       # TODO: This will likely have to change, it is renamed on serving the file.

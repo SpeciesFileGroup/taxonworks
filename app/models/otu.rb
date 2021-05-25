@@ -190,7 +190,7 @@ class Otu < ApplicationRecord
 
   # @return [Array]
   #   of ancestral otu_ids
-  # !! This method does not fork, as soon as 2 ancestors are 
+  # !! This method does not fork, as soon as 2 ancestors are
   # !! hit the list terminates.
   def ancestor_otu_ids(prefer_unlabelled_otus: true)
     ids =  []
