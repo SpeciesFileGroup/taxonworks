@@ -921,10 +921,10 @@ namespace :tw do
               user_name = "NoName_#{no_name_counter += 1}"
             end
 
-            if au_id.to_i <= 0
+            if au_id.to_i <= 0 || User.where(id: Current.user_id, name: row['FullName']).any?
               unique_auth_users[au_id].each do |fu_id|
                 get_tw_user_id[fu_id] = Current.user_id.to_s # @ Making user.id into string for consistency of all hash values being strings
-                logger.info "Assigned system user #{au_id}:#{fu_id} to import user"
+                logger.info "Assigned user #{au_id}:#{fu_id} to import user"
               end
             elsif unique_auth_users[au_id]
               logger.info "is a unique user, creating:  #{i}: #{user_name}"
