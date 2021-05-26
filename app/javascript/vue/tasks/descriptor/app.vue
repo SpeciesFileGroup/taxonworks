@@ -108,7 +108,7 @@
 <script>
 
 import Spinner from 'components/spinner.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'
 import QualitativeComponent from './components/character/character.vue'

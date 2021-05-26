@@ -100,13 +100,12 @@
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
+import { ControlledVocabularyTerm, Tag } from 'routes/endpoints'
 import RadialAnnotator from '../../../../components/radials/annotator/annotator.vue'
 import PinComponent from '../../../../components/pin.vue'
 import Bioclassification from './bioclassification.vue'
 import LockComponent from 'components/lock'
 import AccessionMetadata from './accession'
-
-import { GetBiocurationsTypes, GetBiocurationsGroupTypes, GetBiocurationsTags } from '../../request/resources.js'
 
 export default {
   components: {
@@ -118,70 +117,67 @@ export default {
   },
   computed: {
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
-      set(value) {
+      set (value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
     },
-    collectionObjects() {
+    collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
-    collectionObject: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObject)
-      }
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     }
   },
+
   data() {
     return {
       biocurationsGroups: [],
       biocutarionsType: []
     }
   },
-  mounted: function () {
-    GetBiocurationsGroupTypes().then(response => {
+
+  created () {
+    ControlledVocabularyTerm.where({ type: ['BiocurationGroup'] }).then(response => {
       this.biocurationsGroups = response.body
-      GetBiocurationsTypes().then(response => {
+      ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => {
         this.biocutarionsType = response.body
         this.splitGroups()
       })
     })
   },
+
   methods: {
     setCO(co) {
       this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
     },
     removeCO(id) {
-      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$store.dispatch(ActionNames.RemoveCollectionObject, id)
       }
     },
-    isSelected(item) {
-      return this.collectionObject.id == item.id
+    isSelected (item) {
+      return this.collectionObject.id === item.id
     },
     updateCO(co) {
       this.$store.dispatch(ActionNames.SaveCollectionObject, co)
     },
-    splitGroups() {
-      let that = this
+    splitGroups () {
       this.biocurationsGroups.forEach((item, index) => {
-        GetBiocurationsTags(item.id).then(response =>{
-          let tmpArray = []
+        Tag.where({ keyword_id: item.id }).then(response => {
+          const tmpArray = []
           response.body.forEach(item => {
-            that.biocutarionsType.forEach(itemClass => {
-              if(itemClass.id == item.tag_object_id) {
+            this.biocutarionsType.forEach(itemClass => {
+              if (itemClass.id === item.tag_object_id) {
                 tmpArray.push(itemClass)
                 return
               }
             })
           })
-          that.$set(that.biocurationsGroups[index], 'list', tmpArray)
-        })         
+          this.$set(this.biocurationsGroups[index], 'list', tmpArray)
+        })
       })
     },
   }
@@ -201,4 +197,3 @@ export default {
     width: 100px;
   }
 </style>
-

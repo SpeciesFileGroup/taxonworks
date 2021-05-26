@@ -115,10 +115,10 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 export default {
   components: {

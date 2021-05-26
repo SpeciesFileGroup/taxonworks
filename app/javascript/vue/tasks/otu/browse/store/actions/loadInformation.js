@@ -24,6 +24,8 @@ export default ({ dispatch, commit, state }, otus) => {
   GetTaxonNames({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
     commit(MutationNames.SetTaxonNames, response.body)
   })
+
+  dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
   dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
   dispatch(ActionNames.LoadPreferences)

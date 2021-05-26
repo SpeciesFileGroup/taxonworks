@@ -46,7 +46,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { NavigationSled } from '../request/resource'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 
 export default {
   components: {

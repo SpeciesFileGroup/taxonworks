@@ -122,7 +122,7 @@
 
 import { RouteNames } from 'routes/routes'
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import CreatePerson from 'tasks/digitize/helpers/createPerson.js'
 import Draggable from 'vuedraggable'

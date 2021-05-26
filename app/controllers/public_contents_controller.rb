@@ -38,7 +38,7 @@ class PublicContentsController < ApplicationController
   def destroy
     @public_content.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Public content was successfully destroyed.')}
+      format.html { destroy_redirect @public_content, notice: 'Public content was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

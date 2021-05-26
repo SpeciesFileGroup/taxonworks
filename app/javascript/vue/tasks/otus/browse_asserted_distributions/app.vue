@@ -73,23 +73,22 @@
 import MapComponent from 'components/georeferences/map.vue'
 import FilterComponent from './components/filter.vue'
 import ListComponent from './components/list'
-
-import { GetOtuAssertedDistribution } from './request/resources'
+import { AssertedDistribution } from 'routes/endpoints'
 
 export default {
+
   components: {
     MapComponent,
     FilterComponent,
     ListComponent
   },
+
   computed: {
-    geojson() {
-      if(this.assertedDistribution.length) {
-        return this.assertedDistribution.map(item => { return item.geographic_area.geo_json })
-      }
-      return []
+    geojson () {
+      return this.assertedDistribution.map(item => item.geographic_area.shape)
     }
   },
+
   data () {
     return {
       assertedDistribution: [],
@@ -100,29 +99,28 @@ export default {
       alreadySearch: false,
     }
   },
+
   methods: {
-    searchDistribution(otu) {
-      GetOtuAssertedDistribution(otu.id).then(response => {
+    searchDistribution (otu) {
+      AssertedDistribution.where({ otu_id: otu.id }).then(response => {
         this.assertedDistribution = response.body
       })
     },
-    resetTask() {
+
+    resetTask () {
       this.alreadySearch = false
       this.urlRequest = ''
       this.assertedDistribution = []
     },
+
     loadList(newList) {
-      if(this.append) {
+      if (this.append) {
         let concat = newList.concat(this.assertedDistribution)
-              
         concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i.id === item.id
-          ))
+          index === self.findIndex((i) => i.id === item.id)
         )
         this.assertedDistribution = concat
-      }
-      else {
+      } else {
         this.assertedDistribution = newList
       }
       this.alreadySearch = true

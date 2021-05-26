@@ -10,7 +10,6 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Styles
-require('../style/application.scss')
 require('leaflet/dist/leaflet.css')
 
 require('../vue/config.js')
@@ -66,3 +65,4 @@ require('../vue/tasks/collection_objects/match/main.js')
 require('../vue/tasks/sources/filter/main.js')
 require('../vue/tasks/collecting_events/new_collecting_event/main.js')
 require('../vue/tasks/interactive_keys/main.js')
+require('../vue/tasks/extracts/new_extract/main.js')

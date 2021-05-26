@@ -71,7 +71,7 @@
 
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { GetterNames } from '../store/getters/getters'
 import YearPicker from './nomenclature/yearsPick'
 import FilterList from './biologicalAssociations/filterList'

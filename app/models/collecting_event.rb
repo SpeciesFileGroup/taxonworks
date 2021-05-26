@@ -292,7 +292,7 @@ class CollectingEvent < ApplicationRecord
             unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
   soft_validate(:sv_georeference_matches_verbatim, set: :georeference)
@@ -1066,13 +1066,13 @@ class CollectingEvent < ApplicationRecord
   end
 
   def level2_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    return cached_level2_name if cached_level2_name
+    cache_geographic_names[:county]
   end
 
   def cached_level0_name
     return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    cache_geographic_names[:country]
   end
 
   # @return [CollectingEvent]

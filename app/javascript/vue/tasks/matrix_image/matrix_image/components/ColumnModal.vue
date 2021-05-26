@@ -34,28 +34,30 @@
 
 <script>
 
-import ModalComponent from 'components/modal.vue'
+import ModalComponent from 'components/ui/Modal.vue'
 import SpinnerComponent from 'components/spinner'
-
-import { CreateColumn, CreateDescriptor } from '../request/resources'
+import { ObservationMatrixColumnItem, Descriptor } from 'routes/endpoints'
 
 export default {
   components: {
     ModalComponent,
     SpinnerComponent
   },
+
   props: {
     matrixId: {
       type: [Number, String],
       required: true
     }
   },
+
   computed: {
-    validateFields() {
+    validateFields () {
       return this.descriptor.name.length
     }
   },
-  data() {
+
+  data () {
     return {
       descriptor: {
         name: '',
@@ -65,22 +67,23 @@ export default {
       saving: false
     }
   },
+
   methods: {
-    createColumn() {
+    createColumn () {
       this.saving = true
 
-      CreateDescriptor(this.descriptor).then(responseDescriptor => {
-        let data = {
+      Descriptor.create({ descriptor: this.descriptor }).then(responseDescriptor => {
+        const data = {
           observation_matrix_id: this.matrixId,
           descriptor_id: responseDescriptor.body.id,
           type: 'ObservationMatrixColumnItem::Single::Descriptor'
         }
-        CreateColumn(data).then(response => {
+
+        ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(response => {
           response.body.descriptor = responseDescriptor.body
           TW.workbench.alert.create('Column item was successfully created.', 'notice')
           this.$emit('create', response.body)
-          this.saving = false
-        }, () => {
+        }).finally(() => {
           this.saving = false
         })
       }, () => {

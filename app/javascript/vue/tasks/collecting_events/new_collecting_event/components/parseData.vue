@@ -22,9 +22,9 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
-import { ParseVerbatim } from '../request/resources'
+import ModalComponent from 'components/ui/Modal'
+import SmartSelector from 'components/ui/SmartSelector'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
@@ -43,7 +43,7 @@ export default {
       this.collectionObject = co
     },
     parseData (co) {
-      ParseVerbatim(co.buffered_collecting_event).then(response => {
+      CollectingEvent.parseVerbatimLabel({ verbatim_label: co.buffered_collecting_event }).then(response => {
         if (response.body) {
           this.parsableData = response.body
 

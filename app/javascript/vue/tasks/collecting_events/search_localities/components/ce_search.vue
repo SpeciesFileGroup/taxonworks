@@ -76,125 +76,141 @@
   </div>
 </template>
 <script>
-  import Autocomplete from 'components/autocomplete'
-  import ModeSwitch from './mode_switch'
-  import Spinner from 'components/spinner'
-  import lMap from './leafletMap.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete'
+import ModeSwitch from './mode_switch'
+import Spinner from 'components/spinner'
+import lMap from './leafletMap.vue'
+import { CollectingEvent } from 'routes/endpoints'
 
-  export default {
-    components: {
-      Autocomplete,
-      lMap,
-      ModeSwitch,
-      Spinner,
-    },
-    props: {
-      lightRow: {
-        type: Number,
-        default: () => {
-          return 0
-        }
-      },
-      dimRow: {
-        type: Number,
-        default: () => {
-          return 0
-        }
+export default {
+  components: {
+    Autocomplete,
+    lMap,
+    ModeSwitch,
+    Spinner
+  },
+
+  props: {
+    lightRow: {
+      type: Number,
+      default: () => {
+        return 0
       }
     },
-    data() {
-      return {
-        geographicAreaList: [],
-        collectingEventList: [],
-        shapes: [],   // intended for eventual multiple shapes paradigm
-        mode: 'list',
-        isLoading: false,
-        newFeatures:  [],
-        lightMapFeatures:  0,
-        geojsonFeatures: []    // trans-antimeridian polygon test features
+
+    dimRow: {
+      type: Number,
+      default: () => {
+        return 0
       }
-    },
-    watch: {
-      geojsonFeatures() {
-        if(this.geojsonFeatures.length === 0) {
-          this.$refs.leaflet.clearFound()
-        }
-      },
-      lightRow(newVal) {
-        this.setHighlightProperty(newVal)
-      },
-      dimRow(newVal) {
-        this.clearHighlightProperty(newVal)
-      }
-    },
-    methods: {
-      clearTheMap() {
+    }
+  },
+
+  data () {
+    return {
+      geographicAreaList: [],
+      collectingEventList: [],
+      shapes: [], // intended for eventual multiple shapes paradigm
+      mode: 'list',
+      isLoading: false,
+      newFeatures: [],
+      lightMapFeatures: 0,
+      geojsonFeatures: [] // trans-antimeridian polygon test features
+    }
+  },
+
+  watch: {
+    geojsonFeatures () {
+      if (this.geojsonFeatures.length === 0) {
         this.$refs.leaflet.clearFound()
-        this.$refs.leaflet.removeLayers()
-        this.geojsonFeatures = [];
-      },
-      getAreaData() {
-        this.isLoading = true;
-        let geo_ids = this.geographicAreaList.map(area => { return area.id })
-        let params = {
-          'geographic_area_ids[]': geo_ids,
-          spatial_geographic_areas: true
-        }
-        
-        AjaxCall('get', '/collecting_events.json', {params: params}).then(response => {
-          this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.request.responseURL)
-          if (this.collectingEventList) {
-            this.$emit('collectingEventList', this.collectingEventList)
-          }
-          this.isLoading = false;
-        });
-      },
-      getShapesData(geojsonShape) {
-        this.$refs.leaflet.clearFound()
-        this.isLoading = true;
-        let shapeText = this.shapes[this.shapes.length - 1];
-        let params = {shape: shapeText};  // take only last shape pro tem
-        AjaxCall('get', '/collecting_events.json', {params: params}).then(response => {
-          let foundEvents = response.body;
-          this.$emit('jsonUrl', response.request.responseURL)
-          if(foundEvents.length > 0) {this.collectingEventList = foundEvents;}
-          this.$emit('collectingEventList', this.collectingEventList);
-          this.isLoading = false;
-        })
-      },
-      addGeographicArea(item) {
-        this.geographicAreaList.push(item);
-      },
-      delistMe(index) {
-        this.$delete(this.geographicAreaList, index)
-      },
-      editedShape(shape) {
-        this.shapes.push(JSON.stringify(shape[0]))
-      },
-      inspectLayer(layer) {
-        this.shapes.push(layer.toGeoJSON());
-      },
-      setHighlight(id) {
-        this.$emit("highlightRow", id)
-      },
-      clearHighlight(id) {
-        this.$emit("highlightRow", undefined)
-      },
-      setHighlightProperty(id) {
-        // find the right features by collecting_event_id
-        this.lightMapFeatures = id;
-      },
-      clearHighlightProperty(id) {
-        // find the right feature by collecting_event_id
-        this.geojsonFeatures.forEach((feature, index) => {
-          if(feature.properties.collecting_event_id == id) {
-            delete(feature.properties.highlight);
-            this.$set(this.geojsonFeatures, index, feature)
-          }
-        });
-      },
+      }
     },
+
+    lightRow (newVal) {
+      this.setHighlightProperty(newVal)
+    },
+
+    dimRow (newVal) {
+      this.clearHighlightProperty(newVal)
+    }
+  },
+
+  methods: {
+    clearTheMap () {
+      this.$refs.leaflet.clearFound()
+      this.$refs.leaflet.removeLayers()
+      this.geojsonFeatures = []
+    },
+
+    getAreaData () {
+      const params = {
+        geographic_area_ids: this.geographicAreaList.map(area => area.id),
+        spatial_geographic_areas: true
+      }
+
+      this.isLoading = true
+      CollectingEvent.where(params).then(response => {
+        this.collectingEventList = response.body
+        this.$emit('jsonUrl', response.request.responseURL)
+        if (this.collectingEventList) {
+          this.$emit('collectingEventList', this.collectingEventList)
+        }
+        this.isLoading = false
+      })
+    },
+
+    getShapesData () {
+      this.$refs.leaflet.clearFound()
+      this.isLoading = true
+      const shapeText = this.shapes[this.shapes.length - 1]
+
+      CollectingEvent.where({ shape: shapeText }).then(response => {
+        const foundEvents = response.body
+        this.$emit('jsonUrl', response.request.responseURL)
+        if (foundEvents.length > 0) { this.collectingEventList = foundEvents }
+        this.$emit('collectingEventList', this.collectingEventList)
+        this.isLoading = false
+      })
+    },
+
+    addGeographicArea (item) {
+      this.geographicAreaList.push(item)
+    },
+
+    delistMe (index) {
+      this.$delete(this.geographicAreaList, index)
+    },
+
+    editedShape (shape) {
+      this.shapes.push(JSON.stringify(shape[0]))
+    },
+
+    inspectLayer (layer) {
+      this.shapes.push(layer.toGeoJSON())
+    },
+
+    setHighlight (id) {
+      this.$emit('highlightRow', id)
+    },
+
+    clearHighlight (id) {
+      this.$emit('highlightRow', undefined)
+    },
+
+    setHighlightProperty (id) {
+      // find the right features by collecting_event_id
+      this.lightMapFeatures = id
+    },
+
+    clearHighlightProperty(id) {
+      // find the right feature by collecting_event_id
+      this.geojsonFeatures.forEach((feature, index) => {
+        if (feature.properties.collecting_event_id === id) {
+          delete(feature.properties.highlight)
+          this.$set(this.geojsonFeatures, index, feature)
+        }
+      })
+    }
   }
+}
 </script>

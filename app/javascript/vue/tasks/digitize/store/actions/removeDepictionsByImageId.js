@@ -1,22 +1,17 @@
 import { MutationNames } from '../mutations/mutations'
-import { DestroyDepiction } from '../../request/resources'
+import { Depiction } from 'routes/endpoints'
 
-export default function ({ commit, state }, depiction) {
-  return new Promise((resolve, reject) => {
-    let deleteDepictions = state.depictions.filter(item => {
-      return item.image_id == depiction.image_id && item.id != depiction.id
-    })
-    let promises = []
+export default ({ commit, state: { depictions } }, depiction) =>
+  new Promise((resolve, reject) => {
+    const deleteDepictions = depictions.filter(item => item.image_id === depiction.image_id && item.id !== depiction.id)
+    const promises = []
 
     deleteDepictions.forEach(item => {
-      promises.push(DestroyDepiction(item.id))
+      promises.push(Depiction.destroy(item.id))
     })
 
     Promise.all(promises).then(() => {
-      commit(MutationNames.SetDepictions, state.depictions.filter(item => {
-        return item.image_id != depiction.image_id
-      }))
-      resolve(true);
+      commit(MutationNames.SetDepictions, depictions.filter(item => item.image_id !== depiction.image_id))
+      resolve(true)
     })
   })
-}

@@ -6,7 +6,7 @@
         type="button"
         data-icon="w_reset"
         class="button circle-button button-default center-icon no-margin"
-        v-shortkey="[getMacKey, 'r']"
+        v-shortkey="[OSKey, 'r']"
         @shortkey="resetFilter"
         @click="resetFilter"/>
     </div>
@@ -28,7 +28,7 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[getMacKey, 'f']"
+        v-shortkey="[OSKey, 'f']"
         @shortkey="searchForCollectionObjects(parseParams)"
         @click="searchForCollectionObjects(parseParams)">
         Search
@@ -106,10 +106,10 @@ import BufferedComponent from './filters/buffered.vue'
 import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
 
-import { GetCollectionObjects, GetCODWCA } from '../request/resources.js'
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import OSKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -131,12 +131,12 @@ export default {
     CollectorsComponent
   },
   computed: {
-    getMacKey () {
-      return GetMacKey()
-    },
+    OSKey,
+
     parseParams () {
       return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
+
     emptyParams () {
       if (!this.params) return
       return !this.params.biocurations.biocuration_class_ids.length &&
@@ -163,6 +163,7 @@ export default {
         !Object.values(this.params.buffered).find(item => { return item !== undefined })
     }
   },
+
   data () {
     return {
       params: this.initParams(),
@@ -176,28 +177,32 @@ export default {
       DWCASearch: 0
     }
   },
-  mounted () {
+
+  created () {
     const urlParams = URLParamsToJSON(location.href)
+
     if (Object.keys(urlParams).length) {
       urlParams.geo_json = urlParams.geo_json ? JSON.stringify(urlParams.geo_json) : []
       this.searchForCollectionObjects(urlParams)
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
+
     searchForCollectionObjects (params) {
       if (this.loadingDWCA) return
       this.searching = true
       this.result = []
       this.$emit('newSearch')
 
-      GetCollectionObjects(params).then(response => {
+      CollectionObject.dwcIndex(params).then(response => {
         this.coList = response.body
         this.DWCACount = 0
-        if(response.body.data.length) {
+        if (response.body.data.length) {
           this.result = response.body.data
           this.DWCASearch = response.body.data.filter(item => { return !this.isIndexed(item)})
           if (this.DWCASearch.length) {
@@ -216,10 +221,11 @@ export default {
         if(this.result.length === this.params.settings.per) {
           TW.workbench.alert.create('Results may be truncated.', 'notice')
         }
-      }, () => { 
+      }, () => {
         this.searching = false
       })
     },
+
     initParams () {
       return {
         settings: {
@@ -316,51 +322,56 @@ export default {
         }
       }
     },
-    loadPage(page) {
-      this.params.settings.page = page 
+
+    loadPage (page) {
+      this.params.settings.page = page
       this.searchForCollectionObjects(this.parseParams)
     },
-    setDays(days) {
-      var date = new Date()
+
+    setDays (days) {
+      const date = new Date()
       date.setDate(date.getDate() - days)
-      return date.toISOString().slice(0,10)
+      return date.toISOString().slice(0, 10)
     },
+
     filterEmptyParams(object) {
-      let keys = Object.keys(object)
+      const keys = Object.keys(object)
       keys.forEach(key => {
-        if(object[key] === '') {
+        if (object[key] === '') {
           delete object[key]
         }
       })
       return object
     },
-    flatObject(object, key) {
-      let tmp = Object.assign({}, object, object[key])
+
+    flatObject (object, key) {
+      const tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
     },
-    getDWCATable(list) {
+
+    getDWCATable (list) {
       const IDS = list.map(item => { return item[0] })
       const chunk = IDS.length / this.perRequest
 
       var i, j;
       let chunkArray = []
       for (i = 0,j = IDS.length; i < j; i += chunk) {
-          chunkArray.push(IDS.slice(i,i+chunk))
+        chunkArray.push(IDS.slice(i,i+chunk))
       }
       this.getDWCA(chunkArray)
     },
-    isIndexed(object) {
-      return object.find((item, index) => {
-        return item != null && index > 0
-      })
+
+    isIndexed (object) {
+      return object.find((item, index) => item != null && index > 0)
     },
-    getDWCA(ids) {
-      if(ids.length) {
+
+    getDWCA (ids) {
+      if (ids.length) {
         this.loadingDWCA = true
-        let promises = []
+        const promises = []
         ids[0].forEach(id => {
-          promises.push(GetCODWCA(id).then(response => {
+          promises.push(CollectionObject.dwc(id).then(response => {
             this.DWCACount++
             this.$set(this.coList.data, this.coList.data.findIndex(item => { return item[0] === id }), response.body)
           }, (response) => {

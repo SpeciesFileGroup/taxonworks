@@ -86,7 +86,7 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import { TaxonName } from 'routes/endpoints'
 
 export default {

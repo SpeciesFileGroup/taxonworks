@@ -34,10 +34,10 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import ModalComponent from 'components/modal'
+import Autocomplete from 'components/ui/Autocomplete'
+import ModalComponent from 'components/ui/Modal'
 import { RouteNames } from 'routes/routes'
-import { GetObservation } from './request/resources'
+import { ObservationMatrix } from 'routes/endpoints'
 
 export default {
   components: {
@@ -59,7 +59,7 @@ export default {
       window.open(`${RouteNames.MatrixRowCoder}?observation_matrix_row_id=${this.row.id}`, '_self')
     },
     selectRow (row) {
-      GetObservation(row.observation_matrix_id).then(response => {
+      ObservationMatrix.find(row.observation_matrix_id).then(response => {
         this.row = row
         this.matrix = response.body
         this.showModal = true

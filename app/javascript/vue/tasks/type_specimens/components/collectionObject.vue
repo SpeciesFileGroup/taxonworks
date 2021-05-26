@@ -84,8 +84,8 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
-import SmartSelector from 'components/smartSelector'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 import ToggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'

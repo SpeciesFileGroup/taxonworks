@@ -5,18 +5,18 @@
         class="cursor-pointer middle"
         @click="loadSoftValidation"
         v-html="badge"/>
-        <div class="panel content hexagon-information">
-          <ul class="no_bullets">
-            <li
-              class="horizontal-left-content"
-              v-for="(segment, key) in segments">
-              <div
-                class="hexagon-info-square margin-small-right"
-                :style="{ 'background-color': key }"/>
-              {{ segment }}
-            </li>
-          </ul>
-        </div>
+      <div class="panel content hexagon-information">
+        <ul class="no_bullets">
+          <li
+            class="horizontal-left-content"
+            v-for="(segment, key) in segments">
+            <div
+              class="hexagon-info-square margin-small-right"
+              :style="{ 'background-color': key }"/>
+            {{ segment }}
+          </li>
+        </ul>
+      </div>
     </div>
     <modal-component
       v-if="showValidation"
@@ -46,16 +46,15 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
-import SpinnerComponent from 'components/spinner'
+
 import { GetterNames } from '../../store/getters/getters'
-import { GetSoftValidation } from '../../request/resources'
+import { SoftValidation } from 'routes/endpoints'
+import ModalComponent from 'components/ui/Modal'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
     ModalComponent,
-    SpinnerComponent
   },
   computed: {
     collectionObject () {
@@ -111,16 +110,15 @@ export default {
       })
     },
     loadSoftValidation () {
-      
-      let promises = []
+      const promises = []
       this.showValidation = true
       this.isLoading = true
 
-      promises.push(GetSoftValidation(this.collectionObject.global_id).then(response => {
+      promises.push(SoftValidation.find(this.collectionObject.global_id).then(response => {
         this.validation.collectionObject = response.body.validations.soft_validations
       }))
-      if(this.collectingEvent.id) {
-        promises.push(GetSoftValidation(this.collectingEvent.global_id).then(response => {
+      if (this.collectingEvent.id) {
+        promises.push(SoftValidation.find(this.collectingEvent.global_id).then(response => {
           this.validation.collectingEvent = response.body.validations.soft_validations
         }))
       }

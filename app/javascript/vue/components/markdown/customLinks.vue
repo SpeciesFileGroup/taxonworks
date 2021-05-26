@@ -25,8 +25,8 @@
 <script>
 
 import buttonLinks from './buttonLinks.js'
-import ModalComponent from 'components/modal'
-import SmartSelector from 'components/smartSelector'
+import ModalComponent from 'components/ui/Modal'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   components: {

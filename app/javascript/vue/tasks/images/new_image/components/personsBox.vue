@@ -25,7 +25,7 @@
 
 import SmartSelector from 'components/switch'
 import RolePicker from 'components/role_picker'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {

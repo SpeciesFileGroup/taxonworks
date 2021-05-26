@@ -1,6 +1,7 @@
 import baseCRUD, { annotations } from './base'
 import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'collecting_events'
 const permitParams = {
   collecting_event: {
     id: Number,
@@ -76,8 +77,14 @@ const permitParams = {
 }
 
 export const CollectingEvent = {
-  ...baseCRUD('collecting_events', permitParams),
-  ...annotations('collecting_events'),
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
 
-  clone: (id) => AjaxCall('post', `/collecting_events/${id}/clone`)
+  attributes: () => AjaxCall('get', `/${controller}/attributes`),
+
+  clone: (id) => AjaxCall('post', `/${controller}/${id}/clone`),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  parseVerbatimLabel: (params) => AjaxCall('get', '/collecting_events/parse_verbatim_label', { params })
 }

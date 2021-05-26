@@ -24,9 +24,9 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
-import { GetPerson } from '../../../request/resources'
+import { People } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -105,7 +105,7 @@ export default {
 
     this.params[this.paramAny] = urlParams[this.paramAny]
     peopleIds.forEach(id => {
-      GetPerson(id).then(({ body }) => {
+      People.find(id).then(({ body }) => {
         this.addPerson(body)
       })
     })

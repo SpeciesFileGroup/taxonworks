@@ -19,7 +19,7 @@
     <div class="flex-separate">
       <h1>Image matrix</h1>
       <ul class="context-menu">
-        <li>
+        <li v-if="!viewMode">
           <autocomplete
             url="/observation_matrices/autocomplete"
             param="term"
@@ -56,7 +56,10 @@
           </li>
         </template>
         <li>
-          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Back to observation matrix hub</a>
+          <a :href="RouteNames.ObservationMatricesDashboard">Observation matrix dashboard</a>
+        </li>
+        <li>
+          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
         </li>
       </ul>
     </div>
@@ -72,45 +75,42 @@
         @getItem="findRow($event.id, $event.position)"
       />
     </template>
-    <template v-if="matrixId">
-      <view-component
-        v-if="viewMode"
+    <template v-if="matrixId && !viewMode">
+      <matrix-table
         class="separate-table"
-        :matrix-id="matrixId"/>
-      <template v-else>
-        <matrix-table
-          class="separate-table"
-          ref="matrixTable"
-          :columns="observationColumns"
-          :rows="observationRows"/>
-        <pagination-component
-          :pagination="pagination"
-          @nextPage="getRows($event.page)"/>
-      </template>
+        ref="matrixTable"
+        :columns="observationColumns"
+        :rows="observationRows"/>
+      <pagination-component
+        :pagination="pagination"
+        @nextPage="getRows($event.page)"/>
     </template>
+    <view-component
+      v-if="viewMode"
+      class="separate-table"
+      :matrix-id="matrixId"
+      :otus-id="otuFilter"/>
   </div>
 </template>
 
 <script>
-
 import {
-  GetObservationMatrix,
-  GetMatrixObservationColumns,
-  GetMatrixObservationRows,
-  GetOtu } from './request/resources'
+  Otu,
+  ObservationMatrix
+} from 'routes/endpoints'
 
 import MatrixTable from './components/MatrixTable.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import RowModal from './components/RowModal.vue'
 import ColumnModal from './components/ColumnModal.vue'
 import ViewComponent from './components/View/Main.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import PaginationComponent from 'components/pagination.vue'
 
 import { GetterNames } from './store/getters/getters'
-import GetPagination from 'helpers/getPagination.js'
 import { RouteNames } from 'routes/routes'
 
+import GetPagination from 'helpers/getPagination.js'
 import scrollParentToChild from 'helpers/scrollParentToChild.js'
 import setParam from 'helpers/setParam'
 
@@ -124,12 +124,15 @@ export default {
     PaginationComponent,
     Autocomplete
   },
+
   computed: {
-    isSaving() {
+    isSaving () {
       return this.$store.getters[GetterNames.GetIsSaving]
-    }
+    },
+    RouteNames: () => RouteNames
   },
-  data() {
+
+  data () {
     return {
       observationMatrix: undefined,
       observationColumns: [],
@@ -140,15 +143,23 @@ export default {
       pagination: {},
       maxPerPage: 3,
       otu_ids: undefined,
-      viewMode: false
+      viewMode: false,
+      otuFilter: []
     }
   },
-  created() {
+
+  created () {
     const urlParams = new URLSearchParams(window.location.search)
     const obsIdParam = urlParams.get('observation_matrix_id')
     const rowIdParam = urlParams.get('row_id')
     const rowPositionParam = urlParams.get('row_position')
     const otuIdsParam = urlParams.get('otu_ids')
+    const otuFilterParam = urlParams.get('otu_filter')
+
+    if (otuFilterParam) {
+      this.otuFilter = otuFilterParam
+      this.viewMode = true
+    }
     if (otuIdsParam) {
       this.otu_ids = otuIdsParam
     }
@@ -156,38 +167,38 @@ export default {
       this.loadMatrix(obsIdParam, /^\d+$/.test(rowIdParam) ? rowIdParam : undefined, /^\d+$/.test(rowPositionParam) ? rowPositionParam : undefined)
     }
   },
+
   methods: {
-    resetTable() {
+    resetTable () {
       this.$refs.matrixTable.reset()
     },
-    collapseAll() {
+    collapseAll () {
       this.$refs.matrixTable.collapseAll()
     },
-    addRow(row) {
+    addRow (row) {
       this.showRowModal = false
-      if(row.hasOwnProperty('otu_id')) {
-        GetOtu(row.otu_id).then(response => {
+      if (row.otu_id) {
+        Otu.find(row.otu_id).then(response => {
           row.row_object = response.body
           this.observationRows.push(row)
         })
       }
     },
-    addColumn(column) {
+
+    addColumn (column) {
       this.showColumnModal = false
       this.observationColumns.push(column)
     },
-    loadMatrix(id, rowId = undefined, position = undefined) {
-      this.matrixId = id
-      let promises = []
-      setParam(RouteNames.ImageMatrix, 'observation_matrix_id', id)
-      promises.push(GetObservationMatrix(id).then(response => {
-        this.observationMatrix = response.body
-      }))
-      promises.push(GetMatrixObservationColumns(id).then(response => {
-        this.observationColumns = response.body
-      }))
 
-      Promise.all(promises).then(() => { 
+    loadMatrix (id, rowId = undefined, position = undefined) {
+      const promises = []
+
+      this.matrixId = id
+      setParam(RouteNames.ImageMatrix, 'observation_matrix_id', id)
+      promises.push(ObservationMatrix.find(id).then(response => { this.observationMatrix = response.body }))
+      promises.push(ObservationMatrix.columns(id).then(response => { this.observationColumns = response.body }))
+
+      Promise.all(promises).then(() => {
         if (rowId && position) {
           this.findRow(rowId, Number(position))
         } else {
@@ -195,19 +206,31 @@ export default {
         }
       })
     },
-    getRows (page) {
-      return new Promise((resolve, reject) => {
-        GetMatrixObservationRows(this.matrixId, { params: { per: this.maxPerPage, page: page, otu_ids: this.otu_ids } }).then(response => {
-          this.observationRows = response.body
-          this.pagination = GetPagination(response)
-          return resolve(response.body)
+
+    async getRows (page) {
+      return ObservationMatrix.rows(this.matrixId, {
+        page,
+        per: this.maxPerPage,
+        otu_ids: this.otu_ids
+      }).then(response => {
+        this.observationRows = response.body
+        this.pagination = GetPagination(response)
+        this.loadOtusDepiction(this.observationRows.map(item => item.row_object.id))
+      })
+    },
+
+    loadOtusDepiction (ids) {
+      const promises = ids.map(id => Otu.depictions(id))
+
+      Promise.all(promises).then(responses => {
+        responses.forEach(({ body }, index) => {
+          this.$set(this.observationRows[index], 'otuDepictions', body)
         })
       })
     },
+
     findRow (rowId, position) {
-      if (this.observationRows.find(item => {
-        return item.id === rowId
-      })) {
+      if (this.observationRows.find(item => item.id === rowId)) {
         scrollParentToChild(document.querySelector('tbody'), document.querySelector(`[data-matrix-id="${rowId}"]`))
       } else {
         const page = Math.ceil((position) / this.maxPerPage)

@@ -59,10 +59,10 @@
 
 import SmartSelector from 'components/switch'
 import TreeDisplay from '../treeDisplay'
-import { GetStatusMetadata } from '../../request/resources.js'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import DisplayList from 'components/displayList.vue'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { TaxonNameClassification } from 'routes/endpoints'
 
 const OPTIONS = {
   common: 'common',
@@ -82,11 +82,13 @@ export default {
 
     }
   },
+
   computed: {
-    smartOptions() {
+    smartOptions () {
       return OPTIONS
     }
   },
+
   data () {
     return {
       options: Object.values(OPTIONS),
@@ -100,17 +102,19 @@ export default {
       typeSelected: undefined
     }
   },
+
   watch: {
-    value(newVal) {
-      if(newVal.length || !this.statusSelected.length) return
+    value (newVal) {
+      if (newVal.length || !this.statusSelected.length) return
       this.statusSelected = []
     },
     statusSelected(newVal) {
       this.$emit('input', newVal.map(status => { return status.type }))
     }
   },
-  mounted () {
-    GetStatusMetadata().then(response => {
+
+  created () {
+    TaxonNameClassification.types().then(response => {
       this.statusList = response.body
       this.merge()
 
@@ -123,9 +127,9 @@ export default {
     })
   },
   methods: {
-    merge() {
-      let nomenclatureCodes = Object.keys(this.statusList)
-      let newList = {
+    merge () {
+      const nomenclatureCodes = Object.keys(this.statusList)
+      const newList = {
         all: {},
         common: {},
         tree: {}
@@ -150,19 +154,15 @@ export default {
         this.getTreeList(list[key], ranksList)
       }
     },
-    removeItem(status) {
-      this.statusSelected.splice(this.statusSelected.findIndex(item => {
-        return item.type == status.type
-      }),1)
+    removeItem (status) {
+      this.statusSelected.splice(this.statusSelected.findIndex(item => item.type === status.type),1)
     },
-    addStatus(item) {
+    addStatus (item) {
       this.statusSelected.push(item)
       this.view = OPTIONS.common
     },
-    filterAlreadyPicked: function (type) {
-      return this.statusSelected.find(function (item) {
-        return (item.type == type)
-      })
+    filterAlreadyPicked (type) {
+      return this.statusSelected.find(item => item.type == type)
     }
   }
 }

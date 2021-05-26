@@ -34,7 +34,7 @@
 
   import CRUD from '../../request/crud.js'
   import annotatorExtend from '../annotatorExtend.js'
-  import Autocomplete from 'components/autocomplete.vue'
+  import Autocomplete from 'components/ui/Autocomplete.vue'
   import DisplayList from '../displayList.vue'
   import TableList from './table.vue'
   import DefaultElement from 'components/getDefaultPin.vue'

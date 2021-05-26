@@ -22,7 +22,7 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/autocomplete.vue'
+import autocomplete from 'components/ui/Autocomplete.vue'
 import ListItems from './shared/listItems'
 
 export default {

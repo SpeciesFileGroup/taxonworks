@@ -83,7 +83,7 @@ import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import Descendants from './components/descendants'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
@@ -167,10 +167,10 @@ export default {
     }
   },
   mounted () {
-    let urlParams = new URLSearchParams(window.location.search)
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
+    const taxonId = urlParams.get('taxon_name_id')
 
-    let otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
-    let taxonId = urlParams.get('taxon_name_id')
     if (/^\d+$/.test(otuId)) {
       this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
         this.isLoading = false

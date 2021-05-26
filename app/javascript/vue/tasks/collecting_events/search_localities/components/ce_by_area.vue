@@ -46,46 +46,50 @@
   </div>
 </template>
 <script>
-  import Autocomplete from 'components/autocomplete'
-  import Spinner from 'components/spinner'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete'
+import Spinner from 'components/spinner'
+import { CollectingEvent } from 'routes/endpoints'
 
-  export default {
-    components: {
-      Autocomplete,
-      Spinner,
-    },
-    data() {
-      return {
-        geographicAreaList: [],
-        collectingEventList: [],
-        isLoading: false
+export default {
+  components: {
+    Autocomplete,
+    Spinner
+  },
+
+  data () {
+    return {
+      geographicAreaList: [],
+      collectingEventList: [],
+      isLoading: false
+    }
+  },
+
+  methods: {
+    getAreaData () {
+      const params = {
+        geographic_area_ids: this.geographicAreaList.map(area => area.id),
+        spatial_geographic_areas: true
       }
-    },
-    methods: {
-      getAreaData() {
-        this.isLoading = true;
-        let geo_ids = this.geographicAreaList.map(area => { return area.id })
-        let params = {
-          geographic_area_ids: geo_ids,
-          spatial_geographic_areas: true
-        }
 
-        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
-          this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.request.responseURL)
-          if (this.collectingEventList) {
-            this.$emit('collectingEventList', this.collectingEventList)
-          }
-          this.isLoading = false
-        });
-      },
-      addGeographicArea(item) {
-        this.geographicAreaList.push(item);
-      },
-      deListArea(index) {
-        this.$delete(this.geographicAreaList, index)
-      },
+      this.isLoading = true
+      CollectingEvent.where(params).then(response => {
+        this.collectingEventList = response.body
+        this.$emit('jsonUrl', response.request.responseURL)
+        if (this.collectingEventList) {
+          this.$emit('collectingEventList', this.collectingEventList)
+        }
+      }).finally(() => {
+        this.isLoading = false
+      })
     },
+
+    addGeographicArea (item) {
+      this.geographicAreaList.push(item)
+    },
+
+    deListArea (index) {
+      this.$delete(this.geographicAreaList, index)
+    }
   }
+}
 </script>

@@ -1,5 +1,7 @@
 import baseCRUD, { annotations } from './base'
+import AjaxCall from 'helpers/ajaxCall'
 
+const controller = 'otus'
 const permitParams = {
   otu: {
     id: Number,
@@ -9,6 +11,8 @@ const permitParams = {
 }
 
 export const Otu = {
-  ...baseCRUD('otus', permitParams),
-  ...annotations('otus')
+  ...baseCRUD(controller, permitParams),
+  ...annotations('otus'),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`)
 }

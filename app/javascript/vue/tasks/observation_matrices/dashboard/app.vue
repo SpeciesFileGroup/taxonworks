@@ -56,8 +56,7 @@ import FilterComponent from './components/filter.vue'
 import RankTable from './components/table'
 import JsonBar from './components/headerBar'
 
-import { GetRanksTable } from './request/resources'
-
+import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
@@ -100,20 +99,20 @@ export default {
     resetTask () {
       this.rankTable = {}
       this.jsonUrl = undefined
-      history.pushState(null, null, '/tasks/observation_matrices/dashboard/index')
+      history.pushState(null, null, '/tasks/observation_matrices/dashboard')
     },
     loadRankTable (params) {
       const data = {
         fieldsets: this.fieldSet,
         limit: this.limit
       }
-      GetRanksTable(Object.assign({}, data, params)).then(response => {
+      TaxonName.rankTable({ ...data, ...params }).then(response => {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 
         this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
 
-        history.pushState(null, null, `/tasks/observation_matrices/dashboard/index?${urlParams.toString()}`)
+        history.pushState(null, null, `/tasks/observation_matrices/dashboard?${urlParams.toString()}`)
       })
     }
   }
