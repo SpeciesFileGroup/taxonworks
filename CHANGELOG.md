@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Reset selected ids on new search in observation matrices dashboard
 - Tiff images are not render on image viewer
 - Removed reachable `byebug` call
+- Protocol not displayed after select it [#2279]
 
 ### Changed
 - Updated Ruby gems
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
 [#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+[#2279]: https://github.com/SpeciesFileGroup/taxonworks/issues/2279
 
 
 ## [0.18.0] - 2021-05-14
