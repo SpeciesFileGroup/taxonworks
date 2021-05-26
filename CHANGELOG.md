@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit type material in comprehensive form [#2253]
 - Reset selected ids on new search in observation matrices dashboard
 - Tiff images are not render on image viewer
+- Removed reachable `byebug` call
 
 ### Changed
 - Updated Ruby gems
