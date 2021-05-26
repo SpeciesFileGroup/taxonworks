@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Tiff images are not render on image viewer
 - Removed reachable `byebug` call
 - Protocol not displayed after select it [#2279]
+- image aspect ratio in Transcribe depiction trask [#2273]
 
 ### Changed
 - Updated Ruby gems
@@ -27,7 +28,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
 [#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+[#2273]: https://github.com/SpeciesFileGroup/taxonworks/issues/2273
 [#2279]: https://github.com/SpeciesFileGroup/taxonworks/issues/2279
+
 
 
 ## [0.18.0] - 2021-05-14

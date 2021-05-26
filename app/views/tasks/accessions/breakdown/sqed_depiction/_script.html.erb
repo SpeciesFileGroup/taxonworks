@@ -11,6 +11,8 @@
     var paper;
     var paperWidth = 400;
     var paperHeight = 400;
+    var imageWidth;
+    var imageHeight;
 
     var select_box;
     var big_svg_image;
@@ -42,6 +44,8 @@
     p = Raphael("paper", paperWidth, paperHeight);
 
     big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
+    imageWidth = big_svg_image.attrs.width
+    imageHeight = big_svg_image.attrs.height
     addSelectBox(p);
     getBox();
     initDecodedText();
@@ -49,6 +53,8 @@
     $('.clickable').on('click', function (click) {
         p.clear();
         big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
+        imageWidth = big_svg_image.attrs.width
+        imageHeight = big_svg_image.attrs.height
         addSelectBox(p);
         getBox(true);       // just clear the canvas
         initDecodedText();
@@ -235,11 +241,12 @@
     function getBox(reset) {
         var coords = big_svg_coords();  // "corners" of the selectable image rectangle
 
-        imageAspectRatio = coords[2] / coords[3];
+        // imageAspectRatio = coords[2] / coords[3];
+        imageAspectRatio = 1;
 
         // calculate source framing
-        var SratioW = coords[2] / paperWidth;           // separate the source amd destination distortion
-        var SratioH = coords[3] / paperHeight;          // by computing separate rectangle aspect ratios
+        var SratioW = coords[2] / imageWidth;           // separate the source amd destination distortion
+        var SratioH = coords[3] / imageHeight;          // by computing separate rectangle aspect ratios
 
         sourceX = Math.round((boxX * SratioW) + coords[0]);
         sourceY = Math.round((boxY * SratioH * imageAspectRatio) + coords[1]);
