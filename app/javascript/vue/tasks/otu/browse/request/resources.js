@@ -53,7 +53,7 @@ const GetNomenclatureHistory = (id) => ajaxCall('get', `/otus/${id}/timeline.jso
 
 const GetCommonNames = (id) => ajaxCall('get', '/common_names.json', { params: { otu_id: id } })
 
-const GetCollectingEvents = (ids) => ajaxCall('get', '/collecting_events.json', { params: { otu_ids: ids } })
+const GetCollectingEvents = (ids) => ajaxCall('get', '/collecting_events.json', { params: { otu_id: ids } })
 
 const GetCollectionObjects = (params) => ajaxCall('get', '/collection_objects/dwc_index', { params: params })
 
