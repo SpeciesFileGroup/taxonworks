@@ -73,7 +73,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SwitchComponent from 'components/switch'
 
 import { GetCollectingEvent, GetDWC } from '../request/resources'

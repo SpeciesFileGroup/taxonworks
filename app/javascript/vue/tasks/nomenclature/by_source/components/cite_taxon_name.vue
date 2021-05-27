@@ -40,7 +40,7 @@
 <script>
 
   import SmartSelector from 'components/switch.vue'
-  import Autocomplete from 'components/autocomplete.vue'
+  import Autocomplete from 'components/ui/Autocomplete.vue'
   import AjaxCall from 'helpers/ajaxCall'
 
   export default {

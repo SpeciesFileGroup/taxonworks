@@ -377,7 +377,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_string)
             soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
             soft_validations.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.subject_taxon_name.rank_class.rank_name} rank of #{self.subject_taxon_name.cached_html}")
           end
@@ -434,9 +434,10 @@ class TaxonNameRelationship < ApplicationRecord
 
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached: n,
+            cached_html: t.get_full_name_html(n)
           )
 
         elsif type_name =~/SourceClassifiedAs/
@@ -465,9 +466,10 @@ class TaxonNameRelationship < ApplicationRecord
 
           vn = t.get_valid_taxon_name
 
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html, # OK to force reload here, otherwise we need an exception in #set_cached 
+            cached: n,
+            cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
             cached_valid_taxon_name_id: vn.id)
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)

@@ -33,7 +33,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { Content } from 'routes/endpoints'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: {

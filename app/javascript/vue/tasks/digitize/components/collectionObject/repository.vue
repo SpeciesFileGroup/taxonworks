@@ -13,11 +13,9 @@
           pin-section="Repositories"
           pin-type="Repository"
           @selected="setRepository"/>
-        <div class="horizontal-right-content">
-          <lock-component
-            class="circle-button-margin"
-            v-model="locked.collection_object.repository_id"/>
-        </div>
+        <lock-component
+          class="margin-small-left"
+          v-model="locked.collection_object.repository_id"/>
       </div>
       <template v-if="repository">
         <div class="middle separate-top">
@@ -34,7 +32,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import LockComponent from 'components/lock'
 
 import { Repository } from 'routes/endpoints'

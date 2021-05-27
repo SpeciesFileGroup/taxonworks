@@ -3,11 +3,42 @@
 All (hopefully) notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-This project <em>does not yet</em> adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
+This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
 
 ### Added
+- Status to TaxonName autocomplete [#2086]
+- otu_filter param to interactive keys task
+
+### Changed
+- Updated Ruby gems
+
+### Fixed
+- Refresh event for smart selectors [#2255]
+- Edit type material in comprehensive form [#2253]
+- Reset selected ids on new search in observation matrices dashboard
+- Tiff images are not render on image viewer
+- Removed reachable `byebug` call
+- Protocol not displayed after select it [#2279]
+- image aspect ratio in Transcribe depiction trask [#2273]
+
+### Changed
+- Updated Ruby gems
+
+[#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
+[#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
+[#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+[#2273]: https://github.com/SpeciesFileGroup/taxonworks/issues/2273
+[#2279]: https://github.com/SpeciesFileGroup/taxonworks/issues/2279
+
+
+
+## [0.18.0] - 2021-05-14
+
+### Added
+
+- Added `destroyed_redirect` to object radial JSON
 - "Not specified" facet to Filter nomenclature [#2226]
 - New extract task interface [#1934]
 - citation experiment `/api/v1/cite/count_valid_species?taxon_name=Pteromalus` [#2230]
@@ -15,34 +46,63 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Image matrix viewer in Image matrix
 - Image matrix button in observation dashboard task
 - Image matrix link in Interactive keys task
+- Export scss vars to javascript
+- Pagination count in Filter nomenclature
+- OTU depictions column on view mode in Image matrix task
+- Grid table component
+- SVG Icon component
+- OTU depictions draggable in image matrix
+- Observations depictions in Browse OTU
+- `Ctrl/Alt + V` shortcut for New Collecting event in Comprehensive task [#2248]
+- Zoom button in comprehensive form
 
 ### Changed
-- Plural params for identifiers API endpoint merged to array single form. e.g., identifier_object_ids[]=47&identifier_object_ids[]=2232 => identifier_object_id[]=47&identifier_object_id[]=2232. [#2195] 
+
+- CollectingEvent autocomplete/object_Tag only shows verbatim lat/long
+- Removed `allow_destroy` from object radial JSON
+- Made returning count from /controlled_vocabulary_terms optional # @jlpereira Potentially UI breaking check for use, and add &count=true to request if required
 - Removed quantification fields from Extract
 - Warning message on nuke action in Grid digitize task [#2229]
 - Upgraded from Ruby version 2.7.2 to 2.7.3
 - Upgraded to Node 14 LTS
 - Updated Ruby gems and Node packages
+- node-sass to dart-sass
+- Refactor image matrix edit table
+- Webpack configuration to export sass vars
+- Images size in image section on Browse otu
 
 ### Fixed
+
+- JSON for geographic area parents (no parent raise)
 - Hide soft validation section if is empty in New collecting events task
 - 404 error when deleting records from data interfaces [#2223]
+- Rank order on New combination preview
+- Redirect after destroy a combination [#2169]
+- Drag and drop depictions in Image Matrix
+- Georeference error message in comprehensive task [#2222]
+- Number of uses not displayed in Uniquify people task [#2219]
+- SVG Image box in comprehensive [#2262]
 
-[#2195]: https://github.com/SpeciesFileGroup/taxonworks/pull/2195
-[#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
-[#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
+[#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169
+[#2219]: https://github.com/SpeciesFileGroup/taxonworks/pull/2219
+[#2222]: https://github.com/SpeciesFileGroup/taxonworks/pull/2222
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
+[#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
 [#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
+[#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
+[#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
 
-## [0.17.1] - 2020-04-30
+## [0.17.1] - 2021-04-30
 
 ### Added
+
 - Moved endpoints to own model file
 - Permit params on client side
 - OTU picker on new observation matrix [#2209]
 
 ### Fixed
+
 - Frame overlaps in interactive key task [#2202]
 - Parse coordinate characters on comprehensive and new collecting event tasks
 - Hide row/column panel on new observation matrix
@@ -51,6 +111,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Merge people count [#2218]
 
 ### Changed
+
 - Replaced 1KB minimum image file size restriction with dimensions check (16 pixels minimum each) [#2201]
 - Switch selector on new observation matrix
 - Increment pdf filesize to 512MB [#2212]
@@ -63,9 +124,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2212]: https://github.com/SpeciesFileGroup/taxonworks/issues/2212
 [#2218]: https://github.com/SpeciesFileGroup/taxonworks/issues/2218
 
-## [0.17.0] - 2020-04-23
+## [0.17.0] - 2021-04-23
 
 ### Added
+
 - Adds SoftValidation component with fix buttons, and wrench (goto fix) links [#207]
 - Database index on `Identifiers#cached`
 - Tests for base #next/#previous [#2163]
@@ -75,6 +137,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Help tip and placeholder for definition in Manage controlled vocabulary task [#2196]
 
 ### Fixed
+
 - Bad `project_token` to API should not raise
 - Descriptor::Qualitative destruction destroys rather than raises when character states unused.
 - Previous navigation [#2163]
@@ -92,7 +155,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Fix routes in edit/new observation matrices task [#2198]
 
 ### Changed
-- Refactor SoftValidations and params including specs [#1972] [#768]
+
+- Refactor SoftValidations and params including specs [#1972][#768]
 - Removed legacy non TaxonWorks agnostic import rake tasks (moving to their own repos)
 - Updated script predicting masculine, feminine and neuter species name forms
 - Changed how `GeographicArea#find_by_lat_long` is built (UNION, not OR)
@@ -100,13 +164,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated y18n node package to version 4.0.1 [#2160]
 - Replaced Canvas for SVG radial menu
 - Close radial object after select a matrix on observation matrices slice [#2165]
-- Radial menu slices position 
+- Radial menu slices position
 
 [#768]: https://github.com/SpeciesFileGroup/taxonworks/issues/768
 [#207]: https://github.com/SpeciesFileGroup/taxonworks/issues/207
 [#1972]: https://github.com/SpeciesFileGroup/taxonworks/issues/1972
 [#2109]: https://github.com/SpeciesFileGroup/taxonworks/issues/2109
-[#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163  
+[#2163]: https://github.com/SpeciesFileGroup/taxonworks/issues/2163
 [#2160]: https://github.com/SpeciesFileGroup/taxonworks/issues/2160
 [#2168]: https://github.com/SpeciesFileGroup/taxonworks/issues/2168
 [#2172]: https://github.com/SpeciesFileGroup/taxonworks/issues/2172
@@ -116,13 +180,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2196]: https://github.com/SpeciesFileGroup/taxonworks/issues/2196
 [#2198]: https://github.com/SpeciesFileGroup/taxonworks/issues/2198
 
-## [0.16.6] - 2020-03-26
+## [0.16.6] - 2021-03-26
 
 ### Added
+
 - Community stats for `/api/v1/stats` [#2061]
-- Add by-project param for `/api/v1/stats` [#2056] 
+- Add by-project param for `/api/v1/stats` [#2056]
 
 ### Fixed
+
 - `browse_otu_link` handles nil [#2155]
 
 [#2056]: https://github.com/SpeciesFileGroup/taxonworks/issues/2056
@@ -131,9 +197,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2158]: https://github.com/SpeciesFileGroup/taxonworks/issues/2158
 [#2165]: https://github.com/SpeciesFileGroup/taxonworks/issues/2165
 
-## [0.16.5] - 2020-03-25
+## [0.16.5] - 2021-03-25
 
 ### Added
+
 - softvalidation fix for transfer of type species into coordinate subgenus
 - Link from Browse colleciton object to Browse OTU for current OTU det [#2154]
 - Collection object filter params for preparation and buffered fields [#2118]
@@ -150,6 +217,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Preview use panel on Manage controlled vocabulary [#2135]
 
 ### Changed
+
 - Renamed -`otus_redirect` to `browse_otu_link`
 - Updated Protonym.list_of_coordinate_names query. It helps for soft validation.
 - Nexus output file was modified to present full name of the of the taxon. TNT export was not changed.
@@ -161,13 +229,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+
 - updated softvalidation for non binomial names
 - updated label for species-group rank TaxonName
-- Compute print column divisions with barcode style labels [#1993] 
+- Compute print column divisions with barcode style labels [#1993]
 - Object tag for TaxonNameRelationship inverted [#2100]
 - Collection object filter, collecting event related params were not being passed [#1807]
 - Collection object filter with/out facets, in part [#1455]
-- CoLDP missing values for names without original combinations [#2146] 
+- CoLDP missing values for names without original combinations [#2146]
 - Multiple parent OTUs via parent_otu_id raised in CoLDp export [#2011]
 - Not being able to get pinboard items on some circumstances
 - `Request-URI Too Large` loading georeferences on Browse OTU
@@ -203,10 +272,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2152]: https://github.com/SpeciesFileGroup/taxonworks/issues/2133
 [#2135]: https://github.com/SpeciesFileGroup/taxonworks/issues/2135
 
-## [0.16.4] - 2020-03-09
+## [0.16.4] - 2021-03-09
 
 ### Added
-- Multiple presnece/absence params for collection objects filter [#2080] 
+
+- Multiple presnece/absence params for collection objects filter [#2080]
 - Buffered field facets for collection object [#1456], [#1835]
 - Filter collection objects by determiner (Person) [#1835]
 - Tag smart selector on create collection object in New collecting event task [#2066]
@@ -219,9 +289,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Smart selector on attributions in Radial annotator [#2081]
 
 ### Fixed
+
 - Soft validation scope for AssertedDistributions not scoped to taxon [#1971]
 - Uniquifying 2 people attached to the same source raises [#2078]
-- Render Source::Human cached with year, udpate `citation_tag` [#2067] 
+- Render Source::Human cached with year, udpate `citation_tag` [#2067]
 - Qualitative states in matrix row coder order correctly [#2076]
 - Better source cached filter wildcards [#1557]
 - Observation matrices hub link [#2071]
@@ -232,6 +303,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Previous and next navigate navigation links [#2039]
 
 ### Changed
+
 - Now using ImageMagick 7 instead of 6
 - Production and development docker images are now based off a single base image
 - Development docker environment uses rvm instead of rbenv (matching version manager that has been used for production)
@@ -257,13 +329,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2099]: https://github.com/SpeciesFileGroup/taxonworks/issues/2099
 
 ## [0.16.3] - 2021-02-26
+
 ### Added
+
 - Additional date recognition format in date RegEx
 - Pagination on Browse Annotations [#1438]
 - New combination for subgenus [#748]
 - Warn about unsaved changes on Accession metadata [#1858]
 
 ### Fixed
+
 - `eventDate`/`eventTime` output format not being ISO8601-compliant [#1939]
 - Some value label in Filter sources
 - Dropzone error message
@@ -271,6 +346,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Race condition problem when generating dwc_occurrences indexing
 
 ### Changed
+
 - Pagination in Filter sources
 - Replaced geckodriver-helper with webdrivers gem
 - Improvement sort table on collection object, source and nomenclature filters
@@ -284,6 +360,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.16.2] - 2021-02-18
 
 ### Added
+
 - Additional date recognition format in date RegEx
 - Fields with/out some value facet for Source filter [#2023]
 - Keyword params to TaxonName API
@@ -297,6 +374,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Tag facet to filter nomenclature [#2047]
 
 ### Changed
+
 - Checkmark on verbatim should visible only
 - Updated gems (`bundle update` without altering `Gemfile`)
 - Updated node packages (`npm update` without altering `packages.json`)
@@ -305,6 +383,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Keywords removed from all list after choice in Tag facet
 
 ### Fix
+
 - Model LoanItem - Tagged batch adds tag, not object [#2051]
 - Prevent non-loanable things being loaned [#2043]
 - `ancestors` param properly permitted TaxonName api/filter
@@ -337,6 +416,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.16.1] - 2021-01-26
 
 ### Fixed
+
 - Missing `depiction_object_type` on New image task [#1995]
 - Sort case-insensitive [#1985]
 
@@ -344,13 +424,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1995]: https://github.com/SpeciesFileGroup/taxonworks/issues/1995
 
 ## [0.16.0] - 2021-01-25
+
 ### Added
+
 - New collecting event task [#1530]
 - "Quick" collection objects options from new collecting event task
 - New WKT georeference inputs
 - Auto-georeference and date Collecting Events by depicting images with pertinent EXIF data
 - Route linting specs
-- Generate label (alpha), pastes values into print label input 
+- Generate label (alpha), pastes values into print label input
 - Collecting event navigation options (next/previous with/out <many things>
 - Nested_attributes for Labels
 - Collection object/and collecting event navigation options/bridges
@@ -360,13 +442,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Add `label` attribute to Label JSON response that renders QR code
 - Add accommodation for printing pages of barcode-based labels
 - Add `Georeference::Wkt` an anonymous WKT based georeference assertion
-- Add option to disable name-casing when Person is created from `/people/new` [#1967] 
+- Add option to disable name-casing when Person is created from `/people/new` [#1967]
 - Full CASTOR (taxon names batch load) example template, CASTOR preview notices
 - New ICZN class added: NoDiagnosisAfter1930AndRejectedBefore2000 for family-group names
 - Add image attributions, original citation and editor options in image viewer [#1978]
 - Browse current OTU button in Browse OTU
 
 ### Changed
+
 - Moved buttons in collecting event on comprehensive task [#1986]
 - Improved collecting event status in smart selector on comprehensive digitization
 - Some tasks route names were "malformed" and renamed
@@ -393,6 +476,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated gems (`bundle update` without altering `Gemfile`)
 
 ### Fixed
+
 - CoLDP [sic], errant chresonym, and basionym ids for misspellings
 - Loan items reference proper housekeeping in table
 - Line links of batch-preview results
@@ -427,7 +511,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1990]: https://github.com/SpeciesFileGroup/taxonworks/issues/1990
 
 ## [0.15.1] - 2020-12-14
+
 ### Added
+
 - `Person` can not be active for > 119 years
 - Show buffered values in `Task - Browse collection objects` [#1931]
 - Default pin button on Uniquify people task
@@ -435,16 +521,18 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Pixels to centimeter on new image task
 
 ### Changed
+
 - Clean timeline display in `Task - Browse collection objects`
 - `db:seed` displays password for created users and adds admin to Default project [#1913]
 - Start date needs to be set before set end date on Housekeeping facet
 - Bump node package `ini` from 1.3.5 to 1.3.7
 
 ### Fixed
-- CVT smart selectors/pinboard scope broken [#1940] [#1941]
+
+- CVT smart selectors/pinboard scope broken [#1940][#1941]
 - Image filter `ancestor_id` was to be `taxon_name_id` or `taxon_name_id[]` [#1916]
-- Bad Image select_option sort [#1930] 
-- Housekeeping filter params now less restrictive [#1920] PENDING UI TEST 
+- Bad Image select_option sort [#1930]
+- Housekeeping filter params now less restrictive [#1920] PENDING UI TEST
 - ShallowPolymorphic called in `.json` form [#1928]
 - Documentation of param names, examples, for the "CASTOR" taxon name batch load [#1926]
 - `tw:db:load` task not handling settings reliably. [#1914]
@@ -454,7 +542,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Clipboard copy shortcut
 - Source hub link on Citations by source task
 - Clean content editor after change a topic
-
 
 [#1941]: https://github.com/SpeciesFileGroup/taxonworks/issues/1941
 [#1940]: https://github.com/SpeciesFileGroup/taxonworks/issues/1940
@@ -471,9 +558,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.15.0] - 2020-11-30
 
 ### Added
+
 - Export project database task [#1868]
 - Additional collecting methods recognized from the collecting event label
-- Added content filter, API endpoints [#1905] 
+- Added content filter, API endpoints [#1905]
 - New greatly simplified controller concern `ShallowPolymorphic` for handling link b/w shallow routes and filters
 - Note filter improvements, specs, new params, API exposure [#XXX]
 - `person#sources` `has_many` (very slight potential for issues)
@@ -502,8 +590,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Link to Browse OTU on comprehensive specimen digitization [#1889]
 
 ### Fixed
+
 - Potential issue (may be others) with CoLDP raising in the midst of large exports
-- People filter role + name [#1662] 
+- People filter role + name [#1662]
 - Fix family synonym validation [#1892]
 - Fix matrix view row order [#1881]
 - CVT view helper bug with predicates
@@ -518,6 +607,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Remove repository on comprehensive specimen digitization [#1897]
 
 ### Changed
+
 - change the order of TaxonName softvalidation to bring the duplicate message on the top
 - tweaked CoLDP `reified` id concept and use
 - removed `most_recent_upates` from Content params
@@ -531,7 +621,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - cached_valid_taxon_name_id updated for combination after valid status is assigned.
 - updated soft validation for 'Uncertain placement'
 - [sic] changed to (sic) for misspelled bacterial names
-- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers 
+- Additional date and geographical coordinate formats added to the Verbatim label RegEx parsers
 - Observation matrix could be resolved without observation_matrix_id, only with otu_filter
 - Running `rake db:seed` without `user_id`/`project_id` is now possible.
 - Disabled hamburger menu when no functionality behind it on Browse OTU [#1737]
@@ -570,6 +660,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.14.1] - 2020-10-22
 
 ### Added
+
 - API - `type` to /roles/:id
 - API - `year` to /taxon_names
 - API - `include_roles` param to /people
@@ -580,12 +671,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Interactive keys and image matrix buttons on observation matrix dashboard
 
 ### Fixed
+
 - Wrong param attribute in topic smart selector on radial annotator [#1829]
 - Show repository on Browse OTU
 - Enable search after fill collecting event fields [#1833]
 - Missing geo_json param on geographic_area request [#1840]
 
 ### Changed
+
 - Exclude Roles from response from /api/v1/people by default
 - Increased `max_per_page` to 10000
 - Random words clashes mitigation: Project factory names made longer and `Faker` unique generator is reset only between specs instead of before each test.
@@ -606,6 +699,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.14.0] - 2020-10-16
 
 ### Added
+
 - Added additional date recognition format for RegEx
 - Added OTU filter in the interactive key API
 - Collecting Event API endpoints
@@ -616,7 +710,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - People filter API endpoints [#1509]
 - Identifier filter API endpoints [#1510]
 - Source filter API endpoints [#1511]
-- New Interactive Key task [#1810] 
+- New Interactive Key task [#1810]
 - New model for matrix based interactive keys which produce JSON for the Interactive Key task [#1810]
 - `weight` field to descriptor
 - Ancestors facet on filter nomenclature [#1791]
@@ -626,6 +720,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Taxonworks version in header bar when not running in sandbox mode
 
 ### Fixed
+
 - Fixed radial navigator broken for some data [#1824]
 - Fixed IsData position [#1805]
 - Collecting event object radial metadata settings
@@ -638,6 +733,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Optimized selector queries for Loan model
 
 ### Changed
+
 - Fix original author string for Plant names
 - Additional date format added for date recognition RegEx
 - Removed some attributes from api/v1 endpoints to simplify responses
@@ -649,14 +745,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Extended New Image task upload timeout from 30 seconds to 10 minutes
 - Updated rgeo-proj4 gem
 
-
 [#1824]: https://github.com/SpeciesFileGroup/taxonworks/issues/1824
 [#1805]: https://github.com/SpeciesFileGroup/taxonworks/issues/1805
 [#1509]: https://github.com/SpeciesFileGroup/taxonworks/issues/1509
 [#1510]: https://github.com/SpeciesFileGroup/taxonworks/issues/1510
 [#1511]: https://github.com/SpeciesFileGroup/taxonworks/issues/1511
 [#1780]: https://github.com/SpeciesFileGroup/taxonworks/issues/1780
-[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791 
+[#1791]: https://github.com/SpeciesFileGroup/taxonworks/issues/1791
 [#1787]: https://github.com/SpeciesFileGroup/taxonworks/issues/1787
 [#1798]: https://github.com/SpeciesFileGroup/taxonworks/issues/1798
 [#1810]: https://github.com/SpeciesFileGroup/taxonworks/pull/1810
@@ -665,6 +760,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.13.0] - 2020-09-22
 
 ### Changed
+
 - Removed forced dependency on google-protobuf gem
 - Updated gems
 - Browse OTU page unifies coordinate OTUs for Asserted Distribution and Biological Associations [#1570]
@@ -683,6 +779,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Biological associations filter on Browse OTU
 
 ### Changed
+
 - AssertedDistribution filter `otu_id` and `geographic_area_id` can now also take array form, e.g. `otu_id[]=`
 - Preload all CSL styles via fixed constant, increasing boot speed [#1749]
 - Return value format for Utilities::Geo.distance_in_meters changed from \[Float\] to \[String\]
@@ -690,7 +787,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Tweaked JSON attribute response for matrix rows and columns very slightly
 - Updated observation item types to properly nest them, inc. all downstream changes (Factories, etc.)
 - Unfied matrix hooks in various places
-- Updated some matrix related routes to point to tasks 
+- Updated some matrix related routes to point to tasks
 - Updated respec `matrix` tag to `observation_matrix`
 - Methods that write to cached should not fire callbacks, potential for [#1701]
 - Using custom geckodriver-helper for Firefox 80 support
@@ -702,6 +799,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Character "΄" also accepted as minute specifier in coordinates parsing.
 
 ## Fixed
+
 - Fixed LOW_PROBABILITY constant message
 - Matrix rows/items prevent OTU (and collection object) from being destroyed [#1159]
 - Scope of dynamic taxon name row item [#1747]
@@ -753,7 +851,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.17] - 2020-02-02
 
 ### Added
-- Successfull source destroy message 
+
+- Successfull source destroy message
 - Pending - Definition field to BiologicalRelationship model and views [#1672]
 - New button to (attempt to) convert verbatim sources to Bibtex via Crossref
 - Model methods and attribute to change Source Verbatim to Bibtex [#1673]
@@ -763,6 +862,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Definition field on composer biological relationship task [#1672]
 
 ### Changed
+
 - Unified can_destroy/edit methods
 - Improved Source autocomplete with metadata/markup [#1681]
 - Changed CoLDP download to use Catalog::Nomenclature as name source
@@ -772,15 +872,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Disable/enable destroy button from metadata on radial navigator [#1696]
 
 ### Fixed
+
 - Non admins not able to destroy shared data [#1098]
-- Pending confirmation: Include original combinations in CoLDP [#1204] 
-- Pending confirmation: Include forma/variety properly in CoLDP [#1203] 
+- Pending confirmation: Include original combinations in CoLDP [#1204]
+- Pending confirmation: Include forma/variety properly in CoLDP [#1203]
 - Docker: Fixed path typo on clean up command
 - Tag button on filter source [#1692]
 - Overflow in taxon names list in new taxon name [#1688]
 - Confidence button overlapped in new combination [#1687]
 
-[#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098 
+[#1098]: https://github.com/SpeciesFileGroup/taxonworks/issues/1098
 [#1672]: https://github.com/SpeciesFileGroup/taxonworks/issues/1672
 [#1673]: https://github.com/SpeciesFileGroup/taxonworks/issues/1673
 [#1674]: https://github.com/SpeciesFileGroup/taxonworks/issues/1674
@@ -798,17 +899,20 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.16] - 2020-08-24
 
 ### Added
+
 - Highlight metadata that is not in this project in uniquify people task [#1648]
 - Locks buttons on grid digitizer task [#1599]
 - Option to export styled bibliography on filter sources task [#1652]
 - Edit button in content section on radial object [#1670]
 
 ### Changed
+
 - Drag button style on new taxon name [#1669]
 - Removed SimpleMDE lib from ruby assets and added to npm dependencies
 - Allow taxon name type relationships to be cited [#1667]
 
 ### Fixed
+
 - BibTex html no longer escaped [#1657]
 - Some of the elements of the form are not accessible on overflow. [#1661]
 - Populate masculine, feminine and neuter on gender form [#1665]
@@ -828,6 +932,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.15] - 2020-08-18
 
 ### Fixed
+
 - Sqed hook initiated with String, not Class [#1654]
 
 [#1654]: https://github.com/SpeciesFileGroup/taxonworks/issues/1654
@@ -835,6 +940,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.14] - 2020-08-17
 
 ### Added
+
 - Help tips in comprehensive specimen digitization task
 - Help tips in new source task
 - Type section in Browse OTUs task [#1615]
@@ -845,12 +951,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Hotkey for add element to pinboard (Ctrl/Alt + P)
 
 ### Fixed
+
 - Collectors order in comprehensive specimen digitization
 - Losses data of etymology form after set a gender
 - Autocomplete component not encoding query params properly
 - Random RGeo deserialization errors [#1553]
 
 ### Changed
+
 - New combination redirect to the valid name [#1639]
 - Rename comprehensive specimen digitization task card
 - Updated chartkick gem [#1646]
@@ -867,6 +975,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.13] - 2020-08-04
 
 ### Added
+
 - Delete confirmation for original combinations [#1618]
 - Delete confirmation for type specimens in new type specimen task
 - Check if already exist an asserted combination with the same otu and geographic area in new asserted distribution task [#1329]
@@ -884,8 +993,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Lep staged 2 layout for staged images [#1635]
 
 ### Changed
+
 - Use amazing_print instead of awesome_print gem
-- Cleanup and add spec basis for nomenclature tabular stats queries  
+- Cleanup and add spec basis for nomenclature tabular stats queries
 - Improve/unify image modal [#1617]
 - Replace repository and source autocompletes for smart selectors in new type material task
 - Changed autosave behaviour in new asserted distribution task
@@ -897,6 +1007,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated elliptic node package. [#1632]
 
 ### Fixed
+
 - Flip object to subject label on type section in new taxon name task
 - Shapes are possible to drag even if this option is not set up
 - Columns size of georeference table [#1622]
@@ -926,6 +1037,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.12] - 2020-07-22
 
 ### Fixed
+
 - Seeing OTUs in Recent that do not belong to project [#1626]
 
 [#1626]: https://github.com/SpeciesFileGroup/taxonworks/issues/1626
@@ -933,9 +1045,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.11] - 2020-07-14
 
 ### Changed
+
 - Type material designations are now grouped by collection object in Browse OTUs (refs [#1614])
 
 ### Fixed
+
 - Protonym parent priority soft validation [#1613]
 - Type specimens count in Browse OTUs task
 - Attempting to update containers as if them were collection objects in Grid Digitizer task [#1601]
@@ -947,6 +1061,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.10] - 2020-07-07
 
 ### Added
+
 - Smart selection source on new combination and citations annotator
 - Parsed verbatim label on comprehensive specimen digitization task
 - Soft validation in timeline on Browse OTUs [#1593]
@@ -955,6 +1070,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Collecting method parsing in verbatim label text
 
 ### Changed
+
 - Replaced vue-resource package by axios
 - Disabled parallel upload on new image task [#1596]
 - Default verbatim fields order on comprehensive specimen digitization
@@ -966,6 +1082,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Repositories and Serials smart selectors' recent entries optimizations
 
 ### Fixed
+
 - Filter collecting events was passing a wrong (changed name) parameters and structure for maps and geographic area
 - Not showing up people list after a crossref source [#1597]
 - Scroller in georeferences map modal
@@ -994,12 +1111,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.9] - 2020-07-01
 
 ### Added
+
 - Endpoint for verbatim label parsing (dates and geographic coordinates)
 
 ### Changed
+
 - Display `[sic]` on misspellings of family-group full taxon names
 
 ### Fixed
+
 - Containerized objects not showing up together [#1590]
 - Citations by Source task not loading taxon names list [#1591]
 
@@ -1009,11 +1129,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.8] - 2020-06-29
 
 ### Added
+
 - Set autofocus on source and geographic area in OTU radial asserted distribution form
 - `/otus/123/coordinate.json` endpoint - all OTUs coordinate with this one (refs [#1585])
 - Autosave on new asserted distribution task
 
 ### Changed
+
 - Unauthorized json response
 - Better error handle for vue-autocomplete
 - Replaced old method to handle ajax call in all tasks
@@ -1023,6 +1145,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated dwc-archive gem to version 1.1.1
 
 ### Fixed
+
 - Topic `select_optimized` controller method crash
 - Recent list of biological associations not working due to the use of incorrect table
 
@@ -1034,13 +1157,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ## [0.12.7] - 2020-06-26
 
 ### Added
+
 - Taxon name status and relationships soft validations display in Browse Nomenclature task
 - Interface to select OTUs and create rows in Observation Matrices Dashboard task
 - Autosave system in New Taxon Name task (refs [#649])
 - Etymology filter in Nomenclature Filter task (refs [#1549])
 - Added new shortcuts for Comprehensive Digitization, New Type Specimen, New Taxon Name and Browse Nomenclature tasks
 - Classification section in New Taxon Name task
-- Spec to test md5 of multi-line verbatim labels  (refs [#1572])
+- Spec to test md5 of multi-line verbatim labels (refs [#1572])
 - Display classifications alongside relationships in Browse Nomenclature task
 - Add children and add sibling buttons in New Taxon Name task (refs [#1503])
 - Link to create new serial on smart selector of New Source tast
@@ -1048,6 +1172,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Rank prediction in New Taxon Name task (refs [#1054])
 
 ### Changed
+
 - Optimized recently used geographic area and sources search
 - Improved part of speech and etymology soft validation messages
 - Year suffix and pages are now also used when sorting citations in Browse Nomenclature task
@@ -1069,6 +1194,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated ruby gems
 
 ### Fixed
+
 - Recently used objects code on some models
 - Collection Object Filter task not filternig by type material type ([#1551])
 - Forms not being cleared when pressing `new` on Compose Biological Relationships task ([#1563])
@@ -1102,7 +1228,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1575]: https://github.com/SpeciesFileGroup/taxonworks/issues/1575
 
 ## [0.12.6] - 2020-06-12
+
 ### Added
+
 - CHANGELOG.md
 - Matrix observation filters
 - Full backtrace in exception notification
@@ -1111,11 +1239,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Linked new Descriptor form to Task - New descriptor
 
 ### Changed
+
 - Updated node packages and changed webpacker configuration
 - Progress on fix for [#1420]: CoLDP - Name element columns only getting populated for not valid names
 - Made TaxonNameClassification scopes more specific to allow citation ordering (refs [#1040])
 
 ### Fixed
+
 - Minor fix in observation matrix dashboard
 - Potential fix for `PG::TRDeadlockDetected` when updating taxon name-related data
 
@@ -1124,17 +1254,21 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1501]: https://github.com/SpeciesFileGroup/taxonworks/issues/1501
 
 ## [0.12.5] - 2020-06-08
+
 ### Added
+
 - Default unit selector for sample character in New Descriptor task ([#1533])
 - 'None' option for unit selector in Matrix Row Encoder task
 - New Descriptor units
 
 ### Changed
+
 - Updated websocket-extensions node package
 - Optimized smart selector refresh
 - Improved removal error message when source is still in use by some project
 
 ### Fixed
+
 - Language selector backend bug
 - Sort by page on Citations by Source task ([#1536])
 - Removed duplicate `destroy` on project sources controller
@@ -1143,24 +1277,35 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1536]: https://github.com/SpeciesFileGroup/taxonworks/issues/1536
 
 ## [0.12.4] - 2020-06-05
+
 ### Added
+
 - Pagination on New Observation Matrix task
 - Hyperlink to Observation Matrices Dashboard task on New Observation Matrix task (#1532)
 - New deletion warning messages on New Observation Matrix task
 
 ### Changed
+
 - Renamed New Matrix task to New Observation Matrix
 - Citations are now saved without locking on New Taxon Name task
 - Updated gems (`bundle update` without altering `Gemfile`)
 - Several optimizations on recently used objects retrieval for smart selectors
 
 ### Fixed
+
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
+<<<<<<< HEAD
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
 [0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
+=======
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...v0.17.1
+>>>>>>> 82960fa921726c4b7545743d7287b22b62f0a54a
 [0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
@@ -1189,37 +1334,35 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [0.12.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.4...v0.12.5
 [0.12.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.3...v0.12.4
 
-----
+---
+
 The following versions predate this CHANGELOG. You may check the comparison reports generated by GitHub by clicking the versions below
 
-|<!-- -->|<!-- -->|
-|---|---|
-|0.12.x|[0.12.3] (2020-06-04) [0.12.2] (2020-06-02) [0.12.1] (2020-05-29) [0.12.0] (2020-05-15)|
-|0.11.x|[0.11.0] (2020-04-17)|
-|0.10.x|[0.10.9] (2020-04-03) [0.10.8] (2020-03-27) [0.10.7] (2020-03-26) [0.10.6] (2020-03-18) [0.10.5] (2020-03-11) [0.10.4] (2020-03-04) [0.10.3] (2020-02-25) [0.10.2] (2020-02-22) [0.10.1] (2020-02-21) [0.10.0] (2020-02-20)|
-|0.9.x|[0.9.8] (2020-02-05) [0.9.7] (2020-02-03) [0.9.6] (2020-01-29) [0.9.5] (2020-01-14) [0.9.4] (2020-01-10) [0.9.3] (2019-12-23) [0.9.2] (2019-12-18) [0.9.1] (2019-12-16) [0.9.0] (2019-12-13)|
-|0.8.x|[0.8.9] (2019-12-11) [0.8.8] (2019-12-09) [0.8.7] (2019-12-06) [0.8.6] (2019-12-06) [0.8.5] (2019-11-27) [0.8.4] (2019-11-26) [0.8.3] (2019-11-22) [0.8.2] (2019-11-21) [0.8.1] (2019-11-19) [0.8.0] (2019-11-16)|
-|0.7.x|[0.7.4] (2019-10-23) [0.7.3] (2019-10-19) [0.7.2] (2019-10-05) [0.7.1] (2019-10-02) [0.7.0] (2019-09-30)|
-|0.6.x|[0.6.1] (2019-06-16) [0.6.0] (2019-06-14)|
-|0.5.x|[0.5.4] (2019-05-02) [0.5.3] (2019-05-02) [0.5.2] (2019-04-23) [0.5.1] (2019-04-18) [0.5.0] (2019-04-10)|
-|0.4.x|[0.4.5] (2018-12-14) [0.4.4] (2018-12-06) [0.4.3] (2018-12-04) [0.4.2] (2018-12-04) [0.4.1] (2018-11-28) [0.4.0] (2018-11-08)|
-|0.3.x (\*)|[0.3.16] (2018-09-24) [0.3.15] (2018-09-17) [0.3.14] (2018-09-11) [0.3.13] (2018-09-11) [0.3.12] (2018-05-14) [0.3.11] (2018-05-11) [0.3.9] (2018-05-11) [0.3.7] (2018-05-10) [0.3.6] (2018-05-10) [0.3.4] (2018-05-02) [0.3.3] (2018-05-02) [0.3.2] (2018-03-27) [0.3.1] (2018-03-08) [0.3.0] (2018-03-08)|
-|0.2.x (\*)|[0.2.29] (2018-02-05) [0.2.28] (2017-07-19) [0.2.27] (2017-07-19) [0.2.26] (2017-07-16) [0.2.25] (2017-07-12) [0.2.24] (2017-07-12) [0.2.23] (2017-07-11) [0.2.22] (2017-07-11) [0.2.21] (2017-07-10) [0.2.20] (2017-07-10) [0.2.19] (2017-07-10) [0.2.18] (2017-07-10) [0.2.17] (2017-07-10) [0.2.15] (2017-07-10) [0.2.11] (2017-07-10) [0.2.10] (2017-07-10) [0.2.9] (2017-07-10) [0.2.8] (2017-07-10) [0.2.6] (2017-07-10) [0.2.5] (2017-07-10) [0.2.4] (2017-07-10) [0.2.3] (2017-07-10) [0.2.2] (2017-07-10) [0.2.1] (2017-07-10) [0.2.0] (2017-07-10)|
-|0.1.x|*Unreleased*|
-|0.0.x|[0.0.10] (2017-06-23) [0.0.9] (2017-06-23) [0.0.8] (2017-06-09) [0.0.6] (2017-06-09) [0.0.5] (2017-06-09) [0.0.4] (2017-06-09) [0.0.3] (2017-06-02) [0.0.2] (2017-06-01) 0.0.1(\*\*) (2017-06-01)|
+| <!-- -->   | <!-- -->                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.12.x     | [0.12.3](2020-06-04) [0.12.2](2020-06-02) [0.12.1](2020-05-29) [0.12.0](2020-05-15)                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 0.11.x     | [0.11.0](2020-04-17)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 0.10.x     | [0.10.9](2020-04-03) [0.10.8](2020-03-27) [0.10.7](2020-03-26) [0.10.6](2020-03-18) [0.10.5](2020-03-11) [0.10.4](2020-03-04) [0.10.3](2020-02-25) [0.10.2](2020-02-22) [0.10.1](2020-02-21) [0.10.0](2020-02-20)                                                                                                                                                                                                                                                                                                                   |
+| 0.9.x      | [0.9.8](2020-02-05) [0.9.7](2020-02-03) [0.9.6](2020-01-29) [0.9.5](2020-01-14) [0.9.4](2020-01-10) [0.9.3](2019-12-23) [0.9.2](2019-12-18) [0.9.1](2019-12-16) [0.9.0](2019-12-13)                                                                                                                                                                                                                                                                                                                                                 |
+| 0.8.x      | [0.8.9](2019-12-11) [0.8.8](2019-12-09) [0.8.7](2019-12-06) [0.8.6](2019-12-06) [0.8.5](2019-11-27) [0.8.4](2019-11-26) [0.8.3](2019-11-22) [0.8.2](2019-11-21) [0.8.1](2019-11-19) [0.8.0](2019-11-16)                                                                                                                                                                                                                                                                                                                             |
+| 0.7.x      | [0.7.4](2019-10-23) [0.7.3](2019-10-19) [0.7.2](2019-10-05) [0.7.1](2019-10-02) [0.7.0](2019-09-30)                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 0.6.x      | [0.6.1](2019-06-16) [0.6.0](2019-06-14)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 0.5.x      | [0.5.4](2019-05-02) [0.5.3](2019-05-02) [0.5.2](2019-04-23) [0.5.1](2019-04-18) [0.5.0](2019-04-10)                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 0.4.x      | [0.4.5](2018-12-14) [0.4.4](2018-12-06) [0.4.3](2018-12-04) [0.4.2](2018-12-04) [0.4.1](2018-11-28) [0.4.0](2018-11-08)                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 0.3.x (\*) | [0.3.16](2018-09-24) [0.3.15](2018-09-17) [0.3.14](2018-09-11) [0.3.13](2018-09-11) [0.3.12](2018-05-14) [0.3.11](2018-05-11) [0.3.9](2018-05-11) [0.3.7](2018-05-10) [0.3.6](2018-05-10) [0.3.4](2018-05-02) [0.3.3](2018-05-02) [0.3.2](2018-03-27) [0.3.1](2018-03-08) [0.3.0](2018-03-08)                                                                                                                                                                                                                                       |
+| 0.2.x (\*) | [0.2.29](2018-02-05) [0.2.28](2017-07-19) [0.2.27](2017-07-19) [0.2.26](2017-07-16) [0.2.25](2017-07-12) [0.2.24](2017-07-12) [0.2.23](2017-07-11) [0.2.22](2017-07-11) [0.2.21](2017-07-10) [0.2.20](2017-07-10) [0.2.19](2017-07-10) [0.2.18](2017-07-10) [0.2.17](2017-07-10) [0.2.15](2017-07-10) [0.2.11](2017-07-10) [0.2.10](2017-07-10) [0.2.9](2017-07-10) [0.2.8](2017-07-10) [0.2.6](2017-07-10) [0.2.5](2017-07-10) [0.2.4](2017-07-10) [0.2.3](2017-07-10) [0.2.2](2017-07-10) [0.2.1](2017-07-10) [0.2.0](2017-07-10) |
+| 0.1.x      | _Unreleased_                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 0.0.x      | [0.0.10](2017-06-23) [0.0.9](2017-06-23) [0.0.8](2017-06-09) [0.0.6](2017-06-09) [0.0.5](2017-06-09) [0.0.4](2017-06-09) [0.0.3](2017-06-02) [0.0.2](2017-06-01) 0.0.1(\*\*) (2017-06-01)                                                                                                                                                                                                                                                                                                                                           |
 
-*(\*) Missing versions have not been released.*
+_(\*) Missing versions have not been released._
 
-*(\*\*) Report cannot be provided as this is the first release.*
+_(\*\*) Report cannot be provided as this is the first release._
 
 [0.12.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.2...v0.12.3
 [0.12.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.1...v0.12.2
 [0.12.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.11.0...v0.12.0
-
-
 [0.11.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.9...v0.11.0
-
 [0.10.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.8...v0.10.9
 [0.10.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.6...v0.10.7
@@ -1230,7 +1373,6 @@ The following versions predate this CHANGELOG. You may check the comparison repo
 [0.10.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.8...v0.10.0
-
 [0.9.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.7...v0.9.8
 [0.9.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.5...v0.9.6
@@ -1240,7 +1382,6 @@ The following versions predate this CHANGELOG. You may check the comparison repo
 [0.9.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.8...v0.9.0
-
 [0.8.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.8...v0.8.9
 [0.8.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.7...v0.8.8
 [0.8.7]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.6...v0.8.7
@@ -1251,29 +1392,24 @@ The following versions predate this CHANGELOG. You may check the comparison repo
 [0.8.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.7.3...v0.8.0
-
 [0.7.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.6.1...v0.7.0
-
 [0.6.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.5.4...v0.6.0
-
 [0.5.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.5...v0.5.0
-
 [0.4.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.16...v0.4.0
-
 [0.3.16]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.14...v0.3.15
 [0.3.14]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.13...v0.3.14
@@ -1288,7 +1424,6 @@ The following versions predate this CHANGELOG. You may check the comparison repo
 [0.3.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.29...v0.3.0
-
 [0.2.29]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.28...v0.2.29
 [0.2.28]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.27...v0.2.28
 [0.2.27]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.26...v0.2.27
@@ -1314,7 +1449,6 @@ The following versions predate this CHANGELOG. You may check the comparison repo
 [0.2.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.0.10...v0.2.0
-
 [0.0.10]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.0.9...v0.0.10
 [0.0.9]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.0.8...v0.0.9
 [0.0.8]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.0.7...v0.0.8

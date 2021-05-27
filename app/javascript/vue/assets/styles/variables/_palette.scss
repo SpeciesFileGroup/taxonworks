@@ -7,11 +7,6 @@ $tw-colors: (
   'remove': #F44336,
   'secondary': #5a1321,
   'warning': #ff8c00,
+  'attention': #FFDA44,
   'white': #FFFFFF
 );
-
-:export {
-  @each $key, $value in $tw-colors {
-    #{unquote($key)}: $value;
-  }
-}

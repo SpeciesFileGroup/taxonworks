@@ -1505,7 +1505,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied?
+      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
       end
     end

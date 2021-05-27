@@ -86,7 +86,7 @@ import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from 'components/displayList'
 import LockComponent from 'components/lock'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],

@@ -38,7 +38,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
 import RolePicker from 'components/role_picker.vue'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   components: {

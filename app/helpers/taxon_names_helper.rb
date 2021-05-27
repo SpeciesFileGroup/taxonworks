@@ -20,7 +20,8 @@ module TaxonNamesHelper
       content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass),
       taxon_name_rank_tag(taxon_name),
       taxon_name_parent_tag(taxon_name),
-      taxon_name_original_combination_tag(taxon_name)
+      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_type_short_tag(taxon_name)
     ].compact.join('&nbsp;').html_safe
   end
 

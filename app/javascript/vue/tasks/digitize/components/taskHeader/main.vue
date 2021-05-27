@@ -101,14 +101,14 @@
 </template>
 
 <script>
-import Autocomplete from '../../../../components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import RecentComponent from './recent.vue'
 import GetMacKey from 'helpers/getMacKey.js'
 import { TippyComponent } from 'vue-tippy'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 import AjaxCall from 'helpers/ajaxCall'
 import SoftValidation from './softValidation'
 

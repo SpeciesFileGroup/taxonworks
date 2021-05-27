@@ -124,7 +124,7 @@
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'

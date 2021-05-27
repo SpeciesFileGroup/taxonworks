@@ -4,35 +4,35 @@
     <div slot="options">
       <a href="/protocols/new">Create new</a>
     </div>
-    <div
-      slot="body"
-      class="horizontal-left-content align-start">
-      <smart-selector
-        class="full_width"
-        model="protocols"
-        klass="Extract"
-        @selected="addProtocol"/>
-      <lock-component
-        class="margin-small-left"
-        v-model="settings.lock.protocols"/>
+    <div slot="body">
+      <div class="horizontal-left-content align-start">
+        <smart-selector
+          class="full_width"
+          model="protocols"
+          klass="Extract"
+          @selected="addProtocol"/>
+        <lock-component
+          class="margin-small-left"
+          v-model="settings.lock.protocols"/>
+      </div>
+      <display-list
+        :list="protocols"
+        @deleteIndex="removeProtocol"
+        label="object_tag"/>
     </div>
-    <display-list
-      :list="protocols"
-      @deleteIndex="removeProtocol"
-      label="object_tag"/>
   </block-layout>
 </template>
 
 <script>
 
 import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ProtocolRelationship } from 'routes/endpoints'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   mixins: [componentExtend],

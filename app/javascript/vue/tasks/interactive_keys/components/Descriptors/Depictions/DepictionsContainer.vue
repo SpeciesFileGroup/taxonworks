@@ -1,10 +1,11 @@
 <template>
   <modal-component
     @close="closeAndSave"
-    :containerStyle="{ 
-      width: '700px',
-      'maxHeight': '90vh',
-      overflow: 'scroll' }">
+    :container-style="{
+      width: '1000px',
+      maxHeight: '90vh',
+      overflow: 'scroll'
+    }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
       <button
@@ -75,7 +76,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import CharacterState from './Character'
 import { GetDescriptorDepictions } from '../../../request/resources.js'
 import { chunkArray } from 'helpers/arrays.js'

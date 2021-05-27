@@ -57,7 +57,7 @@
 <script>
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import AddField from './addFields'
 import { CollectingEvent } from 'routes/endpoints'
 

@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import ModalComponent from 'components/modal.vue'
+import ModalComponent from 'components/ui/Modal.vue'
 import Types from '../const/type'
 
 export default {

@@ -51,7 +51,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import extendCE from '../mixins/extendCE'
 import { Namespace, Identifier } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
