@@ -42,8 +42,7 @@ module Export::Coldp::Files::Synonym
           #   1) allow only invalid names OR names with differing original combinations
           #   2) of 1) eliminate Combinations with identical names to current placement
           #
-          # TODO: swap out that_is_really_invalid with `that_is_invalid`
-          a = TaxonName.that_is_really_invalid
+          a = TaxonName.that_is_invalid
             .where(cached_valid_taxon_name_id: o[2])
             .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
 

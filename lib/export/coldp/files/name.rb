@@ -163,7 +163,7 @@ module Export::Coldp::Files::Name
         remarks
       }
 
-      otu.taxon_name.self_and_descendants.that_is_really_valid # TODO update method when unified valid/invalid
+      otu.taxon_name.self_and_descendants.that_is_valid
         .pluck(:id, :cached)
         .each do |name|
 

@@ -35,25 +35,21 @@ module TaxonNameClassificationsHelper
   # @return [String]
   #   a span summarizing taxon name classification
   def taxon_name_classification_status_tag(taxon_name)
-    if taxon_name.unavailable_or_invalid?  
+    if !taxon_name.is_valid? # taxon_name.unavailable_or_invalid?  
       values = TaxonNameClassification.where_taxon_name(taxon_name).with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES).collect{|c|
         c.classification_label}.uniq.sort
 
-      content_tag(:span, "Is an  #{values.to_sentence} name.", class: [:brief_status], data: [ 'icon-alert' ])  
+        content_tag(:span, "Is an  #{values.to_sentence} name.", class: [:brief_status], data: [ 'icon-alert' ])  
     else
       content_tag(:span, 'Is a valid name.', class: [:brief_status, :passed])  
     end 
   end 
-
- 
 
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def taxon_name_classifications_recent_objects_partial
     true 
   end
-
-  
 
 
 end

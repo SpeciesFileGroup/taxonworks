@@ -22,7 +22,7 @@ module Export
 
       Otu.joins(taxon_name: [:ancestor_hierarchies])
         .where('taxon_name_hierarchies.ancestor_id = ?', o.taxon_name_id)
-        .where(taxon_name_id: TaxonName.that_is_really_valid)
+        .where(taxon_name_id: TaxonName.that_is_valid)
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)')
     end
 

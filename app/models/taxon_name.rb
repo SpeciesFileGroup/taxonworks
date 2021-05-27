@@ -248,15 +248,17 @@ class TaxonName < ApplicationRecord
   scope :with_same_cached_valid_id, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
   scope :with_different_cached_valid_id, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 
-  def self.that_is_invalid
+  scope :that_is_valid, -> {where(cached_is_valid: true) }
+  scope :that_is_invalid, -> {where(cached_is_valid: false) }
+
+  def self.calculated_invalid
     a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
     b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
 
-  # TODO optimize to use joins if performance issues?
-  def self.that_is_valid
-    # Alt format:  TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+  def self.calculated_valid
+    # Alt format: TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
     TaxonName
       .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
       .where.not(
@@ -265,7 +267,6 @@ class TaxonName < ApplicationRecord
   end
 
   scope :with_type, -> (type) {where(type: type)}
-
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -763,6 +764,7 @@ class TaxonName < ApplicationRecord
 
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
+  # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
   def unavailable_or_invalid?
     return false if classification_valid?
     classification_invalid_or_unavailable? || relationship_invalid?

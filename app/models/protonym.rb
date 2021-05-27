@@ -951,7 +951,7 @@ class Protonym < TaxonName
 
     if is_cached && (
         cached_valid_taxon_name_id != get_valid_taxon_name.id ||
-        cached_is_valid != !unavailable_or_invalid? ||
+        cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
         cached_html != get_full_name_html ||
         cached_misspelling != get_cached_misspelling ||
         cached_original_combination != get_original_combination ||

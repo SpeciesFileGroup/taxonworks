@@ -164,7 +164,7 @@ class Otu < ApplicationRecord
     # TODO: Unify to a single query
 
     candidates = TaxonName.joins(:otus, :descendant_hierarchies)
-      .that_is_really_valid
+      .that_is_valid
       .where.not(id: taxon_name_id)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
       .where.not(rank_class: skip_ranks)
@@ -273,7 +273,7 @@ class Otu < ApplicationRecord
     core = Dwca::GbifProfile::CoreTaxon.new
 
     core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.taxonomicStatus          = (!taxon_name.is_valid? ? nil : 'accepted') # (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
     core.nomenclaturalStatus      = (taxon_name.classification_invalid_or_unavailable? ? nil : 'available') # needs tweaking
     core.scientificName           = taxon_name.cached
     core.scientificNameAuthorship = taxon_name.cached_author_year
