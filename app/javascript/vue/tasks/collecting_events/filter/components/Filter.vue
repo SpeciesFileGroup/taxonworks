@@ -161,6 +161,7 @@ export default {
           page: 1
         },
         byRecordsWith: {
+          collection_objects: undefined,
           depictions: undefined,
           geographic_area: undefined,
           georeferences: undefined,
