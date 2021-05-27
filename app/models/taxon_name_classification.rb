@@ -181,6 +181,7 @@ class TaxonNameClassification < ApplicationRecord
     set_cached_names_for_taxon_names
   end
 
+  # TODO: move these to individual classes?!
   def set_cached_names_for_taxon_names
     begin
       TaxonName.transaction_with_retry do

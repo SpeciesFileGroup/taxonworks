@@ -771,14 +771,8 @@ class TaxonName < ApplicationRecord
   # @return [Boolean]
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
-  #
-  # TODO: when all values are calculated THEN make this an alias of cached_is_valid
   def is_valid?
-    if !cached_is_valid.nil?
-      return cached_is_valid
-    else
-      return !unavailable_or_invalid?
-    end
+    cached_is_valid
   end
 
   # @return [Boolean]
