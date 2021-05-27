@@ -52,6 +52,9 @@ module Export::Coldp::Files::Synonym
 
           c = TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
 
+          # Hernán notes:
+          # TaxonName.where(cached_valid_taxon_name_id: 42).merge(TaxonName.where.not(type: 'Combination').or(TaxonName.where.not(cached: 'Forty two'))).to_sql
+
           # Original concept
           # TaxonName
           #   .where(cached_valid_taxon_name_id: o[2]) # == .historical_taxon_names
