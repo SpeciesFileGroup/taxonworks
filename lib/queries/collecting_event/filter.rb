@@ -3,11 +3,11 @@ module Queries
 
     class Filter
 
-      # TODO:
-      # identifiers
+      include Queries::Helpers
 
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
+      include Queries::Concerns::Identifiers
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
@@ -83,12 +83,22 @@ module Queries
       #   'false', nil - all ids treated as "and"
       attr_accessor :collector_ids_or
 
+      # @param collection_objects [String, nil]
+      #   legal values are 'true', 'false'
+      #   `true` - match only CollectingEvents with associated CollectionObjects
+      #   `false` - match only CollectingEvents without associated CollectionObjects
+      # @return collection_objects [Boolean, nil]
+      #
+      #  whether the CollectingEvent has associated CollectionObjects
+      attr_accessor :collection_objects
+
       def initialize(params)
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
         @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
-        @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
+        @collector_ids_or = boolean_param(params, :collector_ids_or )
+        @collection_objects = boolean_param(params, :collection_objects )
         @geo_json = params[:geo_json]
         @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
@@ -100,6 +110,7 @@ module Queries
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
         @wkt = params[:wkt]
 
+        set_identifier(params)
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
@@ -146,6 +157,13 @@ module Queries
           end
         end
         c
+      end
+
+      # @return Scope
+      def collection_objects_facet
+        return nil if collection_objects.nil?
+        subquery = ::CollectionObject.where(::CollectionObject.arel_table[:collecting_event_id].eq(::CollectingEvent.arel_table[:id])).arel.exists
+        ::CollectingEvent.where(collection_objects ? subquery : subquery.not)
       end
 
       # TODO: dry with Source, TaxonName, etc.
@@ -268,12 +286,17 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          collection_objects_facet,
           keyword_id_facet,
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,
           collector_ids_facet,
-          matching_spatial_via_geographic_area_ids
+          matching_spatial_via_geographic_area_ids,
+          identifiers_facet,      # See Queries::Concerns::Identifiers
+          identifier_between_facet,
+          identifier_facet, # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
         ].compact!
         clauses
       end

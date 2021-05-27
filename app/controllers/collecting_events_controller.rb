@@ -297,6 +297,7 @@ class CollectingEventsController < ApplicationController
   def filter_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collection_objects,
       :collector_id,
       :collector_ids_or,
       :end_date,   # used in date range
@@ -304,6 +305,11 @@ class CollectingEventsController < ApplicationController
       :geographic_area_id,
       :in_labels,
       :in_verbatim_locality,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
       :md5_verbatim_label,
       :otu_id,
       :partial_overlap_dates,
@@ -325,11 +331,17 @@ class CollectingEventsController < ApplicationController
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collection_objects,
       :collector_id,
       :collector_ids_or,
-      :end_date,   # used in date range
+      :end_date, # used in date range
       :geo_json,
       :geographic_area_id,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :md5_verbatim_label,
