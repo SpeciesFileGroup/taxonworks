@@ -29,6 +29,16 @@ class DatasetRecord::DarwinCore < DatasetRecord
     .reject(&:nil?)
   end
 
+  def get_tw_fields_for(subject_class)
+    get_fields_mapping.keys
+    .select { |f| f.is_a?(String) }
+    .map do |field|
+      /(TW:#{Regexp.escape(subject_class)}:).+/i =~ field
+      {field: field, name: field.sub($1, '').downcase.to_sym} if $1
+    end
+    .reject(&:nil?)
+  end
+
   private
 
   # Re-implemented method from DatasetRecord

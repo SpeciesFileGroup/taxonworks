@@ -58,6 +58,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_tw_collection_object_data_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
 
+        attributes.deep_merge!(parse_tw_collection_object_attributes)
+        attributes.deep_merge!(parse_tw_collecting_event_attributes)
+
         specimen = Specimen.create!({
             no_dwc_occurrence: true
           }.merge!(attributes[:specimen])
@@ -793,6 +796,60 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def append_data_attribute(attributes, attribute)
+    predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
+    value = get_field_value(attribute[:field])
+    if value
+      raise DarwinCore::InvalidData.new({ attribute[:field] => ["Predicate with #{attribute[:uri]} URI not found"] }) unless predicate
+      attributes << {
+        type: 'InternalAttribute',
+        predicate: predicate,
+        value: value
+      }
+    end
+  end
+
+  def parse_tw_collection_object_attributes
+    accepted_attributes = %I(
+      buffered_collecting_event buffered_determinations buffered_other_labels
+      total
+    )
+    attributes = {}
+
+    get_tw_fields_for('CollectionObject').each do |attribute|
+      value = get_field_value(attribute[:field])
+      attributes[attribute[:name]] = value if accepted_attributes.include?(attribute[:name]) && value
+    end
+
+    {
+      specimen: attributes
+    }
+  end
+
+  def parse_tw_collecting_event_attributes
+    accepted_attributes = %I(
+      document_label print_label verbatim_label
+      field_notes formation
+      group
+      lithology
+      max_ma maximum_elevation member min_ma minimum_elevation elevation_precision
+      start_date_day start_date_month start_date_year end_date_day end_date_month end_date_year
+      time_end_hour time_end_minute time_end_second time_start_hour time_start_minute time_start_second
+      verbatim_collectors verbatim_date verbatim_datum verbatim_elevation verbatim_geolocation_uncertainty verbatim_habitat
+      verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_trip_identifier
+    )
+    attributes = {}
+
+    get_tw_fields_for('CollectingEvent').each do |attribute|
+      value = get_field_value(attribute[:field])
+      attributes[attribute[:name]] = value if accepted_attributes.include?(attribute[:name]) && value
+    end
+
+    {
+      collecting_event: attributes
+    }
+  end
+
+  def append_attribute(attributes, attribute)
     predicate = Predicate.find_by(uri: attribute[:uri], project: self.project)
     value = get_field_value(attribute[:field])
     if value
