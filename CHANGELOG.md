@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - otu_filter param to interactive keys task
 
 ### Changed
+- Updated Ruby gems
 
 ### Fixed
 - Refresh event for smart selectors [#2255]
