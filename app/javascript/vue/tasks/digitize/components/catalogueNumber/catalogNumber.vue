@@ -24,12 +24,10 @@
               pin-section="Namespaces"
               pin-type="Namespace"
               @selected="setNamespace"/>
-            <div class="horizontal-right-content">
-              <lock-component
-                class="circle-button-margin"
-                v-model="locked.identifier" />
-            </div>
-            <a 
+            <lock-component
+              class="margin-small-left"
+              v-model="locked.identifier" />
+            <a
               class="margin-small-top margin-small-left"
               href="/namespaces/new">New</a>
           </div>

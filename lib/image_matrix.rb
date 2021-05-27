@@ -106,6 +106,11 @@ class ImageMatrix
   # Returns the table of observations with images.
   attr_accessor :depiction_matrix
 
+  # @!image_hash
+  #   @return [Hash]
+  # Returns the hash with image attributes
+  attr_accessor :image_hash
+
   # @!row_hash
   #   @return [null]
   # Temporary hash of rows; used for calculation of remaining and eliminated rows
@@ -145,6 +150,7 @@ class ImageMatrix
     ###main_logic
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
+    @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
@@ -327,6 +333,27 @@ class ImageMatrix
       descriptor[:description] = d.description
       h[d.id] = descriptor
       n += 1
+    end
+    h
+  end
+
+  def build_image_hash
+    img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
+    imgs = Image.where('id IN (?)', img_ids )
+    h = {}
+    imgs.each do |d|
+      i = {}
+      i[:global_id] = d.to_global_id.to_s
+      i[:image_file_file_name] = d.image_file_file_name
+      i[:image_file_file_size] = d.image_file_file_size
+      i[:image_file_content_type] = d.image_file_content_type
+      i[:user_file_name] = d.user_file_name
+      i[:height] = d.height
+      i[:width] = d.width
+      i[:original_url] = d.image_file.url
+      i[:medium_url] = d.image_file.url(:medium)
+      i[:thumb_url] = d.image_file.url(:thumb)
+      h[d.id] = i
     end
     h
   end
