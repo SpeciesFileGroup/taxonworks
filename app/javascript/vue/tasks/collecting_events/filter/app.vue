@@ -85,7 +85,11 @@
             v-model="per"/>
         </div>
 
-        <div class="horizontal-left-content align-start">
+        <div class="full_width">
+          <map-component
+            class="panel content margin-small-left full_width"
+            v-if="showMap"
+            :geojson="geojson" />
           <list-component
             v-if="showList"
             v-model="ids"
@@ -93,10 +97,6 @@
             :list="list"
             @onRowHover="setRowHover"
             @onSort="list.data = $event"/>
-          <map-component
-            class="panel content margin-small-left full_width"
-            v-if="showMap"
-            :geojson="geojson" />
         </div>
 
         <h2

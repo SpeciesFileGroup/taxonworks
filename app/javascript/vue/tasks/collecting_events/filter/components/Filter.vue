@@ -40,6 +40,11 @@
       <filter-collectors
         class="margin-large-bottom"
         v-model="params.collectors"
+        role="Collector"
+        title="Collectors"
+        klass="CollectingEvent"
+        param-people="collector_id"
+        param-any="collector_ids_or"
       />
       <filter-material
         class="margin-large-bottom"
