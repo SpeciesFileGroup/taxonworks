@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_06_125820) do
+ActiveRecord::Schema.define(version: 2021_05_27_181334) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -478,6 +479,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
+    t.index ["attribute_subject_id"], name: "index_data_attributes_on_attribute_subject_id"
     t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
     t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id"
     t.index ["created_by_id"], name: "index_data_attributes_on_created_by_id"
@@ -832,20 +834,18 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
   end
 
   create_table "extracts", id: :serial, force: :cascade do |t|
-    t.decimal "quantity_value", null: false
-    t.string "quantity_unit", null: false
     t.string "verbatim_anatomical_origin"
-    t.integer "year_made", null: false
-    t.integer "month_made", null: false
-    t.integer "day_made", null: false
+    t.integer "year_made"
+    t.integer "month_made"
+    t.integer "day_made"
     t.integer "created_by_id", null: false
     t.integer "updated_by_id", null: false
     t.integer "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.decimal "concentration_value"
-    t.string "concentration_unit"
+    t.bigint "repository_id"
     t.index ["project_id"], name: "index_extracts_on_project_id"
+    t.index ["repository_id"], name: "index_extracts_on_repository_id"
   end
 
   create_table "gene_attributes", id: :serial, force: :cascade do |t|
@@ -987,6 +987,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
     t.string "identifier_object_type", null: false
     t.string "relation"
     t.integer "position"
+    t.index ["cached"], name: "index_identifiers_on_cached"
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
     t.index ["identifier"], name: "index_identifiers_on_identifier"
     t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
@@ -1833,7 +1834,6 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
     t.integer "parent_id"
     t.string "cached_html"
     t.string "cached_author_year"
-    t.string "cached_higher_classification"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "year_of_publication"
@@ -1859,7 +1859,9 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
     t.text "etymology"
     t.string "cached_original_combination"
     t.date "cached_nomenclature_date"
+    t.boolean "cached_is_valid"
     t.index ["cached"], name: "index_taxon_names_on_cached"
+    t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
@@ -2073,6 +2075,7 @@ ActiveRecord::Schema.define(version: 2021_04_06_125820) do
   add_foreign_key "dwc_occurrences", "users", column: "created_by_id"
   add_foreign_key "dwc_occurrences", "users", column: "updated_by_id"
   add_foreign_key "extracts", "projects"
+  add_foreign_key "extracts", "repositories"
   add_foreign_key "extracts", "users", column: "created_by_id"
   add_foreign_key "extracts", "users", column: "updated_by_id"
   add_foreign_key "gene_attributes", "controlled_vocabulary_terms"

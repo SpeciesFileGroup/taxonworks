@@ -8,23 +8,39 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- TaxonName cached_is_valid boolean, takes into account Relationships and Classifications
 - Status to TaxonName autocomplete [#2086]
 - otu_filter param to interactive keys task
-
-### Changed
 
 ### Fixed
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
 - Reset selected ids on new search in observation matrices dashboard
 - Tiff images are not render on image viewer
+- Removed reachable `byebug` call
+- Protocol not displayed after select it [#2279]
+- image aspect ratio in Transcribe depiction trask [#2273]
 
 ### Changed
+- CoL Data Package scoping updates
+- Removed incompatible identifier object type check for Identifier filter concerns
+- Unified some CollectingEvent filter param to singular pattern (collector_ids, otu_ids, geographic_area_ids)
+- Plural params for identifiers API endpoint merged to array single form. e.g., identifier_object_ids[]=47&identifier_object_ids[]=2232 => identifier_object_id[]=47&identifier_object_id[]=2232. [#2195] 
 - Updated Ruby gems
+- `that_is_valid` scope now references `cached_is_valid` [#2242]
+- `that_is_invalid` scope now references `cached_is_valid` [#2242]
+- `calculated_valid` replaces `that_is_valid` [#2242]
+- `calculated_invalid` replaces `that_is_invalid` [#2242]
+- remove unused TaxonName#cached_higher_classification
 
+[#2195]: https://github.com/SpeciesFileGroup/taxonworks/pull/2195
+[#2242]: https://github.com/SpeciesFileGroup/taxonworks/issues/2242
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
 [#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+[#2273]: https://github.com/SpeciesFileGroup/taxonworks/issues/2273
+[#2279]: https://github.com/SpeciesFileGroup/taxonworks/issues/2279
+
 
 
 ## [0.18.0] - 2021-05-14

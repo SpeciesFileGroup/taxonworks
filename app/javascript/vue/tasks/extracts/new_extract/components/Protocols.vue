@@ -4,22 +4,22 @@
     <div slot="options">
       <a href="/protocols/new">Create new</a>
     </div>
-    <div
-      slot="body"
-      class="horizontal-left-content align-start">
-      <smart-selector
-        class="full_width"
-        model="protocols"
-        klass="Extract"
-        @selected="addProtocol"/>
-      <lock-component
-        class="margin-small-left"
-        v-model="settings.lock.protocols"/>
+    <div slot="body">
+      <div class="horizontal-left-content align-start">
+        <smart-selector
+          class="full_width"
+          model="protocols"
+          klass="Extract"
+          @selected="addProtocol"/>
+        <lock-component
+          class="margin-small-left"
+          v-model="settings.lock.protocols"/>
+      </div>
+      <display-list
+        :list="protocols"
+        @deleteIndex="removeProtocol"
+        label="object_tag"/>
     </div>
-    <display-list
-      :list="protocols"
-      @deleteIndex="removeProtocol"
-      label="object_tag"/>
   </block-layout>
 </template>
 

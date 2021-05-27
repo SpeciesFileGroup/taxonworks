@@ -65,6 +65,8 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
+#   If at all possible this field SHOULD NOT be used, it has very little downstream inference use.
+#
 #   If a subgenus it should ____TODO____ (not?) contain parens.
 #
 # @!attribute etymology
@@ -82,10 +84,6 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @attribute cached_author_year
 #   @return [String, nil]
 #      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
-#
-# @!attribute cached_higher_classification
-#   @return [String]
-#   a concatenated list of higher rank taxa. !! Currently deprecated.
 #
 # @!attribute cached_original_combination
 #   @return [String]
@@ -121,7 +119,11 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
-#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_relationships and taxon_name_classifications.
+#   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a claster of taxon_names which should be shown on the same Browse Nomenclature page.
+#
+# @!cached_is_valid
+#   @return [Boolean]
+#   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
 
@@ -241,11 +243,30 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
+
+  scope :with_same_cached_valid_id, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  scope :with_different_cached_valid_id, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+
+  scope :that_is_valid, -> {where(cached_is_valid: true) }
+  scope :that_is_invalid, -> {where(cached_is_valid: false) }
+
+  def self.calculated_invalid
+    a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
+    b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
+    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+  end
+
+  def self.calculated_valid
+    # Alt format: TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+    TaxonName
+      .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+      .where.not(
+        id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+      )
+  end
 
   scope :with_type, -> (type) {where(type: type)}
-
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -322,7 +343,7 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  
+
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
@@ -354,7 +375,7 @@ class TaxonName < ApplicationRecord
       )
 
     # This was particularly useful in debugging the join chain:
-    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a} 
+    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a}
 
     b = b.as('abc')
 
@@ -502,7 +523,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @see .out_of_scope_combinations
-  def out_of_scope_combinations 
+  def out_of_scope_combinations
     ::TaxonName
       .where(project_id: project_id)
       .out_of_scope_combinations(id)
@@ -743,6 +764,7 @@ class TaxonName < ApplicationRecord
 
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
+  # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
   def unavailable_or_invalid?
     return false if classification_valid?
     classification_invalid_or_unavailable? || relationship_invalid?
@@ -752,7 +774,7 @@ class TaxonName < ApplicationRecord
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
   def is_valid?
-    id == cached_valid_taxon_name_id
+    cached_is_valid
   end
 
   # @return [Boolean]
@@ -920,6 +942,7 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
+      cached_is_valid: nil,
       cached_original_combination: nil,
       cached_nomenclature_date: nil
     )
@@ -938,6 +961,7 @@ class TaxonName < ApplicationRecord
       cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
+    set_cached_is_valid
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
@@ -945,8 +969,13 @@ class TaxonName < ApplicationRecord
     set_cached_author_year
   end
 
-  def set_cached_valid_taxon_name_id
+  def set_cached_is_valid
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
+  end
+
+  def set_cached_valid_taxon_name_id
+    v = is_combination? ? false : !unavailable_or_invalid?
+    update_column(:cached_is_valid, v)
   end
 
   def set_cached_warnings
@@ -1124,7 +1153,7 @@ class TaxonName < ApplicationRecord
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
       name = w.join(' ')
     end
-    
+
     m = name
     m = Utilities::Italicize.taxon_name(name) if is_italicized?
     m = '† ' + m if is_fossil?
