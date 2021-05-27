@@ -107,7 +107,7 @@ class Protonym < TaxonName
   # TODO: this is not really needed
   scope :named, -> (name) {where(name: name)}
 
-  scope :with_name_in_array, -> (array) {where('name in (?)', array)}
+  scope :with_name_in_array, -> (array) {where(name: array) }
 
   # find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
@@ -222,7 +222,7 @@ class Protonym < TaxonName
             .ancestors_and_descendants_of(self)
             .not_self(self)
             .with_rank_class_including(search_rank)
-            .where('name in (?)', search_name)
+            .where(name: search_name)
         else
           list = []
         end
