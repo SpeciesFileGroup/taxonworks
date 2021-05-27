@@ -67,7 +67,7 @@ export default {
         cached_level0_geographic_name: 'Level 1',
         cached_level1_geographic_name: 'Level 2',
         cached_level2_geographic_name: 'Level 3',
-        georeferencesCount: 'Points'
+        georeferencesCount: 'Geo'
 
       }
     }
