@@ -67,7 +67,7 @@ export default {
   methods: {
     getAreaData () {
       const params = {
-        geographic_area_ids: this.geographicAreaList.map(area => area.id),
+        geographic_area_id: this.geographicAreaList.map(area => area.id),
         spatial_geographic_areas: true
       }
 
