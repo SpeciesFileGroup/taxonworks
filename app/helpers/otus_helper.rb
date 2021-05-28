@@ -88,9 +88,8 @@ module OtusHelper
   def parents_by_nomenclature(otu)
     above = [ ]
     if otu.taxon_name_id
-      otu.taxon_name
+      TaxonName.ancestors_of(otu.taxon_name)
         .select('taxon_names.*, taxon_name_hierarchies.generations')
-        .ancestors
         .that_is_valid.joins(:otus)
         .distinct
         .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
