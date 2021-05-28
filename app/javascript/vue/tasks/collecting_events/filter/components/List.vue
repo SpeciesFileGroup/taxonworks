@@ -11,7 +11,7 @@
             v-for="(label, property) in properties"
             :key="property"
             @click="sortTable(property)">
-            {{ label }}
+            {{ property }}
           </th>
           <th>Identifiers</th>
           <th>Collectors</th>
@@ -25,9 +25,9 @@
           class="contextMenuCells"
           @mouseover="$emit('onRowHover', item)">
           <td
-            v-for="(value, property) in properties"
+            v-for="(param, property) in properties"
             :key="property"
-            v-html="item[property]"/>
+            v-html="printValue(param, item)"/>
           <td>
             {{ printIdentifiers(item.identifiers) }}
           </td>
@@ -58,6 +58,8 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import { sortArray } from 'helpers/arrays.js'
 
+const printDate = (date) => date.filter(date => date).join('/')
+
 export default {
   components: {
     RadialAnnotator,
@@ -66,26 +68,30 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
   data () {
     return {
       ascending: false,
       properties: {
-        id: 'ID',
-        verbatim_locality: 'Locality',
-        date_start_string: 'Date start',
-        date_end_string: 'Date end',
-        verbatim_collectors: 'Collectors',
-        verbatim_method: 'Method',
-        verbatim_trip_identifier: 'Trip Identifier',
-        verbatim_latitude: 'Latitude',
-        verbatim_longitude: 'Longitude',
-        cached_level0_geographic_name: 'Level 1',
-        cached_level1_geographic_name: 'Level 2',
-        cached_level2_geographic_name: 'Level 3',
-        georeferencesCount: 'Geo'
+        ID: 'id',
+        Locality: 'verbatim_locality',
+        'Date start': {
+          printValue: ce => printDate([ce.start_date_day, ce.start_date_month, ce.start_date_year])
+        },
+        'Date end': {
+          printValue: ce => printDate([ce.end_date_day, ce.end_date_month, ce.end_date_year])
+        },
+        Collectors: 'verbatim_collectors',
+        Method: 'verbatim_method',
+        'Trip Identifier': 'verbatim_trip_identifier',
+        Latitude: 'verbatim_latitude',
+        Longitude: 'verbatim_longitude',
+        'Level 1': 'cached_level0_geographic_name',
+        'Level 2': 'cached_level1_geographic_name',
+        'Level 3': 'cached_level2_geographic_name',
+        Geo: 'georeferencesCount'
 
       }
     }
@@ -102,6 +108,12 @@ export default {
 
     printIdentifiers (identifiers = []) {
       return identifiers.map(identifier => identifier.cached).join('; ')
+    },
+
+    printValue (data, ce) {
+      return (typeof data === 'string')
+        ? ce[data]
+        : data.printValue(ce)
     }
   }
 }
