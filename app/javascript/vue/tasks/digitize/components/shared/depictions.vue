@@ -30,8 +30,6 @@
           />
           <zoom-image
             :image-url="getImageDepictionUrl(item)"
-            :width="item.image.width"
-            :height="item.image.height"
           />
         </div>
       </image-viewer>
@@ -154,12 +152,14 @@ export default {
       const imageWidth = Math.floor(window.innerWidth * 0.75)
       const imageHeight = (window.innerHeight * 0.40) < 400 ? Math.floor(window.innerHeight * 0.40) : 400
 
-      return imageSVGViewBox(
-        depiction.image.id,
-        depiction.svg_view_box,
-        imageWidth,
-        imageHeight
-      )
+      return depiction.svg_view_box
+        ? imageSVGViewBox(
+          depiction.image.id,
+          depiction.svg_view_box,
+          imageWidth,
+          imageHeight
+        )
+        : depiction.image.image_display_url
     }
   }
 }
