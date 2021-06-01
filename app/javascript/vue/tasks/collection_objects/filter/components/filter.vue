@@ -156,11 +156,11 @@ export default {
         !this.params.preparation_type_id.length &&
         Object.keys(this.params.collectingEvents.fields).length <= 1 &&
         !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
-        !Object.values(this.params.user).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.user).find(item => item !== undefined) &&
+        !Object.values(this.params.loans).find(item => item !== undefined) &&
+        !Object.values(this.params.identifier).find(item => item !== undefined) &&
         !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
-        !Object.values(this.params.buffered).find(item => { return item !== undefined })
+        !Object.values(this.params.buffered).find(item => item !== undefined )
     }
   },
 

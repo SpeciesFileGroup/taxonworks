@@ -19,6 +19,10 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     start_date_day: 18,
     print_label: 'THERE: under the stars:18-2-2000') }
 
+  # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
+  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
+  # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
+
   context 'otus' do
     let!(:o) { Otu.create!(name: 'foo') }
     let!(:s) { Specimen.create!(collecting_event: ce1, taxon_determinations_attributes: [{otu: o}]) }
@@ -29,9 +33,17 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     end
   end
 
-  # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
-  # let!(:i1) { Identifier::Local::TripCode.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
-  # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
+  specify '#collection_objects' do
+    CollectionObject.create!(collecting_event: ce1, total: 1)
+    query.collection_objects = true
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+  end
+
+  specify '#collection_objects' do
+    CollectionObject.create!(collecting_event: ce1, total: 1)
+    query.collection_objects = false 
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+  end
 
   specify 'auto added accessors 1' do
     expect(query).to respond_to(:field_notes)
