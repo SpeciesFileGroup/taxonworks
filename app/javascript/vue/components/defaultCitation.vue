@@ -48,16 +48,29 @@ export default {
   props: {
     globalId: {
       type: String
+    },
+    isOriginal: {
+      type: Boolean,
+      default: false
+    },
+    citations: {
+      type: Array,
+      default: () => []
     }
   },
-  data: function () {
+  data () {
     return {
       citationItem: undefined,
       sourceId: this.getDefault(),
       created: false
     }
   },
-  mounted () {
+  created () {
+    const citationCreated = this.citations.find(item => item.source_id === Number(this.sourceId))
+    if (citationCreated) {
+      this.citationItem = citationCreated
+      this.created = true
+    }
     document.addEventListener('pinboard:insert', (event) => {
       const details = event.detail
       if (details.type === 'Source') {
@@ -73,11 +86,12 @@ export default {
     getDefaultElement () {
       return document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]')
     },
-    createCitation: function () {
-      let citationItem = {
+    createCitation () {
+      const citationItem = {
         citation: {
           source_id: this.sourceId,
-          annotated_global_entity: this.globalId
+          annotated_global_entity: this.globalId,
+          is_original: this.isOriginal
         }
       }
       AjaxCall('post', '/citations', citationItem).then(response => {
@@ -88,12 +102,13 @@ export default {
         TW.workbench.alert.create(JSON.stringify(response.body), 'error')
       })
     },
-    deleteCitation: function () {
-			let citation = {
-				annotated_global_entity: this.globalId,
-				_destroy: true
-			}
-      AjaxCall('delete', `/citations/${this.citationItem.id}`, { citation: citation }).then(response => {
+    deleteCitation () {
+      const citationItem = this.citationItem
+      const data = {
+        annotated_global_entity: this.globalId,
+        _destroy: true
+      }
+      AjaxCall('delete', `/citations/${citationItem.id}`, { citation: data }).then(response => {
         this.created = false
         TW.workbench.alert.create('Citation item was successfully destroyed.', 'notice')
       })

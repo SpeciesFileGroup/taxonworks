@@ -1,6 +1,6 @@
 module TaxonNamesHelper
 
-  # @return [String] 
+  # @return [String]
   #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
@@ -12,21 +12,26 @@ module TaxonNamesHelper
     return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
- 
+
   def taxon_name_autocomplete_tag(taxon_name, term)
     return nil if taxon_name.nil?
     klass = taxon_name.rank_class ? taxon_name.rank_class.nomenclatural_code : nil
     a = [
-      content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass), 
+      content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass),
       taxon_name_rank_tag(taxon_name),
       taxon_name_parent_tag(taxon_name),
-      taxon_name_original_combination_tag(taxon_name)
+      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_type_short_tag(taxon_name)
     ].compact.join('&nbsp;').html_safe
   end
 
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
+    taxon_name_label(taxon_name)
+  end
+
+  def taxon_name_label(taxon_name)
     return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
@@ -52,7 +57,7 @@ module TaxonNamesHelper
     return nil if taxon_name.nil?
     if taxon_name.cached_original_combination_html.nil?
       taxon_name_tag(taxon_name)
-    else 
+    else
       taxon_name.cached_original_combination_html.html_safe
     end
   end
@@ -68,7 +73,7 @@ module TaxonNamesHelper
   #  the name in original combination, with author year, with HTML
   def full_original_taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    [ original_taxon_name_tag(taxon_name), 
+    [ original_taxon_name_tag(taxon_name),
       history_author_year_tag(taxon_name)
     ].compact.join(' ').html_safe
   end
@@ -78,6 +83,15 @@ module TaxonNamesHelper
   def taxon_name_name_string(taxon_name)
     return nil if taxon_name.nil?
     [ taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
+  end
+
+  # @return [String]
+  #  the name in original combination, with author year, with HTML
+  def full_original_taxon_name_string(taxon_name)
+    return nil if taxon_name.nil? || taxon_name.cached_original_combination.nil?
+    [ taxon_name.cached_original_combination,
+      taxon_name.cached_author_year
+    ].compact.join(' ')
   end
 
   # @return [String]
@@ -96,7 +110,7 @@ module TaxonNamesHelper
   def taxon_name_type_short_tag(taxon_name)
     return nil if taxon_name.nil?
     if taxon_name.is_valid?
-      '&#10003;'.html_safe # check
+      '&#10003;'.html_safe # checkmark
     else
       taxon_name.type == 'Combination' ? '[c]' : '&#10060;'.html_safe # c or X
     end
@@ -124,10 +138,10 @@ module TaxonNamesHelper
 
       (s.join(' ') + '.').html_safe
     else
-      if taxon_name.unavailable_or_invalid? 
+      if !taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
         content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
-        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid }) 
+        content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid })
       end
     end
   end
@@ -172,7 +186,7 @@ module TaxonNamesHelper
 
   # TODO: Scope to code
   def taxon_name_rank_select_tag(taxon_name: TaxonName.new, code:  nil)
-    select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string) ) 
+    select(:taxon_name, :rank_class, options_for_select(RANKS_SELECT_OPTIONS, selected: taxon_name.rank_string) )
   end
 
   def taxon_names_search_form
@@ -188,9 +202,9 @@ module TaxonNamesHelper
     if taxon_name.type == 'Protonym'
       'edit_taxon_name_path'
     elsif taxon_name.type == 'Combination'
-      'edit_combination_path' 
+      'edit_combination_path'
     else
-      nil 
+      nil
     end
   end
 
@@ -226,7 +240,7 @@ module TaxonNamesHelper
         content_tag(:em, 'ERROR')
       end
     when 'Combination'
-      content_tag(:em, 'n/a')
+      content_tag(:em, 'Combination')
     end
   end
 
@@ -236,28 +250,28 @@ module TaxonNamesHelper
       a = taxon_name.ancestors.first.metamorphosize
       text = object_tag(a)
       link_to(content_tag(:span, text, data: {icon: 'arrow-up'}, class: 'small-icon'), send(path, taxon_name_id: a.id), class: 'navigation-item', data: {arrow: 'ancestor'})
-    else 
+    else
       content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-up'}), class: 'navigation-item disable')
     end
   end
 
   def descendant_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Down'
-    if taxon_name.descendants.any? 
+    if taxon_name.descendants.any?
       a = taxon_name.descendants.first.metamorphosize
       text = taxon_name_tag(a)
-      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name_id: a.id), class: 'navigation-item', data: {arrow: 'descendant'}) 
-    else 
-      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable') 
+      link_to(content_tag(:span, text, data: {icon: 'arrow-down'}, class: 'small-icon'), send(path, taxon_name_id: a.id), class: 'navigation-item', data: {arrow: 'descendant'})
+    else
+      content_tag(:div, content_tag(:span, text, class: 'small-icon', data: {icon: 'arrow-down'}), class: 'navigation-item disable')
     end
   end
 
   def next_sibling_browse_taxon_name_link(taxon_name, path = :browse_nomenclature_task_path)
     text = 'Next'
     link_object = taxon_name.next_sibling
-    if link_object.nil? 
+    if link_object.nil?
       content_tag(:div, content_tag(:span, text), class:  'navigation-item disable')
-    else 
+    else
       link_to(text, send(path, taxon_name_id: link_object.id), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
     end
   end
@@ -268,7 +282,7 @@ module TaxonNamesHelper
 
     if link_object.nil?
       content_tag(:div, content_tag(:span, text), class: 'navigation-item disable')
-    else 
+    else
       link_to(text, send(path, taxon_name_id: link_object.id), class: 'navigation-item', data: { button: 'back' })
     end
   end

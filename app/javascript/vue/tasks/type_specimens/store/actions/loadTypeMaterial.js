@@ -1,16 +1,20 @@
 import { MutationNames } from '../mutations/mutations'
-import { LoadSoftvalidation, GetIdentifiersFromCO } from '../../request/resources'
+import { Identifier, SoftValidation } from 'routes/endpoints'
 
 export default function ({ commit }, type_material) {
-  GetIdentifiersFromCO(type_material.collection_object.id).then(response => {
+  Identifier.where({
+    identifier_object_type: 'CollectionObject',
+    identifier_object_id: type_material.collection_object.id,
+    type: 'Identifier::Local::CatalogNumber'
+  }).then(response => {
     if (response.body.length) {
       commit(MutationNames.SetIdentifier, response.body[0])
     }
   })
-  LoadSoftvalidation(type_material.global_id).then(response => {
-    let validation = response.body.validations.soft_validations
-    LoadSoftvalidation(type_material.collection_object.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, validation.concat(response.body.validations.soft_validations))
+  SoftValidation.find(type_material.global_id).then(response => {
+    const validation = response.body.soft_validations
+    SoftValidation.find(type_material.collection_object.global_id).then(response => {
+      commit(MutationNames.SetSoftValidation, validation.concat(response.body.soft_validations))
     })
   })
   type_material.collection_object_attributes = type_material.collection_object

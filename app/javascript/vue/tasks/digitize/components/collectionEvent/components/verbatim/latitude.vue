@@ -16,23 +16,20 @@
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import convertDMS from '../../../../helpers/parseDMS.js'
+import { parseCoordinateCharacters } from 'helpers/georeferences'
 
 export default {
   computed: {
-    isCoordinate() {
-      if(this.latitude && this.latitude.length) {
-        return convertDMS(this.latitude)
-      }
-      else {
-        return true
-      }
+    isCoordinate () {
+      return this.latitude && this.latitude.length ? convertDMS(this.latitude) : true
     },
+
     latitude: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_latitude
       },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionEventLatitude, value)
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionEventLatitude, parseCoordinateCharacters(value))
       }
     }
   }

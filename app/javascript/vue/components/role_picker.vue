@@ -108,7 +108,7 @@
 
 <script>
 
-  import Autocomplete from './autocomplete.vue'
+  import Autocomplete from 'components/ui/Autocomplete.vue'
   import Draggable from 'vuedraggable'
   import DefaultPin from './getDefaultPin'
   import AjaxCall from 'helpers/ajaxCall'

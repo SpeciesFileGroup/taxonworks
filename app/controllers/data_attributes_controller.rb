@@ -2,6 +2,7 @@ class DataAttributesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_data_attribute, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:data_attributes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /data_attributes
   # GET /data_attributes.json
@@ -63,7 +64,7 @@ class DataAttributesController < ApplicationController
   def destroy
     @data_attribute.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was successfully destroyed.')}
+      format.html { destroy_redirect @data_attribute, notice: 'Data attribute was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

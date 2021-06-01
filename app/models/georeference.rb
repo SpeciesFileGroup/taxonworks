@@ -66,45 +66,44 @@ class Georeference < ApplicationRecord
   include Housekeeping
   include Shared::Notes
   include Shared::Tags
-  include Shared::IsData
   include Shared::Citations
   include Shared::HasRoles
+  include Shared::IsData
 
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
   acts_as_list scope: [:collecting_event_id]
 
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id
+  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
   belongs_to :collecting_event, inverse_of: :georeferences
   belongs_to :geographic_item, inverse_of: :georeferences
 
-  has_many :collection_objects, through: :collecting_event
+  has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
 
   has_many :georeferencer_roles, -> { order('roles.position ASC') },
            class_name: 'Georeferencer',
            as: :role_object, validate: true
+  
   has_many :georeferencers, -> { order('roles.position ASC') },
            through: :georeferencer_roles,
            source: :person, validate: true
 
+  validates :collecting_event, presence: true
+  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
   validates :geographic_item, presence: true
   validates :type, presence: true
-  # validates :collecting_event, presence: true
-  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
-  # validates_uniqueness_of :collecting_event_id, scope: [:type, :geographic_item_id, :project_id]
 
-  # validate :proper_data_is_provided
-  validate :add_error_radius
+  validate :add_err_geo_item_inside_err_radius
   validate :add_error_depth
+  validate :add_error_geo_item_intersects_area
+  validate :add_error_radius
+  validate :add_error_radius_inside_area
+  validate :add_obj_inside_area
   validate :add_obj_inside_err_geo_item
   validate :add_obj_inside_err_radius
-  validate :add_err_geo_item_inside_err_radius
-  validate :add_error_radius_inside_area
-  validate :add_error_geo_item_intersects_area
-  # validate :add_error_geo_item_inside_area
-  validate :add_obj_inside_area
+ validate :geographic_item_present_if_error_radius_provided
 
-  validate :geographic_item_present_if_error_radius_provided
+  # validate :add_error_geo_item_inside_area
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
 
@@ -268,16 +267,17 @@ class Georeference < ApplicationRecord
 
     unless collecting_event_list.nil?
       collecting_event_list.each do |event_id|
-        new_gr = Georeference.new(collecting_event_id: event_id.to_i,
-                                  geographic_item_id: gr.geographic_item_id,
-                                  error_radius: gr.error_radius,
-                                  error_depth: gr.error_depth,
-                                  error_geographic_item_id: gr.error_geographic_item_id,
-                                  type: gr.type,
-                                  is_public: gr.is_public,
-                                  api_request: gr.api_request,
-                                  is_undefined_z: gr.is_undefined_z,
-                                  is_median_z: gr.is_median_z)
+        new_gr = Georeference.new(
+          collecting_event_id: event_id.to_i,
+          geographic_item_id: gr.geographic_item_id,
+          error_radius: gr.error_radius,
+          error_depth: gr.error_depth,
+          error_geographic_item_id: gr.error_geographic_item_id,
+          type: gr.type,
+          is_public: gr.is_public,
+          api_request: gr.api_request,
+          is_undefined_z: gr.is_undefined_z,
+          is_median_z: gr.is_median_z)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
           new_gr.save!
           result.push new_gr

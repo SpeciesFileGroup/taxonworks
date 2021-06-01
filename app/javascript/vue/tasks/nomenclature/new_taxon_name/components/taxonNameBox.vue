@@ -72,7 +72,7 @@ import PinObject from 'components/pin.vue'
 
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import getMacKey from 'helpers/getMacKey'
 import AjaxCall from 'helpers/ajaxCall'
 

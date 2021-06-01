@@ -29,8 +29,8 @@
 class DataAttribute < ApplicationRecord
   include Housekeeping
   include Shared::Citations
-  include Shared::IsData
   include Shared::DualAnnotator
+  include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates('attribute_subject')
 

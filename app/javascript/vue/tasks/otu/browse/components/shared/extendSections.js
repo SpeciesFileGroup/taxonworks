@@ -1,3 +1,5 @@
+import { GetterNames } from '../../store/getters/getters'
+
 export default {
   props: {
     status: {
@@ -11,6 +13,11 @@ export default {
     otu: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    loadState () {
+      return this.$store.getters[GetterNames.GetLoadState]
     }
   }
 }

@@ -48,13 +48,8 @@
 
 <script>
 
-import {
-  CreateBiocurationClassification,
-  GetBiocuration,
-  GetBiocurationsTypes,
-  GetBiocurationsCreated,
-  DestroyBiocuration } from '../request/resources'
-  import { RouteNames } from 'routes/routes'
+import { RouteNames } from 'routes/routes'
+import { BiocurationClassification, ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   props: {
@@ -62,15 +57,15 @@ export default {
       default: undefined
     }
   },
-  data: function () {
+  data () {
     return {
       biocutarionsType: [],
       addQueue: [],
       createdBiocutarions: []
     }
   },
-  mounted: function () {
-    GetBiocurationsTypes().then(response => {
+  created () {
+    ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => {
       this.biocutarionsType = response.body
     })
   },
@@ -83,7 +78,7 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          GetBiocurationsCreated(newVal).then(response => {
+          BiocurationClassification.where({ biological_collection_object_id: newVal }).then(response => {
             this.createdBiocutarions = response.body
           })
         }
@@ -99,53 +94,43 @@ export default {
     }
   },
   methods: {
-    getBiocurationTaskRoute() {
+    getBiocurationTaskRoute () {
       return RouteNames.ManageBiocurationTask
     },
+
     addToQueue (biocuration) {
       this.addQueue.push(biocuration)
     },
+
     processQueue () {
       this.addQueue.forEach((id) => {
-        CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
+        BiocurationClassification.create(this.createBiocurationObject(id)).then(response => {
           this.createdBiocutarions.push(response.body)
         })
         this.addQueue = []
       })
     },
-    checkExist (id) {
-      let found = this.createdBiocutarions.find((bio) => {
-        return id == bio.biocuration_class_id
-      })
-      return (found != undefined)
-    },
-    checkInQueue (id) {
-      let found = this.addQueue.find((biocurationId) => {
-        return id == biocurationId
-      })
-      return (found != undefined)
-    },
-    getCreatedBiocurations () {
-      this.biocutarionsType.forEach((biocuration) => {
-        GetBiocuration().then((response) => {
-          response.body.forEach((item) => {
-            this.createdBiocutarions.push(item)
-          })
-        })
-      })
-    },
-    removeFromQueue (id) {
-      this.addQueue.splice(this.addQueue.findIndex((itemId) => { return itemId == id }), 1)
-    },
-    removeEntry (biocurationClass) {
-      let index = this.createdBiocutarions.findIndex((item) => {
-        return (item.biocuration_class_id == biocurationClass.id)
-      })
 
-      DestroyBiocuration(this.createdBiocutarions[index].id).then(response => {
+    checkExist (id) {
+      return !!this.createdBiocutarions.find((bio) => id === bio.biocuration_class_id)
+    },
+
+    checkInQueue (id) {
+      return !!this.addQueue.find((biocurationId) => id === biocurationId)
+    },
+
+    removeFromQueue (id) {
+      this.addQueue.splice(this.addQueue.findIndex((itemId) => itemId === id), 1)
+    },
+
+    removeEntry (biocurationClass) {
+      const index = this.createdBiocutarions.findIndex((item) => item.biocuration_class_id === biocurationClass.id)
+
+      BiocurationClassification.destroy(this.createdBiocutarions[index].id).then(response => {
         this.createdBiocutarions.splice(index, 1)
       })
     },
+
     createBiocurationObject (id) {
       return {
         biocuration_classification: {

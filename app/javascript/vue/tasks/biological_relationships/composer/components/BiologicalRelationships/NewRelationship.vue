@@ -56,8 +56,8 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
-import { CreateBiologicalRelationship } from '../../request/resource'
+import ModalComponent from 'components/ui/Modal'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   components: {
@@ -71,7 +71,7 @@ export default {
   },
   methods: {
     create () {
-      CreateBiologicalRelationship(this.biologicalRelationship).then(response => {
+      BiologicalRelationship.create({ biological_relationship: this.biologicalRelationship }).then(response => {
         this.$emit('create', response.body)
         this.showModal = false
       })

@@ -57,7 +57,7 @@ describe BatchLoad::Import::DWCA, type: :model do
     let(:event) { CollectingEvent.create(verbatim_date: 'some more text') }
 
     context 'file provided' do
-      it 'loads supplied data' do
+      xit 'loads supplied data' do # Deprecated importer
         pre_load
         result = import.rows
         expect(result).to be_truthy

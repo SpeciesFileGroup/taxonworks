@@ -1,7 +1,7 @@
 class AssertedDistributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy]
+  before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy, :api_show]
 
   # GET /asserted_distributions
   # GET /asserted_distributions.json
@@ -99,9 +99,10 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/download
   def download
-    send_data(Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "asserted_distributions_#{DateTime.now}.csv")
+    send_data(
+      Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "asserted_distributions_#{DateTime.now}.csv")
   end
 
   # GET /asserted_distributions/batch_load
@@ -134,10 +135,24 @@ class AssertedDistributionsController < ApplicationController
     render :batch_load
   end
 
+  def api_index
+    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
+      .all
+      .where(project_id: sessions_current_project_id)
+      .order('asserted_distributions.id')
+      .page(params[:page])
+      .per(params[:per] || 100)
+    render '/asserted_distributions/api/v1/index'
+  end
+
+  def api_show
+    render '/asserted_distributions/api/v1/show'
+  end
+
   private
 
   def set_asserted_distribution
-    @asserted_distribution = AssertedDistribution.with_project_id(sessions_current_project_id).find(params[:id])
+    @asserted_distribution = AssertedDistribution.where(project_id: sessions_current_project_id).find(params[:id])
     @recent_object = @asserted_distribution
   end
 
@@ -158,7 +173,12 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:otu_id, :geographic_area_id, :recent)
+    params.permit(:otu_id, :geographic_area_id, :recent, otu_id: [], geographic_area_id: [])
   end
+
+  def api_params
+    params.permit(:otu_id, :geographic_area_id, :recent, :geo_json)
+  end
+
 
 end

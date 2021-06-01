@@ -87,7 +87,7 @@ class Loan < ApplicationRecord
 
   after_initialize :clone_attributes, if: Proc.new{|l| l.clone_from.present? && l.new_record? }
 
-  has_many :loan_items, dependent: :restrict_with_error
+  has_many :loan_items, dependent: :restrict_with_error, inverse_of: :loan
 
   has_many :loan_recipient_roles, class_name: 'LoanRecipient', as: :role_object
   has_many :loan_supervisor_roles, class_name: 'LoanSupervisor', as: :role_object
@@ -95,7 +95,7 @@ class Loan < ApplicationRecord
   has_many :loan_recipients, through: :loan_recipient_roles, source: :person
   has_many :loan_supervisors, through: :loan_supervisor_roles, source: :person
 
-  # THis is not defined in HasRoles
+  # This is not defined in HasRoles
   has_many :people, through: :roles
 
   not_super = lambda {!supervisor_email.blank?}
@@ -195,9 +195,9 @@ class Loan < ApplicationRecord
     if r.empty?
       h[:quick] = Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = Loan.where('"loan"."id" IN (?)', r.first(10) ).order(:name).to_a
+      h[:recent] = Loan.where(id: r.first(10)).to_a
       h[:quick] = (Loan.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          Loan.where('"loan"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+          Loan.where(id: r.first(4)).to_a).uniq
     end
 
     h

@@ -25,7 +25,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import RecursiveList from './recursiveList.vue'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: {

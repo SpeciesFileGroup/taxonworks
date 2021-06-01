@@ -1,8 +1,10 @@
 <template>
   <div>
-    <h2>In relationship</h2>
+    <h3>In relationship</h3>
     <div class="separate-bottom">
-      <ul class="no_bullets">
+      <ul
+        v-if="biologicalRelationships.length"
+        class="no_bullets">
         <li
           v-for="(item) in biologicalRelationships"
           :key="item.id">
@@ -15,14 +17,17 @@
           </label>
         </li>
       </ul>
+      <a
+        v-else
+        href="/tasks/biological_relationships/composer">Create new</a>
     </div>
   </div>
 </template>
 
 <script>
 
-import { GetBiologicalRelationships } from '../../../request/resources.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   props: {
@@ -48,7 +53,7 @@ export default {
     }
   },
   mounted () {
-    GetBiologicalRelationships().then(response => {
+    BiologicalRelationship.all().then(response => {
       this.biologicalRelationships = response.body
     })
     const urlParams = URLParamsToJSON(location.href)

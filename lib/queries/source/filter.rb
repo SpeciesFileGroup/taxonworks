@@ -2,8 +2,16 @@ module Queries
   module Source
     class Filter < Queries::Query
 
+      # TODO: likely move to model (replicated in Source too)
+      # Params exists for all CollectingEvent attributes except these
+      ATTRIBUTES = (::Source.column_names - %w{id project_id created_by_id updated_by_id created_at updated_at cached})
+      #  ATTRIBUTES.each do |a|
+      #    class_eval { attr_accessor a.to_sym }
+      #  end
+
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
+      include Queries::Concerns::Empty
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
@@ -16,6 +24,9 @@ module Queries
 
       # @return author [String, nil]
       attr_accessor :author 
+
+      # @return ids [Array of Integer, nil]
+      attr_accessor :ids 
 
       # @return [Boolean, nil]
       # @params exact_author ['true', 'false', nil]
@@ -83,16 +94,31 @@ module Queries
       # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim'] 
       attr_accessor :source_type
 
+      # @params author [Array of Integer, Serial#id]
+      attr_accessor :serial_ids
+
+      # @return [Protonym.id, nil]
+      #   return all sources in Citations linked to this name or descendants
+      #   to this TaxonName
+      attr_accessor :ancestor_id
+
+      # @return [Boolean]
+      # @params citations_on_otus ['false', 'true']
+      #   ignored if ancestor_id is not provided; if true then also include sources linked to OTUs that are in the scope of ancestor_id
+      attr_accessor :citations_on_otus
+
       # @param [Hash] params
       def initialize(params)
         @query_string = params[:query_term]
-        
+
         @author = params[:author]
         @author_ids = params[:author_ids] || []
 
         @author_ids_or = (params[:author_ids_or]&.downcase == 'true' ? true : false) if !params[:author_ids_or].nil?
 
+        @ids = params[:ids] || []
         @topic_ids = params[:topic_ids] || []
+        @serial_ids = params[:serial_ids] || []
         @citation_object_type = params[:citation_object_type] || []
         @citations = (params[:citations]&.downcase == 'true' ? true : false) if !params[:citations].nil?
         @documents = (params[:documents]&.downcase == 'true' ? true : false) if !params[:documents].nil?
@@ -110,10 +136,15 @@ module Queries
         @year_start = params[:year_start]
         @recent = (params[:recent]&.downcase == 'true' ? true : false) if !params[:recent].nil?
 
+        @citations_on_otus = (params[:citations_on_otus]&.downcase == 'true' ? true : false) if !params[:citations_on_otus].nil?
+        @ancestor_id = params[:ancestor_id]
+
         build_terms
         set_identifier(params)
         set_tags_params(params)
         set_user_dates(params)
+
+        set_empty_params(params)
       end
 
       # @return [Arel::Table]
@@ -125,7 +156,7 @@ module Queries
       def project_sources_table
         ::ProjectSource.arel_table
       end
- 
+
       def base_query
         ::Source.select('sources.*')
       end
@@ -140,6 +171,25 @@ module Queries
         else
           nil
         end
+      end
+
+      # Return all citations on Taxon names and descendants,
+      # and optionally OTUs.
+      def ancestors_facet
+        return nil if ancestor_id.nil?
+
+        joins = [
+          ancestor_taxon_names_join,
+          ancestor_taxon_name_classifications_join,
+          ancestor_taxon_name_relationship_join(:subject_taxon_name_id),
+          ancestor_taxon_name_relationship_join(:object_taxon_name_id)
+        ]
+
+        joins.push ancestor_otus_join if citations_on_otus
+
+        union = joins.collect{|j| '(' + ::Source.joins(:citations).joins( j.join_sources).to_sql + ')'}.join(' UNION ')
+
+        ::Source.from("( #{union} ) as sources")
       end
 
       def source_type_facet
@@ -157,6 +207,14 @@ module Queries
         end
       end
 
+      def source_ids_facet
+        ids.empty? ? nil : table[:id].eq_any(ids)
+      end
+
+      def serial_ids_facet
+        serial_ids.empty? ? nil : table[:serial_id].eq_any(serial_ids)
+      end
+
       def author_ids_facet
         return nil if author_ids.empty?
         o = table
@@ -172,7 +230,7 @@ module Queries
             a[:id].eq(c[:role_object_id])
           .and(c[:role_object_type].eq('Source'))
           .and(c[:type].eq('SourceAuthor'))
-        )
+          )
 
         e = c[:id].not_eq(nil)
         f = c[:person_id].eq_any(author_ids)
@@ -180,7 +238,7 @@ module Queries
         b = b.where(e.and(f))
         b = b.group(a['id'])
         b = b.having(a['id'].count.eq(author_ids.length)) unless author_ids_or
-        b = b.as('z1_')
+        b = b.as('aut_z1_')
 
         ::Source.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
@@ -291,6 +349,7 @@ module Queries
 
       def merge_clauses
         clauses = [
+          ancestors_facet,
           author_ids_facet,
           topic_ids_facet,
           citation_facet,
@@ -300,13 +359,15 @@ module Queries
           nomenclature_facet,
           role_facet,
           with_doi_facet,
-          matching_keyword_ids,
+          keyword_id_facet,
           tag_facet,
           note_facet,
           identifier_between_facet,
           identifier_facet,
           identifier_namespace_facet,
           created_updated_facet, # See Queries::Concerns::Users
+          empty_fields_facet,    # See Queries::Concerns::Empty
+          not_empty_fields_facet,
         ].compact
 
         return nil if clauses.empty?
@@ -324,10 +385,12 @@ module Queries
 
         clauses += [
           cached,
+          source_ids_facet,
+          serial_ids_facet,
           attribute_exact_facet(:author),
           attribute_exact_facet(:title),
           source_type_facet,
-          year_facet,
+          year_facet
         ].compact
 
         return nil if clauses.empty?
@@ -357,6 +420,60 @@ module Queries
 
         q = q.order(updated_at: :desc) if recent
         q
+      end
+
+      private
+
+      def ancestor_otus_join
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        c = ::Citation.arel_table
+        o = ::Otu.arel_table
+
+        c.join(o, Arel::Nodes::InnerJoin).on(
+          o[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('Otu'))
+        ).join(h, Arel::Nodes::InnerJoin).on(
+          o[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq(ancestor_id))
+        )
+      end
+
+      def ancestor_taxon_names_join
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        c = ::Citation.arel_table
+        t = ::TaxonName.arel_table
+
+        c.join(t, Arel::Nodes::InnerJoin).on(
+          t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonName'))
+        ).join(h, Arel::Nodes::InnerJoin).on(
+          t[:id].eq(h[:descendant_id]).and(h[:ancestor_id].eq(ancestor_id))
+        )
+      end
+
+      def ancestor_taxon_name_classifications_join
+        return nil if ancestor_id.nil?
+
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        c = ::Citation.arel_table
+        t = ::TaxonNameClassification.arel_table
+
+        c.join(t, Arel::Nodes::InnerJoin).on(
+          t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameClassification'))
+        ).join(h, Arel::Nodes::InnerJoin).on(
+          t[:taxon_name_id].eq(h[:descendant_id]).and(h[:ancestor_id].eq(ancestor_id))
+        )
+      end
+
+      def ancestor_taxon_name_relationship_join(join_on = :subject_taxon_name_id)
+        return nil if ancestor_id.nil?
+
+        h = Arel::Table.new(:taxon_name_hierarchies)
+        c = ::Citation.arel_table
+        t = ::TaxonNameRelationship.arel_table
+
+        c.join(t, Arel::Nodes::InnerJoin).on(
+          t[:id].eq(c[:citation_object_id]).and(c[:citation_object_type].eq('TaxonNameRelationship'))
+        ).join(h, Arel::Nodes::InnerJoin).on(
+          t[join_on].eq(h[:descendant_id]).and(h[:ancestor_id].eq(ancestor_id))
+        )
       end
 
     end

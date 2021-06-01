@@ -1,12 +1,27 @@
 <template>
-  <div id="markdown-editor">
-    <textarea/>
+  <div>
+    <custom-links
+      v-if="showCustomLinks"
+      @close="showCustomLinks = false"
+      @selected="setCustomLink"/>
+    <div ref="markdown">
+      <textarea/>
+    </div>
   </div>
 </template>
 
 <script>
+
+import EasyMDE from 'easymde'
+import DOMPurify from 'dompurify'
+import 'easymde/dist/easymde.min.css'
+import CustomLinks from './markdown/customLinks.vue'
+import GetOSKey from 'helpers/getMacKey.js'
+
 export default {
-  template: '',
+  components: {
+    CustomLinks
+  },
   props: {
     value: String,
     previewClass: String,
@@ -18,33 +33,41 @@ export default {
     },
     configs: {
       type: Object,
-      default () {
-        return {
-        }
-      }
+      default: () => {}
     }
   },
   data: function () {
     return {
       clicks: 0,
       timerClicks: undefined,
-      cursorPosition: 0
+      cursorPosition: 0,
+      showCustomLinks: false
     }
-  },
-  ready () {
-    this.initialize()
-    this.syncValue()
   },
   mounted () {
     this.initialize()
   },
   methods: {
     initialize () {
-      let configs = {}
+      const configs = {
+        renderingConfig: {
+          sanitizerFunction: (renderedHTML) => DOMPurify.sanitize(renderedHTML)
+        },
+        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview', {
+          name: 'width-auto',
+          action: (editor) => {
+            // this.openCustomLinks()
+          },
+          icon:'<span class="word-keep-all subtle">Data links</span>',
+          title: 'Data links',
+          disable: true
+        }]
+      }
       Object.assign(configs, this.configs)
-      configs.element = configs.element || this.$el.firstElementChild
+      configs.element = configs.element || this.$refs.markdown.firstElementChild
       configs.initialValue = configs.initialValue || this.value
-      this.simplemde = new SimpleMDE(configs)
+      this.simplemde = new EasyMDE(configs)
+      this.customShortcuts()
       const className = this.previewClass || ''
       this.addPreviewClass(className)
       this.bindingEvents()
@@ -82,10 +105,26 @@ export default {
       preview.className = `editor-preview ${className}`
       wrapper.appendChild(preview)
     },
-    syncValue () {
-      this.simplemde.codemirror.on('change', () => {
-        this.value = this.simplemde.value()
-      })
+    setCustomLink (item) {
+      var cm = this.simplemde.codemirror
+      var output = ''
+      var selectedText = cm.getSelection()
+      var text = selectedText || item.label
+
+      output = `[${text}](${item.link})`
+      cm.replaceSelection(output)
+    },
+    customShortcuts () {
+      const codemirror = this.simplemde.codemirror
+      const keys = codemirror.getOption('extraKeys')
+      const key = GetOSKey().charAt(0).toUpperCase() + GetOSKey().slice(1)
+      keys[`Shift-${key}-L`] = () => {
+        this.openCustomLinks()
+      }
+      codemirror.setOption('extraKeys', keys)
+    },
+    openCustomLinks () {
+      this.showCustomLinks = true
     }
   },
   destroyed () {

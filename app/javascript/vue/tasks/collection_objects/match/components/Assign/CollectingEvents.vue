@@ -37,7 +37,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import SpinnerComponent from 'components/spinner'
 import { UpdateCollectionObject } from '../../request/resources'
 

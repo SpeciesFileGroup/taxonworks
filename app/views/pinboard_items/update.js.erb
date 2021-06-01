@@ -31,6 +31,7 @@ Object.assign(pinboardRemoteUpdate, {
     newEl.setAttribute('href', '/pinboard_items/' + id + '?pinboard_item%5Bis_inserted%5D=' + inserted);
     newEl.setAttribute('data-remote', 'true');
     newEl.setAttribute('rel', 'nofollow');
+    newEl.setAttribute('title', (inserted ? 'Make default' : 'Disable default'));
     newEl.setAttribute('data-method', 'put');
     newEl.classList.add('circle-button', 'button-pinboard-default', (inserted ? 'button-submit' : 'button-delete'), 'option-default');
 

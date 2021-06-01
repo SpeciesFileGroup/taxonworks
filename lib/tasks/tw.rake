@@ -1,3 +1,5 @@
+require 'fileutils'
+
 namespace :tw do
   require_relative 'support/database'
 
@@ -30,7 +32,8 @@ namespace :tw do
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
   task :database_host do |t|
     @args ||= {}
-    @args[:database_host] = (ENV['database_host'] || '0.0.0.0')
+    @args[:database_host] = ENV['database_host']
+    @args[:database_host] ||= Rails.configuration.database_configuration[Rails.env]['host'] || '0.0.0.0'
   end
 
   desc 'Sets Current.user_id via "user_id=1" option. checks to see it exists.'
@@ -95,7 +98,13 @@ namespace :tw do
     end
 
     @args[:backup_directory] = (ENV['backup_directory'] || default)
+
+    if ENV['create_backup_directory'] == 'true'
+      FileUtils.mkdir_p @args[:backup_directory]
+    end
+
     raise "path (#{@args[:backup_directory]}) not found" if !Dir.exists?(@args[:backup_directory])
+
     @args
   end
 

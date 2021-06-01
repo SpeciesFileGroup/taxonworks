@@ -142,7 +142,7 @@ module BatchLoad
           gr_attributes    = {}
           case method.downcase
             when 'geolocate'
-              gr_attributes = {geo_locate_georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error)}|Unavailable"}]}
+              gr_attributes = {geo_locate_georeferences_attributes: [{iframe_response: "#{lat}|#{long}|#{Utilities::Geo.distance_in_meters(error).to_f}|Unavailable"}]}
             else
           end unless method.nil?
 

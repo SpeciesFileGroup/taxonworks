@@ -1,0 +1,131 @@
+div.ce_lbl_insect_compressed { /* this is good now, make another type if you want a new one */
+  font-size: 4pt;
+  font-family: Times;
+  line-height: 4.49pt;
+  margin: 0;
+  margin-bottom: .8pt;
+  white-space: pre;
+  max-width: 36.8pt;
+
+  .code128_barcode {
+    svg {
+      width: 36.8pt;
+      height: 6pt;
+    }
+  }
+
+  .qrcode_barcode {
+    svg {
+      width: 12pt;
+      height: 12pt;
+    }
+  }
+
+  .qrcode_text {
+    max-width: 28pt;
+    order: 2
+  }
+}
+
+div.ce_lbl_insect { /* sensu NCSU insect museum */ 
+  font-size: 4pt;
+  font-family: Times;
+  margin: 0;
+  margin-bottom: .8pt;
+  white-space: pre;
+  max-width: 36.8pt;
+
+  .code128_barcode {
+    svg {
+      width: 36.8pt;
+      height: 6pt;
+    }
+  }
+
+  .qrcode_barcode {
+    svg {
+      width: 12pt;
+      height: 12pt;
+    }
+  }
+
+  .qrcode_text {
+    max-width: 28pt;
+    order: 2
+  }
+}
+
+div.ce_lbl_4_dram_ETOH { /* sensu Cammack */
+  font-size: 8pt;
+  font-family: Times;
+  line-height: 8.2pt;
+  margin: 0;
+  margin-bottom: .8pt;
+  white-space: pre;
+  max-width: 66.8pt;
+
+  .code128_barcode {
+    svg {
+      width: 66.8pt;
+      height: 12pt;
+    }
+  }
+
+  .qrcode_barcode {
+    svg {
+      width: 24pt;
+      height: 24pt;
+    }
+  }
+
+  .qrcode_text {
+    max-width: 48pt;
+    order: 2
+  }
+}
+
+div.ce_label_col {
+  float: left;
+  background: white;
+  padding-right: 4px;
+}
+
+div.ce_label_pg {
+  float: left;
+  background: white;
+  padding-right: 4px;
+  margin: .2em;
+}
+
+.qrcode {
+  display: flex;
+  flex-direction: row;
+  .qrcode_barcode {
+    align-items: flex-start;
+    display: flex;
+    margin-right: 2pt;
+    order: 1
+  }
+
+  .qrcode_text {
+    width: 100%;
+    max-width: 28pt;
+    white-space: normal;
+    order: 2
+  }
+}
+
+.code128 {
+  display: flex;
+  flex-direction: column-reverse;
+
+  .code128_barcode {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 0.5pt;
+  }
+
+  .code128_text {
+    white-space: normal;
+  }
+}

@@ -1,6 +1,6 @@
 <template>
   <div v-if="taxonName">
-    <h2>Select ranks</h2>
+    <h3>Select ranks</h3>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]">
       <div
@@ -38,7 +38,7 @@
 
 <script>
 
-import { LoadRanks } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 
@@ -50,7 +50,7 @@ export default {
     },
     value: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
   computed: {
@@ -75,16 +75,14 @@ export default {
       let group
       let rankIndex
       for (const groupKey in groups) {
-        const index = groups[groupKey].findIndex(item => {
-          return item.name === this.taxonName.rank
-        })
+        const index = groups[groupKey].findIndex(item => item.name === this.taxonName.rank)
         if (index >= 0) {
           rankIndex = index
           group = groupKey
           break
         }
       }
-      return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
+      return { group: group, groupIndex: Object.keys(groups).findIndex(item => item === group), rankIndex: rankIndex }
     }
   },
   data () {
@@ -93,7 +91,7 @@ export default {
     }
   },
   mounted () {
-    LoadRanks().then(response => {
+    TaxonName.ranks().then(response => {
       this.ranks = response.body
     })
   },

@@ -28,6 +28,12 @@
         v-if="source.id"
         :object-id="source.id"
         :type="source.base_class"/>
+      <a
+        v-for="document in source.documents"
+        class="circle-button btn-download"
+        :download="document.document_file_file_name"
+        :title="document.document_file_file_name"
+        :href="document.document_file"></a>
     </span>
     <ul
       v-if="source && source.author_roles.length"
@@ -44,7 +50,7 @@
 </template>
 <script>
 
-  import Autocomplete from 'components/autocomplete';
+  import Autocomplete from 'components/ui/Autocomplete';
   import RadialAnnotator from 'components/radials/annotator/annotator.vue';
   import PinComponent from 'components/pin.vue'
   import RadialObject from 'components/radials/navigation/radial.vue'

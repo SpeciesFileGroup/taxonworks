@@ -27,7 +27,7 @@
           <input
             v-model="collectingEvent.units"
             type="radio"
-            value="m"
+            :value="undefined"
             name="elevation">
           Meters
         </label>

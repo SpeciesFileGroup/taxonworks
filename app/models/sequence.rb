@@ -28,14 +28,15 @@ class Sequence < ApplicationRecord
   include Shared::Confidences
   include Shared::Documentation
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Notes
   include Shared::OriginRelationship
   include Shared::ProtocolRelationships
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::IsData
 
   is_origin_for 'Sequence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Sequence'
 
   ALTERNATE_VALUES_FOR = [:name].freeze
 
@@ -142,8 +143,6 @@ class Sequence < ApplicationRecord
 
     h
   end
-
-
 
   protected
 

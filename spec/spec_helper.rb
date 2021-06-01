@@ -83,7 +83,7 @@ RSpec.configure do |config|
   test_excludes = {}
 
   # Tests that check validitify of factories
-  unless ENV['TAXONWORKS_TEST_LINTING']
+  unless ENV['TAXONWORKS_TEST_LINTING'] == 'true'
     test_excludes.merge!(lint: true)
   end
 
@@ -120,6 +120,9 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:all) do
     Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 

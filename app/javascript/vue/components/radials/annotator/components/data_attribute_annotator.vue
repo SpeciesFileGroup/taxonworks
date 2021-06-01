@@ -1,27 +1,35 @@
 <template>
   <div class="data_attribute_annotator">
-    <div class="switch-radio separate-bottom" v-if="preferences">
-      <template v-for="item, index in tabOptions">
-        <template v-if="item == 'new' || preferences[item].length && preferences[item].find(predicate => { return !predicateAlreadyCreated(predicate) })">
-          <input
-            v-model="view"
-            :value="item"
-            :id="`switch-picker-${index}`"
-            name="switch-picker-options"
-            type="radio"
-            class="normal-input button-active"
-          >
-          <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+    <div v-if="preferences">
+      <div class="switch-radio separate-bottom">
+        <template v-for="item, index in tabOptions">
+          <template v-if="item == 'new' || preferences[item].length && preferences[item].find(predicate => { return !predicateAlreadyCreated(predicate) })">
+            <input
+              v-model="view"
+              :value="item"
+              :id="`switch-picker-${index}`"
+              name="switch-picker-options"
+              type="radio"
+              class="normal-input button-active"
+            >
+            <label :for="`switch-picker-${index}`" class="capitalize">{{ item }}</label>
+          </template>
         </template>
-      </template>
+      </div>
     </div>
 
     <template v-if="preferences && view != 'new'">
       <div class="field separate-bottom annotator-buttons-list">
         <template v-for="predicate in preferences[view]">
-          <button v-if="!predicateAlreadyCreated(predicate)"
-                  @click="data_attribute.controlled_vocabulary_term_id = predicate.id"
-                  type="button" :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id == predicate.id)}" class="normal-input">{{ predicate.name }}</button>
+          <button
+            v-if="!predicateAlreadyCreated(predicate)"
+            @click="data_attribute.controlled_vocabulary_term_id = predicate.id"
+            type="button"
+            :key="predicate.id"
+            class="button normal-input margin-small-left margin-small-bottom"
+            :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id != predicate.id)}">
+            {{ predicate.name }}
+          </button>
         </template>
       </div>
     </template>
@@ -37,7 +45,11 @@
       param="term"/>
     <textarea class="separate-bottom" placeholder="Value" v-model="data_attribute.value"/>
     <div v-if="!data_attribute.hasOwnProperty('id')">
-      <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+      <button 
+        @click="createNew()"
+        :disabled="!validateFields"
+        class="button button-submit normal-input separate-bottom"
+        type="button">Create</button>
     </div>
     <div v-else>
       <button @click="updateData()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Update</button>
@@ -57,7 +69,7 @@
 
 import CRUD from '../request/crud.js'
 import AnnotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import TableList from './shared/tableList'
 import ListItems from './shared/listItems'
 

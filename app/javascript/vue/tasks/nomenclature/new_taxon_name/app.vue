@@ -1,6 +1,9 @@
 <template>
   <div id="new_taxon_name_task">
-    <div class="flex-separate middle">
+    <div
+      v-shortkey="[getOSKey, 'f']"
+      @shortkey="focusSearch"
+      class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <div class="horizontal-right-content middle">
         <label
@@ -26,7 +29,7 @@
     <div>
       <nav-header :menu="menu"/>
       <div class="flexbox horizontal-center-content align-start">
-        <div class="ccenter item separate-right">
+        <div class="ccenter item">
           <spinner
             :full-screen="true"
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
@@ -42,10 +45,11 @@
         </div>
         <div
           v-if="getTaxon.id"
-          class="cright item separate-left">
+          class="cright item margin-medium-left">
           <div id="cright-panel">
             <div class="panel content margin-medium-bottom">
               <autocomplete
+                id="taxonname-autocomplete-search"
                 url="/taxon_names/autocomplete"
                 param="term"
                 :add-params="{ 'type[]': 'Protonym' }"
@@ -56,7 +60,10 @@
             </div>
             <check-changes/>
             <taxon-name-box class="separate-bottom"/>
-            <soft-validation class="separate-top"/>
+            <soft-validation
+              v-if="checkSoftValidation"
+              class="separate-top"
+              :validations="validations"/>
           </div>
         </div>
       </div>
@@ -65,7 +72,7 @@
 </template>
 
 <script>
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import showForThisGroup from './helpers/showForThisGroup'
 import AuthorSection from './components/sourcePicker.vue'
 import RelationshipSection from './components/relationshipPicker.vue'
@@ -80,8 +87,9 @@ import BasicinformationSection from './components/basicInformation.vue'
 import OriginalcombinationSection from './components/pickOriginalCombination.vue'
 import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
-import SoftValidation from './components/softValidation.vue'
+import SoftValidation from 'components/soft_validations/panel.vue'
 import Spinner from 'components/spinner.vue'
+import getOSKey from 'helpers/getMacKey'
 
 import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'
@@ -108,11 +116,22 @@ export default {
     ClassificationSection
   },
   computed: {
+    validations () {
+      return this.$store.getters[GetterNames.GetSoftValidation]
+    },
+    getOSKey () {
+      return getOSKey()
+    },
     getTaxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     getSaving () {
       return this.$store.getters[GetterNames.GetSaving]
+    },
+    checkSoftValidation () {
+      return (this.validations.taxon_name.list.length ||
+      this.validations.taxonStatusList.list.length ||
+      this.validations.taxonRelationshipList.list.length)
     },
     isAutosaveActive: {
       get () {
@@ -193,12 +212,13 @@ export default {
       }
     },
     addShortcutsDescription () {
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+f`, 'Move focus to search', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
       TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
     },
     getMacKey: function () {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
@@ -230,6 +250,13 @@ export default {
     },
     loadTaxon (taxon) {
       window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`, '_self')
+    },
+    focusSearch () {
+      if (this.getTaxon.id) {
+        document.querySelector('#taxonname-autocomplete-search input').focus()
+      } else {
+        document.querySelector('.autocomplete-search-bar input').focus()
+      }
     }
   }
 }

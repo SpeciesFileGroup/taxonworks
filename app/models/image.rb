@@ -38,6 +38,11 @@
 #   @return (String)
 #   Added by paperclip_meta gem, stores the sizes of derived images
 #
+# @!attribute pixels_to_centimeter
+#   @return [Float, nil]
+#      used to generate scale bars on the fly
+#
+
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -83,7 +88,7 @@ class Image < ApplicationRecord
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
-  validates_attachment_size :image_file, greater_than: 1.kilobytes
+  validate :image_dimensions_too_short
 
   soft_validate(:sv_duplicate_image?)
 
@@ -228,14 +233,13 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
-
     begin
     # img.crop(x, y, width, height, true)
       cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
     rescue RuntimeError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
-      img.destroy!      
+      img.destroy!
     end
     cropped
   end
@@ -244,7 +248,7 @@ class Image < ApplicationRecord
   # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
-    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i) #.sharpen(0x1)
     c.destroy!
     resized
   end
@@ -255,7 +259,6 @@ class Image < ApplicationRecord
     c = cropped(params)
     ratio = c.columns.to_f / c.rows.to_f
     box_ratio = params[:box_width].to_f / params[:box_height].to_f
-
     # TODO: special considerations for 1:1?
 
     if box_ratio > 1
@@ -263,22 +266,24 @@ class Image < ApplicationRecord
         scaled = c.resize(
           params[:box_width].to_i,
           (params[:box_height].to_f / ratio * box_ratio).to_i
-        )
+        ) #.sharpen(0x1)
       else # tall into wide
         scaled = c.resize(
           (params[:box_width ].to_f * ratio / box_ratio).to_i,
-          params[:box_height].to_i )
+          params[:box_height].to_i
+        ) #.sharpen(0x1)
       end
     else # <
       if ratio > 1 # wide into tall
         scaled = c.resize(
           params[:box_width].to_i,
-          (params[:box_height].to_f / ratio * box_ratio).to_i)
+          (params[:box_height].to_f / ratio * box_ratio).to_i
+        ) #.sharpen(0x1)
       else # tall into tall # TODO: or 1:1?!
         scaled = c.resize(
-          (params[:box_width ].to_f * ratio * box_ratio ).to_i,
+          (params[:box_width ].to_f * ratio / box_ratio ).to_i,
           (params[:box_height].to_f ).to_i
-        )
+        ) #.sharpen(0x1)
       end
     end
     c.destroy!
@@ -302,6 +307,59 @@ class Image < ApplicationRecord
   # @return [String]
   def self.cropped_blob(params)
     self.to_blob!(cropped(params))
+  end
+
+  # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
+  # @return [Scope]
+  #   the max 10 most recently used images, as `used_on`
+  def self.used_recently(user_id, project_id, used_on = '')
+    i = arel_table
+    d = Depiction.arel_table
+
+    # i is a select manager
+    j = d.project(d['image_id'], d['updated_at'], d['depiction_object_type']).from(d)
+      .where(d['updated_at'].gt( 1.weeks.ago ))
+      .where(d['created_by_id'].eq(user_id))
+      .where(d['project_id'].eq(project_id))
+      .order(d['updated_at'].desc)
+
+    z = j.as('recent_i')
+
+    k = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
+      z['image_id'].eq(i['id']).and(z['depiction_object_type'].eq(used_on))
+    ))
+
+    joins(k).distinct.pluck(:id)
+  end
+
+  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @return [Hash] images optimized for user selection
+  def self.select_optimized(user_id, project_id, target = nil)
+    r = used_recently(user_id, project_id, target)
+    h = {
+      quick: [],
+      pinboard: Image.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if target && !r.empty?
+      h[:recent] = (
+        Image.where('"images"."id" IN (?)', r.first(5) ).to_a +
+        Image.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        .order('updated_at DESC')
+        .limit(3).to_a
+      ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+
+      h[:quick] = (
+        Image.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Image.where('"images"."id" IN (?)', r.first(4) ).to_a)
+        .uniq.sort{|a,b| a.updated_at <=> b.updated_at}
+    else
+      h[:recent] = Image.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Image.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).order('updated_at DESC')
+    end
+
+    h
   end
 
   protected
@@ -343,6 +401,17 @@ class Image < ApplicationRecord
     blob = img.to_blob
     img.destroy!
     blob
+  end
+
+  def image_dimensions_too_short
+    return unless original = image_file.queued_for_write[:original]
+
+    dimensions = Paperclip::Geometry.from_file(original)
+
+    errors.add(:image_file, "width must be at least 16 pixels") if dimensions.width < 16
+    errors.add(:image_file, "height must be at least 16 pixels") if dimensions.height < 16
+  rescue
+    errors.add(:image_file, "unable to extract image dimensions")
   end
 
 end

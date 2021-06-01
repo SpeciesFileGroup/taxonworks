@@ -31,7 +31,7 @@ import Dropzone from 'components/dropzone.vue'
 import FigureItem from './figureItem.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import AjaxCall from 'helpers/ajaxCall'
+import { Content, Depiction } from 'routes/endpoints'
 
 export default {
   computed: {
@@ -65,7 +65,7 @@ export default {
           'X-CSRF-Token': document.querySelector('[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       }
     }
   },
@@ -89,23 +89,13 @@ export default {
       formData.append('depiction[depiction_object_id]', this.content.id)
       formData.append('depiction[depiction_object_type]', 'Content')
     },
-    loadContent: function () {
-      let ajaxUrl = `/contents/${this.content.id}/depictions.json`
-      AjaxCall('get', ajaxUrl).then(response => {
+    loadContent () {
+      Content.depictions(this.content.id).then(response => {
         this.$store.commit(MutationNames.SetDepictionsList, response.body)
       })
     },
-    updatePosition: function () {
-      let ajaxUrl = `/depictions/sort`,
-        array = {
-          depiction_ids: []
-        }
-
-      this.depictions.forEach(function (item) {
-        array.depiction_ids.push(item.id)
-      })
-      AjaxCall('patch', ajaxUrl, array).then(response => {
-      })
+    updatePosition () {
+      Depiction.sort({ depiction_ids: this.depictions.map((depiction) => depiction.id) })
     }
   }
 }

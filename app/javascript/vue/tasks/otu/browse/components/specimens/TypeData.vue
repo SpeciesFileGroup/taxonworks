@@ -1,6 +1,6 @@
 <template>
   <div class="content">
-    <span><span v-html="type.object_tag"/> | <a :href="urlType">Edit</a></span>
+    <span><span v-html="`${type.type_type} of ${type.original_combination}`"/> | <a :href="urlType">Edit</a></span>
     <ul>
       <li>
         <span>Citation: <b><span v-html="citationsLabel"/></b></span>

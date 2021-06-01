@@ -79,18 +79,81 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
-  soft_validate(:sv_validate_required_relationships, set: :validate_required_relationships, has_fix: false)
-  soft_validate(:sv_validate_disjoint_relationships, set: :validate_disjoint_relationships, has_fix: false)
-  soft_validate(:sv_validate_disjoint_object, set: :validate_disjoint_object, has_fix: false)
-  soft_validate(:sv_validate_disjoint_subject, set: :validate_disjoint_subject, has_fix: false)
-  soft_validate(:sv_specific_relationship, set: :specific_relationship, has_fix: false) # some do, some don't
-  soft_validate(:sv_objective_synonym_relationship, set: :objective_synonym_relationship, has_fix: false)
-  soft_validate(:sv_synonym_relationship, set: :synonym_relationship, has_fix: false)
-  soft_validate(:sv_not_specific_relationship, set: :not_specific_relationship, has_fix: true)
-  soft_validate(:sv_synonym_linked_to_valid_name, set: :synonym_linked_to_valid_name, has_fix: true)
-  soft_validate(:sv_validate_priority, set: :validate_priority, has_fix: false)
-  soft_validate(:sv_coordinated_taxa, set: :coordinated_taxa, has_fix: true)
-  soft_validate(:sv_coordinated_taxa_object, set: :coordinated_taxa, has_fix: true)
+  soft_validate(
+    :sv_validate_required_relationships,
+    set: :validate_required_relationships,
+    name: 'Required relationships',
+    description: 'Required relationships' )
+
+  soft_validate(
+    :sv_validate_disjoint_relationships,
+    set: :validate_disjoint_relationships,
+    name: 'Conflicting relationships',
+    description: 'Detect conflicting relationships' )
+
+  soft_validate(
+    :sv_validate_disjoint_object,
+    set: :validate_disjoint_object,
+    name: 'Conflicting object taxon',
+    description: 'Object taxon has a status conflicting with the relationship' )
+
+  soft_validate(
+    :sv_validate_disjoint_subject,
+    set: :validate_disjoint_subject,
+    name: 'Conflicting subject taxon',
+    description: 'Subject taxon has a status conflicting with the relationship' )
+
+  soft_validate(
+    :sv_specific_relationship,
+    set: :specific_relationship,
+    name: 'validate relationship',
+    description: 'Validate integrity of the relationship, for example, the year applicability range' )
+
+  soft_validate(
+    :sv_objective_synonym_relationship,
+    set: :objective_synonym_relationship,
+    name: 'Objective synonym relationship',
+    description: 'Objective synonyms should have the same type' )
+
+  soft_validate(
+    :sv_synonym_relationship,
+    set: :synonym_relationship,
+    name: 'Synonym relationship',
+    description: 'Validate integrity of synonym relationship' )
+
+  soft_validate(
+    :sv_not_specific_relationship,
+    set: :not_specific_relationship,
+    fix: :sv_fix_not_specific_relationship,
+    name: 'Not specific relationship',
+    description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".' )
+
+  soft_validate(
+    :sv_synonym_linked_to_valid_name,
+    set: :synonym_linked_to_valid_name,
+    fix: :sv_fix_subject_parent_update,
+    name: 'Synonym not linked to valid taxon',
+    description: 'Synonyms should be linked to valid taxon.' )
+
+  soft_validate(
+    :sv_validate_priority,
+    set: :validate_priority,
+    name: 'Priority validation',
+    description: 'Junior synonym should be younger than senior synonym' )
+
+  soft_validate(
+    :sv_coordinated_taxa,
+    set: :coordinated_taxa,
+    fix: :sv_fix_coordinated_subject_taxa,
+    name: 'Move relationship to coordinate taxon',
+    description: 'Relationship should be moved to the lowest rank coordinate taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.' )
+
+  soft_validate(
+    :sv_coordinated_taxa_object,
+    set: :coordinated_taxa,
+    fix: :sv_fix_coordinated_object_taxa,
+    name: 'Move object relationship to coordinate taxon',
+    description: 'Relationship should be moved to the lowest rank coordinate object taxon (for example from species to nomynotypical subspecies). It could be updated automatically with the Fix.')
 
   scope :where_subject_is_taxon_name, -> (taxon_name) {where(subject_taxon_name_id: taxon_name)}
   scope :where_object_is_taxon_name, -> (taxon_name) {where(object_taxon_name_id: taxon_name)}
@@ -314,7 +377,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_string)
             soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
             soft_validations.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.subject_taxon_name.rank_class.rank_name} rank of #{self.subject_taxon_name.cached_html}")
           end
@@ -371,9 +434,10 @@ class TaxonNameRelationship < ApplicationRecord
 
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached: n,
+            cached_html: t.get_full_name_html(n)
           )
 
         elsif type_name =~/SourceClassifiedAs/
@@ -388,27 +452,34 @@ class TaxonNameRelationship < ApplicationRecord
             t.update_column(:cached_misspelling, t.get_cached_misspelling)
             t.update_columns(
                 cached_author_year: t.get_author_and_year,
+                cached_nomenclature_date: t.nomenclature_date,
                 cached_original_combination: t.get_original_combination,
                 cached_original_combination_html: t.get_original_combination_html
             )
           end
 
           if type_name =~/Misapplication/
-            t.update_column( :cached_author_year, t.get_author_and_year)
+            t.update_columns(
+              cached_author_year: t.get_author_and_year,
+              cached_nomenclature_date: t.nomenclature_date)
           end
 
           vn = t.get_valid_taxon_name
 
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html, # OK to force reload here, otherwise we need an exception in #set_cached 
-            cached_valid_taxon_name_id: vn.id)
+            cached: n,
+            cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+            cached_valid_taxon_name_id: vn.id,
+            cached_is_valid: !t.unavailable_or_invalid?)
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
 
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(
+              cached_valid_taxon_name_id: vn.id,
+              cached_is_valid: !s.unavailable_or_invalid?)
             s.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
@@ -429,6 +500,7 @@ class TaxonNameRelationship < ApplicationRecord
   end
 
   def sv_validate_required_relationships
+    return true if self.subject_taxon_name.not_binomial?
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
@@ -472,131 +544,22 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_specific_relationship
     true # all validations moved to subclasses
-
-#    s = subject_taxon_name
-#    o = object_taxon_name
-#    case type
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' || 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'
-#        if (s.type_taxon_name == o.type_taxon_name && !s.type_taxon_name.nil? ) || (!s.get_primary_type.empty? && s.has_same_primary_type(o) )
-#          soft_validations.add(:type, "Subjective synonyms #{s.cached_html} and #{o.cached_html} should not have the same type")
-#        end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-#        # primary names don't match
-#        if (s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling)
-#          # there is a secondary name ... and it doesn't match either
-#          if (s.cached_secondary_homonym_alternative_spelling.blank? && o.cached_secondary_homonym_alternative_spelling.blank?) || (s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling)
-#            soft_validations.add(:type, "#{subject_taxon_name.cached_html_name_and_author_year} and #{object_taxon_name.cached_html_name_and_author_year} are not similar enough to be homonyms")
-#          end
-#        end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' || 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed'
-#        if s.original_genus != o.original_genus
-#          soft_validations.add(:type, "Primary homonyms #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should have the same original genus")
-#        elsif s.cached_primary_homonym_alternative_spelling != o.cached_primary_homonym_alternative_spelling
-#          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} are not similar enough to be homonyms")
-#        end
-#        if type == 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten' && s.year_of_publication > 1899
-#          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described after 1899")
-#        end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary'
-#        if s.original_genus == o.original_genus && !s.original_genus.nil?
-#          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} species described in the same original genus #{s.original_genus}, they are primary homonyms")
-#        elsif s.get_valid_taxon_name.ancestor_at_rank('genus') != o.get_valid_taxon_name.ancestor_at_rank('genus')
-#          soft_validations.add(:type, "Secondary homonyms #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} should be placed in the same parent genus, the homonymy should be deleted or changed to 'secondary homonym replaced before 1961'")
-#        elsif s.cached_secondary_homonym_alternative_spelling != o.cached_secondary_homonym_alternative_spelling
-#          soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} are not similar enough to be homonyms")
-#        end
-
-#        if (s.all_generic_placements & o.all_generic_placements).empty?
-#          soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
-#        end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym::Secondary::Secondary1961'
-#        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
-#        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} described in the same original genus #{s.original_genus}, they are primary homonyms") if s.original_genus == o.original_genus && !s.original_genus.nil?
-#        soft_validations.add(:base, 'The original publication is not selected') unless source
-
-#        soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should not be treated as a homonym established before 1961") if self.source && self.source.year > 1960
-
-#        if (s.all_generic_placements & o.all_generic_placements).empty?
-#          soft_validations.add(:base, "No combination available showing #{s.cached_html_name_and_author_year} and #{o.cached_html_name_and_author_year} placed in the same genus")
-#        end
-#      when 'TaxonNameRelationship::Iczn::PotentiallyValidating::FamilyBefore1961'
-#        soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was not described before 1961") if s.year_of_publication > 1960
-#        soft_validations.add(:base, "#{s.cached_html_name_and_author_year} should be accepted as a replacement name before 1961") if self.source && self.source.year > 1960
-#      when 'TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation'
-#        soft_validations.add(:type, "Genus #{o.cached_html_name_and_author_year} described after 1930 is nomen nudum, if type was not designated in the original publication") if o.year_of_publication && o.year_of_publication > 1930
-#      when 'TaxonNameRelationship::Iczn::PotentiallyValidating::ReplacementName'
-#        r1 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym', subject_taxon_name_id: o.id, object_taxon_name_id: s.id).first
-#        r2 = TaxonNameRelationship.where(type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName', subject_taxon_name_id: s.id, object_taxon_name_id: o.id).first
-#        soft_validations.add(:base, "Missing relationship: #{s.cached_html_name_and_author_year} is a replacement name for #{o.cached_html_name_and_author_year}. Please add an objective synonym relationship (either 'replaced homonym' or 'unnecessary replacement name')") if r1.nil? && r2.nil?
-#      when 'TaxonNameRelationship::Typification::Genus::Original::OriginalMonotypy'
-#        # @todo Check if more than one species associated with the genus in the original paper
-#    end
   end
 
   def sv_objective_synonym_relationship
     true # all validations moved to subclasses
-#    if self.type_name =~ /TaxonNameRelationship::(Iczn::Invalidating::Synonym::Objective|Icn::Unaccepting::Synonym::Homotypic|Icnp::Unaccepting::Synonym::Homotypic)/
-#      s = self.subject_taxon_name
-#      o = self.object_taxon_name
-#      if (s.type_taxon_name != o.type_taxon_name ) || !s.has_same_primary_type(o)
-#        soft_validations.add(:type, "Objective synonyms #{s.cached_html} and #{o.cached_html} should have the same type")
-#      end
-#    end
   end
 
   def sv_synonym_relationship
     true # all validations moved to subclasses
-#    relationships = TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM +
-#      TaxonNameRelationship.collect_to_s(TaxonNameRelationship::Typification::Genus::Subsequent::SubsequentDesignation,
-#                                         TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission)
-#    if relationships.include?(self.type_name)
-#      if self.source
-#        date1 = self.source.cached_nomenclature_date.to_time
-#        date2 = self.subject_taxon_name.nomenclature_date
-#        if !!date1 && !!date2
-#          soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
-#        end
-#      elsif TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(self.type_name)
-#        # misspelling does not requere original publication
-#      else
-#        soft_validations.add(:base, 'The original publication is not selected')
-#      end
-#    end
   end
 
   def sv_not_specific_relationship
     true # all validations moved to subclasses
+  end
 
-#    case self.type_name
-#      when 'TaxonNameRelationship::Typification::Genus'
-#        soft_validations.add(:type, 'Please specify if the type designation is original or subsequent')
-#      when 'TaxonNameRelationship::Typification::Genus::Original'
-#        soft_validations.add(:type, 'Please specify if this is Original Designation or Original Monotypy')
-#      when 'TaxonNameRelationship::Typification::Genus::Subsequent'
-#        soft_validations.add(:type, 'Please specify if this is Subsequent Designation or Subsequent Monotypy')
-#      when 'TaxonNameRelationship::Typification::Genus::Tautonomy'
-#        soft_validations.add(:type, 'Please specify if the tautonomy is absolute or Linnaean')
-#      when 'TaxonNameRelationship::Icn::Unaccepting'
-#        soft_validations.add(:type, 'Please specify the reasons for the name being Unaccepted')
-#      when 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
-#        soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
-#          fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
-#      when 'TaxonNameRelationship::Icnp::Unaccepting::Synonym'
-#        soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
-#          fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
-#      when 'TaxonNameRelationship::Iczn::Invalidating'
-#        soft_validations.add(:type, 'Please specify the reason for the name being Invalid') unless self.subject_taxon_name.classification_invalid_or_unavailable?
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Homonym'
-#        if NomenclaturalRank::Iczn::SpeciesGroup.descendants.collect{|t| t.to_s}.include?(self.subject_taxon_name.rank_string)
-#          soft_validations.add(:type, 'Please specify if this is a primary or secondary homonym',
-#              fix: :sv_fix_specify_homonymy_type, success_message: 'Homonym updated to being primary or secondary')
-#        end
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-#        soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
-#            fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
-#      when 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression'
-#        soft_validations.add(:type, 'Please specify if this is a total, partial, or conditional suppression')
-#    end
+  def sv_fix_not_specific_relationship
+    true # all validations moved to subclasses
   end
 
   def sv_synonym_linked_to_valid_name
@@ -604,29 +567,12 @@ class TaxonNameRelationship < ApplicationRecord
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
       obj = self.object_taxon_name
       subj = self.subject_taxon_name
-        if subj.rank_class.try(:nomenclatural_code) == :iczn && obj.parent_id != subj.parent_id &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
-        soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent with  #{obj.cached_html_name_and_author_year}",
-                             fix: :sv_fix_subject_parent_update, success_message: 'The parent was updated')
+      if subj.rank_class.try(:nomenclatural_code) == :iczn && (obj.parent_id != subj.parent_id || obj.rank_class != subj.rank_class) &&  subj.cached_valid_taxon_name_id == obj.cached_valid_taxon_name_id
+        soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize}  #{subj.cached_html_name_and_author_year} should have the same parent and rank with  #{obj.cached_html_name_and_author_year}",
+                             success_message: 'The parent was updated', failure_message:  'The parent was not updated')
       end
     end
   end
-
-  #  def sv_fix_synonym_linked_to_valid_name
-  #    if TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(self.type_name)
-  #      obj = self.object_taxon_name
-  #      unless obj.get_valid_taxon_name == obj
-  #        self.object_taxon_name = obj.get_valid_taxon_name
-  #        begin
-  #          TaxonName.transaction do
-  #            self.save
-  #            return true
-  #          end
-  #        rescue
-  #        end
-  #      end
-  #    end
-  #    false
-  #  end
 
   def sv_fix_subject_parent_update
     if TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(self.type_name)
@@ -634,6 +580,7 @@ class TaxonNameRelationship < ApplicationRecord
       subj = self.subject_taxon_name
       unless obj.parent_id == subj.parent_id
         subj.parent_id = obj.parent_id
+        subj.rank_class = obj.rank_class
         begin
           TaxonName.transaction do
             subj.save
@@ -652,35 +599,6 @@ class TaxonNameRelationship < ApplicationRecord
 
   def sv_validate_priority
     true # all validations moved to subclasses
-
-#    unless self.type_class.nomenclatural_priority.nil?
-#      date1 = self.subject_taxon_name.nomenclature_date
-#      date2 = self.object_taxon_name.nomenclature_date
-#      if !!date1 and !!date2
-#        case self.type_class.nomenclatural_priority
-#        when :direct
-#          if date2 > date1 && subject_invalid_statuses.empty?
-#            if self.type_name =~ /TaxonNameRelationship::Iczn::Invalidating::Homonym/
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}")
-#            elsif self.type_name =~ /::Iczn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")
-#            elsif self.type_name =~ /::Icn::/ && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Icn::Accepting::Conserved', 'TaxonNameRelationship::Icn::Accepting::Sanctioned').not_self(self).empty?
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also conserved or sanctioned name")
-#            end
-#          end
-#        when :reverse
-#          if date1 > date2 && subject_invalid_statuses.empty?
-#            if self.type_name =~ /TaxonNameRelationship::(Typification|Combination|OriginalCombination)/
-#              if self.type_name != 'TaxonNameRelationship::Typification::Genus::Subsequent::RulingByCommission' || (self.type_name =~ /TaxonNameRelationship::Typification::Genus::(Monotypy::SubsequentMonotypy|SubsequentDesignation)/ && date2 > '1930-12-31'.to_time)
-#                soft_validations.add(:subject_taxon_name_id, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
-#              end
-#            else
-#              soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
-#            end
-#          end
-#        end
-#      end
-#    end
   end
 
   def sv_coordinated_taxa
@@ -689,7 +607,7 @@ class TaxonNameRelationship < ApplicationRecord
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
       soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s.cached_html}",
-                           fix: :sv_fix_coordinated_subject_taxa, success_message: "Relationship moved to  #{s_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
 
@@ -699,7 +617,7 @@ class TaxonNameRelationship < ApplicationRecord
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new && type_name != 'TaxonNameRelationship::Iczn::Validating::UncertainPlacement'
       soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o.cached_html}",
-                           fix: :sv_fix_coordinated_object_taxa, success_message: "Relationship moved to  #{o_new.rank_class.rank_name}")
+                           success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
 

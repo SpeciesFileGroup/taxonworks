@@ -1,6 +1,6 @@
 <template>
   <div class="panel content">
-    <h2>BibTeX</h2>
+    <h3>BibTeX</h3>
     <div class="horizontal-left-content align-start">
       <draggable
         class="vue-new-source-task-bibtex full_width"

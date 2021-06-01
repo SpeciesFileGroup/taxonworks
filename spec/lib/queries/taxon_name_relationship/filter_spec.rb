@@ -10,27 +10,34 @@ describe Queries::TaxonNameRelationship::Filter, type: :model, group: [:nomencla
 
   let!(:r1) { TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: g1, object_taxon_name: f1) }
 
-  specify '#taxon_name_id' do
+  specify '#taxon_name_id (object)' do
     query.taxon_name_id = f1.id
     expect(query.all.map(&:id)).to contain_exactly(r1.id)
   end
 
-  specify '#as_object' do
-    query.taxon_name_id = f1.id
-    query.as_object = true
-    expect(query.all.map(&:id)).to contain_exactly(r1.id)
-  end
-
-  specify '#as_subject 1' do
+  specify '#taxon_name_id (subject)' do
     query.taxon_name_id = g1.id
-    query.as_subject = true
     expect(query.all.map(&:id)).to contain_exactly(r1.id)
   end
 
-  specify '#as_subject 2' do
-    query.taxon_name_id = f1.id
-    query.as_subject = true
-    expect(query.all.map(&:id)).to contain_exactly()
+  specify '#subject_taxon_name_id 1' do
+    query.subject_taxon_name_id = g1.id
+    expect(query.all.map(&:id)).to contain_exactly(r1.id)
+  end
+
+  specify '#subject_taxon_name_id 2' do
+    query.subject_taxon_name_id = [g1.id]
+    expect(query.all.map(&:id)).to contain_exactly(r1.id)
+  end
+
+  specify '#object_taxon_name_id 1' do
+    query.object_taxon_name_id = f1.id
+    expect(query.all.map(&:id)).to contain_exactly(r1.id)
+  end
+
+  specify '#object_taxon_name_id 2' do
+    query.object_taxon_name_id = [f1.id]
+    expect(query.all.map(&:id)).to contain_exactly(r1.id)
   end
 
   specify '#taxon_name_relationship_type' do

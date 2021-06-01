@@ -1,15 +1,36 @@
 import { GetCollectingEvents, GetGeoreferences } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 
-export default ({ state, commit }, otusId) => {
-  GetCollectingEvents(otusId).then(response => {
-    const CEs = response.body
+import { chunkArray } from 'helpers/arrays'
 
-    commit(MutationNames.SetCollectingEvents, CEs)
-    if (CEs.length) {
-      GetGeoreferences(CEs.map(ce => ce.id)).then(response => {
-        commit(MutationNames.SetGeoreferences, response.body)
-      })
-    }
+const maxCEPerCall = 100
+
+export default ({ state, commit }, otusId) => {
+  return new Promise((resolve, reject) => {
+    GetCollectingEvents(otusId).then(response => {
+      const CEs = response.body
+      const CEIds = chunkArray(CEs.map(ce => ce.id), maxCEPerCall)
+      const promises = []
+
+      commit(MutationNames.SetCollectingEvents, state.collectingEvents.concat(CEs))
+      if (CEs.length) {
+        CEIds.forEach(idGroup => {
+          promises.push(GetGeoreferences(idGroup))
+        })
+
+        Promise.all(promises).then(responses => {
+          const georeferences = [].concat(...responses).map(({ body }) => body)
+
+          commit(MutationNames.SetGeoreferences, state.georeferences.concat(...georeferences))
+          state.loadState.distribution = false
+          resolve(CEs)
+        })
+      } else {
+        state.loadState.distribution = false
+        resolve(CEs)
+      }
+    }, error => {
+      reject(error)
+    })
   })
 }

@@ -8,6 +8,7 @@
           <th>
             <tag-all
               :ids="ids"
+              type="CollectionObject"
               class="separate-right"/>
           </th>
           <th>Collection object</th>
@@ -52,8 +53,7 @@
 
 <script>
 
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import { sortArray } from 'helpers/arrays.js'
 import TagAll from './tagAll'
 
 export default {
@@ -87,15 +87,7 @@ export default {
   },
   methods: {
     sortTable (sortProperty) {
-      let that = this
-      function compare (a,b) {
-        if (a[sortProperty] < b[sortProperty])
-          return (that.ascending ? -1 : 1)
-        if (a[sortProperty] > b[sortProperty])
-          return (that.ascending ? 1 : -1)
-        return 0
-      }
-      this.list.data.sort(compare)
+      this.$emit('onSort', sortArray(this.list.data, sortProperty, this.ascending))
       this.ascending = !this.ascending
     }
   }

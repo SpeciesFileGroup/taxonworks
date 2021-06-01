@@ -25,15 +25,17 @@
       <div class="field label-above">
         <label>Total</label>
         <input
+          class="input-xsmall-width"
           type="number"
           v-model="total">
       </div>
-      <div class="field label-above margin-small-left">
+      <div class="field label-above margin-small-left full_width">
         <label>Preparation type</label>
         <select
           v-model="preparationId"
-          class="normal-input">
+          class="normal-input full_width">
           <option
+            class="full_width"
             v-for="item in types"
             :value="item.id">{{ item.name }}</option>
         </select>
@@ -82,12 +84,12 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
-import SmartSelector from 'components/smartSelector'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 import ToggleSwitch from './toggleSwitch.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { GetCollectionEvent, GetRepository, GetPreparationTypes } from '../request/resources'
+import { CollectingEvent, Repository, PreparationType } from 'routes/endpoints'
 
 export default {
   components: {
@@ -185,7 +187,7 @@ export default {
   },
   mounted: function () {
     this.updateLabels()
-    GetPreparationTypes().then(response => {
+    PreparationType.all().then(response => {
       this.types = response.body
     })
   },
@@ -200,14 +202,14 @@ export default {
     },
     setEventLabel (id) {
       if (id) {
-        GetCollectionEvent(id).then(response => {
+        CollectingEvent.find(id).then(response => {
           this.labelEvent = response.body.verbatim_label
         })
       }
     },
     setRepositoryLabel (id) {
       if (id) {
-        GetRepository(id).then(response => {
+        Repository.find(id).then(response => {
           this.labelRepository = response.body.name
         })
       }

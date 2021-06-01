@@ -4,6 +4,7 @@ class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_tag, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:tags) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /tags
   # GET /tags.json
@@ -77,8 +78,7 @@ class TagsController < ApplicationController
     @tag.destroy!
     respond_to do |format|
       # TODO: probably needs to be changed with new annotator
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice: 'Tag was successfully destroyed.') }
+      format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

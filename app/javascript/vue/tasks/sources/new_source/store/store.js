@@ -13,6 +13,7 @@ function makeInitialState () {
   return {
     settings: {
       saving: false,
+      isConverting: false,
       loading: false,
       lastSave: 0,
       lastEdit: 0,
@@ -28,8 +29,10 @@ function makeInitialState () {
     preferences: {
 
     },
+    documentations: [],
+    documents: [],
     source: newSource(),
-    softValidation: []
+    softValidation: undefined
   }
 }
 

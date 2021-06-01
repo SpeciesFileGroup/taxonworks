@@ -3,7 +3,11 @@
   .nav-column {
     width: 400px;
     min-width: 270px
-  } 
+  }
+
+  .citations {
+    word-break: break-word;
+  }
 
   #third-column {
     max-width: 400px;

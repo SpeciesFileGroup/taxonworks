@@ -32,7 +32,8 @@
       <filter-table
         v-for="(item, key) in tableFilter"
         :key="key"
-        :title="key" v-model="tableFilter[key]"/>
+        :title="key"
+        v-model="tableFilter[key]"/>
     </div>
   </div>
 </template>
@@ -45,7 +46,7 @@ import RanksFilter from './filters/ranks'
 import OtuFilter from './filters/otus'
 import FilterTable from './filters/with.vue'
 import CombinationsFilter from './filters/combinations'
-import { GetTaxonName } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetterNames } from '../store/getters/getters'
 
@@ -108,7 +109,7 @@ export default {
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      GetTaxonName(urlParams.ancestor_id).then(response => {
+      TaxonName.find(urlParams.ancestor_id).then(response => {
         this.taxonName = response.body
         this.params = Object.assign({}, this.params, urlParams)
         this.sendParams()
@@ -141,7 +142,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%;
   }
 </style>

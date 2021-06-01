@@ -1,98 +1,29 @@
-FROM ubuntu:18.04
-MAINTAINER Matt Yoder
-ENV LAST_FULL_REBUILD 2018-10-05
+FROM sfgrp/taxonworks-base:latest
 ARG BUNDLER_WORKERS=1
 
-RUN apt-get update && \
-    apt-get install -y curl software-properties-common apt-transport-https && \
-    apt clean && \
-    rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
-
-# Update repos
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
-
-RUN apt install wget
-RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-
+# Install Firefox (for headless feature tests)
 RUN apt-get update && \
     apt-get install -y locales \
-                       postgresql-client-10 \
-                       git gcc build-essential \
-                       libffi-dev libgdbm-dev libncurses5-dev libreadline-dev libssl-dev libyaml-dev zlib1g-dev libcurl4-openssl-dev \
-                       pkg-config imagemagick libmagickcore-dev libmagickwand-dev poppler-utils \
-                       libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 \
-                       libpq-dev libproj-dev libgeos-dev libgeos++-dev \
-                       tesseract-ocr \
-                       cmake \
-                       zip \
-                       nodejs && \
-                       apt clean && \
-                       rm -rf /var/lip/abpt/lists/* /tmp/* /var/tmp/*
-
-# Install Firefox (for headless feature tests)
-RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
-    tar -xjf - -C /usr/bin
-
-RUN /usr/bin/firefox/firefox --version
+                       libgtk-3-0 libgtk-3-dev libdbus-glib-1-2 libxt6 && \
+    curl -sL 'https://download.mozilla.org/?product=firefox-latest&lang=en-US&os=linux64' | \
+    tar -xjf - -C /usr/bin && \
+    /usr/bin/firefox/firefox --version && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV PATH /usr/bin/firefox/:$PATH
 
-#
-# Install ruby
-# Source: https://github.com/drecom/docker-ubuntu-ruby/blob/2.4.4/Dockerfile
-#
-RUN git clone git://github.com/rbenv/rbenv.git /usr/local/rbenv \
-&&  git clone git://github.com/rbenv/ruby-build.git /usr/local/rbenv/plugins/ruby-build \
-&&  git clone git://github.com/jf/rbenv-gemset.git /usr/local/rbenv/plugins/rbenv-gemset \
-&&  /usr/local/rbenv/plugins/ruby-build/install.sh
-ENV PATH /usr/local/rbenv/bin:$PATH
-ENV RBENV_ROOT /usr/local/rbenv
-
-RUN echo 'export RBENV_ROOT=/usr/local/rbenv' >> /etc/profile.d/rbenv.sh \
-&&  echo 'export PATH=/usr/local/rbenv/bin:$PATH' >> /etc/profile.d/rbenv.sh \
-&&  echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
-
-RUN echo 'export RBENV_ROOT=/usr/local/rbenv' >> /root/.bashrc \
-&&  echo 'export PATH=/usr/local/rbenv/bin:$PATH' >> /root/.bashrc \
-&&  echo 'eval "$(rbenv init -)"' >> /root/.bashrc
-
-ENV CONFIGURE_OPTS --disable-install-doc
-ENV PATH /usr/local/rbenv/bin:/usr/local/rbenv/shims:$PATH
-
-ENV RBENV_VERSION 2.7.1
-
-RUN eval "$(rbenv init -)"; rbenv install $RBENV_VERSION \
-&&  eval "$(rbenv init -)"; rbenv global $RBENV_VERSION \
-&&  eval "$(rbenv init -)"; gem update --system \
-&&  eval "$(rbenv init -)"; gem install bundler -f \
-&& rm -rf /tmp/*
-
-RUN npm rebuild node-sass
-
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
-
-ENV GEM_HOME /usr/local/bundle
-
-# cludge
-
-ENV PATH $GEM_HOME/bin:$PATH
-ENV BUNDLE_APP_CONFIG $GEM_HOME
-
-RUN gem install bundler -v 2.0.1 && \
-    bundle config --global path "$GEM_HOME" && \
-    bundle config --global bin "$GEM_HOME/bin" && \
-    mkdir /app
+ADD package.json /app/
+ADD package-lock.json /app/
+ADD .ruby-version /app/
+ADD Gemfile /app/
+ADD Gemfile.lock /app/
 
 WORKDIR /app
-COPY Gemfile /app
-COPY Gemfile.lock /app
+
 RUN bundle install -j$BUNDLER_WORKERS
+RUN npm install
+
+COPY . /app
 
 CMD ["exe/docker_compose_start.sh"]
-

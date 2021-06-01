@@ -1,15 +1,20 @@
 <template>
   <fieldset>
     <legend>Tag</legend>
-    <smart-selector
-      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
-      :autocomplete-params="{'type[]' : 'Keyword'}"
-      get-url="/controlled_vocabulary_terms/"
-      model="keywords"
-      klass="CollectionObject"
-      pin-section="Keywords"
-      pin-type="Keyword"      
-      @selected="addTag"/>
+    <div class="align-start">
+      <smart-selector
+        autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+        :autocomplete-params="{'type[]' : 'Keyword'}"
+        get-url="/controlled_vocabulary_terms/"
+        model="keywords"
+        klass="CollectionObject"
+        pin-section="Keywords"
+        pin-type="Keyword"
+        @selected="addTag"/>
+      <lock-component
+        class="margin-small-left"
+        v-model="lock.tags_attributes"/>
+    </div>
     <list-component
       v-if="collectionObject.tags_attributes.length"
       :list="collectionObject.tags_attributes"
@@ -20,12 +25,14 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import ListComponent from 'components/displayList'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import SharedComponent from '../shared/lock.js'
 
 export default {
+  mixins: [SharedComponent],
   components: {
     SmartSelector,
     ListComponent

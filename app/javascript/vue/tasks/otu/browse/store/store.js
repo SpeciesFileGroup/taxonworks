@@ -11,13 +11,15 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     loadState: {
-      descendants: true,
-      distribution: true,
       assertedDistribution: true,
-      collectionObjects: true
+      biologicalAssociations: true,
+      collectionObjects: true,
+      descendants: true,
+      descendantsDistribution: true,
+      distribution: true,
     },
     preferences: {
-      preferenceSchema: 20200703,
+      preferenceSchema: 20200807,
       sections: Object.keys(componentNames()),
       filterSections: {
         and: {
@@ -102,18 +104,24 @@ function makeInitialState () {
         ]
       }
     },
+    taxonName: undefined,
+    taxonNames: [],
     currentOtu: undefined,
     assertedDistributions: [],
+    biologicalAssociations: [],
     collectingEvents: [],
     collectionObjects: [],
     otus: [],
     georeferences: [],
     typeMaterials: [],
+    depictions: [],
+    commonNames: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],
       georeferences: []
     },
+    observationsDepictions: [],
     userId: undefined
   }
 }
@@ -128,5 +136,6 @@ function newStore () {
 }
 
 export {
-  newStore
+  newStore,
+  makeInitialState
 }

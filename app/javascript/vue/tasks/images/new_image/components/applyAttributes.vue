@@ -3,7 +3,7 @@
     <h2>Use the options below to build attributions and depictions, then <i>Apply</i> them to your images.</h2>
     <div class="flexbox">
       <div class="separate-right">
-        <div class="horizontal-left-content separate-bottom">
+        <div class="horizontal-left-content">
           <input
             class="input-apply"
             disabled="true"
@@ -17,7 +17,7 @@
             Apply
           </button>
         </div>
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content margin-small-top">
           <input
             class="input-apply"
             disabled="true"
@@ -31,13 +31,27 @@
             Apply
           </button>
         </div>
+        <div class="horizontal-left-content margin-small-top">
+          <input
+            class="input-apply"
+            disabled="true"
+            :value="showPixelToCm"
+            type="text">
+          <button
+            type="button"
+            :disabled="!this.pixels || !imagesCreated"
+            class="button normal-input button-submit separate-left"
+            @click="applyPxToCm">
+            Apply
+          </button>
+        </div>
       </div>
-      <button 
+      <button
         class="button normal-input button-submit item button-apply-both "
         type="button"
-        :disabled="!((validateDepic || validateSqedObject && validateAttr) && imagesCreated)"
-        @click="applyAttr(); applyDepic()">
-        Apply both
+        :disabled="!((validateDepic || validateSqedObject && validateAttr) && imagesCreated && this.pixels)"
+        @click="applyAttr(); applyDepic(); applyPxToCm()">
+        Apply all
       </button>
     </div>
   </div>
@@ -51,85 +65,89 @@ import validateSqed from '../helpers/validateSqed'
 
 export default {
   computed: {
-    source(){
+    source () {
       return this.$store.getters[GetterNames.GetSource]
     },
-    validateSqedObject() {
+    validateSqedObject () {
       return validateSqed(this.getSqed)
     },
-    createNewCO() {
-      return this.$store.getters[GetterNames.GetNewCOForSqed]
-    },
-    getYear() {
+    getYear () {
       return this.$store.getters[GetterNames.GetYearCopyright]
     },
-    getSqed() {
+    getSqed () {
       return this.$store.getters[GetterNames.GetSqed]
     },
-    imagesCreated() {
+    imagesCreated () {
       return this.$store.getters[GetterNames.GetImagesCreated].length > 0
     },
-    validateDepic() {
+    validateDepic () {
       return (this.$store.getters[GetterNames.GetObjectsForDepictions].length > 0)
     },
-    validateAttr() {
+    validateAttr () {
       return (this.imagesBy.length > 0 || this.license.length)
     },
-    authors() {
+    authors () {
       return this.$store.getters[GetterNames.GetPeople].authors
     },
-    editors() {
+    editors () {
       return this.$store.getters[GetterNames.GetPeople].editors
     },
-    owners() {
+    owners () {
       return this.$store.getters[GetterNames.GetPeople].owners
     },
-    copyrightHolder() {
+    copyrightHolder () {
       return this.$store.getters[GetterNames.GetPeople].copyrightHolder
     },
-    license() {
-      let tmp = this.$store.getters[GetterNames.GetLicense]
+    license () {
+      const tmp = this.$store.getters[GetterNames.GetLicense]
       return (tmp ? `License: ${tmp}` : '')
     },
-    imagesBy() {
-      let people = [].concat(this.getNames(this.authors), 
-        this.getNames(this.editors), 
-        this.getNames(this.owners), 
+    imagesBy () {
+      const people = [].concat(this.getNames(this.authors),
+        this.getNames(this.editors),
+        this.getNames(this.owners),
         this.getNames(this.copyrightHolder))
       return people.length ? `Image(s) by ${people.join('; ')}.` : ''
     },
-    showPeopleAndLicense() {
-      if(this.imagesBy.length || this.license.length || this.source != undefined)
-        return `${this.imagesBy}${this.imagesBy.length > 0 ? ` ` : ``}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : '' }${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
+    pixels () {
+      return this.$store.getters[GetterNames.GetPixels]
+    },
+    showPixelToCm () {
+      return this.pixels ? `A scale of ${this.pixels} pixels per centimeter will be added` : 'The scale of pixels per centimeter will be displayed here when defined.'
+    },
+    showPeopleAndLicense () {
+      if (this.imagesBy.length || this.license.length || this.source) {
+        return `${this.imagesBy}${this.imagesBy.length > 0 ? ' ' : ''}${this.license ? `${this.license}. ` : ''}${this.source ? `Source: ${this.source.object_tag}` : ''}${this.getYear ? ` Copyright year ${this.getYear}` : ''}`
+      }
       return 'The attribution summary will be displayed here when defined.'
     },
-    objectsForDepictions() {
-      if(!this.validateDepic) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
-      
-      let tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => {
-        return item.label
-      })
+    objectsForDepictions () {
+      if (!this.validateDepic) { return 'A depiction summary will be displayed here when defined. Otherwise a new collection object will be created for each image.' }
+
+      const tmp = this.$store.getters[GetterNames.GetObjectsForDepictions].map(item => item.label)
       return tmp.length ? `Depicts some: ${tmp.join(', ')}` : 'A depiction summary will be displayed here when defined.'
     }
   },
   methods: {
-    getNames(list) {
-      let ppl = list.map(item => {
-        if(item.hasOwnProperty('label')) {
+    getNames (list) {
+      return list.map(item => {
+        if (item.hasOwnProperty('label')) {
           return item.label
-        }
-        else if(item.hasOwnProperty('person_attributes'))
+        } else if (item.hasOwnProperty('person_attributes')) {
           return `${item.person_attributes.last_name}, ${item.person_attributes.first_name}`
-        else 
+        } else {
           return `${item.last_name}, ${item.first_name}`
+        }
       })
-      return ppl
     },
-    applyAttr() {
+    applyAttr () {
       this.$store.dispatch(ActionNames.ApplyAttributions)
     },
-    applyDepic() {
+    applyDepic () {
       this.$store.dispatch(ActionNames.ApplyDepictions)
+    },
+    applyPxToCm () {
+      this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
     }
   }
 }
@@ -143,6 +161,6 @@ export default {
   }
 
   .button-apply-both {
-    height: 69px;
+    height: 97px;
   }
 </style>

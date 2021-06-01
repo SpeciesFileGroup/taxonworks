@@ -1,10 +1,8 @@
-import { DestroyImage } from '../../request/resources'
+import { Image } from 'routes/endpoints'
 
-export default function({ state }, image) {
-  DestroyImage(image.id).then(response => {
-    this.state.imagesCreated.splice(this.state.imagesCreated.findIndex(item => {
-      return item.id == image.id
-    }), 1)
-    TW.workbench.alert.create(`Image was successfully destroyed.`, 'notice')
+export default ({ state }, image) => {
+  Image.destroy(image.id).then(() => {
+    state.imagesCreated.splice(state.imagesCreated.findIndex(item => item.id === image.id), 1)
+    TW.workbench.alert.create('Image was successfully destroyed.', 'notice')
   })
 }

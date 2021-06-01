@@ -58,7 +58,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
   describe 'GET #new' do
     it 'assigns a new matrix as @observation_matrix' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:observation_matrix)).to be_a_new(ObservationMatrix)
+      expect(response).to redirect_to(new_matrix_task_path)
     end
   end
 

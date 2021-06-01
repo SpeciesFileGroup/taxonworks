@@ -5,10 +5,21 @@
 # Valid attributes (* required)
 #   tasks: - A named task (see user_tasks.yml) !! Limit this to 3 or 4 
 #   recent: - defaults to true if not provided, if false no recent list is shown
-#   allow_destroy: - false if no
 #   edit: over-ride data->edit
 #   new: over-ride data->new
-#   home: where requested, use this path rather than show
+#   home: where requested, use this path rather than show (?! Not implemented !?)
+#   destroy_redirect: if destoyed, go here
+#
+# `:config:`
+#    recent: true !! TODO: what is this?!
+#
+# `:tasks` should be ordered consistently when possible:
+#    * hub
+#    * show
+#    * edit
+#    * filter
+#    * most commonly used 1
+#    * most commonly used 2
 #
 ---
 AssertedDistribution:
@@ -24,14 +35,16 @@ Combination:
     - otu_distribution_data_task
   edit: new_combination_task
   new: new_combination_task
+  destroyed_redirect: browse_nomenclature_task 
   config:
     recent: true
 CollectionObject:
   tasks:
     - browse_collection_objects_task
     - comprehensive_collection_object_task
-    - browse_collecting_events_task
     - collection_objects_filter_task
+    - browse_collecting_events_task
+    - new_taxon_name_task
     - build_biocuration_groups_task
     - report_dwc_task
   config: 
@@ -41,13 +54,28 @@ CollectionObject:
 CollectingEvent:
   tasks:
     - browse_collecting_events_task
-    - comprehensive_collection_object_task
+    - new_collecting_event_task
     - filter_collecting_events_task
+    - comprehensive_collection_object_task
   config: 
     recent: true
+  edit: new_collecting_event_task
+  new: new_collecting_event_task
+Descriptor:
+  tasks:
+    - observation_matrices_hub_task
+  new: new_descriptor_task
+  edit: new_descriptor_task
 Document:
   tasks:
     - gnfinder_task
+  config: 
+    recent: true
+Extract:
+  tasks:
+    - new_extract_task 
+  new: new_extract_task
+  edit: new_extract_task 
   config: 
     recent: true
 GeographicArea:
@@ -71,12 +99,12 @@ ObservationMatrix:
 Otu:
   tasks:
     - browse_otus_task
-    - comprehensive_collection_object_task
     - otus_filter_task
-    - cite_otus_task_task
+    - comprehensive_collection_object_task
+    - index_editor_task
+    - cite_otus_task
     - index_browse_asserted_distributions_task 
     - otu_distribution_data_task
-    - index_editor_task
   config:
     recent: true
 Person:
@@ -97,13 +125,14 @@ Source:
     recent: true
 TaxonName:
   tasks:
+    - browse_nomenclature_task
+    - new_taxon_name_task
     - new_combination_task
+    - filter_taxon_names_task
     - edit_type_material_task
     - comprehensive_collection_object_task
     - browse_otus_task
-    - browse_nomenclature_task
-    - new_taxon_name_task
-    - index_stats_task
+    - nomenclature_stats_task
     - otu_distribution_data_task
     - asserted_distributions_basic_endemism_task
   edit: new_taxon_name_task

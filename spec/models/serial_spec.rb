@@ -26,19 +26,19 @@ describe Serial, type: :model do
   it 'should soft validate duplicate serials' do
     name = 'Fixed name'
     s = FactoryBot.build(:valid_serial, name: name)
-    s.soft_validate()
+    s.soft_validate
 
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
     expect(s.save).to be_truthy
     
-    s.soft_validate()
+    s.soft_validate
     expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
 
     j = FactoryBot.build(:valid_serial, name: name)
     expect(j.valid?).to be_truthy
 
     # soft validate new record
-    j.soft_validate()
+    j.soft_validate
     expect(j.soft_validations.messages_on(:name).empty?).to be_falsey
     
     expect(j.soft_validations.messages).to include 'There is another serial with this name in the database.'
@@ -47,10 +47,10 @@ describe Serial, type: :model do
     # Soft validate edited record
     k = FactoryBot.build(:preceding_serial)
     expect(k.save).to be_truthy
-    k.soft_validate()
+    k.soft_validate
     expect(k.soft_validations.messages_on(:name).empty?).to be_truthy
     k.name = s.name
-    k.soft_validate()
+    k.soft_validate
     expect(k.soft_validations.messages_on(:name).empty?).to be_falsey
     expect(k.soft_validations.messages).to include 'There is another serial with this name in the database.'
 

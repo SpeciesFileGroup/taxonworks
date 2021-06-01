@@ -3,7 +3,6 @@
     :status="status"
     :title="title"
     :spinner="isLoading">
-    <a name="collecting-events"/>
     <ul>
       <li
         v-for="(item, index) in collectingEvents"
@@ -55,7 +54,8 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[GetterNames.GetLoadState].distribution
+      const loadState = this.$store.getters[GetterNames.GetLoadState]
+      return loadState.distribution && loadState.descendantsDistribution
     },
     collectingEvents: {
       get () {

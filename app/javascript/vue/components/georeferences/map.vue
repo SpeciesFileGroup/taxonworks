@@ -17,40 +17,29 @@ import 'leaflet.pattern/src/PatternShape'
 import 'leaflet.pattern/src/PatternShape.SVG'
 import 'leaflet.pattern/src/PatternPath'
 import 'leaflet.pattern/src/PatternCircle'
-
-delete L.Icon.Default.prototype._getIconUrl
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png').default,
-  iconUrl: require('leaflet/dist/images/marker-icon.png').default,
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png').default
-})
+import { Icon } from 'components/georeferences/icons'
 
 export default {
   props: {
+    zoomAnimate: {
+      type: Boolean,
+      default: false
+    },
     width: {
       type: String,
-      default: () => {
-        return '500px'
-      }
+      default: '500px'
     },
     height: {
       type: String,
-      default: () => {
-        return '500px'
-      }
+      default: '500px'
     },
     zoom: {
       type: Number,
-      default: () => {
-        return 18
-      }
+      default: 18
     },
     drawControls: {
       type: Boolean,
-      default: () => {
-        return false
-      }
+      default: false
     },
     drawCircle: {
       type: Boolean,
@@ -102,9 +91,7 @@ export default {
     },
     center: {
       type: Array,
-      default: () => {
-        return [0, 0]
-      }
+      default: () => [0, 0]
     },
     resize: {
       type: Boolean,
@@ -112,9 +99,7 @@ export default {
     },
     geojson: {
       type: Array,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     zoomOnClick: {
       type: Boolean,
@@ -123,6 +108,10 @@ export default {
     fitBounds: {
       type: Boolean,
       default: true
+    },
+    zoomBounds: {
+      type: Number,
+      default: undefined
     }
   },
   data () {
@@ -149,6 +138,18 @@ export default {
       restoreRow: undefined
     }
   },
+
+  computed: {
+    fitBoundsOptions () {
+      return {
+        maxZoom: this.zoomBounds,
+        zoom: {
+          animate: this.zoomAnimate
+        }
+      }
+    }
+  },
+
   watch: {
     geojson: {
       handler (newVal) { 
@@ -182,24 +183,25 @@ export default {
     }
   },
   methods: {
-    resizeMap (mutationsList, observer) {
-      if (this.$el.clientWidth != this.mapSize) {
-        this.$nextTick(() => {
-          this.mapSize = this.$el.clientWidth
-          const bounds = this.drawnItems.getBounds()
-          if (Object.keys(bounds).length) {
-            if (this.fitBounds) {
-              this.mapObject.fitBounds(bounds)
-            }
-          }
-          this.mapObject.invalidateSize()
-        })
-      }
+    resizeMap (width) {
+      const bounds = this.drawnItems.getBounds()
+
+      this.mapSize = width
+      this.mapObject.invalidateSize()
+
+      this.$nextTick(() => {
+        if (Object.keys(bounds).length && this.fitBounds) {
+          this.mapObject.fitBounds(bounds, this.fitBoundsOptions)
+        }
+      })
     },
     initEvents () {
-      this.mapSize = this.$el.clientWidth
-      this.observeMap = new MutationObserver(this.resizeMap)
-      this.observeMap.observe(this.$el, { attributes: true, childList: true, subtree: true })
+      this.observeMap = new ResizeObserver(entries => {
+        const { width } = entries[0].contentRect
+
+        this.resizeMap(width)
+      })
+      this.observeMap.observe(this.$el)
     },
     destroyed () {
       this.observeMap.disconnect()
@@ -285,41 +287,52 @@ export default {
       this.addGeoJsonLayer(geoJsonFeatures)
     },
     addGeoJsonLayer (geoJsonLayers) {
-      const that = this
       let index = -1
 
       L.geoJson(geoJsonLayers, {
-        style: function (feature) {
+        style: (feature) => {
           index = index + 1
-          return that.randomShapeStyle(index)
+          return this.randomShapeStyle(index)
         },
-        filter: function (feature) {
+        filter: (feature) => {
           if (feature.properties.hasOwnProperty('geographic_area')) {
-            that.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties.hasOwnProperty('is_absent') && feature.properties.is_absent ? that.stripeShapeStyle(index) : that.randomShapeStyle(index), { pmIgnore: true })))
+            this.geographicArea.addLayer(L.GeoJSON.geometryToLayer(feature, Object.assign({}, feature.properties?.is_absent ? this.stripeShapeStyle(index) : this.randomShapeStyle(index), { pmIgnore: true })))
             return false
           }
           return true
         },
+
         onEachFeature: this.onMyFeatures,
-        pointToLayer: function (feature, latlng) {
-          let shape = (feature.properties.hasOwnProperty('radius') ? that.addJsonCircle(feature) : L.marker(latlng))
+        pointToLayer: (feature, latlng) => {
+          const shape = feature.properties.hasOwnProperty('radius')
+            ? this.addJsonCircle(feature)
+            : this.createMarker(feature, latlng)
+
           Object.assign(shape, { feature: feature })
+
           return shape
         }
       }).addTo(this.drawnItems)
 
       if (this.fitBounds) {
         if (this.getLayersCount(this.drawnItems)) {
-          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds(), this.geographicArea.getBounds()))
-        }
-        else if (this.geographicArea.getLayers().length) {
-          this.mapObject.fitBounds(this.geographicArea.getBounds())
-        }
-        else {
-          this.mapObject.fitBounds([0,0])
+          this.mapObject.fitBounds([].concat(this.drawnItems.getBounds()), this.fitBoundsOptions)
+        } else {
+          this.mapObject.fitBounds(this.geographicArea.getLayers().length
+            ? this.geographicArea.getBounds()
+            : [0, 0]
+          , this.fitBoundsOptions)
         }
       }
     },
+
+    createMarker (feature, latlng) {
+      const icon = Icon[feature?.properties?.marker?.icon] || Icon.blue
+      const marker = L.marker(latlng, { icon })
+
+      return marker
+    },
+
     getLayersCount (group) {
       return group.getLayers()[0]._layers ? Object.keys(group.getLayers()[0]._layers).length : undefined
     },
@@ -390,9 +403,9 @@ export default {
       const layer = e.target
       if (this.fitBounds) {
         if (layer instanceof L.Marker || layer instanceof L.Circle) {
-          this.mapObject.fitBounds([layer.getLatLng()])
+          this.mapObject.fitBounds([layer.getLatLng()], this.fitBoundsOptions)
         } else {
-          this.mapObject.fitBounds(e.target.getBounds())
+          this.mapObject.fitBounds(e.target.getBounds(), this.fitBoundsOptions)
         }
       }
     }

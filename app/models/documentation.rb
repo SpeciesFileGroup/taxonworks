@@ -41,8 +41,12 @@ class Documentation < ApplicationRecord
   # We catch invalid statements with this around:
   around_save :catch_statement_invalid
 
+  after_save :check_for_projects_source, if: Proc.new {|n| n.documentation_object_type == 'Source'}
+
   belongs_to :documentation_object, polymorphic: true
   belongs_to :document, inverse_of: :documentation
+
+  after_destroy :destroy_document_if_last
 
   validates_presence_of :document
 
@@ -50,6 +54,16 @@ class Documentation < ApplicationRecord
   accepts_nested_attributes_for :documentation_object
 
   protected
+
+  def check_for_projects_source
+    ProjectSource.find_or_create_by(
+      project_id: project_id,
+      source_id: documentation_object_id)
+  end
+
+  def destroy_document_if_last
+    document.destroy if Documentation.where(document: document).count == 0
+  end
 
   def catch_statement_invalid
     begin

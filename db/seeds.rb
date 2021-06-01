@@ -1,9 +1,8 @@
-
-
 case Rails.env
 
   when 'development'
-    # see nested seeds 
+    load 'db/seeds/development/user.seeds.rb'
+    load 'db/seeds/development/matrix.seeds.rb'
   when 'production'
     raise Rainbow('Not so fast').red 
   when 'test'

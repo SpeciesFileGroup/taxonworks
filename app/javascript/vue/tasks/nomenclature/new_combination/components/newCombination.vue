@@ -22,8 +22,9 @@
       <div>
         <div v-if="!isCombinationEmpty()">
           <preview-view
-          @onVerbatimChange="newCombination.verbatim_name = $event"
-          :combination="newCombination"/>
+            @onVerbatimChange="newCombination.verbatim_name = $event"
+            :combination="newCombination"
+            :incomplete="incompleteMatch"/>
         </div>
 
         <div class="flexbox">
@@ -87,13 +88,13 @@
 
 <script>
 
-import { GetParse, GetCombination } from '../request/resources'
 import ListGroup from './listGroup.vue'
 import SaveCombination from './saveCombination.vue'
 import PreviewView from './previewView.vue'
 import SourcePicker from './sourcePicker.vue'
 import Spinner from 'components/spinner.vue'
 import MatchGroup from './matchGroup.vue'
+import { Combination, TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -113,7 +114,7 @@ export default {
     },
     acceptTaxonIds: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
   computed: {
@@ -122,13 +123,17 @@ export default {
         return this.rankLists[rank] && this.rankLists[rank].length > 1
       }) == undefined)
     },
-    existMatches() {
+    existMatches () {
       for(var key in this.otherMatches) {
         if(this.otherMatches[key].length) {
           return true
         }
       }
       return false
+    },
+    incompleteMatch () {
+      const ranks = Object.entries(this.parseRanks).filter(([key, value]) => value).map(([key, value]) => key)
+      return !!ranks.find(rank => !this.newCombination.protonyms[rank])
     }
   },
   data: function () {
@@ -148,7 +153,7 @@ export default {
       if (newVal) {
         this.setRankList(newVal).then(response => {
           if (response.body.data.existing_combination_id) {
-            GetCombination(response.body.data.existing_combination_id).then(response => {
+            Combination.find(response.body.data.existing_combination_id).then(response => {
               this.newCombination = response.body
             })
           }
@@ -169,12 +174,12 @@ export default {
       return new Promise((resolve, reject) => {
         this.$emit('onSearchStart', true)
         this.searching = true
-        GetParse(literalString).then(response => {
+        TaxonName.parse({ query_string: literalString }).then(response => {
           if (combination) {
-            let ranks = Object.keys(combination.protonyms)
+            const ranks = Object.keys(combination.protonyms)
             ranks.forEach(rank => {
-              let protonym = combination.protonyms[rank]
-              if (!response.body.data.protonyms[rank].find(item => { item.id === protonym.id })) {
+              const protonym = combination.protonyms[rank]
+              if (!response.body.data.protonyms[rank].find(item => item.id === protonym.id)) {
                 response.body.data.protonyms[rank].push(protonym)
               }
             })

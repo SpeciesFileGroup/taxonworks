@@ -28,7 +28,7 @@ class ObservationMatricesController < ApplicationController
 
   # GET /observation_matrices/new
   def new
-    @observation_matrix = ObservationMatrix.new
+    redirect_to new_matrix_task_path, notice: 'Redirecting to new task.'
   end
 
   # GET /observation_matrices/1/edit
@@ -137,7 +137,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   # GET /observation_matrices/row.json?observation_matrix_row_id=1
-  # TODO: Why is this here?
+  # TODO: Why is this here? (used in Matrix Row Coder)
   def row
     @observation_matrix_row = ObservationMatrixRow.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_row_id))
   end

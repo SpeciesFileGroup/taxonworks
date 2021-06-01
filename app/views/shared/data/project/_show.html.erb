@@ -38,7 +38,7 @@
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
-              <li><%= radial_annotator(object) %></li>
+              <li><%= radial_annotator(object, annotations_exist(object)) %></li>
               <li><%= tag_default_icon(object) %></li>
               <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
               <li><%= radial_navigation_tag(object) %></li>
@@ -47,8 +47,8 @@
         </div> 
 
         <div class="navigation-controls">
-          <%= edit_object_link(object) if controller.respond_to?(:edit) -%>
-          <%= destroy_object_link(object) if controller.respond_to?(:destroy) %>  
+          <%= edit_object_link(object) -%>
+          <%= destroy_object_link(object) %>
 
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
             <span data-icon="task" class="small-icon">Tasks</span>
@@ -75,7 +75,7 @@
       </div>    
       <div class="flex-wrap-row"> 
         <div class="panels-container">
-          <div id="attributes-panel" class="panel separate-left separate-right attributes-panel separate-bottom">
+          <div id="attributes-panel" class="panel separate-left margin-medium-right attributes-panel separate-bottom">
             <div class="break_words content">
               <div class="title-section"> 
                 <h2>Attributes</h2>
@@ -88,7 +88,7 @@
             </div>
           </div>
           <div class="flex-wrap-row"> 
-            <div id="related-panel" class="panel separate-left separate-bottom">
+            <div id="related-panel" class="panel separate-bottom">
               <div class="content"> 
                 <div class="title-section">
                   <h2>Associated</h2>
@@ -99,7 +99,7 @@
               </div>
             </div>
 
-            <div id="validation-panel" class="panel separate-left separate-bottom">
+            <div id="validation-panel" class="panel separate-bottom d-none">
               <div class="content">
                 <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
               </div>

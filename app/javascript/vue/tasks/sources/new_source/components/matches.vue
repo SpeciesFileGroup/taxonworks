@@ -56,6 +56,7 @@ export default {
         if(!newVal.title) {
           clearTimeout(this.timer)
           this.searching = false
+          this.founded = []
         } else if (newVal.title != this.oldVal) {
           this.searching = true
           clearTimeout(this.timer)
@@ -94,8 +95,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .matches-panel {
-    min-height: 500px;
-  }
-</style>

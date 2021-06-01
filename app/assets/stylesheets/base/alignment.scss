@@ -15,8 +15,16 @@ br.clear_both {
   text-align: center;
 }
 
-.inline {
+.inline, .d-inline {
   display: inline;
+}
+
+.d-inline-block {
+  display: inline-block;
+}
+
+.d-none {
+  display: none !important;
 }
 
 .middle_align {
@@ -45,6 +53,22 @@ br.clear_both {
 
 .display-flex {
   display: flex;
+}
+
+.dislay-inline-flex {
+  display: inline-flex;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
 }
 
 // Lifted from http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/

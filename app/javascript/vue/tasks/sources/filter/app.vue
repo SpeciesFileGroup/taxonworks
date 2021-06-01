@@ -67,7 +67,14 @@
             <span class="separate-left separate-right">|</span>
             <csv-button :list="csvList"/>
             <span class="separate-left separate-right">|</span>
+            <bibliography-button
+              :selected-list="ids"
+              :pagination="pagination"
+              :params="params"/>
+            <span class="separate-left separate-right">|</span>
             <bibtex-button
+              :selected-list="ids"
+              :pagination="pagination"
               :params="params"/>
           </div>
         </div>
@@ -82,7 +89,9 @@
             v-if="list.length"
             class="horizontal-left-content">
             <span
-              class="horizontal-left-content">{{ list.length }} records.
+              class="horizontal-left-content">
+              {{ recordsAtCurrentPage }} - 
+              {{ recordsAtNextPage }} of {{ pagination.total }} records.
             </span>
             <div class="margin-small-left">
               <select v-model="per">
@@ -100,11 +109,12 @@
         <list-component
           v-model="ids"
           :class="{ 'separate-left': activeFilter }"
-          :list="list"/>
-        <h2
+          :list="list"
+          @onSort="list = $event"/>
+        <h3
           v-if="alreadySearch && !list.length"
           class="subtle middle horizontal-center-content no-found-message">No records found.
-        </h2>
+        </h3>
       </div>
     </div>
   </div>
@@ -118,6 +128,7 @@ import CsvButton from 'components/csvButton'
 import PaginationComponent from 'components/pagination'
 import GetPagination from 'helpers/getPagination'
 import BibtexButton from './components/bibtex'
+import BibliographyButton from './components/bibliography.vue'
 import PlatformKey from 'helpers/getMacKey'
 
 export default {
@@ -126,7 +137,8 @@ export default {
     FilterComponent,
     ListComponent,
     CsvButton,
-    BibtexButton
+    BibtexButton,
+    BibliographyButton
   },
   computed: {
     csvFields () {
@@ -140,6 +152,13 @@ export default {
     },
     csvList () {
       return this.ids.length ? this.list.filter(item => { return this.ids.includes(item.id) }) : this.list
+    },
+    recordsAtCurrentPage () {
+      return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
+    },
+    recordsAtNextPage () {
+      const recordsCount = this.pagination.paginationPage * this.pagination.perPage
+      return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
     }
   },
   data () {

@@ -1,20 +1,24 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetSource, LoadSoftValidation } from '../../request/resources'
+import { Source, SoftValidation } from 'routes/endpoints'
 
 import setParam from 'helpers/setParam'
 
 export default ({ state, commit }, id) => {
-  GetSource(id).then(response => {
+  Source.find(id).then(response => {
     const source = response.body
     const authors = source.author_roles
     const editors = source.editor_roles
-    const people = [].concat(authors, editors)
+    const people = [].concat(authors, editors).filter(item => item)
 
     source.roles_attributes = people
     commit(MutationNames.SetSource, source)
 
-    LoadSoftValidation(response.body.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body.validations.soft_validations)
+    SoftValidation.find(response.body.global_id).then(response => {
+      commit(MutationNames.SetSoftValidation, { sources: { list: [response.body], title: 'Source' } })
+    })
+
+    Source.documentation(id).then(response => {
+      commit(MutationNames.SetDocumentation, response.body)
     })
 
     setParam('/tasks/sources/new_source', 'source_id', response.body.id)
@@ -22,6 +26,6 @@ export default ({ state, commit }, id) => {
     state.settings.lastEdit = 0
   }, () => {
     TW.workbench.alert.create('No source was found with that ID.', 'alert')
-    history.pushState(null, null, `/tasks/sources/new_source`)
+    history.pushState(null, null, '/tasks/sources/new_source')
   })
 }

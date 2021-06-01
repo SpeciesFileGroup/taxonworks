@@ -52,10 +52,12 @@ module Workbench::SessionsHelper
   # Project methods
 
   def set_project_from_params
+    # Ensure project_token and project_id are the same if provided.  
+    # TODO: Community data considerations
     if sessions_current_project_id
       respond_to do |format| 
         format.html { redirect_to root_url, notice: 'Project token and project are not the same.'  }
-        format.json { render(json: {success: false}, status: :unauthorized) && return } # TODO: bad request, not unauthorized
+        format.json { render(json: {success: false}, status: :bad_request) && return } # was unauthorized
       end
     else
       self.sessions_current_project_id = params[:project_id]

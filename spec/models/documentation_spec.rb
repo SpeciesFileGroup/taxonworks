@@ -4,9 +4,16 @@ RSpec.describe Documentation, type: :model, group: :documentation do
 
   let(:documentation) { Documentation.new }
   let(:document) { FactoryBot.create(:valid_document) }
+  let(:otu) { Otu.create!(name: 'dococtou') }
 
   context 'validation' do
     before { documentation.valid? } 
+
+    specify 'adds Source to project if not there' do
+      s = FactoryBot.create(:valid_source_bibtex)
+      documentation.update!(documentation_object: s, document: document)
+      expect(ProjectSource.where(source_id: s.id).count).to eq(1)
+    end
 
     specify 'requires #document' do
       expect(documentation.errors.include?(:document)).to be_truthy
@@ -23,6 +30,20 @@ RSpec.describe Documentation, type: :model, group: :documentation do
         expect(documentation.errors.include?(:base)).to be_truthy
       end
     end
+  end
+
+  specify 'destroys document when last documentation 1' do
+    documentation.update!(document: document, documentation_object: otu)
+    expect(documentation.destroy).to be_truthy
+    expect(Document.count).to eq(0)
+  end
+
+  specify 'does not destroy document when additional documentation' do
+    documentation.update!(document: document, documentation_object: otu)
+    Documentation.create!document: document, documentation_object: Otu.create!(name: 'spiderotu')
+
+    expect(documentation.destroy).to be_truthy
+    expect(Document.count).to eq(1)
   end
 
 end

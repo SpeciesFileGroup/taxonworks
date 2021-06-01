@@ -70,7 +70,7 @@
 </template>
 <script>
 
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
 import AjaxCall from 'helpers/ajaxCall'
 

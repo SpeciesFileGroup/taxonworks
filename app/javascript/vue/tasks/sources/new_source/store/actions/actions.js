@@ -1,17 +1,23 @@
 import ActionNames from './actionNames'
-import resetSource from './resetSource'
-import loadSource from './loadSource'
-import saveSource from './saveSource'
 import cloneSource from './cloneSource'
+import convertToBibtex from './convertToBibtex'
+import loadSource from './loadSource'
+import resetSource from './resetSource'
+import saveDocumentation from './saveDocumentation'
+import saveSource from './saveSource'
+import removeDocumentation from './removeDocumentation'
 
 const ActionFunctions = {
-  [ActionNames.ResetSource]: resetSource,
+  [ActionNames.CloneSource]: cloneSource,
+  [ActionNames.ConvertToBibtex]: convertToBibtex,
   [ActionNames.LoadSource]: loadSource,
+  [ActionNames.ResetSource]: resetSource,
+  [ActionNames.SaveDocumentation]: saveDocumentation,
   [ActionNames.SaveSource]: saveSource,
-  [ActionNames.CloneSource]: cloneSource
+  [ActionNames.RemoveDocumentation]: removeDocumentation
 }
 
-export { 
-  ActionNames, 
+export {
+  ActionNames,
   ActionFunctions
 }

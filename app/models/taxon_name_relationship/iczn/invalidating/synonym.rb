@@ -2,6 +2,13 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000276'.freeze
 
+  #soft_validate(:sv_not_specific_relationship,
+  #              set: :not_specific_relationship,
+  #              fix: :sv_fix_not_specific_relationship,
+  #              name: 'Not specific synonym relationship',
+  #              description: 'Check if homonymy could be defined as objective or subjective.' )
+
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_to_s(TaxonNameRelationship::Iczn::Invalidating::Usage) +
@@ -54,10 +61,11 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
 
   def sv_not_specific_relationship
     soft_validations.add(:type, 'Please specify if this is a objective or subjective synonym',
-                         fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being objective or subjective')
+                         success_message: 'Synonym updated to being objective or subjective',
+                         failure_message:  'Failed to update the synonym relationship')
   end
 
-  def sv_fix_specify_synonymy_type
+  def sv_fix_not_specific_relationship
     s = self.subject_taxon_name
     o = self.object_taxon_name
     subject_type = s.type_taxon_name
@@ -68,17 +76,10 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym < TaxonNameRelationship
     elsif (subject_type != object_type && !subject_type.nil? ) || (!s.get_primary_type.empty? && !o.get_primary_type.empty? && !s.has_same_primary_type(o))
       new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'
     end
-    if self.type_name != new_relationship_name
-      self.type = new_relationship_name
-      begin
-        TaxonNameRelationship.transaction do
-          self.save
-          return true
-        end
-      rescue
-      end
+    if new_relationship_name && self.type_name != new_relationship_name
+      self.update_columns(type: new_relationship_name)
+      return true
     end
-
     false
   end
 end

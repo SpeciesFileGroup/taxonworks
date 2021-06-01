@@ -202,10 +202,11 @@ class Source < ApplicationRecord
 
   ignore_whitespace_on(:verbatim_contents)
 
-  ALTERNATE_VALUES_FOR = [:address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-                          :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
+  ALTERNATE_VALUES_FOR = [
+    :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
+    :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
 
-  # @return [Boolean]
+    # @return [Boolean]
   #  When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
@@ -224,7 +225,6 @@ class Source < ApplicationRecord
 
   validates_presence_of :type
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
-  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
 
@@ -238,7 +238,6 @@ class Source < ApplicationRecord
       sources = []
       bibliography.each do |record|
         a = Source::Bibtex.new_from_bibtex(record)
-#        a.soft_validate() # why?
         sources.push(a)
       end
       return sources, nil
@@ -264,7 +263,6 @@ class Source < ApplicationRecord
             if a.save
               valid += 1
             end
-#            a.soft_validate()
           else
             # error_msg = a.errors.messages.to_s
           end
@@ -381,17 +379,5 @@ class Source < ApplicationRecord
     return true if attributed['project_id'].blank?
     return true if ProjectSource.where(project_id: attributed['project_id'], source_id: id).any?
   end
-
-  def validate_year_suffix
-      a = get_author 
-    unless year_suffix.blank? || year.blank? || a.blank?
-      if new_record?
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
-      else
-        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
-      end
-      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
-    end
-  end
-
+ 
 end

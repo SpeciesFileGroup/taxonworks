@@ -22,15 +22,11 @@ module Queries
     attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
       :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
 
-    # @params citations [String]
-    #  'without_citations' - names without citations
-    #  'without_origin_citation' - names without an origin citation
-    attr_accessor :citations
+    attr_accessor :name
 
     # @param [Hash] params
     def initialize(params)
       params.reject! { |_k, v| v.blank? }
-
       @and_or_select = params[:and_or_select]
 
       @asserted_distributions = (params[:asserted_distributions]&.downcase == 'true' ? true : false) if !params[:asserted_distributions].nil?
@@ -50,6 +46,8 @@ module Queries
 
       @rank_class = params[:rank_class]
       @descendants = params[:descendants]
+
+      @name = params[:name]
 
       @taxon_name_id = params[:taxon_name_id]
       @taxon_name_ids = params[:taxon_name_ids] || []
@@ -75,6 +73,11 @@ module Queries
     def matching_otu_ids
       a = ids_for_otu
       a.empty? ? nil : table[:id].eq_any(a)
+    end
+
+    def matching_name
+      a = name
+      a.blank? ? nil : table[:name].eq(a)
     end
 
     # @return [Array]
@@ -463,7 +466,8 @@ module Queries
     def and_clauses
       clauses = [
         matching_taxon_name_ids,
-        matching_otu_ids
+        matching_otu_ids,
+        matching_name,
 
         # matching_verbatim_author
         # Queries::Annotator.annotator_params(options, ::Citation),

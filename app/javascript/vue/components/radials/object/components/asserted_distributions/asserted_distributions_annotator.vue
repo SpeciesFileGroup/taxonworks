@@ -123,7 +123,8 @@ export default {
       editTitle: undefined,
       lockSource: false,
       lockGeo: false,
-      editCitation: undefined
+      editCitation: undefined,
+      urlList: `${this.url}/${this.type}.json?geo_json=true`
     }
   },
   mounted() {
@@ -172,17 +173,19 @@ export default {
     },
     addToList(item) {
       this.editTitle = item.object_tag
-      if(!this.lockSource) {
+      if (!this.lockSource) {
         this.$refs.source.cleanInput()
         this.$refs.source.setFocus()
       }
-      if(this.idIndex > -1) {
-        this.$set(this.list, this.idIndex, item)
-      }
-      else {
-        this.list.push(item)
-      }
-      this.asserted_distribution = this.newAsserted()
+
+      this.getList(`/asserted_distributions/${item.id}.json`, { params: { geo_json: true }}).then(ad => {
+        if (this.idIndex > -1) {
+          this.$set(this.list, this.idIndex, ad.body)
+        } else {
+          this.list.push(ad.body)
+        }
+        this.asserted_distribution = this.newAsserted()
+      })
     },
     setDistribution(item) {
       this.asserted_distribution = this.newAsserted()

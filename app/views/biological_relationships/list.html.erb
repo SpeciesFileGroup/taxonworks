@@ -1,26 +1,27 @@
 <%= render("/shared/data/all/list/list_header", objects: @biological_relationships) -%>
-
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Name') -%>
-    <%= fancy_th_tag(name: 'Inverted name') -%>
-    <%= fancy_th_tag(name: 'Is transitive') -%>
-    <%= fancy_th_tag(name: 'Is reflexive') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Name') -%>
+      <%= fancy_th_tag(name: 'Inverted name') -%>
+      <%= fancy_th_tag(name: 'Is transitive') -%>
+      <%= fancy_th_tag(name: 'Is reflexive') -%>
+      <%= fancy_th_tag(name: 'Definition') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @biological_relationships.each do |biological_relationship| %>
+    <% @biological_relationships.each do |biological_relationship| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= biological_relationship.name %></td>
-          <td><%= biological_relationship.inverted_name %></td>
-          <td><%= biological_relationship.is_transitive %></td>
-          <td><%= biological_relationship.is_reflexive %></td>
-          <%= fancy_metadata_cells_tag(biological_relationship) -%>
+        <td><%= biological_relationship.name %></td>
+        <td><%= biological_relationship.inverted_name %></td>
+        <td><%= biological_relationship.is_transitive %></td>
+        <td><%= biological_relationship.is_reflexive %></td>
+        <td><%= biological_relationship.definition %></td>
+        <%= fancy_metadata_cells_tag(biological_relationship) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>

@@ -25,14 +25,13 @@
 #   @return [Integer]
 #
 class Note < ApplicationRecord
-
   # Notes can not be cited!
-
   include Housekeeping
-  include Shared::IsData
   include Shared::AttributeAnnotations
   include Shared::Tags
   include Shared::PolymorphicAnnotator
+  include Shared::IsData
+
   polymorphic_annotates(:note_object)
   ignore_whitespace_on(:text)
 

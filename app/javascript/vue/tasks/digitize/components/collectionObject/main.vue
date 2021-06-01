@@ -73,6 +73,10 @@
           <spinner-component
             v-if="!collectionObject.id"
             :show-spinner="false"
+            :legend-style="{
+              color: '#444',
+              textAlign: 'center'
+            }"
             legend="Locked until first save"/>
           <predicates-component
             v-if="projectPreferences"
@@ -91,182 +95,181 @@
 
 <script>
 
-  import SpinnerComponent from 'components/spinner'
-  import ExpandComponent from 'components/expand.vue'
-  import ContainerItems from './containerItems.vue'
-  import PreparationType from './preparationType.vue'
-  import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
-  import BufferedComponent from './bufferedData.vue'
-  import DepictionsComponent from '../shared/depictions.vue'
-  import RepositoryComponent from './repository.vue'
-  import { GetterNames } from '../../store/getters/getters'
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { ActionNames } from '../../store/actions/actions'
-  import BlockLayout from 'components/blockLayout.vue'
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import RadialObject from 'components/radials/navigation/radial.vue'
-  import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
-  import DefaultTag from 'components/defaultTag.vue'
+import SpinnerComponent from 'components/spinner'
+import ExpandComponent from 'components/expand.vue'
+import ContainerItems from './containerItems.vue'
+import PreparationType from './preparationType.vue'
+import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
+import BufferedComponent from './bufferedData.vue'
+import DepictionsComponent from '../shared/depictions.vue'
+import RepositoryComponent from './repository.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions'
+import BlockLayout from 'components/layout/BlockLayout.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
+import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
+import DefaultTag from 'components/defaultTag.vue'
 
-  import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
+import { GetCollectionObjectDepictions } from '../../request/resources.js'
+import { CollectionObject, Depiction, User } from 'routes/endpoints'
 
-  export default {
-    components: {
-      SpinnerComponent,
-      ContainerItems,
-      PreparationType,
-      CatalogueNumber,
-      BufferedComponent,
-      DepictionsComponent,
-      RepositoryComponent,
-      BlockLayout,
-      RadialAnnotator,
-      PredicatesComponent,
-      ExpandComponent,
-      RadialObject,
-      DefaultTag
-    },
-    computed: {
-      preferences: {
-        get() {
-          return this.$store.getters[GetterNames.GetPreferences]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetPreferences, value)
-        }
+export default {
+  components: {
+    SpinnerComponent,
+    ContainerItems,
+    PreparationType,
+    CatalogueNumber,
+    BufferedComponent,
+    DepictionsComponent,
+    RepositoryComponent,
+    BlockLayout,
+    RadialAnnotator,
+    PredicatesComponent,
+    ExpandComponent,
+    RadialObject,
+    DefaultTag
+  },
+  computed: {
+    preferences: {
+      get() {
+        return this.$store.getters[GetterNames.GetPreferences]
       },
-      projectPreferences () {
-        return this.$store.getters[GetterNames.GetProjectPreferences]
-      },
-      collectionObject () {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      collectionObjects() {
-        return this.$store.getters[GetterNames.GetCollectionObjects]
-      },
-      depictions: {
-        get() {
-          return this.$store.getters[GetterNames.GetDepictions]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetDepictions)
-        }
-      },
-      total: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObject].total
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
-        }
-      },
-    },
-    data() {
-      return {
-        types: [],
-        labelRepository: undefined,
-        labelEvent: undefined,
-        showDepictions: true,
-        showBuffered: true,
-        GetCollectionObjectDepictions
+      set(value) {
+        this.$store.commit(MutationNames.SetPreferences, value)
       }
     },
-    watch: {
-      collectionObject(newVal) {
-        if(newVal.id) {
-          this.cloneDepictions(newVal)
-        }
+    projectPreferences () {
+      return this.$store.getters[GetterNames.GetProjectPreferences]
+    },
+    collectionObject () {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
+    collectionObjects() {
+      return this.$store.getters[GetterNames.GetCollectionObjects]
+    },
+    depictions: {
+      get() {
+        return this.$store.getters[GetterNames.GetDepictions]
       },
-      preferences: {
-        handler(newVal) {
-          if(newVal) {
-            let layout = newVal['layout']
-            if(layout) {
-              let sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
-              let sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
-              this.showDepictions = (sDepictions != undefined ? sDepictions : true)
-              this.showBuffered = (sBuffered != undefined ? sBuffered : true)
-            }
+      set(value) {
+        this.$store.commit(MutationNames.SetDepictions)
+      }
+    },
+    total: {
+      get() {
+        return this.$store.getters[GetterNames.GetCollectionObject].total
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
+      }
+    },
+  },
+  data() {
+    return {
+      types: [],
+      labelRepository: undefined,
+      labelEvent: undefined,
+      showDepictions: true,
+      showBuffered: true,
+      GetCollectionObjectDepictions
+    }
+  },
+  watch: {
+    collectionObject(newVal) {
+      if(newVal.id) {
+        this.cloneDepictions(newVal)
+      }
+    },
+    preferences: {
+      handler(newVal) {
+        if(newVal) {
+          let layout = newVal['layout']
+          if(layout) {
+            let sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
+            let sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
+            this.showDepictions = (sDepictions != undefined ? sDepictions : true)
+            this.showBuffered = (sBuffered != undefined ? sBuffered : true)
           }
-        },
-        deep: true
-      }
+        }
+      },
+      deep: true
+    }
+  },
+  methods: {
+    setAttributes (value) {
+      this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
     },
-    methods: {
-      setAttributes(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectDataAttributes, value)
-      },
-      updatePreferences(key, value) {
-        UpdateUserPreferences(this.preferences.id, { [key]: value }).then(response => {
-          this.preferences.layout = response.body.preferences.layout
-        })
-      },
-      getMacKey: function () {
-        return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-      },
-      newDigitalization() {
-        this.$store.dispatch(ActionNames.NewCollectionObject)
-        this.$store.dispatch(ActionNames.NewIdentifier)
-        this.$store.commit(MutationNames.NewTaxonDetermination)
+    updatePreferences (key, value) {
+      User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
+        this.preferences.layout = response.body.preferences.layout
+      })
+    },
+    getMacKey: function () {
+      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
+    },
+    newDigitalization () {
+      this.$store.dispatch(ActionNames.NewCollectionObject)
+      this.$store.dispatch(ActionNames.NewIdentifier)
+      this.$store.commit(MutationNames.NewTaxonDetermination)
+      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+    },
+    saveCollectionObject() {
+      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      },
-      saveCollectionObject() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-        })
-      },
-      saveAndNew() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          let that = this
-          setTimeout(() => {
-            that.newDigitalization()
-          }, 500)
-        })
-      },
-      cloneDepictions(co) {
-        let unique = new Set()
-        let depictionsRemovedDuplicate = this.depictions.filter(depiction => {
-          let key = depiction.image_id, 
-          isNew = !unique.has(key);
-          if (isNew) unique.add(key);
-          return isNew;
-        })
+      })
+    },
+    saveAndNew() {
+      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+        setTimeout(() => {
+          this.newDigitalization()
+        }, 500)
+      })
+    },
+    cloneDepictions(co) {
+      const unique = new Set()
+      const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
+        let key = depiction.image_id,
+          isNew = !unique.has(key)
+        if (isNew) unique.add(key)
+        return isNew
+      })
 
-        let coDepictions = this.depictions.filter(depiction => {
-          return depiction.depiction_object_id == co.id
-        })
+      const coDepictions = this.depictions.filter(depiction => depiction.depiction_object_id === co.id)
 
-        depictionsRemovedDuplicate.forEach(depiction => {
-          if(!coDepictions.find(item => { return item.image_id == depiction.image_id })) {
-            this.saveDepiction(co.id, depiction)
-          }
-        })
-      },
-      saveDepiction(coId, depiction) {
-        let newDepiction = {
-          depiction_object_id: coId,
-          depiction_object_type: 'CollectionObject',
-          image_id: depiction.image_id
+      depictionsRemovedDuplicate.forEach(depiction => {
+        if (!coDepictions.find(item => item.image_id === depiction.image_id)) {
+          this.saveDepiction(co.id, depiction)
         }
-        CreateDepiction(newDepiction).then(response => {
-          this.depictions.push(response.body)
-        })
-      },
-      createDepictionForAll(depiction) {
-        let coIds = this.collectionObjects.map((co) => { return co.id }).filter(id => { return this.collectionObject.id != id })
-        this.depictions.push(depiction)
-        coIds.forEach((id) => {
-          this.saveDepiction(id, depiction)
-        })
-      },
-      removeAllDepictionsByImageId(depiction) {
-        this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
-      },
-      openBrowse () {
-        if (this.collectionObject.id) {
-          window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
-        }
+      })
+    },
+    saveDepiction(coId, depiction) {
+      const data = {
+        depiction_object_id: coId,
+        depiction_object_type: 'CollectionObject',
+        image_id: depiction.image_id
+      }
+      Depiction.create({ depiction: data }).then(response => {
+        this.depictions.push(response.body)
+      })
+    },
+    createDepictionForAll(depiction) {
+      const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
+
+      this.depictions.push(depiction)
+      coIds.forEach((id) => {
+        this.saveDepiction(id, depiction)
+      })
+    },
+    removeAllDepictionsByImageId(depiction) {
+      this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+    },
+    openBrowse () {
+      if (this.collectionObject.id) {
+        window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
       }
     }
   }
+}
 </script>

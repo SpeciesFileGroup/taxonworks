@@ -9,6 +9,7 @@ module Shared::Documentation
 
     ::Documentation.related_foreign_keys.push self.name.foreign_key
 
+    # !! destroying the last documentation for a document will destroy the document as well !!
     has_many :documentation, validate: true, as: :documentation_object, dependent: :destroy, inverse_of: :documentation_object
     has_many :documents, validate: true, through: :documentation
 

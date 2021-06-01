@@ -10,8 +10,4 @@ module BiologicalAssociationsGraphsHelper
     link_to(biological_associations_graph_tag(biological_associations_graph).html_safe, biological_associations_graph)
   end
 
-  def biological_associations_graphs_search_form
-    render('/biological_associations_graphs/quick_search_form')
-  end
-
 end

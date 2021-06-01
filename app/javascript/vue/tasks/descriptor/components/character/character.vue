@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h3>Character states</h3>
     <div class="horizontal-left-content align-start">
       <div class="field">
         <label>Label</label><br>

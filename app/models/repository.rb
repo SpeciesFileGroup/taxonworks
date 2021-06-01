@@ -31,7 +31,6 @@ class Repository < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::Notes
   include Shared::SharedAcrossProjects
-  include Shared::IsData
   include Shared::IsApplicationData
   include Shared::AlternateValues
   include Shared::DataAttributes
@@ -39,10 +38,13 @@ class Repository < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::IsData
 
   ALTERNATE_VALUES_FOR = [:name, :acronym]
 
   has_many :collection_objects, inverse_of: :repository, dependent: :restrict_with_error
+  has_many :extracts, inverse_of: :repository, dependent: :restrict_with_error
+  
   validates_presence_of :name, :acronym
 
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: project_id } ) }

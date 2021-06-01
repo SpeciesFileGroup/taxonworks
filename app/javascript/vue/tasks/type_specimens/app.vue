@@ -16,7 +16,7 @@
       <div
         v-shortkey="[getOSKey(), 't']"
         @shortkey="switchTaxonNameTask()"
-        class="flexbox horizontal-center-content align-start">
+        class="align-start">
         <div class="ccenter item separate-right">
           <name-section
             class="separate-bottom"

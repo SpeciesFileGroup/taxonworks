@@ -10,15 +10,8 @@
   import L from 'leaflet'
   import '@geoman-io/leaflet-geoman-free'
 
-  delete L.Icon.Default.prototype._getIconUrl
-
   var GeoJson
 
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('./map_icons/mm_20_red.png'),
-    iconUrl: require('./map_icons/mm_20_red.png'),
-    shadowUrl: require('./map_icons/mm_20_shadow.png')
-  });
   export default {
     props: {
       lightThisFeature: {

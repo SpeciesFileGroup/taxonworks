@@ -1,7 +1,7 @@
 <template>
   <div id="browse-otu">
     <select-otu
-      :otus="otus"
+      :otus="otuList"
       @selected="loadOtu"/>
     <spinner-component
       :full-screen="true"
@@ -48,14 +48,16 @@
         class="container"
         handle=".handle"
         v-model="preferences.sections">
-        <component
-          class="separate-bottom full_width"
-          v-for="component in preferences.sections"
-          :key="component"
-          :title="componentNames[component].title"
-          :status="componentNames[component].status"
-          :otu="otu"
-          :is="component"/>
+        <template v-for="component in preferences.sections">
+          <component
+            v-if="showForRanks(componentNames[component])"
+            class="separate-bottom full_width"
+            :key="component"
+            :title="componentNames[component].title"
+            :status="componentNames[component].status"
+            :otu="otu"
+            :is="component"/>
+        </template>
       </draggable>
     </template>
     <search-otu
@@ -78,18 +80,20 @@ import NomenclatureHistory from './components/NomenclatureHistory'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
+import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import Descendants from './components/descendants'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
 
-import { GetOtu, GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
+import { GetOtus, GetNavigationOtu, UpdateUserPreferences } from './request/resources.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
+import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 
 export default {
   components: {
@@ -109,7 +113,8 @@ export default {
     Autocomplete,
     Draggable,
     Descendants,
-    SelectOtu
+    SelectOtu,
+    TypeSection
   },
   computed: {
     preferences: {
@@ -122,20 +127,28 @@ export default {
     },
     menu () {
       return this.preferences.sections.map(name => this.componentNames[name].title)
+    },
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
+    },
+    otu () {
+      return this.$store.getters[GetterNames.GetCurrentOtu]
+    },
+    otus () {
+      return this.$store.getters[GetterNames.GetOtus]
     }
   },
   data () {
     return {
       isLoading: false,
-      otu: undefined,
-      otus: [],
       navigate: undefined,
       tmp: undefined,
+      otuList: [],
       componentNames: COMPONENT_NAMES()
     }
   },
   watch: {
-    otu: {
+    otus: {
       handler (newVal) {
         this.$store.dispatch(ActionNames.LoadInformation, newVal)
       },
@@ -154,13 +167,12 @@ export default {
     }
   },
   mounted () {
-    let urlParams = new URLSearchParams(window.location.search)
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
+    const taxonId = urlParams.get('taxon_name_id')
 
-    let otuId = urlParams.get('otu_id') ? urlParams.get('otu_id') : location.pathname.split('/')[4]
-    let taxonId = urlParams.get('taxon_name_id')
     if (/^\d+$/.test(otuId)) {
-      GetOtu(otuId).then(response => {
-        this.otu = response.body
+      this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
         this.isLoading = false
       })
       GetNavigationOtu(otuId).then(response => {
@@ -168,12 +180,13 @@ export default {
       })
     } else if (taxonId) {
       GetOtus(taxonId).then(response => {
-        if (response.body.length === 1) {
-          this.otu = response.body[0]
+        if (response.body.length > 1) {
+          this.otuList = response.body
         } else {
-          this.otus = response.body
+          this.$store.dispatch(ActionNames.LoadOtus, response.body[0].id).then(() => {
+            this.isLoading = false
+          })
         }
-        this.isLoading = false
       })
     } else {
       this.isLoading = false
@@ -188,6 +201,10 @@ export default {
         this.preferences.layout = response.preferences
         this.componentsOrder = response.preferences.layout[this.keyStorage]
       })
+    },
+    showForRanks (section) {
+      const rankGroup = section.rankGroup
+      return rankGroup ? this.taxonName ? ShowForThisGroup(rankGroup, this.taxonName) : section.otu : true
     }
   }
 }
@@ -202,12 +219,11 @@ export default {
     }
     .section-title {
       text-transform: uppercase;
-      color: #888;
       font-size: 14px;
     }
     .expand-box {
-      width: 18px;
-      height: 18px;
+      width: 24px;
+      height: 24px;
       padding: 0px;
       background-size: 10px;
       background-position: center;

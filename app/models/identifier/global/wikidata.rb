@@ -16,7 +16,7 @@ class Identifier::Global::Wikidata < Identifier::Global
   validate :namespace_format
   validate :data_exists
 
-  def namespace
+  def namespace_string
     identifier =~ /\A(\D+)\d+/
     $1
   end
@@ -26,7 +26,7 @@ class Identifier::Global::Wikidata < Identifier::Global
   end
 
   def prefixed_identifier
-    case namespace 
+    case namespace_string
     when 'P'
       'Property:' + identifier
     else

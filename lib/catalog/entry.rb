@@ -172,7 +172,7 @@ class Catalog::Entry
 
   # @return [Array of Source]
   # !! Redefined in some subclasses
-  def all_sources 
+  def all_sources
     items.collect{|i| i.source} || []
   end
 

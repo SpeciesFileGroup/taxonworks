@@ -4,20 +4,20 @@ class ObservationMatrix < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Tags
   include Shared::Notes
   include Shared::DataAttributes
+  include Shared::IsData
 
   validates_presence_of :name
   validates_uniqueness_of :name, scope: [:project_id]
 
-  has_many :observation_matrix_column_items, dependent: :destroy, inverse_of: :observation_matrix
-  has_many :observation_matrix_row_items, dependent: :destroy, inverse_of: :observation_matrix
+  has_many :observation_matrix_column_items, dependent: :delete_all, inverse_of: :observation_matrix
+  has_many :observation_matrix_row_items, dependent: :delete_all, inverse_of: :observation_matrix
 
   # TODO: restrict this, you can not directly create these
-  has_many :observation_matrix_rows, inverse_of: :observation_matrix
-  has_many :observation_matrix_columns, inverse_of: :observation_matrix
+  has_many :observation_matrix_rows, inverse_of: :observation_matrix, dependent: :delete_all
+  has_many :observation_matrix_columns, inverse_of: :observation_matrix, dependent: :delete_all
 
   # TODO: restrict this- you can not directly create these!
   has_many :otus, through: :observation_matrix_rows, inverse_of: :observation_matrices
@@ -71,6 +71,8 @@ class ObservationMatrix < ApplicationRecord
     true
   end
 
+  #@return [Boolean]
+  #   reorders all rows and returns true or false
   def reorder_rows(by = 'reindex')
     case by
     when 'reindex'
@@ -78,10 +80,10 @@ class ObservationMatrix < ApplicationRecord
         r.update_column(:position, i)
       end
     when 'nomenclature'
-      # TODO: probably not correct, a quick and dirty attempt
       objects = []
       observation_matrix_rows.each do |r|
-        objects.push [r, r.current_taxon_name.ancestor_ids]
+        objects.push [r,  TaxonName.self_and_ancestors_of(r.current_taxon_name).order('taxon_name_hierarchies.generations DESC').pluck(:name).to_s]
+        #objects.push [r, r.current_taxon_name.ancestor_ids] # TODO: probably not correct, a quick and dirty attempt
       end
 
       objects.sort!{|a, b| a[1] <=> b[1]} # add internal loop on name
@@ -112,6 +114,19 @@ class ObservationMatrix < ApplicationRecord
 
   def observations
     Observation.in_observation_matrix(id)
+  end
+
+  def media_observations
+    Observation.in_observation_matrix(id).where(type: 'Observation::Media')
+  end
+
+  def observation_depictions
+    Depiction.select('depictions.*, observations.descriptor_id, observations.otu_id, observations.collection_object_id, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
+        .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id")
+        .joins("INNER JOIN images ON depictions.image_id = images.id")
+        .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
+        .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
+        .where(depiction_object: media_observations).order('depictions.position')
   end
 
   # @return [Hash]

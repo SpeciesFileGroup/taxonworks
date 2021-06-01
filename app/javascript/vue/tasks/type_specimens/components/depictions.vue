@@ -31,7 +31,7 @@
 
 import ActionNames from '../store/actions/actionNames'
 import { GetterNames } from '../store/getters/getters'
-import { GetDepictions, DestroyDepiction } from '../request/resources'
+import { CollectionObject, Depiction } from 'routes/endpoints'
 
 import dropzone from 'components/dropzone.vue'
 import spinner from 'components/spinner.vue'
@@ -64,16 +64,16 @@ export default {
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         dictDefaultMessage: 'Drop images here to add figures',
-        acceptedFiles: 'image/*'
+        acceptedFiles: 'image/*,.heic'
       }
     }
   },
   watch: {
     getTypeMaterial (newVal, oldVal) {
       if (newVal.id) {
-        if(newVal.id != oldVal.id) {
+        if (newVal.id !== oldVal.id) {
           this.$refs.depiction.setOption('autoProcessQueue', true)
-          GetDepictions(newVal.collection_object.id).then(response => {
+          CollectionObject.depictions(newVal.collection_object.id).then(response => {
             this.figuresList = response.body
           })
         }
@@ -84,23 +84,22 @@ export default {
     }
   },
   methods: {
-    'success': function (file, response) {
+    success: function (file, response) {
       this.figuresList.push(response)
       this.$refs.depiction.removeFile(file)
     },
-    'sending': function (file, xhr, formData) {
+    sending: function (file, xhr, formData) {
       formData.append('depiction[depiction_object_id]', this.getTypeMaterial.collection_object.id)
       formData.append('depiction[depiction_object_type]', 'CollectionObject')
     },
-    'addedfile': function () {
+    addedfile: function () {
       if (!this.getTypeMaterial.id && !this.creatingType) {
         this.creatingType = true
         this.$store.dispatch(ActionNames.CreateTypeMaterial).then((response) => {
-          var that = this
-          setTimeout(function () {
-            that.$refs.depiction.setOption('autoProcessQueue', true)
-            that.$refs.depiction.processQueue()
-            that.creatingType = false
+          setTimeout(() => {
+            this.$refs.depiction.setOption('autoProcessQueue', true)
+            this.$refs.depiction.processQueue()
+            this.creatingType = false
           }, 500)
         }, () => {
           this.creatingType = false
@@ -108,10 +107,10 @@ export default {
       }
     },
     removeDepiction (depiction) {
-      if (window.confirm(`Are you sure want to proceed?`)) {
-        DestroyDepiction(depiction.id).then(response => {
+      if (window.confirm('Are you sure want to proceed?')) {
+        Depiction.destroy(depiction.id).then(() => {
           TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
-          this.figuresList.splice(this.figuresList.findIndex((figure) => { return figure.id == depiction.id }), 1)
+          this.figuresList.splice(this.figuresList.findIndex((figure) => figure.id === depiction.id), 1)
         })
       }
     }

@@ -83,12 +83,11 @@ class CollectionObject < ApplicationRecord
   include CollectionObject::BiologicalExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
-  is_origin_for 'CollectionObject', 'Extract', 'AssertedDistribution'
 
   CO_OTU_HEADERS      = %w{OTU OTU\ name Family Genus Species Country State County Locality Latitude Longitude}.freeze
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
 
   # Identifier delegations
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
@@ -109,8 +108,10 @@ class CollectionObject < ApplicationRecord
   has_one :deaccession_recipient_role, class_name: 'DeaccessionRecipient', as: :role_object, dependent: :destroy
   has_one :deaccession_recipient, through: :deaccession_recipient_role, source: :person
 
+  # TODO: Deprecate these models.  Semantics also confuse with origin relationship.
   has_many :derived_collection_objects, inverse_of: :collection_object, dependent: :restrict_with_error
   has_many :collection_object_observations, through: :derived_collection_objects, inverse_of: :collection_objects
+
   has_many :sqed_depictions, through: :depictions, dependent: :restrict_with_error
 
   belongs_to :collecting_event, inverse_of: :collection_objects
@@ -120,6 +121,10 @@ class CollectionObject < ApplicationRecord
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
+
+  has_many :observation_matrix_row_items, inverse_of: :collection_object, class_name: 'ObservationMatrixRowItem::Single::CollectionObject'
+  has_many :observation_matrix_rows, inverse_of: :collection_object
+  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
@@ -136,6 +141,9 @@ class CollectionObject < ApplicationRecord
 
   scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
+
+  has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
+  has_many :sequences, through: :extracts
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -522,6 +530,7 @@ class CollectionObject < ApplicationRecord
     retval
   end
 
+  # TODO: move to filter
   # @param [Hash] search_start_date string in form 'yyyy-mm-dd'
   # @param [Hash] search_end_date string in form 'yyyy-mm-dd'
   # @param [Hash] partial_overlap 'on' or 'off'

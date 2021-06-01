@@ -1,0 +1,23 @@
+@import '../variables/_sizes.scss';
+@import '../variables/_palette.scss';
+
+@each $key, $value in $tw-input-sizes {
+  .btn-#{$key}-size {
+    height: #{$value};
+  }
+}
+
+@each $key, $value in $tw-input-sizes {
+  .btn-#{$key}-circle {
+    height: #{$value};
+    width: #{$value};
+    border-radius: 50%;
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .btn-#{$key} {
+    background-color: #{$value};
+    color: white;
+  }
+}

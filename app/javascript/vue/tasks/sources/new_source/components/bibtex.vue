@@ -40,7 +40,7 @@
 import AjaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
 import { MutationNames } from '../store/mutations/mutations'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
@@ -73,7 +73,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     width: 500px;
   }
   textarea {

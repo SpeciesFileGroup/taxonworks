@@ -120,12 +120,13 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
 
   # @return [Array of TaxonName]
   #   a summary of all names referenced in this entry 
+  #
   def all_names
     n = [ object ]
     items.each do |i|
       n.push item_names(i)
     end
-    n.flatten.uniq.sort_by!(&:cached)
+    n = n.flatten.uniq.sort_by!(&:cached)
     n
   end
 
@@ -133,7 +134,6 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
   #   as extracted for all EntryItems, orderd alphabetically by full citation
   def all_sources
     s  = items.collect{|i| i.source}
-
     if !object.nil?
       relationship_items.each do |i|
         s << i.object.object_taxon_name.origin_citation.try(:source) if i.object.subject_taxon_name != object  # base_object?
@@ -144,6 +144,12 @@ class Catalog::Nomenclature::Entry < ::Catalog::Entry
     # This is here because they are cross-referenced in HTML rendering
     s += ::TaxonNameClassification.where(taxon_name_id: all_protonyms.collect{|p| p.object}).all.
       collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+
+    s += TaxonNameRelationship::Typification.where(object_taxon_name_id: all_protonyms.collect{|p| p.object}).all.
+        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
+
+    s += TypeMaterial.where(protonym_id: all_protonyms.collect{|p| p.object}).all.
+        collect{|tnc| tnc.citations.collect{|c| c.source}}.flatten
 
     s.compact.uniq.sort_by{|s| s.cached}
   end

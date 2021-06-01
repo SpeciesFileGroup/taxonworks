@@ -7,10 +7,9 @@ IFS=$'\n\t'
 function wait_for_db {
   sleep 3
 
-  while [[ $(pg_isready -h "db" \
-           -U "postgres") = "no response" ]]; do
+  until pg_isready -h "db" -U "postgres"; do
     echo "Waiting for postgresql to start..."
-    sleep 1
+    sleep 2
   done
 }
 # Could do sanity check of environment here

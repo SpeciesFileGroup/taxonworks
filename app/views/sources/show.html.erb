@@ -12,12 +12,19 @@
   <%= content_tag(:li, link_to('Source hub', source_hub_task_path(source_id: @source))) -%>
 <% end %> 
 
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, collection_object_radial_tag(@source) )   %>
+<% end %>
+
 <%= content_for :associated do %>
 
 
   <% if @source.documentation.where('documents.project_id = ?', sessions_current_project_id) -%>
     <h3> Documents </h3>
+    <div class="horizontal-left-content">
     <%= documentation_links(@source) -%>
+    <%= document_viewer_buttons(@source) %>
+    </div>
   <% end %>
 
   <% if source_in_other_project?(@source) -%>

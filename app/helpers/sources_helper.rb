@@ -5,12 +5,38 @@ module SourcesHelper
     source.cached ? sanitize(source.cached, tags: ['i']).html_safe : (source.new_record? ? nil : 'ERROR - Source cache not set, please notify admin.')
   end
 
-  def source_author_year_tag(source)
-    if source && source.type == 'Source::Bibtex' && source.author_year.present?
-      source.author_year
+  def sources_autocomplete_tag(source, term)
+    return nil if source.nil?
+
+    if term
+      s = source.cached.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' ' # weee bit simpler
     else
-      content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+      s = source.cached + ' '
     end
+
+    if source.is_in_project?(sessions_current_project_id)
+      s += ' ' + content_tag(:span, 'in', class: [:feedback, 'feedback-primary', 'feedback-thin']) 
+      c = source.citations.where(project_id: sessions_current_project_id).count
+      s += ' ' + ( c > 0 ? content_tag(:span, "#{c.to_s}&nbsp;#{'citations'.pluralize(c)}".html_safe, class: [:feedback, 'feedback-secondary', 'feedback-thin']) : '' )
+      s += ' ' + content_tag(:span, 'doc/pdf', class: [:feedback, 'feedback-success', 'feedback-thin']) if source.documentation.where(project_id: sessions_current_project_id).any?
+    else
+      s += ' ' + content_tag(:span, 'out', class: [:feedback, 'feedback-warning', 'feedback-thin']) 
+    end
+
+    s.html_safe
+  end
+
+  def source_author_year_tag(source)
+    res = content_tag(:span, 'Author, year not yet provided for source.', class: [:feedback, 'feedback-thin', 'feedback-warning'])
+
+    case source&.type
+    when 'Source::Human'
+      res = source.cached
+    when 'Source::Bibtex'
+      res = source.author_year if source.author_year.present?
+    end
+
+    res
   end
 
   def sources_search_form

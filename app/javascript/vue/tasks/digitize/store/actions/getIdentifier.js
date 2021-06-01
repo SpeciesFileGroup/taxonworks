@@ -1,13 +1,8 @@
-import { GetIdentifier } from '../../request/resources'
+import { Identifier } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit }, id) {
-  return new Promise((resolve, reject) => {
-    GetIdentifier(id).then(response => {
-      commit(MutationNames.SetIdentifier, response.body)
-      resolve(response.body)
-    }, error => {
-      reject(error)
-    })
+export default ({ commit }, id) => {
+  Identifier.find(id).then(response => {
+    commit(MutationNames.SetIdentifier, response.body)
   })
 }

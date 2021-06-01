@@ -65,11 +65,15 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import DefaultPin from 'components/getDefaultPin'
-
-import { GetObservationMatrices, GetObservationRow, CreateObservationMatrixRow, GetObservationMatrix, CreateOTU } from '../request/resources'
+import {
+  ObservationMatrix,
+  ObservationMatrixRow,
+  ObservationMatrixRowItem,
+  Otu
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -89,12 +93,10 @@ export default {
   },
   computed: {
     alreadyInMatrices () {
-      return this.matrices.filter(item => {
-        return this.rows.find(row => { return item.id === row.observation_matrix_id })
-      })
+      return this.matrices.filter(item => this.rows.find(row => item.id === row.observation_matrix_id))
     },
     alreadyInCurrentMatrix () {
-      return this.rows.filter(row => { return this.selectedMatrix.id === row.observation_matrix_id })
+      return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
     }
   },
   data () {
@@ -125,11 +127,12 @@ export default {
       } else {
         this.openMatrixRowCoder()
       }
+      this.show = false
     },
     openModal () {
       this.loading = true
       this.show = true
-      GetObservationMatrices().then(response => {
+      ObservationMatrix.all().then(response => {
         this.matrices = response.body.sort((a, b) => { 
           const compareA = a.object_tag
           const compareB = b.object_tag
@@ -144,7 +147,7 @@ export default {
         this.loading = false
       })
       if (this.otuSelected) {
-        GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+        ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
           this.rows = response.body
         })
       }
@@ -161,7 +164,7 @@ export default {
           const promises = []
 
           if (!this.otuSelected) {
-            promises.push(CreateOTU(this.taxonNameId).then(response => {
+            promises.push(Otu.create({ otu: { taxon_name_id: this.taxonNameId } }).then(response => {
               this.otuSelected = response.body.id
             }))
           }
@@ -169,10 +172,10 @@ export default {
             const data = {
               observation_matrix_id: this.selectedMatrix.id,
               otu_id: this.otuSelected,
-              type: 'ObservationMatrixRowItem::SingleOtu'
+              type: 'ObservationMatrixRowItem::Single::Otu'
             }
-            CreateObservationMatrixRow(data).then(response => {
-              GetObservationRow({ otu_id: this.otuSelected }).then(response => {
+            ObservationMatrixRowItem.create({ observation_matrix_row_item: data }).then(() => {
+              ObservationMatrixRow.where({ otu_id: this.otuSelected }).then(response => {
                 this.rows = response.body
                 resolve(response)
               })
@@ -182,7 +185,7 @@ export default {
       })
     },
     setMatrix (id) {
-      GetObservationMatrix(id).then(response => {
+      ObservationMatrix.find(id).then(response => {
         this.selectedMatrix = response.body
         this.loadMatrix(this.selectedMatrix)
       })
@@ -210,11 +213,11 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .modal-body {
+  ::v-deep .modal-body {
     max-height: 80vh;
     overflow-y: scroll;
   }
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     width: 800px;
   }
 </style>

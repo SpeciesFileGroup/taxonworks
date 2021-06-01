@@ -19,6 +19,10 @@ module RolesHelper
   def role_object_tag(role)
     return nil if role.nil?
     [role.class.human_name, object_tag(role.role_object)].join(' of ').html_safe
-  end 
+  end
+
+  def role_in_project?(role)
+    Role.exists?(project_id: sessions_current_project_id, id: role.id.to_param)
+  end
 
 end

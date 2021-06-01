@@ -173,7 +173,7 @@ describe 'Geo', group: :geo do
 
     context 'multiple use cases for lat/long hunt_wrapper' do
       use_cases = {
-        'Here is some extra text: N 23.23  W 44.44  More stuff at the end'                                                                                =>
+        'Here is some extra text: N 23.23  W 44.44  More stuff at the end' =>
           {'DD1A' => {method: 'text, DD1A'},
            'DD1B' => {piece:  'N 23.23  W 44.44',
                       lat:    'N 23.23',
@@ -273,7 +273,10 @@ describe 'Geo', group: :geo do
            'DM1'  => {method: 'text, DM1'},
            'DMS2' => {method: 'text, DMS2'},
            'DM3'  => {method: 'text, DM3'},
-           'DMS4' => {method: 'text, DMS4'},
+           'DMS4' => {method: 'text, DMS4',
+                      piece:  "42°5'18.1\"S 88°11'43.3\"W",
+                      lat:    "42°5'18.1\"S",
+                      long:   "88°11'43.3\"W"},
            'DD5'  => {method: 'text, DD5'},
            'DD6'  => {method: 'text, DD6'},
            'DD7'  => {method: 'text, DD7'},
@@ -565,7 +568,8 @@ describe 'Geo', group: :geo do
            '( )'  => {piece:  "54'N, 43'E;",
                       lat:    "54'N,",
                       long:   "43'E;",
-                      method: '( )'}},
+                      method: '( )'}
+          },
         'ARGENTINA: Corrientes, P.N. Mburucuyá, 1.8 km W campgd., 80m, 28.01566o"S58.01970oW, 8 Jan 2008 C.H.Dietrich, vacuum, AR9-10'                    =>
           {'DD1A' => {method: 'text, DD1A'},
            'DD1B' => {method: 'text, DD1B'},
@@ -584,7 +588,95 @@ describe 'Geo', group: :geo do
                       method: '(,)'},
            '( )'  => {piece:  '28.01566o"S58.01970oW,',
                       lat:    '28.01566o"S58.01970oW,',
-                      method: '( )'}}
+                      method: '( )'}},
+
+        'Dmitriev enhancement 12°27’24”N 12°27’24”W' =>
+            {'DD1A' => {method: 'text, DD1A'},
+             'DD1B' => {method: 'text, DD1B'},
+             'DD2'  => {method: 'text, DD2'},
+             'DM1'  => {method: 'text, DM1'},
+             'DMS2' => {method: 'text, DMS2'},
+             'DM3'  => {method: 'text, DM3'},
+             'DMS4' => {method: 'text, DMS4',
+                        piece:  '12°27’24”N 12°27’24”W',
+                        lat:    '12°27’24”N',
+                        long:   '12°27’24”W'},
+             'DD5'  => {method: 'text, DD5'},
+             'DD6'  => {method: 'text, DD6'},
+             'DD7'  => {method: 'text, DD7'},
+             '(;)'  => {method: '(;)'},
+             '(,)'  => {method: '(,)'},
+             '( )'  => {method: '( )',
+                        piece:  '12°27’24”N 12°27’24”W',
+                        lat:    '12°27’24”N',
+                        long:   '12°27’24”W'}
+            },
+
+        'Dmitriev enhancement, floating point minutes 42°27.5’N 12°27.7’W' =>
+            {'DD1A' => {method: 'text, DD1A'},
+             'DD1B' => {method: 'text, DD1B'},
+             'DD2'  => {method: 'text, DD2'},
+             'DM1'  => {method: 'text, DM1',
+                        piece:  '42°27.5’N 12°27.7’W',
+                        lat:    '42°27.5’N',
+                        long:   '12°27.7’W'},
+             'DMS2' => {method: 'text, DMS2'},
+             'DM3'  => {method: 'text, DM3'},
+             'DMS4' => {method: 'text, DMS4'},
+             'DD5'  => {method: 'text, DD5'},
+             'DD6'  => {method: 'text, DD6'},
+             'DD7'  => {method: 'text, DD7'},
+             '(;)'  => {method: '(;)'},
+             '(,)'  => {method: '(,)'},
+             '( )'  => {method: '( )',
+                        piece:  '42°27.5’N 12°27.7’W',
+                        lat:    '42°27.5’N',
+                        long:   '12°27.7’W'}
+            },
+
+        'Dmitriev enhancement, floating point minutes N42°27.5’ W12°27.7’' =>
+            {'DD1A' => {method: 'text, DD1A'},
+             'DD1B' => {method: 'text, DD1B'},
+             'DD2'  => {method: 'text, DD2'},
+             'DM1'  => {method: 'text, DM1'},
+             'DMS2' => {method: 'text, DMS2'},
+             'DM3'  => {method: 'text, DM3',
+                        piece:  'N42°27.5’ W12°27.7’',
+                        lat:    'N42°27.5’',
+                        long:   'W12°27.7’'},
+             'DMS4' => {method: 'text, DMS4'},
+             'DD5'  => {method: 'text, DD5'},
+             'DD6'  => {method: 'text, DD6'},
+             'DD7'  => {method: 'text, DD7'},
+             '(;)'  => {method: '(;)'},
+             '(,)'  => {method: '(,)'},
+             '( )'  => {method: '( )',
+                        piece:  'N42°27.5’ W12°27.7’',
+                        lat:    'N42°27.5’',
+                        long:   'W12°27.7’'}
+            },
+
+        'Dmitriev enhancement, floating point seconds 42°27’24.5”N 12°27’24.7”W' =>
+            {'DD1A' => {method: 'text, DD1A'},
+             'DD1B' => {method: 'text, DD1B'},
+             'DD2'  => {method: 'text, DD2'},
+             'DM1'  => {method: 'text, DM1'},
+             'DMS2' => {method: 'text, DMS2'},
+             'DM3'  => {method: 'text, DM3'},
+             'DMS4' => {method: 'text, DMS4',
+                        piece:  '42°27’24.5”N 12°27’24.7”W',
+                        lat:    '42°27’24.5”N',
+                        long:   '12°27’24.7”W'},
+             'DD5'  => {method: 'text, DD5'},
+             'DD6'  => {method: 'text, DD6'},
+             'DD7'  => {method: 'text, DD7'},
+             '(;)'  => {method: '(;)'},
+             '(,)'  => {method: '(,)'},
+             '( )'  => {method: '( )',
+                        piece:  '42°27’24.5”N 12°27’24.7”W',
+                        lat:    '42°27’24.5”N',
+                        long:   '12°27’24.7”W'}
+            }
       }
       @entry    = 0
 
@@ -601,6 +693,7 @@ describe 'Geo', group: :geo do
     context 'multiple use cases of degrees_minutes_seconds_to_decimal_degrees' do
 
       use_cases = {#' 3rd ridge prairie'            => '3.0',
+                   '12°27’24”N' => '12.456667',
                    '22deg10\'34"S,' => '-22.176111', # convert deg to º
                    '166deg30\'17"E' => '166.504722',
                    '22dg10\'34"S,'  => '-22.176111', # convert deg to º
@@ -642,6 +735,8 @@ describe 'Geo', group: :geo do
                    'N40.446195'     => '40.446195',
                    'W79.982195'     => '-79.982195',
                    # some special characters for Dmitry
+                   '12°27’24”W'     => '-12.456667',
+                   '42°27’24.5”N'   => '42.456806',
                    "  40\u02da26¥46¥S"             => '-40.446111',
                    '42∞5\'18.1"S'                  => '-42.088361',
                    'w88∞11\'43.3"'                 => '-88.195361',
@@ -837,43 +932,129 @@ describe 'Geo', group: :geo do
   context 'elevation_in_meters' do
     context 'single use cases' do
       specify "case '123 miles' should yield #{197_949.312}" do
-        expect(Utilities::Geo.distance_in_meters('123 mi')).to eq(197_949.312)
+        # expect(Utilities::Geo.distance_in_meters('123 mi.').to_f).to eq(198_000)    # was 197_949.312
+        expect(Utilities::Geo.distance_in_meters('')).to eq('0')
+        # expect(Utilities::Geo.distance_in_meters('2.0000000 miles')).to eq('3218.6880')
       end
     end
 
-    context 'multiple use cases' do
-      use_cases = {' 12345'                => 12_345.0,
-                   '1.1 mi'                => 1770.2784,
-                   '2 mile'                => 3218.688,
-                   '3 miles'               => 4828.032,
-                   '3036m'                 => 3036.0,
-                   '2.11km'                => 2110,
-                   ' 123.45'               => 123.45,
-                   ' 123 ft'               => 37.4904,
-                   ' 123 ft.'              => 37.4904,
-                   ' 123 feet'             => 37.4904,
-                   ' 1 foot'               => 0.3048,
-                   ' 123 f'                => 37.4904,
-                   '   123 f.'             => 37.4904,
-                   ' 123 m'                => 123.0,
-                   '  123 meters'          => 123.0,
-                   '     123 m.'           => 123.0,
-                   '    123 km'            => 123_000.0,
-                   ' 123 km.'              => 123_000.0,
-                   '       123 kilometers' => 123_000.0,
-                   '123 kilometer'         => 123_000.0,
-                   ''                      => 0.0,
-                   'sillyness'             => 0.0}
+    context 'multiple use cases as string values' do
+      use_cases = {' 12345'                => '12345', # .0
+                   '1.1 mi'                => '1800', #1770.2784
+                   '1.10 mi'               => '1770',
+                   '1.100 mi'              => '1770',
+                   '1.1000 mi'             => '1770.3',
+                   '1.10000 mi'            => '1770.28',
+                   '2 mile'                => '3000', #3218.688
+                   '2. mile'               => '3000',
+                   '2.0 mile'              => '3200',
+                   '2.00 mile'             => '3220',
+                   '2.000 mile'            => '3219',          ##### @mjy ambiguous decimal point 3219. -> 3219
+                   '2.0000 mile'           => '3218.7',
+                   '2.00000 mile'          => '3218.69',
+                   '2.000000 mile'         => '3218.688',
+                   '2.0000000 mile'        => '3218.6880',    ##### @mjy more significant digits than product fixed
+                   '3 miles'               => '5000', #4828.032,
+                   '.03 mi'                => '50',
+                   '.030 mi'               => '48',   #               ##### @mjy ambiguous decimal point  48. -> 48
+                   '.0300 mi'              => '48.3',
+                   '.03000 mi'             => '48.28',
+                   '0.03 mi'               => '50',
+                   '0.030 mi'              => '48',   #               ##### @mjy ambiguous decimal point  48. -> 48
+                   '0.0300 mi'             => '48.3',
+                   '0.03000 mi'            => '48.28',
+                   '0.030000 mi'           => '48.280',
+                   '0.0300000 mi'          => '48.2803',
+                   '0.3000000 mi'          => '482.8032',
+                   '0.30000000 mi'         => '482.80320',
+                   '3036m'                 => '3036',
+                   '2.11km'                => '2110',
+                   ' 123.45'               => '123.45',
+                   ' 123 ft'               => '37.5',    #37.4904
+                   ' 123 ft.'              => '37.5',
+                   ' 123 feet'             => '37.5',
+                   ' 1 foot'               => '0.3',     #0.3048,     ##### @mjy ambiguous (missing) single lead 0 before mantissa
+                   ' 123 f'                => '37.5',                      ## ^ .3 now computes to 0.3 (valid Ruby number)
+                   '   123 f.'             => '37.5',
+                   '   123f.'              => '37.5',    #37.4904
+                   '   123ft.'             => '37.5',
+                   '   123.0ft.'           => '37.49',
+                   ' 123.0000000 mi'       => '197949.3120',
+                   ' 123 m'                => '123',
+                   '  123 meters'          => '123',
+                   '     123 m.'           => '123',
+                   '    123 km'            => '123000',
+                   ' 123 km.'              => '123000',
+                   '       123 kilometers' => '123000',
+                   '123 kilometer'         => '123000',
+                   ''                      => '0',          #         ##### ambiguous/erroneous leading decimal point fixed
+                   'sillyness'             => '0',
+                   'No. N0t a number.'     => '0'}
 
       @entry = 0
 
       use_cases.each { |distance, result|
         @entry += 1
         specify "case #{@entry}: '#{distance}' should yield #{result}" do
-          expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
+          expect(Utilities::Geo.distance_in_meters(distance)).to eq(result)
         end
       }
     end
+
+    context 'significant digits analysis' do
+      use_cases = {
+          '1' =>         ['1', 1, '1', '', '', ''],
+          '1.' =>        ['1.', 1, '1', '.', '', ''],
+          '1.0' =>       ['1.0', 2, '1', '.', '', '0'],
+          '1.00' =>      ['1.00', 3, '1', '.', '', '00'],
+          '1.000' =>     ['1.000', 4, '1', '.', '', '000'],
+          '1.0000' =>    ['1.0000', 5, '1', '.', '', '0000'],
+          '1.2' =>       ['1.2', 2, '1', '.', '', '2'],
+          '123' =>       ['123', 3, '123', '', '', ''],
+          '.2' =>        ['.2', 1, '', '.', '', '2'],
+          '.0002' =>     ['.0002', 1, '', '.', '000', '2'],
+          '0.0002' =>    ['.0002', 1, '', '.', '000', '2'],
+          '0.00020' =>   ['.00020', 2, '', '.', '000', '20'],
+          '1.00020' =>   ['1.00020', 6, '1', '.', '', '00020'],
+          '12.00020' =>  ['12.00020', 7, '12', '.', '', '00020'],
+          '123.00020' => ['123.00020', 8, '123', '.', '', '00020'],
+          }
+
+      @entry = 0
+
+      use_cases.each { |number, result|
+        @entry += 1
+        specify "case #{@entry}: '#{number}' should yield #{result}" do
+          # expect(Utilities::Geo.distance_in_meters(distance)).to be_within(0.1).of(result)
+          expect(Utilities::Geo.significant_digits(number.to_s)).to eq(result)
+        end
+      }
+    end
+
+    context 'significant digits conformance' do
+      use_cases = {
+          '12345'     => ['12345', 5],
+          '1770.2784' => ['1800',2],
+          '3218.688'  => ['3000', 1],
+          '4828.032'  => ['5000', 1],
+          '3036'      => ['3036', 4],
+          '2110'      => ['2110', 3],
+          '123.45'    => ['123.45', 5],
+          '37.4904'   => ['37.5', 3],
+          '0.3048'    => ['0.3', 1],
+          '123.00020' => ['123.00', 5]
+      }
+
+      @entry = 0
+
+      use_cases.each { |number, result|
+        @entry += 1
+        specify "case #{@entry}: '#{number}', '#{result[1]}' should yield #{result[0]}" do
+          expect(Utilities::Geo.conform_significant(number, result[1])).to eq(result[0])
+        end
+      }
+    end
+
   end
   # rubocop:enable Style/StringHashKeys
 
@@ -881,14 +1062,22 @@ describe 'Geo', group: :geo do
     context 'multiple use cases in coordinates_regex_from_verbatim_label' do
 
       use_cases = {
-                   'text, 42°5ʼ18.1"S 88°11ʼ43.3"W, text' => '42/5/18.1/S/88/11/43.3/W',
-                   'text, S42°5ʼ18.1"W88°11ʼ43.3", text'  => '42/5/18.1/S/88/11/43.3/W',
-                   'text, S42°5.18ʼW88°11.43ʼ, text'      => '42/5.18//S/88/11.43//W',
-                   'text, 42°5.18ʼS88°11.43ʼW, text'      => '42/5.18//S/88/11.43//W',
-                   'text, 10°32’S, 75°21’W, text'         => '10/32//S/75/21//W',
-                   'text, S42.18°W88.34°, text'           => '42.18///S/88.34///W',
-                   'text, 42.18°S88.34°W, text'           => '42.18///S/88.34///W',
-                   'text, -12.263, 49.398, text'          => '12.263///S/49.398///E'    }
+                   'text, 20.2501ºN 105.7145ºE 156m text'     => '20.2501///N/105.7145///E',
+                   'text, 42°5ʼ18.1"S 88°11ʼ43.3"W, text'     => '42/5/18.1/S/88/11/43.3/W',
+                   'text, 00°39’25.7” S 076°27’10.8” W, text' => '00/39/25.7/S/076/27/10.8/W',
+                   'text, 19°8′31″ S 44°49′41″ E, text'       => '19/8/31/S/44/49/41/E',
+                   'text, S42°5ʼ18.1"W88°11ʼ43.3", text'      => '42/5/18.1/S/88/11/43.3/W',
+                   'text, S42°5.18ʼW88°11.43ʼ, text'          => '42/5.18//S/88/11.43//W',
+                   'text, N04°54.028’ W052°34.494’, text'     => '04/54.028//N/052/34.494//W',
+                   'text, 11°25΄ N 107°25΄ E, text'           => '11/25//N/107/25//E',
+                   'text, 42°5.18ʼS88°11.43ʼW, text'          => '42/5.18//S/88/11.43//W',
+                   'text, 29º 28.667’S 30º 15.701’ E, text'   => '29/28.667//S/30/15.701//E',
+                   'text, 23°41.19′ S, 44°35.46′ E, text'     => '23/41.19//S/44/35.46//E',
+                   'text, 10°32’S, 75°21’W, text'             => '10/32//S/75/21//W',
+                   'text, S42.18°W88.34°, text'               => '42.18///S/88.34///W',
+                   'text, 42.18°S88.34°W, text'               => '42.18///S/88.34///W',
+                   'text, -12.263, 49.398, text'              => '12.263///S/49.398///E',
+                   }
 
       @entry = 0
 

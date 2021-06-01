@@ -14,9 +14,9 @@ class ObservationMatrixColumnsController < ApplicationController
       end
       format.json { 
         @observation_matrix_columns = ObservationMatrixColumn.where(filter_params)
-        .where(project_id: sessions_current_project_id)
-        .order('observation_matrix_columns.position')
-        .page(params[:page]).per(params[:per])
+          .where(project_id: sessions_current_project_id)
+          .order('observation_matrix_columns.position')
+          .page(params[:page]).per(params[:per])
       }
     end
   end

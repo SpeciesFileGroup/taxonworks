@@ -1,5 +1,4 @@
 resource = @klass.tableize
-
 json.type @klass
 
 if @object
@@ -12,8 +11,9 @@ else
   json.resource_path resource
 end
 
-json.tasks do
-  if @data
+if @data
+  
+  json.tasks do
     @data['tasks'].each do |t|
       json.set! t do
         json.name UserTasks::INDEXED_TASKS[t].name
@@ -25,17 +25,11 @@ json.tasks do
       end
     end
   end
-end
 
-if @data
   json.config @data['config']
 
-  if @data['config']['recent']
+  if @data.dig('config', 'recent')
     json.recent_url resource + '?recent=true'
-  end
-
-  if @data['edit']
-    json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
   end
 
   if @data['home']
@@ -45,6 +39,15 @@ if @data
   if @data['new']
     json.new send("#{@data['new']}_path")
   end
+
+  if @data['edit']
+    json.edit send("#{@data['edit']}_path", "#{resource.singularize}_id" => @object.id)
+  end
+
+  if @data['destroyed_redirect']
+    json.destroyed_redirect send("#{@data['destroyed_redirect']}_path")
+  end
+
 end
 
 json.partial! '/pinboard_items/pinned', object: @object

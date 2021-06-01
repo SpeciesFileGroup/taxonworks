@@ -16,42 +16,55 @@
 
 <script>
 
-import { CreateTags } from '../request/resources'
+import { Tag } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
 
 export default {
   components: {
     SpinnerComponent
   },
+
   props: {
     ids: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
+    },
+    type: {
+      type: String,
+      required: true
     }
   },
+
   data () {
     return {
       keywordId: this.getDefault(),
       showSpinner: false
     }
   },
-  mounted () {
-    let that = this
-    document.addEventListener('pinboard:insert', function (event) {
-      if (event.detail.type == 'ControlledVocabularyTerm') { 
-        that.keywordId = that.getDefault()
+
+  created () {
+    document.addEventListener('pinboard:insert', (event) => {
+      if (event.detail.type === 'ControlledVocabularyTerm') {
+        this.keywordId = this.getDefault()
       }
     })
   },
+
   methods: {
-    getDefault() {
-      let defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
+    getDefault () {
+      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
       return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
     },
-    tagAll() {
+
+    tagAll () {
       this.showSpinner = true
-      CreateTags(this.keywordId, this.ids).then(response => {
+      Tag.createBatch({
+        object_type: this.type,
+        keyword_id: this.keywordId,
+        object_ids: this.ids
+      }).then(() => {
         this.showSpinner = false
+        TW.workbench.alert.create('Tags was successfully created', 'notice')
       })
     }
   }

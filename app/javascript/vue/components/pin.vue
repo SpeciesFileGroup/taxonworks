@@ -21,7 +21,7 @@ export default {
     },
     objectId: {
       type: [String, Number],
-      required: true,
+      required: true
     },
     type: {
       type: String,
@@ -43,37 +43,40 @@ export default {
     }
   },
   watch: {
-    pinObject: function (newVal) {
+    pinObject (newVal) {
       this.pin = newVal
     },
-    objectId: function (newVal) {
+    objectId (newVal) {
       this.id = newVal
+      this.alreadyPinned()
     }
   },
-  mounted() {
+  created () {
     this.alreadyPinned()
     document.addEventListener('pinboard:remove', this.clearPin)
   },
-  destroyed() {
+  destroyed () {
     document.removeEventListener('pinboard:remove', this.clearPin)
   },
   methods: {
-    clearPin: function (event) {
+    clearPin (event) {
       if(this.pin && this.pin.id == event.detail.id) {
         this.pin = undefined
       }
     },
-    alreadyPinned: function() {
-      let section = document.querySelector(`[data-pinboard-section="${this.section ? this.section : `${this.type}${this.pluralize ? 's' : ''}`}"] [data-pinboard-object-id="${this.id}"]`)
-      if(section != null) {
+    alreadyPinned () {
+      const section = document.querySelector(`[data-pinboard-section="${this.section ? this.section : `${this.type}${this.pluralize ? 's' : ''}`}"] [data-pinboard-object-id="${this.id}"]`)
+      if (section) {
         this.pin = {
           id: section.getAttribute('data-pinboard-item-id'),
           type: this.type
         }
+      } else {
+        this.pin = undefined
       }
     },
-    createPin: function () {
-      let pinItem = {
+    createPin () {
+      const pinItem = {
         pinboard_item: {
           pinned_object_id: this.id,
           pinned_object_type: this.type,

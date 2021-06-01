@@ -16,7 +16,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import { CreateTag } from '../../request/resources'
 import SpinnerComponent from 'components/spinner'
 

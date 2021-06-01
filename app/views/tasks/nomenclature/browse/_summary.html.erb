@@ -1,6 +1,6 @@
-<div id="summary-panel" class="panel fullSize content separate-left separate-bottom">
+<div id="summary-panel" class="panel fullSize content separate-bottom">
   <h2> Summary </h2>
-  <p> 
+  <p>
     <%= taxon_name_short_status(@taxon_name) -%><br>
     <span data-taxon-type="<%= @taxon_name.type -%>">The record is for a <%= @taxon_name.type -%>.</span>
     <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%><br>
@@ -13,4 +13,3 @@
     <%= taxon_name_otus_links(@taxon_name) -%>
   </p>
 </div>
-

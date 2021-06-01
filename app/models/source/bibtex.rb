@@ -301,13 +301,38 @@ require 'namecase'
 #   `author` is automatically populated from `authors` if the latter is provided
 #   !! This is different behavious from TaxonName, where `verbatim_author` has priority over taxon_name_author (People) in rendering.
 #
-#   See also `cached_author_author_string` 
+#   See also `cached_author_string`
 #
 class Source::Bibtex < Source
 
   attr_accessor :authors_to_create
 
-  # @todo :update_authors_editor_if_changed? if: Proc.new { |a| a.password.blank? }
+  include Shared::OriginRelationship
+  include Source::Bibtex::SoftValidationExtensions::Instance
+  extend Source::Bibtex::SoftValidationExtensions::Klass
+
+  is_origin_for 'Source::Bibtex', 'Source::Verbatim'
+  originates_from 'Source::Bibtex', 'Source::Verbatim'
+
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
+
+  # Used in soft validation
+  BIBTEX_REQUIRED_FIELDS = {
+    article: [:author, :title, :journal, :year],
+    book: [:author, :editor, :title, :publisher, :year],
+    booklet: [:title],
+    conference: [:author, :title, :booktitle, :year],
+    inbook: [:author, :editor, :title, :chapter, :pages, :publisher, :year],
+    incollection: [:author, :title, :booktitle, :publisher, :year],
+    inproceedings:  [:author, :title, :booktitle, :year],
+    manual: [:title],
+    mastersthesis: [:author, :title, :school, :year],
+    misc: [],
+    phdthesis: [:author, :title, :school, :year],
+    proceedings: [:title, :year],
+    techreport: [:author,:title,:institution, :year],
+    unpublished: [:author, :title, :note]
+  }
 
   # TW required fields (must have one of these fields filled in)
   # either year or stated_year is acceptable
@@ -363,14 +388,11 @@ class Source::Bibtex < Source
     with: URI::regexp(%w(http https ftp)),
     message: '[%{value}] is not a valid URL'}, allow_blank: true
 
+  validate :italics_are_paired, unless: -> { title.blank? }
+  validate :validate_year_suffix, unless: -> { self.no_year_suffix_validation || (self.type != 'Source::Bibtex') }
+
   # includes nil last, exclude it explicitly with another condition if need be
   scope :order_by_nomenclature_date, -> { order(:cached_nomenclature_date) }
-
-  soft_validate(:sv_has_some_type_of_year, set: :recommended_fields, has_fix: false)
-  soft_validate(:sv_contains_a_writer, set: :recommended_fields, has_fix: false)
-  soft_validate(:sv_missing_required_bibtex_fields, set: :bibtex_fields, has_fix: false)
-  soft_validate(:sv_duplicate_title, set: :duplicate_title, has_fix: false)
-  soft_validate(:sv_missing_roles, set: :missing_roles, has_fix: false)
 
   # @param [BibTeX::Name] bibtex_author
   # @return [Person, Boolean] new person, or false
@@ -718,9 +740,9 @@ class Source::Bibtex < Source
       b[:doi] = dois.first.identifier # TW only allows one DOI per object
     end
 
-    # Over-ride `author` and `editor` if there
-    b.author = compute_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
-    b.editor = compute_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
+    # Overiden by `author` and `editor` if present
+    b.author = get_bibtex_names('author') if author_roles.load.any? # unless (!authors.load.any? && author.blank?)
+    b.editor = get_bibtex_names('editor') if editor_roles.load.any? # unless (!editors.load.any? && editor.blank?)
 
     b.key = id unless new_record?
     b
@@ -732,7 +754,7 @@ class Source::Bibtex < Source
   def get_author
     a = authors.load
     if a.any?
-      compute_bibtex_names('author')
+      get_bibtex_names('author')
     else
       author.blank? ? nil : author
     end
@@ -742,7 +764,7 @@ class Source::Bibtex < Source
   def namecase_bibtex_entry(bibtex_entry)
     bibtex_entry.parse_names
     bibtex_entry.names.each do |n|
-      n.first = NameCase(n.first)if n.first
+      n.first = NameCase(n.first) if n.first
       n.last = NameCase(n.last) if n.last
       n.prefix = NameCase(n.prefix) if n.prefix
       n.suffix = NameCase(n.suffix) if n.suffix
@@ -796,7 +818,6 @@ class Source::Bibtex < Source
   #   !! This is NOT a legal BibTeX format  !!
   def authority_name(reload = true)
     reload ? authors.reload : authors.load
-
     if !authors.any? # no normalized people, use string, !! not .any? because of in-memory setting?!
       if author.blank?
         return nil
@@ -812,14 +833,33 @@ class Source::Bibtex < Source
 
   protected
 
+  def validate_year_suffix
+    a = get_author
+    unless year_suffix.blank? || year.blank? || a.blank?
+      if new_record?
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).first
+      else
+        s = Source.where(author: a, year: year, year_suffix: year_suffix).not_self(self).first
+      end
+      errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
+    end
+  end
+
+  def italics_are_paired
+    l = title.scan('<i>')&.count
+    r = title.scan('</i>')&.count
+    errors.add(:title, 'italic markup is not paired') unless l == r
+  end
+
   # @param [String] type either `author` or `editor`
   # @return [String]
   #   The BibTeX version of the name strings created from People
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
   #   This only references People, i.e. `authors` and `editors`.
   #   !! Do not adapt to reference the BibTeX attributes `author` or `editor`
-  def compute_bibtex_names(role_type)
-    send("#{role_type}_roles").collect{ |a| a.person.bibtex_name }.join(' and ')
+  def get_bibtex_names(role_type)
+    # so, we can not reload here
+    send("#{role_type}s").collect{ |a| a.bibtex_name}.join(' and ')
   end
 
   # @return [Ignored]
@@ -828,7 +868,7 @@ class Source::Bibtex < Source
       Person.transaction do
         authors_to_create.each do |shs|
           p = Person.create!(shs)
-          self.author_roles.build(person: p)
+          author_roles.build(person: p)
         end
       end
     rescue
@@ -842,8 +882,8 @@ class Source::Bibtex < Source
     if errors.empty?
       attributes_to_update = {}
 
-      attributes_to_update[:author] = compute_bibtex_names('author') if authors.reload.size > 0
-      attributes_to_update[:editor] = compute_bibtex_names('editor') if editors.reload.size > 0
+      attributes_to_update[:author] = get_bibtex_names('author') if authors.reload.size > 0
+      attributes_to_update[:editor] = get_bibtex_names('editor') if editors.reload.size > 0
 
       c = cached_string('html')
       if bibtex_type == 'book' && !pages.blank?
@@ -853,9 +893,13 @@ class Source::Bibtex < Source
           c = c + " #{pages}"
         end
       end
-      if stated_year && year && stated_year != year
-        c = c + " [#{stated_year}]"
-      end
+      n = []
+      n += [stated_year.to_s] if stated_year && year && stated_year != year
+
+      n += ['in ' + Language.find(language_id).english_name.to_s] if language_id
+      n += [note.to_s] if note
+      c = c + " [#{n.join(', ')}]" unless n.empty?
+
       attributes_to_update.merge!(
         cached: c,
         cached_nomenclature_date: nomenclature_date,
@@ -890,182 +934,5 @@ class Source::Bibtex < Source
     end
   end
 
-  #endregion  hard validations
-
-  # @return [Ignored]
-  def sv_duplicate_title
-    # only used in validating BibTeX output
-    if Source.where(title: title).where.not(id: id).any?
-      soft_validations.add(:title, 'Another source with this title exists, it may be duplicate')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_authors
-    # only used in validating BibTeX output
-    if !(has_authors?)
-      soft_validations.add(:author, 'Valid BibTeX requires an author with this type of source.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_contains_a_writer # neither author nor editor
-    if !has_writer?
-      soft_validations.add(:base, 'There is neither author, nor editor associated with this source.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_title
-    if title.blank?
-      unless soft_validations.messages.include?('There is no title associated with this source.')
-        soft_validations.add(:title, 'There is no title associated with this source.')
-      end
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_some_type_of_year
-    if !has_some_year?
-      soft_validations.add(:base, 'There is no year nor is there a stated year associated with this source.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_year_exists
-    # only used in validating BibTeX output
-    if year.blank?
-      soft_validations.add(:year, 'Valid BibTeX requires a year with this type of source.')
-    elsif year < 1700
-      soft_validations.add(:year, 'This year is prior to the 1700s.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_is_article_missing_journal
-    if bibtex_type == 'article'
-      if journal.nil? && serial_id.nil?
-        soft_validations.add(:bibtex_type, 'This article is missing a journal name.')
-      elsif serial_id.nil?
-        soft_validations.add(:serial_id, 'This article is missing a serial.')
-      end
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_a_publisher
-    if publisher.blank?
-      soft_validations.add(:publisher, 'Valid BibTeX requires a publisher to be associated with this source.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_booktitle
-    if booktitle.blank?
-      soft_validations.add(:booktitle, 'Valid BibTeX requires a book title to be associated with this source.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_is_contained_has_chapter_or_pages
-    if chapter.blank? && pages.blank?
-      soft_validations.add(:bibtex_type, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
-      # soft_validations.add(:chapter, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
-      # soft_validations.add(:pages, 'Valid BibTeX requires either a chapter or pages with sources of type inbook.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_school
-    if school.blank?
-      soft_validations.add(:school, 'Valid BibTeX requires a school associated with any thesis.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_institution
-    if institution.blank?
-      soft_validations.add(:institution, 'Valid BibTeX requires an institution with a tech report.')
-    end
-  end
-
-  # @return [Ignored]
-  def sv_has_note
-    if (note.blank?) && (!notes.any?)
-      soft_validations.add(:note, 'Valid BibTeX requires a note with an unpublished source.')
-    end
-  end
-
-  # rubocop:disable Metrics/MethodLength
-  # @return [Ignored]
-  def sv_missing_required_bibtex_fields
-    case bibtex_type
-      when 'article' # :article => [:author,:title,:journal,:year]
-        sv_has_authors
-        sv_has_title
-        sv_is_article_missing_journal
-        sv_year_exists
-      when 'book' #: book => [[:author,:editor],:title,:publisher,:year]
-        sv_contains_a_writer
-        sv_has_title
-        sv_has_a_publisher
-        sv_year_exists
-      when 'booklet' # :booklet => [:title],
-        sv_has_title
-      when 'conference' # :conference => [:author,:title,:booktitle,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_year_exists
-      when 'inbook' # :inbook => [[:author,:editor],:title,[:chapter,:pages],:publisher,:year],
-        sv_contains_a_writer
-        sv_has_title
-        sv_is_contained_has_chapter_or_pages
-        sv_has_a_publisher
-        sv_year_exists
-      when 'incollection' # :incollection => [:author,:title,:booktitle,:publisher,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_has_a_publisher
-        sv_year_exists
-      when 'inproceedings' # :inproceedings => [:author,:title,:booktitle,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_booktitle
-        sv_year_exists
-      when 'manual' # :manual => [:title],
-        sv_has_title
-      when 'mastersthesis' # :mastersthesis => [:author,:title,:school,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_school
-        sv_year_exists
-      #    :misc => [], (no required fields)
-      when 'phdthesis' # :phdthesis => [:author,:title,:school,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_school
-        sv_year_exists
-      when 'proceedings' # :proceedings => [:title,:year],
-        sv_has_title
-        sv_year_exists
-      when 'techreport' # :techreport => [:author,:title,:institution,:year],
-        sv_has_authors
-        sv_has_title
-        sv_has_institution
-        sv_year_exists
-      when 'unpublished' # :unpublished => [:author,:title,:note]
-        sv_has_authors
-        sv_has_title
-        sv_has_note
-    end
-  end
-
-  def sv_missing_roles
-    soft_validations.add(:base, 'Author roles are not selected.') if self.author_roles.empty?
-  end
-
-  # rubocop:enable Metrics/MethodLength
 end
 

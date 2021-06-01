@@ -13,27 +13,28 @@
 </template>
 
 <script>
-  import { GetterNames } from '../store/getters/getters'
-  import { MutationNames } from '../store/mutations/mutations'
-  import AjaxCall from 'helpers/ajaxCall'
 
-  export default {
-    props: ['ajaxUrl', 'setItems', 'select', 'getItems', 'title'],
-    name: 'RecentList',
-    computed: {
-      items() {
-        return this.$store.getters[GetterNames.GetRecent](this.getItems)
-      }
-    },
-    mounted: function () {
-      AjaxCall('get', this.ajaxUrl).then(response => {
-        this.$store.commit(MutationNames[this.setItems], response.body)
-      })
-    },
-    methods: {
-      save (saveMethod, item) {
-        this.$store.commit(MutationNames[saveMethod], item)
-      }
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import AjaxCall from 'helpers/ajaxCall'
+
+export default {
+  props: ['ajaxUrl', 'setItems', 'select', 'getItems', 'title'],
+  name: 'RecentList',
+  computed: {
+    items () {
+      return this.$store.getters[GetterNames.GetRecent](this.getItems)
+    }
+  },
+  mounted () {
+    AjaxCall('get', this.ajaxUrl).then(response => {
+      this.$store.commit(MutationNames[this.setItems], response.body)
+    })
+  },
+  methods: {
+    save (saveMethod, item) {
+      this.$store.commit(MutationNames[saveMethod], item)
     }
   }
+}
 </script>

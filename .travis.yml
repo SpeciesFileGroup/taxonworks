@@ -1,4 +1,4 @@
-dist: bionic
+dist: focal
 branches:
   only:
     - master
@@ -6,7 +6,7 @@ branches:
     - /v\d+\.\d+\.\d+(-.+)?/
 env:
   global:
-    - TEST_WORKERS=5
+    - TEST_WORKERS=1
     - COVERALLS_PARALLEL=true
 jobs:
   include:
@@ -24,25 +24,27 @@ jobs:
           - $TRAVIS_BUILD_DIR/tmp/cache/webpacker
           - /home/travis/.rvm/
       rvm:
-        - 2.7.1
+        - 2.7.2
       bundler_args: --without development production
       addons:
-        postgresql: "10"
+        postgresql: "12"
         firefox: "latest"
         apt:
           packages:
-            - imagemagick
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
-            - postgresql-10-postgis-2.4
+            - postgresql-12-postgis-3
       env:
           - TEST_WORKER=0
       services:
         - postgresql
       before_install:
+        - export PGPORT=$(pg_lsclusters -h | grep '^12 main' | cut -f3 -d' ')
         - nvm install 10
         - nvm use 10
+        - sudo apt remove imagemagick* libmagickwand-dev
+        - sudo exe/install-imagemagick7.sh
       install:
         - npm install
         - gem install bundler
@@ -58,18 +60,6 @@ jobs:
         - bundle exec rake db:migrate RAILS_ENV=test
       script:
         - .travis/spec_runner.sh
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=1
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=2
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=3
-    - <<: *test-stage
-      env:
-        - TEST_WORKER=4
     - stage: deliver
       if: (tag =~ /\d+\.\d+\.\d+/) OR (branch = development)
       language: minimal
@@ -78,13 +68,9 @@ jobs:
       install:
         - if [ "x$TRAVIS_TAG" != "x" ]; then export DOCKER_TAG=$(echo $TRAVIS_TAG | cut -c2-); else export DOCKER_TAG=latest; fi
         - export REVISION=$(git rev-parse HEAD | cut -c1-9)
-        - cd .travis
-        - docker build .. -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
-        - docker-compose build --parallel
-        - docker-compose up -d --no-build
-        - docker-compose logs
+        - docker build . -t sfgrp/taxonworks --build-arg REVISION=$REVISION --build-arg BUNDLER_WORKERS=3
       script:
-        - docker-compose exec test bundle exec rspec -fd && docker-compose exec taxonworks redis-cli ping
+        - .travis/docker-test.sh
       after_success:
         - |
           [ "$TRAVIS_REPO_SLUG" == "SpeciesFileGroup/taxonworks" ] && \

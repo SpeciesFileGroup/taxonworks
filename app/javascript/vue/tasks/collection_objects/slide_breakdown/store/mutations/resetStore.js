@@ -1,5 +1,5 @@
-import { makeInitialState }  from '../store.js'
+import { makeInitialState } from '../store.js'
 
-export default function(state) {
-  state = Object.assign(state, makeInitialState())
+export default (state) => {
+  Object.assign(state, makeInitialState())
 }

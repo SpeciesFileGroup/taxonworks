@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend v-help.section.BibTeX.authors>Authors</legend>
+  <fieldset v-help.section.BibTeX.authors>
+    <legend>Authors</legend>
     <smart-selector
       ref="smartSelector"
       model="people"
@@ -37,7 +37,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 
 export default {

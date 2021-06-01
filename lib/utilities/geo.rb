@@ -18,9 +18,13 @@ To add a new (discovered) symbol:
     # \u00a5  "¥"  \u00b4  "´"
     # \u02B9  "ʹ"  \u02BA  "ʺ"  \u02BB  "ʻ"  \u02BC  "ʼ"  \u02CA "ˊ"
     # \u02EE  "ˮ"  \u2032  "′"  \u2033  "″"
+    # \u2019  "’"  \u201D  "”"    added June 2020
     #
+    # Significant figures/digits: any of the digits of a number beginning with the digit farthest to the left
+    # that is not zero and ending with the last digit farthest to the right that is either not zero
+    # or that is a zero but is considered to be exact
 
-    SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022".freeze
+    SPECIAL_LATLONG_SYMBOLS = "do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\u0027\u00b4\u02B9\u02BA\u02BB\u02BC\u02CA\u02EE\u2032\u2033\u0022\u2019\u201D".freeze
 
     LAT_LON_REGEXP = Regexp.new(/(?<lat>-?\d+\.?\d*),?\s*(?<long>-?\d+\.?\d*)/)
 
@@ -45,15 +49,15 @@ To add a new (discovered) symbol:
     ONE_NORTH      = 110_574.38855796 # meters/degree
 
     #
-    class ConvertToDecimalDegrees
-      attr_reader(:dd, :dms)
-
-      # @param [String] coordinate
-      def initialize(coordinate)
-        @dms = coordinate
-        @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
-      end
-    end
+    # class ConvertToDecimalDegrees
+    #   attr_reader(:dd, :dms)
+    #
+    #   # @param [String] coordinate
+    #   def initialize(coordinate)
+    #     @dms = coordinate
+    #     @dd  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(coordinate)
+    #   end
+    # end
 
     class CoordinatesFromLabel
       attr_reader(:verbatim_label, :coordinates)
@@ -73,34 +77,38 @@ To add a new (discovered) symbol:
     # 123 mi > 123 milee > 123 miles
     #
     # @param [String] dist_in
-    # @return [Float]
+    # @return [String]      #     ##### changed from previous type
     def self.distance_in_meters(dist_in)
       dist_in   = '0.0 meters' if dist_in.blank?
       elevation = dist_in.strip.downcase
       pieces    = elevation.split(' ')
-      value     = elevation.to_f
+      # value     = elevation.to_f
       if pieces.count > 1 # two pieces, second is distance unit
         piece = 1
       else # one piece, may contain distance unit.
-        if elevation.include?('.')
-          value = elevation.to_f
-        else
-          value = elevation.to_i
-        end
         piece = 0
       end
-      scale = 1.0 # default is meters
+      value = pieces[0]
+      scale = 1 # default is meters
 
       /(?<ft>f[oe]*[t]*\.*)|(?<m>[^k]m(eters)*[\.]*)|(?<km>kilometer(s)*|k[m]*[\.]*)|(?<mi>mi(le(s)*)*)/ =~ pieces[piece]
       # scale = $&
 
-      scale = 1.0 unless m.blank?
+      scale = 1 unless m.blank?    # previously 1.0
       scale = 0.3048 unless ft.blank?
-      scale = 1000.0 unless km.blank?
+      scale = 1000 unless km.blank? # previously 1000.0
       scale = 1_609.344 unless mi.blank?
 
-      distance = value * scale
+      value_sig = significant_digits(value.to_s)
+      if value_sig[0].include?('.')
+        s_value = value_sig[0].to_f
+      else
+        s_value = value_sig[0].to_i
+      end
+      s_sig = value_sig[1]
 
+      distance = s_value * scale
+      distance = conform_significant(distance.to_s, s_sig)  ####### previously .to_f
       distance
     end
 =begin
@@ -129,37 +137,38 @@ To add a new (discovered) symbol:
     }.freeze
 =end
     #  ' = \u0027, converted so that the regex can be used for SQL
+    # Added Unicode right single (u2019) and double (u201D) quote as minutes seconds
     REGEXP_COORD   = {
-      # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
-      dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
-             hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
+        # tt1: /\D?(?<lat>\d+\.\d+\s*(?<ca>[NS])*)\s(?<long>\d+\.\d+\s*(?<co>[EW])*)/i,
+        dd1a: {reg: /(?<lat>\d+\.\d+\s*[NS])\s*(?<long>\d+\.\d+\s*[EW])/i,
+               hlp: 'decimal degrees, trailing ordinal, e.g. 23.23N  44.44W'},
 
-      dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
-             hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
+        dd1b: {reg: /(?<lat>[NS]\s*\d+\.\d+)\s*(?<long>[EW]\s*\d+\.\d+)/i,
+               hlp: 'decimal degrees, leading ordinal, e.g. N23.23  W44.44'},
 
-      dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
-             hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
+        dd2:  {reg: /(?<lat>\d+[\. ]\d+\u0027?\s*[NS]),?\s*(?<long>\d+[\. ]\d+\u0027?\s*[EW])/i,
+               hlp: "decimal degrees, trailing ordinal, e.g. 43.836' N, 89.258' W"},
 
-      dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*[WE])/i,
-             hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
+        dm1:  {reg: /(?<lat>\d+\s*[\*°o\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[NS])[\.,;]?\s*(?<long>\d+\s*[\*°ºo\u02DA ](\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*[WE])/i,
+               hlp: "degrees, decimal minutes, trailing ordinal, e.g. 45 54.2'N, 78 43.5'E"},
 
-      dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "”´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
-             hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
+        dms2: {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D][´\u0027\u02B9\u02BC\u02CA]?)[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*\d+\s*[ \u0027´\u02B9\u02BC\u02CA\u2019]\s*(\d+[\.,]\d+|\d+)\s*[ "´\u02BA\u02EE\u0027\u02B9\u02BC\u02CA\u201D]?[´\u0027\u02B9\u02BC\u02CA]?)/i,
+               hlp: "degrees, minutes, decimal seconds, leading ordinal, e.g. S42°5'18.1\" W88º11'43.3\""},
 
-      dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?)/i,
-             hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
+        dm3:  {reg: /(?<lat>[NS]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*([ ´\u0027\u02B9\u02BC\u02CA\u2019]))[\.,;]?\s*(?<long>[WE]\.?\s*\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?)/i,
+               hlp: "degrees, decimal minutes, leading ordinal, e.g. S42º5.18' W88°11.43'"},
 
-      dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+"?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA]?\s*\d+["”\u0027]?\s*[EW])/i,
-             hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
+        dms4: {reg: /(?<lat>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)["\u201D]?\s*[NS])\s*(?<long>\d+\s*[\*°ºo\u02DA ]\s*(\d+[\.,]\d+|\d+)\s*[ ´\u0027\u02B9\u02BC\u02CA\u2019]?\s*(\d+[\.,]\d+|\d+)+["\u201D]?\s*[EW])/i,
+               hlp: "degrees, minutes, decimal seconds, trailing ordinal, e.g. 24º7'2.0\"S65º24'13.1\"W"},
 
-      dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
-             hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
+        dd5:  {reg: /(?<lat>[NS]\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ])[\.,;]?\s*(?<long>([WE])\.?\s*(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]?)/i,
+               hlp: 'decimal degrees, leading ordinal, e.g. S42.18° W88.34°'},
 
-      dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
-             hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
+        dd6:  {reg: /(?<lat>(\d+[\.,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[NS])[\.,;]?\s*(?<long>(\d+[\.|,]\d+|\d+)\s*[\*°ºo\u02DA ]\s*[WE])/i,
+               hlp: 'decimal degrees, trailing ordinal, e.g. 42.18°S 88.43°W'},
 
-      dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
-             hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
+        dd7:  {reg: /\[(?<lat>-?\d+[\.,]\d+|\-?d+),.*?(?<long>-?\d+[\.,]\d+|\-?d+)\]/i,
+               hlp: 'decimal degrees, no ordinal, specific format, e.g. [12.263, -49.398]'}
     }.freeze
     # @param [String] label
     # @param [String] filters
@@ -301,9 +310,9 @@ To add a new (discovered) symbol:
         /^(?<degrees>-*\d{0,3}(\.\d+)*) # + or - three-digit number with optional '.' and additional decimal digits
             [do*\u00b0\u00ba\u02DA\u030a\u221e\u222b\uc2ba]*\s* # optional special degrees symbol, optional space
           (?<minutes>\d+\.*\d*)* # optional number, integer or floating-point
-            ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba]*\s* # optional special minutes symbol, optional space
+            ['\u00a5\u00b4\u02b9\u02bb\u02bc\u02ca\u2032\uc2ba\u2019]*\s* # optional special minutes symbol, optional space
           ((?<seconds>\d+\.*\d*) # optional number, integer or floating-point
-            ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"]+)* # optional special seconds symbol, optional space
+            ['\u00a5\u00b4\u02b9\u02ba\u02bb\u02bc\u02ca\u02ee\u2032\u2033\uc2ba"\u201D]+)* # optional special seconds symbol, optional space
         /x =~ dms # '/(regexp)/x' modifier permits inline comments for regexp
         match_string = $&
         break # bail on the first character match
@@ -336,7 +345,7 @@ To add a new (discovered) symbol:
     end
     # rubocop:enable Metrics/MethodLength
 
-    # @param [String] char as singlr character
+    # @param [String] char as single character
     # @return [String]
     def uni_string(char)
       format('\\u%04X', char.ord)
@@ -431,6 +440,126 @@ To add a new (discovered) symbol:
       box.to_geometry
     end
 
+    # determine number of significant digits in string input argument
+    # @param [String] number_string
+    # @return [Array] [<string with only significant digits>, count, <left of decimal>, decimal point string, <right of decimal lead zeros string>, <mantissa string>]
+    def self.significant_digits(number_string)
+      # is there a decimal point?
+      intg = ''
+      decimal_point_zeros = ''
+      mantissa = ''
+      decimal_lead_zeros = 0
+      decimal_point = ''
+      /(?<num>([0-9]*)(\.?)([0-9]*))/ =~ number_string
+      if num.nil?
+        raise
+      end
+      dp = num.index(".")
+      if dp.nil?
+        intg = num
+        intgl = intg.sub(/^[0]+/,'')  # strip lead zeros
+        if intgl.nil?
+          intg = num
+        end
+        intgt = intg.sub(/0+$/, '')    # strip trailing zeros
+        if intgt.nil?
+          intg = intgl
+        end
+        # sig = intg.length
+      else
+        # make sure truly numeric
+        decimal_point = '.'
+        digits = num.split(".")
+        if digits.length > 2
+          raise   # or just ignore extra decimal point and beyond?
+        else
+          if digits[0].length > 0 # left of decimal ?
+            intg = digits[0].sub(/^[0]+/,'')
+            if intg.nil?
+              intg = digits[0]
+            end
+          else
+            intg = ''
+          end
+          mantissa = digits[1]
+          unless digits[1].nil?
+            if intg.length > 0  # have full case nn.mm
+              sig = intg.length + mantissa.length
+            else  # mantissa might have "leading" zeros
+              decimal_lead_zeros = digits[1].length
+              mantissa = digits[1].sub(/^[0]+/, '')
+              if mantissa.nil?
+                mantissa = digits[1]
+              end
+              decimal_lead_zeros = decimal_lead_zeros - mantissa.length
+              decimal_point_zeros = decimal_point_zeros.rjust(decimal_lead_zeros, '0')
+            end
+          else
+            mantissa = ''
+          end
+        end
+      end
+      sig = intg + decimal_point + decimal_point_zeros + mantissa
+      [sig, intg.length + mantissa.length, intg, decimal_point, decimal_point_zeros, mantissa]
+    end
+
+    # conform number to significant digits as string
+    # @param [String] number to be conformed
+    # @param [Integer] sig_digits (desired number of significant digits)
+    # @return [String] number limited to specified significant digits
+    def self.conform_significant(number, sig_digits)
+      input = significant_digits(number.to_s)
+      input_string = input[0]
+      intg = input[2]
+      decimal_point = input[3]
+      decimal_position = input_string.index('.')
+      decimal_point_zeros = input[4]   # decimal_point_zeros length > 0 implies mantissa only case
+      mantissa = input[5]     # mantissa complete iff no decimal_point_zeros
+      digit_string = intg + decimal_point_zeros + mantissa
+      reduction = input[1] - sig_digits
+      result = digit_string   # failsafe result
+      if reduction > 0    # need to reduce significant digits
+        result = ''
+        for index in (0...sig_digits)       # collect ONLY significant digits
+          digit = digit_string[index]   # if number is "0", digit is nil
+          result += digit
+          next
+        end
+        if digit_string.length > sig_digits     # clean up integer least significant digits
+          if sig_digits > 0     # test degenerate case of 0 input
+            if digit_string[index + 1].to_i >= 5
+              result = (result.to_i + 1).to_s # round if necessary
+            end
+          end
+          for ndex in (0...(intg.length - sig_digits))
+            result += '0'
+            next
+          end
+        end
+      else        # no reduction or add digits
+        for ndex in (0...(sig_digits - digit_string.length))
+          result += '0'
+          next
+        end
+      end
+      unless decimal_position.nil?
+        # this devolves to if decimal_position = 0, prepend "0."   OR
+        # if decimal_position == end of string, don't add decimal_point
+        # otherwise add decimal_point at decimal_position
+        if result.length <= sig_digits
+          if decimal_position == 0
+            result.insert(decimal_position, '0' + decimal_point)  # make a valid Ruby number
+          else
+            if decimal_position < sig_digits
+              result.insert(decimal_position, decimal_point)
+            end
+          end
+        end
+      end
+      result
+    end
+
+
 
     # @return [Hash]
     # coordinates from the label parsed to elements
@@ -446,7 +575,7 @@ To add a new (discovered) symbol:
       coordinates = {}
 
       #  pattern: 42°5'18.1"S88°11'43.3"W
-      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼ’ˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼ’ˊ]['´ʹʼ’ˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼ’ˊ]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼ’ˊ]['´ʹʼ’ˊ]? ?([wW]|[eE])\W/)
+      if matchdata1 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ΄′ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘]\ ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]? ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata1[1]
         coordinates[:lat_min] = matchdata1[2]
         coordinates[:lat_sec] = matchdata1[3]
@@ -456,7 +585,7 @@ To add a new (discovered) symbol:
         coordinates[:long_sec] = matchdata1[7]
         coordinates[:long_we]  = matchdata1[8]
         # pattern: S42°5'18.1"W88°11'43.3"
-      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼ’ˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼ’ˊ]['´ʹʼ’ˊ]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹʼ’ˊ] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ”ˮ'´ʹʼ’ˊ]?['´ʹʼ’ˊ]?\D/)
+      elsif matchdata2 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]['´ʹ′΄ʼ’ˊ‘]?[\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+) ?[ '´ʹ′΄ʼ’ˊ‘] ?(\d+[\.|,]\d+|\d+) ?[ "ʺ″”ˮ'´ʹ′΄ʼ’ˊ‘]?['´ʹ′΄ʼ’ˊ‘]?\D/)
         coordinates[:lat_deg] = matchdata2[2]
         coordinates[:lat_min] = matchdata2[3]
         coordinates[:lat_sec] = matchdata2[4]
@@ -466,7 +595,7 @@ To add a new (discovered) symbol:
         coordinates[:long_sec] = matchdata2[8]
         coordinates[:long_we]  = matchdata2[5]
         # pattern: S42°5.18'W88°11.43'
-      elsif matchdata3 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼ’ˊ][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼ’ˊ]?\D/)
+      elsif matchdata3 = text.match(/\W([nN]|[sS])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹ′΄ʼ’ˊ‘][\.,;]? ?([wW]|[eE])\.? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹ′΄ʼ’ˊ‘]?\D/)
         coordinates[:lat_deg] = matchdata3[2]
         coordinates[:lat_min] = matchdata3[3]
         coordinates[:lat_ns]  = matchdata3[1]
@@ -474,27 +603,27 @@ To add a new (discovered) symbol:
         coordinates[:long_min] = matchdata3[6]
         coordinates[:long_we]  = matchdata3[4]
         # pattern: 42°5.18'S88°11.43'W
-      elsif matchdata4 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼ’ˊ]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹʼ’ˊ]? ?([wW]|[eE])\W/)
+      elsif matchdata4 = text.match(/\D(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹ′΄ʼ’ˊ‘]? ?([nN]|[sS])[\.,;]? ?(\d+) ?[\*°ººod˚ ] ?(\d+[\.|,]\d+|\d+) ?[ '´ʹ′΄ʼ’ˊ‘]? ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata4[1]
         coordinates[:lat_min] = matchdata4[2]
         coordinates[:lat_ns]  = matchdata4[3]
         coordinates[:long_deg] = matchdata4[4]
         coordinates[:long_min] = matchdata4[5]
         coordinates[:long_we]  = matchdata4[6]
-        # pattern: S42.18°W88.34°
-      elsif matchdata5 = text.match(/\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ]?\D/)
-        coordinates[:lat_deg] = matchdata5[2]
-        coordinates[:lat_ns]  = matchdata5[1]
-        coordinates[:long_deg] = matchdata5[4]
-        coordinates[:long_we]  = matchdata5[3]
         # pattern: 42.18°S88.43°W
       elsif matchdata6 = text.match(/\D(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ] ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata6[1]
         coordinates[:lat_ns]  = matchdata6[2]
         coordinates[:long_deg] = matchdata6[3]
         coordinates[:long_we]  = matchdata6[4]
+        # pattern: S42.18°W88.34°
+      elsif matchdata5 = text.match(/\W([nN]|[sS])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ][\.,;]? ?([wW]|[eE])\.? ?(\d+[\.|,]\d+|\d+) ?[\*°ººod˚ ]?\D/)
+        coordinates[:lat_deg] = matchdata5[2]
+        coordinates[:lat_ns]  = matchdata5[1]
+        coordinates[:long_deg] = matchdata5[4]
+        coordinates[:long_we]  = matchdata5[3]
         # pattern: -12.263, 49.398
-      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?d+),.*?(-?\d+[\.|,]\d+|\-?d+)\D/)
+      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?\d+),.*?(-?\d+[\.|,]\d+|\-?\d+)\D/)
         coordinates[:lat_deg] = matchdata7[1]
         coordinates[:long_deg] = matchdata7[2]
       end

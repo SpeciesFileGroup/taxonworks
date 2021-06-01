@@ -1,3 +1,5 @@
+<%= content_tag(:span, 'An new loan task exists and should be used.', class: [:feedback, 'feedback-warning']) %> <%= link_to('New loan task', edit_loan_task_path) %></p>
+
 <%= render 'shared/errors', object: @loan %>
 
 <%= form_for(@loan) do |f| %>
@@ -12,7 +14,7 @@
       <div class="field">
         <%= f.label :date_requested %>
         <br>
-        <%= f.date_select :date_requested %>
+        <%= f.date_select :date_requested, prompt: true  %>
       </div>
 
       <div class="field">

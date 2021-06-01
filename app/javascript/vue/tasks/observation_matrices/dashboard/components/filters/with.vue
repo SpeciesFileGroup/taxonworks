@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="capitalize">{{ title.replace(/_/g, ' ') }}</h2>
+    <h3 class="capitalize">{{ title.replace(/_/g, ' ') }}</h3>
     <ul class="no_bullets context-menu">
       <li
         v-for="option in options">

@@ -129,6 +129,18 @@ select {
   width: 140px;
 }
 
+.input-xsmall-width {
+  width: 80px;
+}
+
+.input-small-width {
+  width: 100px;
+}
+
+.input-medium-width {
+  width: 200px;
+}
+
 form div.required {
   display: inline;
   div.or {
@@ -185,5 +197,5 @@ h4 {
 }
 
 .normal-input {
-  height: $normal-input-size;
+  min-height: $normal-input-size;
 }

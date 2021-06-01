@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Descriptor::Qualitative, type: :model, group: :matrix do
+RSpec.describe Descriptor::Qualitative, type: :model, group: [:descriptor, :observation_matrix] do
   let(:descriptor) { Descriptor::Qualitative.new }
 
   specify '#character_states' do
@@ -13,5 +13,14 @@ RSpec.describe Descriptor::Qualitative, type: :model, group: :matrix do
     descriptor.save!
     expect(descriptor.character_states.count).to eq(2)
   end
+
+  specify 'destroys states if unused' do
+    descriptor.name = 'Head color'
+    descriptor.character_states_attributes = [ {name: 'Blue', label: '0'}, {name: 'Red', label: '1'} ] 
+    descriptor.save!
+    descriptor.destroy
+    expect(CharacterState.all.count).to eq(0) 
+  end
+
 
 end

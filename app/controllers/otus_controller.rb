@@ -1,8 +1,8 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate]
-  after_action -> { set_pagination_headers(:otus) }, only: [:index], if: :json_request? 
+  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show]
+  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request? 
 
   # GET /otus
   # GET /otus.json
@@ -92,20 +92,12 @@ class OtusController < ApplicationController
   def destroy
     @otu.destroy
     respond_to do |format|
-      format.html { redirect_to otus_url }
-      format.json { head :no_content }
-    end
-  end
-
-  def destroy
-    @otu.destroy
-    respond_to do |format|
       if @otu.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @otu, notice: 'Otu was successfully destroyed.' }
+        format.json { head :no_content}
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; '))}
-        format.json {render json: @otu.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @otu, notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; ') }
+        format.json { render json: @otu.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -253,6 +245,25 @@ class OtusController < ApplicationController
     @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
+  # GET /api/v1/otus
+  def api_index
+    @otus = Queries::Otu::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('otus.id')
+      .page(params[:page]).per(params[:per])
+    render '/otus/api/v1/index'
+  end
+
+  # GET /api/v1/otus/:id
+  def api_show
+    render '/otus/api/v1/show'
+  end
+
+  def api_autocomplete
+    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    render '/otus/api/v1/autocomplete'
+  end
+
   private
 
   def set_otu
@@ -294,6 +305,17 @@ class OtusController < ApplicationController
       otu_ids: [],
       taxon_name_relationship_ids: [],
       taxon_name_classification_ids: [],
+      asserted_distribution_ids: [],
+      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
+    )
+  end
+
+  def api_params
+    params.permit(
+      :name,
+      :taxon_name_id, :otu_id,
+      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
+      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
       asserted_distribution_ids: [],
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )

@@ -186,10 +186,10 @@ class CollectingEvent < ApplicationRecord
   include Shared::Tags
   include Shared::Depictions
   include Shared::Labels
-  include Shared::IsData
   include Shared::Confidences
   include Shared::Documentation
   include Shared::HasPapertrail
+  include Shared::IsData
   include SoftValidation
 
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
@@ -220,10 +220,10 @@ class CollectingEvent < ApplicationRecord
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy
   has_many :collectors, through: :collector_roles, source: :person, inverse_of: :collecting_events
   has_many :dwc_occurrences, through: :collection_objects
-  has_many :georeferences, dependent: :destroy
+  has_many :georeferences, dependent: :destroy, inverse_of: :collecting_event
   has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
   has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
-  has_many :geo_locate_georeferences, class_name: 'Georeference::GeoLocate', dependent: :destroy
+  has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
   has_many :gpx_georeferences, class_name: 'Georeference::GPX', dependent: :destroy
 
   has_many :otus, through: :collection_objects
@@ -292,10 +292,10 @@ class CollectingEvent < ApplicationRecord
             unless: -> { end_date_year.nil? || end_date_month.nil? }
 
   validates :start_date_day, date_day: {year_sym: :start_date_year, month_sym: :start_date_month},
-            unless: -> { start_date_year.nil? || start_date_month.nil? }
+    unless: -> { start_date_year.nil? || start_date_month.nil? }
 
   soft_validate(:sv_minimally_check_for_a_label)
-  soft_validate(:sv_georeference_matches_verbatim, set: :georeference, has_fix: false)
+  soft_validate(:sv_georeference_matches_verbatim, set: :georeference)
 
   # @param [String]
   def verbatim_label=(value)
@@ -524,14 +524,14 @@ class CollectingEvent < ApplicationRecord
     begin
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
+        vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
         a = Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
         end
         return a
       end
-    rescue
+    rescue ActiveRecord::RecordInvalid # TODO: rescue only something!!
       raise
     end
     false
@@ -543,7 +543,7 @@ class CollectingEvent < ApplicationRecord
     if self.verbatim_latitude && self.verbatim_longitude && !self.new_record?
       local_latitude  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude)
       local_longitude = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude)
-      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation)
+      elev            = Utilities::Geo.distance_in_meters(verbatim_elevation).to_f
       point           = Gis::FACTORY.point(local_latitude, local_longitude, elev)
       GeographicItem.new(point: point)
     else
@@ -994,7 +994,7 @@ class CollectingEvent < ApplicationRecord
     unless verbatim_latitude.blank? or verbatim_longitude.blank?
       lat  = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_latitude.to_s)
       long = Utilities::Geo.degrees_minutes_seconds_to_decimal_degrees(verbatim_longitude.to_s)
-      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s)
+      elev = Utilities::Geo.distance_in_meters(verbatim_elevation.to_s).to_f
       delta_z = elev unless elev == 0.0 # Meh, BAD! must be nil
       retval  = Gis::FACTORY.point(long, lat, delta_z)
     end
@@ -1066,16 +1066,17 @@ class CollectingEvent < ApplicationRecord
   end
 
   def level2_name
-    return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    return cached_level2_name if cached_level2_name
+    cache_geographic_names[:county]
   end
 
   def cached_level0_name
     return cached_level0_name if cached_level0_name
-    cache_geographic_names[:state]
+    cache_geographic_names[:country]
   end
 
-  # @return [CollectingEvent instance]
+  # @return [CollectingEvent]
+  #   the instance may not be valid!
   def clone
     a = dup
     a.verbatim_label = [verbatim_label, "[CLONED FROM #{id}", "at #{Time.now}]"].compact.join(' ')
@@ -1092,11 +1093,7 @@ class CollectingEvent < ApplicationRecord
       end
     end
 
-    begin
-      a.save!
-    rescue ActiveRecord::RecordInvalid
-      return false
-    end
+    a.save
     a
   end
 
@@ -1160,12 +1157,12 @@ class CollectingEvent < ApplicationRecord
       if (a.latitude.to_f !=  d_lat)
         soft_validations.add(
           :base,
-        "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
+          "Verbatim latitude #{verbatim_latitude}: (#{d_lat}) and point geoference latitude #{a.latitude} do not match")
       end
       if (a.longitude.to_f != d_long)
         soft_validations.add(
-            :base,
-            "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
+          :base,
+          "Verbatim longitude #{verbatim_longitude}: (#{d_long}) and point geoference longitude #{a.longitude} do not match")
       end
     end
   end

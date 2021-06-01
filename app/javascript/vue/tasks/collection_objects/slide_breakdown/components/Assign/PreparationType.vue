@@ -4,8 +4,10 @@
     <div class="horizontal-left-content align-start">
       <ul
         v-for="itemsGroup in coTypes.chunk(Math.ceil(coTypes.length/2))"
-        class="no_bullets preparation-list">
-        <li v-for="type in itemsGroup">
+        class="no_bullets full_width">
+        <li
+          v-for="type in itemsGroup"
+          :key="type.id">
           <label>
             <input
               type="radio"
@@ -17,43 +19,42 @@
           </label>
         </li>
       </ul>
+      <lock-component v-model="lock.preparation_type_id"/>
     </div>
   </fieldset>
 </template>
 
 <script>
 
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { GetPreparationTypes } from '../../request/resource'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { GetterNames } from '../../store/getters/getters.js'
+import { PreparationType } from 'routes/endpoints'
+import SharedComponent from '../shared/lock.js'
 
-  export default {
-    computed: {
-      collectionObject: {
-        get() {
-          return this.$store.getters[GetterNames.GetCollectionObject]
-        },
-        set(value) {
-          this.$store.commit(MutationNames.SetCollectionObject, value)
-        }
+export default {
+  mixins: [SharedComponent],
+
+  computed: {
+    collectionObject: {
+      get () {
+        return this.$store.getters[GetterNames.GetCollectionObject]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetCollectionObject, value)
       }
-    },
-    data () {
-      return {
-        coTypes: []
-      }
-    },
-    mounted() {
-      GetPreparationTypes().then(response => {
-        this.coTypes = response.body
-      })
     }
+  },
+
+  data () {
+    return {
+      coTypes: []
+    }
+  },
+
+  created () {
+    PreparationType.all().then(response => {
+      this.coTypes = response.body
+    })
   }
+}
 </script>
-
-<style scoped>
-  .preparation-list {
-    width: 100%;
-  }
-</style>
-

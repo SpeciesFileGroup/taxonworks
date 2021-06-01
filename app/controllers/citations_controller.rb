@@ -74,11 +74,11 @@ class CitationsController < ApplicationController
     @citation.destroy
     respond_to do |format|
       if @citation.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @citation, notice: 'Citation was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; '))}
-        format.json {render json: @citation.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @citation, notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; ') }
+        format.json { render json: @citation.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -102,7 +102,7 @@ class CitationsController < ApplicationController
       {id: t.id,
        label: lbl,
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
        label_html: lbl
       }
@@ -116,6 +116,20 @@ class CitationsController < ApplicationController
     send_data Export::Download.generate_csv(Citation.where(project_id: sessions_current_project_id)), type: 'text', filename: "citations_#{DateTime.now}.csv"
   end
 
+  def api_index
+    @citations = Queries::Citation::Filter.new(params).all
+      .where(project_id: sessions_current_project_id).includes(:source)
+      .order('sources.cached, sources.pages')
+      .page(params[:page]).per(params[:per] || 50)     ### error when 500 !!
+    @verbose_object = params[:verbose_object]
+    render '/citations/api/v1/index'
+  end
+
+  def api_show
+    @citation = Citation.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/citations/api/v1/show'
+  end
+
   private
 
   def set_citation
@@ -124,13 +138,14 @@ class CitationsController < ApplicationController
 
   def citation_params
     params.require(:citation).permit(
-        :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
-        :annotated_global_entity,
-        citation_topics_attributes: [
-            :id, :_destroy, :pages, :topic_id,
-            topic_attributes: [:id, :_destroy, :name, :definition]
-        ],
-        topics_attributes: [:name, :definition]
+      :citation_object_type, :citation_object_id, :source_id, :pages, :is_original,
+      :annotated_global_entity,
+      citation_topics_attributes: [
+        :id, :_destroy, :pages, :topic_id,
+        topic_attributes: [:id, :_destroy, :name, :definition]
+      ],
+      topics_attributes: [:name, :definition]
     )
   end
+
 end

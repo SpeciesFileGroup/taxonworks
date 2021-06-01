@@ -25,7 +25,7 @@
           ref="smartSelector"
           pin-section="Sources"
           pin-type="Source"
-          @select="setSource"
+          @selected="setSource"
           v-model="source">
           <div slot="footer">
             <span
@@ -44,7 +44,7 @@
 </template>
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   components: {

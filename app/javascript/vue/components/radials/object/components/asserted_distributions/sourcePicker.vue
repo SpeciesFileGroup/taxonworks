@@ -8,7 +8,7 @@
       >
         <autocomplete
           url="/sources/autocomplete"
-          label="label"
+          label="label_html"
           min="2"
           ref="autocomplete"
           :clear-after="true"
@@ -80,7 +80,7 @@
 
 <script>
 import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import LockComponent from 'components/lock'
 import { convertType } from 'helpers/types'
 
@@ -124,7 +124,11 @@ export default {
     }
   },
   mounted () {
-    this.lock = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    const value = convertType(sessionStorage.getItem('radialObject::source::lock'))
+    if (value !== null) {
+      this.lock = value === true
+    }
+
     if (this.lock) {
       this.citation.source_id = convertType(sessionStorage.getItem('radialObject::source::id'))
       this.citation.pages = convertType(sessionStorage.getItem('radialObject::source::pages'))

@@ -1,27 +1,29 @@
 <template>
   <div class="panel basic-information">
     <spinner-component v-if="spinner" />
+    <a
+      :name="linkName"
+      class="anchor"
+    />
     <div
       v-help.section.status
       :class="{ [status]: status }"
       class="header flex-separate middle">
-      <a
-        v-if="anchor"
-        :name="anchor"
-        class="anchor"
-      />
       <div>
-        <span class="section-title">{{ title }}</span>
+        <h3 class="section-title">{{ title }}</h3>
         <slot name="title" />
       </div>
       <div class="horizontal-left-content">
         <div
           v-help.section.options.drag
           data-icon="w_scroll-v"
-          class="option-box button-default cursor-pointer handle"
+          class="option-box button-default circle-button cursor-pointer handle"
         />
-        <div
-          class="option-box button-default cursor-pointer"
+        <button
+          type="button"
+          class="option-box cursor-pointer circle-button"
+          :class="{ 'button-default': menu }"
+          :disabled="!menu"
           v-help.section.options.filter
           @click="$emit('menu')"
         >
@@ -30,7 +32,7 @@
             <div class="hamburger-menu-bar" />
             <div class="hamburger-menu-bar" />
           </div>
-        </div>
+        </button>
       </div>
     </div>
     <div class="content">
@@ -45,6 +47,11 @@ export default {
   components: {
     SpinnerComponent
   },
+  computed: {
+    linkName () {
+      return this.name ? this.name : this.title
+    }
+  },
   props: {
     title: {
       type: String,
@@ -58,9 +65,13 @@ export default {
       type: String,
       default: 'unknown'
     },
-    anchor: {
+    name: {
       type: String,
       default: undefined
+    },
+    menu: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -73,13 +84,14 @@ export default {
 <style scoped>
   .option-box {
     position: relative;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin:0 auto;
     margin-left: 4px;
     padding: 0px;
     background-position: center;
     background-size: 14px;
+    border: 0px;
   }
   .hamburger-menu {
     position: absolute;
@@ -105,5 +117,9 @@ export default {
 
   .prototype {
     border-left-color: #fc615d;
+  }
+
+  .basic-information {
+    border-top-left-radius: 0px;
   }
 </style>

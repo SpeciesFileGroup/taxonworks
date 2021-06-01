@@ -1,48 +1,34 @@
 import ajaxCall from 'helpers/ajaxCall'
 
-const GetImage = (id) => {
-  return ajaxCall('get', `/images/${id}.json`)
-}
+const GetCollectingEvent = (id) => ajaxCall('get', `/collecting_events/${id}.json`)
 
-const GetSledImage = (id) => {
-  return ajaxCall('get', `/sled_images/${id}.json`)
-}
+const GetImage = (id) => ajaxCall('get', `/images/${id}.json`)
 
-const GetPreparationTypes = function () {
-  return ajaxCall('get', `/preparation_types.json`)
-}
+const GetRepository = (id) => ajaxCall('get', `/repositories/${id}.json`)
 
-const UpdateSledImage = (id, data) => {
-  return ajaxCall('patch', `/sled_images/${id}.json`, data)
-}
+const GetSledImage = (id) => ajaxCall('get', `/sled_images/${id}.json`)
 
-const CreateSledImage = (data) => {
-  return ajaxCall('post', `/sled_images.json`, data)
-}
+const GetPreparationTypes = () => ajaxCall('get', '/preparation_types.json')
 
-const NukeSledImage = (id) => {
-  return ajaxCall('delete', `/sled_images/${id}.json`, { params: { nuke: 'nuke' } })
-}
+const UpdateSledImage = (id, data) => ajaxCall('patch', `/sled_images/${id}.json`, data)
 
-const NavigationSled = (globalId) => {
-  return ajaxCall('get', `/metadata/object_navigation/${encodeURIComponent(globalId)}`)
-}
+const CreateSledImage = (data) => ajaxCall('post', '/sled_images.json', data)
 
-const Report = (id) => {
-  return ajaxCall('get', `/collection_objects/report.json`, { params: { sled_image_id: id } })
-}
+const NukeSledImage = (id) => ajaxCall('delete', `/sled_images/${id}.json`, { params: { nuke: 'nuke' } })
 
-const GetUserPreferences = function () {
-  return ajaxCall('get', `/preferences.json`)
-}
+const NavigationSled = (globalId) => ajaxCall('get', `/metadata/object_navigation/${encodeURIComponent(globalId)}`)
 
-const UpdateUserPreferences = function (id, data) {
-  return ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
-}
+const Report = (id) => ajaxCall('get', '/collection_objects/report.json', { params: { sled_image_id: id } })
+
+const GetUserPreferences = () => ajaxCall('get', '/preferences.json')
+
+const UpdateUserPreferences = (id, data) => ajaxCall('patch', `/users/${id}.json`, { user: { layout: data } })
 
 export {
   GetImage,
   GetSledImage,
+  GetCollectingEvent,
+  GetRepository,
   UpdateSledImage,
   NukeSledImage,
   CreateSledImage,

@@ -39,17 +39,34 @@ class Identifier::Local < Identifier
     ret_val
   end
 
+  # Update cached values for all local identifiers within namespace (if needed)
+  # @param [Namespace]
+  def self.update_cached(namespace)
+    where(namespace: namespace).update_all(
+      cached: Arel::Nodes::NamedFunction.new('concat',
+        [
+          Arel::Nodes.build_quoted(build_cached_prefix(namespace)),
+          Identifier::Local.arel_table[:identifier]
+        ]
+      )
+    ) if [:short_name, :verbatim_short_name, :delimiter].detect { |a| namespace.saved_change_to_attribute?(a) }
+  end
+
   protected
 
-  # @return string
-  def delimiter
-    a = namespace&.read_attribute(:delimiter)
-    return '' if a == 'NONE' 
-    [a, ' '].compact.first
+  def build_cached
+    Identifier::Local.build_cached_prefix(namespace) + identifier.to_s
+  end
+
+  def self.build_cached_prefix(namespace)
+    delimiter = namespace.read_attribute(:delimiter) || ' '
+    delimiter = '' if delimiter == 'NONE'
+
+    [namespace&.verbatim_short_name, namespace&.short_name, ''].compact.first + delimiter
   end
 
   def set_cached
-    update_column(:cached, [namespace.verbatim_short_name, namespace.short_name].compact.first + delimiter + identifier.to_s)
+    update_column(:cached, build_cached)
   end
 
 end

@@ -51,7 +51,7 @@ Object.assign(TW.workbench.keyboard, {
 										<span class="title">Keyboard shortcuts</span> \
 										<div data-icon="close" class="close small-icon"></div> \
 									</div> \
-									<div class="list"> \
+									<div class="list content"> \
 										<div class="item default-shortcuts"> \
 											<table> \
 											' + generalShortcuts + '\
@@ -73,7 +73,11 @@ Object.assign(TW.workbench.keyboard, {
 
 
 	createShortcut: function(key, description, section, func) {
-  		Mousetrap.bind(key, func);
+		function customFunction(event) {
+			event.preventDefault();
+			func(event);
+		}
+  		Mousetrap.bind(key, customFunction);
 		$('body').append('<span style="display;hidden" data-shortcut-key="'+ key +'" data-shortcut-description="'+ description +'" data-shortcut-section="'+ section +'"></span>');
 	},
 

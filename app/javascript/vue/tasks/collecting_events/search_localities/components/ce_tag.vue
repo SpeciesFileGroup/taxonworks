@@ -49,48 +49,45 @@
   </div>
 </template>
 <script>
-  import Autocomplete from 'components/autocomplete'
-  import Spinner from 'components/spinner'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete'
+import Spinner from 'components/spinner'
+import { CollectingEvent } from 'routes/endpoints'
 
-  export default {
-    components: {
-      Autocomplete,
-      Spinner,
-    },
-    data() {
-      return {
-        tagList: [],
-        collectingEventList: [],
-        isLoading:  false,
-      }
-    },
-
-    methods: {
-      getTagData(){
-        let tag_ids = [];
-        this.tagList.forEach(tag => {
-          tag_ids.push(tag.id)
-        });
-        let params = {
-          keyword_ids: tag_ids
-        };
-        this.isLoading = true;
-        AjaxCall('get', '/collecting_events.json', { params: params }).then(response => {
-          this.collectingEventList = response.body;
-          this.$emit('jsonUrl', response.request.responseURL)
-          if(this.collectingEventList) {
-            this.$emit('collectingEventList', this.collectingEventList);
-          }
-          this.isLoading = false;
-        });
-      },
-      addTag(item) {
-        this.tagList.push(item);
-      },
-      delistMe(index) {
-        this.$delete(this.tagList, index)
-      },
+export default {
+  components: {
+    Autocomplete,
+    Spinner,
+  },
+  data() {
+    return {
+      tagList: [],
+      collectingEventList: [],
+      isLoading: false
     }
+  },
+
+  methods: {
+    getTagData () {
+      const tagIds = this.tagList.map(tag => tag.id)
+
+      this.isLoading = true
+      CollectingEvent.where({ keyword_id_and: tagIds }).then(response => {
+        this.collectingEventList = response.body
+        this.$emit('jsonUrl', response.request.responseURL)
+        if (this.collectingEventList) {
+          this.$emit('collectingEventList', this.collectingEventList)
+        }
+        this.isLoading = false
+      })
+    },
+
+    addTag (item) {
+      this.tagList.push(item)
+    },
+
+    delistMe (index) {
+      this.$delete(this.tagList, index)
+    },
   }
+}
 </script>

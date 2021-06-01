@@ -1,7 +1,8 @@
 <template>
   <block-layout
     anchor="classification"
-    :warning="checkValidation">
+    :warning="checkValidation"
+    :spinner="!taxon.id">
     <h3 slot="header">Classification</h3>
     <div
       slot="body">
@@ -79,10 +80,9 @@
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import BlockLayout from './blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 import ListEntrys from './listEntrys.vue'
-import Autocomplete from 'components/autocomplete.vue'
-import showForThisGroup from '../helpers/showForThisGroup'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 
 export default {
   components: {
@@ -91,8 +91,8 @@ export default {
     BlockLayout
   },
   computed: {
-    taxonLabel() {
-      return this.taxonRelation.hasOwnProperty('label_html') ? this.taxonRelation.label_html : this.taxonRelation.object_tag
+    taxonLabel () {
+      return this.taxonRelation.label_html || this.taxonRelation.object_tag
     },
     GetRelationshipsCreated () {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(function (item) {
@@ -112,7 +112,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return this.softValidation ? this.softValidation.find(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)) : undefined
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
     },
     nomenclaturalCode () {
       return this.$store.getters[GetterNames.GetNomenclaturalCode]

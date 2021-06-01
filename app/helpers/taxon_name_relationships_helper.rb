@@ -4,12 +4,11 @@ module TaxonNameRelationshipsHelper
     return nil if taxon_name_relationship.nil?
     [
       taxon_name_browse_link(taxon_name_relationship.subject_taxon_name),
-      #      taxon_name_relationship.subject_taxon_name.cached_author_year ,
-      content_tag(:span, ( defined?(taxon_name_relationship.class.assignment_method) ? 
-                          taxon_name_relationship.class.assignment_method.to_s.humanize : 
+      content_tag(:span, ( defined?(taxon_name_relationship.class.inverse_assignment_method) ? 
+                          taxon_name_relationship.class.inverse_assignment_method.to_s.humanize : 
                           taxon_name_relationship.type ),
                           class: :subtle),
-                          taxon_name_browse_link(taxon_name_relationship.object_taxon_name),
+                          taxon_name_browse_link(taxon_name_relationship.object_taxon_name)
     ].compact.join(' ')
   end
 

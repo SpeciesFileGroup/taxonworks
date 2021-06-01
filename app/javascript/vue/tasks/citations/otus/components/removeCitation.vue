@@ -8,7 +8,7 @@
 <script>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import AjaxCall from 'helpers/ajaxCall'
+import { Citation } from 'routes/endpoints'
 
 export default {
   computed: {
@@ -16,9 +16,10 @@ export default {
       return this.$store.getters[GetterNames.GetCitationSelected]
     }
   },
+
   methods: {
     removeCitation: function (item) {
-      AjaxCall('delete', '/citations/' + item.id).then(() => {
+      Citation.destroy(item.id).then(() => {
         this.$store.commit(MutationNames.RemoveSourceFormCitationList, item.id)
         this.$store.commit(MutationNames.RemoveCitationSelected)
         this.$store.commit(MutationNames.SetOtuCitationsList, [])

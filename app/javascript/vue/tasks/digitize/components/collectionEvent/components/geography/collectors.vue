@@ -17,6 +17,7 @@
         slot="header"
         :hidden-list="true"
         v-model="collectors"
+        ref="rolepicker"
         :autofocus="false"
         role-type="Collector"/>
       <role-picker
@@ -30,7 +31,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 
 import { GetterNames } from '../../../../store/getters/getters.js'
@@ -70,7 +71,7 @@ export default {
     },
     addRole (role) {
       if(!this.roleExist(role.id)) {
-        this.collectors.push(CreatePerson(role, 'Collector'))
+        this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }
   }

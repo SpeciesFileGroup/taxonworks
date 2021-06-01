@@ -46,7 +46,6 @@ class Document < ApplicationRecord
   before_destroy :check_for_documentation, prepend: true
 
   has_many :documentation, dependent: :destroy, inverse_of: :document
-
   has_many :sources, through: :documentation, source_type: 'Source', source: 'documentation_object'
 
   has_attached_file :document_file,
@@ -129,7 +128,7 @@ class Document < ApplicationRecord
         reader = PDF::Reader.new(io)
         write_attribute(:page_total, reader.page_count)
       end
-    rescue MalformedPDFError
+    rescue PDF::Reader::MalformedPDFError
       errors.add(:base, 'pdf is malformed')
     end
     set_pages_by_start(initialize_start_page) if initialize_start_page

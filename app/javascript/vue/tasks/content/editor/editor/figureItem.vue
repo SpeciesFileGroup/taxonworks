@@ -31,7 +31,7 @@
 <script>
 
 import { MutationNames } from '../store/mutations/mutations'
-import AjaxCall from 'helpers/ajaxCall'
+import { Depiction } from 'routes/endpoints'
 
 export default {
   props: ['figure'],
@@ -43,34 +43,32 @@ export default {
     }
   },
   watch: {
-    'figure': function (newVal) {
+    figure (newVal) {
       this.depiction = newVal
     }
   },
-  created: function () {
+  created () {
     this.depiction = this.figure
   },
   methods: {
-    deleteDepiction: function () {
-      let ajaxUrl = `/depictions/${this.depiction.id}`
-      AjaxCall('delete', ajaxUrl).then(() => {
+    deleteDepiction () {
+      Depiction.destroy(this.depiction.id).then(() => {
         this.$store.commit(MutationNames.RemoveDepiction, this.depiction)
       })
     },
-    editChange: function () {
+    editChange () {
       if (this.edit) {
         this.update()
       }
       this.edit = !this.edit
     },
-    update: function () {
-      let ajaxUrl = `/depictions/${this.depiction.id}`,
-        depiction = {
-          caption: this.depiction.caption,
-          figure_label: this.depiction.figure_label
-        }
+    update () {
+      const depiction = {
+        caption: this.depiction.caption,
+        figure_label: this.depiction.figure_label
+      }
 
-      AjaxCall('patch', ajaxUrl, depiction).then(() => {
+      Depiction.update(this.depiction.id, { depiction }).then(() => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     }

@@ -70,7 +70,7 @@ class PinboardItem < ApplicationRecord
       if pinned_object_type == 'ControlledVocabularyTerm'
         n = pinned_object.class.name
         r.each do |i|
-          i.update(is_inserted: false) if i.pinned_object.type == n
+          i.update_column(:is_inserted, false) if i.pinned_object.type == n
         end 
       else
         r.update_all(is_inserted: false)

@@ -10,10 +10,9 @@
 Begin taxa;
 Dimensions Ntax=<%= m.observation_matrix_rows.load.size -%>;
 Taxlabels <% m.observation_matrix_rows.each do |r| -%>
-<%= as_file ? '  ' : nb -%>'<%= observation_matrix_row_label(r) -%>'<% end -%>
+<%= as_file ? '  ' : nb -%>'<%= observation_matrix_row_label_nexus(r) -%>'<% end -%>
 ;
 end;
-
 
 <% descriptors = m.descriptors.where(type: %w{Descriptor::Qualitative Descriptor::PresenceAbsence }) %> 
 <% if descriptors.load.any? %>
@@ -26,12 +25,12 @@ Format
 <%= as_file ? '  ' : nb -%>symbols = "0 1 2 3 4 5 6 7 8 9 A B C D E F G H I J K L M N P Q R S U V W X Y Z !"; 
 Charstatelabels
 <% descriptors.each_with_index do |d, i| -%>
-  <%= as_file ? '  ' : nb -%><%= "#{i+1} #{descriptor_matrix_label(d).html_safe} /".html_safe %> <%= d.character_states.collect{|cs| "'#{cs.name}'".html_safe}.join(' ').html_safe if d.qualitative? -%>,
+  <%= as_file ? '  ' : nb -%><%= "#{i+1} #{descriptor_matrix_label(d).html_safe} /".html_safe %> <%= d.character_states.order(:position).collect{|cs| "'#{cs.name}'".html_safe}.join(' ').html_safe if d.qualitative? -%>,
 <% end %>
 ;
 Matrix
 <% m.observation_matrix_rows.each do |r| -%>
-'<%= observation_matrix_row_label(r) %>'<%= as_file ? ' ' : '&nbsp;' -%> 
+'<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
 <% descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
 <% end %>
 ;
@@ -53,7 +52,7 @@ Begin characters;
 ;
 matrix
 <% m.observation_matrix_rows.each do |r| -%>
-'<%= observation_matrix_row_label(r) %>'<%= as_file ? ' ' : '&nbsp;' -%> 
+'<%= observation_matrix_row_label_nexus(r) %>'<%= as_file ? ' ' : '&nbsp;' -%>
 <% m.continuous_descriptors.each do |d| -%><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :nexus) %><% end %>
 <% end %>
 ;

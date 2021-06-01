@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_names
@@ -13,22 +13,9 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
       }
     end
-  end
-
-  # GET /api/v1/taxon_names
-  def api_index
-    @taxon_names =
-      Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per([ [(params[:per] || 100).to_i, 1000].min, 1].max)
-    render '/taxon_names/api/index.json.jbuilder'
-  end
-
-  # GET /api/v1/taxon_names/:id
-  def api_show
-    @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/taxon_names/api/show.json.jbuilder'
   end
 
   # GET /taxon_names/1
@@ -83,11 +70,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; '))}
-        format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -216,10 +203,6 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def browse
-    @data = NomenclatureCatalog.data_for(@taxon_name)
-  end
-
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id] # TODO: this may have to change to taxon_name_id
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
@@ -229,8 +212,22 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
-  def catalog
-    @data = NomenclatureCatalog.data_for(@taxon_name)
+  # GET /taxon_names/1/original_combination
+  def original_combination
+  end
+
+  # GET /api/v1/taxon_names
+  def api_index
+    @taxon_names = Queries::TaxonName::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+      .page(params[:page]).per(params[:per])
+    render '/taxon_names/api/v1/index'
+  end
+
+  # GET /api/v1/taxon_names/:id
+  def api_show
+    render '/taxon_names/api/v1/show'
   end
 
   private
@@ -280,28 +277,79 @@ class TaxonNamesController < ApplicationController
 
   def filter_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
+      :ancestors,
+      :author,
+      :authors,
+      :citations,
       :descendants,
       :descendants_max_depth,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
       :etymology,
-      type: [],
-      taxon_name_id: [],
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :not_specified,
+      :otus,
+      :page,
+      :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :user_date_end,
+      :user_date_start,
+      :user_id,
+      :user_target,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
+      # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def api_params
+    params.permit(
+      :ancestors,
+      :author,
+      :authors,
+      :citations,
+      :descendants,
+      :descendants_max_depth,
+      :etymology,
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+      :not_specified,
+#     :page, # TODO: yes or no?
+#     :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
+      parent_id: [],
+      taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
+      taxon_name_relationship_type: [],
+      type: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+
+    # TODO: see config in collection objects controller
+    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
+    # a
   end
 
 end

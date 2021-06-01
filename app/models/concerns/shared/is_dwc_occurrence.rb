@@ -35,10 +35,21 @@ module Shared::IsDwcOccurrence
   # @return [DwcOccurrence]
   #   always touches the database
   def set_dwc_occurrence
-    if dwc_occurrence_persisted?
-      dwc_occurrence.update_columns(dwc_occurrence_attributes)
-    else
-      create_dwc_occurrence!(dwc_occurrence_attributes)
+    retried = false
+    begin
+      if dwc_occurrence_persisted?
+        dwc_occurrence.update_columns(dwc_occurrence_attributes)
+      else
+        create_dwc_occurrence!(dwc_occurrence_attributes)
+      end
+    rescue ActiveRecord::ActiveRecordError
+      unless retried
+        retried = true
+        dwc_occurrence&.reload
+        retry
+      else
+        raise
+      end
     end
     dwc_occurrence
   end
@@ -63,6 +74,7 @@ module Shared::IsDwcOccurrence
   # @return [DwcOccurrence]
   #   does not rebuild if exists
   def get_dwc_occurrence
+    # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?
       dwc_occurrence
     else

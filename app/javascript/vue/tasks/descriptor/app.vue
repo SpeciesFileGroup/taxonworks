@@ -42,7 +42,7 @@
           </div>
         </li>
         <li>
-          <a href="/tasks/observation_matrices/observation_matrix_hub/index">Observation matrix hub</a>
+          <a :href="observationMatrixHubPath">Observation matrix hub</a>
         </li>
         <li>
           <span
@@ -108,17 +108,22 @@
 <script>
 
 import Spinner from 'components/spinner.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import TypeComponent from './components/type/type.vue'
 import DefinitionComponent from './components/definition/definition.vue'
 import QualitativeComponent from './components/character/character.vue'
 import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
-import { CreateDescriptor, UpdateDescriptor, DeleteDescriptor, LoadDescriptor, CreateObservationMatrixColumn, GetMatrix } from './request/resources'
 import setParam from 'helpers/setParam'
 import DefaultPin from 'components/getDefaultPin'
 import CreateComponent from './components/save/save.vue'
+import { RouteNames } from 'routes/routes'
+import {
+  Descriptor,
+  ObservationMatrix,
+  ObservationMatrixColumnItem
+} from 'routes/endpoints'
 
 import TYPES from './const/types'
 
@@ -151,6 +156,9 @@ export default {
     },
     hideSaveButton () {
       return this.hideSaveButtonFor.includes(this.descriptor.type)
+    },
+    observationMatrixHubPath () {
+      return RouteNames.ObservationMatricesHub
     }
   },
   data () {
@@ -165,22 +173,14 @@ export default {
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const matrixId = urlParams.get('observation_matrix_id')
-    const descriptorId = urlParams.get('descriptor_id')
+    const descriptorId = urlParams.get('descriptor_id') || location.pathname.split('/')[4]
 
     if (/^\d+$/.test(matrixId)) {
       this.loadMatrix(matrixId)
     }
 
     if (/^\d+$/.test(descriptorId)) {
-      this.loading = true
-      LoadDescriptor(descriptorId).then(response => {
-        this.descriptor = response.body
-        this.loading = false
-        this.setParameters()
-      }, () => {
-        this.loading = false
-        this.setParameters()
-      })
+      this.loadDescriptor(descriptorId)
     }
   },
   methods: {
@@ -196,13 +196,14 @@ export default {
         description: undefined,
         description_name: undefined,
         key_name: undefined,
-        short_name: undefined
+        short_name: undefined,
+        weight: undefined
       }
     },
     saveDescriptor (descriptor, redirect = true) {
       this.saving = true
-      if (this.descriptor.id) {
-        UpdateDescriptor(descriptor).then(response => {
+      if (descriptor.id) {
+        Descriptor.update(descriptor.id, { descriptor }).then(response => {
           this.descriptor = response.body
           this.saving = false
           TW.workbench.alert.create('Descriptor was successfully updated.', 'notice')
@@ -213,7 +214,7 @@ export default {
           this.saving = false
         })
       } else {
-        CreateDescriptor(descriptor).then(response => {
+        Descriptor.create({ descriptor }).then(response => {
           this.descriptor = response.body
           this.saving = false
           this.setParameters()
@@ -227,7 +228,7 @@ export default {
       }
     },
     removeDescriptor (descriptor) {
-      DeleteDescriptor(descriptor.id).then(response => {
+      Descriptor.destroy(descriptor.id).then(() => {
         this.resetDescriptor()
         this.setParameters()
         TW.workbench.alert.create('Descriptor was successfully deleted.', 'notice')
@@ -237,17 +238,26 @@ export default {
       const data = {
         descriptor_id: descriptor.id,
         observation_matrix_id: this.matrix.id,
-        type: 'ObservationMatrixColumnItem::SingleDescriptor'
+        type: 'ObservationMatrixColumnItem::Single::Descriptor'
       }
-      CreateObservationMatrixColumn(data).then(() => {
+      ObservationMatrixColumnItem.create({ observation_matrix_column_item: data }).then(() => {
         TW.workbench.alert.create('Descriptor was successfully added to the matrix.', 'notice')
         if (redirect) {
           window.open(`/tasks/observation_matrices/new_matrix/${this.matrixId}`, '_self')
         }
       })
     },
+    loadDescriptor (descriptorId) {
+      this.loading = true
+      Descriptor.find(descriptorId).then(response => {
+        this.descriptor = response.body
+      }).finally(() => {
+        this.loading = false
+        this.setParameters()
+      })
+    },
     loadMatrix (id) {
-      GetMatrix(id).then(response => {
+      ObservationMatrix.find(id).then(response => {
         this.matrix = response.body
         this.setParameters()
       })

@@ -68,7 +68,7 @@ class IdentifiersController < ApplicationController
   def destroy
     @identifier.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was successfully destroyed.')}
+      format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -88,9 +88,28 @@ class IdentifiersController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-
     @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
   end
+
+  # GET /api/v1/identifiers
+  def api_index
+    @identifiers = Queries::Identifier::Filter.new(api_params).all
+      .order('identifiers.id').page(params[:page]).per(params[:per])
+    render '/identifiers/api/v1/index'
+  end
+
+  # GET /api/v1/identifiers/:id
+  def api_show
+    @identifier = Identifier.where(project_id: sessions_current_project_id).find(params[:id])
+    render '/identifiers/api/v1/show'
+  end
+
+  def api_autocomplete
+    render json: {} and return if params[:term].blank?
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    render '/identifiers/api/v1/autocomplete'
+  end
+
 
   # GET /identifiers/download
   def download
@@ -108,6 +127,23 @@ class IdentifiersController < ApplicationController
     @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
   end
 
+  def api_params
+    params.permit(
+      :query_string,
+      :identifier,
+      :identifier_object_id,
+      :identifier_object_type,
+      :namespace_id,
+      :namespace_name,
+      :namespace_short_name,
+      :object_global_id,
+      :type,
+      identifier_object_id: [],
+      identifier_object_type: [],
+    )
+  end
+
+  # TODO: confirm identifier is needed
   def identifier_params
     params.require(:identifier).permit(
       :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :namespace_id, :annotated_global_entity
@@ -115,7 +151,7 @@ class IdentifiersController < ApplicationController
   end
 
   def autocomplete_params
-    params.permit(identifier_object_types: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact 
+    params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
   end
 
 end

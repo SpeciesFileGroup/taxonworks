@@ -1,6 +1,6 @@
 export default function() {
   return {
-      id: undefined,
+      id: null,
       global_id: undefined,
       print_label: undefined, 
       print_label_number_to_print: undefined, 

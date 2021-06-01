@@ -38,7 +38,7 @@
           v-if="identifier.namespace_id"
           class="separate-left"
           :show-message="checkValidation"
-          legend="Namespace and identifier needs to be set to be save."
+          legend="Namespace and identifier needs to be set to be saved."
         />
       </div>
     </div>
@@ -47,7 +47,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 

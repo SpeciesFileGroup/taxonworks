@@ -208,7 +208,6 @@ export default {
         specimen: 'Specimen',
         stage: 'Stage'
       },
-      scale: 1,
       style: {
         viewer: {
           position: 'relative',
@@ -240,7 +239,7 @@ export default {
     let sledId = urlParams.get('sled_image_id')
     if(imageId && /^\d+$/.test(imageId)) {
       this.loadImage(imageId).then(response => {
-         this.loadSled(response.sled_image_id)
+        this.loadSled(response.sled_image_id)
       })
     }
     if(sledId && /^\d+$/.test(sledId)) {
@@ -295,7 +294,7 @@ export default {
     },
     createImage(imageId) {
       this.loadImage(imageId).then(response => {
-         this.loadSled(response.sled_image_id)
+        this.loadSled(response.sled_image_id)
       })
     },
     processCells (cells) {
@@ -307,13 +306,9 @@ export default {
       this.savePreferences()
       this.$store.dispatch(ActionNames.UpdateSled).then(() => {
         this.isSaving = false
-        if(load) {
-          if(Number.isInteger(id)) {
-            window.open(`/tasks/collection_objects/grid_digitize/index?sled_image_id=${id}`, '_self')
-          }
-          else {
-            window.open('/tasks/collection_objects/grid_digitize/index', '_self')
-          }
+        if (load) {
+          SetParam('/tasks/collection_objects/grid_digitize/index', 'sled_image_id', id)
+          this.$store.dispatch(ActionNames.ResetStore)
         }
       }, () => {
         this.isSaving = false

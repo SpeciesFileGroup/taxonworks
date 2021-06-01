@@ -1,6 +1,8 @@
 <template>
   <div class="panel separate-bottom">
-    <div class="content">
+    <div
+      class="content"
+      :class="{ 'feedback-warning': isInvalid }">
       <ul
         v-if="navigation"
         class="breadcrumb_list">
@@ -41,6 +43,7 @@
           @shortkey="switchBrowse()"
           class="horizontal-left-content">
           <browse-taxon
+            v-if="otu.taxon_name_id"
             ref="browseTaxon"
             :object-id="otu.taxon_name_id"/>
           <radial-annotator
@@ -50,6 +53,13 @@
             :global-id="otu.global_id"
             type="annotations"/>
           <quick-forms :global-id="otu.global_id"/>
+          <button
+            v-if="isInvalid"
+            v-help.section.header.validButton
+            class="button button-default normal-input"
+            @click="openValid">
+            Browse current OTU
+          </button>
         </div>
       </div>
       <span
@@ -58,10 +68,15 @@
       <span
         v-shortkey="[getOSKey(), 'e']"
         @shortkey="switchComprehensive()"/>
-      <ul class="context-menu no_bullets">
-        <li v-for="item in menu">
-          <a data-turbolinks="false" :href="`#${item.replace(' ', '-').toLowerCase()}`">{{item}}</a>
-        </li>
+      <ul
+        class="context-menu no_bullets">
+        <template v-for="item in menu">
+          <li
+            :key="item"
+            v-show="showForRanks(item)">
+            <a data-turbolinks="false" :href="`#${item}`">{{item}}</a>
+          </li>
+        </template>
       </ul>
     </div>
   </div>
@@ -75,6 +90,10 @@ import QuickForms from 'components/radials/object/radial.vue'
 import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
 import { GetBreadCrumbNavigation } from '../request/resources'
 import getOSKey from 'helpers/getMacKey.js'
+import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import componentNames from '../const/componentNames.js'
+import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -91,6 +110,14 @@ export default {
     menu: {
       type: Array,
       required: true
+    }
+  },
+  computed: {
+    taxonName () {
+      return this.$store.getters[GetterNames.GetTaxonName]
+    },
+    isInvalid () {
+      return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
     }
   },
   data () {
@@ -130,7 +157,16 @@ export default {
     switchComprehensive () {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },
-    getOSKey: getOSKey
+    getOSKey: getOSKey,
+    showForRanks (section) {
+      const componentSection = Object.values(componentNames()).find(item => item.title === section)
+      const rankGroup = componentSection.rankGroup
+
+      return rankGroup ? this.taxonName ? ShowForThisGroup(rankGroup, this.taxonName) : componentSection.otu : true
+    },
+    openValid () {
+      window.open(`${RouteNames.BrowseOtu}?taxon_name_id=${this.taxonName.cached_valid_taxon_name_id}`)
+    }
   }
 
 }

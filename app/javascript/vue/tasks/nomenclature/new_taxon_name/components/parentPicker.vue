@@ -6,13 +6,13 @@
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
-        event-send="parentSelected"
+        @getItem="parentSelected($event.id)"
         display="label"
         :add-params="{
           'type[]': 'Protonym',
           valid: true
         }"
-        :send-label="parent.name"
+        :send-label="parent.object_label"
         param="term"/>
       <default-taxon
         section="TaxonNames"
@@ -56,7 +56,7 @@
 <script>
 
 import DefaultTaxon from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -101,11 +101,6 @@ export default {
       code: undefined,
       validParent: undefined
     }
-  },
-  mounted: function () {
-    this.$on('parentSelected', function (item) {
-      this.parentSelected(item.id)
-    })
   },
   watch: {
     getInitLoad(newVal) {

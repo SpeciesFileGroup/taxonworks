@@ -63,120 +63,124 @@
 </template>
 <script>
 
-  import { GetterNames } from './store/getters/getters'
-  import { MutationNames } from './store/mutations/mutations'
+import { GetterNames } from './store/getters/getters'
+import { MutationNames } from './store/mutations/mutations'
 
-  import removeCitation from './components/removeCitation.vue'
-  import OtuPicker from './components/otuPicker.vue'
-  import OtuCitations from './components/otuCitations.vue'
-  import TopicsChecklist from './components/topicsChecklist.vue'
-  import SourceCitations from './components/sourceCitations.vue'
-  import SourcePicker from './components/sourcePicker.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import removeCitation from './components/removeCitation.vue'
+import OtuPicker from './components/otuPicker.vue'
+import OtuCitations from './components/otuCitations.vue'
+import TopicsChecklist from './components/topicsChecklist.vue'
+import SourceCitations from './components/sourceCitations.vue'
+import SourcePicker from './components/sourcePicker.vue'
+import { Citation, Otu, Topic } from 'routes/endpoints'
 
-  export default {
-    components: {
-      removeCitation,
-      OtuPicker,
-      SourcePicker,
-      OtuCitations,
-      TopicsChecklist,
-      SourceCitations
+export default {
+  components: {
+    removeCitation,
+    OtuPicker,
+    SourcePicker,
+    OtuCitations,
+    TopicsChecklist,
+    SourceCitations
+  },
+
+  computed: {
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
     },
-    computed: {
-      otu() {
-        return this.$store.getters[GetterNames.GetOtuSelected]
-      },
-      source() {
-        return this.$store.getters[GetterNames.GetSourceSelected]
-      },
-      disabled() {
-        return this.$store.getters[GetterNames.ObjectsSelected]
-      }
+    source () {
+      return this.$store.getters[GetterNames.GetSourceSelected]
     },
+    disabled () {
+      return this.$store.getters[GetterNames.ObjectsSelected]
+    }
+  },
 
-    watch: {
-      otu: function (val, oldVal) {
-        if (val !== oldVal) {
-          if (val != undefined) {
-            this.loadOtuCitations()
-          }
-          if (!this.disabled) {
-            this.loadCitations()
-          }
+  watch: {
+    otu (val, oldVal) {
+      if (val !== oldVal) {
+        if (val != undefined) {
+          this.loadOtuCitations()
         }
-      },
-      source: function (val, oldVal) {
-        if (val !== oldVal) {
-          if (val != undefined) {
-            this.loadSourceCitations()
-          }
-          if (!this.disabled) {
-            this.loadCitations()
-          }
+        if (!this.disabled) {
+          this.loadCitations()
         }
       }
     },
-
-    methods: {
-      loadSourceCitations: function () {
-        let that = this,
-          filterUrl = `/citations.json?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu`
-
-        AjaxCall('get', filterUrl).then(response => {
-          if (response.body.length) {
-            that.$store.commit(MutationNames.SetSourceCitationsList, response.body)
-          }
-        })
-      },
-
-      loadOtuCitations: function () {
-        let that = this,
-          filterUrl = `/citations.json?citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
-
-        AjaxCall('get', filterUrl).then(response => {
-          if (response.body.length) {
-            that.$store.commit(MutationNames.SetOtuCitationsList, response.body)
-          }
-        })
-      },
-
-      loadCitations: function () {
-        let that = this,
-          filterUrl = `/citations?source_id=${that.$store.getters[GetterNames.GetSourceSelected].id}&citation_object_type=Otu&citation_object_id=${that.$store.getters[GetterNames.GetOtuSelected].id}`
-
-        AjaxCall('get', '/otus/' + that.$store.getters[GetterNames.GetOtuSelected] + '/citations').then(response => {
-          that.$store.commit(MutationNames.SetCitationsList, response.body)
-        })
-
-        AjaxCall('get', filterUrl).then(response => {
-          if (response.body.length) {
-            that.$store.commit(MutationNames.SetCurrentCitation, response.body[0])
-            that.$store.commit(MutationNames.AddCitation, response.body[0])
-            that.$store.commit(MutationNames.SetTopicsSelected, response.body[0].citation_topics)
-          } else {
-            let citation = {
-              citation_object_type: 'Otu',
-              citation_object_id: that.$store.getters[GetterNames.GetOtuSelected].id,
-              source_id: that.$store.getters[GetterNames.GetSourceSelected].id
-            }
-
-            AjaxCall('post', '/citations',{ citation: citation }).then(response => {
-              that.$store.commit(MutationNames.SetCurrentCitation, response.body)
-              that.$store.commit(MutationNames.AddCitation, response.body)
-              that.$store.commit(MutationNames.AddToSourceList, response.body)
-              that.$store.commit(MutationNames.AddToOtuList, response.body)
-              that.$store.commit(MutationNames.SetTopicsSelected, response.body.citation_topics)
-            })
-          }
-        })
+    source (val, oldVal) {
+      if (val !== oldVal) {
+        if (val != undefined) {
+          this.loadSourceCitations()
+        }
+        if (!this.disabled) {
+          this.loadCitations()
+        }
       }
+    }
+  },
+
+  methods: {
+    loadSourceCitations () {
+      Citation.where({
+        source_id: this.$store.getters[GetterNames.GetSourceSelected].id,
+        citation_object_type: 'Otu'
+      }).then(response => {
+        if (response.body.length) {
+          this.$store.commit(MutationNames.SetSourceCitationsList, response.body)
+        }
+      })
     },
 
-    beforeCreate: function () {
-      AjaxCall('get', '/topics.json').then(response => {
-        this.$store.commit(MutationNames.SetTopicsList, response.body)
+    loadOtuCitations () {
+      Citation.where({
+        citation_object_type: 'Otu',
+        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id
+      }).then(response => {
+        if (response.body.length) {
+          this.$store.commit(MutationNames.SetOtuCitationsList, response.body)
+        }
+      })
+    },
+
+    loadCitations () {
+      const { commit, getters } = this.$store
+
+      Otu.citations(this.$store.getters[GetterNames.GetOtuSelected].id).then(response => {
+        commit(MutationNames.SetCitationsList, response.body)
+      })
+
+      Citation.where({
+        source_id: this.$store.getters[GetterNames.GetSourceSelected].id,
+        citation_object_type: 'Otu',
+        citation_object_id: this.$store.getters[GetterNames.GetOtuSelected].id
+      }).then(response => {
+        if (response.body.length) {
+          commit(MutationNames.SetCurrentCitation, response.body[0])
+          commit(MutationNames.AddCitation, response.body[0])
+          commit(MutationNames.SetTopicsSelected, response.body[0].citation_topics)
+        } else {
+          const citation = {
+            citation_object_type: 'Otu',
+            citation_object_id: getters[GetterNames.GetOtuSelected].id,
+            source_id: getters[GetterNames.GetSourceSelected].id
+          }
+
+          Citation.create({ citation: citation }).then(response => {
+            commit(MutationNames.SetCurrentCitation, response.body)
+            commit(MutationNames.AddCitation, response.body)
+            commit(MutationNames.AddToSourceList, response.body)
+            commit(MutationNames.AddToOtuList, response.body)
+            commit(MutationNames.SetTopicsSelected, response.body.citation_topics)
+          })
+        }
       })
     }
+  },
+
+  beforeCreate () {
+    Topic.all().then(response => {
+      this.$store.commit(MutationNames.SetTopicsList, response.body)
+    })
   }
+}
 </script>

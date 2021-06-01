@@ -21,9 +21,9 @@ class SequenceRelationship < ApplicationRecord
   # include Shared::Confidence
   # include Shared::Documentation
   include Shared::Identifiers
-  include Shared::IsData
   include Shared::Notes
   include Shared::Tags
+  include Shared::IsData
 
   belongs_to :subject_sequence, class_name: 'Sequence', inverse_of: :sequence_relationships
   belongs_to :object_sequence, class_name: 'Sequence', inverse_of: :related_sequence_relationships

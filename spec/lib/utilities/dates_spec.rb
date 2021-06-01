@@ -224,6 +224,7 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, 27-VI-1946 - 1-VII-1947, text' => '27/6/1946/1/7/1947',
           'text, 5 27 1946 - 6 1 1947, text' => '27/5/1946/1/6/1947',
           'text, June 27 - July 1 1947, text' => '27/6/1947/1/7/1947',
+          'text, VII-30-VIII-17-2000, text' => '30/7/2000/17/8/2000',
           'text, 27 June - 1 July 1947, text' => '27/6/1947/1/7/1947',
           'text, 27 VI - 1 VII 1947, text' => '27/6/1947/1/7/1947',
           'text, 27-VI - 1-VII-1947, text' => '27/6/1947/1/7/1947',
@@ -231,7 +232,10 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, 5 27 - 6 1 1947, text' => '27/5/1947/1/6/1947',
           'text, June 27-29 1947, text' => '27/6/1947/29/6/1947',
           'text, 27-29 June 1947, text' => '27/6/1947/29/6/1947',
+          'text, 8–12.07.2019, text' => '8/07/2019/12/07/2019',
+          'text, 19—26 November 2002, text' => '19/11/2002/26/11/2002',
           'text, 12 27-29 1947, text' => '27/12/1947/29/12/1947',
+          'text, 20/XI/2018, text' => '20/11/2018///',
           'text, Jun 29 1947, text' => '29/6/1947///',
           'text, Jun 29, 1947, text' => '29/6/1947///',
           'text, June 29, 1947, text' => '29/6/1947///',
@@ -257,7 +261,14 @@ describe Utilities::Dates, group: [:collecting_events, :dates] do
           'text, 6/29/47, text' => '29/6/1947///',
           "text, 6/29/'47, text" => '29/6/1947///',
           "text, 7.10.94, text" => '10/7/1894///',
-          "text, 5-17-97, text" => '17/5/1897///', }
+          "text, 5-17-97, text" => '17/5/1897///',
+          'text, Jun - Jul 1947, text' => '/6/1947//7/1947',
+          'text, June - July, 1947, text' => '/6/1947//7/1947',
+          'text, VI-X 1947, text' => '/6/1947//10/1947',
+          'text, Jun 1947, text' => '/6/1947///',
+          'text, June, 1947, text' => '/6/1947///',
+          'text, VI 1947, text' => '/6/1947///',
+      }
 
       @entry = 0
 

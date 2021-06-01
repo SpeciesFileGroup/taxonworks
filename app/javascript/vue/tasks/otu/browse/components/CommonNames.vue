@@ -2,7 +2,6 @@
   <section-panel
     :status="status"
     :title="title">
-    <a name="common-names"/>
     <table-display 
       v-if="commonNames.length"
       :list="commonNames"
@@ -14,7 +13,7 @@
 
 <script>
 
-import { GetCommonNames } from '../request/resources.js'
+import { GetterNames } from '../store/getters/getters'
 import SectionPanel from './shared/sectionPanel'
 import TableDisplay from 'components/table_list'
 import extendSection from './shared/extendSections'
@@ -25,26 +24,9 @@ export default {
     SectionPanel,
     TableDisplay
   },
-  props: {
-    otu: {
-      type: Object
-    }
-  },
-  data() {
-    return {
-      commonNames: []
-    }
-  },
-  watch: {
-    otu: {
-      handler (newVal) {
-        if(newVal) {
-          GetCommonNames(newVal.id).then(response => {
-            this.commonNames = response.body
-          })
-        }
-      },
-      immediate: true
+  computed: {
+    commonNames () {
+      return this.$store.getters[GetterNames.GetCommonNames]
     }
   }
 }

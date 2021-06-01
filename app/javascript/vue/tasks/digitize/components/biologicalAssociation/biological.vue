@@ -10,6 +10,9 @@
         klass="CollectionObject"
         :add-tabs="['all']"
         pin-section="BiologicalRelationships"
+        :buttons="true"
+        :inline="true"
+        label="name"
         pin-type="BiologicalRelationship"
         @selected="setBiologicalAssociation"
       >
@@ -30,9 +33,9 @@
 <script>
 
 import TagItem from '../shared/item_tag.vue'
-import SmartSelector from 'components/smartSelector.vue'
-import { GetBiologicalRelationships } from '../../request/resources.js'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -51,7 +54,7 @@ export default {
   },
   methods: {
     loadTabList () {
-      GetBiologicalRelationships().then(response => {
+      BiologicalRelationship.all().then(response => {
         this.allItems = response.body
       })
     },

@@ -25,16 +25,18 @@
           :key="item.id">
           <autocomplete
             url="/taxon_names/autocomplete"
-            label="label"
+            label="label_html"
             min="2"
             :disabled="disabled"
+            clear-after
             @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
             event-send="autocomplete"
             :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
             param="term"/>
           <span
-            class="handle"
-            data-icon="scroll-v"/>
+            class="handle button circle-button button-submit"
+            title="Press and hold to drag input"
+            data-icon="w_scroll-v"/>
         </div>
         <div
           class="original-combination-item horizontal-left-content middle"
@@ -46,8 +48,9 @@
             </span>
           </div>
           <span
-            class="handle"
-            data-icon="scroll-v"/>
+            class="handle button circle-button button-submit"
+            title="Press and hold to drag input"
+            data-icon="w_scroll-v"/>
           <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>
           <span
             class="circle-button btn-delete"
@@ -63,7 +66,7 @@ import Draggable from 'vuedraggable'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import AjaxCall from 'helpers/ajaxCall'
 

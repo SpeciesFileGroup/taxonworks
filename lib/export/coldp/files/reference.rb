@@ -17,7 +17,7 @@ module Export::Coldp::Files::Reference
     
   def self.add_reference_rows(sources = [], reference_csv)
     sources.each do |s|
-      reference_csv << ref_row(s)   
+      reference_csv[s.id] = ref_row(s)   
     end 
   end
 
@@ -25,17 +25,17 @@ module Export::Coldp::Files::Reference
     [
       source.id,
       source.cached,
-      source.cached_author_string,
-      source.year,
-      source.journal,                # source.source
-      reference_details(source),     # details (pages, volume, year)
+#     source.cached_author_string,
+#     source.year,
+#     source.journal,                # source.source
+#     reference_details(source),     # details (pages, volume, year)
       source.doi 
     ]
   end
 
   # TODO: this makes little sense without more structure, just spam stuff in until we understand more
   def self.reference_details(source)
-    [source.pages, source.volume, source.number, source.bibtex_type].compact.join(';') 
+    [source.volume, source.number, source.pages, source.bibtex_type].compact.join(';')
   end
   
 end

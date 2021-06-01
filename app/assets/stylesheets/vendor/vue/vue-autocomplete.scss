@@ -26,7 +26,7 @@
     overflow-y: scroll;
     z-index: 2001;
     display: none;
-    background-color: #FFF;
+    background-color: #FAFAFA;
     margin: 0px;
     padding: 0px;
     list-style: none;
@@ -36,10 +36,11 @@
     border: 1px solid $navigation_border;
     box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
     border-top: none;
+    border-bottom: 4px solid $navigation_border;
   }
   li {
     cursor: pointer;
-    padding: $standard_padding * 0.25;
+    padding: $standard_padding * 0.5;
     border-top: 1px solid $navigation_border;
   }
   .active {

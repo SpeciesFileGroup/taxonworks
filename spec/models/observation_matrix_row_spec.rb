@@ -1,10 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
+RSpec.describe ObservationMatrixRow, type: :model, group: :observation_matrix do
 
   let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
   let(:observation_matrix_row) {ObservationMatrixRow.new}
   let(:otu) { FactoryBot.create(:valid_otu) }
+  let(:otu1) { FactoryBot.create(:valid_otu) }
   let(:collection_object) {  FactoryBot.create(:valid_collection_object) }
 
   context :validation do
@@ -42,10 +43,12 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
     context 'observations' do
       let!(:o) { FactoryBot.create(:valid_observation, otu: otu) }
       let!(:o1) { FactoryBot.create(:valid_observation, otu: otu) } # does not use same dd
+      let(:o2) { FactoryBot.create(:valid_observation, otu: otu1) } # does not use same dd
       let(:d) { o.descriptor }
       let!(:c) { FactoryBot.create(:valid_observation_matrix_column, observation_matrix: observation_matrix, descriptor: d ) }
       let!(:r) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix, otu: otu) }
       let!(:r1) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix) }
+      let!(:r2) { FactoryBot.create(:valid_observation_matrix_row, observation_matrix: observation_matrix, otu: otu1) }
 
       specify '#observations' do
         expect(r.observations.map(&:id)).to contain_exactly(o.id)
@@ -53,6 +56,10 @@ RSpec.describe ObservationMatrixRow, type: :model, group: :matrix do
 
       specify '#observations2' do
         expect(r1.observations.map(&:id)).to contain_exactly()
+      end
+
+      specify 'with_otu_ids' do
+        expect(observation_matrix.observation_matrix_rows.with_otu_ids(otu.id.to_s + '|' + otu1.id.to_s).count).to eq(2)
       end
     end
 

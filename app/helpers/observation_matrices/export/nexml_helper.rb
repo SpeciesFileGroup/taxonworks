@@ -175,7 +175,7 @@ module ObservationMatrices::Export::NexmlHelper
         xml.otu(
           id: "row_#{r.id}",
           about: "#row_#{r.id}", # technically only need this for proper RDFa extraction  !!! Might need this to be different, is it about row, or row object!
-          label: observation_matrix_row_label(r)
+          label: observation_matrix_row_label_nexml(r)
         ) do
           include_collection_objects(opt.merge(otu: r.row_object)) if opt[:include_collection_objects]
         end

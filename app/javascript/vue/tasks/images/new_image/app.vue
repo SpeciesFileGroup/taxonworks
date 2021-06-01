@@ -27,6 +27,7 @@
     </div>
     <div class="separate-top separate-bottom">
       <div class="flexbox separate-bottom">
+        <pixels-unit class="margin-medium-right"/>
         <depic-some class="panel-section separate-right"/>
         <depiction-component class="panel-section separate-left"/>
       </div>
@@ -49,6 +50,7 @@ import DepictionComponent from './components/depiction'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'
 import { ActionNames } from './store/actions/actions.js'
+import PixelsUnit from './components/pixelsUnit.vue'
 
 export default {
   components: {
@@ -58,7 +60,8 @@ export default {
     DepicSome,
     SpinnerComponent,
     SqedComponent,
-    DepictionComponent
+    DepictionComponent,
+    PixelsUnit
   },
   computed: {
     images: {

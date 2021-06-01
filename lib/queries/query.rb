@@ -21,7 +21,7 @@ module Queries
     # @return [String, nil]
     #   the initial, unparsed value
     attr_accessor :query_string
-    
+
     attr_accessor :terms
     attr_accessor :project_id
 
@@ -69,7 +69,7 @@ module Queries
     end
 
     def no_terms?
-      @terms.none?
+      terms.none?
     end
 
     # @return [Array]
@@ -241,12 +241,12 @@ module Queries
       end
     end
 
-    # TODO: rename :cached_matches or similar
+    # !!TODO: rename :cached_matches or similar (this is problematic !!)
     # @return [ActiveRecord::Relation, nil]
     #   cached matches full query string wildcarded
     def cached
       return nil if no_terms?
-      table[:cached].matches_any(terms)
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [Arel::Nodes::Matches]
@@ -287,6 +287,12 @@ module Queries
         a = a.or(b)
       end
       a
+    end
+
+    def levenshtein_distance(attribute, value)
+      value = "'" + value.gsub(/'/, "''") + "'"
+      a = ApplicationRecord.sanitize_sql(value)
+      Arel::Nodes::NamedFunction.new("levenshtein", [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
     end
 
     #

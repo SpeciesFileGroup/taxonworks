@@ -18,12 +18,12 @@
         <span class="margin-medium-right">OTU</span>
         <div class="square-brackets">
           <ul class="no_bullets context-menu">
-            <li><%= otus_redirect(@taxon_name) %></li>
+            <li><%= browse_otu_link(@taxon_name) %></li>
             <li><%= otus_radial_disambiguate(@taxon_name) %></li>
           </ul>
         </div>
         <ul class="context-menu">
-          <li><%= radial_annotator(@taxon_name) %></li>
+          <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
           <li><%= confidence_default_icon(@taxon_name) %></li>
           <li><%= tag_default_icon(@taxon_name) %></li>
           <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
@@ -49,7 +49,10 @@
         <div class="panel separate-left separate-right">
           <div>
             <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
-              <%= content_tag(:p, full_taxon_name_tag(@taxon_name), class: 'item center_text name') -%>
+            <h3 class="item center_text">
+              <%= content_tag(:span, rank_tag(@taxon_name), class: :subtle) -%>
+              <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: :name) -%>
+            </h3>
             </div>
             <div class="horizontal-center-content filter">
               <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
@@ -57,6 +60,7 @@
             <%= render "filter" %>
             <div class="content">
               <div class="attributes"> 
+                <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
                 <ul class="taxonomic_history">
                   <% @data.ordered_by_nomenclature_date.each do |c| -%>
                     <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 
@@ -76,10 +80,11 @@
           </div>
         </div>
         <div id="third-column">
-          <div class="flex-wrap-row"> 
+          <div class="flex-wrap-row margin-small-left"> 
             <%= render "summary" %>
             <%= render "soft_validation" %>
-            <div class="panel content fullSize separate-left">
+            <%= annotations_summary_tag(@taxon_name) %>
+            <div class="panel content fullSize">
               <div class="attributes">
                 <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
               </div>

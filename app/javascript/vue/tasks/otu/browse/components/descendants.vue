@@ -3,8 +3,8 @@
     :spinner="isLoading"
     :status="status"
     :title="title"
+    menu
     @menu="showModal = true">
-    <a name="descendants"/>
     <tree-view
       :current-taxon-id="otu.taxon_name_id"
       :only-valid="onlyValid"
@@ -40,7 +40,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import TreeView from './TreeView'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'

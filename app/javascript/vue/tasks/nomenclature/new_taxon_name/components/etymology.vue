@@ -1,11 +1,11 @@
 <template>
   <block-layout
     anchor="etymology"
+    :spinner="!taxon.id"
     v-help.section.etymology.container>
     <h3 slot="header">Etymology</h3>
     <div
-      slot="body"
-      v-show="expanded">
+      slot="body">
       <markdown-editor
         @blur="updateLastChange"
         class="edit-content"
@@ -20,7 +20,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import MarkdownEditor from 'components/markdown-editor.vue'
-import BlockLayout from './blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 export default {
   components: {
@@ -35,14 +35,15 @@ export default {
       set (text) {
         this.$store.commit(MutationNames.SetEtymology, text)
       }
+    },
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     }
   },
-  data: function () {
+  data () {
     return {
-      expanded: true,
       config: {
         status: false,
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview'],
         spellChecker: false
       }
     }

@@ -32,13 +32,14 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import removeDuplicate from '../helpers/removeDuplicate'
-import Modal from 'components/modal.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import { Content } from 'routes/endpoints'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
-
-  data: function () {
+  components: {
+    Modal
+  },
+  data () {
     return {
       contents: [],
       showModal: false
@@ -71,22 +72,17 @@ export default {
     }
   },
   methods: {
-    loadContent: function () {
+    loadContent () {
       if (this.disabled) return
-      var that = this,
-        ajaxUrl = `/contents/filter.json?topic_id=${this.topic.id}`
-      AjaxCall('get', ajaxUrl).then(response => {
-        that.contents = removeDuplicate(response.body, this.content.id)
+
+      Content.where({ topic_id: this.topic.id }).then(response => {
+        this.contents = response.body.filter(c => c.id !== this.content.id)
       })
     },
     cloneCitation: function (text) {
-      this.$parent.$emit('addCloneCitation', text)
+      this.$emit('addCloneCitation', text)
       this.showModal = false
     }
-  },
-  components: {
-    Modal
   }
-
 }
 </script>
