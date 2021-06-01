@@ -14,8 +14,11 @@ class TaxonNameClassificationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_classifications = TaxonNameClassification.where(filter_params)
-          .with_project_id(sessions_current_project_id)
+        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(filter_params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per] || 500)
       }
     end
   end
