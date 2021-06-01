@@ -12,8 +12,6 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
-
-
     # authenticated by user_token
     defaults authenticate_user: true do
       get '/user_authenticated', to: 'base#index'
@@ -50,7 +48,10 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
-      get '/taxon_names/:id', to: '/taxon_names#api_show'
+
+      get '/taxon_name_relationships', to: '/taxon_name_relationships#api_index'
+      get '/taxon_name_relationships/taxon_name_relationship_types', to: '/taxon_name_relationships#taxon_name_relationship_types'
+      get '/taxon_name_relationships/:id', to: '/taxon_name_relationships#api_show'
 
       get '/notes', to: '/notes#api_index'
       get '/notes/:id', to: '/notes#api_show'
