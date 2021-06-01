@@ -27,24 +27,30 @@
         Search
       </button>
       <with-component
-        class="margin-medium-bottom"
+        class="margin-large-bottom margin-medium-top"
         title="In project"
         name="params.source.in_project"
         :values="['Both', 'Yes', 'No']"
         param="in_project"
         v-model="params.source.in_project"
       />
-      <title-component v-model="params.source"/>
-      <type-component v-model="params.source.source_type"/>
-      <authors-component v-model="params.source"/>
-      <date-component v-model="params.source"/>
-      <serials-component v-model="params.source.serial_ids"/>
-      <tags-component v-model="params.source.keyword_ids"/>
-      <topics-component v-model="params.source.topic_ids"/>
-      <identifier-component v-model="params.identifier"/>
-      <citation-types-component v-model="params.source.citation_object_type"/>
-      <users-component v-model="params.user"/>
+      <title-component class="margin-large-bottom" v-model="params.source"/>
+      <type-component class="margin-large-bottom" v-model="params.source.source_type"/>
+      <authors-component class="margin-large-bottom" v-model="params.source"/>
+      <date-component class="margin-large-bottom" v-model="params.source"/>
+      <serials-component class="margin-large-bottom" v-model="params.source.serial_ids"/>
+      <tags-component class="margin-large-bottom" v-model="params.keywords"/>
+      <topics-component class="margin-large-bottom" v-model="params.source.topic_ids"/>
+      <identifier-component class="margin-large-bottom" v-model="params.identifier"/>
+      <taxon-name-component class="margin-large-bottom" v-model="params.nomenclature"/>
+      <citation-types-component class="margin-large-bottom" v-model="params.source.citation_object_type"/>
+      <users-component class="margin-large-bottom" v-model="params.user"/>
+      <some-value-component
+        class="margin-large-bottom"
+        model="sources"
+        v-model="params.attributes"/>
       <with-component
+        class="margin-large-bottom"
         v-for="(item, key) in params.byRecordsWith"
         :key="key"
         :title="key"
@@ -70,9 +76,16 @@ import WithComponent from './filters/with'
 import TypeComponent from './filters/type'
 import TopicsComponent from './filters/topics'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
+import SomeValueComponent from './filters/SomeValue/SomeValue'
+import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 import { GetSources } from '../request/resources.js'
+
+const parseAttributeParams = (attributes) => ({
+  empty: attributes.filter(item => item.empty).map(item => item.name),
+  not_empty: attributes.filter(item => !item.empty).map(item => item.name)
+})
 
 export default {
   components: {
@@ -87,7 +100,9 @@ export default {
     TypeComponent,
     UsersComponent,
     TopicsComponent,
-    SerialsComponent
+    SerialsComponent,
+    SomeValueComponent,
+    TaxonNameComponent
   },
   computed: {
     getMacKey () {
@@ -120,7 +135,7 @@ export default {
     },
     searchSources () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.source, this.params.byRecordsWith, this.params.identifier, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.source, parseAttributeParams(this.params.attributes), this.params.keywords, this.params.byRecordsWith, this.params.nomenclature, this.params.identifier, this.params.user, this.params.settings))
 
       this.getSources(params)
     },
@@ -162,11 +177,15 @@ export default {
           in_project: true,
           source_type: undefined,
           citation_object_type: [],
-          keyword_ids: [],
           topic_ids: [],
           users: [],
           serial_ids: []
         },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
+        },
+        attributes: [],
         byRecordsWith: {
           citations: undefined,
           roles: undefined,
@@ -182,6 +201,10 @@ export default {
           identifiers_start: undefined,
           identifiers_end: undefined,
           identifier_exact: undefined
+        },
+        nomenclature: {
+          ancestor_id: undefined,
+          citations_on_otus: undefined
         },
         user: {
           user_id: undefined,
@@ -208,12 +231,12 @@ export default {
     loadPage (page) {
       this.params.settings.page = page
       this.searchSources()
-    },
+    }
   }
 }
 </script>
 <style scoped>
->>> .btn-delete {
+::v-deep .btn-delete {
     background-color: #5D9ECE;
   }
 </style>

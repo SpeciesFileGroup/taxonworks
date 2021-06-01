@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h2 class="flex-separate">
+    <h3 class="flex-separate">
       Housekeeping
       <span
         class="margin-small-left"
         v-if="!user.user_target || (!user.user_date_start && !user.user_date_end)"
         data-icon="warning"
         title="Select a date range first to pick a date"/>
-    </h2>
+    </h3>
     <div class="field">
       <select v-model="user.user_id">
         <option
@@ -54,9 +54,9 @@
             v-model="user.user_date_end">
           <button
             type="button"
-            :disabled="!user.user_date_start"
             class="button normal-input button-default margin-small-left"
-            @click="setActualDate">
+            @click="setActualDateStart"
+            @dblclick="setActualDateEnd">
             Now
           </button>
         </div>
@@ -67,7 +67,7 @@
 
 <script>
 
-import { GetUsers } from '../../request/resources'
+import { ProjectMember } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -117,7 +117,7 @@ export default {
     }
   },
   mounted () {
-    GetUsers().then(response => {
+    ProjectMember.all().then(response => {
       this.users = response.body
       this.$emit('onUserslist', this.users)
       this.users.unshift({ user: { name: '--none--', id: undefined } })
@@ -132,7 +132,10 @@ export default {
     }
   },
   methods: {
-    setActualDate () {
+    setActualDateStart () {
+      this.user.user_date_start = new Date().toISOString().split('T')[0]
+    },
+    setActualDateEnd () {
       this.user.user_date_end = new Date().toISOString().split('T')[0]
     }
   }

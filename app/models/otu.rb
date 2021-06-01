@@ -24,7 +24,7 @@
 class Otu < ApplicationRecord
   include Housekeeping
   include SoftValidation
-  #include Shared::AlternateValues   # No alternate values on Name!! 
+  #include Shared::AlternateValues   # No alternate values on Name!!
   include Shared::Citations          # TODO: have to think hard about this vs. using Nico's framework
   include Shared::DataAttributes
   include Shared::Identifiers
@@ -33,14 +33,17 @@ class Otu < ApplicationRecord
   include Shared::Depictions
   include Shared::Loanable
   include Shared::Confidences
-  include Shared::Observations 
-  include Shared::BiologicalAssociations 
+  include Shared::Observations
+  include Shared::BiologicalAssociations
   include Shared::HasPapertrail
+  include Shared::OriginRelationship
 
   include Shared::MatrixHooks::Member
   include Otu::MatrixHooks
 
   include Shared::IsData
+
+  is_origin_for 'Sequence', 'Extract'
 
   GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :taxon_determinations]
 
@@ -54,14 +57,12 @@ class Otu < ApplicationRecord
   has_many :taxon_determinations, inverse_of: :otu, dependent: :destroy # TODO: change
   has_many :collection_objects, through: :taxon_determinations, source: :biological_collection_object, inverse_of: :otus
 
-  has_many :extracts, through: :collection_objects, source: :derived_extracts
-
+  has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
-
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
+  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
@@ -99,11 +100,11 @@ class Otu < ApplicationRecord
       Otu.where(id: otu_id)
     end
   end
- 
+
   # @return [Otu::ActiveRecordRelation]
-  # 
-  # All OTUs that are synonymous/same/matching target, for either 
-  #    historical and pragmatic (i.e. share the same `taxon_name_id`), or 
+  #
+  # All OTUs that are synonymous/same/matching target, for either
+  #    historical and pragmatic (i.e. share the same `taxon_name_id`), or
   #    nomenclatural reasons (are synonyms of the taxon name). Includes self.
   #
   def self.coordinate_otus(otu_id)
@@ -117,14 +118,14 @@ class Otu < ApplicationRecord
         o[:taxon_name_id].eq( t[:id] ).and(t[:cached_valid_taxon_name_id].eq(j))
       )
 
-      Otu.joins(q.join_sources) 
+      Otu.joins(q.join_sources)
     rescue ActiveRecord::RecordNotFound
       Otu.where(id: otu_id)
     end
   end
 
   # @return [Otu::ActiveRecordRelation]
-  #   if the Otu is a child, via synonymy or not, of the taxon name 
+  #   if the Otu is a child, via synonymy or not, of the taxon name
   #   !! Invalid taxon_name_ids return nothing
   #   !! Taxon names with synonyms return the OTUs of their synonyms
   def self.descendant_of_taxon_name(taxon_name_id)
@@ -136,7 +137,7 @@ class Otu < ApplicationRecord
       o[:taxon_name_id].eq( t[:id]))
       .join(h, Arel::Nodes::InnerJoin).on(
         t[:cached_valid_taxon_name_id].eq(h[:descendant_id]))
-      
+
     Otu.joins(q.join_sources).where(h[:ancestor_id].eq(taxon_name_id).to_sql)
   end
 
@@ -151,19 +152,55 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
-  # @return [Otu, nil, false]
-  def parent_otu
-    return nil if taxon_name_id.blank?
-    taxon_name.ancestors.each do |a|
-      if a.otus.load.count == 1
-        return a.otus.first
-      elsif a.otus.count > 1
-        return false 
+  # @return [Otu#id, nil, false]
+  #  nil - there is no OTU parent with a valid taxon name possible
+  #  false - there is > 1 OTU parent with a valid taxon name possible
+  #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
+  #
+  #  Note this is used CoLDP export. Do not change without considerations there.
+  def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
+    return nil if taxon_name_id.nil?
+
+    # TODO: Unify to a single query
+
+    candidates = TaxonName.joins(:otus, :descendant_hierarchies)
+      .that_is_valid
+      .where.not(id: taxon_name_id)
+      .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
+      .where.not(rank_class: skip_ranks)
+      .order('taxon_name_hierarchies.generations')
+      .limit(1)
+      .pluck(:id)
+
+    if candidates.size == 1
+      otus = Otu.where(taxon_name_id: candidates.first).to_a
+      otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
+
+      if otus.size == 1
+        return otus.first.id
+      elsif otus.size > 1
+        return false
       else
         return nil
       end
+    else
+      return nil
     end
-    nil
+  end
+
+  # @return [Array]
+  #   of ancestral otu_ids
+  # !! This method does not fork, as soon as 2 ancestors are
+  # !! hit the list terminates.
+  def ancestor_otu_ids(prefer_unlabelled_otus: true)
+    ids =  []
+    a = parent_otu_id(prefer_unlabelled_otus: true)
+    while a
+      ids.push a
+      b = Otu.find(a)
+      a = b.parent_otu_id(prefer_unlabelled_otus: true)
+    end
+    ids
   end
 
   # @return [Array]
@@ -173,7 +210,7 @@ class Otu < ApplicationRecord
     BiologicalAssociation.find_by_sql(
       "SELECT biological_associations.*
          FROM biological_associations
-         WHERE biological_associations.biological_association_subject_id = #{self.id} 
+         WHERE biological_associations.biological_association_subject_id = #{self.id}
            AND biological_associations.biological_association_subject_type = 'Otu'
        UNION
        SELECT biological_associations.*
@@ -236,7 +273,7 @@ class Otu < ApplicationRecord
     core = Dwca::GbifProfile::CoreTaxon.new
 
     core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.taxonomicStatus          = (!taxon_name.is_valid? ? nil : 'accepted') # (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
     core.nomenclaturalStatus      = (taxon_name.classification_invalid_or_unavailable? ? nil : 'available') # needs tweaking
     core.scientificName           = taxon_name.cached
     core.scientificNameAuthorship = taxon_name.cached_author_year
@@ -269,7 +306,7 @@ class Otu < ApplicationRecord
   # @return [Scope]
   #   the max 10 most recently used otus, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
-    t = case used_on 
+    t = case used_on
         when 'AssertedDistribution'
           AssertedDistribution.arel_table
         when 'Content'
@@ -282,10 +319,10 @@ class Otu < ApplicationRecord
           return Otu.none
         end
 
-    p = Otu.arel_table 
+    p = Otu.arel_table
 
     # i is a select manager
-    i = case used_on 
+    i = case used_on
         when 'BiologicalAssociation'
           t.project(t['biological_association_object_id'], t['updated_at']).from(t)
             .where(
@@ -307,7 +344,7 @@ class Otu < ApplicationRecord
     z = i.as('recent_t')
 
     case used_on
-        when 'BiologicalAssociation' 
+        when 'BiologicalAssociation'
           j = Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
             z['biological_association_object_id'].eq(p['id'])
           ))

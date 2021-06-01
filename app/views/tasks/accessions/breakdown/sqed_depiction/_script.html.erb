@@ -11,6 +11,8 @@
     var paper;
     var paperWidth = 400;
     var paperHeight = 400;
+    var imageWidth;
+    var imageHeight;
 
     var select_box;
     var big_svg_image;
@@ -38,20 +40,14 @@
         'opacity': 0.4
     };
 
-    var p;
-    p = Raphael("paper", paperWidth, paperHeight);
+    var p = Raphael("paper", paperWidth, paperHeight);
+    var sizes = "<%= @result.large_dimensions_for(@result.primary_image) -%>".split(',')
+    var resizeValues = resizeImage(Number(sizes[2]), Number(sizes[3]))
 
-    big_svg_image = p.image("<%= @result.image_path_for_large_image(@result.primary_image) -%>", <%= @result.large_dimensions_for(@result.primary_image) -%>);
-    addSelectBox(p);
-    getBox();
-    initDecodedText();
+    initRescale("<%= @result.image_path_for_large_image(@result.primary_image) -%>", [0, 0, resizeValues[0], resizeValues[1]])
 
     $('.clickable').on('click', function (click) {
-        p.clear();
-        big_svg_image = p.image(click.currentTarget.src, 0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight);
-        addSelectBox(p);
-        getBox(true);       // just clear the canvas
-        initDecodedText();
+        initRescale (click.currentTarget.src, [0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight], true);
     });
 
     $('.destroyable').on('click', function () {
@@ -63,6 +59,16 @@
 
         field.append($('<input hidden name="' + name + '[_destroy]" value="1" >'));
     });
+
+    function initRescale (imageSrc, box, clearCanvas) {
+        p.clear();
+        big_svg_image = p.image(imageSrc, box[0], box[1], box[2], box[3]);
+        imageWidth = big_svg_image.attrs.width
+        imageHeight = big_svg_image.attrs.height
+        addSelectBox(p);
+        getBox(clearCanvas);       // just clear the canvas
+        initDecodedText();
+    }
 
 
     function addSelectBox(paper) {
@@ -232,14 +238,21 @@
     }
     ;
 
+    function resizeImage (width, height) {
+        var aspectRatio = height > paperHeight ?  paperHeight / height : 1;
+
+        return [width * aspectRatio, height * aspectRatio];
+    }
+
     function getBox(reset) {
         var coords = big_svg_coords();  // "corners" of the selectable image rectangle
 
-        imageAspectRatio = coords[2] / coords[3];
+        // imageAspectRatio = coords[2] / coords[3];
+        imageAspectRatio = 1;
 
         // calculate source framing
-        var SratioW = coords[2] / paperWidth;           // separate the source amd destination distortion
-        var SratioH = coords[3] / paperHeight;          // by computing separate rectangle aspect ratios
+        var SratioW = coords[2] / imageWidth;           // separate the source amd destination distortion
+        var SratioH = coords[3] / imageHeight;          // by computing separate rectangle aspect ratios
 
         sourceX = Math.round((boxX * SratioW) + coords[0]);
         sourceY = Math.round((boxY * SratioH * imageAspectRatio) + coords[1]);

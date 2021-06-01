@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Authors</h2>
+    <h3>Authors</h3>
     <div class="field label-above">
       <label>Author</label>
       <input
@@ -40,7 +40,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetPeople } from '../../request/resources'
@@ -113,7 +113,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

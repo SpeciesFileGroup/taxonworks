@@ -4,13 +4,15 @@
     id="panel-editor">
     <div class="flexbox">
       <div class="left">
-        <div class="title">
-          <span>
-            <span v-if="topic">{{ topic.name }}</span> -
-            <span
-              v-if="otu"
-              v-html="otu.object_tag"/>
-          </span>
+        <div class="flex-separate">
+          <div class="title">
+            <span>
+              <span v-if="topic">{{ topic.name }}</span> -
+              <span
+                v-if="otu"
+                v-html="otu.object_tag"/>
+            </span>
+          </div>
           <div class="horizontal-left-content middle">
             <radial-annotator
               v-if="content"
@@ -111,13 +113,7 @@ import RadialObject from 'components/radials/navigation/radial'
 import OtuButton from 'components/otu/otu'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import {
-  GetContent,
-  GetContents,
-  CreateCitation,
-  CreateContent,
-  UpdateContent
-} from '../request/resources.js'
+import { Citation, Content } from 'routes/endpoints'
 
 export default {
   components: {
@@ -226,7 +222,7 @@ export default {
 
       if (this.newRecord) {
         if (!this.record.content.id) {
-          GetContent(this.record.content.id).then(response => {
+          Content.find(this.record.content.id).then(response => {
             this.$store.commit(MutationNames.AddToRecentContents, response.body)
             this.record.content.id = response.body.id
             this.newRecord = false
@@ -253,7 +249,7 @@ export default {
       }
       if (this.existCitation(citation)) return
 
-      CreateCitation(citation).then(response => {
+      Citation.create({ citation }).then(response => {
         this.$store.commit(MutationNames.AddCitationToList, response.body)
       })
     },
@@ -270,12 +266,11 @@ export default {
     },
 
     autoSave () {
-      let that = this
       if (this.autosave) {
         this.resetAutoSave()
       }
-      this.autosave = setTimeout(function () {
-        that.update()
+      this.autosave = setTimeout(() => {
+        this.update()
       }, 3000)
     },
 
@@ -285,11 +280,11 @@ export default {
       if ((this.disabled) || (this.record.content.text === '')) return
 
       if (this.record.content.id) {
-        UpdateContent(this.record.content.id, this.record).then(response => {
+        Content.update(this.record.content.id, this.record).then(response => {
           this.$store.commit(MutationNames.AddToRecentContents, response.body)
         })
       } else {
-        CreateContent(this.record).then(response => {
+        Content.create(this.record).then(response => {
           this.record.content.id = response.body.id
           this.$store.commit(MutationNames.AddToRecentContents, response.body)
           this.$store.commit(MutationNames.SetContentSelected, response.body)
@@ -307,7 +302,7 @@ export default {
 
       this.firstInput = true
       this.resetAutoSave()
-      GetContents(params).then(response => {
+      Content.where(params).then(response => {
         if (response.body.length > 0) {
           const record = response.body[0]
 

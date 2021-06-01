@@ -115,10 +115,10 @@
 
 import { GetterNames } from '../store/getters/getters'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import BlockLayout from './blockLayout'
-import ModalComponent from 'components/modal'
+import BlockLayout from'components/layout/BlockLayout'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
@@ -144,13 +144,13 @@ export default {
     return {
       childrenList: [],
       selected: [],
-      expanded: true,
       validTaxon: undefined,
       showModal: false,
       moveInput: '',
       saving: false,
       preSelected: [],
-      isLoading: false
+      isLoading: false,
+      maxSelect: 10
     }
   },
   watch: {
@@ -185,7 +185,7 @@ export default {
       }
     },
     confirmSave() {
-      if(this.selected.length >= 10) {
+      if(this.selected.length >= this.maxSelect) {
         this.showModal = true
       } else {
         if(window.confirm(`Are you sure you want to proceed?`)) {

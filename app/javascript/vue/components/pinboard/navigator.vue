@@ -50,7 +50,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
 import { shorten } from 'helpers/strings.js'
 import GetOSKey from 'helpers/getMacKey.js'
@@ -68,7 +68,7 @@ export default {
     }
   },
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+p`, 'Open pinboard navigator', 'Pinboard')
+    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+g`, 'Open pinboard navigator', 'Pinboard')
   },
   methods: {
     redirect () {

@@ -54,7 +54,8 @@ export default {
   },
   computed: {
     isLoading () {
-      return this.$store.getters[GetterNames.GetLoadState].distribution
+      const loadState = this.$store.getters[GetterNames.GetLoadState]
+      return loadState.distribution && loadState.descendantsDistribution
     },
     collectingEvents: {
       get () {

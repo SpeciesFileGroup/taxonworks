@@ -5,28 +5,30 @@ class SoftValidationsController < ApplicationController
 
   # GET /soft_validations/validate
   def validate
-    @object.soft_validate
-    render json: {
-      validations: @object.soft_validations
-    }
-
+    @object.soft_validate(soft_validate_params)
   end
 
   # POST /soft_validations/fix?global_id=<>
   def fix
-    @object.soft_validate
+    @object.soft_validate(soft_validate_params)
     @object.fix_soft_validations
-    render json: {
-      validations: @object.soft_validations
-    }
+    render :validate
   end
 
   protected
 
   def get_object
     @object = GlobalID::Locator.locate(URI.decode(params[:global_id] || ''))
-
     raise ActiveRecord::RecordNotFound if @object.nil?
+  end
+
+  def soft_validate_params
+    params.permit(
+      only_sets: [],
+      only_methods: [],
+      except_methods: [],
+      except_sets: [],
+    ).to_h.symbolize_keys
   end
 
 end

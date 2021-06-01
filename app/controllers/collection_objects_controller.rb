@@ -2,7 +2,7 @@ class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collection_object, only: [
-    :show, :edit, :update, :destroy, :containerize,
+    :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
     :api_show, :api_dwc]
   after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
@@ -31,7 +31,10 @@ class CollectionObjectsController < ApplicationController
 
   def biocuration_classifications
     @biocuration_classifications = @collection_object.biocuration_classifications
-   render '/biocuration_classifications/index'
+    render '/biocuration_classifications/index'
+  end
+
+  def navigation
   end
 
   # DEPRECATED
@@ -85,6 +88,11 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
+    @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
+  end
+
+  # /collection_objects/preview?<filter params>
+  def preview
     @collection_objects = filtered_collection_objects.includes(:dwc_occurrence)
   end
 
@@ -165,11 +173,11 @@ class CollectionObjectsController < ApplicationController
     @collection_object.destroy
     respond_to do |format|
       if @collection_object.destroyed?
-        format.html { redirect_to destroy_redirect, notice: 'CollectionObject was successfully destroyed.'}
+        format.html { redirect_to after_destroy_path, notice: 'CollectionObject was successfully destroyed.' }
         format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; '))}
-        format.json {render json: @collection_object.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @collection_object, notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; ') }
+        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -195,7 +203,7 @@ class CollectionObjectsController < ApplicationController
       Queries::CollectionObject::Autocomplete.new(
         params[:term],
         project_id: sessions_current_project_id
-    ).autocomplete
+      ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -331,7 +339,7 @@ class CollectionObjectsController < ApplicationController
 
   private
 
-  def destroy_redirect
+  def after_destroy_path
     if request.referer =~ /tasks\/collection_objects\/browse/
       if o = @collection_object.next_by_identifier
         browse_collection_objects_path(collection_object_id: o.id)
@@ -365,7 +373,19 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
-      identifiers_attributes: [:id, :_destroy, :identifier, :namespace_id, :type]
+      identifiers_attributes: [
+        :id,
+        :_destroy,
+        :identifier,
+        :namespace_id,
+        :type,
+        labels_attributes: [
+          :text,
+          :type,
+          :text_method,
+          :total
+        ]
+      ]
     )
   end
 
@@ -393,15 +413,28 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
+      :buffered_collecting_event,
+      :buffered_determinations,
+      :buffered_other_labels,
+      :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
-      :depicted,
+      :depictions,
+      :determiner_id_or,
+      :dwc_indexed,
       :end_date,
+      :exact_buffered_collecting_event,
+      :exact_buffered_determinations,
+      :exact_buffered_other_labels,
       :geo_json,
+      :geographic_area,
+      :georeferences,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :loaned,
@@ -410,30 +443,40 @@ class CollectionObjectsController < ApplicationController
       :never_loaned,
       :on_loan,
       :partial_overlap_dates,
-      :radius,
+      :preparation_type_id,
+      :radius,  # CE filter
+      :repository,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
-      :start_date,
+      :start_date,  # CE filter
+      :taxon_determinations,
+      :type_material,
       :type_specimen_taxon_name_id,
       :user_date_end,
       :user_date_start,
       :user_id,
       :user_target,
       :validity,
+      :with_buffered_collecting_event,
+      :with_buffered_determinations,
+      :with_buffered_other_labels,
       :wkt,
-      is_type: [],
-      otu_ids: [],
-      keyword_ids: [],
-      collecting_event_ids: [],
-      geographic_area_ids: [],
       biocuration_class_ids: [],
       biological_relationship_ids: [],
+      collecting_event_ids: [],
+      collector_ids: [], #
+      determiner_id: [],
+      geographic_area_ids: [],
+      is_type: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_ids: [],
+      preparation_type_id: []
       #  user_id: []
-      
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 
@@ -448,46 +491,70 @@ class CollectionObjectsController < ApplicationController
       :recent,
       Queries::CollectingEvent::Filter::ATTRIBUTES,
       :ancestor_id,
+      :buffered_collecting_event,
+      :buffered_determinations,
+      :buffered_other_labels,
+      :collecting_event,
       :collection_object_type,
+      :collector_ids_or,
       :current_determinations,
-      :depicted,
-      :end_date,
+      :depictions,
+      :determiner_id_or,
+      :dwc_indexed,
+      :end_date,  # CE filter
+      :exact_buffered_collecting_event,
+      :exact_buffered_determinations,
+      :exact_buffered_other_labels,
       :geo_json,
+      :geographic_area,
+      :georeferences,
       :identifier,
       :identifier_end,
       :identifier_exact,
       :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :loaned,
-      :md5_verbatim_label,
+      :md5_verbatim_label, # CE filter
       :namespace_id,
       :never_loaned,
       :on_loan,
-      :partial_overlap_dates,
+      :partial_overlap_dates, # CE filter
+      :preparation_type_id,
       :radius,
+      :repository,
       :repository_id,
       :sled_image_id,
       :spatial_geographic_areas,
       :start_date,
+      :taxon_determinations,
+      :type_material,
       :type_specimen_taxon_name_id,
       :user_date_end,
       :user_date_start,
       :user_id,
       :user_target,
       :validity,
-      :wkt,
-      is_type: [],
-      otu_ids: [],
-      keyword_ids: [],
-      collecting_event_ids: [],
-      geographic_area_ids: [],
+      :with_buffered_collecting_event,
+      :with_buffered_determinations,
+      :with_buffered_other_labels,
+      :wkt, # CE filter
       biocuration_class_ids: [],
       biological_relationship_ids: [],
+      collecting_event_ids: [],
+      collector_ids: [],
+      determiner_id: [],
+      geographic_area_ids: [], # CE filter
+      is_type: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_ids: [],
+      preparation_type_id: [],
 
       #  collecting_event: {
       #   :recent,
-      #   keyword_ids: []
+      #   keyword_id_and: []
       # }
     )
 

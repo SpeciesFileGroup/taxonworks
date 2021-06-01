@@ -11,7 +11,7 @@
       @close="showModal = false">
       <h3 slot="header">Destroy collection objects</h3>
       <div slot="body">
-        <p>This will destroy all collection objects created. Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+        <p>This will ALSO DESTROY specimens that matched assigned identifiers, not just those created de-novo in this tool. Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
         <input
           type="text"
           class="full_width"
@@ -35,7 +35,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal.vue'
+import ModalComponent from 'components/ui/Modal.vue'
 
 export default {
   components: {

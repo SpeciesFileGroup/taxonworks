@@ -31,7 +31,6 @@ jobs:
         firefox: "latest"
         apt:
           packages:
-            - imagemagick
             - tesseract-ocr
             - libgeos-dev
             - libproj-dev
@@ -44,6 +43,8 @@ jobs:
         - export PGPORT=$(pg_lsclusters -h | grep '^12 main' | cut -f3 -d' ')
         - nvm install 10
         - nvm use 10
+        - sudo apt remove imagemagick* libmagickwand-dev
+        - sudo exe/install-imagemagick7.sh
       install:
         - npm install
         - gem install bundler

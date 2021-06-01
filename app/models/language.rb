@@ -21,8 +21,8 @@
 class Language < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsApplicationData
   include Shared::IsData
+  include Shared::IsApplicationData
 
   has_many :serials, inverse_of: :language, foreign_key: :primary_language_id
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'

@@ -26,7 +26,7 @@ module Export::Coldp::Files::Description
         referenceID
       }
 
-      otus.each do |o|
+      otus.joins(:contents).each do |o|
         o.contents.each do |c|
 
           sources = c.sources.load

@@ -61,20 +61,11 @@
           </button>
           <button
             v-if="source.type === 'Source::Verbatim' && source.id"
-            class="button normal-input button-submit button-size margin-small-right"
             type="button"
             @click="convert">
             To BibTeX
           </button>
-          <button
-            :disabled="!source.id"
-            v-shortkey="[getMacKey(), 'c']"
-            @shortkey="cloneSource"
-            @click="cloneSource"
-            class="button normal-input button-submit button-size"
-            type="button">
-            Clone
-          </button>
+          <clone-source/>
           <button
             v-help.section.navBar.crossRef
             class="button normal-input button-default button-size separate-left"
@@ -110,8 +101,10 @@
       v-if="showRecent"
       @close="showRecent = false"/>
     <div class="horizontal-left-content align-start">
-      <component class="full_width" :is="section"/>
-      <right-section class="separate-left"/>
+      <div class="full_width">
+        <component :is="section"/>
+      </div>
+      <right-section class="margin-medium-left"/>
     </div>
     <cross-ref
       v-if="showModal"
@@ -142,7 +135,8 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
+import CloneSource from './components/cloneSource'
 
 import PinComponent from 'components/pin'
 
@@ -153,11 +147,12 @@ import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 
 export default {
   components: {
     Autocomplete,
+    CloneSource,
     RadialAnnotator,
     RadialObject,
     PinComponent,

@@ -57,9 +57,9 @@
 
 import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
-import { GetTaxonName } from './request/resources'
 import SpinnerComponent from 'components/spinner'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -81,28 +81,27 @@ export default {
   },
   methods: {
     GetMatches (position) {
-        let promises = []
+      const promises = []
 
-        for(let i = 0; i < this.maxPerCall; i++) {
-          if(position < this.lines.length) {
-            promises.push(new Promise((resolve, reject) => {
-              let name = this.lines[position]
-              GetTaxonName(name, this.exact).then(response => {
-                this.$set(this.matches, name, response.body)
-                resolve()
-              })
-            }))
-            position++
-          }
-          
+      for (let i = 0; i < this.maxPerCall; i++) {
+        if (position < this.lines.length) {
+          promises.push(new Promise((resolve, reject) => {
+            const name = this.lines[position]
+            TaxonName.where({ name: name, exact: this.exact }).then(response => {
+              this.$set(this.matches, name, response.body)
+              resolve()
+            })
+          }))
+          position++
         }
-        Promise.all(promises).then(response => {
-          if(position < this.lines.length)
-            this.GetMatches(position)
-          else {
-            this.isLoading = false
-          }
-        })
+      }
+      Promise.all(promises).then(() => {
+        if (position < this.lines.length) {
+          this.GetMatches(position)
+        } else {
+          this.isLoading = false
+        }
+      })
     },
     processList () {
       this.matches = {}
@@ -110,7 +109,7 @@ export default {
       this.GetMatches(0)
     },
     filterView (record) {
-      switch(this.filter) {
+      switch (this.filter) {
         case 'matches':
           return record.length
         case 'unmatched':

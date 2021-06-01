@@ -16,7 +16,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 export default {
   components: {
@@ -42,29 +42,30 @@ export default {
       required: false
     }
   },
+
   data() {
     return {
-      data_attribute: this.newDataAttribute() 
+      data_attribute: this.newDataAttribute()
     }
   },
+
   watch: {
-    existing(newVal) {
-      if(newVal) {
+    existing (newVal) {
+      if (newVal) {
         this.data_attribute = newVal
-      }
-      else {
+      } else {
         this.data_attribute = this.newDataAttribute()
       }
     },
     data_attribute: {
-      handler(newVal) {
+      handler () {
         this.updatePredicate()
       },
       deep: true
     }
   },
   methods: {
-    newDataAttribute() {
+    newDataAttribute () {
       return {
         type: 'InternalAttribute',
         controlled_vocabulary_term_id: this.predicateObject.id,
@@ -73,19 +74,17 @@ export default {
         value: this.value
       }
     },
-    updatePredicate() {
+    updatePredicate () {
       let data
 
-      if(this.data_attribute.value.length == 0 && this.data_attribute.hasOwnProperty('id')) {
+      if (!this.data_attribute?.value?.length && this.data_attribute?.id) {
         data = {
           id: this.data_attribute.id,
           _destroy: true
         }
-      }
-      else {
+      } else {
         data = this.data_attribute
       }
-      
       this.$emit('onUpdate', data)
     }
   }

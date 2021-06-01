@@ -1,9 +1,9 @@
 import ActionNames from './actionNames'
 
-export default function({ dispatch, state }, coObject) {
-  return new Promise((resolve,reject) => { 
-    if(!state.container) {
-      if(state.collection_objects.length == 1) {
+export default ({ dispatch, state }, coObject) =>
+  new Promise((resolve,reject) => {
+    if (!state.container) {
+      if (state.collection_objects.length == 1) {
         dispatch(ActionNames.SaveContainer).then(() => {
           state.collection_objects.forEach(co => {
             dispatch(ActionNames.SaveContainerItem, co)
@@ -11,16 +11,13 @@ export default function({ dispatch, state }, coObject) {
             resolve(true)
           })
         })
-      }
-      else {
+      } else {
         state.settings.saving = false
         resolve(true)
       }
-    }
-    else {
+    } else {
       dispatch(ActionNames.SaveContainerItem, coObject)
       state.settings.saving = false
       resolve(true)
-    }  
+    }
   })
-}

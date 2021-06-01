@@ -2,9 +2,10 @@ class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_taxon_name_classification, only: [:update, :destroy, :show]
+  after_action -> { set_pagination_headers(:taxon_name_classifications) }, only: [:index, :api_index], if: :json_request?
 
-  # GET /taxon_name_relationships
-  # GET /taxon_name_relationships.json
+  # GET /taxon_name_classifications
+  # GET /taxon_name_classifications.json
   def index
     respond_to do |format|
       format.html do
@@ -19,7 +20,7 @@ class TaxonNameClassificationsController < ApplicationController
     end
   end
 
-  # GET /taxon_name_relationships/:id.json
+  # GET /taxon_name_classicfications/id.json
   def show
   end
 
@@ -76,8 +77,7 @@ class TaxonNameClassificationsController < ApplicationController
   def destroy
     @taxon_name_classification.destroy!
     respond_to do |format|
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice:            'Taxon name classification was successfully destroyed.') }
+      format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -125,10 +125,44 @@ class TaxonNameClassificationsController < ApplicationController
     render json: TAXON_NAME_CLASSIFICATION_JSON
   end
 
+  # GET /api/v1/taxon_name_classifications
+  def api_index
+    @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_name_classifications.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/taxon_name_classifications/api/v1/index'
+  end
+
+  # GET /api/v1/taxon_name_classifications//:id
+  def api_show
+    render '/taxon_name_classifications/api/v1/show'
+  end
+
+
   private
 
+  def api_params
+    params.permit(
+      :taxon_name_id,
+      :taxon_name_classification_type,
+      :taxon_name_classification_set,
+      taxon_name_id: [],
+      taxon_name_classification_type: [],
+      taxon_name_classification_set: []
+    )
+  end
+
   def filter_params
-    params.permit(:taxon_name_id)
+    params.permit(
+      :taxon_name_id,
+      :taxon_name_classification_type,
+      :taxon_name_classification_set,
+      taxon_name_id: [],
+      taxon_name_classification_type: [],
+      taxon_name_classification_set: []
+    )
   end
 
   def set_taxon_name_classification

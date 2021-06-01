@@ -47,7 +47,7 @@
     <spinner
       v-if="isLoading || isSaving"
       :full-screen="true"
-      :legend="isLoading ? 'Loading...' : `Merging... ${this.mergeList.length} persons remaining...`"
+      :legend="isLoading ? 'Loading...' : `Merging... ${this.peopleRemain} persons remaining...`"
       :logo-size="{ width: '100px', height: '100px'}"/>
     <div
       v-show="activeJSONRequest"
@@ -105,7 +105,7 @@
             <role-types
               v-model="params.base.role"/>
           </div>
-          <keywords-component v-model="params.base.keyword_ids" />
+          <keywords-component v-model="params.base.keywords" />
           <users-component v-model="params.user"/>
         </div>
       </div>
@@ -158,13 +158,12 @@ import FoundPeople from './components/found_people'
 import MatchPeople from './components/match_people'
 import CompareComponent from './components/compare.vue'
 import Spinner from 'components/spinner.vue'
-import KeywordsComponent from 'tasks/collection_objects/filter/components/filters/tags'
+import KeywordsComponent from 'tasks/sources/filter/components/filters/tags'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import LevenshteinCuttoff from './components/filters/LevenshteinCuttoff'
 import NameField from './components/filters/nameField.vue'
 import InProject from './components/filters/inProject.vue'
-
-import { GetPeopleList, PersonMerge, GetPeople } from './request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
@@ -204,6 +203,7 @@ export default {
       showMatch: true,
       showFound: true,
       showSearch: true,
+      peopleRemain: 0,
       params: this.initParams()
     }
   },
@@ -240,9 +240,12 @@ export default {
           last_name: '',
           first_name: '',
           role: [],
-          keyword_ids: [],
           person_wildcard: [],
           used_in_project_id: []
+        },
+        keywords: {
+          keyword_id_and: [],
+          keyword_id_or: []
         },
         active: {
           active_before_year: undefined,
@@ -272,7 +275,7 @@ export default {
     },
     findPerson (event) {
       event.preventDefault()
-      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.base, this.params.keywords, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
 
       this.clearFoundData()
 
@@ -281,7 +284,7 @@ export default {
       this.displayCount = true
       this.expandPeople = true
 
-      GetPeopleList(params).then(response => {
+      People.where(params).then(response => {
         this.foundPeople = response.body
         this.urlRequest = response.request.responseURL
         this.isLoading = false
@@ -289,22 +292,21 @@ export default {
     },
     getPerson (id) {
       this.isLoading = true
-      GetPeople(id).then(response => {
+      People.find(id).then(response => {
         this.foundPeople = [response.body]
         this.selectedPerson = response.body
         this.isLoading = false
       })
     },
     mergePeople () {
+      this.peopleRemain = this.mergeList.length
       this.processMerge(this.mergeList)
     },
     processMerge (mergeList) {
       const mergePerson = mergeList.pop()
       this.isSaving = true
-      const params = {
-        person_to_destroy: mergePerson.id
-      }
-      PersonMerge(this.selectedPerson.id, params).then(({ body }) => {
+
+      People.merge(this.selectedPerson.id, { person_to_destroy: mergePerson.id }).then(({ body }) => {
         const personIndex = this.foundPeople.findIndex(person => person.id === this.selectedPerson.id)
 
         this.selectedPerson = body
@@ -314,7 +316,9 @@ export default {
         if (personIndex > -1) {
           this.$set(this.foundPeople, personIndex, this.selectedPerson)
         }
+      }).finally(() => {
         if (mergeList.length) {
+          this.peopleRemain--
           this.processMerge(mergeList)
         } else {
           this.isSaving = false
@@ -346,7 +350,7 @@ export default {
     getMatchPeople (params) {
       const data = params || this.filterEmptyParams(Object.assign({}, this.params.base, this.params.active, this.params.born, this.params.died, this.params.user, this.params.settings))
       this.mergeList = []
-      GetPeopleList(data).then(response => {
+      People.where(data).then(response => {
         this.matchPeople = response.body
       })
     }

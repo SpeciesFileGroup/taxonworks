@@ -15,7 +15,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { GetSoftValidation } from '../request/resources'
 
 export default {

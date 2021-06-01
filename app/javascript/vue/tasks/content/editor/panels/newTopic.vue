@@ -42,41 +42,40 @@
 </template>
 
 <script>
-  import { MutationNames } from '../store/mutations/mutations'
-  import Modal from 'components/modal.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import { MutationNames } from '../store/mutations/mutations'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
+import Modal from 'components/ui/Modal.vue'
 
-  export default {
-    data: function () {
-      return {
-        showModal: false,
-        topic: {
-          controlled_vocabulary_term: {
-            name: '',
-            definition: '',
-            type: 'Topic'
-          }
+export default {
+  components: { Modal },
+
+  data () {
+    return {
+      showModal: false,
+      topic: {
+        controlled_vocabulary_term: {
+          name: '',
+          definition: '',
+          type: 'Topic'
         }
       }
+    }
+  },
+
+  methods: {
+    openWindow () {
+      this.topic.controlled_vocabulary_term.name = ''
+      this.topic.controlled_vocabulary_term.definition = ''
+      this.showModal = true
     },
-    components: {
-      Modal
-    },
-    methods: {
-      openWindow: function () {
-        this.topic.controlled_vocabulary_term.name = ''
-        this.topic.controlled_vocabulary_term.definition = ''
-        this.showModal = true
-      },
-      createNewTopic: function () {
-        let that = this
-        AjaxCall('post', '/controlled_vocabulary_terms.json', this.topic).then(response => {
-          TW.workbench.alert.create(response.body.name + ' was successfully created.', 'notice')
-          that.$parent.topics.push(response.body)
-          this.$store.commit(MutationNames.AddToRecentTopics, response.body)
-        })
-        this.showModal = false
-      }
+    createNewTopic () {
+      ControlledVocabularyTerm.create(this.topic).then(({ body }) => {
+        TW.workbench.alert.create(`${body.name} was successfully created.`, 'notice')
+        this.$parent.topics.push(body)
+        this.$store.commit(MutationNames.AddToRecentTopics, body)
+      })
+      this.showModal = false
     }
   }
+}
 </script>

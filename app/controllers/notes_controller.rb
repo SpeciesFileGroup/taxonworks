@@ -4,6 +4,7 @@ class NotesController < ApplicationController
   include ShallowPolymorphic
 
   before_action :set_note, only: [:update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:notes) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /notes
   # GET /notes.json
@@ -15,8 +16,10 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @notes = Queries::Note::Filter.new(filter_params)
+          .all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -69,8 +72,7 @@ class NotesController < ApplicationController
     @note.destroy
     respond_to do |format|
       # TODO: probably needs to be changed
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice:            'Note was successfully destroyed.') }
+      format.html { destroy_redirect @note, notice: 'Note was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -108,7 +110,9 @@ class NotesController < ApplicationController
   # GET /api/v1/notes
   def api_index
     @notes = Queries::Note::Filter.new(api_params).all
-      .order('notes.id').page(params[:page]).per(params[:per])
+      .order('notes.id')
+      .page(params[:page])
+      .per(params[:per])
     render '/notes/api/v1/index'
   end
 
@@ -127,7 +131,9 @@ class NotesController < ApplicationController
       :object_global_id,
       note_object_id: [],
       note_object_type: [],
-    ).to_h.merge(shallow_object_global_param)
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
   end
 
   def api_params
@@ -138,7 +144,9 @@ class NotesController < ApplicationController
       :object_global_id,
       note_object_id: [],
       note_object_type: [],
-    ).to_h.merge(shallow_object_global_param)
+    ).to_h
+      .merge(shallow_object_global_param)
+      .merge(project_id: sessions_current_project_id)
   end
 
   def set_note

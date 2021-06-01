@@ -36,7 +36,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import RanksList from '../const/ranks'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from 'routes/routes'

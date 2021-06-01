@@ -71,8 +71,13 @@ class ContainersController < ApplicationController
   def destroy
     @container.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: containers_path, notice: 'Container was successfully destroyed.')}
-      format.json { head :no_content }
+      if @container.destroyed?
+        format.html { destroy_redirect @container, notice: 'Container was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @container, notice: 'Container was not destroyed, ' + @container.errors.full_messages.join('; ') }
+        format.json { render json: @container.errors, status: :unprocessable_entity }
+      end
     end
   end
 

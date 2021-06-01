@@ -49,7 +49,7 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 
@@ -82,9 +82,6 @@ export default {
 </script>
 <style lang="scss">
   .depiction-thumb-container {
-    .modal-container {
-      max-width: 100vh;
-    }
     margin: 4px;
     .img-thumb {
       cursor: pointer;

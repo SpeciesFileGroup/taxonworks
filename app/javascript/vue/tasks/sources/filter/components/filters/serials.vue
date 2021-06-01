@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Serials</h2>
+    <h3>Serials</h3>
     <fieldset>
       <legend>Serials</legend>
       <smart-selector
@@ -19,7 +19,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetSerial } from '../../request/resources'
@@ -87,7 +87,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

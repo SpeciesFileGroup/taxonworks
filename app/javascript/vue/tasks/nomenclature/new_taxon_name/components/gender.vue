@@ -1,7 +1,7 @@
 <template>
   <block-layout
     anchor="gender"
-    :spinner="saving"
+    :spinner="saving || !taxon.id"
   >
     <h3 slot="header">
       Gender and form
@@ -63,7 +63,7 @@
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
-import BlockLayout from './blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import ListEntrys from './listEntrys.vue'
 
 import getRankGroup from '../helpers/getRankGroup'
@@ -73,7 +73,7 @@ export default {
     BlockLayout,
     ListEntrys
   },
-  data: function () {
+  data () {
     return {
       list: [],
       filterList: ['gender', 'part of speech'],
@@ -93,7 +93,7 @@ export default {
       ]
     }
   },
-  mounted: function () {
+  mounted () {
     this.getList()
   },
   computed: {
@@ -192,37 +192,31 @@ export default {
     },
     async addEntry (item) {
       const alreadyStored = this.searchExisting()
-
-      this.saving = true
-      if (!(item.type === this.types.participle || item.type === this.types.adjective)) {
-        this.cleanNames()
-      }
       const taxon = Object.assign({}, this.taxon)
 
-      taxon.feminine_name = null
-      taxon.masculine_name = null
-      taxon.neuter_name = null
-
+      this.saving = true
       if (alreadyStored) {
         await this.$store.dispatch(ActionNames.RemoveTaxonStatus, alreadyStored)
       }
 
-      this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
-        this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
-          taxon.feminine_name = undefined
-          taxon.masculine_name = undefined
-          taxon.neuter_name = undefined
-          this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
-            this.saving = false
-          })
+      if (taxon.feminine_name || taxon.masculine_name || taxon.neuter_name) {
+        taxon.feminine_name = null
+        taxon.masculine_name = null
+        taxon.neuter_name = null
+        await this.$store.dispatch(ActionNames.UpdateTaxonName, taxon)
+      }
+
+      this.$store.dispatch(ActionNames.AddTaxonStatus, item).then(() => {
+        taxon.feminine_name = undefined
+        taxon.masculine_name = undefined
+        taxon.neuter_name = undefined
+        this.$store.dispatch(ActionNames.UpdateTaxonName, taxon).then(() => {
+          this.saving = false
         })
       })
     },
     applicableRank: function (list, type) {
-      const found = list.find(function (item) {
-        if (item == type) { return true }
-      })
-      return (!!found)
+      return !!list.find((item) => item === type)
     },
     inGroup: function (group) {
       return (getRankGroup(this.taxon.rank_string) === group)

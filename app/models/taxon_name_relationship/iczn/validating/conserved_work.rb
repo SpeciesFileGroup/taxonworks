@@ -9,9 +9,11 @@ class TaxonNameRelationship::Iczn::Validating::ConservedWork < TaxonNameRelation
   end
 
   def self.disjoint_subject_classes
-    self.parent.disjoint_subject_classes + self.collect_to_s(
-        TaxonNameClassification::Iczn::Available::Valid::NomenDubium)
+    self.parent.disjoint_subject_classes +
+        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable,
+                                                 TaxonNameClassification::Iczn::Available::Valid::NomenDubium)
   end
+
 
   def self.disjoint_object_classes
     self.parent.disjoint_object_classes +

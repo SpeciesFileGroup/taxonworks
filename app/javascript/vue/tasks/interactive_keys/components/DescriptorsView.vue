@@ -142,6 +142,7 @@ export default {
       }
     },
     loadMatrix () {
+      if (!this.observationMatrix) return
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
     }
   }

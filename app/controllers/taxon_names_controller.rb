@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -70,11 +70,11 @@ class TaxonNamesController < ApplicationController
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; '))}
-        format.json {render json: @taxon_name.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -203,10 +203,6 @@ class TaxonNamesController < ApplicationController
     render :batch_load
   end
 
-  def browse
-    @data = NomenclatureCatalog.data_for(@taxon_name)
-  end
-
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id] # TODO: this may have to change to taxon_name_id
     @result = TaxonWorks::Vendor::Biodiversity::Result.new(
@@ -216,8 +212,8 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
-  def catalog
-    @data = NomenclatureCatalog.data_for(@taxon_name)
+  # GET /taxon_names/1/original_combination
+  def original_combination
   end
 
   # GET /api/v1/taxon_names
@@ -281,61 +277,74 @@ class TaxonNamesController < ApplicationController
 
   def filter_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
       :ancestors,
+      :author,
+      :authors,
+      :citations,
       :descendants,
       :descendants_max_depth,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
       :etymology,
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :not_specified,
+      :otus,
+      :page,
+      :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :user_date_end,
+      :user_date_start,
       :user_id,
       :user_target,
-      :user_date_start,
-      :user_date_end,
-      :per,
-      :page,
-      type: [],
-      taxon_name_id: [],
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
       # user_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def api_params
     params.permit(
-      :name, :author, :year,
-      :leaves,
-      :exact,
-      :validity,
+      :ancestors,
+      :author,
+      :authors,
+      :citations,
       :descendants,
       :descendants_max_depth,
-      :updated_since,
-      :type_metadata,
-      :citations,
-      :otus,
-      :authors,
-      :nomenclature_group, # !! different than autocomplete
-      :nomenclature_code,
-      :taxon_name_type,
       :etymology,
-      type: [],
-      taxon_name_id: [],
+      :exact,
+      :leaves,
+      :name,
+      :nomenclature_code,
+      :nomenclature_group, # !! different than autocomplete
+      :otus,
+      :not_specified,
+#     :page, # TODO: yes or no?
+#     :per,
+      :taxon_name_type,
+      :type_metadata,
+      :updated_since,
+      :validity,
+      :year,
+      keyword_id_and: [],
+      keyword_id_or: [],
       parent_id: [],
       taxon_name_classification: [],
+      taxon_name_id: [],
+      taxon_name_relationship: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship: []
+      type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
 
     # TODO: see config in collection objects controller

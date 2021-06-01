@@ -2,6 +2,7 @@
   <block-layout
     anchor="author"
     v-help.section.author.container
+    :spinner="!taxon.id"
   >
     <h3 slot="header">
       Author
@@ -84,7 +85,6 @@
             min="3"
             :autofocus="true"
             param="term"
-            event-send="sourceSelect"
             label="label_html"
             placeholder="Type for search..."
             display="label"
@@ -114,7 +114,8 @@
             </p>
             <div class="horizontal-left-content">
               <citation-pages
-                @setPages="addPages($event.origin_citation_attributes)"
+                @setPages="addPages"
+                @save="triggerSave"
                 :citation="taxon"
               />
               <pdf-button
@@ -156,14 +157,16 @@
             @update="updatePersons"
             role-type="TaxonNameAuthor"
           />
-          <button
-            type="button"
-            class="button normal-input button-submit"
-            :disabled="!citation || isAlreadyClone"
-            @click="cloneFromSource"
-          >
-            Clone from source
-          </button>
+          <div>
+            <button
+              type="button"
+              class="button normal-input button-submit"
+              :disabled="!citation || isAlreadyClone"
+              @click="cloneFromSource"
+            >
+              Clone from source
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -180,12 +183,12 @@ import { ActionNames } from '../store/actions/actions'
 import VerbatimAuthor from './verbatimAuthor.vue'
 import VerbatimYear from './verbatimYear.vue'
 import CitationPages from './citationPages.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
-import BlockLayout from './blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
@@ -213,7 +216,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     verbatimFieldsWithData () {
-      return (this.taxon.verbatim_author || this.taxon.year_of_publication)
+      return this.taxon.verbatim_author || this.taxon.year_of_publication
     },
     isAlreadyClone () {
       if (this.citation.source.author_roles.length === 0) return true
@@ -228,7 +231,7 @@ export default {
     roles: {
       get () {
         if (this.$store.getters[GetterNames.GetRoles] == undefined) return []
-        return this.$store.getters[GetterNames.GetRoles].sort(function (a, b) {
+        return this.$store.getters[GetterNames.GetRoles].sort((a, b) => {
           return (a.position - b.position)
         })
       },
@@ -255,25 +258,19 @@ export default {
       }
     }
   },
-  mounted: function () {
-    this.$on('sourceSelect', function (value) {
-      this.setSource(value)
-    })
-  },
   methods: {
-    setSource: function (source) {
+    setSource (source) {
       const newSource = {
-        id: (source.hasOwnProperty('id') ? source.id : source),
-        pages: (source.hasOwnProperty('pages') ? source.pages : null)
+        id: (source?.id ? source.id : source),
+        pages: (source?.pages ? source.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
     addPages (citation) {
-      const that = this
       const newSource = {
         id: citation.source_id,
-        pages: (citation.hasOwnProperty('pages') ? citation.pages : null)
+        pages: (citation?.pages ? citation.pages : null)
       }
       this.$store.dispatch(ActionNames.ChangeTaxonSource, newSource)
 
@@ -282,10 +279,14 @@ export default {
         this.autosave = null
       }
       if (this.isAutosaveActive) {
-        this.autosave = setTimeout(function () {
-          that.$store.dispatch(ActionNames.UpdateSource, citation)
+        this.autosave = setTimeout(() => {
+          this.triggerSave(citation)
         }, 3000)
       }
+    },
+    triggerSave (citation) {
+      clearTimeout(this.autosave)
+      this.$store.dispatch(ActionNames.UpdateSource, citation)
     },
     cloneFromSource () {
       const personsIds = this.roles.map(role => {
@@ -303,15 +304,15 @@ export default {
       this.roles = authorsPerson
       this.updateTaxonName()
     },
-    updatePersons: function (list) {
+    updatePersons (list) {
       this.$store.commit(MutationNames.SetRoles, list)
     },
-    removeSource: function (id) {
+    removeSource (id) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.$store.dispatch(ActionNames.RemoveSource, id)
       }
     },
-    updateTaxonName: function () {
+    updateTaxonName () {
       if (this.isAutosaveActive) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
       }

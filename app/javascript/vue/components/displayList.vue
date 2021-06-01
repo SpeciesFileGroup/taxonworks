@@ -5,7 +5,7 @@
     tag="ul">
     <li
       v-for="(item, index) in list"
-      :key="setKey ? item[setKey] : item.hasOwnProperty('id') ? item.id : JSON.stringify(item)"
+      :key="setKey ? item[setKey] : item.id || JSON.stringify(item)"
       class="list-complete-item flex-separate middle"
       :class="{ 'highlight': checkHighlight(item) }">
       <span>
@@ -40,6 +40,7 @@
         <span
           v-if="remove"
           class="circle-button btn-delete"
+          :class="{ 'button-default': softDelete }"
           @click="deleteItem(item, index)">Remove
         </span>
       </div>
@@ -68,7 +69,7 @@ export default {
     },
     label: {
       type: [String, Array],
-      required: true
+      default: undefined
     },
     setKey: {
       type: String,
@@ -101,6 +102,10 @@ export default {
     validations: {
       type: Boolean,
       default: false
+    },
+    softDelete: {
+      type: Boolean,
+      default: false
     }
   },
   beforeCreate() {
@@ -109,6 +114,7 @@ export default {
   },
   methods: {
     displayName (item) {
+      if (!this.label) return item
       if (typeof this.label === 'string') {
         return item[this.label]
       } else {

@@ -12,6 +12,10 @@
   <%= content_tag(:li, link_to('Source hub', source_hub_task_path(source_id: @source))) -%>
 <% end %> 
 
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, collection_object_radial_tag(@source) )   %>
+<% end %>
+
 <%= content_for :associated do %>
 
 

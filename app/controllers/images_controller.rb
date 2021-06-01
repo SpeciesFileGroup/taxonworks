@@ -162,60 +162,61 @@ class ImagesController < ApplicationController
 
   def filter_params
     params.permit(
-        :taxon_name_id,
-        :ancestor_id_target,
-        :otu_id,
-        :collection_object_id,
-        :image_id,
-        :biocuration_class_id,
-        :sled_image_id,
-        :depiction,
-        :user_id, # user
-        :user_target,
-        :user_date_start,
-        :user_date_end,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        keyword_ids: [],
-        taxon_name_id: [],
-        sled_image_id: [],
-        biocuration_class_id: [],
-        image_id: [],
-        collection_object_id: [],
-        otu_id: []
+      :taxon_name_id,
+      :ancestor_id_target,
+      :otu_id,
+      :collection_object_id,
+      :image_id,
+      :biocuration_class_id,
+      :sled_image_id,
+      :depiction,
+      :user_id, # user
+      :user_target,
+      :user_date_start,
+      :user_date_end,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      keyword_id_and: [],
+      keyword_id_or: [],
+      taxon_name_id: [],
+      sled_image_id: [],
+      biocuration_class_id: [],
+      image_id: [],
+      collection_object_id: [],
+      otu_id: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
-  def api_params
-    params.permit(
-        :taxon_name_id,
-        :ancestor_id_target,
-        :otu_id,
-        :collection_object_id,
-        :image_id,
-        :biocuration_class_id,
-        :sled_image_id,
-        :depiction,
-        :user_id, # user
-        :user_target,
-        :user_date_start,
-        :user_date_end,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        keyword_ids: [],
-        taxon_name_id: [],
-        sled_image_id: [],
-        biocuration_class_id: [],
-        image_id: [],
-        collection_object_id: [],
-        otu_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
+    def api_params
+        params.permit(
+                  :taxon_name_id,
+                  :ancestor_id_target,
+                  :otu_id,
+                  :collection_object_id,
+                  :image_id,
+                  :biocuration_class_id,
+                  :sled_image_id,
+                  :depiction,
+                  :user_id, # user
+                  :user_target,
+                  :user_date_start,
+                  :user_date_end,
+                  :identifier,
+                  :identifier_end,
+                  :identifier_exact,
+                  :identifier_start,
+                  keyword_id_and: [],
+                  keyword_id_or: [],
+                  taxon_name_id: [],
+                  sled_image_id: [],
+                  biocuration_class_id: [],
+                  image_id: [],
+                  collection_object_id: [],
+                  otu_id: []
+                  ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])

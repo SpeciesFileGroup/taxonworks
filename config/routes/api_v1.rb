@@ -2,7 +2,12 @@ namespace :api, defaults: {format: :json} do
   namespace :v1 do
 
     # authentication free
+    get '/cite/count_valid_species', to: 'cite#count_valid_species'
+
     get '/', to: 'base#index'
+
+    # services
+    get '/stats', to: 'stats#index'
 
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
@@ -43,6 +48,14 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
+
+      get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
+      get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
+      get '/taxon_name_classifications/:id', to: '/taxon_name_classifications#api_show'
+
+      get '/taxon_name_relationships', to: '/taxon_name_relationships#api_index'
+      get '/taxon_name_relationships/taxon_name_relationship_types', to: '/taxon_name_relationships#taxon_name_relationship_types'
+      get '/taxon_name_relationships/:id', to: '/taxon_name_relationships#api_show'
 
       get '/notes', to: '/notes#api_index'
       get '/notes/:id', to: '/notes#api_show'

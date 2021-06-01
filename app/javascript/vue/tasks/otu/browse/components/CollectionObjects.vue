@@ -60,18 +60,14 @@ export default {
   watch: {
     otu: {
       handler (newVal) {
-        if(newVal) {
-          console.log(newVal)
+        if (newVal) {
           GetCollectionObjects({ otu_ids: [newVal.id], current_determinations: true }).then(response => {
-            this.collectionObjects = response.body.data.map((item, index) => { return this.createObject(response.body, index) })
+            this.collectionObjects = response.body.data.map((item, index) => this.createObject(response.body, index))
           })
         }
       },
       immediate: true
     }
-  },
-  mounted () {
-    
   },
   methods: {
     createObject(list, position) {

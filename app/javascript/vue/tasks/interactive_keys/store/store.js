@@ -26,7 +26,8 @@ function makeInitialState () {
       sorting: undefined,
       language_id: undefined,
       eliminate_unknown: undefined,
-      keyword_ids: []
+      otu_filter: [],
+      keyword_id_and: []
     }
   }
 }

@@ -48,8 +48,8 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
-import { FilterCollectingEvent, ParseVerbatim } from '../../../../request/resources.js'
-import ModalComponent from 'components/modal'
+import { CollectingEvent } from 'routes/endpoints'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 
 export default {
@@ -97,14 +97,21 @@ export default {
     }
   },
   methods: {
-    cloneLabel() {
+    cloneLabel () {
       this.searching = true
-      FilterCollectingEvent({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
+      CollectingEvent.where({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
         this.list = response.body
         this.searching = false
-        ParseVerbatim(this.bufferedCollectingEvent).then(response => {
+        CollectingEvent.parseVerbatimLabel({ verbatim_label: this.bufferedCollectingEvent }).then(response => {
           const parsed = response.body
-          this.collectingEvent = Object.assign(this.collectingEvent, parsed.date, parsed.geo.verbatim, parsed.elevation, parsed.collecting_method)
+
+          this.collectingEvent = Object.assign(
+            this.collectingEvent,
+            parsed.date,
+            parsed.geo.verbatim,
+            parsed.elevation,
+            parsed.collecting_method
+          )
         })
       })
     },

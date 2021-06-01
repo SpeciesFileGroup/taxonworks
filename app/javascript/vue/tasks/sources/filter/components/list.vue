@@ -14,7 +14,7 @@
             class="capitalize"
             v-for="item in sort"
             @click="sortTable(item)">
-            {{item}}
+            {{ item }}
           </th>
           <th>In project</th>
           <th></th>
@@ -82,6 +82,7 @@ import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
 import PinComponent from 'components/pin.vue'
+import { sortArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -120,15 +121,7 @@ export default {
   },
   methods: {
     sortTable (sortProperty) {
-      let that = this
-      function compare (a,b) {
-        if (a[sortProperty] < b[sortProperty])
-          return (that.ascending ? -1 : 1)
-        if (a[sortProperty] > b[sortProperty])
-          return (that.ascending ? 1 : -1)
-        return 0
-      }
-      this.list.sort(compare)
+      this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))
       this.ascending = !this.ascending
     }
   }

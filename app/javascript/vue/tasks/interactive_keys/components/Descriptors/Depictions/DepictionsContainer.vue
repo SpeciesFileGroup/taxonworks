@@ -1,10 +1,11 @@
 <template>
   <modal-component
     @close="closeAndSave"
-    :containerStyle="{ 
-      width: '700px',
-      'maxHeight': '90vh',
-      overflow: 'scroll' }">
+    :container-style="{
+      width: '1000px',
+      maxHeight: '90vh',
+      overflow: 'scroll'
+    }">
     <h3 slot="header">{{ descriptor.name }}</h3>
     <div slot="body">
       <button
@@ -33,17 +34,35 @@
         {{ descriptor.description }}
       </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
-      <div
-        class="wrapper">
-        <character-state
-          v-for="(character, index) in descriptor.states"
-          :key="index"
-          v-model="selected"
-          :character-state="character"
-        />
-      </div>
+      <template v-for="(row, rIndex) in chunkArray(descriptor.states, 3)">
+        <div
+          class="wrapper"
+          :key="`${rIndex}-depictions`">
+          <character-state
+            v-for="(characterState, index) in row"
+            :key="index"
+            v-model="selected"
+            :character-state="characterState"
+          />
+        </div>
+        <div
+          :key="`${rIndex}-label`"
+          class="wrapper margin-medium-bottom">
+          <div
+            v-for="(characterState, index) in row"
+            :key="index">
+            <label>
+              <input
+                type="checkbox"
+                :value="characterState.id"
+                v-model="selected">
+              <span v-if="characterState.status === 'useless'">-</span> {{ characterState.name }} ({{ characterState.number_of_objects }})
+            </label>
+          </div>
+        </div>
+      </template>
       <div slot="footer">
-      <hr>
+        <hr>
         <button
           type="button"
           class="button normal-input button-default"
@@ -57,9 +76,10 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import CharacterState from './Character'
 import { GetDescriptorDepictions } from '../../../request/resources.js'
+import { chunkArray } from 'helpers/arrays.js'
 
 export default {
   components: {
@@ -107,11 +127,13 @@ export default {
         this.$emit('update', this.selected)
       }
       this.$emit('close')
-    }
+    },
+
+    chunkArray: chunkArray
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 
 .wrapper {
   display: grid;

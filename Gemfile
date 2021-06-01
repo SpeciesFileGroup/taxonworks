@@ -22,14 +22,14 @@ gem 'rubyzip', '~> 2.3.0'
 gem 'daemons', '~> 1.3.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 3.1.0'
-gem 'rmagick', '~> 4.0'
+gem 'rmagick', '~> 4.2', '>= 4.2.2'
 
 # Geo
 gem 'ffi-geos', '~> 2.1.0'
 # gem 'rgeo-shapefile', '~> 0.4.2'  # deprecated? not compatible- perhaps only used in
-gem 'rgeo', '~> 2.1'
+gem 'rgeo', '~> 2.2'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-gem 'rgeo-proj4', '~> 2.0'
+gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
 gem 'postgresql_cursor', '~> 0.6.1'
 
 # translate for geo
@@ -44,7 +44,7 @@ gem 'exception_notification', '~> 4.4'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
-gem 'closure_tree', github: 'ClosureTree/closure_tree', ref: '15b253e' # '~> 7.0'
+gem 'closure_tree', '~> 7.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'
 gem 'validates_timeliness', '~> 4.1', '>= 4.1.1'
@@ -59,7 +59,7 @@ gem 'shortener', '~> 0.8.0'
 gem 'sprockets-rails', '~> 3.2.0'
 gem 'sprockets', '~> 3.7.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
-gem 'webpacker', '>= 4.0.x'
+gem 'webpacker', '~> 5.2', '>= 5.2.1'
 gem 'uglifier', '~> 4.2'
 
 gem 'jquery-rails', '~> 4.3.3'
@@ -87,13 +87,17 @@ gem 'best_in_place', '~> 3.1.1'
 gem 'redcarpet', '~> 3.4'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'waxy', '~> 0.1'
-gem 'rgb'
+gem 'rgb', '~> 0.1'
+
+# Drawing
+gem 'rqrcode', github:'mjy/rqrcode', branch: 'taxonworks'
+gem 'barby', '~> 0.6.8'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.5.5'
 gem 'sqed', '0.6.0'
-gem 'dwc-archive', '~> 1.1.1'
-gem 'biodiversity', github:'LocoDelAssembly/biodiversity', branch: 'ipc-mode-rc1'
+gem 'dwc-archive', '~> 1.1', '>= 1.1.2'
+gem 'biodiversity', github: 'GlobalNamesArchitecture/biodiversity', branch: 'pipe_approach' # '~> 5.1', '>= 5.1.1'
 gem 'ruby-units', '~> 2.3.0', require: 'ruby_units/namespaced'
 
 # Global Names
@@ -120,8 +124,7 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 5.1', '>= 5.1.1'
-  gem 'selenium-webdriver', '~> 3.141'
-  gem 'geckodriver-helper', github: 'LocoDelAssembly/geckodriver-helper'
+  gem 'webdrivers', '~> 4.5', require: false
   gem 'prawn', '~> 2.2.2'
 end
 
@@ -130,7 +133,7 @@ gem 'parallel_tests', group: [:development, :test]
 group :development do
 # gem 'tunemygc'
   gem 'ruby-prof', '~> 1.2'
-  gem 'better_errors', '~> 2.4'
+  gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'guard-rspec', '~> 4.7.3', require: false
@@ -141,7 +144,7 @@ group :development do
   gem 'rubocop-rspec', '~>1.38'
   gem 'rubocop-faker', '~> 0.2.0'
   gem 'brakeman', '~> 4.6', '>= 4.6.1', require: false
-  gem 'seedbank', git: 'https://github.com/james2m/seedbank'
+  gem 'seedbank', '~> 0.5.0'
 end
 
 group :doc do
@@ -150,7 +153,7 @@ end
 
 group :test do
   gem 'rspec', '~> 3.6'
-  gem 'codecov', require: false, github: 'LocoDelAssembly/codecov-ruby', branch: 'github-actions-branch-detection-fix'
+  gem 'codecov', '~> 0.5.1'
   gem 'simplecov', :require => false
   gem 'capybara', '~> 3.18'
   gem 'timecop', '~> 0.9.1'

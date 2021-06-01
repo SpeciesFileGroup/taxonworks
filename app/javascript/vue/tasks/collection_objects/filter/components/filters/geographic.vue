@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h2>Geographic area</h2>
-    <switch-component 
+    <h3>Geographic area</h3>
+    <switch-component
       class="separate-bottom"
       v-model="view"
       :options="tabs"/>
@@ -16,7 +16,7 @@
           @getItem="addGeoArea($event.id)"/>
       </div>
       <label>
-        <input 
+        <input
           v-model="geographic.spatial_geographic_areas"
           type="checkbox"/>
         Treat geographic areas as spatial
@@ -61,9 +61,9 @@
 <script>
 
 import SwitchComponent from 'components/switch'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import GeoreferenceMap from 'components/georeferences/map'
-import { GetGeographicArea } from '../../request/resources'
+import { GeographicArea } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
@@ -99,14 +99,13 @@ export default {
   watch: {
     geojson: {
       handler (newVal) {
-        if(newVal.length) {
-          this.geographic.geographic_area_ids = []
-          if(newVal[0].properties && newVal[0].properties.hasOwnProperty('radius')) {
+        if (newVal.length) {
+          this.geographic.geographic_area_id = []
+          if (newVal[0].properties && newVal[0].properties?.radius) {
             this.geographic.radius = newVal[0].properties.radius
-            this.geographic.geo_json = JSON.stringify({ type: "Point", coordinates: newVal[0].geometry.coordinates })
-          }
-          else {
-            this.geographic.geo_json = JSON.stringify({ type: "MultiPolygon", coordinates: newVal.map(feature => { return feature.geometry.coordinates }) })
+            this.geographic.geo_json = JSON.stringify({ type: 'Point', coordinates: newVal[0].geometry.coordinates })
+          } else {
+            this.geographic.geo_json = JSON.stringify({ type: 'MultiPolygon', coordinates: newVal.map(feature => feature.geometry.coordinates) })
             this.geographic.radius = undefined
           }
         } else {
@@ -116,11 +115,11 @@ export default {
       deep: true
     },
     geographic: {
-      handler (newVal) {
-        if (!newVal.geo_json) {
+      handler (newVal, oldVal) {
+        if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
           this.geojson = []
         }
-        if (!newVal.geographic_area_ids.length) {
+        if (!newVal.geographic_area_id.length) {
           this.geographic_areas = []
         }
       },
@@ -130,8 +129,8 @@ export default {
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
-      if (urlParams.geographic_area_ids) {
-        urlParams.geographic_area_ids.forEach(id => {
+      if (urlParams.geographic_area_id) {
+        urlParams.geographic_area_id.forEach(id => {
           this.addGeoArea(id)
         })
       }
@@ -146,14 +145,14 @@ export default {
       this.geojson = [shape]
     },
     removeGeoArea (index) {
-      this.geographic.geographic_area_ids.splice(index, 1)
+      this.geographic.geographic_area_id.splice(index, 1)
       this.geographic_areas.splice(index, 1)
     },
     addGeoArea (id) {
-      GetGeographicArea(id).then(response => {
+      GeographicArea.find(id).then(response => {
         this.geographic.geo_json = undefined
         this.geographic.radius = undefined
-        this.geographic.geographic_area_ids.push(id)
+        this.geographic.geographic_area_id.push(id)
         this.geographic_areas.push(response.body)
       })
     },
@@ -166,7 +165,7 @@ export default {
           type: geojson.type === 'Point' ? 'Point' : 'Polygon'
         },
         properties: {
-          radius: urlParams.radius ? urlParams.radius : undefined
+          radius: urlParams?.radius
         }
       }
     }
@@ -174,7 +173,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

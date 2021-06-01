@@ -2,6 +2,7 @@ class AlternateValuesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_alternate_value, only: [:update, :destroy]
+  after_action -> { set_pagination_headers(:alternate_values) }, only: [:index, :api_index ], if: :json_request?
 
   # GET /alternate_values
   # GET /alternate_values.json
@@ -59,7 +60,7 @@ class AlternateValuesController < ApplicationController
   def destroy
     @alternate_value.destroy
     respond_to do |format|
-      format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was successfully destroyed.')}
+      format.html { destroy_redirect @alternate_value, notice: 'Alternate value was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

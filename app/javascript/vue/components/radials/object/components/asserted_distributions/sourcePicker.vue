@@ -8,7 +8,7 @@
       >
         <autocomplete
           url="/sources/autocomplete"
-          label="label"
+          label="label_html"
           min="2"
           ref="autocomplete"
           :clear-after="true"
@@ -80,7 +80,7 @@
 
 <script>
 import DefaultElement from 'components/getDefaultPin.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import LockComponent from 'components/lock'
 import { convertType } from 'helpers/types'
 

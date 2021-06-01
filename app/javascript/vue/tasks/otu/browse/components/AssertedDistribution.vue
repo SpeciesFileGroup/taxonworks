@@ -35,7 +35,7 @@
           <td>{{ assertedDistribution.is_absent ? '✕' : '✓' }}</td>
           <td>{{ assertedDistribution.geographic_area.geo_json ? '✓' : '✕' }}</td>
           <td v-html="assertedDistribution.citations.map(citation => (`${citation.source.author_year}` + (citation.pages ? `:${citation.pages}` : ''))).sort().join('; ')"/>
-          <td>{{ assertedDistribution.otu.object_label }}</td>
+          <td v-html="assertedDistribution.otu.object_tag"/>
         </tr>
       </tbody>
     </table>
@@ -76,7 +76,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 import { getUnique } from 'helpers/arrays'

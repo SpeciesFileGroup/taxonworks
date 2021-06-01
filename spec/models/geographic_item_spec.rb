@@ -497,27 +497,27 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         end
 
         specify 'for line_string' do
-          expect(c1.centroid.to_s).to eq('POINT (16.4614536801933 19.2769570914595 0.0)')
+          expect(c1.centroid.to_s).to match(/POINT \(16\.461453\d* 19\.276957\d* 0\.0\)/)
         end
 
         specify 'for polygon' do
-          expect(b.centroid.to_s).to eq('POINT (-8.09134615384615 16.6666666666667 0.0)')
+          expect(b.centroid.to_s).to match(/POINT \(-8\.091346\d* 16\.666666\d* 0\.0\)/)
         end
 
         specify 'for multi_point' do
-          expect(h.centroid.to_s).to eq('POINT (5.0 -15.74 0.0)')
+          expect(h.centroid.to_s).to match(/POINT \(5\.0 -15\.7(4|399999\d*) 0\.0\)/) # TODO: Review the way this is being check (and the others too actually)
         end
 
         specify 'for multi_line_string' do
-          expect(c.centroid.to_s).to eq('POINT (16.5387567713192 15.3001668707456 0.0)')
+          expect(c.centroid.to_s).to match(/POINT \(16\.538756\d* 15\.300166\d* 0\.0\)/)
         end
 
         specify 'for multi_polygon' do
-          expect(g.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+          expect(g.centroid.to_s).to match(/POINT \(21\.126454\d* -3.055235\d* 0\.0\)/)
         end
 
         specify 'for geometry_collection' do
-          expect(j.centroid.to_s).to eq('POINT (21.1264542235711 -3.05523520485584 0.0)')
+          expect(j.centroid.to_s).to match(/POINT \(21\.126454\d* -3\.055235\d* 0\.0\)/)
         end
       end
     end
@@ -865,9 +865,9 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           end
 
           specify ' orders objects by distance from passed object' do
-            expect(GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3)
-                     .limit(3).to_a)
-              .to eq([new_box_e, new_box_b, new_box_a])
+            subject = GeographicItem.ordered_by_shortest_distance_from('multi_polygon', p3).limit(3).to_a
+            expect(subject[0..1]).to contain_exactly(new_box_e, new_box_b) # Both boxes are at same distance from p3
+            expect(subject[2..]).to eq([new_box_a])
           end
 
           specify ' orders objects by distance from passed object' do

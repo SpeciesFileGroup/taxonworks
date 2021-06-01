@@ -17,7 +17,7 @@
             :key="keyword.id">
             <label>
               <input
-                v-model="filters.keyword_ids"
+                v-model="filters.keyword_id_and"
                 :value="keyword.id"
                 type="checkbox">
               {{ keyword.name }}
@@ -39,7 +39,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'

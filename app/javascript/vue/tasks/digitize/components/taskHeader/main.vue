@@ -24,23 +24,37 @@
         </template>
       </div>
       <div class="horizontal-left-content">
-        <div 
-          class="margin-medium-right"
+        <div
+          class="margin-medium-right horizontal-left-content"
           v-if="collectionObject.id">
-          <ul class="context-menu">
+          <ul class="context-menu no_bullets">
             <li>
               <span
                 v-if="navigation.previous"
                 @click="loadAssessionCode(navigation.previous)"
-                class="link cursor-pointer">Previous</span>
-              <span v-else>Previous</span>
+                class="link cursor-pointer horizontal-right-content">‹ Id</span>
+              <span
+                v-else
+                class="horizontal-right-content">‹ Id </span>
+              <span
+                v-if="navigation.previousIdentifier"
+                @click="loadAssessionCode(navigation.previousIdentifier)"
+                class="link cursor-pointer horizontal-right-content">‹ Identifier</span>
+              <span v-else>‹ Identifier</span>
             </li>
             <li>
               <span
                 v-if="navigation.next"
                 @click="loadAssessionCode(navigation.next)"
-                class="link cursor-pointer">Next</span>
-              <span v-else>Next</span>
+                class="link cursor-pointer horizontal-left-content">Id ›</span>
+              <span
+                v-else
+                class="horizontal-left-content">Id ›</span>
+              <span
+                v-if="navigation.nextIdentifier"
+                @click="loadAssessionCode(navigation.nextIdentifier)"
+                class="link cursor-pointer horizontal-left-content">Identifier ›</span>
+              <span v-else>Identifier ›</span>
             </li>
           </ul>
         </div>
@@ -87,118 +101,120 @@
 </template>
 
 <script>
-  import Autocomplete from '../../../../components/autocomplete.vue'
-  import { MutationNames } from '../../store/mutations/mutations.js'
-  import { ActionNames } from '../../store/actions/actions.js'
-  import { GetterNames } from '../../store/getters/getters.js'
-  import RecentComponent from './recent.vue'
-  import GetMacKey from 'helpers/getMacKey.js'
-  import { TippyComponent } from 'vue-tippy'
-  import NavBar from 'components/navBar'
-  import AjaxCall from 'helpers/ajaxCall'
-  import SoftValidation from './softValidation'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions.js'
+import { GetterNames } from '../../store/getters/getters.js'
+import RecentComponent from './recent.vue'
+import GetMacKey from 'helpers/getMacKey.js'
+import { TippyComponent } from 'vue-tippy'
+import NavBar from 'components/layout/NavBar'
+import AjaxCall from 'helpers/ajaxCall'
+import SoftValidation from './softValidation'
 
-  export default {
-    components: {
-      Autocomplete,
-      RecentComponent,
-      TippyComponent,
-      NavBar,
-      SoftValidation
+export default {
+  components: {
+    Autocomplete,
+    RecentComponent,
+    TippyComponent,
+    NavBar,
+    SoftValidation
+  },
+  computed: {
+    identifier() {
+      return this.$store.getters[GetterNames.GetIdentifier]
     },
-    computed: {
-      identifier() {
-        return this.$store.getters[GetterNames.GetIdentifier]
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
+    },
+    collectingEvent() {
+      return this.$store.getters[GetterNames.GetCollectionEvent]
+    },
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
       },
-      collectionObject() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
+      set (value) {
+        this.$store.commit(MutationNames.SetSettings, value)
+      }
+    },
+    hasChanges() {
+      return this.settings.lastChange > this.settings.lastSave
+    }
+  },
+  data () {
+    return {
+      navigation: {
+        next: undefined,
+        previous: undefined
       },
-      collectingEvent() {
-        return this.$store.getters[GetterNames.GetCollectionEvent]
-      },
-      settings: {
-        get () {
-          return this.$store.getters[GetterNames.GetSettings]
-        },
-        set (value) {
-          this.$store.commit(MutationNames.SetSettings, value)
+      loadingNavigation: false
+    }
+  },
+  watch: {
+    collectionObject: {
+      handler(newVal, oldVal) {
+        this.settings.lastChange = Date.now()
+        if(newVal.id && oldVal.id != newVal.id) {
+          if(!this.loadingNavigation) {
+            this.loadingNavigation = true
+            AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(({ headers }) => {
+              this.navigation.next = headers['navigation-next']
+              this.navigation.nextIdentifier = headers['navigation-next-by-identifier']
+              this.navigation.previous = headers['navigation-previous']
+              this.navigation.previousIdentifier = headers['navigation-previous-by-identifier']
+              this.loadingNavigation = false
+            })
+          }
         }
       },
-      hasChanges() {
-        return this.settings.lastChange > this.settings.lastSave
-      }
+      deep: true
     },
-    data () {
-      return {
-        navigation: {
-          next: undefined,
-          previous: undefined
-        },
-        loadingNavigation: false
-      }
+    collectingEvent: {
+      handler(newVal) {
+        this.settings.lastChange = Date.now()
+      },
+      deep: true
+    }
+  },
+  methods: {
+    getMacKey: GetMacKey,
+    saveDigitalization() {
+      this.$store.dispatch(ActionNames.SaveDigitalization)
     },
-    watch: {
-      collectionObject: {
-        handler(newVal, oldVal) {
-          this.settings.lastChange = Date.now()
-          if(newVal.id && oldVal.id != newVal.id) {
-            if(!this.loadingNavigation) {
-              this.loadingNavigation = true
-              AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(response => {
-                this.navigation.next = response.headers['navigation-next']
-                this.navigation.previous = response.headers['navigation-previous']
-                this.loadingNavigation = false
-              })
-            }
-          }
-        },
-        deep: true
-      },
-      collectingEvent: {
-        handler(newVal) {
-          this.settings.lastChange = Date.now()
-        },
-        deep: true
-      }
+    resetStore() {
+      this.$store.commit(MutationNames.ResetStore)
     },
-    methods: {
-      getMacKey: GetMacKey,
-      saveDigitalization() {
-        this.$store.dispatch(ActionNames.SaveDigitalization)
-      },
-      resetStore() {
-        this.$store.commit(MutationNames.ResetStore)
-      },
-      saveAndNew() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          let that = this
-          setTimeout(() => {
-            that.$store.dispatch(ActionNames.ResetWithDefault)
-          }, 500)
-        })
-      },
-      newDigitalization() {
-        this.$store.dispatch(ActionNames.NewCollectionObject)
-        this.$store.dispatch(ActionNames.NewIdentifier)
-        this.$store.commit(MutationNames.NewTaxonDetermination)
+    saveAndNew() {
+      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
+        let that = this
+        setTimeout(() => {
+          that.$store.dispatch(ActionNames.ResetWithDefault)
+        }, 500)
+      })
+    },
+    newDigitalization() {
+      this.$store.dispatch(ActionNames.NewCollectionObject)
+      this.$store.dispatch(ActionNames.NewIdentifier)
+      this.$store.commit(MutationNames.NewTaxonDetermination)
+      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
+    },
+    saveCollectionObject() {
+      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      },
-      saveCollectionObject() {
-        this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-          this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-        })
-      },
-      loadAssessionCode(id) {
-        this.$store.dispatch(ActionNames.ResetWithDefault)
-        this.$store.dispatch(ActionNames.LoadDigitalization, id)
-      },
-      loadCollectionObject(co) {
-        this.resetStore()
-        this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
-        this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
-      }
+      })
+    },
+    loadAssessionCode(id) {
+      this.$store.dispatch(ActionNames.ResetWithDefault)
+      this.$store.dispatch(ActionNames.LoadDigitalization, id)
+    },
+    loadCollectionObject(co) {
+      this.resetStore()
+      this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
+      this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   .fixed-bar {

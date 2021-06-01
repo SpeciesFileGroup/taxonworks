@@ -1,18 +1,14 @@
 import { MutationNames } from '../mutations/mutations'
-import { DestroyTaxonDetermination } from '../../request/resources'
+import { TaxonDetermination } from 'routes/endpoints'
 
-export default function ({ commit, state }, determination) {
-  return new Promise((resolve, reject) => {
-    if(determination.hasOwnProperty('id')) {
-      DestroyTaxonDetermination(determination.id).then(response => {
+export default ({ commit, state: { taxon_determinations } }, determination) =>
+  new Promise((resolve, reject) => {
+    if (determination.id) {
+      TaxonDetermination.destroy(determination.id).then(() => {
         commit(MutationNames.RemoveTaxonDetermination, determination.id)
       })
-    }
-    else {
-      state.taxon_determinations.splice(
-        state.taxon_determinations.findIndex(det => {
-          return det.otu_id == determination.otu_id
-        }), 1)
+    } else {
+      taxon_determinations.splice(
+        taxon_determinations.findIndex(det => det.otu_id === determination.otu_id), 1)
     }
   })
-}

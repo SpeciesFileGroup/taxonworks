@@ -8,8 +8,8 @@
           @click="addToContainer"
           v-shortkey="[getMacKey(), 'p']"
           @shortkey="addToContainer"
-          class="button normal-input button-default separate-bottom">Add to container
-        </button>      
+          class="button normal-input button-default">Add to container
+        </button>
       </div>
     </h2>
     <table-collection-objects/>

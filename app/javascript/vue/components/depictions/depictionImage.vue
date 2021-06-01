@@ -11,9 +11,7 @@
           <template>
             <img
               class="img-maxsize"
-              :src="depiction.image.image_file_url"
-              :height="depiction.image.height"
-              :width="depiction.image.width">
+              :src="depiction.image.image_file_url">
           </template>
           <div class="horizontal-left-content">
             <radial-annotator :global-id="depiction.image.global_id"/>
@@ -78,7 +76,7 @@
 </template>
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import { UpdateDepiction } from './request/resources'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
@@ -155,14 +153,12 @@ export default {
      width: 100%
    }
   }
-  .modal-container {
-    width: auto;
-    min-width: 200px;
-    max-width: 100vh;
-  }
   .CodeMirror {
     min-height: 100px;
     height: 100px;
+  }
+  .modal-container {
+    width: auto;
   }
 }
 </style>

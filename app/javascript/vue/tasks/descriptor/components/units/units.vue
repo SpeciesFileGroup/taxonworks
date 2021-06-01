@@ -14,7 +14,7 @@
 </template>
 <script>
 
-import { GetUnits } from '../../request/resources'
+import { Descriptor } from 'routes/endpoints'
 
 export default {
   props: {
@@ -42,7 +42,7 @@ export default {
     }
   },
   mounted () {
-    GetUnits().then(response => {
+    Descriptor.units().then(response => {
       this.list = response.body
     })
   }

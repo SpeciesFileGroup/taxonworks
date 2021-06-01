@@ -222,7 +222,7 @@ class InteractiveKey
   def language_to_use
     return nil if @language_id.blank?
     l = Language.where(id: @language_id).first
-    return nil if l.nil? || !descriptor_available_languages.to_a.include?(l)
+    return nil if l.nil? || !@descriptor_available_languages.to_a.include?(l)
     l
   end
 

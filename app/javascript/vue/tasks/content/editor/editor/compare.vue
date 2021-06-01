@@ -32,9 +32,9 @@
 
 <script>
 
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import { GetterNames } from '../store/getters/getters'
-import { GetContents } from '../request/resources'
+import { Content } from 'routes/endpoints'
 
 export default {
   data () {
@@ -72,7 +72,7 @@ export default {
     loadContent () {
       if (this.disabled) return
 
-      GetContents({ topic_id: this.topic.id }).then(response => {
+      Content.where({ topic_id: this.topic.id }).then(response => {
         this.contents = response.body.filter(c => c.id !== this.content.id)
       })
     },

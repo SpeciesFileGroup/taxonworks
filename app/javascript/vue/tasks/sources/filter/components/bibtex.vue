@@ -51,7 +51,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 import ClipboardButton from 'components/clipboardButton'
 
@@ -131,7 +131,7 @@ export default {
     height: 60vh;
   }
 
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     min-width: 80vw;
     min-height: 60vh;
   }

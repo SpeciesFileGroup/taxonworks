@@ -30,15 +30,18 @@
     </ul>
     <div
       v-if="depictions.length"
-      class="horizontal-left-content margin-medium-top">
+      class="margin-medium-top">
       <span class="middle">
         <span class="mark-box button-default separate-right" /> Images
       </span>
-      <image-viewer
-        v-for="depiction in depictions"
-        :key="depiction.id"
-        :depiction="depiction"
-      />
+      <div class="horizontal-left-content">
+        <image-viewer
+          v-for="depiction in depictions"
+          :key="depiction.id"
+          :depiction="depiction"
+          edit
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -56,7 +59,7 @@ import {
 } from '../../request/resources'
 
 import { GetterNames } from '../../store/getters/getters'
-import ImageViewer from '../gallery/ImageViewer'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
 
 export default {
   components: {

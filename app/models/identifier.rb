@@ -45,9 +45,11 @@ class Identifier < ApplicationRecord
 
   include Shared::DualAnnotator
   include Shared::PolymorphicAnnotator
+
   polymorphic_annotates('identifier_object')
 
   include Housekeeping # TODO: potential circular dependency constraint when this is before above.
+  include Shared::Labels 
   include Shared::IsData
 
   after_save :set_cached, unless: Proc.new {|n| errors.any? }
