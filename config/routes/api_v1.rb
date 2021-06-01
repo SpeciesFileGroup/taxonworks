@@ -49,6 +49,10 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
+      get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
+      get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
+      get '/taxon_name_classifications/:id', to: '/taxon_name_classifications#api_show'
+
       get '/taxon_name_relationships', to: '/taxon_name_relationships#api_index'
       get '/taxon_name_relationships/taxon_name_relationship_types', to: '/taxon_name_relationships#taxon_name_relationship_types'
       get '/taxon_name_relationships/:id', to: '/taxon_name_relationships#api_show'
