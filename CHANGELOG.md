@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Params for `/api/v1/images/` [#1906]
 - Params referenced in `/collection_objects` to `/collecting_events`
 - `/api/v1/taxon_name_classifications/` endpoint [#2276]
 - `/api/v1/taxon_name_relationships/` endpoint [#2277]
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `calculated_invalid` replaces `that_is_invalid` [#2242]
 - remove unused TaxonName#cached_higher_classification
 
+[#1906]: https://github.com/SpeciesFileGroup/taxonworks/issues/1906
 [#2203]: https://github.com/SpeciesFileGroup/taxonworks/issues/2203
 [#2276]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2276
 [#2277]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2277
