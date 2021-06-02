@@ -36,7 +36,7 @@ class DatasetRecordField < ApplicationRecord
 
   class << self
     def indexed_column_value(value)
-      if value.length <= VALUE_INDEX_LIMIT
+      unless value.nil? || value.length > VALUE_INDEX_LIMIT # TODO: Is there a way to still use this with NULL value?
         Arel::Nodes::NamedFunction.new("substr", [arel_table[:value], 1, VALUE_INDEX_LIMIT])
       else
         arel_table[:value]

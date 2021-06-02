@@ -108,11 +108,28 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
       fields_mapping = self.metadata["core_headers"].each.with_index.inject({}) { |m, (h, i)| m.merge({ h => i, i => h}) }
 
       query = ready ? core_records.where(status: 'NotReady') : core_records.where.not(status: ['NotReady', 'Imported', 'Unsupported'])
-      query.where(
-        id: core_records_fields.at(fields_mapping["institutionCode"]).with_value(institution_code).select(:dataset_record_id)
-      ).where(
-        id: core_records_fields.at(fields_mapping["collectionCode"]).with_value(collection_code).select(:dataset_record_id)
-      ).update_all(ready ?
+
+      # TODO: Add scopes/methods in DatasetRecord to handle nil fields values transparently
+      unless institution_code.nil?
+        query = query.where(
+          id: core_records_fields.at(fields_mapping["institutionCode"]).with_value(institution_code).select(:dataset_record_id)
+        )
+      else
+        query = query.where.not(
+          id: core_records_fields.at(fields_mapping["institutionCode"]).select(:dataset_record_id)
+        )
+      end
+      unless collection_code.nil?
+        query = query.where(
+          id: core_records_fields.at(fields_mapping["collectionCode"]).with_value(collection_code).select(:dataset_record_id)
+        )
+      else
+        query = query.where.not(
+          id: core_records_fields.at(fields_mapping["collectionCode"]).select(:dataset_record_id)
+        )
+      end
+
+      query.update_all(ready ?
         "status = 'Ready', metadata = metadata - 'error_data'" :
         "status = 'NotReady', metadata = jsonb_set(metadata, '{error_data}', '{ \"messages\": { \"catalogNumber\": [\"Record cannot be imported until namespace is set, see \\\"Settings\\\".\"] } }')"
       )

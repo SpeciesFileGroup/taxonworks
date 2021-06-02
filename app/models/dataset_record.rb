@@ -29,7 +29,7 @@ class DatasetRecord < ApplicationRecord
   def initialize_data_fields(field_data)
     @data_fields = []
     field_data.each_with_index do |value, index|
-      @data_fields[index] = value
+      @data_fields[index] = (value.blank? ? nil : value)
     end
     @data_field_changed = Array.new(@data_fields.size)
   end
@@ -98,7 +98,7 @@ class DatasetRecord < ApplicationRecord
     upsert_fields = @data_field_changed
       &.filter_map&.with_index { |c, i| field_db_attributes(i, data_fields[i]) if c } || []
     delete_fields = @data_field_changed
-      &.filter_map&.with_index { |c, i| i if c && data_fields[i].nil? } || []
+      &.filter_map&.with_index { |c, i| i if c && data_fields[i].blank? } || []
 
     DatasetRecordField.upsert_all(upsert_fields, unique_by: [:dataset_record_id, :position]) if upsert_fields.any?
     dataset_record_fields.where(position: delete_fields).delete_all if delete_fields.any?
