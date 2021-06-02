@@ -87,7 +87,7 @@
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import ObjectAnnotator from 'components/radials/navigation/radial'
-import PinComponent from "components/pin.vue"
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import CheckboxComponent from './checkboxComponent'
 
 export default {

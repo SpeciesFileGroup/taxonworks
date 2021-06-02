@@ -34,6 +34,7 @@ import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
 import { OriginRelationship } from './OriginRelationship'
 import { People } from './People'
+import { PinboardItem } from './PinboardItem'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
@@ -89,6 +90,7 @@ export {
   Otu,
   OriginRelationship,
   People,
+  PinboardItem,
   PreparationType,
   Project,
   ProjectMember,

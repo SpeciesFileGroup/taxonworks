@@ -138,7 +138,7 @@ import RadialObject from 'components/radials/navigation/radial'
 import GetOSKey from 'helpers/getMacKey'
 import SetParam from 'helpers/setParam'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from 'components/layout/NavBar'
 import ParseData from './components/parseData'

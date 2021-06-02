@@ -4,6 +4,7 @@
     :class="buttonClasses"
     :disabled="disabled"
     type="button"
+    @click="$emit('click')"
   >
     <slot />
   </component>
@@ -61,6 +62,7 @@ export default {
     buttonClasses () {
       return [
         this.buttonSize,
+        'button',
         `btn-${this.color}`
       ]
     }
