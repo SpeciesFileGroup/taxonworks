@@ -5,6 +5,16 @@
     </h3>
     <div slot="body">
       <div v-html="message"/>
+      <div v-show="confirmationWord">
+        <p>Type "{{ confirmationWord }}" to proceed.</p>
+        <input
+          type="text"
+          class="full_width"
+          ref="inputtext"
+          v-model="inputValue"
+          @keydown.enter="isConfirmationWordTyped && _confirm()"
+          :placeholder="`Write ${confirmationWord} to continue`">
+      </div>
     </div>
     <div
       slot="footer"
@@ -12,6 +22,7 @@
       <button
         type="button"
         class="button normal-input"
+        :disabled="!isConfirmationWordTyped"
         :class="[`button-${typeButton}`]"
         @click="_confirm"
       >
@@ -40,8 +51,16 @@ export default {
     typeButton: 'delete',
     showModal: false,
     resolvePromise: undefined,
-    rejectPromise: undefined
+    rejectPromise: undefined,
+    confirmationWord: undefined,
+    inputValue: undefined
   }),
+
+  computed: {
+    isConfirmationWordTyped () {
+      return !this.confirmationWord || this.confirmationWord?.toLowerCase() === this.inputValue?.toLowerCase()
+    }
+  },
 
   methods: {
     show (opts = {}) {
@@ -54,6 +73,15 @@ export default {
       }
 
       this.showModal = true
+      this.inputValue = undefined
+
+      if (opts.confirmationWord) {
+        this.confirmationWord = opts.confirmationWord
+        this.$nextTick(() => {
+          this.$refs.inputtext.focus()
+        })
+      }
+
       return new Promise((resolve, reject) => {
         this.resolvePromise = resolve
         this.rejectPromise = reject

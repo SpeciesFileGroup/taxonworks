@@ -1,5 +1,7 @@
 import AjaxCall from 'helpers/ajaxCall'
 
+const DestroyDataset = (id) => AjaxCall('delete', `/import_datasets/${id}.json`)
+
 const GetDataset = (id) => AjaxCall('get', `/import_datasets/${id}.json`)
 
 const GetImports = () => AjaxCall('get', '/tasks/dwca_import/index.json')
@@ -21,6 +23,7 @@ const ImportRows = (datasetId, params) => AjaxCall('post', `/import_datasets/${d
 const StopImport = (datasetId) => AjaxCall('post', `/import_datasets/${datasetId}/stop_import.json`)
 
 export {
+  DestroyDataset,
   GetDataset,
   GetImports,
   GetDatasetRecords,
