@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - TaxonName cached_is_valid boolean, takes into account Relationships and Classifications
 - Status to TaxonName autocomplete [#2086]
 - otu_filter param to interactive keys task
+- Radial annotator in New extract [#2272]
 
 ### Fixed
 - Scope has_many related data to project properly [#2265]
@@ -51,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
 [#2253]: https://github.com/SpeciesFileGroup/taxonworks/issues/2253
 [#2255]: https://github.com/SpeciesFileGroup/taxonworks/issues/2255
+[#2272]: https://github.com/SpeciesFileGroup/taxonworks/issues/2272
 [#2273]: https://github.com/SpeciesFileGroup/taxonworks/issues/2273
 [#2279]: https://github.com/SpeciesFileGroup/taxonworks/issues/2279
 
