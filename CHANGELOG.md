@@ -8,11 +8,16 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Params for `/api/v1/images/` [#1906]
+- Params referenced in `/collection_objects` to `/collecting_events`
+- `/api/v1/taxon_name_classifications/` endpoint [#2276]
+- `/api/v1/taxon_name_relationships/` endpoint [#2277]
 - TaxonName cached_is_valid boolean, takes into account Relationships and Classifications
 - Status to TaxonName autocomplete [#2086]
 - otu_filter param to interactive keys task
 
 ### Fixed
+- Scope has_many related data to project properly [#2265]
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
 - Reset selected ids on new search in observation matrices dashboard
@@ -22,6 +27,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - image aspect ratio in Transcribe depiction trask [#2273]
 
 ### Changed
+- Unify Task Collecting Event filter look/feel [#2203]
+- Params to `/taxon_name_relationships`, see [#2277]
 - CoL Data Package scoping updates
 - Removed incompatible identifier object type check for Identifier filter concerns
 - Unified some CollectingEvent filter param to singular pattern (collector_ids, otu_ids, geographic_area_ids)
@@ -33,6 +40,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - `calculated_invalid` replaces `that_is_invalid` [#2242]
 - remove unused TaxonName#cached_higher_classification
 
+
+[#2265]: https://github.com/SpeciesFileGroup/taxonworks/issues/2265
+[#1906]: https://github.com/SpeciesFileGroup/taxonworks/issues/1906
+[#2203]: https://github.com/SpeciesFileGroup/taxonworks/issues/2203
+[#2276]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2276
+[#2277]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2277
 [#2195]: https://github.com/SpeciesFileGroup/taxonworks/pull/2195
 [#2242]: https://github.com/SpeciesFileGroup/taxonworks/issues/2242
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086

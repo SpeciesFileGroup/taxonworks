@@ -15,18 +15,17 @@
       :class="{ 'depiction-zoom-container-bottom': flip }">
       <img
         v-if="image"
+        class="img-size"
         :src="image.src"
-        :width="`${width}px`"
-        :height="`${height}px`">
+      >
       <div
         data-icon="close"
         class="btn-zoom close"
         @click="show = false"/>
       <div
-        data-icon="swap" 
+        data-icon="swap"
         @click="flip = !flip"
         class="btn-zoom flip-button"/>
-      </div>
     </div>
   </div>
 </template>
@@ -81,6 +80,11 @@ export default {
     box-shadow: 0px 2px 4px 1px rgba(0,0,0,0.2);
     z-index: 500;
     line-height: 0px;
+
+    .img-size {
+      max-width: 90vw;
+      max-height: 50vh;
+    }
 
     .btn-zoom {
       padding: 0px;
