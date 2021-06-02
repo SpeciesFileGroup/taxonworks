@@ -57,7 +57,7 @@ export default {
         title: dataset.description,
         message: 'This will destroy the dataset. Are you sure you want to proceed?.',
         typeButton: 'delete',
-        confirmationWord: this.dataset?.progress?.imported ? 'DESTROY' : undefined
+        confirmationWord: this.dataset?.progress?.Imported ? 'DESTROY' : undefined
       })
       if (ok) {
         this.$emit('onRemove', dataset)
