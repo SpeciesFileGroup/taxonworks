@@ -69,7 +69,7 @@
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-import LockComponent from 'components/lock.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: {

@@ -88,7 +88,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import OtuRadial from 'components/otu/otu.vue'
 import GetOSKey from 'helpers/getMacKey'
 

@@ -64,7 +64,7 @@
         @result="loadList"
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
-      <div class="full_width overflow-scroll">
+      <div class="full_width">
         <div
           v-if="list.length"
           class="horizontal-left-content flex-separate separate-left separate-bottom">

@@ -27,7 +27,7 @@
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { PreparationType } from 'routes/endpoints'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: { LockComponent },

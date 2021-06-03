@@ -38,7 +38,7 @@
 <script>
 
   import RadialAnnotator from 'components/radials/annotator/annotator'
-  import Pin from 'components/pin'
+  import Pin from 'components/ui/Pinboard/VPin.vue'
   import RadialObject from 'components/radials/navigation/radial'
 
   export default {
