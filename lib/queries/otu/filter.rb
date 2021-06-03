@@ -405,12 +405,12 @@ module Queries
     end
 
     def citations_facet 
-      return nil if citations.nil?
+      return nil if @citations.nil?
 
       citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::Otu.arel_table[:id]).and(
         ::Citation.arel_table[:citation_object_type].eq('Otu'))
 
-      if citations == 'without_origin_citation'
+      if @citations == 'without_origin_citation'
         citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
       end
 
