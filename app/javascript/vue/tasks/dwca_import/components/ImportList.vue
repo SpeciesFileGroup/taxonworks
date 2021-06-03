@@ -10,6 +10,10 @@
         @onRemove="removeDataset"
       />
     </div>
+    <v-spinner
+      v-if="isDeleting"
+      full-screen
+      legend="Destroying dataset..."/>
   </div>
 </template>
 
@@ -17,12 +21,17 @@
 
 import { GetImports, DestroyDataset } from '../request/resources.js'
 import ImportCard from './ImportCard'
+import VSpinner from 'components/spinner.vue'
 
 export default {
-  components: { ImportCard },
+  components: {
+    ImportCard,
+    VSpinner
+  },
 
   data: () => ({
-    imports: []
+    imports: [],
+    isDeleting: false
   }),
 
   created () {
@@ -33,11 +42,15 @@ export default {
 
   methods: {
     removeDataset (dataset) {
+      this.isDeleting = true
+
       DestroyDataset(dataset.id).then(() => {
         const index = this.imports.findIndex(({ id }) => dataset.id === id)
 
         this.imports.splice(index, 1)
         TW.workbench.alert.create('Dataset was successfully destroyed.', 'notice')
+      }).finally(() => {
+        this.isDeleting = false
       })
     }
   }
