@@ -4,7 +4,7 @@ const RouteNames = {
   BrowseOtu: '/tasks/otus/browse',
   ContentEditorTask: '/tasks/content/editor/index',
   DigitizeTask: '/tasks/accessions/comprehensive',
-  DwcImport: '/tasks/dwca_import/index',  
+  DwcImport: '/tasks/dwca_import/index',
   ImageMatrix: '/tasks/matrix_image/matrix_image/index',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   ManageBiocurationTask: '/tasks/controlled_vocabularies/biocuration/build_collection',

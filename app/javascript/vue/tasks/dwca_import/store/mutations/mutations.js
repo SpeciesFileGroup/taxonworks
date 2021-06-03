@@ -7,6 +7,7 @@ import setDatasetRecords from './setDatasetRecords'
 import setRow from './setRow'
 import setDatasetPage from './setDatasetPage'
 import setSettings from './setSettings'
+import setState from './setState'
 
 const MutationNames = {
   SetCurrentVirtualPage: 'setCurrentVirtualPage',
@@ -17,7 +18,8 @@ const MutationNames = {
   SetDatasetRecords: 'setDatasetRecords',
   SetDatasetPage: 'setDatasetPage',
   SetRow: 'setRow',
-  SetSettings: 'setSettings'
+  SetSettings: 'setSettings',
+  SetState: 'setState'
 }
 
 const MutationFunctions = {
@@ -29,7 +31,8 @@ const MutationFunctions = {
   [MutationNames.SetDatasetRecords]: setDatasetRecords,
   [MutationNames.SetDatasetPage]: setDatasetPage,
   [MutationNames.SetRow]: setRow,
-  [MutationNames.SetSettings]: setSettings
+  [MutationNames.SetSettings]: setSettings,
+  [MutationNames.SetState]: setState
 }
 
 export {

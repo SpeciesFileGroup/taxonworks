@@ -8,15 +8,28 @@
     }">
     <div class="flex-separate middle">
       <div class="half_width">
+        <span>{{ dataset.description}}</span>
+        <span>-</span>
         <span v-if="pagination">{{ pagination.total }} records.</span>
       </div>
       <div class="full_width">
-        <progress-bar class="full_width" :progress="dataset.progress"/>
-        <progress-list class="context-menu" :progress="dataset.progress"/>
+        <progress-bar
+          class="full_width"
+          :progress="dataset.progress"/>
+        <progress-list
+          class="context-menu"
+          :progress="dataset.progress"/>
       </div>
       <div class="horizontal-right-content half_width">
         <settings-component class="margin-small-right"/>
         <import-modal/>
+        <button
+          type="button"
+          class="button normal-input button-default margin-small-left"
+          @click="reset"
+        >
+          Back
+        </button>
       </div>
     </div>
   </navbar-component>
@@ -26,11 +39,11 @@
 
 import NavbarComponent from 'components/layout/NavBar'
 import ImportModal from './ImportModal'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import ProgressBar from './ProgressBar'
 import ProgressList from './ProgressList'
 import SettingsComponent from './settings/Settings'
+import { GetterNames } from '../store/getters/getters'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
@@ -49,6 +62,11 @@ export default {
     },
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]
+    }
+  },
+  methods: {
+    reset () {
+      this.$store.dispatch(ActionNames.ResetState)
     }
   }
 }
