@@ -53,12 +53,16 @@ export default {
 
   methods: {
     async destroyDataset (dataset) {
+      const hasImportedData = this.dataset?.progress?.Imported
       const ok = await this.$refs.confirmationModal.show({
         title: dataset.description,
-        message: 'This will destroy the dataset. Are you sure you want to proceed?.',
+        message: hasImportedData
+          ? 'This will destroy the dataset that is partially imported, are you sure you want to proceed? Imported data will not be destroyed.'
+          : 'This will destroy the dataset. Are you sure you want to proceed?.',
         typeButton: 'delete',
-        confirmationWord: this.dataset?.progress?.Imported ? 'DESTROY' : undefined
+        confirmationWord: hasImportedData ? 'DESTROY' : undefined
       })
+
       if (ok) {
         this.$emit('onRemove', dataset)
       }
