@@ -48,7 +48,7 @@ export default {
     },
 
     semanticSize () {
-      return this.explicitSize || SIZE_MAP.default
+      return this.explicitSize || 'default'
     },
 
     elementSize () {

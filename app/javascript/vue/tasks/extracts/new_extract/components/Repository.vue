@@ -38,7 +38,7 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Repository } from 'routes/endpoints'

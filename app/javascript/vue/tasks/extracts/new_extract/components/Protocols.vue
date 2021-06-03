@@ -25,7 +25,7 @@
 
 <script>
 
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import componentExtend from './mixins/componentExtend'
 import DisplayList from 'components/displayList'

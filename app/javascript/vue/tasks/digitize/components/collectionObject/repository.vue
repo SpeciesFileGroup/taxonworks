@@ -33,7 +33,7 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 import { Repository } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'

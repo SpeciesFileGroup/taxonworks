@@ -156,7 +156,7 @@ import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import CreatePerson from '../../helpers/createPerson.js'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 

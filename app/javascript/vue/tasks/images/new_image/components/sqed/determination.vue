@@ -129,7 +129,7 @@ import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import makeTaxonDetermination from '../../const/makeTaxonDetermination'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: {

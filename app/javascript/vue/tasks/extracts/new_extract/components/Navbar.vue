@@ -1,9 +1,14 @@
 <template>
   <navbar-component>
     <div class="flex-separate middle">
-      <span
-        v-if="extract.id"
-        v-html="extract.object_tag"/>
+      <div
+        class="horizontal-left-content"
+        v-if="extract.id">
+        <span v-html="extract.object_tag"/>
+        <radial-annotator
+          :global-id="extract.global_id"
+        />
+      </div>
       <span v-else>
         New
       </span>
@@ -47,12 +52,14 @@
 import { GetterNames } from '../store/getters/getters'
 import { TippyComponent } from 'vue-tippy'
 import NavbarComponent from 'components/layout/NavBar'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import OSKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
     NavbarComponent,
-    TippyComponent
+    TippyComponent,
+    RadialAnnotator
   },
 
   computed: {

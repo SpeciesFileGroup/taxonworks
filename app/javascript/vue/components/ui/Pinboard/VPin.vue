@@ -1,99 +1,120 @@
 <template>
-  <div
-    v-if="!pin"
-    class="pin-button"
-    @click="createPin()"/>
-  <div
-    v-else
-    class="unpin-button"
-    @click="deletePin()"/>
+  <v-btn
+    circle
+    :color="pin ? 'destroy' : 'create'"
+    @click="pin ? deletePin() : createPin()"
+  >
+    <v-icon
+      small
+      color="white"
+      name="pin"
+    />
+  </v-btn>
 </template>
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
+import { PinboardItem } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
+  components: {
+    VBtn,
+    VIcon
+  },
+
   props: {
     pinObject: {
       type: Object,
       default: undefined
     },
+
     objectId: {
       type: [String, Number],
       required: true
     },
+
     type: {
       type: String,
       required: true
     },
+
     pluralize: {
       type: Boolean,
       default: true
     },
+
     section: {
       type: String,
       default: undefined
     }
   },
-  data: function () {
+
+  data () {
     return {
       pin: this.pinObject,
       id: this.objectId
     }
   },
+
   watch: {
     pinObject (newVal) {
       this.pin = newVal
     },
+
     objectId (newVal) {
       this.id = newVal
-      this.alreadyPinned()
+      this.retrievePinnedObject()
     }
   },
+
   created () {
-    this.alreadyPinned()
+    this.retrievePinnedObject()
     document.addEventListener('pinboard:remove', this.clearPin)
   },
+
   destroyed () {
     document.removeEventListener('pinboard:remove', this.clearPin)
   },
+
   methods: {
     clearPin (event) {
-      if(this.pin && this.pin.id == event.detail.id) {
+      if (this.pin?.id === event.detail.id) {
         this.pin = undefined
       }
     },
-    alreadyPinned () {
+
+    retrievePinnedObject () {
       const section = document.querySelector(`[data-pinboard-section="${this.section ? this.section : `${this.type}${this.pluralize ? 's' : ''}`}"] [data-pinboard-object-id="${this.id}"]`)
-      if (section) {
-        this.pin = {
-          id: section.getAttribute('data-pinboard-item-id'),
-          type: this.type
-        }
-      } else {
-        this.pin = undefined
-      }
+
+      this.pin = section
+        ? {
+            id: section.getAttribute('data-pinboard-item-id'),
+            type: this.type
+          }
+        : undefined
     },
+
     createPin () {
-      const pinItem = {
-        pinboard_item: {
-          pinned_object_id: this.id,
-          pinned_object_type: this.type,
-          is_inserted: true
-        }
+      const pinboard_item = {
+        pinned_object_id: this.id,
+        pinned_object_type: this.type,
+        is_inserted: true
       }
-      AjaxCall('post', '/pinboard_items', pinItem).then(response => {
-        this.pin = response.body
-        TW.workbench.pinboard.addToPinboard(response.body, true)
+
+      PinboardItem.create({ pinboard_item }).then(({ body }) => {
+        this.pin = body
+        TW.workbench.pinboard.addToPinboard(body, true)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
-    deletePin: function () {
-      AjaxCall('delete', `/pinboard_items/${this.pin.id}`, { _destroy: true }).then(response => {
+
+    deletePin () {
+      PinboardItem.destroy(this.pin.id).then(() => {
         TW.workbench.pinboard.removeItem(this.pin.id)
-        this.pin = undefined
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
+        this.pin = undefined
       })
     }
   }
