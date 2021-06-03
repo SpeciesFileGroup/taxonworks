@@ -17,7 +17,7 @@ export default {
   computed: {
     containerize: {
       get () {
-        return this.$store.getters[GetterNames.GetDataset].metadata.import_settings?.containerize_dup_cat_no
+        return this.$store.getters[GetterNames.GetDataset]?.metadata?.import_settings?.containerize_dup_cat_no
       },
       set (value) {
         UpdateImportSettings({
@@ -25,7 +25,7 @@ export default {
           import_settings: {
             containerize_dup_cat_no: value
           }
-        }).then(response => {
+        }).then(() => {
           this.$store.dispatch(ActionNames.LoadDataset, this.dataset.id)
         })
       }
