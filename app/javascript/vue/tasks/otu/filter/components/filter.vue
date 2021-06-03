@@ -52,12 +52,12 @@
 import SpinnerComponent from 'components/spinner'
 import GetMacKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetOtus } from '../request/resources'
+import { Otu } from 'routes/endpoints'
 
 import TaxonNameComponent from './filters/TaxonName'
-import GeographicAreas from '../../../collection_objects/filter/components/filters/geographic'
-import CitationsComponent from '../../../taxon_names/filter/components/filters/citations'
-import WithComponent from '../../../observation_matrices/dashboard/components/filters/with'
+import GeographicAreas from 'tasks/collection_objects/filter/components/filters/geographic'
+import CitationsComponent from 'tasks/nomenclature/filter/components/filters/citations'
+import WithComponent from 'tasks/observation_matrices/dashboard/components/filters/with'
 import AuthorComponent from './filters/authors.vue'
 
 export default {
@@ -114,7 +114,7 @@ export default {
     searchOtus (params) {
       this.searching = true
 
-      GetOtus(params).then(response => {
+      Otu.where(params).then(response => {
         this.result = response.body
         this.$emit('result', this.result)
         this.$emit('urlRequest', response.request.responseURL)
