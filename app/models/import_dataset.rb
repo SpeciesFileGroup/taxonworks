@@ -35,8 +35,10 @@ class ImportDataset < ApplicationRecord
 
   attribute :status, :string, default: "Uploaded"
 
-  has_many :dataset_records, dependent: :destroy
-  has_many :dataset_record_fields # To speed up queries, normally should be get through dataset_records
+  has_many :dataset_record_fields, dependent: :delete_all # To speed up queries, normally should be get through dataset_records
+  has_many :dataset_records, dependent: :delete_all
+
+  before_destroy :delete_origin_relationships
 
   has_attached_file :source,
     filename_cleaner:  Utilities::CleanseFilename
@@ -52,5 +54,11 @@ class ImportDataset < ApplicationRecord
   # Stages all records from source file into DB. Implementors must not assume it will be called only once.
   def stage
     raise "Implementation missing"
+  end
+
+  private
+
+  def delete_origin_relationships
+    OriginRelationship.where(old_object: self).delete_all
   end
 end
