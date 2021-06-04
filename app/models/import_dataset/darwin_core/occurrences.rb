@@ -44,7 +44,7 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
         nil # User will select namespace through UI. TODO: Should we attempt guessing here?
       ]
 
-      if "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0
+      if "PreservedSpecimen".casecmp(record[:basisOfRecord]) == 0 || record[:basisOfRecord].blank?
         if dwc_occurrence.get_field_value(:catalogNumber).blank?
           dwc_occurrence.status = "Ready"
         else
