@@ -35,11 +35,11 @@
       </ul>
       <div class="horizontal-left-content middle">
         <h2
-          v-shortkey="[getOSKey(), 't']"
+          v-shortkey="[platformKey(), 't']"
           @shortkey="switchNewTaxonName()"
           v-html="otu.object_tag"/>
         <div
-          v-shortkey="[getOSKey(), 'b']"
+          v-shortkey="[platformKey(), 'b']"
           @shortkey="switchBrowse()"
           class="horizontal-left-content">
           <browse-taxon
@@ -63,10 +63,10 @@
         </div>
       </div>
       <span
-        v-shortkey="[getOSKey(), 'm']"
+        v-shortkey="[platformKey(), 'm']"
         @shortkey="switchTypeMaterial()"/>
       <span
-        v-shortkey="[getOSKey(), 'e']"
+        v-shortkey="[platformKey(), 'e']"
         @shortkey="switchComprehensive()"/>
       <ul
         class="context-menu no_bullets">
@@ -88,12 +88,12 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import QuickForms from 'components/radials/object/radial.vue'
 import BrowseTaxon from 'components/taxon_names/browseTaxon.vue'
-import { GetBreadCrumbNavigation } from '../request/resources'
-import getOSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import ShowForThisGroup from 'tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import componentNames from '../const/componentNames.js'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from 'routes/routes'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
@@ -102,6 +102,7 @@ export default {
     QuickForms,
     BrowseTaxon
   },
+
   props: {
     otu: {
       type: Object,
@@ -112,6 +113,7 @@ export default {
       required: true
     }
   },
+
   computed: {
     taxonName () {
       return this.$store.getters[GetterNames.GetTaxonName]
@@ -120,28 +122,33 @@ export default {
       return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
     }
   },
+
   data () {
     return {
       navigation: undefined
     }
   },
+
   watch: {
     otu: {
       handler (newVal) {
-        GetBreadCrumbNavigation(newVal.id).then(response => {
+        Otu.breadcrumbs(newVal.id).then(response => {
           this.navigation = response.body
         })
       },
       immediate: true
     }
   },
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+m`, 'Go to new type specimen', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
+
+  created () {
+    TW.workbench.keyboard.createLegend(`${this.platformKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.platformKey()}+m`, 'Go to new type specimen', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.platformKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${this.platformKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
   },
+
   methods: {
+    platformKey,
     loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
     },
@@ -157,7 +164,7 @@ export default {
     switchComprehensive () {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },
-    getOSKey: getOSKey,
+
     showForRanks (section) {
       const componentSection = Object.values(componentNames()).find(item => item.title === section)
       const rankGroup = componentSection.rankGroup
