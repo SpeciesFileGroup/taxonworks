@@ -10,7 +10,7 @@
             type="button"
             class="bottom button-submit normal-input biocuration-toggle-button"
             @click="addToQueue(item.id)"
-            v-if="(biologicalId ? !checkExist(item.id) : !checkInQueue(item.id))">{{ item.name }}
+            v-if="(biologicalId ? !isCreated(item.id) : !isInQueue(item.id))">{{ item.name }}
           </button>
           <button
             type="button"
@@ -27,11 +27,7 @@
 <script>
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
-
-import {
-  GetBiocurationsCreated,
-  CreateBiocurationClassification,
-  DestroyBiocuration } from '../../request/resources.js'
+import { BiocurationClassification } from 'routes/endpoints'
 
 export default {
   props: {
@@ -68,7 +64,7 @@ export default {
   watch: {
     biologicalId: {
       handler (newVal, oldVal) {
-        if((this.locked.biocuration) && newVal == undefined) {
+        if ((this.locked.biocuration) && newVal == undefined) {
           this.addQueue = this.addQueue.concat(this.getCreatedBiocurationIds())
         }
         this.createdBiocutarions = []
@@ -77,15 +73,14 @@ export default {
         }
         if (newVal != undefined && newVal != oldVal) {
           this.addQueue = []
-          let that = this
 
           setTimeout(() => {
-            GetBiocurationsCreated(newVal).then(response => {
-              that.createdBiocutarions = response.body
-              that.$forceUpdate()
+            BiocurationClassification.where({ biological_collection_object_id: newVal }).then(response => {
+              this.createdBiocutarions = response.body
+              this.$forceUpdate()
             })
           }, this.delay)
-        } 
+        }
       },
       immediate: true
     },
@@ -98,43 +93,33 @@ export default {
     }
   },
   methods: {
-    getCreatedBiocurationIds() {
-      return this.createdBiocutarions.map(item => {
-        return item.biocuration_class_id 
-      })
+    getCreatedBiocurationIds () {
+      return this.createdBiocutarions.map(item => item.biocuration_class_id )
     },
     addToQueue (biocuration) {
       this.addQueue.push(biocuration)
     },
     processQueue () {
       this.addQueue.forEach((id) => {
-        CreateBiocurationClassification(this.createBiocurationObject(id)).then(response => {
+        BiocurationClassification.create(this.createBiocurationObject(id)).then(response => {
           this.createdBiocutarions.push(response.body)
         })
         this.addQueue = []
       })
     },
-    checkExist (id) {
-      let found = this.createdBiocutarions.find((bio) => {
-        return id == bio.biocuration_class_id
-      })
-      return (found != undefined)
+    isCreated (id) {
+      return !!this.createdBiocutarions.find(bio => id === bio.biocuration_class_id)
     },
-    checkInQueue (id) {
-      let found = this.addQueue.find((biocurationId) => {
-        return id == biocurationId
-      })
-      return (found != undefined)
+    isInQueue (id) {
+      return !!this.addQueue.find(biocurationId => id === biocurationId)
     },
     removeFromQueue (id) {
-      this.addQueue.splice(this.addQueue.findIndex((itemId) => { return itemId == id }), 1)
+      this.addQueue.splice(this.addQueue.findIndex(itemId => itemId === id), 1)
     },
     removeEntry (biocurationClass) {
-      let index = this.createdBiocutarions.findIndex((item) => {
-        return (item.biocuration_class_id == biocurationClass.id)
-      })
+      const index = this.createdBiocutarions.findIndex(item => item.biocuration_class_id === biocurationClass.id)
 
-      DestroyBiocuration(this.createdBiocutarions[index].id).then(response => {
+      BiocurationClassification.destroy(this.createdBiocutarions[index].id).then(() => {
         this.$store.commit(MutationNames.RemoveBiocuration, this.createdBiocutarions[index].id)
         this.createdBiocutarions.splice(index, 1)
       })

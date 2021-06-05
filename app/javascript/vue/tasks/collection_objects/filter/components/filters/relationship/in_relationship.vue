@@ -26,8 +26,8 @@
 
 <script>
 
-import { GetBiologicalRelationships } from '../../../request/resources.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   props: {
@@ -53,7 +53,7 @@ export default {
     }
   },
   mounted () {
-    GetBiologicalRelationships().then(response => {
+    BiologicalRelationship.all().then(response => {
       this.biologicalRelationships = response.body
     })
     const urlParams = URLParamsToJSON(location.href)

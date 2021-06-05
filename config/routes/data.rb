@@ -245,6 +245,10 @@ end
 
 resources :extracts do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
@@ -532,6 +536,9 @@ end
 
 resources :protocols do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :protocol_relationships do

@@ -47,7 +47,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
@@ -98,7 +98,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     width: 500px
   }
   .grid-button {

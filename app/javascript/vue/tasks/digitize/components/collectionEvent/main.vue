@@ -1,6 +1,10 @@
 <template>
-  <block-layout :warning="!collectingEvent.id">
-    <div slot="header">
+  <block-layout
+    :warning="!collectingEvent.id">
+    <div
+      v-shortkey="[platformKey, 'v']"
+      @shortkey="openNewCollectingEvent"
+      slot="header">
       <h3>Collecting Event</h3>
     </div>
     <div
@@ -18,12 +22,10 @@
             pin-type="CollectingEvent"
             v-model="collectingEvent"
             @selected="setCollectingEvent"/>
-          <div class="horizontal-right-content">
-            <lock-component
-              class="circle-button-margin"
-              v-model="locked.collecting_event"
-            />
-          </div>
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.collecting_event"
+          />
         </div>
         <div>
           <span data-icon="warning"/>
@@ -93,22 +95,23 @@
 
 <script>
 
-import BlockVerbatin from './components/verbatimLayout.vue'
-import BlockGeography from './components/GeographyLayout.vue'
-import SmartSelector from 'components/smartSelector.vue'
-import LockComponent from 'components/lock.vue'
-import BlockMap from './components/map/main.vue'
-import BlockLayout from 'components/blockLayout.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
-import PinComponent from 'components/pin.vue'
-
-import { CloneCollectionEvent, GetCollectionObjects } from '../../request/resources.js'
+import { CollectingEvent, CollectionObject } from 'routes/endpoints'
+import { RouteNames } from 'routes/routes'
+import BlockVerbatin from './components/verbatimLayout.vue'
+import BlockGeography from './components/GeographyLayout.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
+import BlockMap from './components/map/main.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialObject from 'components/radials/navigation/radial.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -124,6 +127,8 @@ export default {
     LockComponent
   },
   computed: {
+    platformKey,
+
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
@@ -168,14 +173,14 @@ export default {
         this.subsequentialUses = 0
       }
       if (newVal.id) {
-        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.id] })).body.length
+        this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.id] })).body.length
       } else {
         this.alreadyUsed = 0
       }
     },
     async collectionObject (newVal, oldVal) {
       if (newVal?.id !== oldVal?.id && newVal.collecting_event_id) {
-        this.alreadyUsed = (await GetCollectionObjects({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
+        this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
       }
     }
   },
@@ -188,13 +193,21 @@ export default {
       this.$store.dispatch(ActionNames.NewCollectionEvent)
     },
     cloneCE () {
-      CloneCollectionEvent(this.collectingEvent.id).then(response => {
+      CollectingEvent.clone(this.collectingEvent.id).then(response => {
         this.$store.commit(MutationNames.SetCollectionEvent, Object.assign(makeCollectingEvent(), response.body))
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
     },
+
     openBrowse () {
       window.open(`/tasks/collecting_events/browse?collecting_event_id=${this.collectingEvent.id}`)
+    },
+
+    openNewCollectingEvent () {
+      window.open(this.collectingEvent.id
+        ? `${RouteNames.NewCollectingEvent}?collecting_event_id=${this.collectingEvent.id}`
+        : RouteNames.NewCollectingEvent
+      )
     }
   }
 }

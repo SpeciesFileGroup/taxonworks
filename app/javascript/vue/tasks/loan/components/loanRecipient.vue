@@ -177,7 +177,7 @@
 <script>
 
   import rolePicker from 'components/role_picker.vue'
-  import modal from 'components/modal.vue'
+  import modal from 'components/ui/Modal.vue'
   import expand from './expand.vue'
   import ActionNames from '../store/actions/actionNames'
   import { GetterNames } from '../store/getters/getters'

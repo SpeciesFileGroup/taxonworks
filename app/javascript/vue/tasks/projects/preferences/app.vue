@@ -2,7 +2,7 @@
   <div>
     <h1>Project - Customize attributes.</h1>
     <a
-      v-if="Object.keys(preferences)" 
+      v-if="Object.keys(preferences)"
       :href="`/projects/${preferences.id}`">Back</a>
     <div class="horizontal-left-content align-start">
       <model-component
@@ -23,42 +23,46 @@
 import ModelComponent from './components/model'
 import PredicatesComponent from './components/predicates'
 
-import { GetProjectPreferences, UpdateProjectPreferences } from './request/resources.js'
+import { Project } from 'routes/endpoints'
 
 export default {
   components: {
     ModelComponent,
     PredicatesComponent
   },
+
   computed: {
-    modelList() {
-      if(!this.model) return []
-      return (this.preferences.hasOwnProperty('model_predicate_sets') ? this.preferences.model_predicate_sets[this.model] : [])
+    modelList () {
+      return this.preferences?.model_predicate_sets?.[this.model] || []
     }
   },
-  data() {
+
+  data () {
     return {
       model: undefined,
       preferences: {}
     }
   },
-  mounted() {
-    GetProjectPreferences().then(response => {
+
+  created () {
+    Project.preferences().then(response => {
       this.preferences = response.body
     })
   },
+
   methods: {
-    setModel(model) {
+    setModel (model) {
       this.model = model.value
     },
-    updatePredicatePreferences(newPreferences) {
+
+    updatePredicatePreferences (newPreferences) {
       if (!this.model) return
       const data = this.preferences.model_predicate_sets
-      data[this.model] = newPreferences
 
-      UpdateProjectPreferences(this.preferences.id, { model_predicate_sets: data }).then(response => {
-        this.preferences = response.body.preferences
-        this.preferences.id = response.id
+      data[this.model] = newPreferences
+      Project.update(this.preferences.id, { project: { model_predicate_sets: data } }).then(({ body }) => {
+        this.preferences = body.preferences
+        this.preferences.id = body.id
       })
     }
   }

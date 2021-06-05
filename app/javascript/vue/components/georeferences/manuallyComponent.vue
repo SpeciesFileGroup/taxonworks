@@ -49,7 +49,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import convertDMS from 'helpers/parseDMS.js'
 
 export default {
@@ -97,7 +97,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     max-width: 300px;
   }
 </style>

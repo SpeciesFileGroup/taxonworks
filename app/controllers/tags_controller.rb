@@ -78,8 +78,7 @@ class TagsController < ApplicationController
     @tag.destroy!
     respond_to do |format|
       # TODO: probably needs to be changed with new annotator
-      format.html { redirect_back(fallback_location: (request.referer || root_path),
-                                  notice: 'Tag was successfully destroyed.') }
+      format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
       format.json { head :no_content }
     end
   end

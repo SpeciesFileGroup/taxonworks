@@ -14,8 +14,7 @@
     </div>
     <modal
       @close="showModal = false"
-      v-if="showModal"
-      @otupicker="loadOtu($event.id)">
+      v-if="showModal">
       <h3 slot="header">Select OTU</h3>
       <div slot="body">
         <autocomplete
@@ -23,7 +22,7 @@
           min="2"
           param="term"
           placeholder="Find OTU"
-          event-send="otupicker"
+          @getItem="loadOtu($event.id)"
           label="label"
           :autofocus="true"/>
       </div>
@@ -32,43 +31,47 @@
 </template>
 
 <script>
-  import { GetterNames } from '../store/getters/getters'
-  import { MutationNames } from '../store/mutations/mutations'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { Otu } from 'routes/endpoints'
 
-  import Autocomplete from 'components/autocomplete.vue'
-  import Modal from 'components/modal.vue'
-  import AjaxCall from 'helpers/ajaxCall'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import Modal from 'components/ui/Modal.vue'
 
-  export default {
-    data: function () {
-      return {
-        showModal: false
-      }
-    },
-    components: {
-      Autocomplete,
-      Modal
-    },
-    computed: {
-      otu() {
-        return this.$store.getters[GetterNames.GetOtuSelected]
-      }
-    },
-    mounted() {
-      let urlParams = new URLSearchParams(window.location.search)
-      let otuId = urlParams.get('otu_id')
+export default {
+  data () {
+    return {
+      showModal: false
+    }
+  },
 
-      if (/^\d+$/.test(otuId)) {
-        this.loadOtu(otuId)
-      }
-    },
-    methods: {
-      loadOtu: function (id) {
-        AjaxCall('get', `/otus/${id}.json`).then(response => {
-          this.$store.commit(MutationNames.SetOtuSelected, response.body)
-          this.showModal = false
-        })
-      }
+  components: {
+    Autocomplete,
+    Modal
+  },
+
+  computed: {
+    otu () {
+      return this.$store.getters[GetterNames.GetOtuSelected]
+    }
+  },
+
+  created () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const otuId = urlParams.get('otu_id')
+
+    if (/^\d+$/.test(otuId)) {
+      this.loadOtu(otuId)
+    }
+  },
+
+  methods: {
+    loadOtu (id) {
+      Otu.find(id).then(response => {
+        this.$store.commit(MutationNames.SetOtuSelected, response.body)
+        this.showModal = false
+      })
     }
   }
+}
 </script>

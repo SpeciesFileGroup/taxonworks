@@ -63,7 +63,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import { GetNamespace } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
@@ -143,7 +143,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

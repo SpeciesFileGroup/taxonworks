@@ -19,7 +19,7 @@
             pin-type="Serial"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.serial_id"/>
           <a
             class="margin-small-top margin-small-left"
@@ -49,8 +49,8 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 import RadialObject from 'components/radials/navigation/radial'
 
 import AjaxCall from 'helpers/ajaxCall'

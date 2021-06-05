@@ -20,7 +20,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
 
 export default {
@@ -50,7 +50,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%;
   }
 </style>

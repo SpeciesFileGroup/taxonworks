@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_18_165155) do
+ActiveRecord::Schema.define(version: 2021_05_27_181334) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "tablefunc"
 
   create_table "alternate_values", id: :serial, force: :cascade do |t|
     t.text "value", null: false
@@ -478,6 +479,7 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
+    t.index ["attribute_subject_id"], name: "index_data_attributes_on_attribute_subject_id"
     t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
     t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id"
     t.index ["created_by_id"], name: "index_data_attributes_on_created_by_id"
@@ -1787,7 +1789,6 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.integer "parent_id"
     t.string "cached_html"
     t.string "cached_author_year"
-    t.string "cached_higher_classification"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "year_of_publication"
@@ -1813,7 +1814,9 @@ ActiveRecord::Schema.define(version: 2021_04_18_165155) do
     t.text "etymology"
     t.string "cached_original_combination"
     t.date "cached_nomenclature_date"
+    t.boolean "cached_is_valid"
     t.index ["cached"], name: "index_taxon_names_on_cached"
+    t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"

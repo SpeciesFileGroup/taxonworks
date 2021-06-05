@@ -98,7 +98,6 @@
       <collecting-event-form
         v-model="collectingEvent"
         :sortable="settings.sortable"
-        :soft-validation="validation"
         class="full_width" />
       <div class="margin-medium-left">
         <div class="panel content">
@@ -120,7 +119,6 @@
         </div>
         <right-section
           :value="collectingEvent"
-          :soft-validation="validation"
           @select="loadCollectingEvent($event.id)"
         />
       </div>
@@ -131,7 +129,7 @@
 <script>
 
 import { RouteNames } from 'routes/routes'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 
 import RecentComponent from './components/Recent'
 
@@ -140,9 +138,9 @@ import RadialObject from 'components/radials/navigation/radial'
 import GetOSKey from 'helpers/getMacKey'
 import SetParam from 'helpers/setParam'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RightSection from './components/RightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 import ParseData from './components/parseData'
 
 import CollectingEventForm from './components/CollectingEventForm'
@@ -154,7 +152,7 @@ import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
-import { GetCollectionObject } from './request/resources'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -195,8 +193,7 @@ export default {
       settings: {
         sortable: false
       },
-      showRecent: false,
-      validation: []
+      showRecent: false
     }
   },
   watch: {
@@ -218,7 +215,7 @@ export default {
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
     } else if (/^\d+$/.test(collectionObjectId)) {
-      GetCollectionObject(collectionObjectId).then(response => {
+      CollectionObject.find(collectionObjectId).then(response => {
         const ceId = response.body.collecting_event_id
         if (ceId) {
           this.loadCollectingEvent(ceId)

@@ -73,7 +73,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SwitchComponent from 'components/switch'
 
 import { GetCollectingEvent, GetDWC } from '../request/resources'
@@ -142,7 +142,7 @@ export default {
 </script>
 <style scoped>
 
-/deep/ .modal-container {
+::v-deep .modal-container {
   width: 1024px;
   overflow-y: scroll;
   max-height: 80vh;

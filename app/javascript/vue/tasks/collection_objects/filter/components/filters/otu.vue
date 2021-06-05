@@ -93,10 +93,13 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName, GetOtu } from '../../request/resources'
+import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from './shared/people'
+import { URLParamsToJSON } from 'helpers/url/parse.js'
+import {
+  TaxonName,
+  Otu
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -191,14 +194,14 @@ export default {
 
   methods: {
     addOtu (id) {
-      GetOtu(id).then(response => {
+      Otu.find(id).then(response => {
         this.determination.otu_ids.push(response.body.id)
         this.otusStore.push(response.body)
       })
     },
 
     setTaxon (id) {
-      GetTaxonName(id).then(response => {
+      TaxonName.find(id).then(response => {
         this.taxon = response.body
         this.determination.ancestor_id = response.body.id
       })
@@ -222,7 +225,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

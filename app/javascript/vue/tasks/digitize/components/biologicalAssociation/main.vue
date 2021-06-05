@@ -116,122 +116,117 @@
 </template>
 <script>
 
-  import Biological from './biological.vue'
-  import Related from './related.vue'
-  import NewCitation from './newCitation.vue'
-  import TableList from './table.vue'
-  import BlockLayout from 'components/blockLayout.vue'
-  import LockComponent from 'components/lock.vue'
+import Biological from './biological.vue'
+import Related from './related.vue'
+import NewCitation from './newCitation.vue'
+import TableList from './table.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 
-  import { GetterNames } from '../../store/getters/getters.js'
-  import { MutationNames } from '../../store/mutations/mutations'
+import { GetterNames } from '../../store/getters/getters.js'
+import { MutationNames } from '../../store/mutations/mutations'
+import { BiologicalAssociation } from 'routes/endpoints'
 
-  import { CreateBiologicalAssociation, GetBiologicalRelationshipsCreated, DestroyBiologicalAssociation } from '../../request/resources.js'
-
-  export default {
-    components: {
-      Biological,
-      Related,
-      NewCitation,
-      BlockLayout,
-      TableList,
-      LockComponent
+export default {
+  components: {
+    Biological,
+    Related,
+    NewCitation,
+    BlockLayout,
+    TableList,
+    LockComponent
+  },
+  computed: {
+    validateFields() {
+      return this.biologicalRelationship && this.biologicalRelation
     },
-    computed: {
-      validateFields() {
-        return this.biologicalRelationship && this.biologicalRelation
-      },
-      displayRelated() {
-        if(this.biologicalRelation) {
-          return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
-        }
-        else {
-          return undefined
-        }
-      },
-      collectionObject() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      settings: {
-        get () {
-          return this.$store.getters[GetterNames.GetSettings]
-        },
-        set () {
-          this.$store.commit(MutationNames.SetSettings, value)
-        }
+    displayRelated() {
+      if(this.biologicalRelation) {
+        return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
+      }
+      else {
+        return undefined
       }
     },
-    data() {
-      return {
-        list: [],
-        biologicalRelationship: undefined,
-        biologicalRelation: undefined,
-        citation: undefined,
-        queueAssociations: [],
-        flip: false,
-      }
+    collectionObject() {
+      return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    watch: {
-      collectionObject(newVal, oldVal) {
-        if(newVal.id) {
-          GetBiologicalRelationshipsCreated(newVal.global_id).then(response => {
-            this.list = response.body
-            this.processQueue()
-          })
-        }
-        if(!this.settings.locked.biological_association.relationship)
-          this.biologicalRelationship = undefined
-        if(!this.settings.locked.biological_association.related) {
-          this.biologicalRelation = undefined
-        }
+    settings: {
+      get () {
+        return this.$store.getters[GetterNames.GetSettings]
       },
-    },
-    methods: {
-      addAssociation() {
-        let data = {
-          biologicalRelationship: this.biologicalRelationship,
-          biologicalRelation: this.biologicalRelation,
-          citation: this.citation
-        }
-        this.queueAssociations.push(data)
-        this.biologicalRelationship = this.settings.locked.biological_association.relationship ? this.biologicalRelationship : undefined
-        this.biologicalRelation = this.settings.locked.biological_association.related ? this.biologicalRelation : undefined
-        this.citation = undefined
-        this.$refs.citation.cleanCitation()
-        this.processQueue()
-      },
-      createAssociationObject(data) {
-        return {
-          biological_relationship_id: data.biologicalRelationship.id,
-          biological_association_object_id: data.biologicalRelation.id,
-          biological_association_object_type: data.biologicalRelation.type,
-          subject_global_id: this.collectionObject.global_id,
-          origin_citation_attributes: data.citation
-        }
-      },
-      processQueue() {
-        if(!this.collectionObject.id) return
-        this.queueAssociations.forEach(item => {
-          CreateBiologicalAssociation(this.createAssociationObject(item)).then(response => {
-            this.list.push(response.body)
-          }, response => {
-          })
-        })
-        this.queueAssociations = []
-      },
-      removeBiologicalRelationship(biologicalRelationship) {
-        DestroyBiologicalAssociation(biologicalRelationship.id).then(() => {
-          this.list.splice(this.list.findIndex((item) => {
-            return item.id == biologicalRelationship.id
-          }), 1)
-        })
-      },
-      removeFromQueue (index) {
-        let biologicalRelationship = this.list[index]
-        this.queueAssociations.splice(index, 1)
+      set () {
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
+  },
+  data() {
+    return {
+      list: [],
+      biologicalRelationship: undefined,
+      biologicalRelation: undefined,
+      citation: undefined,
+      queueAssociations: [],
+      flip: false,
+    }
+  },
+  watch: {
+    collectionObject (newVal) {
+      if (newVal.id) {
+        BiologicalAssociation.where({ subject_global_id: newVal.global_id }).then(response => {
+          this.list = response.body
+          this.processQueue()
+        })
+      }
+      if(!this.settings.locked.biological_association.relationship)
+        this.biologicalRelationship = undefined
+      if(!this.settings.locked.biological_association.related) {
+        this.biologicalRelation = undefined
+      }
+    },
+  },
+  methods: {
+    addAssociation () {
+      const data = {
+        biologicalRelationship: this.biologicalRelationship,
+        biologicalRelation: this.biologicalRelation,
+        citation: this.citation
+      }
+      this.queueAssociations.push(data)
+      this.biologicalRelationship = this.settings.locked.biological_association.relationship ? this.biologicalRelationship : undefined
+      this.biologicalRelation = this.settings.locked.biological_association.related ? this.biologicalRelation : undefined
+      this.citation = undefined
+      this.$refs.citation.cleanCitation()
+      this.processQueue()
+    },
+    createAssociationObject(data) {
+      return {
+        biological_relationship_id: data.biologicalRelationship.id,
+        biological_association_object_id: data.biologicalRelation.id,
+        biological_association_object_type: data.biologicalRelation.type,
+        subject_global_id: this.collectionObject.global_id,
+        origin_citation_attributes: data.citation
+      }
+    },
+    processQueue() {
+      if(!this.collectionObject.id) return
+      this.queueAssociations.forEach(item => {
+        BiologicalAssociation.create({ biological_association: this.createAssociationObject(item) }).then(response => {
+          this.list.push(response.body)
+        })
+      })
+      this.queueAssociations = []
+    },
+    removeBiologicalRelationship(biologicalRelationship) {
+      BiologicalAssociation.destroy(biologicalRelationship.id).then(() => {
+        this.list.splice(this.list.findIndex((item) => item.id === biologicalRelationship.id), 1)
+      })
+    },
+    removeFromQueue (index) {
+      this.queueAssociations.splice(index, 1)
+    }
   }
+}
 </script>
 <style lang="scss">
   .radial-annotator {

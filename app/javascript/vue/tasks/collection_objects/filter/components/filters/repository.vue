@@ -21,9 +21,9 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetRepository } from '../../request/resources'
+import { Repository } from 'routes/endpoints'
 
 export default {
   components: {
@@ -64,7 +64,7 @@ export default {
     const urlParams = URLParamsToJSON(location.href)
     this.repository = urlParams.repository_id
     if (urlParams.repository_id) {
-      GetRepository(urlParams.repository_id).then(response => {
+      Repository.find(urlParams.repository_id).then(response => {
         this.setRepository(response.body)
       })
     }
@@ -83,7 +83,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  ::v-deep .vue-autocomplete-input {
     width: 100%
   }
 </style>

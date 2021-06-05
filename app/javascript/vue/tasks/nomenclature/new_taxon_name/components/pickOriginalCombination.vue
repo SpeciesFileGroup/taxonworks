@@ -107,7 +107,7 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 export default {
   components: {

@@ -39,6 +39,7 @@ export default {
     return {
       dropzone: {
         timeout: 0,
+        maxFilesize: 512,
         paramName: 'documentation[document_attributes][document_file]',
         url: '/documentation',
         headers: {

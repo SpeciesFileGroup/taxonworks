@@ -81,7 +81,7 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import TagAll from 'tasks/collection_objects/filter/components/tagAll'
 import PdfButton from 'components/pdfButton'
 import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import { sortArray } from 'helpers/arrays.js'
 
 export default {
@@ -96,11 +96,11 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     value: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
   computed: {

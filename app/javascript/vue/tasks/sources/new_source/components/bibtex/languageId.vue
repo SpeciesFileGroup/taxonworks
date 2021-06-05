@@ -13,7 +13,7 @@
             :filter-ids="languageId"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.language_id"/>
         </div>
         <div
@@ -36,8 +36,8 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 
 import AjaxCall from 'helpers/ajaxCall'
 

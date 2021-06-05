@@ -104,7 +104,7 @@
       <div class="full_width">
         <component :is="section"/>
       </div>
-      <right-section class="separate-left"/>
+      <right-section class="margin-medium-left"/>
     </div>
     <cross-ref
       v-if="showModal"
@@ -135,10 +135,10 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
 import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 import { GetUserPreferences } from './request/resources'
 
@@ -147,7 +147,7 @@ import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 
 export default {
   components: {

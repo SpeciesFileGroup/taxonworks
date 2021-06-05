@@ -31,8 +31,8 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
-import PinComponent from 'components/pin'
+import ModalComponent from 'components/ui/Modal'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {

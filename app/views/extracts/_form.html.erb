@@ -1,31 +1,10 @@
+<%= content_tag(:span, 'An new extract task exists and should be used.', class: [:feedback, 'feedback-warning']) %> <%= link_to('New extract task', new_extract_task_path) %></p>
+
+
 <%= form_for(@extract) do |f| %>
     <%= render 'shared/errors', object: @extract %>
 
     <div class="required">
-      <div class="field">
-        <%= f.label :quantity_value %>
-        <br>
-        <%= f.text_field :quantity_value %>
-      </div>
-
-      <div class="field">
-        <%= f.label :quantity_unit %>
-        <br>
-        <%= f.text_field :quantity_unit %>
-      </div>
-
-      <div class="field">
-        <%= f.label :concentration_value %>
-        <br>
-        <%= f.text_field :concentration_value %>
-      </div>
-
-      <div class="field">
-        <%= f.label :concentration_unit %>
-        <br>
-        <%= f.text_field :concentration_unit %>
-      </div>
-
       <div class="field">
         <%= f.label :verbatim_anatomical_origin %>
         <br>

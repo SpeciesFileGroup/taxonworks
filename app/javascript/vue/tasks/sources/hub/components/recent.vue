@@ -61,13 +61,13 @@
 
 <script>
 
-import { GetRecentSources } from '../request/resources.js'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProjectSource from 'components/addToProjectSource.vue'
 import CitationsCount from './citationsCount'
 import DocumentsComponent from './documents'
 import TagsComponent from './tags'
+import { Source } from 'routes/endpoints'
 
 export default {
   components: {
@@ -84,7 +84,7 @@ export default {
     }
   },
   mounted () {
-    GetRecentSources().then(response => {
+    Source.where({ per: 10, recent: true }).then(response => {
       this.sources = response.body
     })
   }

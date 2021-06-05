@@ -23,11 +23,11 @@
           </label>
           <button
             type="button"
-            v-shortkey="[getMacKey(), 's']"
-            @shortkey="createAndNewAssertedDistribution()"
+            v-shortkey="[OSKey(), 's']"
+            @shortkey="saveAssertedDistribution()"
             :disabled="!validate"
             class="button normal-input button-submit separate-left separate-right"
-            @click="createAndNewAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
+            @click="saveAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
           </button>
           <button
             type="button"
@@ -95,19 +95,12 @@ import SourceComponent from './components/source'
 import OtuComponent from './components/otu'
 import GeographicArea from './components/geographicArea'
 import TableComponent from './components/table'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import SpinnerComponent from 'components/spinner'
-import NavBarComponent from 'components/navBar'
-import GetMacKey from 'helpers/getMacKey'
+import NavBarComponent from 'components/layout/NavBar'
+import OSKey from 'helpers/getMacKey'
 
-import {
-  CreateAssertedDistribution,
-  RemoveAssertedDistribution,
-  UpdateAssertedDistribution,
-  LoadRecentRecords,
-  GetSource,
-  GetAssertedDistribution
-} from './request/resources.js'
+import { Source, AssertedDistribution } from 'routes/endpoints'
 
 export default {
   components: {
@@ -142,22 +135,22 @@ export default {
       }
     }
   },
-  mounted () {
-    this.addShortcutsDescription()
-    LoadRecentRecords().then(response => {
+  created () {
+    AssertedDistribution.where({ recent: true, per: 15 }).then(response => {
       this.list = response.body
       this.loading = false
     })
+    TW.workbench.keyboard.createLegend(`${this.OSKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
   },
   methods: {
+    OSKey,
+
     triggerAutosave () {
       if (this.validate && this.autosave) {
-        this.createAndNewAssertedDistribution()
+        this.saveAssertedDistribution()
       }
     },
-    addShortcutsDescription () {
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
-    },
+
     newAssertedDistribution () {
       return {
         id: undefined,
@@ -172,6 +165,7 @@ export default {
         }
       }
     },
+
     newWithLock () {
       const newObject = this.newAssertedDistribution()
       const keys = Object.keys(newObject)
@@ -182,15 +176,7 @@ export default {
       })
       this.asserted_distribution = newObject
     },
-    getMacKey () {
-      return GetMacKey()
-    },
-    createAndNewAssertedDistribution() {
-      if(!this.validate) return
-      this.saveAssertedDistribution().then(response => {
-        this.newWithLock()
-      })
-    },
+
     saveAssertedDistribution () {
       if (!this.validate) return
       const assertedDistribution = {
@@ -205,49 +191,45 @@ export default {
           pages: this.asserted_distribution.citation.pages
         }]
       }
-      return new Promise((resolve, reject) => {
-        if (assertedDistribution.id) {
-          UpdateAssertedDistribution(assertedDistribution).then(response => {
-            this.$set(this.list, this.list.findIndex(item => {
-              return item.id === response.body.id
-            }), response.body)
-            TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
-            this.refreshSmarts()
-            resolve(response.body)
-          })
-        } else {
-          assertedDistribution.citations_attributes[0].id = undefined
-          GetAssertedDistribution({ 
-            otu_id: assertedDistribution.otu_id,
-            geographic_area_id: assertedDistribution.geographic_area_id
-          }).then(response => {
-            if (response.body.length) {
-              assertedDistribution.id = response.body[0].id
-              UpdateAssertedDistribution(assertedDistribution).then(response => {
-                this.$set(this.list, this.list.findIndex(item => {
-                  return item.id === response.body.id
-                }), response.body)
-                TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
-                this.refreshSmarts()
-                resolve(response.body)
-              })
-            } else {
-              CreateAssertedDistribution(assertedDistribution).then(response => {
-                this.list.unshift(response.body)
-                TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
-                this.refreshSmarts()
-                resolve(response.body)
-              })
-            }
-          })
-        }
+      if (assertedDistribution.id) {
+        this.updateRecord(assertedDistribution)
+      } else {
+        assertedDistribution.citations_attributes[0].id = undefined
+        AssertedDistribution.where({
+          otu_id: assertedDistribution.otu_id,
+          geographic_area_id: assertedDistribution.geographic_area_id
+        }).then(response => {
+          if (response.body.length) {
+            assertedDistribution.id = response.body[0].id
+            this.updateRecord(assertedDistribution)
+          } else {
+            this.createRecord(assertedDistribution)
+          }
+        })
+      }
+    },
+
+    createRecord (asserted_distribution) {
+      AssertedDistribution.create({ asserted_distribution }).then(response => {
+        this.list.unshift(response.body)
+        TW.workbench.alert.create('Asserted distribution was successfully created.', 'notice')
+        this.refreshSmarts()
+        this.newWithLock()
       })
     },
-    removeAssertedDistribution(asserted) {
-      RemoveAssertedDistribution(asserted.id).then(response => {
-        this.list.splice(this.list.findIndex(item => {
-          return item.id === asserted.id
-        }), 1)
+
+    updateRecord (asserted_distribution) {
+      AssertedDistribution.update(asserted_distribution.id, { asserted_distribution }).then(response => {
+        this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+        TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
+        this.refreshSmarts()
+        this.newWithLock()
+      })
+    },
+
+    removeAssertedDistribution (asserted) {
+      AssertedDistribution.destroy(asserted.id).then(() => {
+        this.list.splice(this.list.findIndex(item => item.id === asserted.id), 1)
       })
     },
     refreshSmarts () {
@@ -276,7 +258,7 @@ export default {
       this.asserted_distribution.is_absent = item.is_absent
     },
     setCitation (citation) {
-      GetSource(citation.source_id).then(response => {
+      Source.find(citation.source_id).then(response => {
         this.asserted_distribution.citation = {
           id: undefined,
           source: response.body,

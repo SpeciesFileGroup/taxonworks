@@ -199,8 +199,6 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
     end
 
-
-
     context 'soft validation' do
       let(:o) { Specimen.new }
       let(:p) { Person.new }
@@ -208,13 +206,13 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       context 'accession fields are missing' do
         specify 'accessioned_at is missing' do
           o.accession_provider = p
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:accessioned_at).count).to eq(1)
         end
 
         specify 'accession_recipient is missing' do
           o.accessioned_at = '12/12/2014'
-          o.soft_validate(:missing_accession_fields)
+          o.soft_validate(only_sets: :missing_accession_fields)
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
 
@@ -224,20 +222,20 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         specify 'deaccession_reason is missing' do
           o.deaccessioned_at      = '12/12/2014'
           o.deaccession_recipient = p
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccession_reason).count).to eq(1)
 
         end
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: :missing_deaccession_fields)
           expect(o.soft_validations.messages_on(:deaccessioned_at).count).to eq(1)
         end
 
         specify 'deaccessioned_at is missing' do
           o.deaccession_reason = 'Because.'
           o.deaccessioned_at   = '12/12/2014'
-          o.soft_validate(:missing_deaccession_fields)
+          o.soft_validate(only_sets: [:missing_deaccession_fields])
           expect(o.soft_validations.messages_on(:base).count).to eq(1)
         end
       end

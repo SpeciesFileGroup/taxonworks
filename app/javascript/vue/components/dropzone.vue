@@ -41,7 +41,7 @@ export default {
     },
     maxFileSizeInMB: {
       type: Number,
-      default: 2
+      default: 512
     },
     maxNumberOfFiles: {
       type: Number,
@@ -157,7 +157,7 @@ export default {
         dictResponseError: this.language.dictResponseError
       })
     } else {
-      this.dropzone = new Dropzone(element, this.dropzoneOptions)
+      this.dropzone = new Dropzone(element, Object.assign({}, { maxFilesize: this.maxFileSizeInMB }, this.dropzoneOptions))
     }
     // Handle the dropzone events
     const vm = this

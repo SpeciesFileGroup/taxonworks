@@ -47,15 +47,16 @@
 
 <script>
 
-import { GetCollectingEvents, DestroyCollectingEvent } from '../request/resources'
 import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
+import { CollectingEvent } from 'routes/endpoints'
 
 export default {
   components: {
     SpinnerComponent,
     ModalComponent
   },
+
   data () {
     return {
       collectingEvents: [],
@@ -63,25 +64,29 @@ export default {
       showModal: false
     }
   },
-  mounted () {
+
+  created () {
     this.isLoading = true
-    GetCollectingEvents({ per: 10, recent: true }).then(response => {
+    CollectingEvent.where({ per: 10, recent: true }).then(response => {
       this.collectingEvents = response.body
     }).finally(() => {
       this.isLoading = false
     })
   },
+
   methods: {
     showModalView (value) {
       this.$emit('close', value)
     },
+
     removeCollectingEvent (index) {
-      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-        DestroyCollectingEvent(this.collectingEvents[index].id).then(response => {
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        CollectingEvent.destroy(this.collectingEvents[index].id).then(() => {
           this.collectingEvents.splice(index, 1)
         })
       }
     },
+
     selectCollectingEvent (collectingEvent) {
       this.$emit('select', collectingEvent)
       this.showModalView(false)

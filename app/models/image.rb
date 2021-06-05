@@ -42,6 +42,7 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
+
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -87,7 +88,7 @@ class Image < ApplicationRecord
   #:restricted_characters => /[^A-Za-z0-9\.]/,
   validates_attachment_content_type :image_file, content_type: /\Aimage\/.*\Z/
   validates_attachment_presence :image_file
-  validates_attachment_size :image_file, greater_than: 1.kilobytes
+  validate :image_dimensions_too_short
 
   soft_validate(:sv_duplicate_image?)
 
@@ -232,7 +233,6 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
-
     begin
     # img.crop(x, y, width, height, true)
       cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
@@ -248,7 +248,7 @@ class Image < ApplicationRecord
   # @return [Magick::Image]
   def self.resized(params)
     c = cropped(params)
-    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i)
+    resized = c.resize(params[:new_width].to_i, params[:new_height].to_i) #.sharpen(0x1)
     c.destroy!
     resized
   end
@@ -259,7 +259,6 @@ class Image < ApplicationRecord
     c = cropped(params)
     ratio = c.columns.to_f / c.rows.to_f
     box_ratio = params[:box_width].to_f / params[:box_height].to_f
-
     # TODO: special considerations for 1:1?
 
     if box_ratio > 1
@@ -267,22 +266,24 @@ class Image < ApplicationRecord
         scaled = c.resize(
           params[:box_width].to_i,
           (params[:box_height].to_f / ratio * box_ratio).to_i
-        )
+        ) #.sharpen(0x1)
       else # tall into wide
         scaled = c.resize(
           (params[:box_width ].to_f * ratio / box_ratio).to_i,
-          params[:box_height].to_i )
+          params[:box_height].to_i
+        ) #.sharpen(0x1)
       end
     else # <
       if ratio > 1 # wide into tall
         scaled = c.resize(
           params[:box_width].to_i,
-          (params[:box_height].to_f / ratio * box_ratio).to_i)
+          (params[:box_height].to_f / ratio * box_ratio).to_i
+        ) #.sharpen(0x1)
       else # tall into tall # TODO: or 1:1?!
         scaled = c.resize(
-          (params[:box_width ].to_f * ratio * box_ratio ).to_i,
+          (params[:box_width ].to_f * ratio / box_ratio ).to_i,
           (params[:box_height].to_f ).to_i
-        )
+        ) #.sharpen(0x1)
       end
     end
     c.destroy!
@@ -400,6 +401,17 @@ class Image < ApplicationRecord
     blob = img.to_blob
     img.destroy!
     blob
+  end
+
+  def image_dimensions_too_short
+    return unless original = image_file.queued_for_write[:original]
+
+    dimensions = Paperclip::Geometry.from_file(original)
+
+    errors.add(:image_file, "width must be at least 16 pixels") if dimensions.width < 16
+    errors.add(:image_file, "height must be at least 16 pixels") if dimensions.height < 16
+  rescue
+    errors.add(:image_file, "unable to extract image dimensions")
   end
 
 end

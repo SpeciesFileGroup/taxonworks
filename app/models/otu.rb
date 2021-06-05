@@ -64,7 +64,7 @@ include Otu::DwcExtensions
 
   has_many :collecting_events, -> { distinct }, through: :collection_objects
   has_many :common_names, dependent: :destroy
-  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what?
+  has_many :collection_profiles, dependent: :restrict_with_error  # @proceps dependent: what? DD: profile should never be update, a new profile should be created insted
   has_many :contents, inverse_of: :otu, dependent: :destroy
   has_many :geographic_areas_from_asserted_distributions, through: :asserted_distributions, source: :geographic_area
   has_many :geographic_areas_from_collecting_events, through: :collecting_events, source: :geographic_area
@@ -160,7 +160,7 @@ include Otu::DwcExtensions
   #  id - the (unambiguous) id of the nearest parent OTU attached to a valid taoxn name
   #
   #  Note this is used CoLDP export. Do not change without considerations there.
-  def parent_otu_id
+  def parent_otu_id(skip_ranks: [], prefer_unlabelled_otus: false)
     return nil if taxon_name_id.nil?
 
     # TODO: Unify to a single query
@@ -169,22 +169,40 @@ include Otu::DwcExtensions
       .that_is_valid
       .where.not(id: taxon_name_id)
       .where(taxon_name_hierarchies: {descendant_id: taxon_name_id})
+      .where.not(rank_class: skip_ranks)
       .order('taxon_name_hierarchies.generations')
       .limit(1)
       .pluck(:id)
 
     if candidates.size == 1
-      otus = Otu.where(taxon_name_id: candidates.first).limit(1).limit(2).load
+      otus = Otu.where(taxon_name_id: candidates.first).to_a
+      otus.select! { |o| o.name.nil? } if prefer_unlabelled_otus && otus.size > 1
+
       if otus.size == 1
         return otus.first.id
-      elsif otus.count > 1
+      elsif otus.size > 1
         return false
       else
-      return nil
+        return nil
       end
     else
       return nil
     end
+  end
+
+  # @return [Array]
+  #   of ancestral otu_ids
+  # !! This method does not fork, as soon as 2 ancestors are
+  # !! hit the list terminates.
+  def ancestor_otu_ids(prefer_unlabelled_otus: true)
+    ids =  []
+    a = parent_otu_id(prefer_unlabelled_otus: true)
+    while a
+      ids.push a
+      b = Otu.find(a)
+      a = b.parent_otu_id(prefer_unlabelled_otus: true)
+    end
+    ids
   end
 
   # @return [Array]
@@ -246,7 +264,6 @@ include Otu::DwcExtensions
   def coordinate_with?(otu_id)
     Otu.coordinate_otus(otu_id).where(otus: {id: id}).any?
   end
-
 
   # TODO: Deprecate for helper method, HTML does not belong here
   def otu_name

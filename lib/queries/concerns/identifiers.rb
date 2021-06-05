@@ -7,8 +7,6 @@
 # See spec/lib/queries/collection_object/filter_spec.rb for existing spec tests
 #
 module Queries::Concerns::Identifiers
-
-
   include Queries::Helpers
 
   extend ActiveSupport::Concern
@@ -49,7 +47,6 @@ module Queries::Concerns::Identifiers
       ( @identifier_end.to_i + 1 ).to_s
     end
   end
-
 
   def set_identifier(params)
     @namespace_id = params[:namespace_id]
@@ -170,7 +167,7 @@ module Queries::Concerns::Identifiers
   # See lib/queries/identifiers/autocomplete for autocomplete for identifiers
   #
   # May need to alter base query here
-#
+  #
   def autocomplete_identifier_cached_exact
     query_base.joins(:identifiers).where(with_identifier_cached.to_sql)
   end

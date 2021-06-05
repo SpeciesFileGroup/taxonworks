@@ -54,7 +54,7 @@
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
@@ -97,7 +97,7 @@ export default {
 </script>
 
 <style scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     width: 300px !important
   }
 </style>

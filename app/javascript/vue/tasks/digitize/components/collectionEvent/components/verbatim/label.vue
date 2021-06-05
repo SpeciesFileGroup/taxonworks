@@ -41,15 +41,16 @@
 
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
+import { CollectingEvent } from 'routes/endpoints'
 import CloneLabel from './cloneLabel'
-import { GetCEMd5Label } from '../../../../request/resources'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
     CloneLabel,
     ModalComponent
   },
+
   computed: {
     label: {
       get() {
@@ -63,19 +64,24 @@ export default {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
+
   data () {
     return {
       showModal: false,
       CEFounded: []
     }
   },
+
   methods: {
     searchCE () {
       if (this.label) {
-        GetCEMd5Label(this.label).then(response => {
+        CollectingEvent.where({
+          md5_verbatim_label: true,
+          in_labels: this.label
+        }).then(response => {
           if (response.body.length) {
             this.CEFounded = response.body
-            if (!response.body.find(item => { return item.id === this.collectingEvent.id })) {
+            if (!response.body.find(item => item.id === this.collectingEvent.id)) {
               this.showModal = true
             }
           }
@@ -90,7 +96,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-  /deep/ .modal-container {
+  ::v-deep .modal-container {
     max-width: 500px;
   }
 </style>

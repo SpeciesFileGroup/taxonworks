@@ -11,11 +11,18 @@ module Shared::ProtocolRelationships
     has_many :protocol_relationships, as: :protocol_relationship_object, dependent: :destroy
     has_many :protocols, through: :protocol_relationships
 
-    accepts_nested_attributes_for :protocol_relationships, allow_destroy: true, reject_if: :reject_protocol_relationships
+    accepts_nested_attributes_for :protocol_relationships, allow_destroy: true
     accepts_nested_attributes_for :protocols, allow_destroy: true, reject_if: :reject_protocols
   end
 
   def protocolled?
     protocols.any?
   end
+
+  private
+
+  def reject_protocols(attributed)
+    attributed['name'].blank? || attributed['short_name'].blank? || attributed['description'].blank?
+  end
+
 end

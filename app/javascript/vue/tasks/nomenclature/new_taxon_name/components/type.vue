@@ -114,11 +114,12 @@
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
+import { TypeMaterial } from 'routes/endpoints'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
@@ -126,8 +127,6 @@ import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
 import getMacKey from 'helpers/getMacKey.js'
-
-import { GetTypeMaterial } from '../request/resources.js'
 
 export default {
   components: {
@@ -157,7 +156,7 @@ export default {
       return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
     },
     checkValidation () {
-      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.validations.instance.id)).length
+      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
     },
     taxonRelation: {
       get () {
@@ -192,11 +191,11 @@ export default {
       immediate: true
     },
     taxon: {
-      handler(newVal, oldVal) {
-        if(newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
-          GetTypeMaterial(newVal.id).then(response => {
+      handler (newVal, oldVal) {
+        if (newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
+          TypeMaterial.where({ protonym_id: newVal.id }).then(response => {
             this.typeMaterialList = response.body
-          }) 
+          })
         }
       },
       immediate: true,

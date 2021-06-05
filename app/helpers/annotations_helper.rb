@@ -4,7 +4,7 @@ module AnnotationsHelper
   # @return [String]
   # Assumes the context is the object, not a multi-object summary
   def annotations_summary_tag(object)
-    content_tag(:div, class: %w{item panel separate-left separate-right separate-bottom}) do
+    content_tag(:div, class: %w{item panel separate-bottom}) do
       content_tag(:div, class: [:content]) do
         content_tag(:div, class: ['information-panel']) do
           content_tag(:h2, 'Annotations') +

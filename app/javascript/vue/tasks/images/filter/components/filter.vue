@@ -5,7 +5,7 @@
       <span
         data-icon="reset"
         class="cursor-pointer"
-        v-shortkey="[getMacKey, 'r']"
+        v-shortkey="[OSKey, 'r']"
         @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
@@ -21,7 +21,7 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[getMacKey, 'f']"
+        v-shortkey="[OSKey, 'f']"
         @shortkey="searchDepictions"
         @click="searchDepictions">
         Search
@@ -58,18 +58,17 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import OSKey from 'helpers/getMacKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import IdentifierComponent from 'tasks/collection_objects/filter/components/filters/identifier'
-import ScopeComponent from 'tasks/taxon_names/filter/components/filters/scope'
+import ScopeComponent from 'tasks/nomenclature/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-
-import { GetImages } from '../request/resources.js'
+import { Image } from 'routes/endpoints'
 
 export default {
   components: {
@@ -81,12 +80,10 @@ export default {
     UsersComponent,
     OtusComponent,
     TagsComponent,
-    ScopeComponent,
+    ScopeComponent
   },
   computed: {
-    getMacKey () {
-      return GetMacKey()
-    },
+    OSKey,
     emptyParams () {
       if (!this.params) return
       return !this.params.depictions
@@ -120,7 +117,7 @@ export default {
     getDepictions (params) {
       this.searching = true
       this.$emit('newSearch')
-      GetImages(params).then(response => {
+      Image.where(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('response', response)

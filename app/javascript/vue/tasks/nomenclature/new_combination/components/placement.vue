@@ -9,7 +9,7 @@
 </template>
 <script>
 
-import { CreatePlacement } from '../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   props: {
@@ -54,7 +54,7 @@ export default {
           parent_id: this.parent.id
         }
       }
-      CreatePlacement(this.taxon.id, data).then(response => {
+      TaxonName.update(this.taxon.id, data).then(response => {
         TW.workbench.alert.create(`Updated parent of ${response.body.name} to ${response.body.parent.name}`, 'notice')
         this.$emit('created', response.body)
       })

@@ -66,11 +66,11 @@ describe Identifier::Local, type: :model, group: :identifiers do
     expect(i1.cached).to eq("#{namespace.short_name} 123")
   end
 
-  xspecify 'updating Namespace updates #cache' do
+  specify 'updating Namespace updates #cache' do
     i = Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: specimen1, identifier: 123)
     original = i.cached
-    namespace.update!(short_name: 'foo', verbatim_short_name: 'bar')
-    expect(i.reload.cached).to_not eq(original)
+    namespace.update!(short_name: 'cache_test_short', verbatim_short_name: 'cache_test_verbatim_short', delimiter: ':delimiter-test:')
+    expect(i.reload.cached).to eq("cache_test_verbatim_short:delimiter-test:123")
   end
 
 

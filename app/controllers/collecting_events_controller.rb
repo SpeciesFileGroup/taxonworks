@@ -81,11 +81,11 @@ class CollectingEventsController < ApplicationController
     @collecting_event.destroy
     respond_to do |format|
       if @collecting_event.destroyed?
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was successfully destroyed.')}
-        format.json {head :no_content}
+        format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was successfully destroyed.' }
+        format.json { head :no_content }
       else
-        format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; '))}
-        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+        format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; ') }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -261,7 +261,7 @@ class CollectingEventsController < ApplicationController
   private
 
   def set_collecting_event
-    @collecting_event = CollectingEvent.with_project_id(sessions_current_project_id).find(params[:id])
+    @collecting_event = CollectingEvent.where(project_id: sessions_current_project_id).find(params[:id])
     @recent_object = @collecting_event
   end
 
@@ -297,47 +297,64 @@ class CollectingEventsController < ApplicationController
   def filter_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collection_objects,
+      :collector_id,
       :collector_ids_or,
       :end_date,   # used in date range
       :geo_json,
+      :geographic_area_id,
       :in_labels,
       :in_verbatim_locality,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
       :md5_verbatim_label,
+      :otu_id,
       :partial_overlap_dates,
       :radius,
       :recent,
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      collector_id: [],
+      geographic_area_id: [],
       keyword_id_and: [],
       keyword_id_or: [],
-      spatial_geographic_area_ids: [],
-      geographic_area_ids: [],
-      otu_ids: [],
-      collector_ids: [],
+      otu_id: [],
     )
   end
 
   def api_params
     params.permit(
       Queries::CollectingEvent::Filter::ATTRIBUTES,
+      :collection_objects,
+      :collector_id,
       :collector_ids_or,
-      :end_date,   # used in date range
+      :end_date, # used in date range
       :geo_json,
+      :geographic_area_id,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      :identifiers,
       :in_labels,
       :in_verbatim_locality,
       :md5_verbatim_label,
       :partial_overlap_dates,
+      :otu_id,
       :radius,
       :recent,
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
-      keyword_ids: [],
-      spatial_geographic_area_ids: [],
-      geographic_area_ids: [],
-      otu_ids: [],
-      collector_ids: [],
+      collector_id: [],
+      geographic_area_id: [],
+      keyword_id_and: [],
+      keyword_id_or: [],
+      otu_id: [],
     )
   end
 

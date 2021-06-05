@@ -1,7 +1,7 @@
 <template>
   <div>
     <label class="display-block">Identified to rank</label>
-    <select v-model="filters.identified_to_rank">
+    <select v-model="rankSelected">
       <option
         v-for="(rank, index) in ranks"
         :key="index">
@@ -13,20 +13,25 @@
 
 <script>
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
 export default {
+  props: {
+    value: {
+      type: String,
+      default: undefined
+    }
+  },
+
   computed: {
-    filters: {
+    rankSelected: {
       get () {
-        return this.$store.getters[GetterNames.GetParamsFilter]
+        return this.value
       },
       set (value) {
-        this.$store.commit(MutationNames.SetParamsFilter, value)
+        this.$emit('input', value)
       }
     }
   },
+
   data () {
     return {
       ranks: [undefined, 'otu', 'subspecies', 'species', 'subgenus', 'genus', 'subtribe', 'tribe', 'subfamily', 'family']

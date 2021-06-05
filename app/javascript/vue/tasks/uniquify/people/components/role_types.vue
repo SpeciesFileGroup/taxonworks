@@ -18,7 +18,7 @@
 
 <script>
 
-import { GetRoleTypes } from '../request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   props: {
@@ -27,6 +27,7 @@ export default {
       required: true
     }
   },
+
   computed: {
     selected: {
       get () {
@@ -37,12 +38,14 @@ export default {
       }
     }
   },
-  mounted () {
-    GetRoleTypes().then(response => {
+
+  created () {
+    People.roleTypes().then(response => {
       this.roleTypes = response.body
     })
   },
-  data() {
+
+  data () {
     return {
       roleTypes: {}
     }

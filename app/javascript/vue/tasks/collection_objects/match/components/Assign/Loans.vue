@@ -49,7 +49,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
 import { UpdateLoan } from '../../request/resources'
 

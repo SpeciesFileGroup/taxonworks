@@ -3,24 +3,24 @@ module Queries
 
     class Filter
 
-      # TODO:
-      # identifiers
+      include Queries::Helpers
 
       include Queries::Concerns::Tags
       include Queries::Concerns::DateRanges
+      include Queries::Concerns::Identifiers
 
       # TODO: likely move to model (replicated in Source too)
       # Params exists for all CollectingEvent attributes except these
-      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at})
+      ATTRIBUTES = (::CollectingEvent.column_names - %w{project_id created_by_id updated_by_id created_at updated_at geographic_area_id})
       ATTRIBUTES.each do |a|
         class_eval { attr_accessor a.to_sym }
       end
 
-      PARAMS = %w{collector_ids
+      PARAMS = %w{collector_id
         collector_ids_or
         spatial_geographic_areas
         wkt
-        geographic_area_ids
+        geographic_area_id
         start_date
         end_date
         radius
@@ -63,19 +63,19 @@ module Queries
       #   match only CollectionObjects mapped to CollectingEvents that
       #   have these specific ids.  No spatial calculations are included
       #   in this parameter by default.  See 'spatial_geographic_areas = true'.
-      attr_accessor :geographic_area_ids
+      attr_accessor :geographic_area_id
 
       # @return [Array]
       #   values are ATTRIBUTES that should be wildcarded
       attr_accessor :collecting_event_wildcards
 
-      # TODO: singularize and handle array or single
+      # DONE: singularize and handle array or single
       # @return [Array]
-      attr_accessor :otu_ids
+      attr_accessor :otu_id
 
-      # TODO: singularize and handle array or single
+      # DONE: singularize and handle array or single
       # @return [Array]
-      attr_accessor :collector_ids
+      attr_accessor :collector_id
 
       # @return [Boolean]
       # @param collector_ids_or [String]
@@ -83,23 +83,34 @@ module Queries
       #   'false', nil - all ids treated as "and"
       attr_accessor :collector_ids_or
 
+      # @param collection_objects [String, nil]
+      #   legal values are 'true', 'false'
+      #   `true` - match only CollectingEvents with associated CollectionObjects
+      #   `false` - match only CollectingEvents without associated CollectionObjects
+      # @return collection_objects [Boolean, nil]
+      #
+      #  whether the CollectingEvent has associated CollectionObjects
+      attr_accessor :collection_objects
+
       def initialize(params)
         # @spatial_geographic_area_ids = params[:spatial_geographic_areas].blank? ? [] : params[:spatial_geographic_area_ids]
 
         @collecting_event_wildcards = params[:collecting_event_wildcards] || []
-        @collector_ids = params[:collector_ids].blank? ? [] : params[:collector_ids]
-        @collector_ids_or = (params[:collector_ids_or]&.downcase == 'true' ? true : false) if !params[:collector_ids_or].nil?
+        @collector_id = params[:collector_id].blank? ? [] : params[:collector_id]
+        @collector_ids_or = boolean_param(params, :collector_ids_or )
+        @collection_objects = boolean_param(params, :collection_objects )
         @geo_json = params[:geo_json]
-        @geographic_area_ids = params[:geographic_area_ids].blank? ? [] : params[:geographic_area_ids]
+        @geographic_area_id = params[:geographic_area_id]
         @in_labels = params[:in_labels]
         @in_verbatim_locality = params[:in_verbatim_locality]
         @md5_verbatim_label = (params[:md5_verbatim_label]&.downcase == 'true' ? true : false) if !params[:md5_verbatim_label].nil?
-        @otu_ids = params[:otu_ids].blank? ? [] : params[:otu_ids]
+        @otu_id = params[:otu_id].blank? ? [] : params[:otu_id]
         @radius = params[:radius].blank? ? 100 : params[:radius]
         @recent = params[:recent].blank? ? nil : params[:recent].to_i
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
         @wkt = params[:wkt]
 
+        set_identifier(params)
         set_tags_params(params)
         set_attributes(params)
         set_dates(params)
@@ -109,6 +120,18 @@ module Queries
         ATTRIBUTES.each do |a|
           send("#{a}=", params[a.to_sym])
         end
+      end
+
+      def collector_id
+        [@collector_id].flatten.compact
+      end
+
+      def geographic_area_id
+        [@geographic_area_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
       end
 
       # @return [Arel::Table]
@@ -136,9 +159,16 @@ module Queries
         c
       end
 
+      # @return Scope
+      def collection_objects_facet
+        return nil if collection_objects.nil?
+        subquery = ::CollectionObject.where(::CollectionObject.arel_table[:collecting_event_id].eq(::CollectingEvent.arel_table[:id])).arel.exists
+        ::CollectingEvent.where(collection_objects ? subquery : subquery.not)
+      end
+
       # TODO: dry with Source, TaxonName, etc.
       def collector_ids_facet
-        return nil if collector_ids.empty?
+        return nil if collector_id.empty?
         o = table
         r = ::Role.arel_table
 
@@ -155,11 +185,11 @@ module Queries
         )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(collector_ids)
+        f = c[:person_id].eq_any(collector_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(collector_ids.length)) unless collector_ids_or
+        b = b.having(a['id'].count.eq(collector_id.length)) unless collector_ids_or
         b = b.as('col_z_')
 
         ::CollectingEvent.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
@@ -204,8 +234,8 @@ module Queries
 
        # TODO: throttle by size?
        def matching_spatial_via_geographic_area_ids
-          return nil unless spatial_geographic_areas && !geographic_area_ids.empty?
-          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_ids).ids
+          return nil unless spatial_geographic_areas && !geographic_area_id.empty?
+          a = ::GeographicItem.default_by_geographic_area_ids(geographic_area_id).ids
         ::CollectingEvent.joins(:geographic_items).where( ::GeographicItem.contained_by_where_sql( a ) )
       end
 
@@ -222,14 +252,14 @@ module Queries
         table[:md5_of_verbatim_label].eq(md5)
       end
 
-      def matching_geographic_area_ids
-        return nil if geographic_area_ids.empty? || spatial_geographic_areas
-        table[:geographic_area_id].eq_any(geographic_area_ids)
+      def matching_geographic_area_id
+        return nil if geographic_area_id.empty? || spatial_geographic_areas
+        table[:geographic_area_id].eq_any(geographic_area_id)
       end
 
       def matching_otu_ids
-        return nil if otu_ids.empty?
-        ::CollectingEvent.joins(:otus).where(otus: {id: otu_ids}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
+        return nil if otu_id.empty?
+        ::CollectingEvent.joins(:otus).where(otus: {id: otu_id}) #  table[:geographic_area_id].eq_any(geographic_area_ids)
       end
 
       def matching_verbatim_locality
@@ -245,7 +275,7 @@ module Queries
 
         clauses += [
           between_date_range,
-          matching_geographic_area_ids,
+          matching_geographic_area_id,
           matching_verbatim_label_md5,
           matching_any_label,
           matching_verbatim_locality,
@@ -256,12 +286,17 @@ module Queries
 
       def base_merge_clauses
         clauses = [
+          collection_objects_facet,
           keyword_id_facet,
           matching_otu_ids,
           wkt_facet,
           geo_json_facet,
           collector_ids_facet,
-          matching_spatial_via_geographic_area_ids
+          matching_spatial_via_geographic_area_ids,
+          identifiers_facet,      # See Queries::Concerns::Identifiers
+          identifier_between_facet,
+          identifier_facet, # See Queries::Concerns::Identifiers
+          identifier_namespace_facet,
         ].compact!
         clauses
       end

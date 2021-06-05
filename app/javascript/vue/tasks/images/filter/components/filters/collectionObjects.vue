@@ -27,30 +27,32 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
-import { GetCollectionObject } from '../../request/resources'
+import Autocomplete from 'components/ui/Autocomplete'
+import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   props: {
     value: {
       type: Array,
       required: true
     }
   },
+
   data () {
     return {
       coStore: []
     }
   },
+
   watch: {
     coStore (newVal) {
       this.$emit('input', newVal.map(otu => otu.id))
     }
   },
+
   created () {
     const params = URLParamsToJSON(location.href)
     if (params.collection_object_id) {
@@ -59,19 +61,16 @@ export default {
       })
     }
   },
+
   methods: {
     removeCo (index) {
       this.coStore.splice(index, 1)
     },
     addCo (id) {
-      GetCollectionObject(id).then(({ body }) => {
+      CollectionObject.find(id).then(({ body }) => {
         this.coStore.push(body)
       })
     }
   }
 }
 </script>
-
-<style>
-
-</style>

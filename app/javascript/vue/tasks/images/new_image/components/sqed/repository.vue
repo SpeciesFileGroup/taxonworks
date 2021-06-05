@@ -29,8 +29,8 @@
 
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import SmartSelector from 'components/smartSelector'
-import LockComponent from 'components/lock'
+import SmartSelector from 'components/ui/SmartSelector'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: {

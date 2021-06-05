@@ -28,11 +28,12 @@
 
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import { GetPreparationTypes } from '../../request/resource'
+import { PreparationType } from 'routes/endpoints'
 import SharedComponent from '../shared/lock.js'
 
 export default {
   mixins: [SharedComponent],
+
   computed: {
     collectionObject: {
       get () {
@@ -43,13 +44,15 @@ export default {
       }
     }
   },
+
   data () {
     return {
       coTypes: []
     }
   },
-  mounted() {
-    GetPreparationTypes().then(response => {
+
+  created () {
+    PreparationType.all().then(response => {
       this.coTypes = response.body
     })
   }

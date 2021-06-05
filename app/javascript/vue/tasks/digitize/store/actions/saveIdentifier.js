@@ -1,20 +1,18 @@
 import { MutationNames } from '../mutations/mutations'
-import { CreateIdentifier, UpdateIdentifier } from '../../request/resources'
+import { Identifier } from 'routes/endpoints'
 import Vue from 'vue'
 
 export default function ({ commit, state }) {
   return new Promise((resolve, reject) => {
-    let identifier = state.identifier
+    const identifier = state.identifier
 
     identifier.identifier_object_type = state.container ? 'Container' : 'CollectionObject'
     if (state.collection_object.id && identifier.namespace_id && identifier.identifier && state.settings.saveIdentifier) {
       commit(MutationNames.SetIdentifierObjectId, state.container ? state.container.id : state.collection_object.id)
       if (identifier.id) {
-        UpdateIdentifier(identifier).then(response => {
+        Identifier.update(identifier.id, { identifier }).then(response => {
           commit(MutationNames.SetIdentifier, response.body)
-          const index = state.identifiers.findIndex(item => {
-            return item.id === response.body.id
-          })
+          const index = state.identifiers.findIndex(item => item.id === response.body.id)
           Vue.set(state.identifiers, index, response.body)
           return resolve(response.body)
         }, (response) => {
@@ -22,7 +20,7 @@ export default function ({ commit, state }) {
         })
       } else {
         if (!state.identifiers.length) {
-          CreateIdentifier(identifier).then(response => {
+          Identifier.create({ identifier }).then(response => {
             if (state.settings.increment) {
               response.body.identifier = state.identifier.identifier
             }

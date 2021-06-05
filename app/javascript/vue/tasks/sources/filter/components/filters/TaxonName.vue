@@ -35,7 +35,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetTaxonName } from '../../request/resources'
 

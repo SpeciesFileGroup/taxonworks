@@ -630,3 +630,12 @@ dwc_dashboard_task:
   categories:
     - collection_object
     - collecting_event
+new_extract_task:
+  hub: true
+  name: 'New extract'
+  related:
+  categories:
+    - dna
+    - new
+  status: prototype
+  description: 'Create new extracts, e.g. for DNA purposes.'

@@ -380,17 +380,17 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     #
     # And clauses
 
-    specify '#collector_ids' do
+    specify '#collector_id' do
       c = CollectingEvent.create!(collectors_attributes: [{last_name: 'Jones'}], verbatim_locality: 'Urbana')
       s = Specimen.create!(collecting_event: c)
       s2 = Specimen.create! # dummy to exclude
-      query.collecting_event_query.collector_ids = c.collectors.reload.pluck(:id)
+      query.collecting_event_query.collector_id = c.collectors.reload.pluck(:id)
       expect(query.all.pluck(:id)).to contain_exactly(s.id)
     end
 
-    specify '#geographic_area_ids' do
+    specify '#geographic_area_id' do
       ce1.update(geographic_area: FactoryBot.create(:valid_geographic_area))
-      query.collecting_event_query.geographic_area_ids = [ce1.geographic_area.id]
+      query.collecting_event_query.geographic_area_id = [ce1.geographic_area.id]
       expect(query.all.pluck(:id)).to contain_exactly(co1.id)
     end
 

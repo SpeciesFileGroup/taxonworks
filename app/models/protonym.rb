@@ -17,6 +17,10 @@ class Protonym < TaxonName
   include Protonym::SoftValidationExtensions::Instance
   include Protonym::Becomes
 
+  # @return [Boolean]
+  #   memoize `#is_avaiable?`
+  attr_reader :is_available
+
   alias_method :original_combination_source, :source
 
   FAMILY_GROUP_ENDINGS = %w{ini ina inae idae oidae odd ad oidea}.freeze
@@ -103,7 +107,7 @@ class Protonym < TaxonName
   # TODO: this is not really needed
   scope :named, -> (name) {where(name: name)}
 
-  scope :with_name_in_array, -> (array) {where('name in (?)', array)}
+  scope :with_name_in_array, -> (array) {where(name: array) }
 
   # find classifications for taxon
   scope :with_taxon_name_classifications_on_taxon_name, -> (t) { includes(:taxon_name_classifications).where('taxon_name_classifications.taxon_name_id = ?', t).references(:taxon_name_classifications) }
@@ -150,10 +154,10 @@ class Protonym < TaxonName
   end
 
   def self.family_group_name_at_rank(name_string, rank_string)
-    if name_string == family_group_base(name_string)
+    if name_string == Protonym.family_group_base(name_string)
       name_string
     else
-      family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
+      Protonym.family_group_base(name_string) + Ranks.lookup(:iczn, rank_string).constantize.try(:valid_name_ending).to_s
     end
   end
 
@@ -194,11 +198,15 @@ class Protonym < TaxonName
     if self.rank_string
       r = self.iczn_set_as_incorrect_original_spelling_of_relationship
       if r.blank?
-        search_rank = NomenclaturalRank::Iczn.group_base(self.rank_string)
+        search_rank = NomenclaturalRank::Iczn.group_base(rank_string)
         if !!search_rank
           if search_rank =~ /Family/
-            z = Protonym.that_is_valid.family_group_base(self.name)
-            search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
+            if self.cached_is_valid
+              z = Protonym.family_group_base(self.name)
+              search_name = z.nil? ? nil : Protonym::FAMILY_GROUP_ENDINGS.collect{|i| z+i}
+            else
+              search_name = nil
+            end
           else
             search_name = self.name
           end
@@ -206,11 +214,15 @@ class Protonym < TaxonName
           search_name = nil
         end
 
-        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
-        if !search_name.nil? && r.empty?
-          list = Protonym.ancestors_and_descendants_of(self).not_self(self).that_is_valid.
-            with_rank_class_including(search_rank).
-            where('name in (?)', search_name)
+#        r = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+#        if !search_name.nil? && r.empty?
+        if !search_name.nil? && is_available?
+          list = Protonym
+            .that_is_valid
+            .ancestors_and_descendants_of(self)
+            .not_self(self)
+            .with_rank_class_including(search_rank)
+            .where(name: search_name)
         else
           list = []
         end
@@ -221,8 +233,13 @@ class Protonym < TaxonName
     return list
   end
 
-  def is_available?
-    !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+  def is_available?(refresh = false)
+    if !refresh
+      @is_available ||= !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+    else
+      @is_available = !has_misspelling_relationship? && !name_is_misapplied? && !classification_invalid_or_unavailable?
+    end
+    @is_available
   end
 
   # @return [Protonym]
@@ -352,7 +369,7 @@ class Protonym < TaxonName
       else
         Ranks.lookup(ncode, 'family').constantize.valid_parents.each do |r1|
           r2 = r1.constantize
-          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && RANKS.index(r1) > RANKS.index(parent_rank)
+          if !r2.valid_name_ending.blank? && child_string.end_with?(r2.valid_name_ending) && r2.typical_use && RANKS.index(r1) > RANKS.index(parent_rank)
             r = r1
             break
           end
@@ -361,11 +378,6 @@ class Protonym < TaxonName
       end
     else
       return nil
-
-#      RANKS.index(rank_string) <= RANKS.index(parent.rank_string)
-#      Ranks.lookup(:iczn, 'species')
-# .valid_name_ending
-#FAMILY_AND_ABOVE_RANK_NAMES
     end
     r.constantize
   end
@@ -465,11 +477,6 @@ class Protonym < TaxonName
   #   whether this name has one of the TaxonNameRelationships which justify wrong form of the name
   def has_misspelling_relationship?
     taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING).any?
-
-   #taxon_name_relationships.each do |tr|
-   #  return true if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING.include?(tr.type)
-   #end
-   #false
   end
 
   # Same as is_original_name?!
@@ -486,7 +493,11 @@ class Protonym < TaxonName
   end
 
   def is_genus_or_species_rank?
-    is_species_rank? || is_genus_rank?
+    GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
+  end
+
+  def is_family_or_genus_or_species_rank?
+    FAMILY_AND_GENUS_AND_SPECIES_RANK_NAMES .include?(rank_string)
   end
 
   def is_family_rank?
@@ -808,9 +819,10 @@ class Protonym < TaxonName
       classified_as_relationships = TaxonNameRelationship.where_object_is_taxon_name(self).with_type_contains('SourceClassifiedAs')
 
       dependants.each do |i|
+        n = i.get_full_name
         columns_to_update = {
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html,
+          cached: n,
+          cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date
         }
@@ -829,9 +841,10 @@ class Protonym < TaxonName
 
       # Update values in Combinations
       combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |j|
+        n = j.get_full_name
         j.update_columns(
-          cached: j.get_full_name,
-          cached_html: j.get_full_name_html,
+          cached: n,
+          cached_html: j.get_full_name_html(n),
           cached_author_year: j.get_author_and_year,
           cached_nomenclature_date: j.nomenclature_date)
       end
@@ -841,9 +854,10 @@ class Protonym < TaxonName
       end
 
       classified_as_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
+        n = i.get_full_name
         i.update_columns(
-          cached: i.get_full_name,
-          cached_html: i.get_full_name_html,
+          cached: n,
+          cached_html: i.get_full_name_html(n),
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end
@@ -863,7 +877,6 @@ class Protonym < TaxonName
 
   protected
 
-  # TODO: move to Protonym
   def check_new_parent_class
     if is_protonym? && parent_id != parent_id_was && !parent_id_was.nil? && nomenclatural_code == :iczn
       if old_parent = TaxonName.find_by(id: parent_id_was)
@@ -932,6 +945,31 @@ class Protonym < TaxonName
     end
   end
 
+  def sv_cached_names # this cannot be moved to soft_validation_extensions
+    is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
+
+    if is_cached && (
+        cached_valid_taxon_name_id != get_valid_taxon_name.id ||
+        cached_is_valid != !unavailable_or_invalid? || # Do not change this, we want the calculated value.
+        cached_html != get_full_name_html ||
+        cached_misspelling != get_cached_misspelling ||
+        cached_original_combination != get_original_combination ||
+        cached_original_combination_html != get_original_combination_html ||
+        cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
+        rank_string =~ /Species/ &&
+            (cached_secondary_homonym != get_genus_species(:current, :self) ||
+                cached_secondary_homonym_alternative_spelling != get_genus_species(:current, :alternative)))
+      is_cached = false
+    end
+
+    soft_validations.add(
+        :base, 'Cached values should be updated',
+        success_message: 'Cached values were updated',
+        failure_message:  'Failed to update cached values') if !is_cached
+  end
+
   def set_cached
     super
     set_cached_names_for_dependants
@@ -961,40 +999,5 @@ class Protonym < TaxonName
   def set_cached_original_combination_html
     update_column(:cached_original_combination_html, get_original_combination_html)
   end
-
-  # Validate whether cached names need to be rebuilt.
-  #
-  # TODO: this is kind of pointless, we generate
-  # all the values need for cached, names, at that point
-  # the cached values should just be persisted
-  # The logic here also duplicates the tracking
-  # needed for building cached names.
-  #
-  # Refactor this to single methods, one each to validate
-  # cached name?
-  #
-  def sv_cached_names
-    is_cached = true
-    is_cached = false if cached_author_year != get_author_and_year
-
-    if is_cached && cached_html != get_full_name_html ||
-      cached_misspelling != get_cached_misspelling ||
-      cached_original_combination != get_original_combination ||
-      cached_original_combination_html != get_original_combination_html ||
-      cached_primary_homonym != get_genus_species(:original, :self) ||
-      cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
-      rank_string =~ /Species/ &&
-        (cached_secondary_homonym != get_genus_species(:current, :self) ||
-          cached_secondary_homonym_alternative_spelling != get_genus_species(:current,
-                                                                             :alternative))
-      is_cached = false
-    end
-
-    soft_validations.add(
-      :base, 'Cached values should be updated',
-      fix: :sv_fix_cached_names, success_message: 'Cached values were updated'
-    ) if !is_cached
-  end
-
 end
 

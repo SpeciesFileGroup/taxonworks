@@ -20,13 +20,18 @@ module TaxonNamesHelper
       content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass),
       taxon_name_rank_tag(taxon_name),
       taxon_name_parent_tag(taxon_name),
-      taxon_name_original_combination_tag(taxon_name)
+      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_type_short_tag(taxon_name)
     ].compact.join('&nbsp;').html_safe
   end
 
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
+    taxon_name_label(taxon_name)
+  end
+
+  def taxon_name_label(taxon_name)
     return nil if taxon_name.nil?
     [taxon_name.cached, taxon_name.cached_author_year].compact.join(' ')
   end
@@ -105,7 +110,7 @@ module TaxonNamesHelper
   def taxon_name_type_short_tag(taxon_name)
     return nil if taxon_name.nil?
     if taxon_name.is_valid?
-      '&#10003;'.html_safe # check
+      '&#10003;'.html_safe # checkmark
     else
       taxon_name.type == 'Combination' ? '[c]' : '&#10060;'.html_safe # c or X
     end
@@ -133,7 +138,7 @@ module TaxonNamesHelper
 
       (s.join(' ') + '.').html_safe
     else
-      if taxon_name.unavailable_or_invalid?
+      if !taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
         content_tag(:span, "This name is not valid/accepted.<br>The valid name is #{taxon_name_browse_link(taxon_name.valid_taxon_name)}.".html_safe, class: :brief_status, data: {icon: :attention, status: :invalid})
       else
         content_tag(:span, 'This name is valid/accepted.', class: :brief_status, data: {icon: :ok, status: :valid })

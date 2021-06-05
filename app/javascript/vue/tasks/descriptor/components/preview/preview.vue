@@ -31,8 +31,8 @@
 </template>
 <script>
 
-import RadialAnnotator from '../../../../components/radials/annotator/annotator.vue'
-import Modal from '../../../../components/modal.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import Modal from 'components/ui/Modal.vue'
 
 export default {
   components: {

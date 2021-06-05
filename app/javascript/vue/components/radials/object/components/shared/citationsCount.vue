@@ -39,7 +39,7 @@
 
 import CRUD from '../../request/crud.js'
 import DisplayList from 'components/displayList'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   mixins: [CRUD],

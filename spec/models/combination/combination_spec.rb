@@ -43,19 +43,19 @@ describe Combination, type: :model, group: :nomenclature do
       expect(p.becomes_combination).to be_truthy
     end
 
-    specify 'soft_validation does not fix with the scope = :automatic' do
+    specify 'soft_validation does not fix without flag' do
       p.update(original_genus: genus, original_species: p)
       invalidating_relationship
-      p.soft_validate(:protonym_to_combination)
+      p.soft_validate(only_sets: :protonym_to_combination)
       p.fix_soft_validations
       expect(p.type).to eq('Protonym')
     end
 
-    specify 'soft_validation fixes with the scope = :requested' do
+    specify 'soft_validation fixes with when flagged' do
       p.update(original_genus: genus, original_species: p)
       invalidating_relationship
-      p.soft_validate(:protonym_to_combination)
-      p.fix_soft_validations(scope = :requested)
+      p.soft_validate(only_sets: :protonym_to_combination, include_flagged: true)
+      p.fix_soft_validations
       expect(p.type).to eq('Combination')
     end
 
