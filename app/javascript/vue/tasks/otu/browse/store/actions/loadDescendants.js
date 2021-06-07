@@ -1,6 +1,10 @@
-import { GetTaxonNames, GetCollectingEvents, GetGeoreferences } from '../../request/resources'
 import { MutationNames } from '../mutations/mutations'
 import { chunkArray } from 'helpers/arrays.js'
+import {
+  Georeference,
+  TaxonName,
+  CollectingEvent
+} from 'routes/endpoints'
 
 const MAX_PER_CALL = 50
 
@@ -13,7 +17,7 @@ function getAllCollectingEvents (taxonNames) {
     if (chunks.length) {
       chunks.forEach(ids => {
         if (ids.length) {
-          promises.push(GetCollectingEvents([].concat(...ids)).then(response => {
+          promises.push(CollectingEvent.where({ otu_id: [].concat(...ids) }).then(response => {
             collectingEvents.push(response.body)
           }))
         }
@@ -36,16 +40,17 @@ function getAllCollectingEvents (taxonNames) {
 function getAllGeoreferences(CEIds) {
   return new Promise((resolve, reject) => {
     const chunks = chunkArray(CEIds, MAX_PER_CALL)
-    var georeferences = []
-    var promises = []
+    const georeferences = []
+    const promises = []
 
     if (chunks.length) {
       chunks.forEach(ids => {
-        promises.push(GetGeoreferences(ids).then(response => {
+        promises.push(Georeference.where({ collecting_event_ids: ids }).then(response => {
           georeferences.push(response.body)
         }))
       })
     }
+
     Promise.all(promises).then(() => {
       resolve([].concat(...georeferences))
     })
@@ -64,17 +69,18 @@ export default ({ commit, state }, otu) => {
     georeferences: []
   }
 
-  GetTaxonNames(params).then(response => {
+  TaxonName.where(params).then(response => {
     descendants.taxon_names = response.body.filter(tn => tn.id !== otu.taxon_name_id)
-    state.loadState.descendants = false
 
     getAllCollectingEvents(descendants.taxon_names).then(collectingEvents => {
       descendants.collecting_events = collectingEvents
       getAllGeoreferences(collectingEvents.map(ce => ce.id)).then(georeferences => {
-        descendants.georeferences = georeferences
         state.loadState.descendantsDistribution = false
+        descendants.georeferences = georeferences
         commit(MutationNames.SetDescendants, descendants)
       })
     })
+  }).finally(() => {
+    state.loadState.descendants = false
   })
 }
