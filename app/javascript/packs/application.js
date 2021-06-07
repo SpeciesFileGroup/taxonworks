@@ -12,8 +12,8 @@ import 'regenerator-runtime/runtime'
 // Styles
 require('leaflet/dist/leaflet.css')
 
-require('../vue/config.js')
-require('../vue/tasks/citations/otus/main.js')
+/* require('../vue/config.js') */
+require('../vue/tasks/citations/otus/main.js')/* 
 require('../vue/tasks/content/editor/main.js')
 require('../vue/tasks/nomenclature/new_taxon_name/main.js')
 require('../vue/tasks/loan/main.js')
@@ -34,8 +34,8 @@ require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')
 require('../vue/tasks/descriptor/main.js')
-require('../vue/tasks/observation_matrices/new/main.js')
-require('../vue/tasks/clipboard/main.js')
+require('../vue/tasks/observation_matrices/new/main.js') */
+require('../vue/tasks/clipboard/main.js') /* 
 require('../vue/tasks/uniquify/people/main.js')
 require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
@@ -65,4 +65,4 @@ require('../vue/tasks/collection_objects/match/main.js')
 require('../vue/tasks/sources/filter/main.js')
 require('../vue/tasks/collecting_events/new_collecting_event/main.js')
 require('../vue/tasks/interactive_keys/main.js')
-require('../vue/tasks/extracts/new_extract/main.js')
+require('../vue/tasks/extracts/new_extract/main.js') */
