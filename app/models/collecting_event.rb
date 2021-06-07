@@ -719,7 +719,6 @@ class CollectingEvent < ApplicationRecord
     h
   end
 
-
   # @return [Symbol, nil]
   #   determines (prioritizes) the method to be used to decided the geographic name classification
   #   (string labels for country, state, county) for this collecting_event.
@@ -968,6 +967,10 @@ class CollectingEvent < ApplicationRecord
       end
     end
     nil
+  end
+
+  def has_cached_geographic_names?
+    cached_geographic_name_classification != {}
   end
 
   protected

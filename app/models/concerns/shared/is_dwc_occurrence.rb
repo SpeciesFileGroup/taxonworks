@@ -20,7 +20,7 @@ module Shared::IsDwcOccurrence
 
   module ClassMethods
     def dwc_attribute_vector
-      t = ::DwcOccurrence.arel_table 
+      t = ::DwcOccurrence.arel_table
       s = self.arel_table
       k = self::DwcExtensions::DWC_OCCURRENCE_MAP.keys.sort
       [ s[:id], t[:id], t[:dwc_occurrence_object_type], *k.collect{|a| t[a]} ]
@@ -60,8 +60,12 @@ module Shared::IsDwcOccurrence
     end
 
     a[:project_id] = project_id
+
+    # TODO: semantics of these may need to be revisited, particularly updated_by_id
     a[:created_by_id] = created_by_id
     a[:updated_by_id] = updated_by_id
+
+    a[:updated_at] = Time.now
     a
   end
 

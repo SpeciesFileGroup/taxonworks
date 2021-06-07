@@ -163,13 +163,13 @@ module CollectionObject::DwcExtensions
   def dwc_other_catalog_numbers
     i = identifiers.order(:position).to_a
     i.shift
-    i.map(&:cached).join(' | ')
+    i.map(&:cached).join(' | ').presence
   end
 
   def dwc_previous_identifications
     a = taxon_determinations.order(:position).to_a
     a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(' | ')
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(' | ').presence
   end
 
   def dwc_water_body
@@ -177,7 +177,7 @@ module CollectionObject::DwcExtensions
     collecting_event.internal_attributes.includes(:predicate) 
       .where(
         controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:waterBody] })
-      .pluck(:value)&.join(', ')
+      .pluck(:value)&.join(', ').presence
   end
 
   # TODO: consider CVT attributes with predicates linked to URIs
@@ -185,7 +185,7 @@ module CollectionObject::DwcExtensions
     biocuration_classes
       .where(
         controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:lifeStage] })
-      .pluck(:name)&.join(', ')
+      .pluck(:name)&.join(', ').presence # `.presence` is a Rails extension
   end
 
   # TODO: consider CVT attributes with predicates linked to URIs
@@ -193,12 +193,12 @@ module CollectionObject::DwcExtensions
     biocuration_classes
       .where(
         controlled_vocabulary_terms: {uri: DWC_ATTRIBUTE_URIS[:sex] })
-      .pluck(:name)&.join(', ')
+      .pluck(:name)&.join(', ').presence
   end
 
   def dwc_verbatim_coordinates
     return nil unless collecting_event
-    [collecting_event.verbatim_latitude, collecting_event.verbatim_latitude].compact.join(' ')
+    [collecting_event.verbatim_latitude, collecting_event.verbatim_latitude].compact.join(' ').presence
   end
 
   def dwc_verbatim_elevation
@@ -246,7 +246,7 @@ module CollectionObject::DwcExtensions
   def dwc_type_status
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
-    }.join(' | ')
+    }.join(' | ').presence
   end
 
   # ISO 8601:2004(E).
@@ -280,12 +280,12 @@ module CollectionObject::DwcExtensions
 
   # http://rs.tdwg.org/dwc/terms/genus
   def dwc_genus
-    taxonomy['genus'] && taxonomy['genus'].compact.join(' ')
+    taxonomy['genus'] && taxonomy['genus'].compact.join(' ').presence
   end
 
   # http://rs.tdwg.org/dwc/terms/species
   def dwc_specific_epithet
-    taxonomy['species'] && taxonomy['species'].compact.join(' ')
+    taxonomy['species'] && taxonomy['species'].compact.join(' ').presence
   end
 
   def dwc_scientific_name
@@ -304,24 +304,24 @@ module CollectionObject::DwcExtensions
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
-      .uniq.map(&:cached).join(' | ')
+      .uniq.map(&:cached).join(' | ').presence
   end 
 
   def dwc_recorded_by_id
     # TODO: raw SQL this mess?
     ( determiners.includes(:roles).order('taxon_determinations.position, roles.position').to_a + 
      (collecting_event ? collecting_event&.collectors.includes(:roles).order('roles.position').to_a : [])) 
-      .uniq.map(&:orcid).join(' | ')
+      .uniq.map(&:orcid).join(' | ').presence
   end 
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:cached)&.join(' | ')
+    current_taxon_determination&.determiners&.map(&:cached)&.join(' | ').presence
   end
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    current_taxon_determination&.determiners&.map(&:orcid)&.join(' | ')
+    current_taxon_determination&.determiners&.map(&:orcid)&.join(' | ').presence
   end
 
   def dwc_institution_code
@@ -382,7 +382,7 @@ module CollectionObject::DwcExtensions
       }
       .map { |t| t.compact.join(':') }
       .reject(&:blank?)
-      .join("/")
+      .join("/").presence
   end
 
   def dwc_event_date
@@ -395,7 +395,7 @@ module CollectionObject::DwcExtensions
       }
       .map { |d| d.compact.join('-') }
       .reject(&:blank?)
-      .join("/")
+      .join("/").presence
   end
 
   def dwc_preparations

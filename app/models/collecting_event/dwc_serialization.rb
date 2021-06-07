@@ -19,5 +19,4 @@ module CollectingEvent::DwcSerialization
     }
   end
 
-
 end

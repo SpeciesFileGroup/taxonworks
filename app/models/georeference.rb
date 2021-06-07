@@ -71,7 +71,6 @@ class Georeference < ApplicationRecord
   include Shared::Confidences # qualitative, not spatial 
   include Shared::IsData
 
-
   attr_accessor :iframe_response # used to pass the geolocate from Tulane through
 
   acts_as_list scope: [:collecting_event_id, :project_id]
@@ -83,12 +82,12 @@ class Georeference < ApplicationRecord
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
 
   has_many :georeferencer_roles, -> { order('roles.position ASC') },
-           class_name: 'Georeferencer',
-           as: :role_object, validate: true
-  
+    class_name: 'Georeferencer',
+    as: :role_object, validate: true
+
   has_many :georeferencers, -> { order('roles.position ASC') },
-           through: :georeferencer_roles,
-           source: :person, validate: true
+    through: :georeferencer_roles,
+    source: :person, validate: true
 
   validates :collecting_event, presence: true
   validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
