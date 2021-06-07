@@ -272,6 +272,7 @@ class ImageMatrix
     else
       depictions = @observation_matrix.observation_depictions
     end
+
     descriptors_count = @list_of_descriptors.count
     @row_hash.each do |r_key, r_value|
       if (@row_id_filter_array.nil? && @otu_id_filter_array.nil?) ||
@@ -338,13 +339,13 @@ class ImageMatrix
   end
 
   def build_image_hash
-    if !@otu_filter.blank?
+    if !@otu_filter.blank? || !@row_filter.blank?
       img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
     else
       img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
     end
-    imgs = Image.where('id IN (?)', img_ids )
     h = {}
+    imgs = Image.where('id IN (?)', img_ids )
     imgs.each do |d|
       i = {}
       i[:global_id] = d.to_global_id.to_s
