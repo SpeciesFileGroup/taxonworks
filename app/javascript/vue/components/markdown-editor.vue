@@ -127,7 +127,7 @@ export default {
       this.showCustomLinks = true
     }
   },
-  destroyed () {
+  unmounted () {
     this.simplemde = null
   },
   watch: {

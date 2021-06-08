@@ -32,7 +32,7 @@ export default {
       }
     }
   },
-  destroyed () {
+  unmounted () {
     window.removeEventListener('scroll', this.setFixeable)
   }
 }

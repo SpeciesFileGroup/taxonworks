@@ -255,7 +255,7 @@ export default {
     document.addEventListener('smartselector:update', this.refresh)
   },
 
-  destroyed () {
+  unmounted () {
     document.removeEventListener('smartselector:update', this.refresh)
   },
 
@@ -303,7 +303,7 @@ export default {
       const index = this.lists[listName].findIndex(({ id }) => id === item.id)
 
       if (index > -1) {
-        this.$set(this.lists[listName], index, item)
+        this.lists[listName][index] = item
       } else {
         this.lists[listName].push(item)
       }
@@ -312,7 +312,7 @@ export default {
       const keys = Object.keys(this.customList)
       if (keys.length) {
         keys.forEach(key => {
-          this.$set(this.lists, key, this.customList[key])
+          this.lists[key] = this.customList[key]
           if (!this.lists[key]) {
             this.options.push(key)
             this.options = OrderSmart(this.options)

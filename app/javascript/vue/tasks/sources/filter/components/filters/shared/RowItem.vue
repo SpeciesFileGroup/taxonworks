@@ -5,8 +5,10 @@
     </td>
     <td>
       <div class="horizontal-center-content">
-        <template v-for="(value, key) in options">
-          <label :key="key">
+        <template
+          v-for="(value, key) in options"
+          :key="key">
+          <label>
             <input
               type="radio"
               v-model="fieldValue"

@@ -5,8 +5,7 @@
       <span
         data-icon="reset"
         class="cursor-pointer"
-        v-shortkey="[OSKey, 'r']"
-        @shortkey="resetFilter"
+        v-hotkey="shortcuts"
         @click="resetFilter">Reset
       </span>
     </div>
@@ -21,8 +20,6 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[OSKey, 'f']"
-        @shortkey="searchDepictions"
         @click="searchDepictions">
         Search
       </button>
@@ -58,7 +55,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import OSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import BiocurationsComponent from 'tasks/collection_objects/filter/components/filters/biocurations'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
@@ -67,6 +64,7 @@ import ScopeComponent from 'tasks/nomenclature/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'
+import hotkey from 'components/v-hotkey'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Image } from 'routes/endpoints'
 
@@ -82,11 +80,24 @@ export default {
     TagsComponent,
     ScopeComponent
   },
+
+  directives: {
+    hotkey
+  },
+
   computed: {
-    OSKey,
     emptyParams () {
       if (!this.params) return
       return !this.params.depictions
+    },
+
+    shortcuts() {
+      const keys = {}
+
+      keys[`${platformKey()}+f`] = this.searchDepictions
+      keys[`${platformKey()}+r`] = this.resetFilter
+
+      return keys
     }
   },
   data () {

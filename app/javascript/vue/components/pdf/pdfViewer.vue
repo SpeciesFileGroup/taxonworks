@@ -124,7 +124,7 @@ export default {
   mounted() {
     this.eventsListens()
   },
-  destroyed() {
+  unmounted () {
     document.removeEventListener("mouseover", this.loadPDF)
     this.channel.close()
   },

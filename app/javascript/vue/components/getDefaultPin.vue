@@ -53,7 +53,7 @@ export default {
     document.addEventListener('pinboard:insert', this.handleEvent)
   },
 
-  destroyed () {
+  unmounted () {
     document.removeEventListener('pinboard:insert', this.handleEvent)
   },
 

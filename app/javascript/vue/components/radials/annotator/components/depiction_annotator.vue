@@ -35,8 +35,7 @@
         Is data depiction
       </label>
       <div class="separate-top separate-bottom">
-        <p /><h4>Move to</h4>
-        </p>
+        <h4>Move to</h4>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
@@ -116,7 +115,6 @@
           @vdropzone-sending="sending"
           @vdropzone-success="success"
           ref="figure"
-          id="figure"
           url="/depictions"
           :use-custom-dropzone-options="true"
           :dropzone-options="dropzone"

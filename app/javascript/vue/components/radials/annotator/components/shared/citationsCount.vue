@@ -59,7 +59,7 @@ export default {
     document.addEventListener('radial:patch', this.refreshCitations)
     document.addEventListener('radial:delete', this.refreshCitations)
   },
-  destroyed() {
+  unmounted () {
     document.removeEventListener('radial:post', this.refreshCitations)
     document.removeEventListener('radial:patch', this.refreshCitations)
     document.removeEventListener('radial:delete', this.refreshCitations)
