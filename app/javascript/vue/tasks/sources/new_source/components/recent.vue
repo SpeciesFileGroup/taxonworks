@@ -57,13 +57,13 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 500px;
   }
   textarea {
     height: 100px;
   }
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 800px !important;
   }
 </style>

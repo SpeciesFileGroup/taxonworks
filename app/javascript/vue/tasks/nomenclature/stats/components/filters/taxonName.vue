@@ -106,7 +106,7 @@ export default {
   .field-year {
     width: 60px;
   }
-  ::v-deep .vue-autocomplete-list {
+  :deep(.vue-autocomplete-list) {
     min-width: 800px;
   }
 </style>

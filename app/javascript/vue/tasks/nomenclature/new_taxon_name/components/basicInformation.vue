@@ -2,7 +2,7 @@
   <block-layout
     class="basic-information"
     anchor="basic-information">
-    <template>
+    <template #header>
       <h3>Basic information</h3>
     </template>
     <template #body>

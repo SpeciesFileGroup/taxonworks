@@ -87,7 +87,7 @@
   }
 </script>
 <style lang="scss" scoped>
-  ::v-deep .otu_tag_taxon_name {
+  :deep(.otu_tag_taxon_name) {
     white-space: normal !important;
   }
 </style>

@@ -109,7 +109,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 
-  ::v-deep button {
+  :deep(button) {
     min-width: 80px;
     width: 100%;
   }

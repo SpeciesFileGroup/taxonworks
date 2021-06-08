@@ -195,7 +195,7 @@ export default {
     .filter {
       min-width: 300px;
     }
-    ::v-deep .vue-autocomplete-input {
+    :deep(.vue-autocomplete-input) {
       width: 100%;
     }
   }

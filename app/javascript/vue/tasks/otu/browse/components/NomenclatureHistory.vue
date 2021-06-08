@@ -337,7 +337,7 @@ export default {
   .hidden {
     display: none;
   }
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 900px;
   }
   .topic-section {
@@ -350,20 +350,20 @@ export default {
   .references_topics {
     color: black;
   }
-  ::v-deep .annotation__note {
+  :deep(.annotation__note) {
     display: inline;
   }
-  ::v-deep .hide-validations {
+  :deep(.hide-validations) {
     .soft_validation_anchor {
       display: none !important;
     }
   }
-  ::v-deep .hide-notes {
+  :deep(.hide-notes) {
     .history__citation_notes {
       display: none !important;
     }
   }
-  ::v-deep .hide-topics {
+  :deep(.hide-topics) {
     .history__citation_topics {
       display: none !important;
     }

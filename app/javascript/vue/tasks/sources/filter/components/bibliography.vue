@@ -153,7 +153,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     min-width: 80vw;
     min-height: 60vh;
   }

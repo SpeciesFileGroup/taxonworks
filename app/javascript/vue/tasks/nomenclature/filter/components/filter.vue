@@ -213,7 +213,7 @@ export default {
 }
 </script>
 <style scoped>
-::v-deep .btn-delete {
+  :deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>

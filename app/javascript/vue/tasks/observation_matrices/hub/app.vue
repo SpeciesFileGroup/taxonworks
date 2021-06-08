@@ -69,7 +69,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::v-deep .vue-autocomplete-input {
+:deep(.vue-autocomplete-input) {
   width: 100%;
 }
 </style>

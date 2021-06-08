@@ -98,7 +98,7 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 500px;
   }
   textarea {

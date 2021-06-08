@@ -213,11 +213,11 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .modal-body {
+  :deep(.modal-body) {
     max-height: 80vh;
     overflow-y: scroll;
   }
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 800px;
   }
 </style>

@@ -285,7 +285,7 @@ export default {
     height: 100px;
   }
 
-  ::v-deep .dz-message {
+  :deep(.dz-message) {
     margin: 1em 0 !important;
   }
 
