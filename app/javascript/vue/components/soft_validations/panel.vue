@@ -7,8 +7,10 @@
     </div>
     <div
       class="body overflow-y-auto">
-      <template v-for="(section, index) in validationSections">
-        <div :key="index">
+      <template 
+        v-for="(section, index) in validationSections"
+        :key="index">
+        <div>
           <h3>
             <span v-if="section.title">{{ section.title }}</span>
             <button
@@ -47,13 +49,14 @@
                 </button>
                 <span>
                   <span v-html="error.message" />
-                  <template v-for="(resolution, index) in error.resolution">
+                  <template
+                    v-for="(resolution, index) in error.resolution"
+                    :key="index">
                     <tippy-component
                       class="d-inline-block"
                       animation="scale"
                       placement="bottom"
                       size="small"
-                      :key="index"
                       inertia
                       arrow
                       content="Fixable here (may leave page)">

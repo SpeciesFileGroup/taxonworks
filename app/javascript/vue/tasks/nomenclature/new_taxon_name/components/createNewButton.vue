@@ -1,29 +1,27 @@
 <template>
-  <div
-    v-shortkey="[getMacKey(), 'p']"
-    @shortkey="createNewWithParent(true)">
-    <div
-      v-shortkey="[getMacKey(), 'd']"
-      @shortkey="createNewWithChild(true)"/>
+  <div>
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm</h3>
-      <div slot="body">Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to create a new taxon name? All unsaved changes will be lost.</div>
+      </template>
+      <template #footer>
         <button
           id="confirm-create-newtaxonname"
           @click="reloadPage()"
           type="button"
           class="normal-input button button-default">New
         </button>
-      </div>
+      </template>
     </modal>
     <button
       type="button"
       class="normal-input button button-default"
-      v-shortkey="[getMacKey(), 'n']"
-      @shortkey="createNew()"
+      v-hotkey="shortcuts"
       @click="createNew()">New
     </button>
   </div>
@@ -31,8 +29,9 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
-import Modal from 'components/ui/Modal.vue'
 import { RouteNames } from 'routes/routes'
+import Modal from 'components/ui/Modal.vue'
+import PlatformKey from 'helpers/getMacKey'
 
 export default {
   components: {
@@ -45,11 +44,20 @@ export default {
     getParent () {
       return this.$store.getters[GetterNames.GetParent]
     },
-    getTaxon() {
+    getTaxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${PlatformKey()}+p`] = this.createNewWithParent
+      keys[`${PlatformKey()}+d`] = this.createNewWithChild
+      keys[`${PlatformKey()}+n`] = this.createNew
+
+      return keys
     }
   },
-  data: function () {
+  data () {
     return {
       showModal: false,
       url: RouteNames.NewTaxonName

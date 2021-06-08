@@ -2,17 +2,20 @@
   <nav-bar class="position-relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
-        <li
-          class="navigation-item context-menu-option"
+        <template
           v-for="(link, key, index) in menu"
-          v-if="link">
-          <a
-            data-turbolinks="false"
-            :class="{ active : (activePosition == index)}"
-            :href="'#' + key.toLowerCase().replace(' ','-')"
-            @click="activePosition = index">{{ key }}
-          </a>
-        </li>
+          :key="key">
+          <li
+            class="navigation-item context-menu-option"
+            v-if="link">
+            <a
+              data-turbolinks="false"
+              :class="{ active : (activePosition == index)}"
+              :href="'#' + key.toLowerCase().replace(' ','-')"
+              @click="activePosition = index">{{ key }}
+            </a>
+          </li>
+        </template>
       </ul>
       <div class="horizontal-center-content">
         <save-taxon-name
@@ -82,7 +85,7 @@ export default {
       return this.$store.getters[GetterNames.GetAutosave]
     },
     parentId () {
-      return this.parent && this.parent.hasOwnProperty('id') ? this.parent.id : undefined
+      return this.parent?.id
     }
   },
   data () {

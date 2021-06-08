@@ -14,8 +14,8 @@ require('leaflet/dist/leaflet.css')
 
 /* require('../vue/config.js') */
 require('../vue/tasks/citations/otus/main.js')
-require('../vue/tasks/content/editor/main.js')/* 
-require('../vue/tasks/nomenclature/new_taxon_name/main.js')
+require('../vue/tasks/content/editor/main.js')
+require('../vue/tasks/nomenclature/new_taxon_name/main.js')/* 
 require('../vue/tasks/loan/main.js')
 require('../vue/tasks/observation_matrices/matrix_row_coder/main.js')
 require('../vue/initializers/annotator_init/main.js')

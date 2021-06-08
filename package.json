@@ -20,7 +20,7 @@
     "vue-hotkeys": "0.0.1",
     "vue-tippy": "^4.10.1",
     "vue-turbolinks": "^2.2.2",
-    "vuedraggable": "^2.24.3",
+    "vuedraggable": "^4.0.1",
     "vuex": "^4.0.1",
     "webpack-cli": "^3.3.12"
   },

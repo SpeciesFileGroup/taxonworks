@@ -3,11 +3,10 @@
     :warning="checkValidation"
     anchor="status"
     :spinner="!taxon.id">
-    <h3 slot="header">
-      Status
-    </h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Status</h3>
+    </template>
+    <template #body>
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -70,7 +69,7 @@
         :edit="true"
         :list="getStatusCreated"
         :display="['object_tag']"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 

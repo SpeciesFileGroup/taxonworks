@@ -1,8 +1,7 @@
 <template>
   <div id="new_taxon_name_task">
     <div
-      v-shortkey="[getOSKey, 'f']"
-      @shortkey="focusSearch"
+      v-hotkey="shortcuts"
       class="flex-separate middle">
       <h1>{{ (getTaxon.id ? 'Edit' : 'New') }} taxon name</h1>
       <div class="horizontal-right-content middle">
@@ -89,7 +88,7 @@ import ManagesynonymySection from './components/manageSynonym'
 import ClassificationSection from './components/classification.vue'
 import SoftValidation from 'components/soft_validations/panel.vue'
 import Spinner from 'components/spinner.vue'
-import getOSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 
 import { convertType } from 'helpers/types.js'
 import { GetterNames } from './store/getters/getters'
@@ -116,11 +115,15 @@ export default {
     ClassificationSection
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+f`] = this.focusSearch
+
+      return keys
+    },
     validations () {
       return this.$store.getters[GetterNames.GetSoftValidation]
-    },
-    getOSKey () {
-      return getOSKey()
     },
     getTaxon () {
       return this.$store.getters[GetterNames.GetTaxon]
@@ -212,17 +215,15 @@ export default {
       }
     },
     addShortcutsDescription () {
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+f`, 'Move focus to search', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+l`, 'Clone this taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'Create a new taxon name', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
-      TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save taxon name changes', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+d`, 'Create a child of this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Go to comprehensive specimen digitization', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+f`, 'Move focus to search', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+l`, 'Clone this taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'Create a new taxon name', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+p`, 'Create a new taxon name with the same parent', 'New taxon name')
+      TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save taxon name changes', 'New taxon name')
     },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
-    },
+
     isMinor: function () {
       let element = document.querySelector('#cright-panel')
       let navBar = document.querySelector('#taxonNavBar')

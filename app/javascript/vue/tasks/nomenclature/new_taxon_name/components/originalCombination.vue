@@ -18,44 +18,45 @@
         @autocomplete="searchForChanges(rankGroup,copyRankGroup)"
         @update="onUpdate"
         :move="onMove">
-        <div
-          v-for="(item, index) in rankGroup"
-          class="horizontal-left-content middle"
-          v-if="(GetOriginal(rankGroup[index].name).length == 0)"
-          :key="item.id">
-          <autocomplete
-            url="/taxon_names/autocomplete"
-            label="label_html"
-            min="2"
-            :disabled="disabled"
-            clear-after
-            @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
-            event-send="autocomplete"
-            :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
-            param="term"/>
-          <span
-            class="handle button circle-button button-submit"
-            title="Press and hold to drag input"
-            data-icon="w_scroll-v"/>
-        </div>
-        <div
-          class="original-combination-item horizontal-left-content middle"
-          v-else
-          :key="item.id">
-          <div>
-            <span class="vue-autocomplete-input normal-input combination middle">
-              <span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"/>
-            </span>
+        <template #item="{ item, index }">
+          <div
+            class="horizontal-left-content middle"
+            v-if="(GetOriginal(rankGroup[index].name).length == 0)"
+            :key="item.id">
+            <autocomplete
+              url="/taxon_names/autocomplete"
+              label="label_html"
+              min="2"
+              :disabled="disabled"
+              clear-after
+              @getItem="item.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
+              event-send="autocomplete"
+              :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
+              param="term"/>
+            <span
+              class="handle button circle-button button-submit"
+              title="Press and hold to drag input"
+              data-icon="w_scroll-v"/>
           </div>
-          <span
-            class="handle button circle-button button-submit"
-            title="Press and hold to drag input"
-            data-icon="w_scroll-v"/>
-          <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>
-          <span
-            class="circle-button btn-delete"
-            @click="removeCombination(GetOriginal(rankGroup[index].name))"/>
-        </div>
+          <div
+            class="original-combination-item horizontal-left-content middle"
+            v-else
+            :key="item.id">
+            <div>
+              <span class="vue-autocomplete-input normal-input combination middle">
+                <span v-html="GetOriginal(rankGroup[index].name).subject_object_tag"/>
+              </span>
+            </div>
+            <span
+              class="handle button circle-button button-submit"
+              title="Press and hold to drag input"
+              data-icon="w_scroll-v"/>
+            <radialAnnotator :global-id="GetOriginal(rankGroup[index].name).global_id"/>
+            <span
+              class="circle-button btn-delete"
+              @click="removeCombination(GetOriginal(rankGroup[index].name))"/>
+          </div>
+        </template>
       </draggable>
     </div>
   </div>

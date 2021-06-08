@@ -4,9 +4,10 @@
     :warning="checkValidation"
     :spinner="!taxon.id"
     v-help.section.type.container>
-    <h3 slot="header">Type</h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Type</h3>
+    </template>
+    <template #body>
       <div v-if="!taxonRelation">
         <div
           v-if="editType"
@@ -22,23 +23,18 @@
             @click="editType = undefined"/>
         </div>
         <quick-taxon-name
-          slot="body"
           v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)"
           @getItem="addTaxonType"
           :group="childOfParent[getRankGroup.toLowerCase()]"/>
         <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
           <ul class="no_bullets context-menu">
             <li>
-              <a 
+              <a
                 :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
-                v-shortkey="[getMacKey(), 'm']"
-                @shortkey="switchTypeMaterial()">Quick</a>
+                v-hotkey="shortcuts">Quick</a>
             </li>
             <li>
-              <a
-                :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`"
-                v-shortkey="[getMacKey(), 'e']"
-                @shortkey="switchComprehensive()">Comprehensive</a>
+              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
             </li>
           </ul>
           <ul class="table-entrys-list">
@@ -108,13 +104,13 @@
         @delete="removeType"
         @edit="setEdit"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 <script>
 
 import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
@@ -126,7 +122,7 @@ import ListCommon from './commonList.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
-import getMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -171,6 +167,14 @@ export default {
     },
     showModal () {
       return this.$store.getters[GetterNames.ActiveModalType]
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+m`] = this.switchTypeMaterial
+      keys[`${platformKey()}+e`] = this.switchComprehensive
+
+      return keys
     }
   },
   data: function () {
@@ -203,8 +207,8 @@ export default {
     }
   },
   mounted () {
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
   },
   methods: {
     setEdit(relationship) {
@@ -279,7 +283,6 @@ export default {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`, '_self')
     },
     showForThisGroup: showForThisGroup,
-    getMacKey: getMacKey
   }
 }
 </script>

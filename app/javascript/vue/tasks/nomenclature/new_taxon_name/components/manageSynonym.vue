@@ -4,11 +4,12 @@
       anchor="original-combination"
       v-if="isInvalid && validTaxon && childrenList.length"
       v-help.section.originalCombination.container>
-      <h3 slot="header">Manage synonymy</h3>
-      <div
-        slot="body">
+      <template #header>
+        <h3>Manage synonymy</h3>
+      </template>
+      <template #body>
         <spinner-component
-          :full-screen="true"
+          full-screen
           legend="Saving changes..."
           :logo-size="{ width: '100px', height: '100px'}"
           v-if="saving"/>
@@ -82,13 +83,15 @@
             Save
           </button>
         </div>
-      </div>
+      </template>
     </block-layout>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Move taxon names</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Move taxon names</h3>
+      </template>
+      <template #body>
         <p>
           This will change all taxon parents. Are you sure you want to proceed? Type "MOVE" to proceed.
         </p>
@@ -97,8 +100,8 @@
           class="full_width"
           v-model="moveInput"
           placeholder="Wirte MOVE to continue">
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="button normal-input button-submit"
@@ -106,7 +109,7 @@
           @click="saveTaxonNames()">
           Move all
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>

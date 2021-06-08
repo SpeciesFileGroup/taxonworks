@@ -64,7 +64,7 @@ import ScopeComponent from 'tasks/nomenclature/filter/components/filters/scope'
 import OtusComponent from './filters/otus'
 import CollectionObjectComponent from './filters/collectionObjects'
 import AncestorTarget from './filters/ancestorTarget'
-import hotkey from 'components/v-hotkey'
+import hotkey from 'plugins/v-hotkey'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Image } from 'routes/endpoints'
 
