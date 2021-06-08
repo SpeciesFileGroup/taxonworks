@@ -84,20 +84,19 @@
       element="ul"
       v-model="roles_attributes"
       @end="onSortable">
-      <template #item="{ element }">
+      <template #item="{ element, index }">
         <li
           class="list-complete-item flex-separate middle"
           v-if="!element.hasOwnProperty('_destroy') && filterRole(element)">
-          <template>
-            <a
-              v-if="(element.hasOwnProperty('person_id') || element.hasOwnProperty('person'))"
-              :href="getUrl(element)"
-              target="_blank"
-              v-html="getLabel(element)"/>
-            <span
-              v-else
-              v-html="getLabel(element)"/>
-          </template>
+          <a
+            v-if="(element.hasOwnProperty('person_id') || element.hasOwnProperty('person'))"
+            :href="getUrl(element)"
+            target="_blank"
+            v-html="getLabel(element)"/>
+          <span
+            v-else
+            v-html="getLabel(element)"/>
+
           <span
             class="circle-button btn-delete"
             @click="removePerson(index)"/>
@@ -149,7 +148,7 @@ export default {
 
   emits: ['update:modelValue'],
 
-  data: function () {
+  data () {
     return {
       expandPerson: false,
       searchPerson: '',
@@ -166,21 +165,21 @@ export default {
       deep: true,
       immediate: true
     },
-    searchPerson: function (newVal) {
+    searchPerson (newVal) {
       if (newVal.length > 0) {
         this.newNamePerson = newVal
         this.fillFields(newVal)
       }
     },
     person_attributes: {
-      handler: function (newVal) {
+      handler (newVal) {
         this.newNamePerson = this.getFullName(newVal.first_name, newVal.last_name)
       },
       deep: true
     }
   },
   methods: {
-    reset() {
+    reset () {
       this.expandPerson = false,
       this.searchPerson = '',
       this.person_attributes = this.makeNewPerson(),
@@ -188,21 +187,18 @@ export default {
     },
 
     getUrl(role) {
-      if (role.hasOwnProperty('person_id') || role.hasOwnProperty('person')) {
-        return `/people/${role.hasOwnProperty('person_id') ? role.person_id : role.person.id}`
-      } else {
-        return '#'
-      }
+      return (role.hasOwnProperty('person_id') || role.hasOwnProperty('person'))
+        ? `/people/${role?.person_id || role.person.id}`
+        : '#'
     },
 
-    filterRole(role) {
-      if (this.filterByRole) {
-        return (role.type == this.roleType)
-      }
-      return true
+    filterRole (role) {
+      return this.filterByRole
+        ? role.type === this.roleType
+        : true
     },
 
-    makeNewPerson: function () {
+    makeNewPerson () {
       return {
         first_name: '',
         last_name: '',
@@ -211,7 +207,7 @@ export default {
       }
     },
 
-    getLabel: function (person) {
+    getLabel (person) {
       if (person.hasOwnProperty('person_attributes')) {
         return this.getFullName(person.person_attributes.first_name, person.person_attributes.last_name)
       } else if (person.hasOwnProperty('person')) {
@@ -221,19 +217,19 @@ export default {
       }
     },
 
-    switchName: function (name) {
+    switchName (name) {
       const tmp = this.person_attributes.first_name
       this.person_attributes.first_name = this.person_attributes.last_name
       this.person_attributes.last_name = tmp
       return this.getFullName(this.person_attributes.first_name, tmp)
     },
 
-    fillFields: function (name) {
+    fillFields (name) {
       this.person_attributes.first_name = this.getFirstName(name)
       this.person_attributes.last_name = this.getLastName(name)
     },
 
-    removePerson: function (index) {
+    removePerson (index) {
       if (this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
         this.roles_attributes[index] = {id: this.roles_attributes[index].id, _destroy: true }
         this.$emit('update:modelValue', this.roles_attributes)
@@ -247,63 +243,66 @@ export default {
       }
     },
 
-    setInput: function (text) {
+    setInput (text) {
       this.searchPerson = text
     },
 
-    sortPosition: function (list) {
+    sortPosition (list) {
       list.sort((a, b) =>
         a.position > b.position ? 1 : -1
       )
       return list
     },
 
-    alreadyExist: function (personId) {
-      return (this.roles_attributes.find(function (item) {
-        return (personId == item['person_id'])
-      }) != undefined)
+    alreadyExist (personId) {
+      return !!this.roles_attributes.find(item => personId === item?.person_id)
     },
-    processedList: function (list) {
-      if (list == undefined) return []
-      let tmp = []
 
-      list.forEach(function (element, index) {
-        let item = {
-          id: (element.hasOwnProperty('id') ? element.id : undefined),
+    processedList (list) {
+      if (!list) return []
+
+      return list.map((element, index) => {
+        const item = {
+          id: element?.id,
           type: element.type,
-          first_name: (element['first_name'] ? element.first_name : undefined),
-          last_name: (element['last_name'] ? element.last_name : undefined),
+          first_name: element?.first_name,
+          last_name: element?.last_name,
           position: element.position
         }
-        if(element.hasOwnProperty('person_attributes')) {
-          item.person_attributes = element.person_attributes            
+
+        if (element.hasOwnProperty('person_attributes')) {
+          item.person_attributes = element.person_attributes
         }
-        if(element.hasOwnProperty('person_id')) {
+
+        if (element.hasOwnProperty('person_id')) {
           item.person_id = element.person_id
         }
-        if(element.hasOwnProperty('person')) {
+
+        if (element.hasOwnProperty('person')) {
           item.person = element.person
         }
-        if(element.hasOwnProperty('_destroy')) {
-          item['_destroy'] = element._destroy
+        if (element.hasOwnProperty('_destroy')) {
+          item._destroy = element._destroy
         }
-        tmp.push(item)
-      })
-      return tmp
-    },
-    updateIndex: function () {
-      var that = this
-      this.roles_attributes.forEach(function (element, index) {
-        that.roles_attributes[index].position = (index + 1)
+        return item
       })
     },
-    onSortable: function () {
+
+    updateIndex () {
+      this.roles_attributes.forEach((element, index) => {
+        this.roles_attributes[index].position = (index + 1)
+      })
+    },
+
+    onSortable () {
       this.updateIndex()
       this.$emit('update:modelValue', this.roles_attributes)
       this.$emit('sortable', this.roles_attributes)
     },
-    findName: function (string, position) {
-      var delimiter
+
+    findName (string, position) {
+      let delimiter
+
       if (string.indexOf(',') > 1) {
         delimiter = ','
       }
@@ -315,22 +314,22 @@ export default {
       }
       return string.split(delimiter, 2)[position]
     },
-    getFirstName: function (string) {
+    getFirstName (string) {
       if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
         return this.findName(string, 1)
       } else {
         return ''
       }
     },
-    getLastName: function (string) {
+    getLastName (string) {
       if ((string.indexOf(',') > 1) || (string.indexOf(' ') > 1)) {
         return this.findName(string, 0)
       } else {
         return string
       }
     },
-    getFullName: function (first_name, last_name) {
-      var separator = ''
+    getFullName (first_name, last_name) {
+      let separator = ''
       if (!!last_name && !!first_name) {
         separator = ', '
       }
