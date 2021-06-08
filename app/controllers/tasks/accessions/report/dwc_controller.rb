@@ -26,10 +26,10 @@ class Tasks::Accessions::Report::DwcController < ApplicationController
     # TODO: integrate with Download
     
     begin
-      data = ::Export::Dwca::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id).all)
-      send_data(data.getzip, type: 'application/zip', filename: data.filename)
+      data = ::Export::Dwca::Data.new(core_scope: DwcOccurrence.where(project_id: sessions_current_project_id))
+      send_data(data.zipfile, type: 'application/zip', filename: data.filename)
     ensure
-      data.cleanup
+      data&.cleanup
     end
   end
 

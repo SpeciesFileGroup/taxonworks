@@ -43,6 +43,17 @@ module CollectingEvent::GeoLocate
     Georeference::GeoLocate::RequestUI.new(geolocate_attributes).request_params_string
   end
 
+  def lat_long_source
+    if preferred_georeference
+      :georeference
+    elsif verbatim_latitude && verbatim_longitude
+      :verbatim
+    elsif geographic_area && geographic_area.has_shape?
+      :geographic_area
+    else
+      nil
+    end
+  end
 
 
 end

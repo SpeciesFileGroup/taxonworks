@@ -524,7 +524,7 @@ class CollectingEvent < ApplicationRecord
       CollectingEvent.transaction do
         vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
         vg_attributes.merge!(by: creator.id, project_id: project_id) if reference_self
-        a = Georeference::VerbatimData.new(vg_attributes)
+        a = ::Georeference::VerbatimData.new(vg_attributes)
         if a.valid?
           a.save
         end
