@@ -20,14 +20,16 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
       describe '#set_area', js: true do #
         it 'renders count of otus in a specific names area A' do
           visit(index_path)
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'A', select: area_a.id)
+          fill_in('area_picker_autocomplete', with: 'A')
+          find('.vue-autocomplete-list li', text: /A\W/).hover.click
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '6')
         end
 
         it 'renders count of otus in a specific names area B' do
           visit(index_path)
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'B', select: area_b.id)
+          fill_in('area_picker_autocomplete', with: 'B')
+          find('.vue-autocomplete-list li', text: /B\W/).hover.click
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '4') # three by collection object,
           # and one by asserted distribution
@@ -35,14 +37,15 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
 
         it 'renders count of otus in a specific names area E' do
           visit(index_path)
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
+          fill_in('area_picker_autocomplete', with: 'E')
+          find('.vue-autocomplete-list li', text: /E\W/).hover.click
           click_button('Set area')
           expect(page).to have_css('#area_count', text: '9')
         end
 
         it 'renders count of otus in a drawn area corresponding to b' do
           visit(index_path)
-          find('#label_toggle_slide_area').click
+          find('label', text: "map").click
           # TODO: Helper method to calculate x-y and perform interaction
           find('#drawable_map_canvas')
             .hover.click(x: 256, y: 128) # [  0,   0]
@@ -56,7 +59,7 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
 
         it 'renders count of otus in a drawn area' do
           visit(index_path)
-          find('#label_toggle_slide_area').click
+          find('label', text: "map").click
           # TODO: Helper method to calculate x-y and perform interaction
           find('#drawable_map_canvas')
             .hover.click(x: 256, y: 113).hover # [  0,  10]
@@ -137,7 +140,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
         before {
           t_n_id = Protonym.where(name: 'beevitis').first.id
           visit(index_path)
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'E', select: area_e.id)
+          fill_in('area_picker_autocomplete', with: 'E')
+          find('.vue-autocomplete-list li', text: /E\W/).hover.click
           click_button('Set area')
 
           fill_autocomplete('taxon_name_id_for_by_nomen', with: 'bee', select: t_n_id)
@@ -160,7 +164,8 @@ describe 'tasks/otus/filter', type: :feature, group: [:geo, :otus, :tn_authors, 
         before {
           t_n_id = Protonym.where(name: 'beevitis').first.id
           visit(index_path)
-          fill_area_picker_autocomplete('area_picker_autocomplete', with: 'A', select: area_a.id)
+          fill_in('area_picker_autocomplete', with: 'A')
+          find('.vue-autocomplete-list li', text: /A\W/).hover.click
           click_button('Set area')
 
           fill_autocomplete('taxon_name_id_for_by_nomen', with: 'bee', select: t_n_id)

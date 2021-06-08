@@ -32,7 +32,7 @@
         @click="searchOtus(parseParams)">
         Search
       </button>
-      <geographic-areas v-model="params.geographic"/>
+      <geographic-areas v-model="params.geographic" input-id="area_picker_autocomplete"/>
       <taxon-name-component v-model="params.base.taxon_name_ids"/>
       <author-component v-model="params.author"/>
       <citations-component

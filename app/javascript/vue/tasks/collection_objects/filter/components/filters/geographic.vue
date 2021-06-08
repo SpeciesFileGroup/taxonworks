@@ -8,6 +8,7 @@
     <div v-if="view === 'area'">
       <div class="field">
         <autocomplete
+          :input-id="inputId"
           url="/geographic_areas/autocomplete"
           label="label_html"
           :clear-after="true"
@@ -76,6 +77,10 @@ export default {
     value: {
       type: Object,
       required: true
+    },
+    inputId: {
+      type: String,
+      default: undefined
     }
   },
   computed: {
