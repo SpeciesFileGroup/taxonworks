@@ -1,51 +1,45 @@
 <template>
-  <div>
-    <div v-if="keyId">
-      <tippy-component
-        v-if="!created"
-        animation="scale"
-        placement="bottom"
-        size="small"
-        :inertia="true"
-        :arrow="true"
-        :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
-        <template v-slot:trigger>
-          <div
-            class="default_tag_widget circle-button btn-confidences btn-submit"
-            @click="createConfidence()"/>
-        </template>
-      </tippy-component>
+  <div v-if="keyId">
+    <tippy
+      v-if="!created"
+      animation="scale"
+      placement="bottom"
+      size="small"
+      :inertia="true"
+      :arrow="true"
+      :content="`<p>Create confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already  on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
+      <div
+        class="default_tag_widget circle-button btn-confidences btn-submit"
+        @click="createConfidence()"/>
+    </tippy>
 
-      <tippy-component
-        v-else
-        animation="scale"
-        placement="bottom"
-        size="small"
-        :inertia="true"
-        :arrow="true"
-        :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
-        <template v-slot:trigger>
-          <div
-            class="default_tag_widget circle-button btn-confidences btn-delete"
-            @click="deleteConfidence()"
-            title="Remove default confidence"/>
-        </template>
-      </tippy-component>
-    </div>
-    <div
+    <tippy
       v-else
-      class="default_tag_widget circle-button btn-confidences btn-disabled"/>
+      animation="scale"
+      placement="bottom"
+      size="small"
+      :inertia="true"
+      :arrow="true"
+      :content="`<p>Remove confidence: ${getDefaultElement().firstChild.firstChild.textContent}.${confidenceCount ? `<br>Used already on ${confidenceCount} ${confidenceCount > 200 ? 'or more' : '' } objects</p>` : ''}`">
+      <div
+        class="default_tag_widget circle-button btn-confidences btn-delete"
+        @click="deleteConfidence()"
+        title="Remove default confidence"/>
+    </tippy>
   </div>
+  <div
+    v-else
+    class="default_tag_widget circle-button btn-confidences btn-disabled"/>
 </template>
 
 <script>
 
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
-    TippyComponent
+    Tippy
   },
   props: {
     globalId: {

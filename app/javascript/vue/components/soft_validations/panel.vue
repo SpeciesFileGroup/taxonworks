@@ -7,7 +7,7 @@
     </div>
     <div
       class="body overflow-y-auto">
-      <template 
+      <template
         v-for="(section, index) in validationSections"
         :key="index">
         <div>
@@ -28,17 +28,15 @@
               class="horizontal-left-content align-start"
               v-for="(error, index) in list.soft_validations"
               :key="index">
-              <tippy-component
+              <tippy
                 animation="scale"
                 placement="bottom"
                 size="small"
                 inertia
                 arrow
                 :content="error.description">
-                <template slot="trigger">
-                  <span data-icon="warning"/>
-                </template>
-              </tippy-component>
+                <span data-icon="warning"/>
+              </tippy>
               <span>
                 <button
                   v-if="error.fixable"
@@ -52,7 +50,7 @@
                   <template
                     v-for="(resolution, index) in error.resolution"
                     :key="index">
-                    <tippy-component
+                    <tippy
                       class="d-inline-block"
                       animation="scale"
                       placement="bottom"
@@ -60,11 +58,10 @@
                       inertia
                       arrow
                       content="Fixable here (may leave page)">
-                      <template slot="trigger">
-                        <a :href="resolution">
-                          <span class='small-icon icon-without-space' data-icon='blue_wrench'/></a>
-                      </template>
-                    </tippy-component>
+                      <a :href="resolution">
+                        <span class='small-icon icon-without-space' data-icon='blue_wrench'/>
+                      </a>
+                    </tippy>
                   </template>
                 </span>
               </span>
@@ -80,10 +77,10 @@
 <script>
 
 import { SoftValidation } from 'routes/endpoints'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 
 export default {
-  components: { TippyComponent },
+  components: { Tippy },
 
   props: {
     validations: {

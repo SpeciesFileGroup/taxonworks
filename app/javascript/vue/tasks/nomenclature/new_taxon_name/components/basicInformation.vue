@@ -2,7 +2,9 @@
   <block-layout
     class="basic-information"
     anchor="basic-information">
-    <h3 slot="header">Basic information</h3>
+    <template>
+      <h3>Basic information</h3>
+    </template>
     <template #body>
       <div class="horizontal-left-content align-start">
         <div class="column-left">
@@ -29,7 +31,7 @@
               for="parent-name">Parent</label>
             <parent-picker/>
           </div>
-          <rank-selector v-if="validateInfo"/>
+          <rank-selector/>
           <hard-validation field="rank_class"/>
         </div>
         <div class="column-right item">
@@ -93,21 +95,16 @@ export default {
     ModalComponent,
     BlockLayout
   },
+
   computed: {
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxon)
-      }
+
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     },
-    validateInfo () {
-      return true
-    },
+
     taxonName: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonName]
@@ -123,16 +120,18 @@ export default {
       return this.$store.getters[GetterNames.GetHardValidation]
     }
   },
-  data: function () {
+
+  data () {
     return {
       showModal: false
     }
   },
+
   watch: {
     errors: {
-      handler(newVal) {
-        if(this.existError('name')) {
-          if(this.displayError('name').find(item => { return item.includes('must be latinized') })) {
+      handler (newVal) {
+        if (this.existError('name')) {
+          if (this.displayError('name').find(item => item.includes('must be latinized'))) {
             this.showModal = true
           }
         }
@@ -140,6 +139,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const name = urlParams.get('name')
@@ -153,21 +153,23 @@ export default {
       })
     }
   },
+
   methods: {
     existError: function (type) {
       return (this.errors && this.errors.hasOwnProperty(type))
     },
+
     displayError (type) {
-      if (this.existError(type)) {
-        return this.errors[type]
-      } else {
-        return undefined
-      }
+      return this.existError(type)
+        ? this.errors[type]
+        : undefined
     },
+
     createNonLatin() {
-      let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
-      let statusList = this.$store.getters[GetterNames.GetStatusList][code]
-      let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
+      const code = this.$store.getters[GetterNames.GetNomenclaturalCode]
+      const statusList = this.$store.getters[GetterNames.GetStatusList][code]
+      const statusType = Object.values(statusList.all).find(item => item.name.includes('not latin'))
+
       if (this.taxon.id) {
         this.$store.dispatch(ActionNames.AddTaxonStatus, {
           type: statusType.type,

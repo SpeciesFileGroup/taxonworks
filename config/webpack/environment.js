@@ -12,7 +12,7 @@ const customConfig = {
   }
 }
 
-environment.config.merge(customConfig)
+// environment.config.merge(customConfig)
 
 environment.plugins.append('VueLoaderPlugin', new VueLoaderPlugin())
 environment.loaders.append('vue', vue)

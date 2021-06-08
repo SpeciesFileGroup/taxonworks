@@ -5,14 +5,14 @@
       <template
         v-if="filter(item)">
         <input
-          @click="emitEvent(item, index)"
+          @click="emitEvent(index)"
           :value="useIndex ? index : item"
           :key="index"
           v-model="inputValue"
           :id="`switch-${name}-${index}`"
           :name="`switch-${name}-options`"
           type="radio"
-          :checked="item === (useIndex ? index : value)"
+          :checked="item === (useIndex ? index : modelValue)"
           class="normal-input button-active"
         >
         <label
@@ -30,45 +30,48 @@ export default {
       type: Array,
       required: true
     },
-    value: {
+    modelValue: {
       type: [String, Number],
       default: undefined
     },
     addOption: {
       type: Array,
       required: false,
-      default: () => {
-        return []
-      }
+      default: () => []
     },
     name: {
       type: String,
       required: false,
-      default: () => { return Math.random().toString(36).substr(2, 5) }
+      default: () => Math.random().toString(36).substr(2, 5)
     },
     filter: {
       type: Function,
-      default: () => {
-        return true
-      }
+      default: () => true
     },
     useIndex: {
       type: Boolean,
       required: false
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'index'
+  ],
+
   computed: {
     inputValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   methods: {
-    emitEvent (value, index) {
+    emitEvent (index) {
       this.$emit('index', index)
     }
   }

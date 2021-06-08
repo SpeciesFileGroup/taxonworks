@@ -84,19 +84,19 @@
       element="ul"
       v-model="roles_attributes"
       @end="onSortable">
-      <template v-for="(role, index) in roles_attributes">
+      <template #item="{ element }">
         <li
           class="list-complete-item flex-separate middle"
-          v-if="!role.hasOwnProperty('_destroy') && filterRole(role)">
+          v-if="!element.hasOwnProperty('_destroy') && filterRole(element)">
           <template>
             <a
-              v-if="(role.hasOwnProperty('person_id') || role.hasOwnProperty('person'))"
-              :href="getUrl(role)"
+              v-if="(element.hasOwnProperty('person_id') || element.hasOwnProperty('person'))"
+              :href="getUrl(element)"
               target="_blank"
-              v-html="getLabel(role)"/>
+              v-html="getLabel(element)"/>
             <span
               v-else
-              v-html="getLabel(role)"/>
+              v-html="getLabel(element)"/>
           </template>
           <span
             class="circle-button btn-delete"
@@ -129,7 +129,7 @@ export default {
       type: Boolean,
       default: true
     },
-    value: { 
+    modelValue: {
       type: Array,
       default: () => []
     },
@@ -146,6 +146,9 @@ export default {
       default: false
     }
   },
+
+  emits: ['update:modelValue'],
+
   data: function () {
     return {
       expandPerson: false,
@@ -156,8 +159,8 @@ export default {
     }
   },
   watch: {
-    value: {
-      handler(newVal) {
+    modelValue: {
+      handler (newVal) {
         this.roles_attributes = this.sortPosition(this.processedList(newVal))
       },
       deep: true,
@@ -233,13 +236,13 @@ export default {
     removePerson: function (index) {
       if (this.roles_attributes[index].hasOwnProperty('id') && this.roles_attributes[index].id) {
         this.roles_attributes[index] = {id: this.roles_attributes[index].id, _destroy: true }
-        this.$emit('input', this.roles_attributes)
+        this.$emit('update:modelValue', this.roles_attributes)
         this.$emit('delete', this.roles_attributes[index])
       }
       else {
         const person = this.roles_attributes[index]
         this.roles_attributes.splice(index, 1)
-        this.$emit('input', this.roles_attributes)
+        this.$emit('update:modelValue', this.roles_attributes)
         this.$emit('delete', person)
       }
     },
@@ -249,11 +252,9 @@ export default {
     },
 
     sortPosition: function (list) {
-      list.sort((a, b) => {
-        return a.position > b.position
-          ? 1
-          : -1
-      })
+      list.sort((a, b) =>
+        a.position > b.position ? 1 : -1
+      )
       return list
     },
 
@@ -298,7 +299,7 @@ export default {
     },
     onSortable: function () {
       this.updateIndex()
-      this.$emit('input', this.roles_attributes)
+      this.$emit('update:modelValue', this.roles_attributes)
       this.$emit('sortable', this.roles_attributes)
     },
     findName: function (string, position) {
@@ -341,7 +342,7 @@ export default {
         person.label = person.object_tag
         person.object_id = person.id
         this.roles_attributes.push(this.addPerson(person))
-        this.$emit('input', this.roles_attributes)
+        this.$emit('update:modelValue', this.roles_attributes)
         this.$refs.autocomplete.cleanInput()
         this.expandPerson = false
         this.person_attributes = this.makeNewPerson()
@@ -360,7 +361,7 @@ export default {
     addCreatedPerson: function (item) {
       if (!this.alreadyExist(item.object_id)) {
         this.roles_attributes.push(this.addPerson(item))
-        this.$emit('input', this.roles_attributes)
+        this.$emit('update:modelValue', this.roles_attributes)
         this.$emit('create', this.addPerson(item))
         this.person_attributes = this.makeNewPerson()
         this.searchPerson = ''
@@ -369,7 +370,7 @@ export default {
     setPerson: function (person) {
       person.position = (this.roles_attributes.length + 1)
       this.roles_attributes.push(person)
-      this.$emit('input', this.roles_attributes)
+      this.$emit('update:modelValue', this.roles_attributes)
     }
   }
 }

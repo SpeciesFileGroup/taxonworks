@@ -148,7 +148,7 @@
       <div v-show="show == 'person'">
         <div class="flex-separate">
           <role-picker
-            v-model="roles"
+            v-model:modelValue="roles"
             @create="updateLastChange"
             @delete="updateLastChange"
             @sortable="updateLastChange"

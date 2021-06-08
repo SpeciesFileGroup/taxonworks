@@ -22,30 +22,31 @@
           <div>
             <draggable
               class="flex-wrap-column"
-              v-model="taxonOriginal"
               v-if="!existOriginalCombination"
-              :options="{
-                animation: 150,
-                group: {
-                  name: 'combination',
-                  put: isGenus,
-                  pull: true
-                },
-                filter: '.item-filter'
-            }">
-              <div
-                v-for="item in taxonOriginal"
-                class="horizontal-left-content middle item-draggable">
-                <input
-                  type="text"
-                  class="normal-input current-taxon"
-                  :value="item.name"
-                  disabled>
-                <span
-                  class="handle button circle-button button-submit"
-                  title="Press and hold to drag input"
-                  data-icon="w_scroll-v"/>
-              </div>
+              v-model="taxonOriginal"
+              item-key="id"
+              :group="{
+                name: 'combination',
+                put: isGenus,
+                pull: true
+              }"
+              :animation="150"
+              filter=".item-filter"
+            >
+              <template #item="{ element }">
+                <div
+                  class="horizontal-left-content middle item-draggable">
+                  <input
+                    type="text"
+                    class="normal-input current-taxon"
+                    :value="element.name"
+                    disabled>
+                  <span
+                    class="handle button circle-button button-submit"
+                    title="Press and hold to drag input"
+                    data-icon="w_scroll-v"/>
+                </div>
+              </template>
             </draggable>
           </div>
         </form>
@@ -110,7 +111,7 @@ import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   components: {
@@ -118,6 +119,7 @@ export default {
     OriginalCombination,
     BlockLayout
   },
+
   data () {
     return {
       taxonOriginal: [],
@@ -133,32 +135,30 @@ export default {
       }
     }
   },
+
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     isGenus () {
       return (this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] == 'GenusGroup')
     },
-    existOriginalCombination: {
-      get: function () {
-        let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-        let exist = false
-        for (var key in combinations) {
-          if (combinations[key].subject_taxon_name_id == this.taxon.id) {
-            exist = true
-          }
-        }
-        return exist
-      }
+
+    existOriginalCombination () {
+      const combinations = Object.values(this.$store.getters[GetterNames.GetOriginalCombination])
+
+      return !!combinations.find(combination => combination.subject_taxon_name_id === this.taxon.id)
     },
+
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
     }
   },
+
   watch: {
     existOriginalCombination: {
-      handler: function (newVal, oldVal) {
+      handler (newVal, oldVal) {
         if (newVal == oldVal) return true
         this.createTaxonOriginal()
       },
@@ -166,10 +166,11 @@ export default {
     }
   },
   methods: {
-    saveTaxonName: function () {
+    saveTaxonName () {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
     },
-    createTaxonOriginal: function () {
+
+    createTaxonOriginal () {
       this.taxonOriginal = [{
         name: this.$store.getters[GetterNames.GetTaxon].name,
         value: {
@@ -180,33 +181,33 @@ export default {
         id: this.$store.getters[GetterNames.GetTaxon].id
       }]
     },
-    removeAllCombinations: function () {
-      if(window.confirm('Are you sure you want to remove all combinations?')) {
-        let that = this
-        let combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-        let allDelete = []
+
+    removeAllCombinations () {
+      if (window.confirm('Are you sure you want to remove all combinations?')) {
+        const combinations = this.$store.getters[GetterNames.GetOriginalCombination]
+        const allDelete = []
+
         for (var key in combinations) {
-          allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]).then(response => {
-            return true
-          }))
+          allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]))
         }
-        Promise.all(allDelete).then(function () {
-          that.saveTaxonName()
+        Promise.all(allDelete).then(() => {
+          this.saveTaxonName()
         })
       }
     },
-    addOriginalCombination: function () {
-      var that = this
+
+    addOriginalCombination () {
       this.createCombination(this.taxon.id, this.taxon.rank)
-      this.taxon.ancestor_ids.forEach(function (item) {
-        let rank = item[1].split('::')[3]
-        if (rank) { that.createCombination(item[0], rank.toLowerCase()) }
+      this.taxon.ancestor_ids.forEach((item) => {
+        const rank = item[1].split('::')[3]
+        if (rank) { this.createCombination(item[0], rank.toLowerCase()) }
       })
       this.saveTaxonName()
     },
-    createCombination: function (id, rank) {
-      let types = Object.assign({}, this.genusGroup, this.speciesGroup)
-      var data = {
+
+    createCombination (id, rank) {
+      const types = Object.assign({}, this.genusGroup, this.speciesGroup)
+      const data = {
         type: types[rank],
         id: id
       }

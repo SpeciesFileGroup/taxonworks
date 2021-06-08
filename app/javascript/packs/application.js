@@ -10,7 +10,8 @@
 import 'core-js/stable'
 import 'regenerator-runtime/runtime'
 // Styles
-require('leaflet/dist/leaflet.css')
+import 'leaflet/dist/leaflet.css'
+import 'tippy.js/dist/tippy.css'
 
 /* require('../vue/config.js') */
 require('../vue/tasks/citations/otus/main.js')
