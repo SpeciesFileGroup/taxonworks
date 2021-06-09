@@ -12,41 +12,44 @@
 </template>
 
 <script>
-  import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from 'helpers/ajaxCall'
 
-  export default {
-    props: {
-      value: {
-        type: Object,
-        required: true
+export default {
+  props: {
+    modelValue: {
+      type: Object,
+      required: true
+    }
+  },
+
+  emits: ['update:modelValue'],
+
+  data () {
+    return {
+      membersList: [],
+      selectedList: {}
+    }
+  },
+  watch: {
+    value(newVal) {
+      this.selectedList = newVal
+    }
+  },
+  mounted: function () {
+    AjaxCall('get', '/project_members.json').then(response => {
+      this.membersList = response.body
+    })
+  },
+  methods: {
+    selectMember(item) {
+      if (this.selectedList.hasOwnProperty(item.id)) {
+        this.$delete(this.selectedList, item.id)
       }
-    },
-    data: function () {
-      return {
-        membersList: [],
-        selectedList: {}
+      else {
+        this.selectedList[item.id] = item
       }
-    },
-    watch: {
-      value(newVal) {
-        this.selectedList = newVal
-      }
-    },
-    mounted: function () {
-      AjaxCall('get', '/project_members.json').then(response => {
-        this.membersList = response.body
-      })
-    },
-    methods: {
-      selectMember(item) {
-        if (this.selectedList.hasOwnProperty(item.id)) {
-          this.$delete(this.selectedList, item.id)
-        }
-        else {
-          this.$set(this.selectedList, item.id, item);
-        }
-        this.$emit('input', this.selectedList);
-      }
+      this.$emit('update:modelValue', this.selectedList);
     }
   }
+}
 </script>

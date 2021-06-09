@@ -1,17 +1,13 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init() {
-  new Vue({
-    el: '#browse_annotations',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.mount('#browse_annotations')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#browse_annotations')) {
     init()
   }
-});
+})

@@ -25,9 +25,8 @@
 import CsvButton from 'components/csvButton'
 
 export default {
-  components: {
-    CsvButton
-  },
+  components: { CsvButton },
+
   props: {
     url: {
       type: String,
@@ -45,6 +44,7 @@ export default {
       type: String
     }
   },
+
   computed: {
     fields () {
       if (this.type) {
@@ -52,9 +52,10 @@ export default {
       }
       return []
     },
+
     newList () {
       if (this.type) {
-        var temp = []
+        const temp = []
         this.list.forEach((item, index) => {
           item.annotated_object.object_tag = this.convertToText(item.annotated_object.object_tag)
           temp.push(item)
@@ -65,6 +66,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       types: {
@@ -77,6 +79,7 @@ export default {
       }
     }
   },
+
   methods: {
     convertToText (htmlString) {
       const temp = document.createElement('div')
