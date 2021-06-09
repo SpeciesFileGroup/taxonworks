@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.18.1] - 2021-06-09
+
 ### Added
 - Params for `/api/v1/images/` [#1906]
 - Params referenced in `/collection_objects` to `/collecting_events`
@@ -1321,16 +1325,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-<<<<<<< HEAD
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
-[0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
-[0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.70.0...v0.17.1
-=======
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...development
+[0.18.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...v0.17.1
->>>>>>> 82960fa921726c4b7545743d7287b22b62f0a54a
 [0.17.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.6...v0.17.0
 [0.16.6]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.5...v0.16.6
 [0.16.5]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.16.4...v0.16.5
