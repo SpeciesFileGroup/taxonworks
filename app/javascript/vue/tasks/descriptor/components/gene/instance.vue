@@ -100,24 +100,28 @@ export default {
       type: String,
       required: true
     },
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     },
-    composeExpression() {
-      let formatExpression = []
+
+    composeExpression () {
+      const formatExpression = []
       this.expression.forEach(item => {
-        if(item.type == 'Sequence') {
+        if (item.type === 'Sequence') {
           formatExpression.push(`${item.relationshipType}.${item.value}`)
         }
         else {

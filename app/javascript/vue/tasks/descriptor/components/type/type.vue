@@ -28,7 +28,7 @@ import TYPES from '../../const/types'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     },
@@ -37,16 +37,20 @@ export default {
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selection: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       types: TYPES()
