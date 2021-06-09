@@ -119,6 +119,7 @@ export default {
     Draggable,
     DefaultPin
   },
+
   props: {
     roleType: {
       type: String,
@@ -157,6 +158,7 @@ export default {
       roles_attributes: []
     }
   },
+
   watch: {
     modelValue: {
       handler (newVal) {
@@ -180,9 +182,9 @@ export default {
   },
   methods: {
     reset () {
-      this.expandPerson = false,
-      this.searchPerson = '',
-      this.person_attributes = this.makeNewPerson(),
+      this.expandPerson = false
+      this.searchPerson = ''
+      this.person_attributes = this.makeNewPerson()
       this.$refs.autocomplete.cleanInput()
     },
 

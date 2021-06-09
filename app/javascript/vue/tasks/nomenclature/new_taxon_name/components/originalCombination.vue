@@ -19,7 +19,6 @@
         :filter="options.filter"
         @end="onEnd"
         @add="onAdd"
-        @autocomplete="searchForChanges(rankGroup,copyRankGroup)"
         @update="onUpdate"
         :move="onMove">
         <template #item="{ element }">
@@ -78,6 +77,7 @@ export default {
     Autocomplete,
     Draggable
   },
+
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
@@ -86,6 +86,7 @@ export default {
       return this.$store.getters[GetterNames.GetOriginalCombination]
     }
   },
+
   props: {
     disabled: {
       type: Boolean,
@@ -143,15 +144,9 @@ export default {
         this.loadCombinations(taxon.id)
       },
       immediate: true
-    },
-    originalCombination: {
-      handler: function (newVal, oldVal) {
-        if (JSON.stringify(newVal) == JSON.stringify(this.copyRankGroup)) return true
-        this.setNewCombinations()
-      },
-      deep: true
     }
   },
+
   methods: {
     init () {
       let inc = 0
@@ -170,13 +165,16 @@ export default {
       }
       this.copyRankGroup = JSON.parse(JSON.stringify(this.rankGroup))
     },
+
     searchForChanges (newVal, copyOld) {
       newVal.forEach((element, index) => {
-        if (JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
-          if (JSON.stringify(newVal[index].id) == JSON.stringify(copyOld[index].id)) {
-            if (JSON.stringify(newVal[index].autocomplete) != JSON.stringify(copyOld[index].autocomplete)) {
-              if (newVal[index].autocomplete) {
-                this.addOriginalCombination(newVal[index].autocomplete.id, index).then(response => {
+        const oldElement = copyOld[index]
+
+        if (JSON.stringify(element) !== JSON.stringify(oldElement)) {
+          if (JSON.stringify(element.id) == JSON.stringify(oldElement.id)) {
+            if (JSON.stringify(element.autocomplete) !== JSON.stringify(oldElement.autocomplete)) {
+              if (element.autocomplete) {
+                this.addOriginalCombination(element.autocomplete.id, index).then(response => {
                   this.$emit('create', response)
                 })
                 this.copyRankGroup = JSON.parse(JSON.stringify(newVal))
@@ -189,7 +187,7 @@ export default {
 
     setNewCombinations () {
       this.rankGroup.forEach((element, index) => {
-        this.rankGroup[index].value = this.GetOriginal(this.rankGroup[index].name)
+        this.rankGroup[index].value = this.GetOriginal(element.name)
       })
     },
 
@@ -205,6 +203,7 @@ export default {
           )
         }
       })
+
       Promise.all(allDelete).then(() => {
         const allCreated = []
 
@@ -220,6 +219,7 @@ export default {
         })
       })
     },
+
     addOriginalCombination (elementId, index) {
       const data = {
         type: this.originalTypes[index],
@@ -231,13 +231,15 @@ export default {
         })
       })
     },
+
     GetOriginal (name) {
       const key = 'original_' + name
+
       return this.originalCombination[key] || ''
     },
 
     removeCombination (value) {
-      if(window.confirm('Are you sure you want to remove this combination?')) {
+      if (window.confirm('Are you sure you want to remove this combination?')) {
         this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
           this.$emit('delete', response)
         })
@@ -263,21 +265,24 @@ export default {
         this.$emit('create')
       })
     },
+
     onEnd (evt) {
       this.newPosition = -1
     },
+
     onUpdate (evt) {
       const newVal = this.rankGroup
       const copyOld = this.copyRankGroup
       const positions = []
 
       newVal.forEach((element, index) => {
-        if (JSON.stringify(newVal[index]) != JSON.stringify(copyOld[index])) {
-          if (JSON.stringify(newVal[index].id) != JSON.stringify(copyOld[index].id)) {
-            positions.push(index)
-          }
+        const oldElement = copyOld[index]
+
+        if (JSON.stringify(element) !== JSON.stringify(oldElement) && element.id !== oldElement.id) {
+          positions.push(index)
         }
       })
+
       if (positions.length) {
         this.copyRankGroup = JSON.parse(JSON.stringify(newVal))
         this.setNewCombinations()
