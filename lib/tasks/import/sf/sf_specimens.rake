@@ -1443,6 +1443,123 @@ namespace :tw do
           ap get_sf_unique_id
         end
 
+        desc 'time rake tw:project_import:sf_import:specimens:extra_asserted_distributions user_id=1 data_directory=~/src/onedb2tw/working/'
+        LoggedTask.define extra_asserted_distributions: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
+          logger.info 'Importing additional asserted distributions from specimen data...'
+
+          import = Import.find_or_create_by(name: 'SpeciesFileData')
+          skipped_file_ids = import.get('SkippedFileIDs')
+          excluded_taxa = import.get('ExcludedTaxa')
+          get_tw_user_id = import.get('SFFileUserIDToTWUserID') # for housekeeping
+          get_tw_project_id = import.get('SFFileIDToTWProjectID')
+          get_sf_unique_id = import.get('SFSpecimenToUniqueIDs') # get the unique_id for given SF specimen_id
+          get_tw_collecting_event_id = import.get('SFUniqueIDToTWCollectingEventID') # use unique_id as key to collecting_event_id
+          get_tw_repo_id = import.get('SFDepoIDToTWRepoID')
+          get_sf_depo_string = import.get('SFDepoIDToSFDepoString')
+          get_biocuration_class_id = import.get('SpmnCategoryIDToBiocurationClassID')
+          get_specimen_category_counts = import.get('SFSpecimenIDCategoryIDCount')
+          get_sf_source_metadata = import.get('SFSourceMetadata')
+          get_sf_identification_metadata = import.get('SFIdentificationMetadata')
+          get_tw_otu_id = import.get('SFTaxonNameIDToTWOtuID')
+          get_nomenclator_metadata = import.get('SFNomenclatorIDToSFNomenclatorMetadata')
+          get_sf_ident_qualifier = import.get('SFIdentQualifier') # key = nomenclator_id, value = ?, aff., cf., nr. ph.
+          get_tw_source_id = import.get('SFRefIDToTWSourceID')
+          get_sf_verbatim_ref = import.get('RefIDToVerbatimRef')
+          get_sf_locality_metadata = import.get('SFLocalityMetadata')
+          ref_id_containing_id_hash = import.get('RefContainingRefHash')
+
+          # to get associated OTU, get TW taxon id, then get OTU from TW taxon id
+          get_tw_taxon_name_id = import.get('SFTaxonNameIDToTWTaxonNameID')
+          get_otu_from_tw_taxon_id = import.get('TWTaxonNameIDToOtuID')
+
+          #   Following hash currently not used (was going to provide metadata for zero-count specimens not otherwise handled)
+          # get_sf_collect_event_metadata = import.get('SFCollectEventMetadata')
+
+          get_tw_collection_object_id = {} # key = SF.SpecimenID, value = TW.collection_object.id OR TW.container.id
+          get_sf_taxon_name_id = {} # key = SF.SpecimenID, value = SF.TaxonNameID
+          ids_asserted_distribution = {} # key = array[otu_id, geographic_area)id], value = asserted_distribution.id(.to_s)
+
+          path = @args[:data_directory] + 'tblSpecimens.txt'
+          file = CSV.foreach(path, col_sep: "\t", headers: true, encoding: 'BOM|UTF-8')
+
+          error_counter = 0
+          saved_counter = 0
+          zero_counter = 0 # Specimen_ids with no count
+          no_ce_counter = 0 # No collecting_event_id
+          processing_counter = 0
+          ident_error_counter = 0
+          asserted_dist_counter = 0
+          no_otu = 0
+          no_geo_area = 0
+          no_source = 0
+
+          source = Source::Verbatim.create!(creator: User.first, updater: User.first, verbatim: 'SF specimen locality data')
+
+          file.each_with_index do |row, i|
+            next if skipped_file_ids.include? row['FileID'].to_i
+            next if excluded_taxa.include? row['TaxonNameID']
+            specimen_id = row['SpecimenID']
+            next if specimen_id == '0'
+            get_sf_taxon_name_id[specimen_id] = row['TaxonNameID'] # create SpecimenID/TaxonNameID hash for future use, e.g., images, etc.
+            next if get_sf_unique_id[specimen_id].nil?
+            next if get_sf_identification_metadata[specimen_id].nil?
+
+            sf_file_id = row['FileID']
+            project_id = get_tw_project_id[sf_file_id]
+            sf_taxon_name_id = row['TaxonNameID']
+            tw_taxon_name_id = get_tw_taxon_name_id[sf_taxon_name_id]
+            otu_id = nil # to make JDT happy!
+            collecting_event = nil
+
+            if tw_taxon_name_id.nil?
+              # is ill-formed taxon name; use otu instead
+              otu_id = get_tw_otu_id[sf_taxon_name_id]
+              if otu_id.nil?
+                next
+              end
+            end
+            collecting_event_id = get_tw_collecting_event_id[get_sf_unique_id[specimen_id]]
+            if collecting_event_id.nil?
+              next
+            else
+              collecting_event = CollectingEvent.find(collecting_event_id)
+            end
+
+            if get_sf_locality_metadata[row['LocalityID']]['level1_id'] != '0'
+              # if Level1ID > 0, add asserted_distribution
+              otu_id = get_otu_from_tw_taxon_id[tw_taxon_name_id]
+              otu_id = get_tw_otu_id[sf_taxon_name_id] if otu_id == nil
+
+              geographic_area_id = collecting_event.geographic_area_id
+
+              sf_ref_id = get_sf_identification_metadata[specimen_id][0]['ref_id']
+              # if ref_id_containing_id_hash[sf_ref_id]
+              #   sf_ref_id = ref_id_containing_id_hash[sf_ref_id]
+              # end
+              source_id = get_tw_source_id[sf_ref_id] # assume first ident record
+
+              logger.info "In AssertedDistribution section: SpecimenID = #{specimen_id}, FileID = #{sf_file_id}, SF.TaxonNameID = #{sf_taxon_name_id}, tw_taxon_name_id = #{tw_taxon_name_id}, otu_id = #{otu_id}, geographic_area_id = #{geographic_area_id}, SF.RefID = #{sf_ref_id}, source_id = #{source_id} \n"
+
+              if otu_id.nil?
+                logger.error "Missing otu_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_otu = #{no_otu += 1} ] \n"
+                next
+              elsif geographic_area_id.nil?
+                logger.error "Missing geographic_area_id: An asserted_distribution must have an otu_id, a source_id, and a geographic_area_id [ no_geo_area = #{no_geo_area += 1} ] \n"
+                next
+              end
+
+              AssertedDistribution.create_with(
+                citations_attributes: [{source: source, project_id: project_id}],
+                no_dwc_occurrence: true # Will be performed by an independent process
+              ).find_or_create_by!(
+                otu_id: otu_id,
+                geographic_area_id: geographic_area_id,
+                project_id: project_id,
+              )
+            end
+          end
+        end
+
         desc 'time rake tw:project_import:sf_import:specimens:set_dwc_occurrence user_id=1 data_directory=~/src/onedb2tw/working/'
         LoggedTask.define set_dwc_occurrence: [:data_directory, :backup_directory, :environment, :user_id] do |logger|
           GC.start # VERY important, line below will fork into [number of threads] copies of this process, so memory usage must be as minimal as possible before starting.
@@ -1460,6 +1577,3 @@ namespace :tw do
     end
   end
 end
-
-
-
