@@ -2,7 +2,7 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :api_show, :edit, :update, :destroy, :rotate]
 
   # GET /images
   # GET /images.json
@@ -23,6 +23,19 @@ class ImagesController < ApplicationController
   # GET /images/1
   # GET /images/1.json
   def show
+  end
+
+  # GET /api/v1/images
+  def api_index
+    @images = Queries::Image::Filter.new(api_params).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
+  end
+
+  # GET /api/v1/images/:id
+  def api_show
+    render '/images/api/v1/show'
   end
 
   # GET /images/new
@@ -176,6 +189,35 @@ class ImagesController < ApplicationController
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
+  # TODO: need `is_public` here
+  def api_params
+    params.permit(
+      :taxon_name_id,
+      :ancestor_id_target,
+      :otu_id,
+      :collection_object_id,
+      :image_id,
+      :biocuration_class_id,
+      :sled_image_id,
+      :depiction,
+      :user_id, # user
+      :user_target,
+      :user_date_start,
+      :user_date_end,
+      :identifier,
+      :identifier_end,
+      :identifier_exact,
+      :identifier_start,
+      keyword_id_and: [],
+      keyword_id_or: [],
+      taxon_name_id: [],
+      sled_image_id: [],
+      biocuration_class_id: [],
+      image_id: [],
+      collection_object_id: [],
+      otu_id: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])

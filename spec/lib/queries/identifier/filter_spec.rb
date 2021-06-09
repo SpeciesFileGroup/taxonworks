@@ -30,23 +30,9 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
   end
 
   specify '#object_global_id 2' do
-    query.object_global_id = o1.to_global_id.to_s
-    query.identifier_object_id = o1.id + 99 
-    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # no params make it, so everything is returned
+    query.identifier_object_id = [o1.id + 99]
+    expect(query.all.map(&:id)).to contain_exactly()
   end
-
-  specify '#missmatched_object_id?' do
-    query.object_global_id = o1.to_global_id.to_s
-    query.identifier_object_id = o1.id + 99 
-    expect(query.missmatched_object_id?).to be_truthy
-  end 
-
-  specify '#missmatch_with_global_object?' do
-    query.object_global_id = o1.to_global_id.to_s
-    query.identifier_object_id = o1.id + 99 
-    expect(query.missmatch_with_global_object?).to be_truthy
-  end 
-
 
   specify '#query_string' do
     query.query_string = 'Foo 345'
@@ -93,29 +79,29 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
-  specify '#identifier_object_ids' do
-    query.identifier_object_ids = [o1.id, 99]
+  specify '#identifier_object_id 2' do
+    query.identifier_object_id = [o1.id, 99]
     expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id, i3.id) # when new objects identified, add here as necessary
   end
 
-  specify '#type' do
+  specify '#identifier_type' do
     query.type = 'Identifier::Local::CatalogNumber'
-    expect(query.all.map(&:id)).to contain_exactly( i2.id, i3.id) 
+    expect(query.all.map(&:id)).to contain_exactly( i2.id, i3.id)
   end
 
   specify 'matching_polymorphic_ids #1' do
-    query.polymorphic_ids = {'otu_id' => o1.id} 
-    expect(query.all.map(&:id)).to contain_exactly(i1.id) 
+    query.polymorphic_ids = {'otu_id' => o1.id}
+    expect(query.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify 'matching_polymorphic_ids #1' do
-    query.polymorphic_ids = {'collecting_event_id' => o3.id} 
-    expect(query.all.map(&:id)).to contain_exactly(i3.id) 
+    query.polymorphic_ids = {'collecting_event_id' => o3.id}
+    expect(query.all.map(&:id)).to contain_exactly(i3.id)
   end
 
-  specify 'matching_identifier_object_types[] #1' do
-    query.identifier_object_types = %w{Otu CollectionObject}
-    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id) 
+  specify 'matching_identifier_object_type[] #1' do
+    query.identifier_object_type = %w{Otu CollectionObject}
+    expect(query.all.map(&:id)).to contain_exactly(i1.id, i2.id)
   end
 
 end

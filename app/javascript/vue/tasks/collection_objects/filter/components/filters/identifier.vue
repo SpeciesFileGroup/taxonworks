@@ -10,7 +10,7 @@
     </div>
     <h4>Namespace</h4>
     <smart-selector
-      class="margin-medium-top"
+      class="margin-small-top"
       model="namespaces"
       klass="CollectionObject"
       pin-section="Namespaces"

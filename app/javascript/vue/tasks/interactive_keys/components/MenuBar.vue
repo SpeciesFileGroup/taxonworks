@@ -20,15 +20,17 @@
           <error-tolerance />
         </li>
         <li>
-          <identifier-rank />
+          <identifier-rank v-model="filters.identified_to_rank" />
         </li>
-        <li v-if="observationMatrix && observationMatrix.descriptor_available_languages && observationMatrix.descriptor_available_languages.length">
-          <language-component />
+        <li v-if="existLanguages">
+          <language-component
+            :language-list="observationMatrix.descriptor_available_languages"
+            v-model="filters.language_id" />
         </li>
         <li>
           <sorting-component />
         </li>
-        <li v-if="observationMatrix && observationMatrix.descriptor_available_keywords && observationMatrix.descriptor_available_keywords.length">
+        <li v-if="existKeywords">
           <keywords-component />
         </li>
       </ul>
@@ -96,12 +98,30 @@ export default {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
+
+    existLanguages () {
+      return !!this.observationMatrix?.descriptor_available_languages?.length
+    },
+
+    existKeywords () {
+      return !!this.observationMatrix?.descriptor_available_keywords?.length
+    },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
       },
       set (value) {
         this.$store.commit(MutationNames.SetSettings, value)
+      }
+    },
+
+    filters: {
+      get () {
+        return this.$store.getters[GetterNames.GetParamsFilter]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetParamsFilter, value)
       }
     }
   },

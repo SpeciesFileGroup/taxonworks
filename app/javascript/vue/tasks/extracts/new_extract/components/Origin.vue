@@ -45,7 +45,7 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import SwitchComponent from 'components/switch'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import BlockLayout from'components/layout/BlockLayout'
 import componentExtend from './mixins/componentExtend'
 import { GetterNames } from '../store/getters/getters'

@@ -29,7 +29,7 @@
 <script>
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import AddToProject from 'components/addToProjectSource'
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {

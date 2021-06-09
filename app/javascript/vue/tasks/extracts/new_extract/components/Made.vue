@@ -48,7 +48,7 @@
 
 <script>
 
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import componentExtend from './mixins/componentExtend'
 import BlockLayout from 'components/layout/BlockLayout'
 

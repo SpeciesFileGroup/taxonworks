@@ -121,7 +121,7 @@ import Related from './related.vue'
 import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
-import LockComponent from 'components/lock.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'

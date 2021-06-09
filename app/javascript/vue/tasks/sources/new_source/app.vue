@@ -138,7 +138,7 @@ import AddSource from 'components/addToProjectSource'
 import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
 
-import PinComponent from 'components/pin'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 import { GetUserPreferences } from './request/resources'
 

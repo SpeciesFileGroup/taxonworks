@@ -56,7 +56,6 @@
           :class="{ 'flex-wrap-row': inline }">
           <template v-for="item in lists[view]">
             <li
-              class="margin-small-bottom"
               v-if="filterItem(item)"
               :key="item.id">
               <template
@@ -250,9 +249,16 @@ export default {
       this.refresh()
     }
   },
-  mounted () {
+
+  created () {
     this.refresh()
+    document.addEventListener('smartselector:update', this.refresh)
   },
+
+  destroyed () {
+    document.removeEventListener('smartselector:update', this.refresh)
+  },
+
   methods: {
     getObject (id) {
       AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {

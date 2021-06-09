@@ -18,7 +18,7 @@
         <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
       </template>
     </div>
-    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => { return { [item.key]: !item.value } }))">
+    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => ({ [item.key]: !item.value })))">
       <h3>Citations ({{ filteredList.length }})</h3>
       <ul class="taxonomic_history">
         <template v-for="item in filteredList">
@@ -192,13 +192,13 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import { GetNomenclatureHistory } from '../request/resources.js'
 import ModalComponent from 'components/ui/Modal'
 import YearPicker from './nomenclature/yearsPick'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import extendSection from './shared/extendSections'
 import SoftValidationModal from './softValidationModal'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { Otu } from 'routes/endpoints'
 
 export default {
   mixins: [extendSection],
@@ -215,8 +215,8 @@ export default {
     itemsList () {
       return this.references.length
         ? this.nomenclature.items.filter(item =>
-            this.selectedReferences.find(ref => ref.objects.includes(item.data_attributes['history-object-id']))
-          )
+          this.selectedReferences.find(ref => ref.objects.includes(item.data_attributes['history-object-id']))
+        )
         : this.nomenclature.items
     },
     preferences: {
@@ -275,7 +275,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          GetNomenclatureHistory(this.otu.id).then(response => {
+          Otu.timeline(this.otu.id).then(response => {
             this.nomenclature = response.body
             this.isLoading = false
           })
@@ -288,13 +288,15 @@ export default {
     checkFilter (item) {
       const keysAND = Object.keys(this.preferences.filterSections.and)
       const keysOR = Object.keys(this.preferences.filterSections.or)
-      return (((!this.tabSelected?.equal || 
+
+      return (((!this.tabSelected?.equal ||
         this.tabSelected.equal
         ? item.data_attributes[this.tabSelected.key] === this.tabSelected.value
-        : item.data_attributes[this.tabSelected.key] != this.tabSelected.value) ||
+        : item.data_attributes[this.tabSelected.key] !== this.tabSelected.value) ||
         (this.tabSelected.label === 'All')) &&
         keysAND.every(key => {
-          if ((this.preferences.filterSections.and[key].every(filter => { return filter.value === false }))) return true
+          if ((this.preferences.filterSections.and[key].every(filter => filter.value === false))) return true
+
           return this.preferences.filterSections.and[key].every(filter => {
             if (filter.value === undefined) return true
             return (filter.equal
@@ -302,23 +304,24 @@ export default {
               : item.data_attributes[filter.key] !== filter.value)
           })
         }) &&
-        keysOR.every(key => {
-          return this.preferences.filterSections.or[key].some(filter => {
-            return (filter.equal 
+        keysOR.every(key =>
+          this.preferences.filterSections.or[key].some(filter =>
+            filter.equal
               ? item.data_attributes[filter.key] === filter.value
-              : item.data_attributes[filter.key] !== filter.value)
-          })
-        }) &&
+              : item.data_attributes[filter.key] !== filter.value
+          )
+        ) &&
         (this.topicsSelected.length
           ? item.topics.some(topic => this.topicsSelected.includes(topic))
           : true))
     },
+
     filterSource (source) {
-      let globalIds = source.objects
-      return (this.itemsList.filter(item => { return this.checkFilter(item) }).find(item => {
-        return globalIds.includes(item.data_attributes['history-object-id'])
-      }) != undefined)
+      const globalIds = source.objects
+
+      return (this.itemsList.filter(item => this.checkFilter(item)).find(item => globalIds.includes(item.data_attributes['history-object-id'])))
     },
+
     getSourceTopics (source) {
       const globalIds = source.objects
       const topics = this.itemsList.filter(item => this.checkFilter(item))

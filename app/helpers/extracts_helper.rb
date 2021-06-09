@@ -5,13 +5,11 @@ module ExtractsHelper
     return nil if extract.nil?
     e = []
 
-    if a = simple_identifier_list_tag(extract)
-      e.push a
-    end
-
-    if extract.origin
-      e.push 'from:'
-      e.push origin&simple_identifier_list_tag(extract.origin) 
+    if extract.old_objects.any?
+      e.push ' from: '
+      e.push extract.old_objects.collect{|o| object_link(o) } 
+    else
+      "#{extract.id} (no origin)"
     end
 
     e.push "Extract " + extract.id.to_s if e.empty?

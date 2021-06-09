@@ -1,14 +1,26 @@
 <template>
   <component
-    :is="isLink ? 'a' : 'button'"
-    type="button">
+    :is="tag"
+    :class="buttonClasses"
+    :disabled="disabled"
+    type="button"
+    @click="$emit('click')"
+  >
     <slot />
   </component>
 </template>
 
 <script>
 
+import mixinSizes from '../mixins/sizes.js'
+import mixinColor from '../mixins/colors.js'
+
 export default {
+  mixins: [
+    mixinSizes,
+    mixinColor
+  ],
+
   props: {
     disabled: {
       type: Boolean,
@@ -18,17 +30,43 @@ export default {
     href: {
       type: String,
       default: undefined
+    },
+
+    circle: {
+      type: Boolean,
+      default: false
+    },
+
+    pill: {
+      type: Boolean,
+      default: false
+    },
+
+    color: {
+      type: String,
+      default: 'default'
     }
   },
 
   computed: {
-    isLink () {
-      return !!this.href
+    tag () {
+      return this.href ? 'a' : 'button'
+    },
+
+    buttonSize () {
+      return this.circle
+        ? `btn-${this.semanticSize}-circle`
+        : `btn-${this.semanticSize}-size`
+    },
+
+    buttonClasses () {
+      return [
+        this.buttonSize,
+        'button',
+        `btn-${this.color}`
+      ]
     }
   }
 }
 
 </script>
-<style scoped>
-
-</style>

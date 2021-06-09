@@ -56,11 +56,6 @@ class ImageMatrix
   # Returns observation_matrix_citation as an object
   attr_accessor :observation_matrix_citation
 
-  # @!descriptor_available_languages
-  #   @return [Array of Objects or null]
-  # Returns the list of available Languages used as translations for descriptors and character_states (in translations are available)
-  attr_accessor :descriptor_available_languages
-
   # @!descriptors
   #   @return [null]
   # Temporary attribute. Used for validation.
@@ -81,6 +76,11 @@ class ImageMatrix
   # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
+  # @!descriptor_available_languages
+  #   @return [Array of Objects or null]
+  # Returns the list of available Languages used as translations for descriptors (in translations are available)
+  attr_accessor :descriptor_available_languages
+
   # @!rows_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. list of rows to be included into the matrix
@@ -99,13 +99,17 @@ class ImageMatrix
   # @!list_of_descriptors
   #   @return [Array]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
-  # Each descriptor has an attribute :status, which could be 'used', 'useful', 'useless' for further identification
   attr_accessor :list_of_descriptors
 
   # @!depiction_matrix
   #   @return [Hash of Arrays]
   # Returns the table of observations with images.
   attr_accessor :depiction_matrix
+
+  # @!image_hash
+  #   @return [Hash]
+  # Returns the hash with image attributes
+  attr_accessor :image_hash
 
   # @!row_hash
   #   @return [null]
@@ -130,12 +134,9 @@ class ImageMatrix
     @project_id = project_id
     @observation_matrix = find_observation_matrix
     @observation_matrix_citation = @observation_matrix&.source
-    @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
-    @language_to_use = language_to_use
     @keyword_ids = keyword_ids
     @descriptor_available_keywords = descriptor_available_keywords
-    @descriptors_with_filter = descriptors_with_keywords
     @row_filter = row_filter
     @otu_filter = otu_filter
     @row_id_filter_array = row_filter_array
@@ -143,9 +144,13 @@ class ImageMatrix
     @rows_with_filter = get_rows_with_filter
     @identified_to_rank = identified_to_rank
     @row_hash = row_hash_initiate
+    @descriptors_with_filter = descriptors_with_keywords
+    @descriptor_available_languages = descriptor_available_languages_list
+    @language_to_use = language_to_use
     ###main_logic
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
+    @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
@@ -158,12 +163,12 @@ class ImageMatrix
 
   def descriptors
     return nil if @observation_matrix.nil?
-    @observation_matrix.descriptors.not_weight_zero.order(:position)
+    @observation_matrix.descriptors.where("descriptors.type = 'Descriptor::Media'").not_weight_zero
   end
 
-  def descriptor_available_languages
-    return nil if descriptors.nil?
-    descriptor_ids = descriptors.pluck(:id)
+  def descriptor_available_languages_list
+    return nil if @descriptors_with_filter.nil?
+    descriptor_ids = @descriptors_with_filter.collect{|i| i.id}
     languages = Language.joins(:alternate_value_translations)
                     .where(alternate_values: {alternate_value_object_type: 'Descriptor', type: 'AlternateValue::Translation'})
                     .where('alternate_values.alternate_value_object_id IN (?)', descriptor_ids ).order('languages.english_name').distinct.to_a
@@ -176,7 +181,7 @@ class ImageMatrix
   def language_to_use
     return nil if @language_id.blank?
     l = Language.where(id: @language_id).first
-    return nil if l.nil? || !descriptor_available_languages.to_a.include?(l)
+    return nil if l.nil? || !@descriptor_available_languages.to_a.include?(l)
     l
   end
 
@@ -191,12 +196,15 @@ class ImageMatrix
   def descriptors_with_keywords
     if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
-      Descriptor.where('descriptors.id IN (?)', d).not_weight_zero.order(:position)
+      ds = Descriptor.where("descriptors.type = 'Descriptor::Media' AND descriptors.id IN (?)", d).not_weight_zero
     elsif @keyword_ids
-      descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
+      ds = descriptors.joins(:tags).where('tags.keyword_id IN (?)', @keyword_ids.to_s.split('|').map(&:to_i) )
     else
-      descriptors
+      ds = descriptors
     end
+    return [] if ds.nil? || ds.empty?
+    ds = ds.sort{|a,b| a.observation_matrix_columns.first.try(:position).to_i <=> b.observation_matrix_columns.first.try(:position).to_i}
+    ds
   end
 
   def row_filter_array
@@ -212,12 +220,6 @@ class ImageMatrix
     @observation_matrix.observation_matrix_rows.order(:position)
   end
 
-  ## row_hash: {otu_collection_object: {:object,           ### (collection_object or OTU)
-  ##                     :object_at_rank,   ### (converted to OTU or TN)
-  ##                     :row_id,
-  ##                     :otu_id,
-  ##                     :errors,           ### (calculated number of errors)
-  ##                     :status }}         ### ('remaining', 'eliminated')
   def row_hash_initiate
     h = {}
     if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
@@ -236,17 +238,25 @@ class ImageMatrix
       end
       h[otu_collection_object] = {}
       h[otu_collection_object][:object] = r
+
       if @identified_to_rank == 'otu'
-        h[otu_collection_object][:object_at_rank] = r.current_otu || r
+        case r.class.to_s
+        when 'Otu'
+          h[otu_collection_object][:object_at_rank] = r
+        when 'ObservationMatrixRow'
+          h[otu_collection_object][:object_at_rank] = r.current_otu || r
+        end
       elsif @identified_to_rank
-        h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        case r.class.to_s
+        when 'Otu'
+          h[otu_collection_object][:object_at_rank] = r&.taxon_name&.valid_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        when 'ObservationMatrixRow'
+          h[otu_collection_object][:object_at_rank] = r&.current_taxon_name&.ancestor_at_rank(@identified_to_rank, inlude_self = true) || r
+        end
       else
         h[otu_collection_object][:object_at_rank] = r
       end
       h[otu_collection_object][:otu_id] = r.class.to_s == 'Otu' ? r.id : r.otu_id
-      h[otu_collection_object][:errors] = 0
-      h[otu_collection_object][:error_descriptors] = []
-      h[otu_collection_object][:status] = 'remaining' ### if number of errors > @error_tolerance, replaced to 'eliminated'
     end
     h
   end
@@ -279,7 +289,7 @@ class ImageMatrix
       otu_collection_object = o.otu_id.to_s + '|' + o.collection_object_id.to_s
       if h[otu_collection_object]
         descriptor_index = @list_of_descriptors[o.descriptor_id][:index]
-        h[otu_collection_object][:depictions][descriptor_index] += [o]                                                                #??????
+        h[otu_collection_object][:depictions][descriptor_index] += [o]
       end
     end
     h
@@ -291,7 +301,7 @@ class ImageMatrix
           .joins("INNER JOIN images ON depictions.image_id = images.id")
           .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
           .joins("LEFT OUTER JOIN sources ON citations.source_id = sources.id")
-          .where('observations.otu_id IN (?)', @otu_id_filter_array)
+          .where("observations.type = 'Observation::Media' AND observations.otu_id IN (?)", @otu_id_filter_array)
           .where('observations.project_id = (?)', @project_id)
           .order('depictions.position')
   end
@@ -313,17 +323,41 @@ class ImageMatrix
     language = @language_id.blank? ? nil : @language_id.to_i
     n = 0
     h = {}
-    descriptors_with_keywords.each do |d|
+    @descriptors_with_filter.each do |d|
       descriptor = {}
       descriptor[:index] = n
       descriptor[:id] = d.id
       descriptor[:type] = d.type
       descriptor[:name] = d.target_name(:key, language)
       descriptor[:weight] = d.weight
-      descriptor[:position] = d.position
       descriptor[:description] = d.description
       h[d.id] = descriptor
       n += 1
+    end
+    h
+  end
+
+  def build_image_hash
+    if @observation_matrix_id.to_i == 0 && !@otu_filter.blank?
+      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
+    else
+      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
+    end
+    imgs = Image.where('id IN (?)', img_ids )
+    h = {}
+    imgs.each do |d|
+      i = {}
+      i[:global_id] = d.to_global_id.to_s
+      i[:image_file_file_name] = d.image_file_file_name
+      i[:image_file_file_size] = d.image_file_file_size
+      i[:image_file_content_type] = d.image_file_content_type
+      i[:user_file_name] = d.user_file_name
+      i[:height] = d.height
+      i[:width] = d.width
+      i[:original_url] = d.image_file.url
+      i[:medium_url] = d.image_file.url(:medium)
+      i[:thumb_url] = d.image_file.url(:thumb)
+      h[d.id] = i
     end
     h
   end

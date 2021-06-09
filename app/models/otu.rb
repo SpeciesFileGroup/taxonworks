@@ -189,6 +189,21 @@ class Otu < ApplicationRecord
   end
 
   # @return [Array]
+  #   of ancestral otu_ids
+  # !! This method does not fork, as soon as 2 ancestors are
+  # !! hit the list terminates.
+  def ancestor_otu_ids(prefer_unlabelled_otus: true)
+    ids =  []
+    a = parent_otu_id(prefer_unlabelled_otus: true)
+    while a
+      ids.push a
+      b = Otu.find(a)
+      a = b.parent_otu_id(prefer_unlabelled_otus: true)
+    end
+    ids
+  end
+
+  # @return [Array]
   #   all bilogical associations this Otu is part of
   def all_biological_associations
     # !! If self relationships are ever made possible this needs a DISTINCT clause
@@ -258,7 +273,7 @@ class Otu < ApplicationRecord
     core = Dwca::GbifProfile::CoreTaxon.new
 
     core.nomenclaturalCode        = (taxon_name.rank_class.nomenclatural_code.to_s.upcase)
-    core.taxonomicStatus          = (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
+    core.taxonomicStatus          = (!taxon_name.is_valid? ? nil : 'accepted') # (taxon_name.unavailable_or_invalid? ? nil : 'accepted')
     core.nomenclaturalStatus      = (taxon_name.classification_invalid_or_unavailable? ? nil : 'available') # needs tweaking
     core.scientificName           = taxon_name.cached
     core.scientificNameAuthorship = taxon_name.cached_author_year

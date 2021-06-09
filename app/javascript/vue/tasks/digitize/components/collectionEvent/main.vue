@@ -22,12 +22,10 @@
             pin-type="CollectingEvent"
             v-model="collectingEvent"
             @selected="setCollectingEvent"/>
-          <div class="horizontal-right-content">
-            <lock-component
-              class="circle-button-margin"
-              v-model="locked.collecting_event"
-            />
-          </div>
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.collecting_event"
+          />
         </div>
         <div>
           <span data-icon="warning"/>
@@ -105,12 +103,12 @@ import { RouteNames } from 'routes/routes'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
-import LockComponent from 'components/lock.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 import BlockMap from './components/map/main.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 import platformKey from 'helpers/getMacKey'
