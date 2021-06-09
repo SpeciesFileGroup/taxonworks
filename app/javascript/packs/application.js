@@ -31,8 +31,10 @@ require('../vue/initializers/quick_citation_init/main.js')
 require('../vue/initializers/browse_nomenclature/main.js')
 require('../vue/initializers/pinboard_navigator/main.js')
 require('../vue/initializers/soft_validations/main.js')
+*/
 require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
+/*
 require('../vue/tasks/browse_annotations/main.js')
 require('../vue/tasks/descriptor/main.js')
 require('../vue/tasks/observation_matrices/new/main.js') */

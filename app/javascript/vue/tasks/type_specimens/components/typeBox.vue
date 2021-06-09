@@ -4,22 +4,15 @@
       <div class="content header">
         <h3
           v-if="taxon.id"
-          class="flex-separate middle">
+          class="flex-separate middle"
+        >
           <a
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
-            class="taxonname">
+            class="taxonname"
+            v-hotkey="shortcuts">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
           </a>
-          <span
-            v-shortkey="[getOSKey(), 'o']"
-            @shortkey="switchBrowseOtu()"/>
-          <span
-            v-shortkey="[getOSKey(), 'e']"
-            @shortkey="switchComprehensive()"/>
-          <span
-            v-shortkey="[getOSKey(), 't']"
-            @shortkey="switchNewTaxonName()"/>
           <div>
             <div class="horizontal-right-content">
               <otu-radial
@@ -90,7 +83,7 @@ import { GetterNames } from '../store/getters/getters'
 import ActionNames from '../store/actions/actionNames'
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import OtuRadial from 'components/otu/otu.vue'
-import GetOSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   components: {
@@ -108,6 +101,15 @@ export default {
     },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+      keys[`${platformKey()}+e`] = this.switchComprehensive
+      keys[`${platformKey()}+t`] = this.switchNewTaxonName
+
+      return keys
     }
   },
   methods: {
@@ -125,16 +127,15 @@ export default {
     newType () {
       this.$store.dispatch(ActionNames.SetNewTypeMaterial)
     },
-    switchNewTaxonName () {
-      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.taxon.id}`, '_self')
-    },
     switchComprehensive () {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}${this.typeMaterial.collection_object_id ? `&collection_object_id=${this.typeMaterial.collection_object_id}` : ''}`, '_self')
     },
     switchBrowseOtu () {
       this.$refs.browseOtu.openApp()
     },
-    getOSKey: GetOSKey
+    switchNewTaxonName () {
+      window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.taxon.id}`, '_self')
+    }
   }
 }
 </script>

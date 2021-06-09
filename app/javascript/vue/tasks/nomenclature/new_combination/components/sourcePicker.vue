@@ -11,7 +11,7 @@
             type="text"
             @input="sendCitation"
             v-model="pages"
-            placeholder="Pages" >
+            placeholder="Pages">
           <span
             class="circle-button btn-delete"
             @click="remove()"/>
@@ -27,16 +27,18 @@
           pin-type="Source"
           @selected="setSource"
           v-model="source">
-          <div slot="footer">
-            <span
-              v-if="source"
-              v-html="source.object_tag"/>
-            <input
-              type="text"
-              @input="sendCitation"
-              v-model="pages"
-              placeholder="Pages">
-          </div>
+          <template #footer>
+            <div>
+              <span
+                v-if="source"
+                v-html="source.object_tag"/>
+              <input
+                type="text"
+                @input="sendCitation"
+                v-model="pages"
+                placeholder="Pages">
+            </div>
+          </template>
         </smart-selector>
       </template>
     </div>
@@ -55,7 +57,10 @@ export default {
       default: undefined
     }
   },
-  data: function () {
+
+  emits: ['select'],
+
+  data () {
     return {
       origin_citation: {},
       source: undefined,
@@ -65,6 +70,7 @@ export default {
       sourceId: undefined
     }
   },
+
   watch: {
     citation: {
       handler (newVal) {
@@ -80,30 +86,34 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     reset () {
       this.title = undefined
       this.pages = undefined
       this.sourceId = undefined
     },
+
     sendCitation () {
       this.$emit('select', {
         origin_citation_attributes: {
-          id: (this.origin_citation ? this.origin_citation.id : undefined),
+          id: this.origin_citation?.id,
           source_id: this.source.id,
           pages: this.pages
         }
       })
     },
+
     remove () {
       this.$emit('select', {
         origin_citation_attributes: {
-          id: (this.origin_citation.hasOwnProperty('id') ? this.origin_citation.id : undefined),
+          id: this.origin_citation?.id,
           _destroy: true
         }
       })
       this.title = undefined
     },
+
     setSource (source) {
       this.source = source
       this.sendCitation()

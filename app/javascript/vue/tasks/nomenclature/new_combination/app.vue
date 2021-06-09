@@ -86,7 +86,7 @@ export default {
       const position = this.combinations.findIndex(item => combination.id === item.id)
 
       if (position > -1) {
-        this.$set(this.combinations, position, combination)
+        this.combinations[position] = combination
       } else {
         this.combinations.push(combination)
       }
