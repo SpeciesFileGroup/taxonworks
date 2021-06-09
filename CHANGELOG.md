@@ -50,8 +50,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2265]: https://github.com/SpeciesFileGroup/taxonworks/issues/2265
 [#1906]: https://github.com/SpeciesFileGroup/taxonworks/issues/1906
 [#2203]: https://github.com/SpeciesFileGroup/taxonworks/issues/2203
-[#2276]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2276
-[#2277]: https://github.com/SpeciesFileGroup/taxonworks/issueshh/2277
+[#2276]: https://github.com/SpeciesFileGroup/taxonworks/issues/2276
+[#2277]: https://github.com/SpeciesFileGroup/taxonworks/issues/2277
 [#2195]: https://github.com/SpeciesFileGroup/taxonworks/pull/2195
 [#2242]: https://github.com/SpeciesFileGroup/taxonworks/issues/2242
 [#2086]: https://github.com/SpeciesFileGroup/taxonworks/pull/2086
@@ -112,15 +112,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Number of uses not displayed in Uniquify people task [#2219]
 - SVG Image box in comprehensive [#2262]
 
-[#1934]: https://github.com/SpeciesFileGroup/taxonworks/pull/1934
-[#2169]: https://github.com/SpeciesFileGroup/taxonworks/pull/2169
-[#2219]: https://github.com/SpeciesFileGroup/taxonworks/pull/2219
-[#2222]: https://github.com/SpeciesFileGroup/taxonworks/pull/2222
+[#1934]: https://github.com/SpeciesFileGroup/taxonworks/issues/1934
+[#2169]: https://github.com/SpeciesFileGroup/taxonworks/issues/2169
+[#2219]: https://github.com/SpeciesFileGroup/taxonworks/issues/2219
+[#2222]: https://github.com/SpeciesFileGroup/taxonworks/issues/2222
 [#2223]: https://github.com/SpeciesFileGroup/taxonworks/pull/2223
 [#2226]: https://github.com/SpeciesFileGroup/taxonworks/pull/2226
-[#2229]: https://github.com/SpeciesFileGroup/taxonworks/pull/2229
-[#2230]: https://github.com/SpeciesFileGroup/taxonworks/pull/2230
-[#2248]: https://github.com/SpeciesFileGroup/taxonworks/pull/2248
+[#2229]: https://github.com/SpeciesFileGroup/taxonworks/issues/2229
+[#2230]: https://github.com/SpeciesFileGroup/taxonworks/issues/2230
+[#2248]: https://github.com/SpeciesFileGroup/taxonworks/issues/2248
 
 ## [0.17.1] - 2021-04-30
 
