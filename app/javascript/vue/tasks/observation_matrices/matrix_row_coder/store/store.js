@@ -1,11 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import IMatrixRowCoderRequest from '../request/IMatrixRowCoderRequest'
-
-Vue.use(Vuex)
 
 export function makeInitialState (requestModule) {
   return {
@@ -25,7 +22,7 @@ const UnacceptableRequestModuleError = `Store must be given an IMatrixRowCoderRe
 export function newStore (requestModule) {
   if (requestModule instanceof IMatrixRowCoderRequest === false) { throw UnacceptableRequestModuleError }
 
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(requestModule),
     getters: GetterFunctions,
     mutations: MutationFunctions,

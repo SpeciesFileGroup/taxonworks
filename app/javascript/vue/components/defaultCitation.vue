@@ -1,36 +1,32 @@
 <template>
   <div v-if="sourceId">
-    <tippy-component
+    <tippy
       v-if="!created"
       animation="scale"
       placement="bottom"
       size="small"
       arrow-size="small"
-      :inertia="true"
-      :arrow="true"
+      inertia
+      arrow
       :content="`<p>Create citation with: ${getDefaultElement().firstChild.firstChild.textContent}</p>`">
-      <template v-slot:trigger>
-        <div
-          class="circle-button button-submit btn-citation"
-          @click="createCitation()"/>
-      </template>
-    </tippy-component>
+      <div
+        class="circle-button button-submit btn-citation"
+        @click="createCitation()"/>
+    </tippy>
 
-    <tippy-component
+    <tippy
       v-else
       animation="scale"
       placement="bottom"
       size="small"
       arrow-size="small"
-      :inertia="true"
-      :arrow="true"
+      inertia
+      arrow
       :content="`<p>Remove citation: ${getDefaultElement().firstChild.firstChild.textContent}`">
-      <template v-slot:trigger>
-        <div
-          class="circle-button btn-delete btn-citation"
-          @click="deleteCitation()"/>
-      </template>
-    </tippy-component>
+      <div
+        class="circle-button btn-delete btn-citation"
+        @click="deleteCitation()"/>
+    </tippy>
   </div>
   <div
     v-else
@@ -38,12 +34,12 @@
 </template>
 
 <script>
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
-    TippyComponent
+    Tippy
   },
   props: {
     globalId: {

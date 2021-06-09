@@ -10,34 +10,35 @@
         :target="matrixRow.row_object.base_class"
         :addTabs="['new', 'filter']"
         @selected="createObservation">
-        <dropzone-component
-          slot="new"
-          class="dropzone-card"
-          ref="depictionObs"
-          url="/observations"
-          :id="`media-descriptor-${descriptor.id}`"
-          :use-custom-dropzone-options="true"
-          @vdropzone-sending="sending"
-          @vdropzone-success="success"
-          :dropzone-options="dropzoneObservation"/>
-        <div
-          class="horizontal-left-content align-start"
-          slot="filter">
-          <filter-image
-            @result="loadList"/>
-          <div class="margin-small-left flex-wrap-row">
-            <div
-              v-for="image in filterList"
-              :key="image.id"
-              class="thumbnail-container margin-small cursor-pointer"
-              @click="createObservation(image)">
-              <img
-                :width="image.alternatives.thumb.width"
-                :height="image.alternatives.thumb.height"
-                :src="image.alternatives.thumb.image_file_url">
+        <template #new>
+          <dropzone-component
+            class="dropzone-card"
+            ref="depictionObs"
+            url="/observations"
+            :id="`media-descriptor-${descriptor.id}`"
+            :use-custom-dropzone-options="true"
+            @vdropzone-sending="sending"
+            @vdropzone-success="success"
+            :dropzone-options="dropzoneObservation"/>
+        </template>
+        <template #filter>
+          <div class="horizontal-left-content align-start">
+            <filter-image
+              @result="loadList"/>
+            <div class="margin-small-left flex-wrap-row">
+              <div
+                v-for="image in filterList"
+                :key="image.id"
+                class="thumbnail-container margin-small cursor-pointer"
+                @click="createObservation(image)">
+                <img
+                  :width="image.alternatives.thumb.width"
+                  :height="image.alternatives.thumb.height"
+                  :src="image.alternatives.thumb.image_file_url">
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </smart-selector>
       <h3>
         Created
@@ -45,6 +46,7 @@
       <ul class="no_bullets">
         <li
           v-for="observation in observations"
+          :key="observation.id"
           class="horizontal-left-content">
           <depiction-modal
             v-for="depiction in observation.depictions"

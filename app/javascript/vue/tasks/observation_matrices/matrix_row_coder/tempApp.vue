@@ -56,7 +56,7 @@
 </template>
 <script>
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import MatrixRowCoder from './MatrixRowCoder/MatrixRowCoder.vue'
 import MatrixRowCoderRequest from './request/MatrixRowCoderRequest'
 import SetParam from 'helpers/setParam'
@@ -101,18 +101,15 @@ export default {
       })
     },
     loadMatrix () {
-      var props = this.initializeData
+      const props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
+      const app = createApp(MatrixRowCoder,
+        props
+      )
+      app.use(store)
+      app.mount('#matrix_row_coder')
+
       SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', props.rowId)
-      new Vue({
-        el: '#matrix_row_coder',
-        store,
-        render: function (createElement) {
-          return createElement(MatrixRowCoder, {
-            props
-          })
-        }
-      })
       this.getMatrix()
     }
   }

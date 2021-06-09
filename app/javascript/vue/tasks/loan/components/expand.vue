@@ -1,11 +1,11 @@
 <template>
   <div>
     <span
-      @click="$emit('input', false)"
+      @click="$emit('update:modelValue', false)"
       data-icon="contract"
-      v-if="value"/>
+      v-if="modelValue"/>
     <span
-      @click="$emit('input', true)"
+      @click="$emit('update:modelValue', true)"
       data-icon="expand"
       v-else/>
   </div>
@@ -14,10 +14,12 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: true
     }
-  }
+  },
+
+  emits: ['update:modelValue']
 }
 </script>

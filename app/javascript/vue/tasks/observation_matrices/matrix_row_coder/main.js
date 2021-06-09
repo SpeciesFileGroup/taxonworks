@@ -1,15 +1,9 @@
-import Vue from 'vue'
-import props from './props'
+import { createApp } from 'vue'
+import App from './tempApp.vue'
 
 function init () {
-  var tempApp = require('./tempApp.vue').default
-
-  new Vue({
-    el: '#matrix_row_coder_bar',
-    render: function (createElement) {
-      return createElement(tempApp)
-    }
-  })
+  const app = createApp(App)
+  app.mount('#matrix_row_coder')
 }
 
 document.addEventListener('turbolinks:load', (event) => {
