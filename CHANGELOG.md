@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator in New extract [#2272]
 
 ### Fixed
+- Fix for author string for unjustified emendation
 - Scope has_many related data to project properly [#2265]
 - Refresh event for smart selectors [#2255]
 - Edit type material in comprehensive form [#2253]
