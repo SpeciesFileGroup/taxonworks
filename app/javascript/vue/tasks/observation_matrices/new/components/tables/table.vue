@@ -12,61 +12,62 @@
         element="tbody"
         v-model="newList"
         :disabled="!sortable"
+        tag="tbody"
+        item-key="id"
         @end="onSortable"
       >
-        <tr
-          v-for="(item, index) in newList"
-          :class="{ even: index % 2 }"
-          class="list-complete-item contextMenuCells"
-        >
-          <td
-            class="full_width"
-            v-for="label in attributes"
-            v-html="getValue(item, label)"
-          />
-          <td>
-            <div class="horizontal-left-content">
-              <template v-if="!item.is_dynamic">
-                <template v-if="edit">
+        <template #item="{ element, index }">
+          <tr
+            :class="{ even: index % 2 }"
+            class="list-complete-item contextMenuCells"
+          >
+            <td
+              class="full_width"
+              v-for="label in attributes"
+              v-html="getValue(element, label)"
+            />
+            <td>
+              <div class="horizontal-left-content">
+                <template v-if="!element.is_dynamic">
+                  <template v-if="edit">
+                    <a
+                      v-if="row"
+                      type="button"
+                      class="circle-button btn-edit"
+                      :href="getUrlType(element.row_object.base_class, element.row_object.id)"
+                    />
+                    <a
+                      v-else
+                      type="button"
+                      class="circle-button btn-edit"
+                      :href="`/tasks/descriptors/new_descriptor?descriptor_id=${element.descriptor_id}&observation_matrix_id=${matrix.id}`"
+                    />
+                  </template>
                   <a
-                    v-if="row"
+                    v-if="code"
                     type="button"
-                    class="circle-button btn-edit"
-                    :href="getUrlType(item.row_object.base_class, item.row_object.id)"
+                    target="_blank"
+                    class="circle-button btn-row-coder"
+                    title="Matrix row coder"
+                    :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${element.id}`"
                   />
-                  <a
+                  <radial-annotator :global-id="getValue(element, globalIdPath)" />
+                  <radial-object :global-id="getValue(element, globalIdPath)" />
+                  <span
+                    v-if="filterRemove(element)"
+                    class="circle-button btn-delete"
+                    @click="deleteItem(element)"
+                  >Remove
+                  </span>
+                  <span
                     v-else
-                    type="button"
-                    class="circle-button btn-edit"
-                    :href="`/tasks/descriptors/new_descriptor?descriptor_id=${item.descriptor_id}&observation_matrix_id=${matrix.id}`"
+                    class="empty-option"
                   />
                 </template>
-                <a
-                  v-if="code"
-                  type="button"
-                  target="_blank"
-                  class="circle-button btn-row-coder"
-                  title="Matrix row coder"
-                  :href="`/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${item.id}`"
-                />
-                <radial-annotator :global-id="getValue(item, globalIdPath)" />
-                <radial-object :global-id="getValue(item, globalIdPath)" />
-              </template>
-              <template>
-                <span
-                  v-if="filterRemove(item)"
-                  class="circle-button btn-delete"
-                  @click="deleteItem(item)"
-                >Remove
-                </span>
-                <span
-                  v-else
-                  class="empty-option"
-                />
-              </template>
-            </div>
-          </td>
-        </tr>
+              </div>
+            </td>
+          </tr>
+        </template>
       </draggable>
     </table>
   </div>
@@ -112,7 +113,7 @@ export default {
     },
     filterRemove: {
       type: Function,
-      default: (item) => { return true }
+      default: (item) => true
     },
     edit: {
       type: Boolean,
@@ -127,6 +128,12 @@ export default {
       default: undefined
     }
   },
+
+  emits: [
+    'order',
+    'delete'
+  ],
+
   computed: {
     matrix () {
       return this.$store.getters[GetterNames.GetMatrix]
@@ -159,7 +166,7 @@ export default {
         this.$emit('delete', item)
       }
     },
-    onSortable: function () {
+    onSortable () {
       const ids = this.newList.map(object => object.id)
       this.$emit('order', ids)
     },
@@ -167,7 +174,7 @@ export default {
       if (Array.isArray(attributes)) {
         let obj = object
 
-        for (var i = 0; i < attributes.length; i++) {
+        for (let i = 0; i < attributes.length; i++) {
           if (obj.hasOwnProperty(attributes[i])) {
             obj = obj[attributes[i]]
           } else {

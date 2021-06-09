@@ -64,9 +64,9 @@
 
 import smartSelector from '../shared/smartSelector'
 import {
-  default as quickComponent, 
-  default as recentComponent, 
-  default as pinboardComponent 
+  default as quickComponent,
+  default as recentComponent,
+  default as pinboardComponent
 } from '../shared/tag_list'
 
 import smartTaxonList from './dynamic/smartList'
@@ -79,7 +79,6 @@ import ObservationTypes from '../../const/types.js'
 
 export default {
   components: {
-
     smartSelector,
     quickComponent,
     recentComponent,
@@ -88,6 +87,7 @@ export default {
     Autocomplete,
     SpinnerComponent
   },
+
   computed: {
     componentExist() {
       return this.$options.components[this.view + 'Component']
@@ -99,7 +99,8 @@ export default {
       return this.$store.getters[GetterNames.GetMatrixRowsDynamic]
     }
   },
-  data() {
+
+  data () {
     return {
       smartOptions: ['quick', 'recent', 'pinboard', 'tag'],
       smartTaxon: [],
