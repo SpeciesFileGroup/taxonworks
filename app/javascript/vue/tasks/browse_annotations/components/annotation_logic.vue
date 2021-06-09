@@ -4,7 +4,7 @@
       <li v-for="option in options">
         <label @click="selectLogic(option)">
           <input
-            :checked="value === option"
+            :checked="modelValue === option"
             name="annotation-logic"
             type="radio"
             :value="option">

@@ -18,10 +18,12 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -33,7 +35,7 @@ export default {
   },
 
   watch: {
-    value(newVal) {
+    modelValue (newVal) {
       this.annotation_dates = newVal
     }
   },
@@ -42,7 +44,7 @@ export default {
     sendDate() {
       if(this.annotation_dates.after == "") this.annotation_dates.after = undefined
       if(this.annotation_dates.before == "") this.annotation_dates.before = undefined
-      this.$emit('input', this.annotation_dates)
+      this.$emit('update:modelValue', this.annotation_dates)
     }
   }
 }
