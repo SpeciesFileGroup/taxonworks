@@ -140,27 +140,31 @@ class TaxonNameRelationshipsController < ApplicationController
 
   def api_params
     params.permit(
-      :taxon_name_id,
+      :object_taxon_name_id,
       :subject_taxon_name_id,
-      :object_taxon_name_id, 
-      taxon_name_id: [],
+      :taxon_name_id,
+      :taxon_name_relationship_set,
+      :taxon_name_relationship_type,
+      object_taxon_name_id: [],
       subject_taxon_name_id: [],
-      object_taxon_name_id: [], 
-      taxon_name_relationship_type: [],
-      taxon_name_relationship_set: []
+      taxon_name_id: [],
+      taxon_name_relationship_set: [],
+      taxon_name_relationship_type: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def filter_params
     params.permit(
-      :taxon_name_id,
+      :object_taxon_name_id,
       :subject_taxon_name_id,
-      :object_taxon_name_id, 
-      taxon_name_id: [],
+      :taxon_name_id,
+      :taxon_name_relationship_set,
+      :taxon_name_relationship_type,
+      object_taxon_name_id: [],
       subject_taxon_name_id: [],
-      object_taxon_name_id: [], 
+      taxon_name_id: [],
+      taxon_name_relationship_set: [],
       taxon_name_relationship_type: [],
-      taxon_name_relationship_set: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
