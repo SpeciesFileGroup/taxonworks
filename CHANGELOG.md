@@ -35,7 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Removed incompatible identifier object type check for Identifier filter concerns
 - Unified some CollectingEvent filter param to singular pattern (collector_ids, otu_ids, geographic_area_ids)
 - Plural params for identifiers API endpoint merged to array single form. e.g., identifier_object_ids[]=47&identifier_object_ids[]=2232 => identifier_object_id[]=47&identifier_object_id[]=2232. [#2195] 
-- Updated Ruby gems
+- Updated Ruby gems and node packages
 - `that_is_valid` scope now references `cached_is_valid` [#2242]
 - `that_is_invalid` scope now references `cached_is_valid` [#2242]
 - `calculated_valid` replaces `that_is_valid` [#2242]

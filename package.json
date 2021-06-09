@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@geoman-io/leaflet-geoman-free": "^2.11.1",
+    "@geoman-io/leaflet-geoman-free": "^2.11.2",
     "@ibm/plex": "^5.1.3",
     "@rails/webpacker": "^5.4.0",
     "@sfgrp/sled": "^0.5.4",
