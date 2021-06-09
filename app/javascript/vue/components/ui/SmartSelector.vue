@@ -108,7 +108,7 @@ export default {
     OtuPicker
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     },
@@ -214,19 +214,28 @@ export default {
       default: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onTabSelected',
+    'selected'
+  ],
+
   computed: {
     selectedItem: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     isImageModel () {
       return this.model === 'images'
     }
   },
+
   data () {
     return {
       lists: {},
@@ -235,6 +244,7 @@ export default {
       firstTime: true
     }
   },
+
   watch: {
     view (newVal) {
       this.$emit('onTabSelected', newVal)

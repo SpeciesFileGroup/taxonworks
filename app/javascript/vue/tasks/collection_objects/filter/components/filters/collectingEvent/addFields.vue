@@ -107,11 +107,15 @@ export default {
       required: true
     }
   },
+
+  emits: ['fields'],
+
   computed: {
     types () {
       return TYPES
     }
   },
+
   data () {
     return {
       fields: ['verbatim_locality', 'habitat'],

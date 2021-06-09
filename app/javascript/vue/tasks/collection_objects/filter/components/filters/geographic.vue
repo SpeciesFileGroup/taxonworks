@@ -72,22 +72,27 @@ export default {
     Autocomplete,
     GeoreferenceMap
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     geographic: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       view: 'area',
@@ -96,6 +101,7 @@ export default {
       geojson: []
     }
   },
+
   watch: {
     geojson: {
       handler (newVal) {

@@ -31,26 +31,29 @@ export default {
       type: String,
       required: true
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: undefined
     },
     values: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     param: {
       type: String,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
@@ -77,8 +80,8 @@ export default {
       const params = URLParamsToJSON(location.href)
       this.optionValue = params[this.param]
     }
-
   },
+
   created () {
     if (this.values.length) {
       this.values.forEach((label, index) => {
