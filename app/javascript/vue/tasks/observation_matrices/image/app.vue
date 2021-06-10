@@ -127,7 +127,7 @@ export default {
     const urlParams = new URLSearchParams(window.location.search)
     const obsIdParam = urlParams.get('observation_matrix_id')
     const otuFilterParam = urlParams.get('otu_filter')
-    const rowFilterParam = urlParams.get('row_id')
+    const rowFilterParam = urlParams.get('row_filter')
 
     this.viewMode = (urlParams.get('view') === 'true')
 
