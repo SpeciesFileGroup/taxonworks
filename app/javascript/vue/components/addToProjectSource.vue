@@ -29,6 +29,7 @@ export default {
       type: [Number, String]
     }
   },
+
   data () {
     return {
       project_source: {
@@ -37,6 +38,7 @@ export default {
       createdSourceID: undefined
     }
   },
+
   methods: {
     create () {
       AjaxCall('post', '/project_sources.json', {project_source: this.project_source}).then(response => {
@@ -48,12 +50,11 @@ export default {
       AjaxCall('delete', `/project_sources/${this.createdSourceID}.json`).then(response => {
         this.createdSourceID = undefined
         TW.workbench.alert.create('Source was removed from project successfully', 'notice')
-      }, (response) => {
-
       })
     }
   },
-  mounted: function () {
+
+  mounted () {
     this.createdSourceID = this.projectSourceId
   }
 }

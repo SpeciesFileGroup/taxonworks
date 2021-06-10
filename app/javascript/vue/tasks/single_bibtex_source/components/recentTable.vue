@@ -17,7 +17,7 @@
           <radial-annotator :global-id="item.global_id"/>
         </td>
         <td>
-          <pin-component 
+          <pin-component
             :object-id="item.id"
             :type="item.base_class"/>
         </td>
@@ -37,6 +37,7 @@ export default {
     AddToProject,
     PinComponent
   },
+
   props: {
     list: {
       type: Array,
