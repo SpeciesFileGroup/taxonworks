@@ -287,6 +287,7 @@ export default {
 
   ::v-deep .dz-message {
     margin: 1em 0 !important;
+    font-size: 16px !important;
   }
 
   .matrix-image-draggable {
