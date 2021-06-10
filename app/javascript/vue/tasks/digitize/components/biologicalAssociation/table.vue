@@ -48,43 +48,46 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 
-  export default {
-    components: {
-      RadialAnnotator
-    },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
+export default {
+  components: {
+    RadialAnnotator
+  },
+
+  props: {
+    list: {
+      type: Array,
+      default: () => []
+    }
+  },
+
+  emits: ['delete'],
+
+  mounted () {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+
+  methods: {
+    deleteItem(item) {
+      if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
       }
     },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
-      },
-      getCitationString(object) {
-        if(object.hasOwnProperty('citation') && object.citation) {
-          return object.citation.label
-        }
-        if(object.hasOwnProperty('origin_citation')) {
-          let citation = object.origin_citation.source.cached_author_string
-          if(object.origin_citation.source.hasOwnProperty('year'))
-            citation = citation + ', ' + object.origin_citation.source.year
-          return citation
-        }
-        return ''
+    getCitationString(object) {
+      if(object.hasOwnProperty('citation') && object.citation) {
+        return object.citation.label
       }
+      if(object.hasOwnProperty('origin_citation')) {
+        let citation = object.origin_citation.source.cached_author_string
+        if(object.origin_citation.source.hasOwnProperty('year'))
+          citation = citation + ', ' + object.origin_citation.source.year
+        return citation
+      }
+      return ''
     }
   }
+}
 </script>
 <style lang="scss" scoped>
   :deep(.otu_tag_taxon_name) {

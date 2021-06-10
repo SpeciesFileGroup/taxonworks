@@ -35,7 +35,7 @@
 </template>
 <script>
 export default {
-  data() {
+  data () {
     return {
       rows: 151,
       columns: 9,
@@ -43,6 +43,14 @@ export default {
       separator: ''
     }
   },
+
+  emits: [
+    'onRowsChange',
+    'onColumnsChange',
+    'onDivisorChange',
+    'onSeparatorChange'
+  ],
+
   watch: {
     rows(newVal) {
       this.$emit('onRowsChange', newVal)
@@ -58,7 +66,7 @@ export default {
     },
   },
   methods: {
-    onClear() {
+    onClear () {
       this.separator = ''
     }
   }

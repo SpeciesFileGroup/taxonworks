@@ -74,6 +74,12 @@ export default {
       default: 'Drop images or click here to add figures'
     }
   },
+
+  emits: [
+    'create',
+    'delete'
+  ],
+
   data () {
     return {
       creatingType: false,

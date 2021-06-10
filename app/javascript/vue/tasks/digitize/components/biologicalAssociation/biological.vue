@@ -39,19 +39,25 @@ import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     TagItem,
     SmartSelector
   },
+
+  emits: ['select'],
+
   data () {
     return {
       view: undefined,
       allItems: {}
     }
   },
+
   mounted () {
     this.loadTabList()
   },
+
   methods: {
     loadTabList () {
       BiologicalRelationship.all().then(response => {
