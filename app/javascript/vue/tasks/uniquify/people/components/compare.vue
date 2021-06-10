@@ -66,17 +66,20 @@
             </div>
           </td>
         </tr>
-        <tr
-          v-for="(property, key, index) in selected"
-          v-if="!isNestedProperty(property)"
-          class="contextMenuCells"
-          :class="{ 
-            even: (index % 2 == 0),
-            repeated: (isDifferent(property, merge[key]) && merge[key])}">
-          <td class="column-property">{{ key | humanize | capitalize }}</td>
-          <td class="column-person" v-html="showValue(property)"/>
-          <td class="column-merge" v-html="showValue(merge[key])"/>
-        </tr>
+        <template v-for="(property, key, index) in selected">
+          <tr
+            v-if="!isNestedProperty(property)"
+            :key="key"
+            class="contextMenuCells"
+            :class="{
+              even: (index % 2 == 0),
+              repeated: (isDifferent(property, merge[key]) && merge[key])
+            }">
+            <td class="column-property">{{ showValue(key) }}</td>
+            <td class="column-person" v-html="showValue(property)"/>
+            <td class="column-merge" v-html="showValue(merge[key])"/>
+          </tr>
+        </template>
       </tbody>
     </table>
     <div
@@ -135,17 +138,22 @@ export default {
     SwitchComponent,
     ConfirmModal
   },
+
   name: 'CompareComponent',
+
   props: {
     selected: {
       type: [Object, Array],
-      default: () => { return {} }
+      default: () => ({})
     },
     mergeList: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['merge'],
+
   computed: {
     selectedEmpty() {
       return Object.keys(this.selected).length > 0
@@ -160,21 +168,13 @@ export default {
       return this.mergeList.map(p => p.cached)
     }
   },
+
   data () {
     return {
       personIndex: 0
     }
   },
-  filters: {
-    capitalize: function (value) {
-      if (!value) return ''
-      value = value.toString()
-      return value.charAt(0).toUpperCase() + value.slice(1)
-    },
-    humanize: (value) => {
-      return (typeof value == 'string' ? value.replace(/[_]/gm, " ") : value)
-    }
-  },
+
   methods: {
     isDifferent(value, compare) {
       return (value != compare)
@@ -182,13 +182,23 @@ export default {
     isNestedProperty(value) {
       return (Array.isArray(value) || typeof value == 'object' && value != null)
     },
-    sendMerge() {
-      if(confirm("Are you sure you want to merge?")) {
+    sendMerge () {
+      if (window.confirm('Are you sure you want to merge?')) {
         this.$emit('merge')
       }
     },
     showValue(value) {
-      return this.$options.filters.capitalize(this.$options.filters.humanize(value))
+      return this.capitalize(this.humanize(value))
+    },
+
+    capitalize (value) {
+      if (!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+
+    humanize: (value) => {
+      return (typeof value == 'string' ? value.replace(/[_]/gm, " ") : value)
     }
   }
 }

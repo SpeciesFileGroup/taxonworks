@@ -37,9 +37,9 @@ require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')
 require('../vue/tasks/descriptor/main.js')
 require('../vue/tasks/observation_matrices/new/main.js')
-/*
-require('../vue/tasks/clipboard/main.js') /* 
+require('../vue/tasks/clipboard/main.js')
 require('../vue/tasks/uniquify/people/main.js')
+/* 
 require('../vue/tasks/single_bibtex_source/main.js')
 require('../vue/tasks/nomenclature/by_source/main.js')
 require('../vue/tasks/people/author_by_letter/main.js')

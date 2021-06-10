@@ -20,7 +20,7 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => []
     }
@@ -28,10 +28,10 @@ export default {
   computed: {
     inputValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
