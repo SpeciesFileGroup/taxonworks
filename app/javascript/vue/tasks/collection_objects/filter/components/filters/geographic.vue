@@ -120,11 +120,13 @@ export default {
       },
       deep: true
     },
+
     geographic: {
       handler (newVal, oldVal) {
         if (!newVal?.geo_json?.length && oldVal?.geo_json?.length) {
           this.geojson = []
         }
+        console.log(newVal)
         if (!newVal.geographic_area_id.length) {
           this.geographic_areas = []
         }
@@ -132,6 +134,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
@@ -146,14 +149,17 @@ export default {
       this.geographic.spatial_geographic_areas = urlParams.spatial_geographic_areas
     }
   },
+
   methods: {
     addShape (shape) {
       this.geojson = [shape]
     },
+
     removeGeoArea (index) {
       this.geographic.geographic_area_id.splice(index, 1)
       this.geographic_areas.splice(index, 1)
     },
+
     addGeoArea (id) {
       GeographicArea.find(id).then(response => {
         this.geographic.geo_json = undefined
@@ -162,6 +168,7 @@ export default {
         this.geographic_areas.push(response.body)
       })
     },
+
     convertGeoJSONParam (urlParams) {
       const geojson = urlParams.geo_json
       return {

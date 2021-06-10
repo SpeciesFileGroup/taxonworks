@@ -77,6 +77,8 @@ export default {
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
     identifier: {
       get () {

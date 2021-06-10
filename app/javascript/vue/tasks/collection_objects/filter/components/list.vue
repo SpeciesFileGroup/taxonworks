@@ -60,31 +60,40 @@ export default {
   components: {
     TagAll
   },
+
   props: {
     list: {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
+
+  emits: [
+    'onSort',
+    'update:modelValue'
+  ],
+
   computed: {
     ids: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       ascending: false
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list.data, sortProperty, this.ascending))

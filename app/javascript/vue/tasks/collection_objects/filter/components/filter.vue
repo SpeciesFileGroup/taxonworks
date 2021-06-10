@@ -130,6 +130,15 @@ export default {
     PreparationTypes,
     CollectorsComponent
   },
+
+  emits: [
+    'newSearch',
+    'reset',
+    'result',
+    'urlRequest',
+    'pagination'
+  ],
+
   computed: {
     OSKey,
 
@@ -351,13 +360,13 @@ export default {
     },
 
     getDWCATable (list) {
-      const IDS = list.map(item => { return item[0] })
+      const IDS = list.map(item => item[0])
       const chunk = IDS.length / this.perRequest
+      const chunkArray = []
+      let i, j
 
-      var i, j;
-      let chunkArray = []
       for (i = 0,j = IDS.length; i < j; i += chunk) {
-        chunkArray.push(IDS.slice(i,i+chunk))
+        chunkArray.push(IDS.slice(i, i + chunk))
       }
       this.getDWCA(chunkArray)
     },
@@ -372,8 +381,10 @@ export default {
         const promises = []
         ids[0].forEach(id => {
           promises.push(CollectionObject.dwc(id).then(response => {
+            const index = this.coList.data.findIndex(item => item[0] === id)
+
             this.DWCACount++
-            this.$set(this.coList.data, this.coList.data.findIndex(item => { return item[0] === id }), response.body)
+            this.coList.data[index] = response.body
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
