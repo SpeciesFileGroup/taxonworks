@@ -20,45 +20,56 @@
 
 import TableComponent from './tables/classification_table.vue'
 import SpinnerComponent from 'components/spinner.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import { Citation } from 'routes/endpoints'
 
-  export default {
-    components: {
-      TableComponent,
-      SpinnerComponent
-    },
-    props: {
-      sourceID: {
-        type: String,
-        default: undefined
-      },
-    },
-    data() {
-      return {
-        taxon_classification_cites_list: [],
-        showSpinner: false
-      }
-    },
-    watch: {
-      sourceID() {
-        this.getCites();
-      }
-    },
+export default {
+  components: {
+    TableComponent,
+    SpinnerComponent
+  },
 
-    methods: {
-      getCites() {
-        this.showSpinner = true
-        AjaxCall('get', '/citations.json?verbose_object=true&citation_object_type=TaxonNameClassification&source_id=' + this.sourceID).then(response => {
-          this.taxon_classification_cites_list = response.body;
-          this.showSpinner = false
-        })
-      },
-      summarize() {
-        this.$emit('summarize', { 
-          type: 'taxon_name_classification_ids', 
-          list: this.taxon_classification_cites_list 
-        })
+  props: {
+    sourceID: {
+      type: String,
+      default: undefined
+    }
+  },
+
+  emits: ['summarize'],
+
+  data() {
+    return {
+      taxon_classification_cites_list: [],
+      showSpinner: false
+    }
+  },
+  watch: {
+    sourceID() {
+      this.getCites();
+    }
+  },
+
+  methods: {
+    getCites() {
+      const params = {
+        verbose_object: true,
+        citation_object_type: 'TaxonNameClassification',
+        source_id: this.sourceID
       }
+
+      this.showSpinner = true
+
+      Citation.where(params).then(response => {
+        this.taxon_classification_cites_list = response.body;
+        this.showSpinner = false
+      })
     },
-  }
+    summarize () {
+      this.$emit('summarize', {
+        type: 'taxon_name_classification_ids',
+        list: this.taxon_classification_cites_list
+      })
+    }
+  },
+}
 </script>
