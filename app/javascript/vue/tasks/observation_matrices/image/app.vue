@@ -127,6 +127,7 @@ export default {
     const urlParams = new URLSearchParams(window.location.search)
     const obsIdParam = urlParams.get('observation_matrix_id')
     const otuFilterParam = urlParams.get('otu_filter')
+    const rowFilterParam = urlParams.get('row_id')
 
     this.viewMode = (urlParams.get('view') === 'true')
 
@@ -137,7 +138,8 @@ export default {
     if (/^\d+$/.test(obsIdParam) || otuFilterParam) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, {
         observation_matrix_id: (/^\d+$/.test(obsIdParam) && obsIdParam) || 0,
-        otu_filter: otuFilterParam
+        otu_filter: otuFilterParam,
+        row_filter: rowFilterParam
       })
     }
   },
