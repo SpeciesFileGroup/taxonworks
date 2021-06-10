@@ -121,6 +121,11 @@ class ImageMatrix
   #temporary hash of descriptors; used for calculation of useful and not useful descriptors and their states
   attr_accessor :descriptors_hash
 
+  # @! list_of_image_ids
+  #   @return [null]
+  #temporary array of image.ids; used to build the @image_hash
+  attr_accessor :list_of_image_ids
+
   def initialize(
       observation_matrix_id: nil,
       project_id: nil,
@@ -148,12 +153,14 @@ class ImageMatrix
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
     ###main_logic
+    @list_of_image_ids = []
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
+    @list_of_image_ids = nil
     @descriptors_with_filter = nil
   end
 
@@ -291,6 +298,7 @@ class ImageMatrix
       if h[otu_collection_object]
         descriptor_index = @list_of_descriptors[o.descriptor_id][:index]
         h[otu_collection_object][:depictions][descriptor_index] += [o]
+        @list_of_image_ids.append(o.image_id)
       end
     end
     h
@@ -339,13 +347,14 @@ class ImageMatrix
   end
 
   def build_image_hash
-    if !@otu_filter.blank? || !@row_filter.blank?
-      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
-    else
-      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
-    end
+#    if !@otu_filter.blank? || !@row_filter.blank?
+#      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
+#    else
+#      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
+#    end
     h = {}
-    imgs = Image.where('id IN (?)', img_ids )
+    #imgs = Image.where('id IN (?)', img_ids )
+    imgs = Image.where('id IN (?)', @list_of_image_ids )
     imgs.each do |d|
       i = {}
       i[:global_id] = d.to_global_id.to_s
@@ -362,7 +371,8 @@ class ImageMatrix
       h[d.id] = i
     end
 
-    cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
+    #cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
+    cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', @list_of_image_ids )
     cit.each do |c|
       i = {}
       i[:id] = c.id
