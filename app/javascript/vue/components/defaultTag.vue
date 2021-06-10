@@ -1,7 +1,7 @@
 
 <template>
   <div v-if="keyId">
-    <tippy-component
+    <tippy
       v-if="!created"
       animation="scale"
       placement="bottom"
@@ -9,14 +9,12 @@
       :inertia="true"
       :arrow="true"
       :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <template v-slot:trigger>
-        <div
-          class="default_tag_widget circle-button btn-tag-add"
-          @click="createTag()"/>
-      </template>
-    </tippy-component>
+      <div
+        class="default_tag_widget circle-button btn-tag-add"
+        @click="createTag()"/>
+    </tippy>
 
-    <tippy-component
+    <tippy
       v-else
       animation="scale"
       placement="bottom"
@@ -24,12 +22,10 @@
       :inertia="true"
       :arrow="true"
       :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <template v-slot:trigger>
-        <div
-          class="default_tag_widget circle-button btn-tag-delete"
-          @click="deleteTag()"/>
-      </template>
-    </tippy-component>
+      <div
+        class="default_tag_widget circle-button btn-tag-delete"
+        @click="deleteTag()"/>
+    </tippy>
   </div>
   <div
     v-else
@@ -37,12 +33,12 @@
 </template>
 
 <script>
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
-    TippyComponent
+    Tippy
   },
   props: {
     globalId: {
@@ -57,7 +53,7 @@ export default {
       default: undefined
     }
   },
-  data: function () {
+  data () {
     return {
       tagItem: undefined,
       keyId: this.getDefault(),
@@ -98,7 +94,7 @@ export default {
     alreadyTagged: function(element) {
       if(!this.keyId) return
 
-      let params = {
+      const params = {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
@@ -121,7 +117,7 @@ export default {
       })
     },
     createTag: function () {
-      let tagItem = {
+      const tagItem = {
         tag: {
           keyword_id: this.keyId,
           annotated_global_entity: this.globalId
@@ -133,11 +129,12 @@ export default {
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
-    deleteTag: function () {
-			let tag = {
-				annotated_global_entity: this.globalId,
-				_destroy: true
-			}
+
+    deleteTag () {
+      const tag = {
+        annotated_global_entity: this.globalId,
+        _destroy: true
+      }
       AjaxCall('delete', `/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
         this.created = false
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')

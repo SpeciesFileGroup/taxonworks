@@ -9,8 +9,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Collecting events match</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Collecting events match</h3>
+      </template>
+      <template #body>
         <i>As edited this Collecting Event is invalid: a matching verbatim label has been found.</i>
         <table class="full_width">
           <thead>
@@ -23,7 +25,7 @@
             <tr
               v-for="item in CEFounded"
               :key="item.id">
-              <td v-html="item.object_tag">
+              <td v-html="item.object_tag"/>
               <td class="horizontal-right-content">
                 <span
                   class="button btn-edit circle-button button-default"
@@ -32,7 +34,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -53,10 +55,10 @@ export default {
 
   computed: {
     label: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)
       }
     },
@@ -88,6 +90,7 @@ export default {
         })
       }
     },
+
     loadCE (ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, ce)
       this.showModal = false

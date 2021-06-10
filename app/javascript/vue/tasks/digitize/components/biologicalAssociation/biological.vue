@@ -16,7 +16,7 @@
         pin-type="BiologicalRelationship"
         @selected="setBiologicalAssociation"
       >
-        <template slot="all">
+        <template #all>
           <tag-item
             v-for="item in allItems"
             :key="item.id"

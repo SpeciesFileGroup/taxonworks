@@ -4,16 +4,16 @@
       v-if="viewMode"
       @close="viewMode = false"
       :container-style="{ width: `${depiction.image.width}px`, minWidth: '700px' }">
-      <h3 slot="header">View</h3>
-      <div slot="body">
+      <template #header>
+        <h3>View</h3>
+      </template>
+      <template #body>
         <div class="image-container">
-          <template>
-            <img
-              :class="['img-maxsize', this.fullSizeImage ? 'img-fullsize' : 'img-normalsize']"
-              @click="fullSizeImage = !fullSizeImage"
-              :src="urlSrc"
-            >
-          </template>
+          <img
+            :class="['img-maxsize', this.fullSizeImage ? 'img-fullsize' : 'img-normalsize']"
+            @click="fullSizeImage = !fullSizeImage"
+            :src="urlSrc"
+          >
         </div>
 
         <template v-if="edit">
@@ -82,10 +82,10 @@
             v-if="attributionsList.length"
             class="full_width panel content margin-small-left">
             <h3>Attributions</h3>
-            <template v-for="(attribution, index) in attributionsList">
-              <ul
-                class="no_bullets"
-                :key="index">
+            <template
+              v-for="(attribution, index) in attributionsList"
+              :key="index">
+              <ul class="no_bullets">
                 <li
                   v-for="(persons, pIndex) in attribution"
                   :key="pIndex">
@@ -108,14 +108,14 @@
             <span v-html="originalCitation"/>
           </div>
         </div>
-      </div>
+      </template>
     </v-modal>
     <div>
       <div
         class="cursor-pointer"
         @click="viewMode = true">
         <slot>
-          <div 
+          <div
             :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"

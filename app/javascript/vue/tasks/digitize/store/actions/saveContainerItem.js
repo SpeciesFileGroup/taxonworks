@@ -1,6 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
 import { Identifier, ContainerItem } from 'routes/endpoints'
-import Vue from 'vue'
 
 export default ({ commit, state }) =>
   new Promise((resolve, reject) => {
@@ -19,7 +18,7 @@ export default ({ commit, state }) =>
           }
 
           Identifier.update({ identifier }).then(response => {
-            Vue.set(state.identifiers, 0, response.body)
+            state.identifiers[0] = response.body
           })
         }
         return resolve(response.body)

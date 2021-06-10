@@ -1,6 +1,8 @@
 <template>
   <nav-bar style="z-index: 1001">
-    <div class="flex-separate">
+    <div
+      v-hotkey="shortcuts"
+      class="flex-separate">
       <div class="horizontal-left-content">
         <autocomplete
           class="separate-right"
@@ -58,39 +60,31 @@
             </li>
           </ul>
         </div>
-        <tippy-component
+        <tippy
           v-if="hasChanges"
           animation="scale"
           placement="bottom"
           size="small"
-          :inertia="true"
-          :arrow="true"
+          inertia
+          arrow
           :content="`<p>You have unsaved changes.</p>`">
-          <template v-slot:trigger>
-            <div
-              class="medium-icon separate-right"
-              data-icon="warning"/>
-          </template>
-        </tippy-component>
+          <div
+            class="medium-icon separate-right"
+            data-icon="warning"/>
+        </tippy>
         <recent-component
           class="separate-right"
           @selected="loadCollectionObject($event)"/>
         <button 
           type="button"
-          v-shortkey="[getMacKey(), 's']"
-          @shortkey="saveDigitalization"
           class="button normal-input button-submit separate-right"
           @click="saveDigitalization">Save</button>  
         <button 
           type="button"
-          v-shortkey="[getMacKey(), 'n']"
-          @shortkey="saveAndNew"
           class="button normal-input button-submit separate-right"
           @click="saveAndNew">Save and new</button> 
         <div
           class="cursor-pointer"
-          v-shortkey="[getMacKey(), 'r']"
-          @shortkey="resetStore"
           @click="resetStore">
           <span data-icon="reset"/>
           <span>Reset</span>
@@ -101,13 +95,14 @@
 </template>
 
 <script>
-import Autocomplete from 'components/ui/Autocomplete.vue'
+
+import { Tippy } from 'vue-tippy'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import RecentComponent from './recent.vue'
-import GetMacKey from 'helpers/getMacKey.js'
-import { TippyComponent } from 'vue-tippy'
+import platformKey from 'helpers/getMacKey.js'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import NavBar from 'components/layout/NavBar'
 import AjaxCall from 'helpers/ajaxCall'
 import SoftValidation from './softValidation'
@@ -116,7 +111,7 @@ export default {
   components: {
     Autocomplete,
     RecentComponent,
-    TippyComponent,
+    Tippy,
     NavBar,
     SoftValidation
   },
@@ -140,7 +135,16 @@ export default {
     },
     hasChanges() {
       return this.settings.lastChange > this.settings.lastSave
-    }
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveDigitalization
+      keys[`${platformKey()}+n`] = this.saveAndNew
+      keys[`${platformKey()}+r`] = this.resetStore
+
+      return keys
+    },
   },
   data () {
     return {
@@ -178,7 +182,6 @@ export default {
     }
   },
   methods: {
-    getMacKey: GetMacKey,
     saveDigitalization() {
       this.$store.dispatch(ActionNames.SaveDigitalization)
     },

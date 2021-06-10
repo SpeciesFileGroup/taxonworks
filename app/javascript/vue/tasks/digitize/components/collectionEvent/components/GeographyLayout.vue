@@ -4,12 +4,13 @@
     <draggable
       v-model="componentsOrder"
       :disabled="!settings.sortable"
+      :item-key="item => item"
       @end="updatePreferences">
-      <component
-        class="separate-bottom"
-        v-for="componentName in componentsOrder"
-        :key="componentName"
-        :is="componentName"/>
+      <template #item="{ element }">
+        <component
+          class="separate-bottom"
+          :is="element"/>
+      </template>
     </draggable>
   </div>
 </template>

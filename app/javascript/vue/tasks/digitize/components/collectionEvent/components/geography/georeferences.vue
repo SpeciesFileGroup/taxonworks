@@ -25,8 +25,10 @@
       class="modal-georeferences"
       @close="closeModal"
       v-show="show">
-      <h3 slot="header">Georeferences</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Georeferences</h3>
+      </template>
+      <template #body>
         <georeferences
           :show="show"
           ref="georeference"
@@ -39,7 +41,7 @@
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -59,6 +61,9 @@ export default {
     ModalComponent,
     Georeferences
   },
+
+  emits: ['onModal'],
+
   computed: {
     collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionEvent]

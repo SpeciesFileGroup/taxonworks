@@ -1,146 +1,148 @@
 <template>
   <block-layout :warning="!taxonDetermination.id">
-    <div slot="header">
+    <template #header>
       <h3>Determinations</h3>
-    </div>
-    <div
-      slot="body"
-      id="taxon-determination-digitize">
-      <fieldset
-        class="separate-bottom">
-        <legend>OTU</legend>
-        <div class="horizontal-left-content separate-bottom align-start">
-          <smart-selector
-            class="margin-medium-bottom full_width"
-            model="otus"
-            ref="smartSelector"
-            input-id="determination-otu-autocomplete"
-            pin-section="Otus"
-            pin-type="Otu"
-            :autocomplete="false"
-            :otu-picker="true"
-            target="TaxonDetermination"
-            @selected="setOtu"
-          />
-          <lock-component
-            class="margin-small-left"
-            v-model="locked.taxon_determination.otu_id"/>
-        </div>
-        <div
-          v-if="otuSelected"
-          class="horizontal-left-content">
-          <p v-html="otuSelected"/>
-          <span
-            class="circle-button button-default btn-undo"
-            @click="otuId = undefined; otuSelected = undefined"/>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Determiner</legend>
-        <div class="horizontal-left-content separate-bottom align-start">
-          <smart-selector
-            class="full_width"
-            ref="determinerSmartSelector"
-            model="people"
-            target="CollectionObject"
-            :params="{ role_type: 'Determiner' }"
-            :autocomplete-params="{
-              roles: ['Determiner']
-            }"
-            :autocomplete="false"
-            @onTabSelected="view = $event"
-            @selected="addRole">
-            <role-picker
-              slot="header"
-              class="role-picker"
-              :autofocus="false"
-              :hidden-list="true"
-              ref="rolepicker"
-              role-type="Determiner"
-              v-model="roles"/>
-            <role-picker
-              class="role-picker"
-              :autofocus="false"
-              :create-form="false"
-              role-type="Determiner"
-              v-model="roles"/>
-          </smart-selector>
-          <lock-component
-            class="margin-small-left"
-            v-model="locked.taxon_determination.roles_attributes"/>
-        </div>
-      </fieldset>
-      <div class="horizontal-left-content date-fields separate-bottom separate-top">
-        <div class="separate-left">
-          <label>Day</label>
-          <input
-            type="number"
-            v-model="day">
-        </div>
-        <div class="separate-right separate-left">
-          <label>Month</label>
-          <input
-            type="number"
-            v-model="month">
-        </div>
-        <div class="separate-right">
-          <label>Year</label>
-          <input
-            type="number"
-            v-model="year">
-        </div>
-        <div>
-          <label>&nbsp</label>
-          <div class="align-start">
-            <button
-              type="button"
-              class="button normal-input button-default separate-left separate-right"
-              @click="setActualDate">
-              Now
-            </button>
-            <lock-component v-model="locked.taxon_determination.dates"/>
+    </template>
+    <template #body>
+      <div id="taxon-determination-digitize">
+        <fieldset
+          class="separate-bottom">
+          <legend>OTU</legend>
+          <div class="horizontal-left-content separate-bottom align-start">
+            <smart-selector
+              class="margin-medium-bottom full_width"
+              model="otus"
+              ref="smartSelector"
+              input-id="determination-otu-autocomplete"
+              pin-section="Otus"
+              pin-type="Otu"
+              :autocomplete="false"
+              :otu-picker="true"
+              target="TaxonDetermination"
+              @selected="setOtu"
+            />
+            <lock-component
+              class="margin-small-left"
+              v-model="locked.taxon_determination.otu_id"/>
+          </div>
+          <div
+            v-if="otuSelected"
+            class="horizontal-left-content">
+            <p v-html="otuSelected"/>
+            <span
+              class="circle-button button-default btn-undo"
+              @click="otuId = undefined; otuSelected = undefined"/>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Determiner</legend>
+          <div class="horizontal-left-content separate-bottom align-start">
+            <smart-selector
+              class="full_width"
+              ref="determinerSmartSelector"
+              model="people"
+              target="CollectionObject"
+              :params="{ role_type: 'Determiner' }"
+              :autocomplete-params="{
+                roles: ['Determiner']
+              }"
+              :autocomplete="false"
+              @onTabSelected="view = $event"
+              @selected="addRole">
+              <role-picker
+                slot="header"
+                class="role-picker"
+                :autofocus="false"
+                :hidden-list="true"
+                ref="rolepicker"
+                role-type="Determiner"
+                v-model="roles"/>
+              <role-picker
+                class="role-picker"
+                :autofocus="false"
+                :create-form="false"
+                role-type="Determiner"
+                v-model="roles"/>
+            </smart-selector>
+            <lock-component
+              class="margin-small-left"
+              v-model="locked.taxon_determination.roles_attributes"/>
+          </div>
+        </fieldset>
+        <div class="horizontal-left-content date-fields separate-bottom separate-top">
+          <div class="separate-left">
+            <label>Day</label>
+            <input
+              type="number"
+              v-model="day">
+          </div>
+          <div class="separate-right separate-left">
+            <label>Month</label>
+            <input
+              type="number"
+              v-model="month">
+          </div>
+          <div class="separate-right">
+            <label>Year</label>
+            <input
+              type="number"
+              v-model="year">
+          </div>
+          <div>
+            <label>&nbsp</label>
+            <div class="align-start">
+              <button
+                type="button"
+                class="button normal-input button-default separate-left separate-right"
+                @click="setActualDate">
+                Now
+              </button>
+              <lock-component v-model="locked.taxon_determination.dates"/>
+            </div>
           </div>
         </div>
+        <button
+          type="button"
+          id="determination-add-button"
+          :disabled="!otuId"
+          class="button normal-input button-submit separate-top"
+          @click="addDetermination">
+          {{ taxonDetermination.id ? 'Set' : 'Add' }}
+        </button>
+        <draggable
+          class="table-entrys-list"
+          tag="ul"
+          item-key="id"
+          v-model="list"
+          @end="updatePosition">
+          <template #item="{ element }">
+            <li
+              class="list-complete-item flex-separate middle">
+              <a
+                v-if="element.id"
+                v-html="element.object_tag"
+                :href="openBrowseOtu(element.otu_id)"/>
+              <span
+                v-else
+                v-html="element.object_tag"/>
+              <div class="horizontal-left-content">
+                <span
+                  v-if="element.id"
+                  @click="editTaxonDetermination(element)"
+                  class="button circle-button btn-edit"/>
+                <radial-annotator
+                  v-if="element.hasOwnProperty('global_id')"
+                  :global-id="item.global_id"/>
+                <span
+                  class="circle-button btn-delete"
+                  :class="{ 'button-default': !element.id }"
+                  @click="removeTaxonDetermination(element)"/>
+              </div>
+            </li>
+          </template>
+        </draggable>
       </div>
-      <button
-        type="button"
-        id="determination-add-button"
-        :disabled="!otuId"
-        class="button normal-input button-submit separate-top"
-        @click="addDetermination">
-        {{ taxonDetermination.id ? 'Set' : 'Add' }}
-      </button>
-      <draggable
-        class="table-entrys-list"
-        element="ul"
-        v-model="list"
-        @end="updatePosition">
-        <li
-          class="list-complete-item flex-separate middle"
-          v-for="(item, index) in list">
-          <a
-            v-if="item.id"
-            v-html="item.object_tag"
-            :href="openBrowseOtu(item.otu_id)"/>
-          <span
-            v-else
-            v-html="item.object_tag"/>
-          <div class="horizontal-left-content">
-            <span
-              v-if="item.id"
-              @click="editTaxonDetermination(item)"
-              class="button circle-button btn-edit"/>
-            <radial-annotator
-              v-if="item.hasOwnProperty('global_id')"
-              :global-id="item.global_id"/>
-            <span
-              class="circle-button btn-delete"
-              :class="{ 'button-default': !item.id }"
-              @click="removeTaxonDetermination(item)"/>
-          </div>
-        </li>
-      </draggable>
-    </div>
+    </template>
   </block-layout>
 </template>
 

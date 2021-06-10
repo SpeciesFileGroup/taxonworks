@@ -21,8 +21,10 @@
     <modal-component
       v-if="showValidation"
       @close="showValidation = false">
-      <h3 slot="header">Soft validation</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Soft validation</h3>
+      </template>
+      <template #body>
         <template v-if="validation.collectionObject.length">
           <h3>Collection object</h3>
           <ul class="no_bullets">
@@ -39,7 +41,7 @@
             </li>
           </ul>
         </template>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>

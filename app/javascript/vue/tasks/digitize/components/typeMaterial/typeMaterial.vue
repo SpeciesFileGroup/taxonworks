@@ -1,21 +1,11 @@
 <template>
   <block-layout :warning="!(typeMaterial.id || typeMaterials.length)">
-    <div slot="header">
+    <template #header>
       <h3>Type material</h3>
       <span
-        v-shortkey="[platformKey, 'm']"
-        @shortkey="switchTypeMaterial"/>
-      <span
-        v-shortkey="[platformKey, 't']"
-        @shortkey="switchNewTaxonName"/>
-      <span
-        v-shortkey="[platformKey, 'o']"
-        @shortkey="switchBrowseOtu"/>
-      <span
-        v-shortkey="[platformKey, 'b']"
-        @shortkey="switchBrowseNomenclature"/>
-    </div>
-    <div slot="body">
+        v-hotkey="shortcuts"/>
+    </template>
+    <template #body>
       <ul
         class="no_bullets"
         v-if="typeMaterials.length">
@@ -113,7 +103,7 @@
             placeholder="Pages">
         </fieldset>
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -137,7 +127,16 @@ export default {
     VIcon
   },
   computed: {
-    platformKey,
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+m`] = this.switchTypeMaterial
+      keys[`${platformKey()}+t`] = this.switchNewTaxonName
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+      keys[`${platformKey()}+b`] = this.switchBrowseNomenclature
+
+      return keys
+    },
 
     taxonIdFormOtu () {
       const otu = this.$store.getters[GetterNames.GetTmpData].otu

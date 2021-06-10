@@ -54,43 +54,45 @@
           </template>
         </td>
       </tr>
-      <tr
+      <template
         v-for="(item, index) in collectionObjects"
-        :key="item.id"
-        class="list-complete-item"
-        :class="{ 'highlight': isSelected(item) }"
-        v-if="collectionObject.id != item.id">
-        <td>
-          <input
-            :data-index="index"
-            class="total-size co-total-count"
-            type="number"
-            @change="updateCO(item)"
-            v-model="item.total">
-        </td>
-        <td></td>
-        <td>
-          <bioclassification
-            :biological-id="item.id"
-            :biocurations-groups="biocurationsGroups"
-            :biocutarions-type="biocutarionsType"/>
-        </td>
-        <td class="horizontal-right-content">
-          <accession-metadata :collection-object="item"/>
-          <radial-annotator :global-id="item.global_id"/>
-          <button
-            type="button"
-            class="button circle-button btn-edit"
-            @click="setCO(item)">Select</button>
-          <pin-component
-            type="CollectionObject"
-            :object-id="item.id"/>
-          <button
-            type="button"
-            class="button circle-button btn-delete"
-            @click="removeCO(item.id)"/>
-        </td>
-      </tr>
+        :key="item.id">
+        <tr
+          class="list-complete-item"
+          :class="{ 'highlight': isSelected(item) }"
+          v-if="collectionObject.id != item.id">
+          <td>
+            <input
+              :data-index="index"
+              class="total-size co-total-count"
+              type="number"
+              @change="updateCO(item)"
+              v-model="item.total">
+          </td>
+          <td></td>
+          <td>
+            <bioclassification
+              :biological-id="item.id"
+              :biocurations-groups="biocurationsGroups"
+              :biocutarions-type="biocutarionsType"/>
+          </td>
+          <td class="horizontal-right-content">
+            <accession-metadata :collection-object="item"/>
+            <radial-annotator :global-id="item.global_id"/>
+            <button
+              type="button"
+              class="button circle-button btn-edit"
+              @click="setCO(item)">Select</button>
+            <pin-component
+              type="CollectionObject"
+              :object-id="item.id"/>
+            <button
+              type="button"
+              class="button circle-button btn-delete"
+              @click="removeCO(item.id)"/>
+          </td>
+        </tr>
+      </template>
     </tbody>
   </table>
 </template>
@@ -176,7 +178,7 @@ export default {
               }
             })
           })
-          this.$set(this.biocurationsGroups[index], 'list', tmpArray)
+          this.biocurationsGroups[index]['list'] = tmpArray
         })
       })
     },

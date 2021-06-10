@@ -1,9 +1,8 @@
 import { MutationNames } from '../mutations/mutations'
 import { Identifier } from 'routes/endpoints'
-import Vue from 'vue'
 
-export default function ({ commit, state }) {
-  return new Promise((resolve, reject) => {
+export default ({ commit, state }) =>
+  new Promise((resolve, reject) => {
     const identifier = state.identifier
 
     identifier.identifier_object_type = state.container ? 'Container' : 'CollectionObject'
@@ -13,7 +12,7 @@ export default function ({ commit, state }) {
         Identifier.update(identifier.id, { identifier }).then(response => {
           commit(MutationNames.SetIdentifier, response.body)
           const index = state.identifiers.findIndex(item => item.id === response.body.id)
-          Vue.set(state.identifiers, index, response.body)
+          state.identifiers[index] = response.body
           return resolve(response.body)
         }, (response) => {
           reject(response.body)
@@ -40,4 +39,3 @@ export default function ({ commit, state }) {
       resolve()
     }
   })
-}
