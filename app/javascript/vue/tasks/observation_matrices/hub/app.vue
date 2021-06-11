@@ -3,7 +3,7 @@
     <autocomplete
       url="/observation_matrix_rows/autocomplete"
       param="term"
-      :label="(item) => { return `(${item.observation_matrix_label}): ${item.label}` }"
+      :label="(item) => `(${item.observation_matrix_label}): ${item.label}`"
       placeholder="Search a row"
       :clear-after="true"
       @getItem="selectRow"
@@ -11,8 +11,11 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Select task</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Select task</h3>
+      </template>
+      <template #body>
+      <div>
         <button
           class="button normal-input button-default"
           type="button"
@@ -28,6 +31,7 @@
           Matrix row coder
         </button>
       </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -44,6 +48,7 @@ export default {
     Autocomplete,
     ModalComponent
   },
+
   data () {
     return {
       showModal: false,
@@ -51,13 +56,16 @@ export default {
       matrix: undefined
     }
   },
+
   methods: {
     openImageMatrix () {
       window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${this.matrix.id}&row_id=${this.row.id}&row_position=${this.row.position}`, '_self')
     },
+
     openMatrixRowCoder () {
       window.open(`${RouteNames.MatrixRowCoder}?observation_matrix_row_id=${this.row.id}`, '_self')
     },
+
     selectRow (row) {
       ObservationMatrix.find(row.observation_matrix_id).then(response => {
         this.row = row
