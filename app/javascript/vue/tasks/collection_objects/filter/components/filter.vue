@@ -6,15 +6,13 @@
         type="button"
         data-icon="w_reset"
         class="button circle-button button-default center-icon no-margin"
-        v-shortkey="[OSKey, 'r']"
-        @shortkey="resetFilter"
         @click="resetFilter"/>
     </div>
     <spinner-component
-      :full-screen="true"
+      v-if="searching"
+      full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching"
     />
 
     <spinner-component
@@ -28,8 +26,6 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[OSKey, 'f']"
-        @shortkey="searchForCollectionObjects(parseParams)"
         @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
@@ -107,7 +103,7 @@ import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
 
 import SpinnerComponent from 'components/spinner'
-import OSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectionObject } from 'routes/endpoints'
 
@@ -140,7 +136,14 @@ export default {
   ],
 
   computed: {
-    OSKey,
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+r`] = this.resetFilter
+      keys[`${platformKey()}+f`] = this.searchForCollectionObjects
+
+      return keys
+    },
 
     parseParams () {
       return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
@@ -202,7 +205,7 @@ export default {
       this.params = this.initParams()
     },
 
-    searchForCollectionObjects (params) {
+    searchForCollectionObjects (params = this.parseParams) {
       if (this.loadingDWCA) return
       this.searching = true
       this.result = []

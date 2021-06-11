@@ -58,8 +58,8 @@ require('../vue/tasks/observation_matrices/dashboard/main.js')
 */
 require('../vue/tasks/nomenclature/stats/main.js')
 require('../vue/tasks/otu/browse_asserted_distributions/main.js')
-/*
 require('../vue/tasks/collection_objects/filter/main.js')
+/*
 require('../vue/tasks/sources/new_source/main.js')
 require('../vue/tasks/otu/browse/main.js')
 require('../vue/tasks/collection_objects/slide_breakdown/main.js')

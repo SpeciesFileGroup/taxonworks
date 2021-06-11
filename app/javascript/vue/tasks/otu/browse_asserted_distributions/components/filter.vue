@@ -42,21 +42,24 @@ export default {
       searching: false
     }
   },
+
   watch: {
     params: {
       handler(newVal) {
-        if(newVal.base.otu_id) {
+        if (newVal.base.otu_id) {
           this.search()
         }
       },
       deep: true
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
+
     search () {
       const params = Object.assign({}, this.params.base)
 
@@ -72,6 +75,7 @@ export default {
         this.searching = false
       })
     },
+
     initParams () {
       return {
         base: {
@@ -80,6 +84,7 @@ export default {
         }
       }
     },
+
     filterEmptyParams (object) {
       const keys = Object.keys(object)
 

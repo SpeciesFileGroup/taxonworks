@@ -48,10 +48,10 @@
         @result="loadList"
         @pagination="pagination = getPagination($event)"
         @reset="resetTask"/>
-      <div class="full_width overflow-scroll">
+      <div class="full_width overflow-x-auto">
         <div 
           v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-left separate-bottom">
+          class="horizontal-left-content flex-separate separate-bottom">
           <div class="horizontal-left-content">
             <csv-button
               :url="urlRequest"
@@ -86,7 +86,6 @@
         </div>
         <list-component
           v-model="ids"
-          :class="{ 'separate-left': activeFilter }"
           :list="list"
           @onSort="list.data = $event"/>
         <h2
@@ -115,6 +114,7 @@ export default {
     CsvButton,
     PaginationCount
   },
+
   computed: {
     csvFields () {
       if (!Object.keys(this.list).length) return []
@@ -126,13 +126,16 @@ export default {
         }
       })
     },
+
     coIds () {
-      return Object.keys(this.list).length ? this.list.data.map(item => { return item[0] }) : []
+      return Object.keys(this.list).length ? this.list.data.map(item => item[0]) : []
     },
-    recordsFound() {
+
+    recordsFound () {
       return Object.keys(this.list).length && this.list.data.length
     }
   },
+
   data () {
     return {
       list: {},
@@ -147,12 +150,14 @@ export default {
       per: 500
     }
   },
+
   watch: {
     per(newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     }
   },
+
   methods: {
     resetTask () {
       this.alreadySearch = false
@@ -161,6 +166,7 @@ export default {
       this.pagination = undefined
       history.pushState(null, null, '/tasks/collection_objects/filter')
     },
+
     loadList(newList) {
       if(this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
@@ -178,6 +184,7 @@ export default {
       }
       this.alreadySearch = true
     },
+
     loadPage(event) {
       this.$refs.filterComponent.loadPage(event.page)
     },

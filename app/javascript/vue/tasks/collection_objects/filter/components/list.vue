@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="Object.keys(list).length"
-    class="full_width overflow-scroll">
+    class="full_width overflow-x-scroll">
     <table class="full_width">
       <thead>
         <tr>
