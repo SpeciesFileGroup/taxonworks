@@ -23,8 +23,7 @@
           </label>
           <button
             type="button"
-            v-shortkey="[OSKey(), 's']"
-            @shortkey="saveAssertedDistribution()"
+            v-hotkey="shortcuts"
             :disabled="!validate"
             class="button normal-input button-submit separate-left separate-right"
             @click="saveAssertedDistribution">{{ asserted_distribution.id ? 'Update' : 'Create' }}
@@ -98,7 +97,7 @@ import TableComponent from './components/table'
 import LockComponent from 'components/ui/VLock/index.vue'
 import SpinnerComponent from 'components/spinner'
 import NavBarComponent from 'components/layout/NavBar'
-import OSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 
 import { Source, AssertedDistribution } from 'routes/endpoints'
 
@@ -112,16 +111,23 @@ export default {
     SpinnerComponent,
     NavBarComponent
   },
+
   computed: {
     validate () {
       return this.asserted_distribution.otu && this.asserted_distribution.geographicArea && this.asserted_distribution.citation.source
     },
     currentAssertedDistribution () {
-      return this.list.find(item => {
-        return item.id === this.asserted_distribution.id
-      })
+      return this.list.find(item => item.id === this.asserted_distribution.id)
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey}+s`] = this.saveAssertedDistribution
+
+      return keys
     }
   },
+
   data () {
     return {
       asserted_distribution: this.newAssertedDistribution(),
@@ -135,16 +141,16 @@ export default {
       }
     }
   },
+
   created () {
     AssertedDistribution.where({ recent: true, per: 15 }).then(response => {
       this.list = response.body
       this.loading = false
     })
-    TW.workbench.keyboard.createLegend(`${this.OSKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save and create new asserted distribution', 'New asserted distribution')
   },
-  methods: {
-    OSKey,
 
+  methods: {
     triggerAutosave () {
       if (this.validate && this.autosave) {
         this.saveAssertedDistribution()
