@@ -5,15 +5,27 @@
         class="flex-wrap-row matrix-image-draggable"
         :group="{ name: 'cells', put: false }"
         @choose="setObservationDragged"
-        @remove="removedObservationFromList">
+        @remove="removeDepiction">
         <div
           v-for="depiction in depictions"
           :key="depiction.id"
           class="drag-container">
-          <depiction-modal-viewer
+          <image-viewer
+            edit
             :depiction="depiction"
-            is-original
-          />
+          >
+            <div
+              class="horizontal-left-content"
+              slot="thumbfooter">
+              <radial-annotator
+                type="annotations"
+                :global-id="depiction.image.global_id"/>
+              <button-citation
+                :global-id="depiction.image.global_id"
+                :citations="depiction.image.citations"
+              />
+            </div>
+          </image-viewer>
         </div>
       </draggable-component>
     </div>
@@ -26,15 +38,19 @@
 <script>
 
 import DraggableComponent from 'vuedraggable'
-import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import ButtonCitation from './ButtonCitation.vue'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     DraggableComponent,
-    DepictionModalViewer,
-    VIcon
+    VIcon,
+    ImageViewer,
+    ButtonCitation,
+    RadialAnnotator
   },
 
   props: {
@@ -53,8 +69,8 @@ export default {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
     },
-    removedObservationFromList (event) {
-      this.depictions.splice([event.oldIndex], 1)
+    removeDepiction ({ oldIndex }) {
+      this.$emit('removeDepiction', oldIndex)
     }
   }
 }

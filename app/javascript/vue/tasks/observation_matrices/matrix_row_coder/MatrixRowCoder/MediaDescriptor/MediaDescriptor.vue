@@ -48,11 +48,23 @@
           v-for="observation in observations"
           :key="observation.id"
           class="horizontal-left-content">
-          <depiction-modal
+          <image-viewer
             v-for="depiction in observation.depictions"
-            :key="depiction.image.id"
-            :depiction="depiction"
-            @delete="destroyObservation(observation.id)"/>
+            :key="depiction.id"
+            :depiction="depiction">
+            <div
+              class="horizontal-left-content"
+              slot="thumbfooter">
+              <radial-annotator
+                type="annotations"
+                :global-id="depiction.image.global_id"/>
+              <button
+                class="button circle-button btn-delete"
+                type="button"
+                @click="destroyObservation(observation.id)"
+              />
+            </div>
+          </image-viewer>
         </li>
       </ul>
     </summary-view>
@@ -69,7 +81,8 @@ import summaryView from '../SummaryView/SummaryView.vue'
 import FilterImage from 'tasks/images/filter/components/filter'
 import SmartSelector from 'components/ui/SmartSelector'
 import DropzoneComponent from 'components/dropzone'
-import DepictionModal from 'components/depictionModalViewer/depictionModalViewer.vue'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   name: 'MediaDescriptor',
@@ -139,11 +152,12 @@ export default {
     }
   },
   components: {
-    DepictionModal,
+    ImageViewer,
     summaryView,
     FilterImage,
     SmartSelector,
-    DropzoneComponent
+    DropzoneComponent,
+    RadialAnnotator
   }
 }
 </script>

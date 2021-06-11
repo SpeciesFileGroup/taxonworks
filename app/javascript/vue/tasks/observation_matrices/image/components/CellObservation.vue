@@ -10,7 +10,7 @@
             class="dropzone-card"
             ref="depictionDepic"
             url="/depictions"
-            :id="`depiction-${row.id}-${column.id}-depic-${Math.random().toString(36).slice(2)}`"
+            :id="`depiction-${rowObject.id}-${column.id}-depic-${Math.random().toString(36).slice(2)}`"
             :use-custom-dropzone-options="true"
             @vdropzone-sending="sendingDepic"
             @vdropzone-success="successDepic"
@@ -21,7 +21,7 @@
             class="dropzone-card"
             ref="depictionObs"
             url="/observations"
-            :id="`depiction-${row.id}-${column.id}-obs-${Math.random().toString(36).slice(2)}`"
+            :id="`depiction-${rowObject.id}-${column.id}-obs-${Math.random().toString(36).slice(2)}`"
             :use-custom-dropzone-options="true"
             @vdropzone-sending="sending"
             @vdropzone-success="success"
@@ -32,21 +32,35 @@
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         group="cells"
-        @add="movedObservation"
+        @add="movedDepiction"
         @choose="setObservationDragged"
-        @remove="removedObservationFromList">
-        <template v-if="observationsMedia[0] && observationsMedia[0].hasOwnProperty('depictions')">
-          <div
-            v-for="depiction in observationsMedia[0].depictions"
-            :key="depiction.id"
-            class="drag-container">
-            <depiction-modal-viewer
-              :depiction="depiction"
-              is-original
-              @delete="removeDepiction"
-            />
-          </div>
-        </template>
+        @remove="removeFromList">
+        <div
+          v-for="depiction in depictions"
+          :key="depiction.id"
+          class="drag-container">
+          <image-viewer
+            edit
+            :depiction="depiction"
+          >
+            <div
+              class="horizontal-left-content"
+              slot="thumbfooter">
+              <radial-annotator
+                type="annotations"
+                :global-id="depiction.image.global_id"/>
+              <button-citation
+                :global-id="depiction.image.global_id"
+                :citations="depiction.image.citations"
+              />
+              <button
+                class="button circle-button btn-delete"
+                type="button"
+                @click="removeDepiction(depiction)"
+              />
+            </div>
+          </image-viewer>
+        </div>
       </draggable-component>
     </div>
     <v-icon
@@ -59,10 +73,11 @@
 
 import DropzoneComponent from 'components/dropzone'
 import DraggableComponent from 'vuedraggable'
-import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import SpinnerComponent from 'components/spinner'
 import VIcon from 'components/ui/VIcon/index.vue'
-
+import ButtonCitation from './ButtonCitation.vue'
 import { Observation, Depiction } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -72,12 +87,19 @@ export default {
     DropzoneComponent,
     DraggableComponent,
     SpinnerComponent,
-    DepictionModalViewer,
-    VIcon
+    ImageViewer,
+    VIcon,
+    RadialAnnotator,
+    ButtonCitation
   },
 
   props: {
-    row: {
+    depictions: {
+      type: Array,
+      required: true
+    },
+
+    rowObject: {
       type: Object,
       required: true
     },
@@ -110,18 +132,27 @@ export default {
         this.$store.commit(MutationNames.SetDepictionMoved, value)
       }
     },
-    observationsMedia () {
-      return this.observations
-    },
+
     existObservations () {
-      return this.observations.length > 0
+      return this.depictions.length > 0
+    },
+
+    rowObjectId () {
+      return this.rowObject.otu_id || this.rowObject.collection_object_id
+    },
+
+    rowObjectBaseCassParam () {
+      return this.rowObject.otu_id ? 'otu_id' : 'collection_object_id'
+    },
+
+    observationId () {
+      return this.depictions.length && this.depictions[0].depiction_object_id
     }
   },
 
   data () {
     return {
-      observations: [],
-      isLoading: true,
+      isLoading: false,
       dropzoneObservation: {
         paramName: 'observation[images_attributes][][image_file]',
         url: '/observations',
@@ -145,132 +176,101 @@ export default {
     }
   },
 
-  watch: {
-    row: {
-      handler (newVal, oldVal) {
-        if (newVal.id === oldVal?.id) return
-        this.isLoading = true
-        Observation.where({
-          observation_object_global_id: this.row.row_object.global_id,
-          descriptor_id: this.column.descriptor.id
-        }).then(response => {
-          this.observations = response.body.filter((item) => item.type === 'Observation::Media')
-          this.isLoading = false
-        })
-      },
-      deep: true,
-      immediate: true
-    }
-  },
-
   methods: {
-    removedObservationFromList (event) {
-      if (this.observationsMedia[0].depictions.length === 1) {
-        this.observations.splice(event.oldIndex, 1)
-      } else {
-        const index = this.observations.findIndex(item => item.id === this.observationsMedia[0].id)
-        this.observations[index].depictions.splice([event.oldIndex], 1)
-      }
+
+    removeFromList (event) {
+      this.$emit('removeDepiction', event.oldIndex)
     },
 
-    movedObservation () {
-      if (this.observationsMedia.length) {
-        this.updateDepiction()
+    movedDepiction (event) {
+      if (this.depictions.length) {
+        this.updateDepiction(event)
       } else {
         const observation = {
-          descriptor_id: this.column.descriptor_id,
+          descriptor_id: this.column.id,
           type: 'Observation::Media',
-          [this.row.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id']: this.row.row_object.id,
+          [this.rowObjectBaseCassParam]: this.rowObjectId
         }
 
-        Observation.create({ observation }).then(response => {
-          this.observations.push(response.body)
-          this.updateDepiction()
+        Observation.create({ observation }).then(({ body }) => {
+          this.updateDepiction(event, body.id)
         })
       }
     },
 
-    updateDepiction () {
+    updateDepiction (event, observationId) {
       const depiction = {
         id: this.depictionMoved.id,
-        depiction_object_id: this.observationsMedia[0].id,
-        depiction_object_type: this.observationsMedia[0].base_class
+        depiction_object_id: observationId || this.observationId,
+        depiction_object_type: 'Observation'
       }
       const observation = {
-        id: this.observationMoved?.id,
+        id: this.observationMoved,
         depictions_attributes: [depiction]
       }
+
       if (observation.id) {
         Observation.update(observation.id, { observation }).then(({ body }) => {
-          if (!body?.depictions) {
+          if (!body.depictions.find(d => d.depiction_object_id === this.observationMoved)) {
             Observation.destroy(body.id)
           }
         })
       }
+
       this.$store.commit(MutationNames.SetIsSaving, true)
       Depiction.update(depiction.id, { depiction }).then(({ body }) => {
-        const observation = this.observations[0]
-
-        if (observation?.depictions?.length) {
-          const index = observation.depictions.findIndex(depiction => depiction.id === body.id)
-          if (index > 0) {
-            this.$set(observation.depictions, index, body)
-          } else {
-            observation.depictions.push(body)
-          }
-        } else {
-          this.$set(this.observations[0], 'depictions', [body])
-        }
+        this.$emit('addDepiction', body)
         this.depictionMoved = undefined
         this.observationMoved = undefined
         this.$store.commit(MutationNames.SetIsSaving, false)
       })
+      event.item.remove()
     },
 
     setObservationDragged (event) {
-      this.depictionMoved = this.observationsMedia[0].depictions[event.oldIndex]
-      this.observationMoved = this.observationsMedia[0]
+      this.depictionMoved = this.depictions[event.oldIndex]
+      this.observationMoved = this.observationId
     },
 
     removeDepiction (depiction) {
-      this.$store.commit(MutationNames.SetIsSaving, true)
-      Depiction.destroy(depiction.id).then(() => {
-        const index = this.observations[0].depictions.findIndex(item => item.id === depiction.id)
+      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
+        this.$store.commit(MutationNames.SetIsSaving, true)
+        Depiction.destroy(depiction.id).then(() => {
+          const index = this.depictions.findIndex(item => item.id === depiction.id)
+          const observationId = this.observationId
 
-        this.observations[0].depictions.splice(index, 1)
-        if (!this.observations[0].depictions.length) {
-          Observation.destroy(this.observations[0].id).then(() => {
-            this.observations.splice(0, 1)
+          this.$emit('removeDepiction', index)
+          if (!this.depictions.length) {
+            Observation.destroy(observationId).then(() => {
+              this.$store.commit(MutationNames.SetIsSaving, false)
+            })
+          } else {
             this.$store.commit(MutationNames.SetIsSaving, false)
-          })
-        } else {
-          this.$store.commit(MutationNames.SetIsSaving, false)
-        }
-      })
+          }
+        })
+      }
     },
 
     success (file, response) {
-      this.observations.push(response)
+      this.$emit('addDepiction', response.depictions[0])
       this.$refs.depictionObs.removeFile(file)
-      this.$emit('create', response)
     },
 
     sending (file, xhr, formData) {
-      formData.append('observation[descriptor_id]', this.column.descriptor_id)
+      formData.append('observation[descriptor_id]', this.column.id)
       formData.append('observation[type]', 'Observation::Media')
-      formData.append(`observation[${this.row.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.row.row_object.id)
+      formData.append(`observation[${this.rowObjectBaseCassParam}]`, this.rowObjectId)
     },
 
     successDepic (file, response) {
-      this.observations[0].depictions.push(response)
+      this.$emit('addDepiction', response)
       this.$refs.depictionDepic.removeFile(file)
-      this.$emit('create', response)
     },
 
     sendingDepic (file, xhr, formData) {
-      formData.append('depiction[depiction_object_id]', this.observations[0].id)
-      formData.append('depiction[depiction_object_type]', this.observations[0].base_class)
-    },
+      formData.append('depiction[depiction_object_id]', this.observationId)
+      formData.append('depiction[depiction_object_type]', 'Observation')
+    }
   }
 }
 </script>
@@ -287,6 +287,7 @@ export default {
 
   :deep(.dz-message) {
     margin: 1em 0 !important;
+    font-size: 16px !important;
   }
 
   .matrix-image-draggable {
