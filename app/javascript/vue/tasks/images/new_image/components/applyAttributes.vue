@@ -39,7 +39,7 @@
             type="text">
           <button
             type="button"
-            :disabled="!this.pixels || !imagesCreated"
+            :disabled="!pixels || !imagesCreated"
             class="button normal-input button-submit separate-left"
             @click="applyPxToCm">
             Apply

@@ -59,21 +59,26 @@ export default {
     RadialAnnotator,
     RadialObject
   },
+
   props: {
     image: {
       type: Object,
       required: true
     }
   },
-  data: function () {
+
+  emits: ['delete'],
+
+  data () {
     return {
       fullSizeImage: false,
       viewMode: false
     }
   },
+
   methods: {
     deleteImage () {
-      if(window.confirm("Are you sure you want to delete this image?")) {
+      if (window.confirm('Are you sure you want to delete this image?')) {
         this.$emit('delete', this.image)
       }
     }

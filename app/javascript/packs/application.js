@@ -47,8 +47,7 @@ require('../vue/tasks/digitize/main.js')
 require('../vue/tasks/labels/print_labels/main.js')
 require('../vue/tasks/projects/preferences/main.js')
 require('../vue/tasks/asserted_distribution/new_asserted_distribution/main.js')
-/* 
-require('../vue/tasks/images/new_image/main.js') */
+require('../vue/tasks/images/new_image/main.js')
 require('../vue/tasks/images/filter/main.js') /*
 require('../vue/tasks/sources/hub/main.js')
 require('../vue/tasks/nomenclature/filter/main.js')

@@ -27,10 +27,10 @@ import { MutationNames } from '../store/mutations/mutations.js'
 export default {
   computed: {
     license: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLicense]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLicense, value)
       }
     }

@@ -11,9 +11,9 @@
               :key="key"
               name="sqed-pattern"
               @click="setPattern(pattern)"
-              :checked="pattern.layout === value.layout"
+              :checked="pattern.layout === modelValue.layout"
               type="radio">
-            {{ key | humanize }}
+            {{ humanize(key) }}
           </label>
         </li>
       </ul>
@@ -24,34 +24,38 @@
 <script>
 export default {
   props: {
-    value: {
-      type: Object,
+    modelValue: {
+      type: Object
     },
+
     patterns: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
-      get() {
+      get () {
         return this.value
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  filters: {
-    humanize: function (value) {
+
+  methods: {
+    setPattern (pattern) {
+      this.selected = pattern
+    },
+
+    humanize (value) {
       if (!value) return ''
       value = value.toString().replace(/_/g, ' ')
       return value.charAt(0).toUpperCase() + value.slice(1)
-    }
-  },
-  methods: {
-    setPattern(pattern) {
-      this.selected = pattern
     }
   }
 }
