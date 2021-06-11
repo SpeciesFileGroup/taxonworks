@@ -93,6 +93,7 @@ export default {
     AddToProject,
     PinComponent
   },
+
   props: {
     list: {
       type: Array,
@@ -103,22 +104,30 @@ export default {
       default: () => []
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onSort'
+  ],
+
   computed: {
     ids: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       ascending: false,
       sort: ['id', 'cached', 'year', 'type', 'documents']
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))

@@ -34,22 +34,27 @@ export default {
     SmartSelector,
     DisplayList
   },
+
   props: {
     value: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       topics: [],
@@ -57,14 +62,14 @@ export default {
     }
   },
   watch: {
-    value (newVal, oldVal) {
+    modelValue (newVal, oldVal) {
       if (!newVal.length && oldVal.length) {
         this.topics = []
       }
     },
     topics: {
       handler (newVal) {
-        this.params = this.topics.map(topic => { return topic.id })
+        this.params = this.topics.map(topic => topic.id)
       },
       deep: true
     }
@@ -86,9 +91,11 @@ export default {
         this.topics.push(topic)
       }
     },
+
     removeTopic (index) {
       this.topics.splice(index, 1)
     },
+
     loadTags (type) {
       ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
         this.allTopics = { all: response.body }

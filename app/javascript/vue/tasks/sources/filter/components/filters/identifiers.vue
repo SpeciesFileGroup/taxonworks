@@ -68,25 +68,26 @@ import { GetNamespace } from '../../request/resources'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     identifier: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   watch: {
     identifier: {
       handler (newVal) {
@@ -97,6 +98,7 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       smartLists: {},
@@ -115,6 +117,7 @@ export default {
       ]
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     this.identifier = {
@@ -129,11 +132,13 @@ export default {
       })
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.namespace = namespace
       this.identifier.namespace_id = namespace.id
     },
+
     unsetNamespace () {
       this.namespace = undefined
       this.identifier.namespace_id = undefined

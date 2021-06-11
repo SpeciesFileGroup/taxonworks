@@ -20,8 +20,8 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th></th>
-          <th></th>
+          <th />
+          <th />
         </tr>
       </thead>
       <transition-group
@@ -62,20 +62,24 @@ export default {
     RowItem
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: () => ({})
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     allFiltered () {
       const keywordsId = this.keywords.map(({ id }) => id)
       return { all: this.tags.all.filter(item => !keywordsId.includes(item.id)) }
@@ -88,7 +92,7 @@ export default {
     }
   },
   watch: {
-    value (newVal) {
+    modelValue (newVal) {
       if (!newVal.keyword_id_and.length && !newVal.keyword_id_and.length && this.keywords.length) {
         this.keywords = []
       }

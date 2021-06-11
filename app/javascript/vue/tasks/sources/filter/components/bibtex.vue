@@ -63,6 +63,7 @@ export default {
     SpinnerComponent,
     ClipboardButton
   },
+
   props: {
     params: {
       type: Object,
@@ -77,6 +78,7 @@ export default {
       default: () => []
     }
   },
+
   data () {
     return {
       bibtex: undefined,
@@ -88,6 +90,7 @@ export default {
       noApiMessage: 'To share your project administrator must create an API token.'
     }
   },
+
   watch: {
     params: {
       handler (newVal) {
@@ -96,6 +99,7 @@ export default {
       deep: true
     }
   },
+
   methods: {
     loadBibtex () {
       this.showModal = true
@@ -105,6 +109,7 @@ export default {
         this.isLoading = false
       })
     },
+
     createDownloadLink () {
       GetBibtex({ params: Object.assign((this.selectedList.length ? { ids: this.selectedList } : this.params), { per: this.pagination.total }), responseType: 'blob' }).then(({ body }) => {
         const downloadUrl = window.URL.createObjectURL(new Blob([body]))
@@ -116,6 +121,7 @@ export default {
         link.remove()
       })
     },
+
     generateLinks () {
       this.isLoading = true
       GetGenerateLinks(Object.assign({}, (this.selectedList.length ? { ids: this.selectedList } : this.params), { is_public: true })).then(response => {

@@ -29,10 +29,10 @@
         tag="tbody">
         <template
           v-for="(item, index) in selected"
+          :key="index"
           class="table-entrys-list">
           <row-item
             class="list-complete-item"
-            :key="index"
             :item="item"
             label="name"
             v-model="item.empty"

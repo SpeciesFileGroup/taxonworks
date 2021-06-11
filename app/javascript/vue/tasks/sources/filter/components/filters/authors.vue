@@ -51,26 +51,31 @@ export default {
     DisplayList
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     source: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       authors: []
     }
   },
+
   watch: {
     value: {
       handler (newVal, oldVal) {
@@ -87,8 +92,10 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
+
     this.source.author = params.author
     this.source.exact_author = params.exact_author
     this.source.author_ids_or = params.author_ids_or
@@ -100,12 +107,14 @@ export default {
       })
     }
   },
+
   methods: {
     addAuthor (author) {
       if (!this.source.author_ids.includes(author.id)) {
         this.authors.push(author)
       }
     },
+
     removeAuthor (index) {
       this.authors.splice(index, 1)
     }

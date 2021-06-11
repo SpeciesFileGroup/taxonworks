@@ -140,6 +140,7 @@ export default {
     BibtexButton,
     BibliographyButton
   },
+
   computed: {
     csvFields () {
       return []
@@ -148,10 +149,12 @@ export default {
       return this.list.length
     },
     sourceIDs () {
-      return this.list.map(item => { return item.id })
+      return this.list.map(item => item.id)
     },
     csvList () {
-      return this.ids.length ? this.list.filter(item => { return this.ids.includes(item.id) }) : this.list
+      return this.ids.length
+        ? this.list.filter(item => this.ids.includes(item.id))
+        : this.list
     },
     recordsAtCurrentPage () {
       return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
@@ -161,6 +164,7 @@ export default {
       return recordsCount > this.pagination.total ? this.pagination.total : recordsCount
     }
   },
+
   data () {
     return {
       list: [],
@@ -176,16 +180,19 @@ export default {
       params: undefined
     }
   },
+
   watch: {
     per (newVal) {
       this.$refs.filterComponent.params.settings.per = newVal
       this.loadPage(1)
     }
   },
-  mounted () {
+
+  created () {
     TW.workbench.keyboard.createLegend(`${PlatformKey()}+f`, 'Search', 'Filter sources')
     TW.workbench.keyboard.createLegend(`${PlatformKey()}+r`, 'Reset task', 'Filter sources')
   },
+
   methods: {
     resetTask () {
       this.alreadySearch = false
@@ -194,6 +201,7 @@ export default {
       this.pagination = undefined
       history.pushState(null, null, '/tasks/sources/filter')
     },
+
     loadList (newList) {
       if (this.append && this.list) {
         let concat = newList.data.concat(this.list.data)
@@ -209,11 +217,13 @@ export default {
       }
       this.alreadySearch = true
     },
+
     newSearch () {
       if (!this.append) {
         this.list = []
       }
     },
+
     loadPage (event) {
       this.$refs.filterComponent.loadPage(event.page)
     },
