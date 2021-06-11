@@ -2,18 +2,21 @@
   <modal-component
     @close="$emit('close', true)"
     class="full_width">
-    <h3 slot="header">Recent</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Recent</h3>
+    </template>
+    <template #body>
       <spinner-component v-if="searching"/>
       <table-list
+        :list="sources"
+        :attributes="['cached']"
         :header="['cached', '']"
         :annotator="false"
         :destroy="false"
-        :edit="true"
-        :attributes="['cached']"
+        edit
         @edit="setSource"
-        :list="sources"/>
-    </div>
+      />
+    </template>
   </modal-component>
 </template>
 
@@ -31,15 +34,20 @@ export default {
     SpinnerComponent,
     TableList
   },
+
+  emits: ['close'],
+
   data () {
     return {
       sources: [],
       searching: false
     }
   },
+
   mounted () {
     this.getSources()
   },
+
   methods: {
     getSources () {
       this.searching = true
@@ -48,6 +56,7 @@ export default {
         this.searching = false
       })
     },
+
     setSource (source) {
       this.$store.dispatch(ActionNames.LoadSource, source.id)
       this.$emit('close', true)

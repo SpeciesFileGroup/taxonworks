@@ -3,8 +3,10 @@
     @close="$emit('close', true)"
     :containerStyle="{ 'overflow-y': 'scroll', 'max-height': '80vh' }"
     class="full_width">
-    <h3 slot="header">Create a source from a verbatim citation or DOI</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Create a source from a verbatim citation or DOI</h3>
+    </template>
+    <template #body>
       <spinner-component
         v-if="searching"
         :full-screen="true"
@@ -21,11 +23,10 @@
       <textarea 
         class="full_width"
         v-model="citation"
-        placeholder="DOI or citation to find...">
-      </textarea>
-      <div
-        class="flex-separate separate-top"
-        slot="footer">
+        placeholder="DOI or citation to find..."/>
+    </template>
+    <template #footer>
+      <div class="flex-separate separate-top">
         <button
           @click="getSource"
           :disabled="!citation.length"
@@ -41,7 +42,7 @@
           Set as verbatim
         </button>
       </div>
-    </div>
+    </template>
   </modal-component>
 </template>
 
@@ -58,6 +59,9 @@ export default {
     ModalComponent,
     SpinnerComponent
   },
+
+  emits: ['close'],
+
   data () {
     return {
       citation: '',
@@ -65,6 +69,7 @@ export default {
       found: true
     }
   },
+
   methods: {
     getSource () {
       this.searching = true
@@ -79,16 +84,15 @@ export default {
             }
           })
           TW.workbench.alert.create('Found! (please check).', 'notice')
-        }
-        else {
+        } else {
           this.found = false
           TW.workbench.alert.create('Nothing found or the source already exist.', 'error')
         }
-        this.searching = false
-      }, () => {
+      }).finally(() => {
         this.searching = false
       })
     },
+
     setVerbatim () {
       this.$store.commit(MutationNames.SetSource, { type: 'Source::Verbatim', verbatim: this.citation })
       this.$emit('close', true)
