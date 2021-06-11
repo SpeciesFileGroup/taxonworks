@@ -57,42 +57,49 @@
 import SmartSelector from 'components/ui/SmartSelector.vue'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
     count: {
       type: Number,
       default: 0
     },
-    value: {
+
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     end () {
       return this.identifier.start + this.count - 1
     },
+
     identifier: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       start: null
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.identifier.namespace = namespace
       this.namespace = namespace
     },
+
     unset () {
       this.identifier.namespace = undefined
       this.namespace = undefined

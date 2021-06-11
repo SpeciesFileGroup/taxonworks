@@ -10,16 +10,17 @@
         <draggable
           class="full_width"
           v-model="componentsOrder[key]"
-          :key="key"
+          :item-key="element => element"
           @end="updatePreferences"
           :disabled="!sortable">
-          <component
-            class="separate-bottom"
-            v-for="(componentName) in column"
-            v-model="collectingEvent"
-            :components-order="componentsOrder"
-            :key="componentName"
-            :is="componentName"/>
+          <template #item="{ element }">
+            <component
+              class="separate-bottom"
+              v-model="collectingEvent"
+              :components-order="componentsOrder"
+              :key="element"
+              :is="element"/>
+          </template>
         </draggable>
       </div>
     </div>
@@ -45,7 +46,7 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     },
@@ -60,14 +61,16 @@ export default {
     lastColumn () {
       return Object.keys(this.componentsOrder).length - 1
     },
+
     collectingEvent: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     collectingEventId: {
       get () {
         return this.collectingEvent.id
@@ -86,6 +89,7 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       componentsOrder: {
@@ -101,11 +105,13 @@ export default {
       keyStorage: 'tasks::collectingEvent::componentsOrder'
     }
   },
+
   created () {
     User.preferences().then(response => {
       this.preferences = response.body
     })
   },
+
   methods: {
     updatePreferences () {
       User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {

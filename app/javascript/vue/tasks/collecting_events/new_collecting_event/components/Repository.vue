@@ -32,35 +32,38 @@
 import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: [String, Number],
       default: undefined
     }
   },
+
   computed: {
     repositoryId: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       repository: undefined
     }
   },
+
   methods: {
     setRepository (repository) {
       this.repository = repository
       this.repositoryId = repository.id
     },
+
     unsetRepository () {
       this.repository = undefined
       this.repositoryId = undefined

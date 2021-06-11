@@ -57,6 +57,11 @@ export default {
     ModalComponent
   },
 
+  emits: [
+    'close',
+    'select'
+  ],
+
   data () {
     return {
       collectingEvents: [],

@@ -63,17 +63,22 @@ export default {
     ModalComponent,
     SpinnerComponent
   },
+
   props: {
     collectingEvent: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['select'],
+
   computed: {
     collectingEventId () {
       return this.collectingEvent.id
     }
   },
+
   data () {
     return {
       isLoading: false,
@@ -81,6 +86,7 @@ export default {
       showModal: false
     }
   },
+
   watch: {
     collectingEventId (newVal) {
       if (newVal) {
@@ -93,10 +99,12 @@ export default {
       }
     }
   },
+
   methods: {
     setModalView (value) {
       this.showModal = value
     },
+
     loadCE (id) {
       this.$emit('select', id)
     }
