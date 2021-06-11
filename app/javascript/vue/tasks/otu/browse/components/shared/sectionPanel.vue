@@ -49,7 +49,7 @@ export default {
   },
   computed: {
     linkName () {
-      return this.name ? this.name : this.title
+      return this.name || this.title
     }
   },
   props: {

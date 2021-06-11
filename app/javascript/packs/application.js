@@ -60,8 +60,8 @@ require('../vue/tasks/nomenclature/stats/main.js')
 require('../vue/tasks/otu/browse_asserted_distributions/main.js')
 require('../vue/tasks/collection_objects/filter/main.js')
 require('../vue/tasks/sources/new_source/main.js')
-/*
 require('../vue/tasks/otu/browse/main.js')
+/*
 require('../vue/tasks/collection_objects/slide_breakdown/main.js')
 require('../vue/tasks/biological_relationships/composer/main.js')
 require('../vue/tasks/nomenclature/match/main.js')

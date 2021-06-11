@@ -2,14 +2,16 @@
   <modal-component
     @close="showModal = false"
     v-if="showModal">
-    <h3 slot="header">Soft validation</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Soft validation</h3>
+    </template>
+    <template #body>
       <ul class="no_bullets soft_validation list">
         <li v-for="validation in validations">
           <span v-html="validation"/>
         </li>
       </ul>
-    </div>
+    </template>
   </modal-component>
 </template>
 
