@@ -1,6 +1,6 @@
 <template>
   <div class="flex-wrap-column margin-medium-left margin-medium-right">
-    <div class="horizontal-left-content middle align-start" v-if="value">
+    <div class="horizontal-left-content middle align-start" v-if="modelValue">
       <template v-if="flip">
         <div class="margin-small-right label-above">
           <label>Inverted name</label>
@@ -39,7 +39,7 @@
           <input
             type="checkbox"
             v-model="biologicalRelationship.is_transitive">
-            Is transitive
+          Is transitive
         </label>
       </li>
       <li>
@@ -47,7 +47,7 @@
           <input
             type="checkbox"
             v-model="biologicalRelationship.is_reflexive">
-            Is reflexive
+          Is reflexive
         </label>
       </li>
     </ul>
@@ -61,22 +61,26 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     },
+
     flip: {
       type: Boolean,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     biologicalRelationship: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

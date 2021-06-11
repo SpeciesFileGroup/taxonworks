@@ -51,11 +51,13 @@ export default {
       default: undefined
     }
   },
+
   data () {
     return {
       list: []
     }
   },
+
   watch: {
     biologicalRelationship (newVal) {
       if (newVal) {
@@ -66,9 +68,6 @@ export default {
         this.list = []
       }
     }
-  },
-  methods: {
-
   }
 }
 </script>
