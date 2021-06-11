@@ -44,9 +44,11 @@ export default {
   props: {
     modelList: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['onUpdate'],
 
   data () {
     return {
