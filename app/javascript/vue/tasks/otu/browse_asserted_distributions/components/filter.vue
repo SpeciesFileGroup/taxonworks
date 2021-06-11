@@ -9,10 +9,10 @@
       </span>
     </div>
     <spinner-component
-      :full-screen="true"
+      v-if="searching"
+      full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching"
     />
     <div class="content">
       <otu-component v-model="params.base.otu_id"/>
@@ -25,10 +25,8 @@
 
 import OtuComponent from './filters/otu'
 import NavBarComponent from './navBar'
-
-import { AssertedDistribution } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import { AssertedDistribution } from 'routes/endpoints'
 
 export default {
   components: {
@@ -36,12 +34,8 @@ export default {
     SpinnerComponent,
     NavBarComponent
   },
-  computed: {
-    getMacKey() {
-      return GetMacKey()
-    }
-  },
-  data() {
+
+  data () {
     return {
       params: this.initParams(),
       result: [],

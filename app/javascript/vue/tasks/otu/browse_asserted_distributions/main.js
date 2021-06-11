@@ -1,13 +1,9 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
-function init (){
-  new Vue({
-    el: '#vue-task-browse-asserted-distribution-otu',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+function init () {
+  const app = createApp(App)
+  app.mount('#vue-task-browse-asserted-distribution-otu')
 }
 
 document.addEventListener('turbolinks:load', () => {

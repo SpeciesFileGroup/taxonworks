@@ -113,7 +113,7 @@ export default {
       this.assertedDistribution = []
     },
 
-    loadList(newList) {
+    loadList (newList) {
       if (this.append) {
         let concat = newList.concat(this.assertedDistribution)
         concat = concat.filter((item, index, self) =>
