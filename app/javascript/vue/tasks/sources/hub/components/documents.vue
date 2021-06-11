@@ -24,19 +24,17 @@ export default {
       type: [String, Number]
     }
   },
-  data() {
+
+  data () {
     return {
       documents: []
     }
   },
-  mounted() {
+
+  mounted () {
     GetDocumentsFromSourceID(this.sourceId).then(response => {
       this.documents = response.body
     })
   }
 }
 </script>
-
-<style>
-
-</style>

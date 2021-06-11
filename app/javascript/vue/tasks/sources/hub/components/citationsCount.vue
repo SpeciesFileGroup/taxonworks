@@ -15,19 +15,22 @@ export default {
     sourceId: {
       type: [String, Number],
       required: true
-    },
+    }
   },
+
   data() {
     return {
       citations: []
     }
   },
-  mounted() {
-    if(this.sourceId)
+
+  mounted () {
+    if (this.sourceId)
       this.loadCitations()
   },
+
   methods: {
-    loadCitations() {
+    loadCitations () {
       GetCitationsFromSourceID(this.sourceId).then(response => {
         this.citations = response.body
       })
