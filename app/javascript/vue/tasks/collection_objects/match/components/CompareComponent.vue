@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="button button-default"
+      class="button button-default normal-input"
       type="button"
       @click="showModal = true"
       :disabled="!compare.length">
@@ -38,7 +38,7 @@
               <td v-html="renderType[0][key]"/>
               <td v-html="renderType[1][key]"/>
             </tr>
-            <tr></tr>
+            <tr />
           </tbody>
           <thead>
             <tr>
@@ -88,17 +88,20 @@ export default {
     ModalComponent,
     SwitchComponent
   },
+
   props: {
     compare: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
   computed: {
-    renderType() {
+    renderType () {
       return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -109,6 +112,7 @@ export default {
       dwcTable: {}
     }
   },
+
   watch: {
     showModal(newVal) {
       if (newVal) {
@@ -117,6 +121,7 @@ export default {
       }
     }
   },
+
   methods: {
     getCEs() {
       const ceId = this.compare[0]['collecting_event_id']
@@ -133,9 +138,10 @@ export default {
           this.ceProperties = Object.keys(response.body)
         })
     },
+
     LoadDWC () {
-      GetDWC(this.compare[0].id).then(response => { this.$set(this.dwcTable, 0, response.body) })
-      GetDWC(this.compare[1].id).then(response => { this.$set(this.dwcTable, 1, response.body) })
+      GetDWC(this.compare[0].id).then(response => { this.dwcTable[0] = response.body })
+      GetDWC(this.compare[1].id).then(response => { this.dwcTable[1] = response.body })
     }
   }
 }
