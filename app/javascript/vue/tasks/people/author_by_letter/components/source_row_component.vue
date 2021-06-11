@@ -23,7 +23,7 @@
 
 <script>
 
-  import Pin from 'components/pin'
+  import Pin from 'components/ui/Pinboard/VPin.vue'
   import AddToProject from 'components/addToProjectSource'
   import RadialObject from 'components/radials/navigation/radial'
 

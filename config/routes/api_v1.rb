@@ -12,8 +12,6 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
-
-
     # authenticated by user_token
     defaults authenticate_user: true do
       get '/user_authenticated', to: 'base#index'
@@ -39,7 +37,7 @@ namespace :api, defaults: {format: :json} do
     end
 
     defaults authenticate_user_or_project: true do
-      get '/otus', to: '/otus#api_index'     
+      get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
       get '/otus/:id', to: '/otus#api_show'
 
@@ -50,7 +48,14 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
-      get '/taxon_names/:id', to: '/taxon_names#api_show'
+
+      get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
+      get '/taxon_name_classifications/taxon_name_classification_types', to: '/taxon_name_classifications#taxon_name_classification_types'
+      get '/taxon_name_classifications/:id', to: '/taxon_name_classifications#api_show'
+
+      get '/taxon_name_relationships', to: '/taxon_name_relationships#api_index'
+      get '/taxon_name_relationships/taxon_name_relationship_types', to: '/taxon_name_relationships#taxon_name_relationship_types'
+      get '/taxon_name_relationships/:id', to: '/taxon_name_relationships#api_show'
 
       get '/notes', to: '/notes#api_index'
       get '/notes/:id', to: '/notes#api_show'
@@ -67,7 +72,7 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/autocomplete', to: '/collection_objects#api_autocomplete'
       get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
-      
+
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
@@ -82,6 +87,9 @@ namespace :api, defaults: {format: :json} do
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
+
+      get '/images', to: '/images#api_index'
+      get '/images/:id', to: '/images#api_show'
 
       # get '/controlled_vocabulary_terms'
     end

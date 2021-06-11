@@ -67,7 +67,6 @@ module BatchLoad
       begin
         @name_collection ||= ::Taxonifi::Lumper.create_name_collection(csv: csv)
       rescue Taxonifi::Assessor::RowAssessor::RowAssessorError => e
-        byebug
         @file_errors.push 'Error assessing a row of data in the inputfile.'
       end
     end

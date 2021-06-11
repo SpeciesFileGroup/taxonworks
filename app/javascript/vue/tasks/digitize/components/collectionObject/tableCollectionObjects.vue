@@ -101,10 +101,10 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { ControlledVocabularyTerm, Tag } from 'routes/endpoints'
-import RadialAnnotator from '../../../../components/radials/annotator/annotator.vue'
-import PinComponent from '../../../../components/pin.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import Bioclassification from './bioclassification.vue'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import AccessionMetadata from './accession'
 
 export default {

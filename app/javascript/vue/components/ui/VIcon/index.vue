@@ -1,8 +1,8 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    :width="iconSize"
-    :height="iconSize"
+    :width="elementSize"
+    :height="elementSize"
     viewBox="0 0 12 12"
     :aria-labelledby="name"
     role="presentation"
@@ -25,12 +25,15 @@
 
 <script>
 
-import paletteColors from 'assets/styles/variables/_exports.scss'
 import mixinSizes from '../mixins/sizes.js'
+import mixinColors from '../mixins/colors.js'
 import { Icons } from './icons.js'
 
 export default {
-  mixins: [mixinSizes],
+  mixins: [
+    mixinSizes,
+    mixinColors
+  ],
 
   props: {
     disabled: {
@@ -41,11 +44,6 @@ export default {
     name: {
       type: String,
       required: true
-    },
-
-    color: {
-      type: String,
-      default: 'currentColor'
     }
   },
 
@@ -56,10 +54,6 @@ export default {
 
     iconPaths () {
       return Icons[this.name]?.paths || []
-    },
-
-    selectedColor () {
-      return paletteColors[this.color] || this.color
     }
   }
 }

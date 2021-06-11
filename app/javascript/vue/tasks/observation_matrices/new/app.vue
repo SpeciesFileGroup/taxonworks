@@ -98,7 +98,7 @@ import TablesComponent from './components/tables/view'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from 'components/radials/annotator/annotator'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import SpinnerComponent from 'components/spinner'
 import RadialNavigation from 'components/radials/navigation/radial'
 

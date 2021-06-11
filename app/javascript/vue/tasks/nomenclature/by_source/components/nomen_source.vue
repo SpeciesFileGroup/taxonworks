@@ -52,7 +52,7 @@
 
   import Autocomplete from 'components/ui/Autocomplete';
   import RadialAnnotator from 'components/radials/annotator/annotator.vue';
-  import PinComponent from 'components/pin.vue'
+  import PinComponent from 'components/ui/Pinboard/VPin.vue'
   import RadialObject from 'components/radials/navigation/radial.vue'
   import DefaultSource from 'components/getDefaultPin'
   import AjaxCall from 'helpers/ajaxCall'

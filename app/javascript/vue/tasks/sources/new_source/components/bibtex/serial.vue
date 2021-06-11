@@ -49,7 +49,7 @@
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import SmartSelector from 'components/ui/SmartSelector'
 import RadialObject from 'components/radials/navigation/radial'
 

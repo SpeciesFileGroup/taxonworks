@@ -114,7 +114,7 @@ import Biological from './biological.vue'
 import Related from './related.vue'
 import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import { convertType } from 'helpers/types'
 
 export default {

@@ -470,13 +470,16 @@ class TaxonNameRelationship < ApplicationRecord
           t.update_columns(
             cached: n,
             cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
-            cached_valid_taxon_name_id: vn.id)
+            cached_valid_taxon_name_id: vn.id,
+            cached_is_valid: !t.unavailable_or_invalid?)
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
 
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(
+              cached_valid_taxon_name_id: vn.id,
+              cached_is_valid: !s.unavailable_or_invalid?)
             s.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end

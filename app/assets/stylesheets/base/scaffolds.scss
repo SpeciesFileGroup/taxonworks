@@ -2,6 +2,7 @@ html {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
 }
 
 p, ol, ul, td {

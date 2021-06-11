@@ -18,7 +18,7 @@
           v-if="taxon.id"
           class="flex-separate middle">
           <a
-            v-shortkey="[getMacKey(), 'b']"
+            v-shortkey="[platformKey(), 'b']"
             @shortkey="switchBrowse()"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
             class="taxonname">
@@ -27,7 +27,7 @@
           </a>
           <div class="flex-wrap-column">
             <div
-              v-shortkey="[getMacKey(), 'o']"
+              v-shortkey="[platformKey(), 'o']"
               @shortkey="switchBrowseOtu()"
               class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
@@ -68,13 +68,12 @@ import OtuRadial from 'components/otu/otu.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import DefaultConfidence from 'components/defaultConfidence.vue'
-import PinObject from 'components/pin.vue'
-
+import PinObject from 'components/ui/Pinboard/VPin.vue'
+import Modal from 'components/ui/Modal.vue'
+import platformKey from 'helpers/getMacKey'
+import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import Modal from 'components/ui/Modal.vue'
-import getMacKey from 'helpers/getMacKey'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -85,7 +84,7 @@ export default {
     PinObject,
     DefaultConfidence
   },
-  data: function () {
+  data () {
     return {
       showModal: false
     }
@@ -94,61 +93,64 @@ export default {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     citation () {
       return this.$store.getters[GetterNames.GetCitation]
     },
-    showParent () {
-      if (this.taxon.rank == 'genus') return false
 
-      let groups = ['SpeciesGroup', 'GenusGroup']
-      return (this.taxon.rank_string ? (groups.indexOf(this.taxon.rank_string.split('::')[2]) > -1) : false)
-    },
     roles () {
-      let roles = this.$store.getters[GetterNames.GetRoles]
-      let count = (roles == undefined ? 0 : roles.length)
+      const roles = this.$store.getters[GetterNames.GetRoles] || []
+      const count = roles.length
       let stringRoles = ''
 
-      if (count > 0) {
-        roles.forEach(function (element, index) {
-          stringRoles = stringRoles + element.person.last_name
+      roles.forEach((element, index) => {
+        stringRoles = stringRoles + element.person.last_name
 
-          if (index < (count - 2)) {
-            stringRoles = stringRoles + ', '
-          } else {
-            if (index == (count - 2)) { stringRoles = stringRoles + ' & ' }
-          }
-        })
-      }
+        if (index < (count - 2)) {
+          stringRoles += ', '
+        } else if (index === (count - 2)) {
+          stringRoles += ' & '
+        }
+      })
+
       return stringRoles
     }
   },
-  mounted: function () {
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'b'), 'Go to browse nomenclature', 'New taxon name')
-    TW.workbench.keyboard.createLegend((getMacKey() + '+' + 'o'), 'Go to browse otus', 'New taxon name')
+
+  created () {
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'b'), 'Go to browse nomenclature', 'New taxon name')
+    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'o'), 'Go to browse otus', 'New taxon name')
   },
+
   methods: {
-    deleteTaxon: function () {
-      AjaxCall('delete', `/taxon_names/${this.taxon.id}`).then(response => {
+    platformKey,
+
+    deleteTaxon () {
+      TaxonName.destroy(this.taxon.id).then(() => {
         this.reloadPage()
       })
     },
-    reloadPage: function () {
+
+    reloadPage () {
       window.location.href = '/tasks/nomenclature/new_taxon_name/'
     },
-    showAuthor: function () {
+
+    showAuthor () {
       if (this.roles.length) {
         return this.roles
       } else {
         return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
       }
     },
-    switchBrowse: function () {
+
+    switchBrowse () {
       window.location.replace(`/tasks/nomenclature/browse?taxon_name_id=${this.taxon.id}`)
     },
-    getMacKey: getMacKey,
+
     loadParent () {
       if (this.taxon.id && this.parent.id) {
         this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then((response) => {
@@ -156,6 +158,7 @@ export default {
         })
       }
     },
+
     switchBrowseOtu () {
       this.$refs.browseOtu.openApp()
     }

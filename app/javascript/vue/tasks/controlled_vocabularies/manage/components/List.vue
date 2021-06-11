@@ -55,7 +55,7 @@
 
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner.vue'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
 export default {
   components: {

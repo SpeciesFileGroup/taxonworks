@@ -54,7 +54,7 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_ids"
+        param-people="collector_id"
         param-any="collector_ids_or"
         v-model="params.collectors"/>
       <keywords-component
@@ -140,13 +140,13 @@ export default {
     emptyParams () {
       if (!this.params) return
       return !this.params.biocurations.biocuration_class_ids.length &&
-        !this.params.geographic.geographic_area_ids.length &&
+        !this.params.geographic.geographic_area_id.length &&
         !this.params.geographic.geo_json.length &&
         !this.params.relationships.biological_relationship_ids.length &&
         !this.params.types.is_type.length &&
         !this.params.keywords.keyword_id_and.length &&
         !this.params.keywords.keyword_id_or.length &&
-        !this.params.collectors.collector_ids.length &&
+        !this.params.collectors.collector_id.length &&
         !this.params.determination.otu_ids.length &&
         !this.params.determination.determiner_id.length &&
         !this.params.determination.ancestor_id &&
@@ -156,11 +156,11 @@ export default {
         !this.params.preparation_type_id.length &&
         Object.keys(this.params.collectingEvents.fields).length <= 1 &&
         !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
-        !Object.values(this.params.user).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item !== undefined }) &&
+        !Object.values(this.params.user).find(item => item !== undefined) &&
+        !Object.values(this.params.loans).find(item => item !== undefined) &&
+        !Object.values(this.params.identifier).find(item => item !== undefined) &&
         !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
-        !Object.values(this.params.buffered).find(item => { return item !== undefined })
+        !Object.values(this.params.buffered).find(item => item !== undefined )
     }
   },
 
@@ -286,7 +286,7 @@ export default {
           keyword_id_or: []
         },
         collectors: {
-          collector_ids: [],
+          collector_id: [],
           collector_ids_or: false
         },
         determination: {
@@ -315,7 +315,7 @@ export default {
           geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
-          geographic_area_ids: []
+          geographic_area_id: []
         },
         repository: {
           repository_id: undefined

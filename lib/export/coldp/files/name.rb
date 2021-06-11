@@ -1,3 +1,7 @@
+
+
+# The names table includes
+# * All names strings, even if hanging (= not attached to OTUs/Taxa)
 module Export::Coldp::Files::Name
 
   def self.code_field(taxon_name)

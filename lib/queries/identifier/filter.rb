@@ -17,14 +17,16 @@ module Queries
       attr_accessor :namespace_short_name
       attr_accessor :namespace_name
 
-      attr_accessor :identifier_object_type, :identifier_object_id 
-      attr_accessor :identifier_object_ids
-      attr_accessor :identifier_object_types
+      # @param identifier_object_type [Array, String]
+      #    like 'Otu'
+      #    or ['Otu', 'Specimen'
+      attr_accessor :identifier_object_type
+
+      attr_accessor :identifier_object_id
+
+      attr_accessor :object_global_id
 
       attr_accessor :type
-
-      # Probably turn it into component parts
-      attr_accessor :object_global_id
 
       # @params params [ActionController::Parameters]
       def initialize(params)
@@ -33,48 +35,26 @@ module Queries
         @identifier = params[:identifier]
         @namespace_short_name = params[:namespace_short_name]
         @namespace_name = params[:namespace_name]
-
-        @identifier_object_type = params[:identifier_object_type] 
-        @identifier_object_id = params[:identifier_object_id] 
-
-        # TODO: deprecate, see README.md
-        @identifier_object_ids = params[:identifier_object_ids] || []
-        @identifier_object_types = params[:identifier_object_types] || []
-
         @type = params[:type]
 
+        @identifier_object_type = params[:identifier_object_type]
+        @identifier_object_id = params[:identifier_object_id]
+
+        # See Queries::Concerns::Polymorphic
         @object_global_id = params[:object_global_id]
-
         set_polymorphic_ids(params)
-        # need 'set annotator params'
-      end
-
-      def missmatched_object_id?
-        return false if @identifier_object_id.blank? || @object_global_id.blank?
-        o = GlobalID::Locator.locate(object_global_id)
-        !(o.id == @identifier_object_id)
-      end
-
-      def missmatched_object_type?
-        return false if @identifier_object_id.blank? || @object_global_id.blank?
-        o = GlobalID::Locator.locate(object_global_id)
-        !(o.class.base_class.name == @identifier_object_type)
-      end
-
-      def missmatch_with_global_object?
-        missmatched_object_id? || missmatched_object_type?
-      end
-
-      def identifier_object_id
-        return nil if missmatch_with_global_object?
-        return @identifier_object_id if @identifier_object_id
-        object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
       end
 
       def identifier_object_type
-        return nil if missmatch_with_global_object?
-        return @identifier_object_type if @identifier_object_type
-        object_global_id ? GlobalID::Locator.locate(object_global_id).class.base_class.name : nil
+        [@identifier_object_type, global_object_type].flatten.compact
+      end
+
+      def identifier_object_id
+        [@identifier_object_id, global_object_id].flatten.compact
+      end
+
+      def object_global_id_value
+        object_global_id ? GlobalID::Locator.locate(object_global_id).id : nil
       end
 
       # @return [ActiveRecord::Relation]
@@ -84,10 +64,9 @@ module Queries
           matching_cached,
           matching_identifier_attribute(:identifier),
           matching_identifier_attribute(:namespace_id),
-          matching_identifier_attribute(:identifier_object_type),
-          matching_identifier_attribute(:identifier_object_id),
           matching_identifier_attribute(:type),
-          matching_identifier_object_types,
+          matching_identifier_object_id,
+          matching_identifier_object_type,
           matching_polymorphic_ids
         ].compact
 
@@ -119,13 +98,13 @@ module Queries
       end
 
       # @return [Arel::Node, nil]
-      def matching_identifier_object_ids
-        identifier_object_ids.empty? ? nil : table[:identifier_object_id].eq_any(matching_identifier_object_ids)
+      def matching_identifier_object_id
+        identifier_object_id.empty? ? nil : table[:identifier_object_id].eq_any(identifier_object_id)
       end
 
       # @return [Arel::Node, nil]
-      def matching_identifier_object_types
-        identifier_object_types.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_types)
+      def matching_identifier_object_type
+        identifier_object_type.empty? ? nil : table[:identifier_object_type].eq_any(identifier_object_type)
       end
 
       # @return [Arel::Node, nil]
@@ -135,7 +114,7 @@ module Queries
       end
 
       def matching_namespace(attribute)
-        v = self.send("namespace_#{attribute}") 
+        v = self.send("namespace_#{attribute}")
         return nil if v.blank?
         o = table
         n = ::Namespace.arel_table

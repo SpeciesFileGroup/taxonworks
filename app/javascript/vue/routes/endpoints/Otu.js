@@ -14,5 +14,11 @@ export const Otu = {
   ...baseCRUD(controller, permitParams),
   ...annotations('otus'),
 
-  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`)
+  breadcrumbs: (id) => AjaxCall('get', `/${controller}/${id}/breadcrumbs`),
+
+  coordinate: (id) => AjaxCall('get', `/otus/${id}/coordinate`),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`)
 }

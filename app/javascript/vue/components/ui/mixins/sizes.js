@@ -1,13 +1,5 @@
 import { convertToUnit } from 'helpers/style'
-
-const SIZE_MAP = {
-  xSmall: '12px',
-  small: '16px',
-  default: '24px',
-  medium: '28px',
-  large: '36px',
-  xLarge: '40px'
-}
+import SIZE_MAP from 'assets/styles/variables/_sizes.scss'
 
 export default {
   props: {
@@ -43,7 +35,7 @@ export default {
   },
 
   computed: {
-    iconSize () {
+    explicitSize () {
       const sizes = {
         xSmall: this.xSmall,
         small: this.small,
@@ -52,9 +44,15 @@ export default {
         xLarge: this.xLarge
       }
 
-      const explicitSize = Object.keys(sizes).find(key => sizes[key])
+      return Object.keys(sizes).find(key => sizes[key])
+    },
 
-      return (explicitSize && SIZE_MAP[explicitSize]) || convertToUnit(this.size)
+    semanticSize () {
+      return this.explicitSize || 'default'
+    },
+
+    elementSize () {
+      return (this.explicitSize && SIZE_MAP[this.explicitSize]) || convertToUnit(this.size)
     }
   }
 }

@@ -16,12 +16,11 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal'
-import { GetSoftValidation } from '../request/resources'
+import { SoftValidation } from 'routes/endpoints'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   data () {
     return {
       isLoading: false,
@@ -29,24 +28,27 @@ export default {
       showModal: false
     }
   },
+
   mounted () {
     document.addEventListener('click', this.checkValidation)
   },
+
   methods: {
     checkValidation (event) {
       if (event.target.getAttribute('data-global-id') && !this.isLoading) {
         const globalId = event.target.getAttribute('data-global-id')
+
         this.isLoading = true
-        GetSoftValidation(globalId).then(response => {
+        SoftValidation.find(globalId).then(response => {
           this.validations = response.body.validations.soft_validations.map(validation => validation.message)
           this.showModal = true
-          this.isLoading = false
-        }, () => {
+        }).finally(() => {
           this.isLoading = false
         })
       }
     }
   },
+
   destroyed () {
     document.removeEventListener('click', this.checkValidation)
   }

@@ -8,6 +8,7 @@ import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { CommonName } from './CommonName'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
@@ -34,6 +35,7 @@ import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
 import { OriginRelationship } from './OriginRelationship'
 import { People } from './People'
+import { PinboardItem } from './PinboardItem'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
@@ -63,6 +65,7 @@ export {
   CollectingEvent,
   CollectionObject,
   Combination,
+  CommonName,
   Container,
   ContainerItem,
   Content,
@@ -89,6 +92,7 @@ export {
   Otu,
   OriginRelationship,
   People,
+  PinboardItem,
   PreparationType,
   Project,
   ProjectMember,
