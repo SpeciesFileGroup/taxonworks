@@ -35,21 +35,24 @@ export default {
     Autocomplete
   },
   props: {
-    value: {
+    modelValue: {
       default: undefined
     },
     autocompleteParams: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     }
   },
+
+  emits: ['update:modelValue'],
+
   data () {
     return {
       selectedTaxon: undefined
     }
   },
   watch: {
-    value (newVal) {
+    modelValue (newVal) {
       if (newVal && this.selectedTaxon && newVal[0] != this.selectedTaxon.id) {
         this.selectedTaxon = undefined
       }
@@ -65,18 +68,18 @@ export default {
     setTaxon (id) {
       TaxonName.find(id).then(response => {
         this.selectedTaxon = response.body
-        this.$emit('input', [response.body.id])
+        this.$emit('update:modelValue', [response.body.id])
       })
     },
     removeTaxon () {
       this.selectedTaxon = undefined
-      this.$emit('input', [])
+      this.$emit('update:modelValue', [])
     }
   }
 }
 </script>
 <style scoped>
-:deep(.vue-autocomplete-input) { 
+:deep(.vue-autocomplete-input) {
   width: 100%
 }
 </style>

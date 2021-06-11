@@ -19,18 +19,19 @@
         v-if="view == smartOptions.common"
         class="no_bullets"
       >
-        <li
+        <template
           v-for="(item, key) in mergeLists.common"
-          :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
-          <label>
-            <input
-              :value="key"
-              @click="addStatus(item)"
-              type="radio">
-            {{ item.name }}
-          </label>
-        </li>
+          :key="key">
+          <li v-if="!filterAlreadyPicked(item.type)">
+            <label>
+              <input
+                :value="key"
+                @click="addStatus(item)"
+                type="radio">
+              {{ item.name }}
+            </label>
+          </li>
+        </template>
       </ul>
       <autocomplete
         v-if="view == smartOptions.advanced"
@@ -78,10 +79,12 @@ export default {
     DisplayList
   },
   props: {
-    value: {
+    modelValue: {
 
     }
   },
+
+  emits: ['update:modelValue'],
 
   computed: {
     smartOptions () {
@@ -109,7 +112,7 @@ export default {
       this.statusSelected = []
     },
     statusSelected(newVal) {
-      this.$emit('input', newVal.map(status => { return status.type }))
+      this.$emit('update:modelValue', newVal.map(status => status.type))
     }
   },
 

@@ -22,26 +22,30 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
       set(value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       options: [
         {
           label: 'Any code',
-          value: undefined 
+          value: undefined
         },
         { 
           label: 'ICZN (animals)',
@@ -62,6 +66,7 @@ export default {
       ]
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     this.optionValue = params.nomenclature_code

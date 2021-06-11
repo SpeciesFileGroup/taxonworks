@@ -19,18 +19,19 @@
         v-if="view == smartOptions.common"
         class="no_bullets"
       >
-        <li
+        <template
           v-for="(item, key) in mergeLists.common"
-          :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
-          <label>
-            <input
-              :value="key"
-              @click="addRelationship(item)"
-              type="radio">
-            {{ item.name }}
-          </label>
-        </li>
+          :key="key">
+          <li v-if="!filterAlreadyPicked(item.type)">
+            <label>
+              <input
+                :value="key"
+                @click="addRelationship(item)"
+                type="radio">
+              {{ item.name }}
+            </label>
+          </li>
+        </template>
       </ul>
       <autocomplete
         v-if="view == smartOptions.advanced"
@@ -79,10 +80,12 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
 
     }
   },
+
+  emits: ['update:modelValue'],
 
   computed: {
     smartOptions() {
@@ -105,12 +108,12 @@ export default {
   },
 
   watch: {
-    value(newVal) {
+    modelValue (newVal) {
       if (newVal.length || !this.relationshipSelected.length) return
       this.relationshipSelected = []
     },
-    relationshipSelected(newVal) {
-      this.$emit('input', newVal.map(relationship => { return relationship.type }))
+    relationshipSelected (newVal) {
+      this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
     }
   },
 
@@ -153,7 +156,7 @@ export default {
     },
 
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
           Object.defineProperty(list[key], 'type', { value: key })
           Object.defineProperty(list[key], 'name', { value: ranksList[key].subject_status_tag })
@@ -162,11 +165,11 @@ export default {
       }
     },
 
-    removeItem(relationship) {
-      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type),1)
+    removeItem (relationship) {
+      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type), 1)
     },
 
-    addRelationship(item) {
+    addRelationship (item) {
       this.relationshipSelected.push(item)
       this.view = OPTIONS.common
     },
