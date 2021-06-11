@@ -52,20 +52,24 @@ export default {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     ranksSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     ranks: {
       get () {
         return this.$store.getters[GetterNames.GetRanks]
@@ -74,21 +78,26 @@ export default {
         this.$store.commit(MutationNames.SetRanks, value)
       }
     },
+
     rankGroup () {
       const groups = this.ranks[this.taxonName.nomenclatural_code]
       let group
       let rankIndex
+
       for (const groupKey in groups) {
-        const index = groups[groupKey].findIndex(item => {
-          return item.name === this.taxonName.rank
-        })
+        const index = groups[groupKey].findIndex(item => item.name === this.taxonName.rank)
+
         if (index >= 0) {
           rankIndex = index
           group = groupKey
           break
         }
       }
-      return { group: group, groupIndex: Object.keys(groups).findIndex(item => { return item === group }), rankIndex: rankIndex }
+      return {
+        group: group,
+        groupIndex: Object.keys(groups).findIndex(item => item === group),
+        rankIndex: rankIndex
+      }
     }
   },
   data () {

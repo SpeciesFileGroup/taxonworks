@@ -1,15 +1,11 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store'
+import App from './app.vue'
 
 function init () {
-  new Vue({
-    el: '#vue-task-nomenclature-stats',
-    store: newStore(),
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#vue-task-nomenclature-stats')
 }
 
 document.addEventListener('turbolinks:load', () => {
