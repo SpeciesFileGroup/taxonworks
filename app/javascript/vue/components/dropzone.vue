@@ -14,7 +14,7 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      default: undefined
     },
     url: {
       type: String,

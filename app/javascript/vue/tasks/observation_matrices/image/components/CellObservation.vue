@@ -4,63 +4,60 @@
       <spinner-component
         :legend="('Loading...')"
         v-if="isLoading"/>
-      <template>
-        <div v-show="existObservations">
-          <dropzone-component
-            class="dropzone-card"
-            ref="depictionDepic"
-            url="/depictions"
-            :id="`depiction-${rowObject.id}-${column.id}-depic-${Math.random().toString(36).slice(2)}`"
-            :use-custom-dropzone-options="true"
-            @vdropzone-sending="sendingDepic"
-            @vdropzone-success="successDepic"
-            :dropzone-options="dropzoneDepiction"/>
-        </div>
-        <div v-show="!existObservations">
-          <dropzone-component
-            class="dropzone-card"
-            ref="depictionObs"
-            url="/observations"
-            :id="`depiction-${rowObject.id}-${column.id}-obs-${Math.random().toString(36).slice(2)}`"
-            :use-custom-dropzone-options="true"
-            @vdropzone-sending="sending"
-            @vdropzone-success="success"
-            :dropzone-options="dropzoneObservation"/>
-        </div>
-      </template>
+      <div v-show="existObservations">
+        <dropzone-component
+          class="dropzone-card"
+          ref="depictionDepic"
+          url="/depictions"
+          :use-custom-dropzone-options="true"
+          @vdropzone-sending="sendingDepic"
+          @vdropzone-success="successDepic"
+          :dropzone-options="dropzoneDepiction"/>
+      </div>
+      <div v-show="!existObservations">
+        <dropzone-component
+          class="dropzone-card"
+          ref="depictionObs"
+          url="/observations"
+          :use-custom-dropzone-options="true"
+          @vdropzone-sending="sending"
+          @vdropzone-success="success"
+          :dropzone-options="dropzoneObservation"/>
+      </div>
 
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         group="cells"
+        item-key="id"
+        :list="depictions"
         @add="movedDepiction"
         @choose="setObservationDragged"
         @remove="removeFromList">
-        <div
-          v-for="depiction in depictions"
-          :key="depiction.id"
-          class="drag-container">
-          <image-viewer
-            edit
-            :depiction="depiction"
-          >
-            <div
-              class="horizontal-left-content"
-              slot="thumbfooter">
-              <radial-annotator
-                type="annotations"
-                :global-id="depiction.image.global_id"/>
-              <button-citation
-                :global-id="depiction.image.global_id"
-                :citations="depiction.image.citations"
-              />
-              <button
-                class="button circle-button btn-delete"
-                type="button"
-                @click="removeDepiction(depiction)"
-              />
-            </div>
-          </image-viewer>
-        </div>
+        <template #item="{ element }">
+          <div class="drag-container">
+            <image-viewer
+              edit
+              :depiction="element"
+            >
+              <template #thumbfooter>
+                <div class="horizontal-left-content">
+                  <radial-annotator
+                    type="annotations"
+                    :global-id="element.image.global_id"/>
+                  <button-citation
+                    :global-id="element.image.global_id"
+                    :citations="element.image.citations"
+                  />
+                  <button
+                    class="button circle-button btn-delete"
+                    type="button"
+                    @click="removeDepiction(element)"
+                  />
+                </div>
+              </template>
+            </image-viewer>
+          </div>
+        </template>
       </draggable-component>
     </div>
     <v-icon
@@ -114,6 +111,11 @@ export default {
       default: true
     }
   },
+
+  emits: [
+    'removeDepictions',
+    'addDepiction'
+  ],
 
   computed: {
     observationMoved: {
@@ -177,15 +179,12 @@ export default {
   },
 
   methods: {
-
     removeFromList (event) {
       this.$emit('removeDepiction', event.oldIndex)
     },
 
     movedDepiction (event) {
-      if (this.depictions.length) {
-        this.updateDepiction(event)
-      } else {
+      if (this.depictions.length === 1) {
         const observation = {
           descriptor_id: this.column.id,
           type: 'Observation::Media',
@@ -195,6 +194,9 @@ export default {
         Observation.create({ observation }).then(({ body }) => {
           this.updateDepiction(event, body.id)
         })
+      }
+      else {
+        this.updateDepiction(event)
       }
     },
 

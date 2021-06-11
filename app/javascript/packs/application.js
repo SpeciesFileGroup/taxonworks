@@ -51,8 +51,8 @@ require('../vue/tasks/images/new_image/main.js')
 require('../vue/tasks/images/filter/main.js')
 require('../vue/tasks/sources/hub/main.js')
 require('../vue/tasks/nomenclature/filter/main.js')
-/*
 require('../vue/tasks/observation_matrices/image/main.js')
+/*
 require('../vue/tasks/observation_matrices/hub/main.js')
 require('../vue/tasks/observation_matrices/dashboard/main.js')
 */

@@ -5,7 +5,7 @@ export default (state, { rowIndex, columnIndex, depiction }) => {
   const index = depictions.findIndex(d => d.id === depiction.id)
 
   if (index > -1) {
-    Vue.set(depictions, index, depiction)
+    depictions[index] = depiction
   } else {
     depictions.push(depiction)
   }

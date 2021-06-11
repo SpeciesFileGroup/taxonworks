@@ -46,6 +46,8 @@ export default {
     }
   },
 
+  emits: ['create'],
+
   data () {
     return {
       types: [

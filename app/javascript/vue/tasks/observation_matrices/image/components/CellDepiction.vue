@@ -4,29 +4,30 @@
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         :group="{ name: 'cells', put: false }"
+        :list="depictions"
+        item-key="id"
         @choose="setObservationDragged"
         @remove="removeDepiction">
-        <div
-          v-for="depiction in depictions"
-          :key="depiction.id"
-          class="drag-container">
-          <image-viewer
-            edit
-            :depiction="depiction"
-          >
-            <div
-              class="horizontal-left-content"
-              slot="thumbfooter">
-              <radial-annotator
-                type="annotations"
-                :global-id="depiction.image.global_id"/>
-              <button-citation
-                :global-id="depiction.image.global_id"
-                :citations="depiction.image.citations"
-              />
-            </div>
-          </image-viewer>
-        </div>
+        <template #item="{ element }">
+          <div class="drag-container">
+            <image-viewer
+              edit
+              :depiction="element"
+            >
+              <div
+                class="horizontal-left-content"
+                slot="thumbfooter">
+                <radial-annotator
+                  type="annotations"
+                  :global-id="element.image.global_id"/>
+                <button-citation
+                  :global-id="element.image.global_id"
+                  :citations="element.image.citations"
+                />
+              </div>
+            </image-viewer>
+          </div>
+        </template>
       </draggable-component>
     </div>
     <v-icon
@@ -65,10 +66,13 @@ export default {
     }
   },
 
+  emits: ['removeDepiction'],
+
   methods: {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
     },
+
     removeDepiction ({ oldIndex }) {
       this.$emit('removeDepiction', oldIndex)
     }

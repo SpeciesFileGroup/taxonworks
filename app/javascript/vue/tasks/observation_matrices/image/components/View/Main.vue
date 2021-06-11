@@ -48,7 +48,7 @@
           <div
             class="observation-cell"
             :key="rIndex">
-            <tippy-component
+            <tippy
               animation="scale"
               placement="bottom"
               size="small"
@@ -56,13 +56,11 @@
               inertia
               arrow
               content="Hide">
-              <template slot="trigger">
-                <input
-                  type="checkbox"
-                  v-model="hideRows"
-                  :value="rIndex">
-              </template>
-            </tippy-component>
+              <input
+                type="checkbox"
+                v-model="hideRows"
+                :value="rIndex">
+            </tippy>
           </div>
           <div
             :key="`${rIndex}-o`"
@@ -111,14 +109,14 @@ import CellDepiction from './CellDepiction.vue'
 import CellLink from '../CellLink.vue'
 
 import { GetterNames } from '../../store/getters/getters'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 
 export default {
   components: {
     FilterLanguage,
     FilterRank,
     SpinnerComponent,
-    TippyComponent,
+    Tippy,
     CellDepiction,
     CellHeader,
     RadialObject,

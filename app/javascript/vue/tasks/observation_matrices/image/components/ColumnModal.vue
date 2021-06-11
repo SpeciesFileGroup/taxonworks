@@ -51,6 +51,11 @@ export default {
     }
   },
 
+  emits: [
+    'close',
+    'create'
+  ],
+
   computed: {
     validateFields () {
       return this.descriptor.name.length

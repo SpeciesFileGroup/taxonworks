@@ -3,7 +3,7 @@
     <label
       class="header-label cursor-pointer ellipsis"
       :title="title">
-      <tippy-component
+      <tippy
         animation="scale"
         placement="bottom"
         size="small"
@@ -11,23 +11,21 @@
         inertia
         arrow
         content="Hide">
-        <template slot="trigger">
-          <input
-            type="checkbox"
-            :value="index"
-            v-model="hideColumn">
-          {{ title }}
-        </template>
-      </tippy-component>
+        <input
+          type="checkbox"
+          :value="index"
+          v-model="hideColumn">
+        {{ title }}
+      </tippy>
     </label>
   </div>
 </template>
 <script>
 
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 
 export default {
-  components: { TippyComponent },
+  components: { Tippy },
 
   props: {
     title: {
@@ -35,7 +33,7 @@ export default {
       required: true
     },
 
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -46,13 +44,15 @@ export default {
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
     hideColumn: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }
