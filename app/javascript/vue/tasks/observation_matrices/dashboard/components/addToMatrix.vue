@@ -45,6 +45,7 @@
             v-if="matrix && matrix.is_media_matrix"
             type="button"
             class="button normal-input button-default margin-small-left"
+            :disabled="!selectedIds.length"
             @click="openImageMatrix(matrix.id)">
             Image matrix
           </button>
@@ -120,7 +121,7 @@ export default {
       window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
     },
     openImageMatrix (id) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}`, '_blank')
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
     }
   }
 }
