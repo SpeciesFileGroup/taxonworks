@@ -32,6 +32,7 @@ export default {
       type: String,
       required: true
     },
+
     records: {
       type: Array,
       required: true

@@ -65,8 +65,8 @@ require('../vue/tasks/otu/browse/main.js')
 require('../vue/tasks/collection_objects/slide_breakdown/main.js')
 */
 require('../vue/tasks/biological_relationships/composer/main.js')
-/*
 require('../vue/tasks/nomenclature/match/main.js')
+/*
 require('../vue/tasks/controlled_vocabularies/manage/main.js')
 require('../vue/tasks/collection_objects/match/main.js')
 require('../vue/tasks/sources/filter/main.js')

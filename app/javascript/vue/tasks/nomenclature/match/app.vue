@@ -16,9 +16,9 @@
             Match
           </button>
           <label>
-          <input
-            type="checkbox"
-            v-model="exact">
+            <input
+              type="checkbox"
+              v-model="exact">
             Exact match
           </label>
         </div>
@@ -68,6 +68,7 @@ export default {
     SpinnerComponent,
     NavbarComponent
   },
+
   data () {
     return {
       lines: [],
@@ -79,6 +80,7 @@ export default {
       matches: {}
     }
   },
+
   methods: {
     GetMatches (position) {
       const promises = []
@@ -87,14 +89,16 @@ export default {
         if (position < this.lines.length) {
           promises.push(new Promise((resolve, reject) => {
             const name = this.lines[position]
+
             TaxonName.where({ name: name, exact: this.exact }).then(response => {
-              this.$set(this.matches, name, response.body)
+              this.matches[name] = response.body
               resolve()
             })
           }))
           position++
         }
       }
+
       Promise.all(promises).then(() => {
         if (position < this.lines.length) {
           this.GetMatches(position)
@@ -103,11 +107,13 @@ export default {
         }
       })
     },
+
     processList () {
       this.matches = {}
       this.isLoading = true
       this.GetMatches(0)
     },
+
     filterView (record) {
       switch (this.filter) {
         case 'matches':
