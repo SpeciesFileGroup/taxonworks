@@ -23,6 +23,7 @@ export default {
       type: Number,
       default: undefined
     },
+
     languageList: {
       type: Array,
       default: () => []
