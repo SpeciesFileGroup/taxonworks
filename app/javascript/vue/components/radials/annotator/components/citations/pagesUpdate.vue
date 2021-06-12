@@ -8,7 +8,7 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     },
@@ -17,28 +17,32 @@ export default {
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     topic: {
       get () {
-        return this.value
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       delay: 1000,
       timer: undefined
     }
   },
+
   methods: {
-    updatePage() {
-      let that = this
+    updatePage () {
       clearTimeout(this.timer)
       this.timer = setTimeout(() => {
-        that.$emit('update', {
+        this.$emit('update', {
           id: this.citationId,
           citation_topics_attributes: [{
             id: this.topic.id,

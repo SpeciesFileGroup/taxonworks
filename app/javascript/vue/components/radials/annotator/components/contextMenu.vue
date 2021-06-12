@@ -1,6 +1,6 @@
 <template>
   <div
-    @mouseleave="$emit('input', false)"
+    @mouseleave="$emit('update:modelValue', false)"
     class="context-menu">
     <template v-if="metadata">
       <template v-if="defaultPinned">
@@ -26,33 +26,35 @@
 
 <script>
 
-import SpinnerComponent from 'components/spinner.vue'
 import CRUD from '../request/crud.js'
 
 export default {
   mixins: [CRUD],
-  components: {
-    SpinnerComponent
-  },
+
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
+
     metadata: {
       type: Object,
       default: undefined
     },
+
     globalId: {
       type: String,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
-    defaultPinned() {
-      if(this.metadata) {
+    defaultPinned () {
+      if (this.metadata) {
         const types = Object.keys(this.metadata.endpoints)
-        return types.find(item => { return document.querySelector(`[data-pinboard-section="${this.pinboardTypes[item].type}"] [data-insert="true"]`) })
+        return types.find(item => document.querySelector(`[data-pinboard-section="${this.pinboardTypes[item].type}"] [data-insert="true"]`))
       }
       return undefined
     }
@@ -72,15 +74,16 @@ export default {
     }
   },
   methods: {
-    getDefault(type) {
+    getDefault (type) {
       if(this.pinboardTypes[type]) {
         const defaultElement = document.querySelector(`[data-pinboard-section="${this.pinboardTypes[type].type}"] [data-insert="true"]`)
         return defaultElement ? defaultElement.getAttribute('data-pinboard-object-id') : undefined
       }
       return undefined
     },
-    createNew(type) {
-      let newObject = {
+
+    createNew (type) {
+      const newObject = {
         annotated_global_entity: decodeURIComponent(this.globalId),
         [this.pinboardTypes[type].idName]: this.getDefault(type)
       }
@@ -90,7 +93,8 @@ export default {
         TW.workbench.alert.create(JSON.stringify(response.body), 'error')
       })
     },
-    singularize(text) {
+
+    singularize (text) {
       return text.charAt(text.length-1) === 's' ? text.slice(0, text.length-1) : text
     }
   }
@@ -101,7 +105,7 @@ export default {
     background-color: #5D9ECE;
     color: white;
     width: 100%;
-    
+
     h3 {
       margin: 14px;
       margin-top: 0px;
