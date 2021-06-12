@@ -29,7 +29,12 @@ export default {
   },
   data () {
     return {
-      ranks: [undefined, 'ordered', 'weighted', 'optimized']
+      ranks: [
+        undefined,
+        'ordered',
+        'weighted',
+        'optimized'
+      ]
     }
   }
 }

@@ -1,18 +1,15 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store'
+import App from './app.vue'
 
 function init () {
-  new Vue({
-    store: newStore(),
-    el: '#vue-interactive-keys',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+
+  app.use(newStore())
+  app.mount('#vue-interactive-keys')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#vue-interactive-keys')) {
     init()
   }

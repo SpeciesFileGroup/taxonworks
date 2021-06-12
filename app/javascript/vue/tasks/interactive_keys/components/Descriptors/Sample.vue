@@ -16,13 +16,15 @@ import ExtendDescriptor from './shared.js'
 
 export default {
   mixins: [ExtendDescriptor],
+
   data () {
     return {
       fieldValue: undefined
     }
   },
+
   watch: {
-    value: {
+    modelValue: {
       handler (newVal) {
         if (newVal[this.descriptor.id] !== this.fieldValue) {
           this.fieldValue = newVal[this.descriptor.id]
@@ -32,9 +34,10 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     setValue () {
-      this.$set(this.selected, this.descriptor.id, this.fieldValue)
+      this.selected[this.descriptor.id] = this.fieldValue
     }
   }
 }

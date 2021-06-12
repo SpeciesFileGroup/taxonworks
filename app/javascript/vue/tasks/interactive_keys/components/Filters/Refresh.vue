@@ -21,7 +21,7 @@ export default {
         return this.$store.getters[GetterNames.GetSettings]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetSettings)
+        this.$store.commit(MutationNames.SetSettings, value)
       }
     }
   }

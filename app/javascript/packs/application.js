@@ -68,6 +68,7 @@ require('../vue/tasks/controlled_vocabularies/manage/main.js')
 require('../vue/tasks/collection_objects/match/main.js')
 require('../vue/tasks/sources/filter/main.js')
 require('../vue/tasks/collecting_events/new_collecting_event/main.js')
-/*
+
 require('../vue/tasks/interactive_keys/main.js')
+/*
 require('../vue/tasks/extracts/new_extract/main.js') */
