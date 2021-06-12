@@ -48,7 +48,7 @@ export default {
       type: Object,
       default: undefined
     },
-    value: {
+    modelValue: {
       type: Array,
       default: () => []
     }
@@ -56,10 +56,10 @@ export default {
   computed: {
     ranksSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', this.orderRanks(value))
+        this.$emit('update:modelValue', this.orderRanks(value))
       }
     },
     ranks: {

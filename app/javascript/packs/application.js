@@ -53,9 +53,7 @@ require('../vue/tasks/sources/hub/main.js')
 require('../vue/tasks/nomenclature/filter/main.js')
 require('../vue/tasks/observation_matrices/image/main.js')
 require('../vue/tasks/observation_matrices/hub/main.js')
-/*
 require('../vue/tasks/observation_matrices/dashboard/main.js')
-*/
 require('../vue/tasks/nomenclature/stats/main.js')
 require('../vue/tasks/otu/browse_asserted_distributions/main.js')
 require('../vue/tasks/collection_objects/filter/main.js')

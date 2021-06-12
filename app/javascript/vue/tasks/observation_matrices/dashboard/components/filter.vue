@@ -59,17 +59,27 @@ export default {
     taxonName,
     FilterTable
   },
+
   props: {
     fieldSet: {
       type: Array,
       required: true
     }
   },
+
+  emits: [
+    'onSearch',
+    'onTableFilter',
+    'onTaxon',
+    'reset'
+  ],
+
   computed: {
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     }
   },
+
   data () {
     return {
       taxonName: undefined,
@@ -82,6 +92,7 @@ export default {
       }
     }
   },
+
   watch: {
     taxonName: {
       handler (newVal) {
@@ -106,6 +117,7 @@ export default {
       immediate: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
@@ -116,14 +128,17 @@ export default {
       })
     }
   },
+
   methods: {
     sendParams () {
       this.$emit('onSearch', this.params)
     },
+
     setTaxon (taxon) {
       this.taxonName = taxon
       this.params.ancestor_id = taxon.id
     },
+
     initParams () {
       return {
         ancestor_id: undefined,
@@ -133,6 +148,7 @@ export default {
         fieldsets: ['observations']
       }
     },
+
     resetFilter () {
       this.taxonName = undefined
       this.params = this.initParams()
