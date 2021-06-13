@@ -33,12 +33,19 @@ export default {
   components: {
     ModalComponent
   },
+
   props: {
     disabled: {
       type: Boolean,
       default: false
     }
   },
+
+  emits: [
+    'confirm',
+    'close'
+  ],
+
   computed: {
     checkInput () {
       return this.inputValue.toUpperCase() !== this.checkWord
@@ -47,6 +54,7 @@ export default {
       return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     }
   },
+
   data () {
     return {
       inputValue: '',
@@ -54,14 +62,17 @@ export default {
       showModal: false
     }
   },
-  mounted() {
+
+  mounted () {
     this.$refs.inputtext.focus()
   },
+
   methods: {
     emitConfirm () {
       this.$emit('confirm', true)
       this.closeModal()
     },
+
     closeModal () {
       this.$emit('close')
     }

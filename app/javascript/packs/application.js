@@ -22,8 +22,8 @@ require('../vue/tasks/observation_matrices/matrix_row_coder/main.js')
 require('../vue/initializers/annotator_init/main.js')
 require('../vue/initializers/otu_radial_init/main.js')
 require('../vue/initializers/otu_button_init/main.js')
-/*
 require('../vue/initializers/navigation_radial/main.js')
+/*
 require('../vue/initializers/collection_object_radial/main.js')
 require('../vue/initializers/pdfViewer/main.js')
 require('../vue/initializers/default_confidence/main.js')
