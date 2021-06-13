@@ -42,7 +42,7 @@
       :list="shortList"
       @delete="removeItem"
       class="list">
-      <template v-slot:options="slotProps">
+      <template #options="slotProps">
         <a
           class="circle-button btn-edit"
           :href="`/tasks/content/editor/index?otu_id=${slotProps.item.otu_id}&topic_id=${slotProps.item.topic_id}`"></a>

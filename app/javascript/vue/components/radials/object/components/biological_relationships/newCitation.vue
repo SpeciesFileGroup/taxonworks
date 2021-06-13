@@ -7,19 +7,21 @@
           url="/sources/autocomplete"
           label="label"
           min="2"
-          :clear-after="true"
+          clear-after
           ref="autocomplete"
           @getItem="setSource"
           placeholder="Select a source"
           param="term"
         />
-        <default-element
-          class="separate-left"
-          label="source"
-          type="Source"
-          @getItem="setSource"
-          section="Sources"
-        />
+        <div>
+          <default-element
+            class="separate-left"
+            label="source"
+            type="Source"
+            @getItem="setSource"
+            section="Sources"
+          />
+        </div>
         <lock-component v-model="lock" />
       </div>
       <div class="margin-small-top">
@@ -60,17 +62,25 @@ export default {
     Autocomplete,
     LockComponent
   },
+
   props: {
     globalId: {
       type: String,
       required: true
     }
   },
+
+  emits: [
+    'lock',
+    'create'
+  ],
+
   computed: {
     validateFields () {
       return this.citation.source_id
     }
   },
+
   data () {
     return {
       autocompleteLabel: undefined,
@@ -78,6 +88,7 @@ export default {
       lock: false
     }
   },
+
   watch: {
     citation: {
       handler (newVal) {
@@ -90,6 +101,7 @@ export default {
       this.$emit('lock', newVal)
     }
   },
+
   mounted () {
     this.lock = convertType(sessionStorage.getItem('radialObject::source::lock'))
     if (this.lock) {
@@ -98,6 +110,7 @@ export default {
       this.autocompleteLabel = convertType(sessionStorage.getItem('radialObject::source::label'))
     }
   },
+
   methods: {
     newCitation () {
       return {
@@ -107,21 +120,25 @@ export default {
         pages: undefined
       }
     },
+
     sendCitation () {
       if (this.validateFields) {
         this.$emit('create', this.citation)
       }
     },
+
     cleanCitation () {
       this.autocompleteLabel = undefined
       this.citation = this.newCitation()
     },
+
     setSource (source) {
       sessionStorage.setItem('radialObject::source::id', source.id)
       sessionStorage.setItem('radialObject::source::label', source.label)
       this.citation.source_id = source.id
       this.autocompleteLabel = source.label
     },
+
     setPage (value) {
       sessionStorage.setItem('radialObject::source::pages', this.citation.pages)
     }

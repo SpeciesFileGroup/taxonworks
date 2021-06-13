@@ -20,9 +20,9 @@ require('../vue/tasks/nomenclature/new_taxon_name/main.js')
 require('../vue/tasks/loan/main.js')
 require('../vue/tasks/observation_matrices/matrix_row_coder/main.js')
 require('../vue/initializers/annotator_init/main.js')
-/*
 require('../vue/initializers/otu_radial_init/main.js')
 require('../vue/initializers/otu_button_init/main.js')
+/*
 require('../vue/initializers/navigation_radial/main.js')
 require('../vue/initializers/collection_object_radial/main.js')
 require('../vue/initializers/pdfViewer/main.js')

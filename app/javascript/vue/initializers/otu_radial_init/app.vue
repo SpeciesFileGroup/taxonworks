@@ -3,31 +3,32 @@
     :id="id"
     type="graph"
     button-title="OTU quick forms"
-    buttonClass="btn-hexagon-w button-default"
+    button-class="btn-hexagon-w button-default"
     :show-count="showCount"
     :global-id="globalId"/>
 </template>
 <script>
 
-  import OtuRadial from 'components/radials/object/radial.vue'
+import OtuRadial from 'components/radials/object/radial.vue'
 
-  export default {
-    components: {
-      OtuRadial
+export default {
+  components: { OtuRadial },
+
+  props: {
+    id: {
+      type: String,
+      required: true
     },
-    props: {
-      id: {
-        type: String,
-        required: true
-      },
-      globalId: {
-        type: String,
-        required: true
-      },
-      showCount: {
-        type: Boolean,
-        default: false
-      }
+
+    globalId: {
+      type: String,
+      required: true
+    },
+
+    showCount: {
+      type: Boolean,
+      default: false
     }
   }
+}
 </script>

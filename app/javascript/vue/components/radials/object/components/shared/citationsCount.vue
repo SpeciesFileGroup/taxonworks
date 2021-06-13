@@ -11,26 +11,27 @@
     <modal-component
       v-if="showCitations"
       @close="setModalView(false)">
-      <h3 slot="header">Citations</h3>
-      <div
-        slot="body">
+      <template #header>
+        <h3>Citations</h3>
+      </template>
+      <template #body>
         <display-list
           :list="citations"
           :validations="true"
           :label="['citation_source_body']"
           @delete="removeCitation"
           :edit="false">
-          <div
-            slot="options"
-            slot-scope="slotProps">
-            <a
-              :title="slotProps.item.source.object_tag"
-              class="button-default circle-button btn-citation"
-              :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
-              target="blank"/>
-          </div>
+          <template #options="slotProps">
+            <div>
+              <a
+                :title="slotProps.item.source.object_tag"
+                class="button-default circle-button btn-citation"
+                :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
+                target="blank"/>
+            </div>
+          </template>
         </display-list>
-      </div>
+      </template>
     </modal-component>
   </span>
 </template>
@@ -43,30 +44,36 @@ import ModalComponent from 'components/ui/Modal'
 
 export default {
   mixins: [CRUD],
+
   components: {
     DisplayList,
     ModalComponent
   },
+
   props: {
     object: {
       type: Object,
       required: true
     },
+
     target: {
       type: String,
       required: true
     },
+
     values: {
       type: Array,
       default: undefined
     }
   },
+
   data () {
     return {
       showCitations: false,
       citations: []
     }
   },
+
   watch: {
     values: {
       handler (newVal) {
@@ -75,24 +82,28 @@ export default {
     },
     deep: true
   },
-  mounted() {
+
+  mounted () {
     this.loadCitations()
     document.addEventListener('radial:post', this.refreshCitations)
     document.addEventListener('radial:patch', this.refreshCitations)
     document.addEventListener('radial:delete', this.refreshCitations)
   },
+
   unmounted () {
     document.removeEventListener('radial:post', this.refreshCitations)
     document.removeEventListener('radial:patch', this.refreshCitations)
     document.removeEventListener('radial:delete', this.refreshCitations)
   },
+
   methods: {
-    removeCitation(cite) {
+    removeCitation (cite) {
       this.destroy(`/citations/${cite.id}.json`).then(response => {
         this.citations.splice(this.citations.findIndex(item => { return item.id == cite.id }), 1)
       })
     },
-    loadCitations() {
+
+    loadCitations () {
       if (!this.values) {
         this.getList(`/${this.target}/${this.object.id}/citations.json`).then(response => {
           this.citations = response.body
@@ -101,15 +112,17 @@ export default {
         this.citations = this.values
       }
     },
+
     refreshCitations(event) {
-      if(event) {
-        if(event.detail.object.hasOwnProperty('citation') || 
-        (event.detail.object.hasOwnProperty('base_class') && 
+      if (event) {
+        if (event.detail.object.hasOwnProperty('citation') ||
+        (event.detail.object.hasOwnProperty('base_class') &&
         event.detail.object.base_class == 'Citation')) {
           this.loadCitations()
         }
       }
     },
+
     setModalView (value) {
       this.showCitations = value
     }

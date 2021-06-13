@@ -56,67 +56,72 @@
 
 <script>
 
-  import OtuAutocomplete from 'components/otu/otu_picker/otu_picker.vue'
-  import TagItem from '../shared/item_tag.vue'
-  import SwitchComponent from '../shared/switch.vue'
-  import Autocomplete from 'components/ui/Autocomplete.vue'
-  import CRUD from '../../request/crud'
+import OtuAutocomplete from 'components/otu/otu_picker/otu_picker.vue'
+import TagItem from '../shared/item_tag.vue'
+import SwitchComponent from '../shared/switch.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
+import CRUD from '../../request/crud'
 
-  export default {
-    mixins: [CRUD],
-    components: {
-      TagItem,
-      SwitchComponent,
-      Autocomplete,
-      OtuAutocomplete
-    },
-    computed: {
-      otuView() {
-        return this.view === 'otu'
+export default {
+  mixins: [CRUD],
+
+  components: {
+    TagItem,
+    SwitchComponent,
+    Autocomplete,
+    OtuAutocomplete
+  },
+
+  emits: ['select'],
+
+  computed: {
+    otuView () {
+      return this.view === 'otu'
+    }
+  },
+
+  data () {
+    return {
+      view: 'otu',
+      viewOtu: undefined,
+      viewCollectionObject: undefined,
+      tabOptions: ['otu', 'collection object'],
+      smartOtu: [],
+      smartCollectionObject: [],
+      selected: undefined
+    }
+  },
+
+  mounted () {
+    this.getList(`/otus/select_options?target=BiologicalAssociation`).then(response => {
+      let result = response.body
+      Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
+      this.smartOtu = result
+      this.viewOtu = this.firstTabWithData(result);
+    })
+    this.getList(`/collection_objects/select_options?target=BiologicalAssociation`).then(response => {
+      let result = response.body
+      Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
+      this.smartCollectionObject = result
+      this.viewCollectionObject = this.firstTabWithData(result);
+    })
+  },
+
+  methods: {
+    sendRelated (item) {
+      this.selected = item.id
+      item['type'] = (this.otuView ? 'Otu' : 'CollectionObject')
+      if(item.hasOwnProperty('gid')) {
+        item['global_id'] = item.gid
       }
+      this.$emit('select', item)
     },
-    data() {
-      return {
-        view: 'otu',
-        viewOtu: undefined,
-        viewCollectionObject: undefined,
-        tabOptions: ['otu', 'collection object'],
-        smartOtu: [],
-        smartCollectionObject: [],
-        selected: undefined
-      }
-    },
-    mounted() {
-      this.getList(`/otus/select_options?target=BiologicalAssociation`).then(response => {
-        let result = response.body
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartOtu = result
-        this.viewOtu = this.firstTabWithData(result);
-      })
-      this.getList(`/collection_objects/select_options?target=BiologicalAssociation`).then(response => {
-        let result = response.body
-        Object.keys(result).forEach(key => (!result[key].length) && delete result[key])
-        this.smartCollectionObject = result
-        this.viewCollectionObject = this.firstTabWithData(result);
-      })
-    },
-    methods: {
-      sendRelated(item) {
-        this.selected = item.id
-        item['type'] = (this.otuView ? 'Otu' : 'CollectionObject')
-        if(item.hasOwnProperty('gid')) {
-          item['global_id'] = item.gid
-        }
-        this.$emit('select', item)
-      },
-      firstTabWithData(smartObject) {
-        if(Object.keys(smartObject).length) {
-          return Object.keys(smartObject)[0]
-        }
-        else {
-          return 'search'
-        }        
-      }
+
+    firstTabWithData (smartObject) {
+      return (Object.keys(smartObject).length)
+        ? Object.keys(smartObject)[0]
+        : 'search'
     }
   }
+}
 </script>

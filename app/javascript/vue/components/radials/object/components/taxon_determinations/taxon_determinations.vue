@@ -1,11 +1,7 @@
 <template>
   <div>
-    <div slot="header">
-      <h3>Determinations</h3>
-    </div>
-    <div
-      slot="body"
-      id="taxon-determination-digitize">
+    <h3>Determinations</h3>
+    <div id="taxon-determination-digitize">
       <fieldset
         class="separate-bottom">
         <legend>OTU</legend>
@@ -103,7 +99,7 @@ export default {
     RolePicker,
     DisplayList
   },
-  data() {
+  data () {
     return {
       taxon_determination: this.newDetermination(),
       selectedOtu: undefined

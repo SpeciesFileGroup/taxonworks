@@ -233,9 +233,7 @@ export default {
     .biological_relationships_annotator {
       position: relative;
       overflow-y: scroll;
-      button {
-        min-width: 100px;
-      }
+
       .switch-radio {
         label {
           min-width: 95px;
