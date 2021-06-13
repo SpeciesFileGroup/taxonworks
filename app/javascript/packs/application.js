@@ -23,9 +23,9 @@ require('../vue/initializers/annotator_init/main.js')
 require('../vue/initializers/otu_radial_init/main.js')
 require('../vue/initializers/otu_button_init/main.js')
 require('../vue/initializers/navigation_radial/main.js')
-/*
 require('../vue/initializers/collection_object_radial/main.js')
 require('../vue/initializers/pdfViewer/main.js')
+/*
 require('../vue/initializers/default_confidence/main.js')
 require('../vue/initializers/tagButton/main.js')
 require('../vue/initializers/quick_citation_init/main.js')
