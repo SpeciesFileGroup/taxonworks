@@ -226,7 +226,9 @@ export default {
 
     updateRecord (asserted_distribution) {
       AssertedDistribution.update(asserted_distribution.id, { asserted_distribution }).then(response => {
-        this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+        const index = this.list.findIndex(item => item.id === response.body.id)
+
+        this.list[index] = response.body
         TW.workbench.alert.create('Asserted distribution was successfully updated.', 'notice')
         this.refreshSmarts()
         this.newWithLock()

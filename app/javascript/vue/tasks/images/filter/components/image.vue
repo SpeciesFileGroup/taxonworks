@@ -3,13 +3,14 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)">
-      <h3 slot="header">Image</h3>
-      <div
-        slot="body">
+      <template #header>
+        <h3>Image</h3>
+      </template>
+      <template #body>
         <img
           class="img-maxsize"
           :src="image.image_file_url">
-      </div>
+      </template>
     </modal-component>
     <div
       class="depiction-thumb-container depiction-thumb-image horizontal-center-content middle position-relative">
@@ -39,17 +40,20 @@ export default {
     ModalComponent,
     PinComponent
   },
+
   props: {
     image: {
       type: Object,
       required: true
     }
   },
+
   data () {
     return {
       showModal: false
     }
   },
+
   methods: {
     setModalView(value) {
       this.showModal = value

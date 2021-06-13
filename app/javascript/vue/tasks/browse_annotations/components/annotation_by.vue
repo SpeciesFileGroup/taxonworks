@@ -43,7 +43,7 @@ export default {
   methods: {
     selectMember(item) {
       if (this.selectedList.hasOwnProperty(item.id)) {
-        this.$delete(this.selectedList, item.id)
+        delete this.selectedList[item.id]
       }
       else {
         this.selectedList[item.id] = item

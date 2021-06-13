@@ -38,24 +38,26 @@ import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  components: {
-    Tippy
-  },
+  components: { Tippy },
+
   props: {
     globalId: {
       type: String,
       required: true
     },
+
     tooltip: {
       type: Boolean,
       default: true
     },
+
     count: {
       type: [Number, String],
       default: undefined
     }
   },
-  data: function () {
+
+  data () {
     return {
       confidenceItem: undefined,
       keyId: this.getDefault(),
@@ -63,6 +65,7 @@ export default {
       confidenceCount: undefined
     }
   },
+
   watch: {
     count: {
       handler (newVal) {
@@ -71,6 +74,7 @@ export default {
       immediate: true
     }
   },
+
   mounted () {
     this.alreadyCreated()
     document.addEventListener('pinboard:insert', (event) => {
@@ -82,23 +86,26 @@ export default {
       }
     })
   },
+
   methods: {
     getDefault () {
-      let defaultConfidence = this.getDefaultElement()
+      const defaultConfidence = this.getDefaultElement()
       return defaultConfidence ? defaultConfidence.getAttribute('data-pinboard-object-id') : undefined
     },
+
     getDefaultElement () {
       return document.querySelector('[data-pinboard-section="ConfidenceLevels"] [data-insert="true"]')
     },
-    alreadyCreated: function(element) {
-      if(!this.keyId) return
 
-      let params = {
+    alreadyCreated (element) {
+      if (!this.keyId) return
+
+      const params = {
         global_id: this.globalId,
         confidence_level_id: this.keyId
       }
-      AjaxCall('get', '/confidences/exists', { params: params }).then(response => {
-        if(response.body) {
+      AjaxCall('get', '/confidences/exists', { params }).then(response => {
+        if (response.body) {
           this.created = true
           this.confidenceItem = response.body
         }
@@ -107,35 +114,40 @@ export default {
         }
       })
     },
+
     getCount () {
-      if(!this.keyId) return
+      if (!this.keyId) return
+
       const params = {
         confidence_level_id: [this.keyId],
         per: 100
       }
+
       AjaxCall('get', '/confidences', { params: params }).then(response => {
         this.confidenceCount = response.body.length
       })
     },
-    createConfidence: function () {
-      let ConfidenceItem = {
-        confidence: {
-          confidence_level_id: this.keyId,
-          annotated_global_entity: this.globalId
-        }
+
+    createConfidence () {
+      const confidence = {
+        confidence_level_id: this.keyId,
+        annotated_global_entity: this.globalId
       }
-      AjaxCall('post', '/confidences', ConfidenceItem).then(response => {
+
+      AjaxCall('post', '/confidences', { confidence }).then(response => {
         this.confidenceItem = response.body
         this.created = true
         TW.workbench.alert.create('Confidence item was successfully created.', 'notice')
       })
     },
-    deleteConfidence: function () {
-			let confidence = {
-				annotated_global_entity: this.globalId,
-				_destroy: true
-			}
-      AjaxCall('delete', `/confidences/${this.confidenceItem.id}`, { confidence: confidence }).then(response => {
+
+    deleteConfidence () {
+      const confidence = {
+        annotated_global_entity: this.globalId,
+        _destroy: true
+      }
+
+      AjaxCall('delete', `/confidences/${this.confidenceItem.id}`, { confidence }).then(() => {
         this.created = false
         TW.workbench.alert.create('Confidence item was successfully destroyed.', 'notice')
       })

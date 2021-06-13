@@ -13,38 +13,41 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Bibtex</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Bibtex</h3>
+      </template>
+      <template #body>
         <textarea
           class="full_width"
-          :value="bibtex">
-        </textarea>
-      </div>
-      <div slot="footer">
-        <button
-          v-if="!links"
-          type="button"
-          class="button normal-input button-default"
-          @click="generateLinks">
-          Generate download
-        </button>
-        <template v-else>
-          <span>Share link:</span>
-          <div
-            class="middle">
-            <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : noApiMessage }}</pre>
-            <clipboard-button
-              v-if="links.api_file_url"
-              :text="links.api_file_url"/>
-          </div>
-        </template>
-        <button
-          type="button"
-          @click="createDownloadLink()"
-          class="button normal-input button-default">
-          Download Bibtex
-        </button>
-      </div>
+          :value="bibtex"/>
+      </template>
+      <template #footer>
+        <div>
+          <button
+            v-if="!links"
+            type="button"
+            class="button normal-input button-default"
+            @click="generateLinks">
+            Generate download
+          </button>
+          <template v-else>
+            <span>Share link:</span>
+            <div
+              class="middle">
+              <pre class="margin-small-right">{{ links.api_file_url ? links.api_file_url : noApiMessage }}</pre>
+              <clipboard-button
+                v-if="links.api_file_url"
+                :text="links.api_file_url"/>
+            </div>
+          </template>
+          <button
+            type="button"
+            @click="createDownloadLink()"
+            class="button normal-input button-default">
+            Download Bibtex
+          </button>
+        </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -69,10 +72,12 @@ export default {
       type: Object,
       default: undefined
     },
+
     pagination: {
       type: Object,
       default: undefined
     },
+
     selectedList: {
       type: Array,
       default: () => []

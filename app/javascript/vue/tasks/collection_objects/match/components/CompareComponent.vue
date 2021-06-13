@@ -10,8 +10,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Compare collection objects</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Compare collection objects</h3>
+      </template>
+      <template #body>
         <switch-component
           v-model="view"
           :options="tabs"
@@ -66,7 +68,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>

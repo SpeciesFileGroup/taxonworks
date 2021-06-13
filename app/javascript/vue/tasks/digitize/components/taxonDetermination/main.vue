@@ -49,14 +49,15 @@
               :autocomplete="false"
               @onTabSelected="view = $event"
               @selected="addRole">
-              <role-picker
-                slot="header"
-                class="role-picker"
-                :autofocus="false"
-                :hidden-list="true"
-                ref="rolepicker"
-                role-type="Determiner"
-                v-model="roles"/>
+              <template #header>
+                <role-picker
+                  class="role-picker"
+                  :autofocus="false"
+                  hidden-list
+                  ref="rolepicker"
+                  role-type="Determiner"
+                  v-model="roles"/>
+              </template>
               <role-picker
                 class="role-picker"
                 :autofocus="false"
@@ -171,10 +172,12 @@ export default {
     Draggable,
     RadialAnnotator
   },
+
   computed: {
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     taxonDetermination: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination]
@@ -183,62 +186,70 @@ export default {
         this.$store.commit(MutationNames.SetTaxonDetermination, value)
       }
     },
+
     otu: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTmpData].otu
       },
       set(value) {
         this.$store.commit(MutationNames.SetTmpDataOtu, value)
       }
     },
+
     locked: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLocked]
       },
       set(value) {
         this.$store.commit(MutationNames.SetLocked, value)
       }
     },
+
     otuId: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationOtuId, value)
       }
     },
+
     day: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].day_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationDay, value)
       }
     },
+
     month: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].month_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationMonth, value)
       }
     },
+
     year: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].year_made
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationYear, value)
       }
     },
+
     roles: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].roles_attributes
       },
       set(value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationRoles, value)
       }
     },
+
     list: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDeterminations]
@@ -247,21 +258,25 @@ export default {
         this.$store.commit(MutationNames.SetTaxonDeterminations, value)
       }
     },
+
     lastSave () {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
+
   data () {
     return {
       view: undefined,
       otuSelected: undefined
     }
   },
+
   watch: {
-    collectionObject(newVal) {
+    collectionObject (newVal) {
       this.$refs.rolepicker.reset()
     },
-    otuId(newVal) {
+
+    otuId (newVal) {
       if (newVal) {
         Otu.find(newVal).then(response => {
           this.otuSelected = response.body.object_tag
@@ -273,11 +288,13 @@ export default {
         this.otuSelected = undefined
       }
     },
+
     lastSave (newVal) {
       this.$refs.smartSelector.refresh()
       this.$refs.determinerSmartSelector.refresh()
     }
   },
+
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const otuId = urlParams.get('otu_id')
@@ -302,45 +319,52 @@ export default {
       })
     }
   },
+
   methods: {
     roleExist (id) {
       return !!this.roles.find((role) => !role.hasOwnProperty('_destroy') && role.person_id === id)
     },
+
     addRole (role) {
       if (!this.roleExist(role.id)) {
         this.roles.push(CreatePerson(role, 'Determiner'))
       }
     },
+
     saveDetermination () {
       this.$store.dispatch(ActionNames.SaveDetermination)
     },
+
     addDetermination () {
-      if (!this.taxonDetermination.id && this.list.find((determination) => {
-        return determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year)
-      })
-      ) { return }
+      if (!this.taxonDetermination.id && this.list.find((determination) => determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year))) { return }
+
       this.taxonDetermination.object_tag = `${this.otuSelected} ${this.authorsString()} ${this.dateString()}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
       this.$store.commit(MutationNames.NewTaxonDetermination)
     },
+
     removeTaxonDetermination (determination) {
       this.$store.dispatch(ActionNames.RemoveTaxonDetermination, determination)
     },
+
     setActualDate () {
       const today = new Date()
       this.day = today.getDate()
       this.month = today.getMonth() + 1
       this.year = today.getFullYear()
     },
+
     updatePosition () {
-      for(let i = 0; i < this.list.length; i++) {
+      for (let i = 0; i < this.list.length; i++) {
         this.list[i].position = (i + 1)
       }
     },
+
     setOtu (otu) {
       this.otuId = otu.id
       this.otuSelected = otu.object_tag
     },
+
     editTaxonDetermination (item) {
       this.taxonDetermination = {
         id: item.id,
@@ -353,15 +377,18 @@ export default {
         roles_attributes: item.hasOwnProperty('determiner_roles') ? item.determiner_roles : item.roles_attributes
       }
     },
+
     authorsString () {
       return this.taxonDetermination.roles_attributes.length ? `by ${this.taxonDetermination.roles_attributes.map(item => item.hasOwnProperty('person') ? item.person.last_name : item.last_name).join(', ')}` : ''
     },
+
     dateString () {
       if (this.taxonDetermination.day_made || this.taxonDetermination.month_made || this.taxonDetermination.year_made) {
         return `on ${this.taxonDetermination.day_made ? `${this.taxonDetermination.day_made}-` : ''}${this.taxonDetermination.month_made ? `${this.taxonDetermination.month_made}-` : ''}${this.taxonDetermination.year_made ? `${this.taxonDetermination.year_made}` : ''}`
       }
       return ''
     },
+
     openBrowseOtu (id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
     }

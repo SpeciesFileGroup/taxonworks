@@ -52,18 +52,18 @@
             v-for="depiction in observation.depictions"
             :key="depiction.id"
             :depiction="depiction">
-            <div
-              class="horizontal-left-content"
-              slot="thumbfooter">
-              <radial-annotator
-                type="annotations"
-                :global-id="depiction.image.global_id"/>
-              <button
-                class="button circle-button btn-delete"
-                type="button"
-                @click="destroyObservation(observation.id)"
-              />
-            </div>
+            <template #thumbfooter>
+              <div class="horizontal-left-content">
+                <radial-annotator
+                  type="annotations"
+                  :global-id="depiction.image.global_id"/>
+                <button
+                  class="button circle-button btn-delete"
+                  type="button"
+                  @click="destroyObservation(observation.id)"
+                />
+              </div>
+            </template>
           </image-viewer>
         </li>
       </ul>
@@ -86,7 +86,9 @@ import RadialAnnotator from 'components/radials/annotator/annotator'
 
 export default {
   name: 'MediaDescriptor',
+
   props: ['descriptor', 'index'],
+
   created () {
     const descriptorId = this.$props.descriptor.id
     const otuId = this.matrixRow.row_object.global_id
@@ -97,11 +99,13 @@ export default {
         this.observations = observations
       })
   },
+
   computed: {
     matrixRow () {
       return this.$store.getters[GetterNames.GetMatrixRow]
     }
   },
+
   data () {
     return {
       observations: [],
@@ -115,27 +119,32 @@ export default {
         },
         dictDefaultMessage: 'Drop image here',
         acceptedFiles: 'image/*,.heic'
-      },
+      }
     }
   },
+
   methods: {
     loadList (newList) {
       this.filterList = newList
     },
+
     success (file, response) {
       this.observations.push(response)
       this.$refs.depictionObs.removeFile(file)
     },
+
     sending (file, xhr, formData) {
       formData.append('observation[descriptor_id]', this.descriptor.id)
       formData.append('observation[type]', 'Observation::Media')
       formData.append(`observation[${this.matrixRow.row_object.base_class === 'Otu' ? 'otu_id' : 'collection_object_id'}]`, this.matrixRow.row_object.id)
     },
+
     destroyObservation (observationId) {
       this.$store.state.request.removeObservation(observationId).then(() => {
         this.observations.splice(this.observations.findIndex(o => o.id === observationId), 1)
       })
     },
+
     createObservation (image) {
       this.$store.state.request.createObservation({
         observation: {

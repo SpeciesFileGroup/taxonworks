@@ -14,17 +14,17 @@
               edit
               :depiction="element"
             >
-              <div
-                class="horizontal-left-content"
-                slot="thumbfooter">
-                <radial-annotator
-                  type="annotations"
-                  :global-id="element.image.global_id"/>
-                <button-citation
-                  :global-id="element.image.global_id"
-                  :citations="element.image.citations"
-                />
-              </div>
+              <template #thumbfooter>
+                <div class="horizontal-left-content">
+                  <radial-annotator
+                    type="annotations"
+                    :global-id="element.image.global_id"/>
+                  <button-citation
+                    :global-id="element.image.global_id"
+                    :citations="element.image.citations"
+                  />
+                </div>
+              </template>
             </image-viewer>
           </div>
         </template>

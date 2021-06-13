@@ -35,24 +35,27 @@
 <script>
 import { Tippy } from 'vue-tippy'
 import AjaxCall from 'helpers/ajaxCall'
+import { Tag } from 'routes/endpoints'
 
 export default {
-  components: {
-    Tippy
-  },
+  components: { Tippy },
+
   props: {
     globalId: {
       type: String
     },
+
     showCount: {
       type: Boolean,
       default: false
     },
+
     count: {
       type: [Number, String],
       default: undefined
     }
   },
+
   data () {
     return {
       tagItem: undefined,
@@ -61,6 +64,7 @@ export default {
       created: false
     }
   },
+
   watch: {
     count: {
       handler (newVal) {
@@ -69,11 +73,12 @@ export default {
       immediate: true
     }
   },
+
   mounted () {
     this.alreadyTagged()
-    document.addEventListener('pinboard:insert', (event) => {
+    document.addEventListener('pinboard:insert', event => {
       const details = event.detail
-      console.log(details)
+
       if (details.type === 'ControlledVocabularyTerm') {
         this.keyId = this.getDefault()
         if (this.showCount) {
@@ -83,47 +88,48 @@ export default {
       }
     })
   },
+
   methods: {
     getDefault () {
       const defaultTag = this.getDefaultElement()
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+      return defaultTag?.getAttribute('data-pinboard-object-id')
     },
+
     getDefaultElement () {
       return document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
     },
-    alreadyTagged: function(element) {
-      if(!this.keyId) return
+
+    alreadyTagged (element) {
+      if (!this.keyId) return
 
       const params = {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
       AjaxCall('get', '/tags/exists', { params: params }).then(response => {
-        if (response.body) {
-          this.created = true
-        } else {
-          this.created = false
-        }
+        this.created = !!response.body
       })
     },
+
     getCount () {
       if (!this.keyId) return
       const params = {
         keyword_id: [this.keyId],
         per: 100
       }
-      AjaxCall('get', '/tags', { params: params }).then(response => {
+
+      Tag.where(params).then(response => {
         this.countTag = response.body.length
       })
     },
-    createTag: function () {
-      const tagItem = {
-        tag: {
-          keyword_id: this.keyId,
-          annotated_global_entity: this.globalId
-        }
+
+    createTag () {
+      const tag = {
+        keyword_id: this.keyId,
+        annotated_global_entity: this.globalId
       }
-      AjaxCall('post', '/tags', tagItem).then(response => {
+
+      Tag.create({ tag }).then(response => {
         this.tagItem = response.body
         this.created = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
@@ -131,11 +137,7 @@ export default {
     },
 
     deleteTag () {
-      const tag = {
-        annotated_global_entity: this.globalId,
-        _destroy: true
-      }
-      AjaxCall('delete', `/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
+      Tag.destroy(this.tagItem.id).then(() => {
         this.created = false
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })

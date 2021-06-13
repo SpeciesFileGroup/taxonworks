@@ -148,7 +148,7 @@ export default {
       Label.update(label.id, { label }).then(response => {
         const index = this.list.findIndex(item => item.id === label.id)
 
-        this.$set(this.list, index, response.body)
+        this.list[index] = response.body
         TW.workbench.alert.create('Label item was successfully updated.', 'notice')
       })
     },

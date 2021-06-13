@@ -1,8 +1,10 @@
 <template>
   <modal-component @close="$emit('close', true)">
     <spinner-component v-if="saving"/>
-    <h3 slot="header">Create new column</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Create new column</h3>
+    </template>
+    <template #body>
       <div
         class="separate-top">
         <div class="field">
@@ -28,7 +30,7 @@
           Create
         </button>
       </div>
-    </div>
+    </template>
   </modal-component>
 </template>
 

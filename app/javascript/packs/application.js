@@ -25,12 +25,12 @@ require('../vue/initializers/otu_button_init/main.js')
 require('../vue/initializers/navigation_radial/main.js')
 require('../vue/initializers/collection_object_radial/main.js')
 require('../vue/initializers/pdfViewer/main.js')
-/*
 require('../vue/initializers/default_confidence/main.js')
 require('../vue/initializers/tagButton/main.js')
 require('../vue/initializers/quick_citation_init/main.js')
 require('../vue/initializers/browse_nomenclature/main.js')
 require('../vue/initializers/pinboard_navigator/main.js')
+/*
 require('../vue/initializers/soft_validations/main.js')
 */
 require('../vue/tasks/type_specimens/main.js')

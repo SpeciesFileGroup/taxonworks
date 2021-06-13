@@ -6,41 +6,46 @@
     <modal-component
       v-if="show"
       @close="show = false">
-      <h3 slot="header">Quick grid</h3>
-      <fieldset slot="body">
-        <legend>Quick grid</legend>
-        <div class="flex-separate middle">
-        <div class="horizontal-left-content middle">
-          <div class="margin-small-right">
-            <label>Rows:</label>
-            <input
-              class="grid-input"
-              v-model="rows"
-              type="number"> 
+      <template #header>
+        <h3>Quick grid</h3>
+      </template>
+      <template #body>
+        <fieldset>
+          <legend>Quick grid</legend>
+          <div class="flex-separate middle">
+            <div class="horizontal-left-content middle">
+              <div class="margin-small-right">
+                <label>Rows:</label>
+                <input
+                  class="grid-input"
+                  v-model="rows"
+                  type="number">
+              </div>
+              <div class="margin-small-right">
+                <label>Columns:</label>
+                <input
+                  class="grid-input"
+                  v-model="columns"
+                  type="number"> 
+              </div>
+              <button
+                class="button normal-input button-default"
+                @click="createGrid">Set</button>
+            </div>
+            <div class="horizontal-left-content margin-medium-left">
+              <button
+                class="button normal-input button-default margin-small-right"
+                @click="setGrid(10, 2)">10x2</button>
+              <button
+                class="button normal-input button-default margin-small-right"
+                @click="setGrid(10, 3)">10x3</button>
+              <button 
+                class="button normal-input button-default"
+                @click="setGrid(1, 1)">1x1</button>
+            </div>
           </div>
-          <div class="margin-small-right">
-            <label>Columns:</label>
-            <input
-              class="grid-input"
-              v-model="columns"
-              type="number"> 
-          </div>
-          <button
-            class="button normal-input button-default"
-            @click="createGrid">Set</button>
-        </div>
-          <div class="horizontal-left-content margin-medium-left">
-            <button
-              class="button normal-input button-default margin-small-right"
-              @click="setGrid(10, 2)">10x2</button>
-            <button 
-              class="button normal-input button-default margin-small-right"
-              @click="setGrid(10, 3)">10x3</button>
-            <button class="button normal-input button-default"
-              @click="setGrid(1, 1)">1x1</button>
-          </div>
-        </div>
-      </fieldset>
+        </fieldset>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -50,9 +55,8 @@
 import ModalComponent from 'components/ui/Modal'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   props: {
     height: {
       type: Number,
@@ -63,6 +67,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['grid'],
+
   data () {
     return {
       rows: 1,
@@ -70,25 +77,27 @@ export default {
       show: false
     }
   },
+
   methods: {
     createGrid () {
-      let wSize = this.width/this.columns
-      let hSize = this.height/this.rows
-  
-      let vlines = this.segments(wSize, this.columns)
-      let hlines = this.segments(hSize, this.rows)
+      const wSize = this.width / this.columns
+      const hSize = this.height / this.rows
+      const vlines = this.segments(wSize, this.columns)
+      const hlines = this.segments(hSize, this.rows)
 
-      this.$emit('grid', { vlines: vlines, hlines: hlines })
+      this.$emit('grid', { vlines, hlines })
     },
-    segments (size, parts) {
-      let segments = []
 
-      for(let i = 0; i <= parts; i++) {
+    segments (size, parts) {
+      const segments = []
+
+      for (let i = 0; i <= parts; i++) {
         segments.push(size * i)
       }
       return segments
     },
-    setGrid(rows, columns) {
+
+    setGrid (rows, columns) {
       this.columns = columns
       this.rows = rows
       this.createGrid()

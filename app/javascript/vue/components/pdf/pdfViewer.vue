@@ -61,7 +61,7 @@
               :id="i"
               :page="i"
               :scale="scale">
-              <template slot="loading">
+              <template #loading>
                 Loading content here...
               </template>
             </pdf-viewer>
