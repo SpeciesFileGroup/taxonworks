@@ -98,7 +98,7 @@ export default {
 
   watch: {
     params: {
-      handler (newVal) {
+      handler () {
         this.links = undefined
       },
       deep: true
