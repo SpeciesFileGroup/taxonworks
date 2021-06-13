@@ -165,7 +165,7 @@ export default {
       }
 
       this.update(`/origin_relationships/${originRelationship.id}.json`, { origin_relationship: originRelationship }).then(({ body }) => {
-        this.$set(this.list, newIndex, body)
+        this.list[newIndex] = body
       })
     }
   }

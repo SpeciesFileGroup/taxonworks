@@ -48,8 +48,8 @@
                 <span>
                   <span v-html="error.message" />
                   <template
-                    v-for="(resolution, index) in error.resolution"
-                    :key="index">
+                    v-for="(resolution, rIndex) in error.resolution"
+                    :key="rIndex">
                     <tippy
                       class="d-inline-block"
                       animation="scale"
@@ -59,7 +59,10 @@
                       arrow
                       content="Fixable here (may leave page)">
                       <a :href="resolution">
-                        <span class='small-icon icon-without-space' data-icon='blue_wrench'/>
+                        <span
+                          class="small-icon icon-without-space"
+                          data-icon="blue_wrench"
+                        />
                       </a>
                     </tippy>
                   </template>

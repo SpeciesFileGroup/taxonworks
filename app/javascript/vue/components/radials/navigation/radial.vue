@@ -347,7 +347,7 @@ export default {
         }
       }
       this.create('/pinboard_items', pinItem).then(response => {
-        this.$set(this.metadata, 'pinboard_item', { id: response.body.id })
+        this.metadata['pinboard_item'] = { id: response.body.id }
         TW.workbench.pinboard.addToPinboard(response.body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
