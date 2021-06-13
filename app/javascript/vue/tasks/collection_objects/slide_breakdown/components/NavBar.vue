@@ -53,6 +53,7 @@ export default {
     NavBar,
     RadialAnnotator
   },
+
   computed: {
     sledImage () {
       return this.$store.getters[GetterNames.GetSledImage]
@@ -66,10 +67,11 @@ export default {
       }
     }
   },
+
   watch: {
     sledImage: {
-      handler(newVal, oldVal) {
-        if(newVal.id && oldVal.id != newVal.id) {
+      handler (newVal, oldVal) {
+        if (newVal.id && oldVal.id != newVal.id) {
           NavigationSled(this.sledImage.global_id).then(response => {
             this.navigation.next = response.headers['navigation-next'] ? response.headers['navigation-next'][0] : undefined
             this.navigation.previous = response.headers['navigation-previous'] ? response.headers['navigation-previous'][0] : undefined
@@ -80,7 +82,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

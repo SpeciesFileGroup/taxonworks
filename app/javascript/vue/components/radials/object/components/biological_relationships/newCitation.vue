@@ -13,15 +13,13 @@
           placeholder="Select a source"
           param="term"
         />
-        <div>
-          <default-element
-            class="separate-left"
-            label="source"
-            type="Source"
-            @getItem="setSource"
-            section="Sources"
-          />
-        </div>
+        <default-element
+          class="separate-left"
+          label="source"
+          type="Source"
+          @getItem="setSource"
+          section="Sources"
+        />
         <lock-component v-model="lock" />
       </div>
       <div class="margin-small-top">

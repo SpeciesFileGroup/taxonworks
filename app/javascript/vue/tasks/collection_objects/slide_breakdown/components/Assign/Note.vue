@@ -33,37 +33,37 @@ import SharedComponent from '../shared/lock.js'
 
 export default {
   mixins: [SharedComponent],
-  components: {
-    ListComponent
-  },
+
+  components: { ListComponent },
+
   computed: {
     collectionObject: {
       get () {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetCollectionObject)
+        this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     }
   },
+
   data () {
     return {
       text: undefined
     }
   },
+
   methods: {
     addNote () {
       this.collectionObject.notes_attributes.push(this.text)
       this.text = undefined
     },
-    removeNote(note) {
-      const index = this.collectionObject.notes_attributes.findIndex(item => { return note === item })
+
+    removeNote (note) {
+      const index = this.collectionObject.notes_attributes.findIndex(item => note === item)
+
       this.collectionObject.notes_attributes.splice(index, 1)
     }
   }
 }
 </script>
-
-<style>
-
-</style>

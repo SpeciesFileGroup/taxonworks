@@ -40,20 +40,23 @@
 import ModalComponent from 'components/ui/Modal.vue'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   props: {
     disabled: {
       type: Boolean,
       default: false
     }
   },
+
+  emits: ['confirm'],
+
   computed: {
     checkInput () {
       return this.inputValue.toUpperCase() !== this.checkWord
     }
   },
+
   data () {
     return {
       inputValue: '',
@@ -61,6 +64,7 @@ export default {
       showModal: false
     }
   },
+
   watch: {
     showModal: {
       handler (newVal) {
@@ -73,7 +77,7 @@ export default {
     }
   },
 
-  mounted() {
+  mounted () {
     this.$refs.inputtext.focus()
   },
 

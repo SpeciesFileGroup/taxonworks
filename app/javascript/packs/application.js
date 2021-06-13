@@ -30,9 +30,7 @@ require('../vue/initializers/tagButton/main.js')
 require('../vue/initializers/quick_citation_init/main.js')
 require('../vue/initializers/browse_nomenclature/main.js')
 require('../vue/initializers/pinboard_navigator/main.js')
-/*
 require('../vue/initializers/soft_validations/main.js')
-*/
 require('../vue/tasks/type_specimens/main.js')
 require('../vue/tasks/nomenclature/new_combination/main.js')
 require('../vue/tasks/browse_annotations/main.js')
@@ -60,15 +58,12 @@ require('../vue/tasks/otu/browse_asserted_distributions/main.js')
 require('../vue/tasks/collection_objects/filter/main.js')
 require('../vue/tasks/sources/new_source/main.js')
 require('../vue/tasks/otu/browse/main.js')
-/*
 require('../vue/tasks/collection_objects/slide_breakdown/main.js')
-*/
 require('../vue/tasks/biological_relationships/composer/main.js')
 require('../vue/tasks/nomenclature/match/main.js')
 require('../vue/tasks/controlled_vocabularies/manage/main.js')
 require('../vue/tasks/collection_objects/match/main.js')
 require('../vue/tasks/sources/filter/main.js')
 require('../vue/tasks/collecting_events/new_collecting_event/main.js')
-
 require('../vue/tasks/interactive_keys/main.js')
 require('../vue/tasks/extracts/new_extract/main.js')
