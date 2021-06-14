@@ -26,7 +26,7 @@
               v-model="locked.taxon_determination.otu_id"/>
           </div>
           <div
-            v-if="otuSelected"
+            v-show="otuSelected"
             class="horizontal-left-content">
             <p v-html="otuSelected"/>
             <span
@@ -113,7 +113,6 @@
         <draggable
           class="table-entrys-list"
           tag="ul"
-          item-key="id"
           v-model="list"
           @end="updatePosition">
           <template #item="{ element }">
