@@ -69,7 +69,7 @@
               @change="updateCO(item)"
               v-model="item.total">
           </td>
-          <td></td>
+          <td />
           <td>
             <bioclassification
               :biological-id="item.id"

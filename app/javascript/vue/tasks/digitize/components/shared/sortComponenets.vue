@@ -15,21 +15,24 @@ export default {
       }
     }
   },
-  data() {
+
+  data () {
     return {
       componentsOrder: [],
       keyStorage: ''
     }
   },
+
   watch: {
     preferences: {
-      handler(newVal) {
-        if(this.preferences.layout[this.keyStorage] && this.componentsOrder.length == this.preferences.layout[this.keyStorage].length)
+      handler (newVal) {
+        if (this.preferences.layout[this.keyStorage] && this.componentsOrder.length === this.preferences.layout[this.keyStorage].length)
           this.componentsOrder = this.preferences.layout[this.keyStorage]
       },
       deep: true
     }
   },
+
   methods: {
     updatePreferences () {
       User.update(this.preferences.id, { user: { layout: { [this.keyStorage]: this.componentsOrder } } }).then(response => {

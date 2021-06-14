@@ -113,6 +113,7 @@
         <draggable
           class="table-entrys-list"
           tag="ul"
+          :item-key="item => item"
           v-model="list"
           @end="updatePosition">
           <template #item="{ element }">
