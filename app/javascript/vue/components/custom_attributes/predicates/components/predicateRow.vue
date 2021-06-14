@@ -27,23 +27,28 @@ export default {
       type: Object,
       required: true
     },
+
     objectId: {
       required: true,
-      validator(value) {
+      validator (value) {
         return value === undefined || typeof value === 'string' || typeof value === 'number'
       }
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     existing: {
       type: Object,
       required: false
     }
   },
 
-  data() {
+  emits: ['onUpdate'],
+
+  data () {
     return {
       data_attribute: this.newDataAttribute()
     }
@@ -51,12 +56,9 @@ export default {
 
   watch: {
     existing (newVal) {
-      if (newVal) {
-        this.data_attribute = newVal
-      } else {
-        this.data_attribute = this.newDataAttribute()
-      }
+      this.data_attribute = newVal || this.newDataAttribute()
     },
+
     data_attribute: {
       handler () {
         this.updatePredicate()
@@ -64,6 +66,7 @@ export default {
       deep: true
     }
   },
+
   methods: {
     newDataAttribute () {
       return {
@@ -74,6 +77,7 @@ export default {
         value: this.value
       }
     },
+
     updatePredicate () {
       let data
 

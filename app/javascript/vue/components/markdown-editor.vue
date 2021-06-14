@@ -19,24 +19,33 @@ import CustomLinks from './markdown/customLinks.vue'
 import GetOSKey from 'helpers/getMacKey.js'
 
 export default {
-  components: {
-    CustomLinks
-  },
+  components: { CustomLinks },
+
   props: {
-    value: String,
+    modelValue:{
+      type: String
+    },
+
     previewClass: String,
+
     customTheme: {
       type: Boolean,
-      default () {
-        return false
-      }
+      default: false
     },
+
     configs: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
-  data: function () {
+
+  emits: [
+    'update:modelValue',
+    'blur',
+    'dblclick'
+  ],
+
+  data () {
     return {
       clicks: 0,
       timerClicks: undefined,
@@ -44,9 +53,11 @@ export default {
       showCustomLinks: false
     }
   },
+
   mounted () {
     this.initialize()
   },
+
   methods: {
     initialize () {
       const configs = {
@@ -58,14 +69,14 @@ export default {
           action: (editor) => {
             // this.openCustomLinks()
           },
-          icon:'<span class="word-keep-all subtle">Data links</span>',
+          icon: '<span class="word-keep-all subtle">Data links</span>',
           title: 'Data links',
           disable: true
         }]
       }
       Object.assign(configs, this.configs)
       configs.element = configs.element || this.$refs.markdown.firstElementChild
-      configs.initialValue = configs.initialValue || this.value
+      configs.initialValue = configs.initialValue || this.modelValue
       this.simplemde = new EasyMDE(configs)
       this.customShortcuts()
       const className = this.previewClass || ''
@@ -74,27 +85,25 @@ export default {
     },
     bindingEvents () {
       this.simplemde.codemirror.on('change', () => {
-        this.$emit('input', this.simplemde.value())
+        this.$emit('update:modelValue', this.simplemde.value())
       })
       this.simplemde.codemirror.on('blur', () => {
         this.$emit('blur', this.simplemde.value())
       })
       this.simplemde.codemirror.on('mousedown', (cm, ev) => {
-        let that = this
-
         this.clicks++
 
-        if (this.clicks == 1) {
-          setTimeout(function () {
-            that.cursorPosition = that.simplemde.codemirror.doc.indexFromPos(that.simplemde.codemirror.doc.getCursor())
+        if (this.clicks === 1) {
+          setTimeout(() => {
+            this.cursorPosition = this.simplemde.codemirror.doc.indexFromPos(this.simplemde.codemirror.doc.getCursor())
           }, 100)
         }
 
-        this.timerClicks = setTimeout(function () {
-          if (that.clicks > 1) {
-            that.$emit('dblclick', that.cursorPosition)
+        this.timerClicks = setTimeout(() => {
+          if (this.clicks > 1) {
+            this.$emit('dblclick', this.cursorPosition)
           }
-          that.clicks = 0
+          this.clicks = 0
         }, 300)
       })
     },
@@ -106,10 +115,10 @@ export default {
       wrapper.appendChild(preview)
     },
     setCustomLink (item) {
-      var cm = this.simplemde.codemirror
-      var output = ''
-      var selectedText = cm.getSelection()
-      var text = selectedText || item.label
+      const cm = this.simplemde.codemirror
+      const output = ''
+      const selectedText = cm.getSelection()
+      const text = selectedText || item.label
 
       output = `[${text}](${item.link})`
       cm.replaceSelection(output)
@@ -131,7 +140,7 @@ export default {
     this.simplemde = null
   },
   watch: {
-    value (val) {
+    modelValue (val) {
       if (val === this.simplemde.value()) return
       this.simplemde.value(val)
     }

@@ -15,44 +15,59 @@ export default {
       type: Number,
       default: 0
     },
+
     extent: {
       type: Number,
       default: 10
     },
+
     minSize: {
       type: Number,
       default: 0
     },
+
     defaultSize: {
       type: Number,
       default: -1
     },
+
     maxSize: {
       type: Number,
       default: Number.MAX_VALUE
     },
+
     side: {
       type: String,
-      default: "right"
+      default: 'right'
     },
+
     size: {
       type: Number,
       required: true
     }
   },
-  data() {
+
+  emits: [
+    'resize',
+    'resize-start',
+    'resize-end'
+  ],
+
+  data () {
     return {
       calcSize: 0,
       dragging: false
     }
   },
+
   computed: {
     horizontal() {
-      return this.side === "left" || this.side === "right";
+      return this.side === "left" || this.side === "right"
     },
     plus() {
-      return this.side === "right" || this.side === "bottom";
+      return this.side === "right" || this.side === "bottom"
     },
+
     style() {
       var style;
       if (this.horizontal) {
@@ -74,6 +89,7 @@ export default {
       return style;
     }
   },
+
   methods: {
     resetSize(e) {
       var oldSize;
@@ -172,14 +188,15 @@ export default {
     }
   },
   watch: {
-    "minSize": function(val) {
+    minSize (val) {
       if (this.size < val) {
-        return this.calcsize = val;
+        return this.calcsize = val
       }
     },
-    "maxSize": function(val) {
+
+    maxSize (val) {
       if (this.size > val) {
-        return this.calcSize = val;
+        return this.calcSize = val
       }
     }
   }

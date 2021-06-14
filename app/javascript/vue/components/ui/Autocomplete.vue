@@ -72,43 +72,8 @@ Parameters:
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  data () {
-    return {
-      spinner: false,
-      showList: false,
-      searchEnd: false,
-      getRequest: 0,
-      type: this.sendLabel,
-      json: [],
-      current: -1,
-      requestId: Math.random().toString(36).substr(2, 5)
-    }
-  },
-
-  mounted () {
-    if (this.autofocus) {
-      this.$refs.autofocus.focus()
-    }
-  },
-
-  watch: {
-    value (newVal) {
-      this.type = newVal
-    },
-    type (newVal) {
-      if (this.type?.length < Number(this.min)) {
-        this.json = []
-      }
-      this.$emit('input', newVal)
-    },
-    sendLabel (val) {
-      this.type = val || ''
-    }
-  },
-
   props: {
-
-    value: {
+    modelValue: {
       type: [String, Number]
     },
 
@@ -203,6 +168,46 @@ export default {
     }
   },
 
+  emits: [
+    'update:modelValue',
+    'getItem',
+    'found'
+  ],
+
+  data () {
+    return {
+      spinner: false,
+      showList: false,
+      searchEnd: false,
+      getRequest: 0,
+      type: this.sendLabel,
+      json: [],
+      current: -1,
+      requestId: Math.random().toString(36).substr(2, 5)
+    }
+  },
+
+  mounted () {
+    if (this.autofocus) {
+      this.$refs.autofocus.focus()
+    }
+  },
+
+  watch: {
+    modelValue (newVal) {
+      this.type = newVal
+    },
+    type (newVal) {
+      if (this.type?.length < Number(this.min)) {
+        this.json = []
+      }
+      this.$emit('update:modelValue', newVal)
+    },
+    sendLabel (val) {
+      this.type = val || ''
+    }
+  },
+
   methods: {
     downKey () {
       if(this.showList && this.current < this.json.length)
@@ -220,7 +225,7 @@ export default {
     },
 
     sendItem (item) {
-      this.$emit('input', item)
+      this.$emit('update:modelValue', item)
       this.$emit('getItem', item)
     },
 
@@ -232,17 +237,17 @@ export default {
       this.type = value
     },
 
-    limitList: function (list) {
+    limitList (list) {
       if (this.limit == 0) { return list }
 
       return list.slice(0, this.limit)
     },
 
-    clearResults: function () {
+    clearResults () {
       this.json = []
     },
 
-    getNested(item, nested) {
+    getNested (item, nested) {
       if(nested) {
         if(Array.isArray(nested)) {
           let tmp = item

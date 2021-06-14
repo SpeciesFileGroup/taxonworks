@@ -160,6 +160,9 @@ export default {
     Autocomplete,
     ModalComponent
   },
+
+  emits: ['getItem'],
+
   data () {
     return {
       showModal: false,
@@ -167,12 +170,14 @@ export default {
       organization: this.newOrganization()
     }
   },
+
   watch: {
     showModal (newVal) {
-      if(!newVal)
+      if (!newVal)
         this.organization = this.newOrganization()
     }
   },
+
   methods: {
     newOrganization () {
       return {
@@ -192,14 +197,16 @@ export default {
         parent_organization_id: undefined
       }
     },
+
     createOrganization () {
-      AjaxCall('post', '/organizations', { organization: this. organization }).then(response => {
+      AjaxCall('post', '/organizations', { organization: this.organization }).then(response => {
         this.setOrganization(response.body)
         this.showModal = false
         this.nothing = false
         this.$refs.autocomplete.cleanInput()
       })
     },
+
     setOrganization (organization) {
       this.$emit('getItem', organization)
     }

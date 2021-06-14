@@ -30,24 +30,29 @@ export default {
       type: Array,
       required: true
     },
+
     modelValue: {
       type: [String, Number],
       default: undefined
     },
+
     addOption: {
       type: Array,
       required: false,
       default: () => []
     },
+
     name: {
       type: String,
       required: false,
       default: () => Math.random().toString(36).substr(2, 5)
     },
+
     filter: {
       type: Function,
       default: () => true
     },
+
     useIndex: {
       type: Boolean,
       required: false

@@ -147,7 +147,11 @@ export default {
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'sortable',
+    'delete'
+  ],
 
   data () {
     return {

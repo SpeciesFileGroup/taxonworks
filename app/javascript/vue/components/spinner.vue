@@ -64,17 +64,21 @@ export default {
       type: String,
       default: undefined
     },
+
     fullScreen: {
       type: Boolean,
       default: false
     },
+
     legend: {
       type: String,
       default: 'Loading, please wait.'
     },
+
     resize: {
       default: true
     },
+
     legendStyle: {
       type: Object,
       default: () =>
@@ -84,10 +88,12 @@ export default {
           textAlign: 'center'
         })
     },
+
     showLegend: {
       type: Boolean,
       default: true
     },
+
     showSpinner: {
       type: Boolean,
       default: true
@@ -96,6 +102,7 @@ export default {
       type: String,
       default: 'top'
     },
+
     logoSize: {
       type: Object,
       default: () => ({
@@ -104,6 +111,7 @@ export default {
       })
     }
   },
+
   data: () => ({
     cssProperties: {
       width: undefined,

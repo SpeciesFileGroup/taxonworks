@@ -41,6 +41,12 @@ export default {
     }
   },
 
+  emits: [
+    'getId',
+    'getLabel',
+    'getItem'
+  ],
+
   data () {
     return {
       getDefault: undefined,

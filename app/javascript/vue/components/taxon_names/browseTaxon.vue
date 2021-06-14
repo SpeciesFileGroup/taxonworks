@@ -18,16 +18,19 @@ export default {
       type: [String, Number],
       required: true
     },
+
     klass: {
       type: String,
       default: 'TaxonName'
     }
   },
+
   data () {
     return {
       isLoading: false
     }
   },
+
   methods: {
     redirect (newTab) {
       if (this.isLoading) return
@@ -43,6 +46,7 @@ export default {
         })
       }
     },
+
     openBrowse (id, newTab = false) {
       window.open(`/tasks/nomenclature/browse?taxon_name_id=${id}`, newTab ? '_blank' : '_self')
     }

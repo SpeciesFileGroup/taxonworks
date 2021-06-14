@@ -107,108 +107,134 @@ export default {
     DefaultPin,
     OtuPicker
   },
+
   props: {
     modelValue: {
       type: Object,
       default: undefined
     },
+
     label: {
       type: String,
       default: 'object_tag'
     },
+
     inline: {
       type: Boolean,
       default: false
     },
+
     buttons: {
       type: Boolean,
       default: false
     },
+
     buttonClass: {
       type: String,
       default: 'button-data'
     },
+
     otuPicker: {
       type: Boolean,
       default: false
     },
+
     autocompleteParams: {
       type: Object,
       default: undefined
     },
+
     autocomplete: {
       type: Boolean,
       default: true
     },
+
     autocompleteUrl: {
       type: String,
       default: undefined
     },
+
     inputId: {
       type: String,
       default: undefined
     },
+
     getUrl: {
       type: String,
       default: undefined
     },
+
     model: {
       type: String,
       default: undefined
     },
+
     klass: {
       type: String,
       default: undefined
     },
+
     target: {
       type: String,
       default: undefined
     },
+
     search: {
       type: Boolean,
       default: true
     },
+
     selected: {
       type: [Array, String],
       default: undefined
     },
+
     clear: {
       type: Boolean,
       default: true
     },
+
     pinSection: {
       type: String,
       default: undefined
     },
+
     pinType: {
       type: String,
       default: undefined
     },
+
     addTabs: {
       type: Array,
       default: () => []
     },
+
     params: {
       type: Object,
       default: () => ({})
     },
+
     customList: {
       type: Object,
       default: () => ({})
     },
+
     name: {
       type: String,
       required: false,
       default: () => (Math.random().toString(36).substr(2, 5))
     },
+
     filterIds: {
       type: [Number, Array],
       default: () => []
     },
+
     filterBy: {
       type: String,
       default: 'id'
     },
+
     lockView: {
       type: Boolean,
       default: true
