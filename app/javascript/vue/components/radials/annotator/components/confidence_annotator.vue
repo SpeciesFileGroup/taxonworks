@@ -4,9 +4,9 @@
       class="switch-radio separate-bottom"
       v-if="preferences">
       <template
-      v-for="(item, index) in tabOptions">
+        v-for="(item, index) in tabOptions">
         <template
-        v-if="item == 'new' || preferences[item].length && preferences[item].find(keyword => !confidenceAlreadyCreated(keyword))">
+          v-if="item == 'new' || preferences[item].length && preferences[item].find(keyword => !confidenceAlreadyCreated(keyword))">
           <input
             v-model="view"
             :value="item"
@@ -24,10 +24,10 @@
     </div>
 
     <template
-    v-if="preferences && view != 'new' && view != 'all'">
+      v-if="preferences && view != 'new' && view != 'all'">
       <div class="field separate-bottom">
         <template
-        v-for="keyword in preferences[view]">
+          v-for="keyword in preferences[view]">
           <button
             v-if="!confidenceAlreadyCreated(keyword)"
             @click="createNewWithId(keyword.id)"

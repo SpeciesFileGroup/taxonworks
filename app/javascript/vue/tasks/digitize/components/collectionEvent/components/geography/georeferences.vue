@@ -4,7 +4,7 @@
       @click="openModal"
       type="button"
       :disabled="!collectingEvent.id"
-      class="button normal-input button-default">
+      class="button normal-input button-default margin-small-right">
       Georeferences
       <template v-if="count > 0">
         ({{ count }})
