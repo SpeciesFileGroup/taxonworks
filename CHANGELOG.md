@@ -7,7 +7,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Updated ruby gems
 
 ## [0.18.1] - 2021-06-09
 
