@@ -3,41 +3,37 @@
     <fieldset>
       <legend>Biocurations</legend>
       <template
-        v-if="biologicalId"
-        v-for="item in biocutarionsType">
-        <button
-          type="button"
-          class="bottom button-submit normal-input biocuration-toggle-button"
-          :key="item.id"
-          @click="addToQueue(item.id)"
-          v-if="!checkExist(item.id)">{{ item.name }}
-        </button>
-        <button
-          type="button"
-          :key="item.id"
-          class="bottom button-delete normal-input biocuration-toggle-button"
-          @click="removeEntry(item)"
-          v-else>{{ item.name }}
-        </button>
-      </template>
+        v-for="item in biocutarionsType"
+        :key="item.id">
+        <template v-if="biologicalId">
+          <button
+            type="button"
+            class="bottom button-submit normal-input biocuration-toggle-button"
+            @click="addToQueue(item.id)"
+            v-if="!checkExist(item.id)">{{ item.name }}
+          </button>
+          <button
+            type="button"
+            class="bottom button-delete normal-input biocuration-toggle-button"
+            @click="removeEntry(item)"
+            v-else>{{ item.name }}
+          </button>
+        </template>
 
-      <template
-        v-if="!biologicalId"
-        v-for="item in biocutarionsType">
-        <button
-          type="button"
-          :key="item.id"
-          class="bottom button-submit normal-input biocuration-toggle-button"
-          @click="addToQueue(item.id)"
-          v-if="!checkInQueue(item.id)">{{ item.name }}
-        </button>
-        <button
-          type="button"
-          :key="item.id"
-          class="bottom button-delete normal-input biocuration-toggle-button"
-          @click="removeFromQueue(item.id)"
-          v-else>{{ item.name }}
-        </button>
+        <template v-else>
+          <button
+            type="button"
+            class="bottom button-submit normal-input biocuration-toggle-button"
+            @click="addToQueue(item.id)"
+            v-if="!checkInQueue(item.id)">{{ item.name }}
+          </button>
+          <button
+            type="button"
+            class="bottom button-delete normal-input biocuration-toggle-button"
+            @click="removeFromQueue(item.id)"
+            v-else>{{ item.name }}
+          </button>
+        </template>
       </template>
       <a
         v-if="!biocutarionsType.length"
@@ -54,9 +50,11 @@ import { BiocurationClassification, ControlledVocabularyTerm } from 'routes/endp
 export default {
   props: {
     biologicalId: {
+      type: [String, Number],
       default: undefined
     }
   },
+
   data () {
     return {
       biocutarionsType: [],
@@ -64,11 +62,13 @@ export default {
       createdBiocutarions: []
     }
   },
+
   created () {
     ControlledVocabularyTerm.where({ type: ['BiocurationClass'] }).then(response => {
       this.biocutarionsType = response.body
     })
   },
+
   watch: {
     biologicalId: {
       handler (newVal, oldVal) {
@@ -85,14 +85,17 @@ export default {
       },
       immediate: true
     },
+
     addQueue: {
       handler () {
         if (this.biologicalId && this.addQueue.length) {
           this.processQueue()
         }
-      }
+      },
+      deep: true
     }
   },
+
   methods: {
     getBiocurationTaskRoute () {
       return RouteNames.ManageBiocurationTask

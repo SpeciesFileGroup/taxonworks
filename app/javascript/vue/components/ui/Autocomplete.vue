@@ -170,6 +170,7 @@ export default {
 
   emits: [
     'update:modelValue',
+    'getInput',
     'getItem',
     'found'
   ],
