@@ -21,7 +21,7 @@ export default {
 
   methods: {
     openImageMatrix () {
-      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}`, '_blank')
+      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}&view=true`, '_blank')
     }
   }
 }
