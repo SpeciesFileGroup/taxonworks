@@ -131,8 +131,8 @@
                   @click="editTaxonDetermination(element)"
                   class="button circle-button btn-edit"/>
                 <radial-annotator
-                  v-if="element.hasOwnProperty('global_id')"
-                  :global-id="item.global_id"/>
+                  v-if="element.global_id"
+                  :global-id="element.global_id"/>
                 <span
                   class="circle-button btn-delete"
                   :class="{ 'button-default': !element.id }"
@@ -190,7 +190,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTmpData].otu
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTmpDataOtu, value)
       }
     },
@@ -208,7 +208,7 @@ export default {
       get () {
         return this.$store.getters[GetterNames.GetTaxonDetermination].otu_id
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetTaxonDeterminationOtuId, value)
       }
     },
@@ -335,7 +335,7 @@ export default {
     },
 
     addDetermination () {
-      if (!this.taxonDetermination.id && this.list.find((determination) => determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year))) { return }
+      if (!this.taxonDetermination.id && this.list.find(determination => determination.otu_id === this.taxonDetermination.otu_id && (determination.year_made === this.year))) { return }
 
       this.taxonDetermination.object_tag = `${this.otuSelected} ${this.authorsString()} ${this.dateString()}`
       this.$store.commit(MutationNames.AddTaxonDetermination, this.taxonDetermination)
@@ -373,12 +373,12 @@ export default {
         month_made: item.month_made,
         year_made: item.year_made,
         position: item.position,
-        roles_attributes: item.hasOwnProperty('determiner_roles') ? item.determiner_roles : item.roles_attributes
+        roles_attributes: item?.determiner_roles || item.roles_attributes || []
       }
     },
 
     authorsString () {
-      return this.taxonDetermination.roles_attributes.length ? `by ${this.taxonDetermination.roles_attributes.map(item => item.hasOwnProperty('person') ? item.person.last_name : item.last_name).join(', ')}` : ''
+      return this.taxonDetermination.roles_attributes.length ? `by ${this.taxonDetermination.roles_attributes.map(item => item?.person?.last_name || item.last_name).join(', ')}` : ''
     },
 
     dateString () {

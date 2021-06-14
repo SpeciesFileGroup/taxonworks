@@ -53,7 +53,8 @@
               class="horizontal-left-content">
               <a
                 :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
-                v-html="taxon.object_tag" />
+                v-html="taxon.object_tag"
+              />
               <span
                 class="button circle-button btn-undo button-default"
                 @click="taxon = undefined"/>

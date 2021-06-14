@@ -6,13 +6,15 @@
       v-model="view"/>
     <div class="separate-bottom">
       <template v-if="options['all'] && options['all'].length">
-        <topic-item
+        <template
           v-for="item in options[view]"
-          v-if="!topicAlreadyCreated(item)"
-          :class="{ 'button-data' : content.topic_id != item.id }"
-          :key="item.id"
-          :topic="item"
-          @select="content.topic_id = $event.id"/>
+          :key="item.id">
+          <topic-item
+            v-if="!topicAlreadyCreated(item)"
+            :class="{ 'button-data' : content.topic_id != item.id }"
+            :topic="item"
+            @select="content.topic_id = $event.id"/>
+        </template>
       </template>
       <template v-else>
         <a
@@ -78,16 +80,18 @@ export default {
       })
     }
   },
-  data() {
+
+  data () {
     return {
       view: '',
       options: [],
       content: this.newContent()
     }
   },
-  mounted() {
+  mounted () {
     this.loadTabList('Topic')
   },
+
   methods: {
     createNew() {
       this.create('/contents', { content: this.content }).then(response => {
@@ -103,25 +107,25 @@ export default {
         type: this.objectType
       }
     },
-    topicAlreadyCreated(topic) {
-      return this.list.find(item => { return topic.id == item.topic_id })
-    },
-    setViewWithTopics(listView) {
-      let keys = Object.keys(listView)
-      let that = this
 
-      keys.some(function(key) {
-        if(listView[key].find(item => { return !that.topicAlreadyCreated(item) })) {
-          that.view = key
+    topicAlreadyCreated (topic) {
+      return this.list.find(item => topic.id === item.topic_id)
+    },
+
+    setViewWithTopics (listView) {
+      const keys = Object.keys(listView)
+
+      keys.some(key => {
+        if (listView[key].find(item => !this.topicAlreadyCreated(item))) {
+          this.view = key
           return true
         }
       })
     },
     loadTabList (type) {
+      const promises = []
       let tabList
       let allList
-      let promises = []
-      let that = this
 
       promises.push(this.getList(`/topics/select_options?klass=${this.objectType}&target=Citation`).then(response => {
         tabList = response.body
@@ -133,8 +137,8 @@ export default {
       Promise.all(promises).then(() => {
         tabList['all'] = allList
         Object.keys(tabList).forEach(key => (!tabList[key].length) && delete tabList[key])
-        that.options = tabList
-        that.setViewWithTopics(tabList);
+        this.options = tabList
+        this.setViewWithTopics(tabList)
       })
     }
   }
@@ -143,15 +147,15 @@ export default {
 <style lang="scss">
 .radial-annotator {
   .content_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
+    button {
+      min-width: 100px;
+    }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
   }
 }
 </style>
