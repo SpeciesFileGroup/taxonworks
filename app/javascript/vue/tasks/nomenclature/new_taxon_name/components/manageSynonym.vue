@@ -204,7 +204,6 @@ export default {
       this.moveInput = ''
 
       this.selected.forEach((id, index) => {
-        console.log(id)
         const findPreSelected = this.preSelected.find(children => {
           return children.childrenId === id
         })

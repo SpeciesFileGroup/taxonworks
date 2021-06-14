@@ -2,10 +2,10 @@
   <div class="original-combination">
     <div class="flex-wrap-column rank-name-label">
       <label
-        v-for="(item, index) in rankGroup"
+        v-for="(item, index) in orderRank"
         :class="{ 'new-position' : index == newPosition }"
         class="row capitalize">
-        {{ item.name }}
+        {{ item }}
       </label>
     </div>
     <div>
@@ -20,18 +20,18 @@
         @end="onEnd"
         @add="onAdd"
         @update="onUpdate"
-        :move="onMove">
-        <template #item="{ element }">
+        @start="onStart">
+        <template #item="{ element, index }">
           <div
             class="horizontal-left-content middle"
-            v-if="(GetOriginal(element.name).length == 0)">
+            v-if="!element.value">
             <autocomplete
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
               :disabled="disabled"
               clear-after
-              @getItem="element.autocomplete = $event; searchForChanges(rankGroup,copyRankGroup)"
+              @getItem="addOriginalCombination($event.id, index)"
               :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
               param="term"/>
             <span
@@ -44,17 +44,17 @@
             v-else>
             <div>
               <span class="vue-autocomplete-input normal-input combination middle">
-                <span v-html="GetOriginal(element.name).subject_object_tag"/>
+                <span v-html="element.value.subject_object_tag"/>
               </span>
             </div>
             <span
               class="handle button circle-button button-submit"
               title="Press and hold to drag input"
               data-icon="w_scroll-v"/>
-            <radialAnnotator :global-id="GetOriginal(element.name).global_id"/>
+            <radialAnnotator :global-id="element.value.global_id"/>
             <span
               class="circle-button btn-delete"
-              @click="removeCombination(GetOriginal(element.name))"/>
+              @click="removeCombination(element.value, index)"/>
           </div>
         </template>
       </draggable>
@@ -92,14 +92,22 @@ export default {
       type: Boolean,
       default: false
     },
+
     relationships: {
       type: Object,
       required: true
     },
+
+    originalRelationship: {
+      type: Object,
+      default: () => ({})
+    },
+
     nomenclatureGroup: {
       type: String,
       required: true
     },
+
     options: {
       type: Object,
       default: () => {
@@ -133,91 +141,29 @@ export default {
     }
   },
 
+  watch: {
+    originalCombination () {
+      this.loadOriginalCombinationList()
+    }
+  },
+
   created () {
     this.init()
   },
 
-  watch: {
-    taxon: {
-      handler (taxon) {
-        if (!taxon.id) return true
-        this.loadCombinations(taxon.id)
-      },
-      immediate: true
-    }
-  },
-
   methods: {
     init () {
-      let inc = 0
-      for (const key in this.relationships) {
-        const combination = {
-          name: key,
-          value: '',
-          show: true,
-          autocomplete: undefined,
-          id: inc
-        }
-        this.orderRank.push(key)
-        this.rankGroup.push(combination)
-        this.originalTypes.push(this.relationships[key])
-        inc++
-      }
-      this.copyRankGroup = JSON.parse(JSON.stringify(this.rankGroup))
+      this.orderRank = Object.keys(this.relationships)
+      this.originalTypes = Object.values(this.relationships)
     },
 
-    searchForChanges (newVal, copyOld) {
-      newVal.forEach((element, index) => {
-        const oldElement = copyOld[index]
-
-        if (JSON.stringify(element) !== JSON.stringify(oldElement)) {
-          if (JSON.stringify(element.id) == JSON.stringify(oldElement.id)) {
-            if (JSON.stringify(element.autocomplete) !== JSON.stringify(oldElement.autocomplete)) {
-              if (element.autocomplete) {
-                this.addOriginalCombination(element.autocomplete.id, index).then(response => {
-                  this.$emit('create', response)
-                })
-                this.copyRankGroup = JSON.parse(JSON.stringify(newVal))
-              }
-            }
-          }
-        }
-      })
-    },
-
-    setNewCombinations () {
-      this.rankGroup.forEach((element, index) => {
-        this.rankGroup[index].value = this.GetOriginal(element.name)
-      })
-    },
-
-    processChange (positions) {
-      const copyCombinations = []
-      const allDelete = []
-
-      positions.forEach((element) => {
-        copyCombinations.push(JSON.parse(JSON.stringify(this.rankGroup[element])))
-        if (this.rankGroup[element].value) {
-          allDelete.push(
-            this.$store.dispatch(ActionNames.RemoveOriginalCombination, this.rankGroup[element].value)
-          )
-        }
-      })
-
-      Promise.all(allDelete).then(() => {
-        const allCreated = []
-
-        positions.forEach((element, index) => {
-          if (copyCombinations[index].value) {
-            allCreated.push(
-              this.addOriginalCombination(copyCombinations[index].value.subject_taxon_name_id, element, this.originalTypes)
-            )
-          }
-        })
-        Promise.all(allDelete).then(() => {
-          this.$emit('processed', true)
-        })
-      })
+    loadOriginalCombinationList () {
+      this.rankGroup = this.orderRank.map((rank, index) => ({
+        name: rank,
+        value: this.GetOriginal(rank),
+        id: index
+      }))
+      this.copyRankGroup = this.rankGroup.splice()
     },
 
     addOriginalCombination (elementId, index) {
@@ -227,6 +173,8 @@ export default {
       }
       return new Promise((resolve, reject) => {
         this.$store.dispatch(ActionNames.AddOriginalCombination, data).then(response => {
+          this.rankGroup[index].value = response
+          this.$emit('create')
           resolve(response)
         })
       })
@@ -235,12 +183,13 @@ export default {
     GetOriginal (name) {
       const key = 'original_' + name
 
-      return this.originalCombination[key] || ''
+      return this.originalCombination[key] || undefined
     },
 
-    removeCombination (value) {
+    removeCombination (value, index) {
       if (window.confirm('Are you sure you want to remove this combination?')) {
         this.$store.dispatch(ActionNames.RemoveOriginalCombination, value).then(response => {
+          this.rankGroup[index] = response
           this.$emit('delete', response)
         })
       }
@@ -260,7 +209,6 @@ export default {
       }
 
       this.rankGroup.splice((evt.newIndex + 1), 1)
-      this.updateNames()
       this.addOriginalCombination(this.rankGroup[index].value.subject_taxon_name_id, index).then(response => {
         this.$emit('create')
       })
@@ -270,36 +218,46 @@ export default {
       this.newPosition = -1
     },
 
-    onUpdate (evt) {
-      const newVal = this.rankGroup
-      const copyOld = this.copyRankGroup
-      const positions = []
+    onStart (evt) {
+      this.copyRankGroup = JSON.parse(JSON.stringify(this.rankGroup))
+    },
 
-      newVal.forEach((element, index) => {
-        const oldElement = copyOld[index]
+    async onUpdate (evt) {
+      const positionChanged = this.changedElementPositions()
+      const deletePositions = positionChanged.filter(index => this.copyRankGroup[index].value)
+      const createRelationships = positionChanged.filter(index => this.rankGroup[index].value)
 
-        if (JSON.stringify(element) !== JSON.stringify(oldElement) && element.id !== oldElement.id) {
-          positions.push(index)
+      await this.destroyRelationships(deletePositions)
+      this.createRelationships(createRelationships)
+    },
+
+    createRelationships (positions) {
+      const promises = positions.map(position => this.addOriginalCombination(this.rankGroup[position].value.subject_taxon_name_id, position))
+
+      Promise.all(promises).then(() => {
+        this.$emit('create')
+      })
+    },
+
+    changedElementPositions () {
+      const changedPositions = []
+
+      this.copyRankGroup.forEach((item, index) => {
+        if (item.id !== this.rankGroup[index].id) {
+          changedPositions.push(index)
         }
       })
 
-      if (positions.length) {
-        this.copyRankGroup = JSON.parse(JSON.stringify(newVal))
-        this.setNewCombinations()
-        this.updateNames()
-        this.processChange(positions)
-      }
+      return changedPositions
     },
 
-    updateNames (group) {
-      this.rankGroup.forEach((element, index) => {
-        this.rankGroup[index].name = this.orderRank[index]
-      })
-    },
+    destroyRelationships (positions) {
+      return new Promise((resolve, reject) => {
+        const promises = positions.map(position => this.$store.dispatch(ActionNames.RemoveOriginalCombination, this.copyRankGroup[position].value))
 
-    loadCombinations (id) {
-      AjaxCall('get', `/taxon_names/${id}/original_combination.json`).then(response => {
-        this.$store.commit(MutationNames.SetOriginalCombination, response.body)
+        Promise.all(promises).then(() => {
+          resolve(promises)
+        })
       })
     }
   }

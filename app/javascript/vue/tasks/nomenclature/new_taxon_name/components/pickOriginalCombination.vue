@@ -39,7 +39,7 @@
                   <input
                     type="text"
                     class="normal-input current-taxon"
-                    :value="element.name"
+                    :value="element.value.subject_object_tag"
                     disabled>
                   <span
                     class="handle button circle-button button-submit"
@@ -142,17 +142,25 @@ export default {
     },
 
     isGenus () {
-      return (this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] == 'GenusGroup')
-    },
-
-    existOriginalCombination () {
-      const combinations = Object.values(this.$store.getters[GetterNames.GetOriginalCombination])
-
-      return !!combinations.find(combination => combination.subject_taxon_name_id === this.taxon.id)
+      return (this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] === 'GenusGroup')
     },
 
     softValidation () {
       return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
+    },
+
+    originalCombinations () {
+      return this.$store.getters[GetterNames.GetOriginalCombination]
+    },
+
+    existOriginalCombination () {
+      const combinations = Object.values(this.originalCombinations)
+
+      return !!combinations.find(combination => combination?.subject_taxon_name_id === this.taxon?.id)
+    },
+
+    types () {
+      return Object.assign({}, this.genusGroup, this.speciesGroup)
     }
   },
 
@@ -167,53 +175,65 @@ export default {
   },
   methods: {
     saveTaxonName () {
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(() => {
+        this.$store.dispatch(ActionNames.LoadOriginalCombination, this.taxon.id)
+      })
     },
 
     createTaxonOriginal () {
       this.taxonOriginal = [{
-        name: this.$store.getters[GetterNames.GetTaxon].name,
         value: {
-          subject_taxon_name_id: this.$store.getters[GetterNames.GetTaxon].id
+          subject_taxon_name_id: this.taxon.id,
+          subject_object_tag: this.taxon.name
         },
-        show: true,
-        autocomplete: undefined,
-        id: this.$store.getters[GetterNames.GetTaxon].id
+        id: this.taxon.id
       }]
     },
 
     removeAllCombinations () {
       if (window.confirm('Are you sure you want to remove all combinations?')) {
         const combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-        const allDelete = []
+        const deleteCombinations = Object.values(combinations).map(combination => this.$store.dispatch(ActionNames.RemoveOriginalCombination, combination))
 
-        for (var key in combinations) {
-          allDelete.push(this.$store.dispatch(ActionNames.RemoveOriginalCombination, combinations[key]))
-        }
-        Promise.all(allDelete).then(() => {
+        Promise.all(deleteCombinations).then(() => {
           this.saveTaxonName()
         })
       }
     },
 
     addOriginalCombination () {
-      this.createCombination(this.taxon.id, this.taxon.rank)
-      this.taxon.ancestor_ids.forEach((item) => {
-        const rank = item[1].split('::')[3]
-        if (rank) { this.createCombination(item[0], rank.toLowerCase()) }
+      const promises = []
+
+      this.$store.dispatch(ActionNames.AddOriginalCombination, {
+        type: this.types[this.taxon.rank.toLowerCase()],
+        id: this.taxon.id
       })
-      this.saveTaxonName()
+
+      this.taxon.ancestor_ids.forEach(item => {
+        const rank = item[1].split('::')[3]
+        const rankInType = this.types[rank?.toLowerCase()]
+
+        if (rankInType) {
+          promises.push(
+            this.$store.dispatch(ActionNames.AddOriginalCombination, {
+              type: rankInType,
+              id: item[0]
+            })
+          )
+        }
+      })
+
+      Promise.all(promises).then(() => {
+        this.saveTaxonName()
+      })
     },
 
     createCombination (id, rank) {
-      const types = Object.assign({}, this.genusGroup, this.speciesGroup)
       const data = {
-        type: types[rank],
+        type: this.types[rank],
         id: id
       }
-      if (data.type) {
-        this.$store.dispatch(ActionNames.AddOriginalCombination, data)
-      }
+      this.$store.dispatch(ActionNames.AddOriginalCombination, data)
     }
   }
 }

@@ -3,7 +3,7 @@
     type="button"
     v-hotkey="shortcuts"
     :disabled="!validateInfo || isSaving"
-    @click="saveTaxon()">
+    @click="saveTaxon">
     {{ taxon.id ? 'Save': 'Create' }}
   </button>
 </template>
@@ -12,7 +12,7 @@
 
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import PlatformKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   computed: {
@@ -37,7 +37,7 @@ export default {
     shortcuts () {
       const keys = {}
 
-      keys[`${PlatformKey()}+s`] = this.saveTaxon
+      keys[`${platformKey()}+s`] = this.saveTaxon
 
       return keys
     }

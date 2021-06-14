@@ -19,7 +19,6 @@
       </ul>
       <div class="horizontal-center-content">
         <save-taxon-name
-          v-if="taxon.id"
           class="normal-input button button-submit separate-right"/>
         <clone-taxon-name
           v-help.section.navbar.clone
@@ -65,34 +64,42 @@ export default {
     NavBar,
     Autosave
   },
+
   props: {
     menu: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     unsavedChanges () {
       return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     isAutosaveActive () {
       return this.$store.getters[GetterNames.GetAutosave]
     },
+
     parentId () {
       return this.parent?.id
     }
   },
+
   data () {
     return {
       activePosition: 0
     }
   },
+
   methods: {
     createNew (id) {
       this.url = `${RouteNames.NewTaxonName}?parent_id=${id}`
@@ -107,6 +114,7 @@ export default {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 
   :deep(button) {

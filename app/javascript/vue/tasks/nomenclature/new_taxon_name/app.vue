@@ -97,22 +97,22 @@ import { ActionNames } from './store/actions/actions'
 
 export default {
   components: {
-    Autocomplete,
-    Spinner,
-    NavHeader,
-    TaxonNameBox,
-    CheckChanges,
-    EtymologySection,
     AuthorSection,
-    StatusSection,
-    RelationshipSection,
+    Autocomplete,
     BasicinformationSection,
-    SoftValidation,
-    ManagesynonymySection,
-    OriginalcombinationSection,
-    TypeSection,
+    CheckChanges,
+    ClassificationSection,
+    EtymologySection,
     GenderSection,
-    ClassificationSection
+    ManagesynonymySection,
+    NavHeader,
+    OriginalcombinationSection,
+    RelationshipSection,
+    SoftValidation,
+    Spinner,
+    StatusSection,
+    TaxonNameBox,
+    TypeSection
   },
   computed: {
     shortcuts () {
@@ -165,7 +165,6 @@ export default {
     }
   },
   mounted () {
-    const that = this
     const urlParams = new URLSearchParams(window.location.search)
     let taxonId = urlParams.get('taxon_name_id')
     const value = convertType(sessionStorage.getItem('task::newtaxonname::autosave'))
@@ -180,17 +179,18 @@ export default {
 
     window.addEventListener('scroll', this.scrollBox)
 
-    this.initLoad().then(function () {
+    this.initLoad().then(() => {
       if (/^\d+$/.test(taxonId)) {
-        that.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(function () {
-          that.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
-          that.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
-          that.loading = false
+        this.$store.dispatch(ActionNames.LoadTaxonName, taxonId).then(() => {
+          this.$store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
+          this.$store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
+          this.$store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
+          this.loading = false
         }, () => {
-          that.loading = false
+          this.loading = false
         })
       } else {
-        that.loading = false
+        this.loading = false
       }
     })
 
