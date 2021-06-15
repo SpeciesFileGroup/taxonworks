@@ -70,13 +70,15 @@
         element="tbody"
         v-model="list"
         @end="onSortable">
-        <tr v-for="(item, index) in list">
-          <td v-html="item.new_object_object_tag"/>
-          <td v-html="item.old_object_object_tag"/>
-          <span
-            class="circle-button btn-delete"
-            @click="removeOrigin(index)"/>
-        </tr>
+        <template #item="{ element, index }">
+          <tr>
+            <td v-html="element.new_object_object_tag"/>
+            <td v-html="element.old_object_object_tag"/>
+            <span
+              class="circle-button btn-delete"
+              @click="removeOrigin(index)"/>
+          </tr>
+        </template>
       </draggable>
     </table>
   </div>
