@@ -272,7 +272,7 @@ export default {
     },
     addType (list) {
       for (var key in list) {
-        Object.defineProperty(list[key], 'type', { value: key })
+        Object.defineProperty(list[key], 'type', { writable: true, value: key })
       }
       return list
     },

@@ -232,13 +232,13 @@ export default {
 
     getTreeListForThisRank (list, ranksList, filteredList) {
       for (var key in list) {
-        Object.defineProperty(list[key], 'name', { value: ranksList[key].name })
-        Object.defineProperty(list[key], 'type', { value: ranksList[key].type })
+        Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
+        Object.defineProperty(list[key], 'type', { writable: true, value: ranksList[key].type })
 
         if (filteredList.find((item) => item.type === key)) {
-          Object.defineProperty(list[key], 'disabled', { value: false, configurable: true })
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: false, configurable: true })
         } else {
-          Object.defineProperty(list[key], 'disabled', { value: true, configurable: true })
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: true, configurable: true })
         }
         this.getTreeListForThisRank(list[key], ranksList, filteredList)
       }

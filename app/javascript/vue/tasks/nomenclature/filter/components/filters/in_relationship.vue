@@ -158,8 +158,8 @@ export default {
     getTreeList (list, ranksList) {
       for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'name', { value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].subject_status_tag })
         }
         this.getTreeList(list[key], ranksList)
       }

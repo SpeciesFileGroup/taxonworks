@@ -288,25 +288,25 @@ export default {
     getTreeList (list, ranksList) {
       for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: ranksList[key].object_status_tag })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: ranksList[key].valid_subject_ranks })
         }
         else {
           const label = key.split('::')
 
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: [] })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
     addType (list) {
       for (const key in list) {
-        Object.defineProperty(list[key], 'type', { value: key })
+        Object.defineProperty(list[key], 'type', { writable: true, value: key })
       }
     }
   }
