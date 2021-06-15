@@ -414,8 +414,6 @@ export default {
         max-width: 150px;
       }
     }
-    .otu_tag_taxon_name {
-      white-space: pre-wrap !important;
-    }
   }
+
 </style>

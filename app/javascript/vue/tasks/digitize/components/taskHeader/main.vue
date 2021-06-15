@@ -16,14 +16,12 @@
         <soft-validation
           v-if="collectionObject.id"
           class="margin-small-left margin-small-right"/>
-        <template>
-          <a
-            class="separate-left"
-            v-if="collectionObject.id"
-            :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
-            v-html="collectionObject.object_tag"/>
-          <span v-else>New record</span>
-        </template>
+        <a
+          class="separate-left"
+          v-if="collectionObject.id"
+          :href="`/tasks/collection_objects/browse?collection_object_id=${collectionObject.id}`"
+          v-html="collectionObject.object_tag"/>
+        <span v-else>New record</span>
       </div>
       <div class="horizontal-left-content">
         <div
@@ -159,8 +157,8 @@ export default {
     collectionObject: {
       handler(newVal, oldVal) {
         this.settings.lastChange = Date.now()
-        if(newVal.id && oldVal.id != newVal.id) {
-          if(!this.loadingNavigation) {
+        if (newVal.id && oldVal.id != newVal.id) {
+          if (!this.loadingNavigation) {
             this.loadingNavigation = true
             AjaxCall('get', `/metadata/object_navigation/${encodeURIComponent(newVal.global_id)}`).then(({ headers }) => {
               this.navigation.next = headers['navigation-next']
@@ -175,45 +173,49 @@ export default {
       deep: true
     },
     collectingEvent: {
-      handler(newVal) {
+      handler (newVal) {
         this.settings.lastChange = Date.now()
       },
       deep: true
     }
   },
   methods: {
-    saveDigitalization() {
+    saveDigitalization () {
       this.$store.dispatch(ActionNames.SaveDigitalization)
     },
-    resetStore() {
+
+    resetStore () {
       this.$store.commit(MutationNames.ResetStore)
     },
-    saveAndNew() {
+
+    saveAndNew () {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        let that = this
         setTimeout(() => {
-          that.$store.dispatch(ActionNames.ResetWithDefault)
+          this.$store.dispatch(ActionNames.ResetWithDefault)
         }, 500)
       })
     },
-    newDigitalization() {
+
+    newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
-    saveCollectionObject() {
+
+    saveCollectionObject () {
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
         this.$store.commit(MutationNames.SetTaxonDeterminations, [])
       })
     },
-    loadAssessionCode(id) {
+
+    loadAssessionCode (id) {
       this.$store.dispatch(ActionNames.ResetWithDefault)
       this.$store.dispatch(ActionNames.LoadDigitalization, id)
     },
-    loadCollectionObject(co) {
+
+    loadCollectionObject (co) {
       this.resetStore()
-      this.$store.dispatch(ActionNames.LoadContainer, co.global_id)
       this.$store.dispatch(ActionNames.LoadDigitalization, co.id)
     }
   }
