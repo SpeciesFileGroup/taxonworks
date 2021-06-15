@@ -72,7 +72,10 @@ export default {
     }
   },
 
-  emits: ['onSort'],
+  emits: [
+    'onSort',
+    'onRowHover'
+  ],
 
   data () {
     return {

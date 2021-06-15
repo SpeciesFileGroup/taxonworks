@@ -78,9 +78,11 @@ export default {
     Autocomplete,
     DisplayList
   },
+
   props: {
     modelValue: {
-
+      type: Array,
+      required: true
     }
   },
 
@@ -111,8 +113,12 @@ export default {
       if (newVal.length || !this.statusSelected.length) return
       this.statusSelected = []
     },
-    statusSelected(newVal) {
-      this.$emit('update:modelValue', newVal.map(status => status.type))
+
+    statusSelected: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(status => status.type))
+      },
+      deep: true
     }
   },
 
@@ -129,6 +135,7 @@ export default {
       }
     })
   },
+
   methods: {
     merge () {
       const nomenclatureCodes = Object.keys(this.statusList)
@@ -148,6 +155,7 @@ export default {
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
+
     getTreeList (list, ranksList) {
       for (var key in list) {
         if (key in ranksList) {
@@ -157,15 +165,18 @@ export default {
         this.getTreeList(list[key], ranksList)
       }
     },
+
     removeItem (status) {
       this.statusSelected.splice(this.statusSelected.findIndex(item => item.type === status.type),1)
     },
+
     addStatus (item) {
       this.statusSelected.push(item)
       this.view = OPTIONS.common
     },
+
     filterAlreadyPicked (type) {
-      return this.statusSelected.find(item => item.type == type)
+      return this.statusSelected.find(item => item.type === type)
     }
   }
 }

@@ -81,7 +81,8 @@ export default {
 
   props: {
     modelValue: {
-
+      type: Array,
+      required: true
     }
   },
 
@@ -112,8 +113,12 @@ export default {
       if (newVal.length || !this.relationshipSelected.length) return
       this.relationshipSelected = []
     },
-    relationshipSelected (newVal) {
-      this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
+
+    relationshipSelected: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
+      },
+      deep: true
     }
   },
 
