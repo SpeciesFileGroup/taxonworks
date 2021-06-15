@@ -51,31 +51,33 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 import RowItem from '../shared/RowItem'
 
 export default {
-  components: {
-    RowItem
-  },
+  components: { RowItem },
+
   props: {
     model: {
       type: String,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: Array,
       default: () => []
     }
   },
+
   data () {
     return {
       attributes: []
     }
   },
+
   computed: {
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
 
@@ -87,6 +89,7 @@ export default {
         )
     }
   },
+
   async created () {
     const urlParams = URLParamsToJSON(location.href)
     this.attributes = (await AjaxCall('get', `/${this.model}/attributes`)).body
@@ -101,6 +104,7 @@ export default {
       not_empty.map(name => ({ name, empty: false }))
     )
   },
+
   methods: {
     addAttribute (event) {
       const name = event.target.value

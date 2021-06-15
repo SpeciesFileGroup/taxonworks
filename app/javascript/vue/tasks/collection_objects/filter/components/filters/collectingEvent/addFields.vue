@@ -12,8 +12,9 @@
             v-for="field in fields"
             :key="field.name">
             <option
-              v-if="!selectedFields.find(item => item.param === field.name)">
+              v-if="!selectedFields.find(item => item.param === field.name)"
               :value="field"
+            >
               {{ field.name }}
             </option>
           </template>
@@ -21,12 +22,9 @@
       </div>
       <div
         v-if="selectedField && checkForMatch(selectedField.type)"
-        class="field separate-right">
-        <label>
-          Exact?
-        </label>
-        <br>
-        <input 
+        class="field separate-right label-above">
+        <label>Exact?</label>
+        <input
           :disabled="!checkForMatch(selectedField.type)"
           type="checkbox"
           v-model="exact">

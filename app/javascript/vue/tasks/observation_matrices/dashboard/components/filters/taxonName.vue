@@ -21,7 +21,7 @@
       <span v-html="modelValue.object_tag"/>
       <span
         class="button circle-button btn-undo button-default"
-        @click="$emit('input', undefined)"/>
+        @click="$emit('update:modelValue', undefined)"/>
     </span>
   </div>
 </template>

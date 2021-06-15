@@ -27,7 +27,7 @@ import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { GetKeyword } from '../../request/resources'
-import ajaxCall from 'helpers/ajaxCall'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
   components: {
@@ -36,7 +36,7 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       default: () => []
     }
@@ -67,6 +67,7 @@ export default {
         this.topics = []
       }
     },
+
     topics: {
       handler (newVal) {
         this.params = this.topics.map(topic => topic.id)
@@ -74,9 +75,14 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
-    this.loadTags('Topic')
+
+    ControlledVocabularyTerm.where({ type: ['Topic'] }).then(response => {
+      this.allTopics = { all: response.body }
+    })
+
     if (urlParams.topic_ids) {
       urlParams.topic_ids.forEach(id => {
         GetKeyword(id).then(response => {
@@ -94,12 +100,6 @@ export default {
 
     removeTopic (index) {
       this.topics.splice(index, 1)
-    },
-
-    loadTags (type) {
-      ajaxCall('get', `/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-        this.allTopics = { all: response.body }
-      })
     }
   }
 }

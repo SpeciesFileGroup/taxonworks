@@ -56,7 +56,10 @@ export default {
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'remove'
+  ],
 
   computed: {
     fieldValue: {

@@ -77,7 +77,7 @@ export default {
   },
 
   watch: {
-    value: {
+    modelValue: {
       handler (newVal, oldVal) {
         if (!newVal.author_ids.length && oldVal.author_ids.length) {
           this.authors = []
@@ -87,7 +87,7 @@ export default {
     },
     authors: {
       handler (newVal) {
-        this.source.author_ids = this.authors.map(author => { return author.id })
+        this.source.author_ids = this.authors.map(author => author.id)
       },
       deep: true
     }

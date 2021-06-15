@@ -52,6 +52,7 @@ export default {
     GetCitationTypes().then(response => {
       this.types = response.body
     })
+
     const urlParams = URLParamsToJSON(location.href)
     this.citationTypes = urlParams.citation_object_type ? urlParams.citation_object_type : []
   },

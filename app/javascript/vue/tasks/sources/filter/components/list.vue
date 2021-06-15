@@ -99,7 +99,8 @@ export default {
       type: Array,
       default: () => []
     },
-    value: {
+
+    modelValue: {
       type: Array,
       default: () => []
     }

@@ -39,7 +39,7 @@ export default {
       get () {
         return this.modelValue || 0
       },
-      set(value) {
+      set (value) {
         this.$emit('update:modelValue', this.options[value].value)
       }
     }
@@ -78,7 +78,7 @@ export default {
       const today = new Date()
       const diffInTyme = today.getTime() - date.getTime()
       const dffInDay = diffInTyme / (1000 * 3600 * 24)
-      this.$emit('input', Math.floor(dffInDay))
+      this.$emit('update:modelValue', Math.floor(dffInDay))
     }
   }
 }
