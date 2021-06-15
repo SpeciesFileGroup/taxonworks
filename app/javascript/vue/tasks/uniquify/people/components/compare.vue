@@ -66,10 +66,11 @@
             </div>
           </td>
         </tr>
-        <template v-for="(property, key, index) in selected">
+        <template
+          v-for="(property, key, index) in selected"
+          :key="key">
           <tr
             v-if="!isNestedProperty(property)"
-            :key="key"
             class="contextMenuCells"
             :class="{
               even: (index % 2 == 0),

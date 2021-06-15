@@ -52,20 +52,21 @@
           class="horizontal-left-content expression-box full_width"
           :class="{ 'warning-box': (isParensOpen || !validateExpression)}"
           v-model="expression"
+          item-key="key"
           :group="randomGroup">
-          <div
-            class="drag-expression-element horizontal-left-content feedback"
-            :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`"
-            v-for="element in expression"
-            :key="element.key">
-            {{ element.name }}
-          </div>
+          <template #item="{ element }">
+            <div
+              class="drag-expression-element horizontal-left-content feedback"
+              :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`">
+              {{ element.name }}
+            </div>
+          </template>
         </draggable>
       </div>
       <div
         v-if="isParensOpen || !validateExpression"
         class="warning-message">
-        Invalid expression: 
+        Invalid expression:
         <span
           v-if="isParensOpen">
           Close parentheses.

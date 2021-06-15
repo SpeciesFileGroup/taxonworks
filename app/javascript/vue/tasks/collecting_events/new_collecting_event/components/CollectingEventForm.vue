@@ -18,7 +18,6 @@
               class="separate-bottom"
               v-model="collectingEvent"
               :components-order="componentsOrder"
-              :key="element"
               :is="element"/>
           </template>
         </draggable>

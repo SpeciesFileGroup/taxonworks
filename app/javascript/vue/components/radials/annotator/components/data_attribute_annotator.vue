@@ -22,12 +22,13 @@
 
     <template v-if="preferences && view != 'new'">
       <div class="field separate-bottom annotator-buttons-list">
-        <template v-for="predicate in preferences[view]">
+        <template
+          v-for="predicate in preferences[view]"
+          :key="predicate.id">
           <button
             v-if="!predicateAlreadyCreated(predicate)"
             @click="data_attribute.controlled_vocabulary_term_id = predicate.id"
             type="button"
-            :key="predicate.id"
             class="button normal-input margin-small-left margin-small-bottom"
             :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id != predicate.id)}">
             {{ predicate.name }}

@@ -33,9 +33,10 @@
           <div class="flex-separate">
             <div>
               <ul class="no_bullets">
-                <template v-for="item in alreadyInMatrices">
+                <template
+                  v-for="item in alreadyInMatrices"
+                  :key="item.id">
                   <li
-                    :key="item.id"
                     v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase())">
                     <button
                       class="button normal-input button-default margin-small-bottom"
@@ -45,10 +46,10 @@
                 </template>
               </ul>
               <ul class="no_bullets">
-                <template v-for="item in matrices">
-                  <li
-                    :key="item.id"
-                    v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
+                <template
+                  v-for="item in matrices"
+                  :key="item.id">
+                  <li v-if="item.object_tag.toLowerCase().includes(filterType.toLowerCase()) && !alreadyInMatrices.includes(item)">
                     <button
                       class="button normal-input button-submit margin-small-bottom"
                       @click="loadMatrix(item)"

@@ -1,13 +1,13 @@
 <template>
   <div class="switch-radio">
     <template
-      v-for="(item, index) in options.concat(addOption)">
+      v-for="(item, index) in options.concat(addOption)"
+      :key="index">
       <template
         v-if="filter(item)">
         <input
           @click="emitEvent(index)"
           :value="useIndex ? index : item"
-          :key="index"
           v-model="inputValue"
           :id="`switch-${name}-${index}`"
           :name="`switch-${name}-options`"
@@ -15,9 +15,7 @@
           :checked="item === (useIndex ? index : modelValue)"
           class="normal-input button-active"
         >
-        <label
-          :for="`switch-${name}-${index}`"
-          :key="`${index}a`">{{ item }}
+        <label :for="`switch-${name}-${index}`">{{ item }}
         </label>
       </template>
     </template>

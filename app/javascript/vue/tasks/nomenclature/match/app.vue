@@ -40,11 +40,12 @@
             </li>
           </ul>
         </navbar-component>
-        <template v-for="(match, key) in matches">
+        <template
+          v-for="(match, key) in matches"
+          :key="key">
           <line-component
             v-if="filterView(match)"
             class="margin-small-bottom"
-            :key="key"
             :name="key"
             :records="match"/>
         </template>

@@ -10,11 +10,12 @@
         <ul
           v-if="Object.keys(defaultItems).length"
           class="no_bullets">
-          <template v-for="(item, key) in sections">
+          <template
+            v-for="(item, key) in sections"
+            :key="key">
             <li
               class="margin-small-bottom"
-              v-if="defaultItems[key]"
-              :key="key">
+              v-if="defaultItems[key]">
               <transition
                 v-if="selected && selected.klass == key"
                 name="bounce"

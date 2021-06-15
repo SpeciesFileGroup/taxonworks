@@ -146,18 +146,23 @@ export default {
     loadComponent () {
       return this.descriptor.type ? this.descriptor.type.split('::')[1] : undefined
     },
+
     existComponent () {
       return this.$options.components[this.loadComponent + 'Component']
     },
+
     matrixId () {
       return this.matrix ? this.matrix.id : undefined
     },
+
     sectionName () {
       return TYPES()[this.descriptor.type]
     },
+
     hideSaveButton () {
       return this.hideSaveButtonFor.includes(this.descriptor.type)
     },
+
     observationMatrixHubPath () {
       return RouteNames.ObservationMatricesHub
     }

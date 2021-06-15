@@ -34,11 +34,12 @@
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
             :logo-size="{ width: '100px', height: '100px'}"
             v-if="loading"/>
-          <template v-for="(visibleSection, componentName) in menu">
+          <template
+            v-for="(visibleSection, componentName) in menu"
+            :key="componentName">
             <component
               v-if="visibleSection"
               class="margin-medium-bottom"
-              :key="componentName"
               :is="`${componentName.replace(' ', '')}Section`"/>
           </template>
         </div>

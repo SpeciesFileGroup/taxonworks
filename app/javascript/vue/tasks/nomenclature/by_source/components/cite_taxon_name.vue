@@ -25,14 +25,16 @@
           v-if="sourceAlreadyTaken">The source has already been taken</span>
       </div>
       <template v-else>
-        <button
+        <template
           v-for="item in list[view]"
-          v-if="!isCreated(item)"
-          :key="item.id"
-          type="button"
-          class="button normal-input button-submit biocuration-toggle-button"
-          @click="createTaxonCite(item)"
-          v-html="item.name"/>
+          :key="item.id">
+          <button
+            v-if="!isCreated(item)"
+            type="button"
+            class="button normal-input button-submit biocuration-toggle-button"
+            @click="createTaxonCite(item)"
+            v-html="item.name"/>
+        </template>
       </template>
     </template>
   </div>

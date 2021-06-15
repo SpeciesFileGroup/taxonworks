@@ -8,7 +8,6 @@
           :key="key">
           <label>
             <input
-              :key="key"
               name="sqed-pattern"
               @click="setPattern(pattern)"
               :checked="pattern.layout === modelValue.layout"

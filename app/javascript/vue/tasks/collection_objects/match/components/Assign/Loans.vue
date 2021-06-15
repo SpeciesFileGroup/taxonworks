@@ -29,7 +29,7 @@
           v-for="item in status"
           :key="item"
           :value="item">
-          {{item}}
+          {{ item }}
         </option>
       </select>
     </div>

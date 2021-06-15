@@ -8,13 +8,15 @@
         <select
           class="normal-input full_width"
           v-model="selectedField">
-          <option
-            :value="field"
-            :key="field.name"
-            v-if="!selectedFields.find(item => item.param === field.name)"
-            v-for="field in fields">
-            {{ field.name }}
-          </option>
+          <template
+            v-for="field in fields"
+            :key="field.name">
+            <option
+              v-if="!selectedFields.find(item => item.param === field.name)">
+              :value="field"
+              {{ field.name }}
+            </option>
+          </template>
         </select>
       </div>
       <div

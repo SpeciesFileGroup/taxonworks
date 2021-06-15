@@ -58,7 +58,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(key, index) in ceProperties"
+            <tr
+              v-for="(key, index) in ceProperties"
               :key="key"
               class="contextMenuCells"
               :class="{ even: index % 2 }">

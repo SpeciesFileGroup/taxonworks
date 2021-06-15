@@ -28,7 +28,7 @@
         class="separate-right left-section"
         v-model="componentsOrder"
         :disabled="!settings.sortable"
-        :item-key="function (item) { return item }"
+        :item-key="item => item"
         @end="updatePreferences"
       >
         <template #item="{ element }">

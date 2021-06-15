@@ -12,10 +12,11 @@
       <transition-group
         name="list-complete"
         tag="tbody">
-        <template v-for="(item, index) in list">
+        <template
+          v-for="(item, index) in list"
+          :key="item.id">
           <tr
             v-if="item.hasOwnProperty('id')"
-            :key="item.id"
             class="list-complete-item">
             <td v-html="item.biological_relationship.name"/>
             <td v-html="item.object.object_tag"/>
@@ -28,9 +29,7 @@
               </span>
             </td>
           </tr>
-          <tr
-            v-else
-            :key="`${item.biologicalRelationship.id}${item.biologicalRelation.id}`">
+          <tr v-else>
             <td v-html="item.biologicalRelationship.name"/>
             <td v-html="item.biologicalRelation.object_tag"/>
             <td v-html="getCitationString(item)"/>

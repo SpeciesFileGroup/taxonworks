@@ -38,7 +38,7 @@
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
         label="name"
-        :clear-after="true"
+        clear-after
         min="3"
         time="0"
         @getItem="addRelationship"

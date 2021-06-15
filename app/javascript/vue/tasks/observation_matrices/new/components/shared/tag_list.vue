@@ -1,12 +1,14 @@
 <template>
   <div>
-    <tag-item
+    <template
       v-for="(item, key) in list"
-      v-if="!isAlreadyCreated(item)"
-      :key="key"
-      :item="item"
-      display="object_tag"
-      @select="sendItem"/>
+      :key="key">
+      <tag-item
+        v-if="!isAlreadyCreated(item)"
+        :item="item"
+        display="object_tag"
+        @select="sendItem"/>
+    </template>
   </div>
 </template>
 <script>

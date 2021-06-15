@@ -8,11 +8,12 @@
           <h3>Add default pinned to</h3>
         </div>
         <ul>
-          <template v-for="(item, key) in metadata.endpoints">
+          <template
+            v-for="(item, key) in metadata.endpoints"
+            :key="key">
             <li
-              class="cursor-pointer"
               v-if="getDefault(key)"
-              :key="key"
+              class="cursor-pointer"
               @click="createNew(key)">
               <span class="capitalize">{{ key.replace("_", " ") }}</span>
             </li>

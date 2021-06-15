@@ -6,7 +6,7 @@
         :key="item.id"
         class="contextMenuCells">
         <td>
-          <a 
+          <a
             :href="`/sources/${item.id}`"
             v-html="item.object_tag"/>
         </td>

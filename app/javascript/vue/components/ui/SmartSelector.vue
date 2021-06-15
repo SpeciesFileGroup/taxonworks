@@ -54,10 +54,10 @@
           v-if="view && view != 'search'"
           class="no_bullets"
           :class="{ 'flex-wrap-row': inline }">
-          <template v-for="item in lists[view]">
-            <li
-              v-if="filterItem(item)"
-              :key="item.id">
+          <template
+            v-for="item in lists[view]"
+            :key="item.id">
+            <li v-if="filterItem(item)">
               <template
                 v-if="buttons">
                 <button
