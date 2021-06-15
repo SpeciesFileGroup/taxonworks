@@ -121,7 +121,7 @@ export default {
     },
     searchDepictions () {
       if (this.emptyParams) return
-      const params = this.filterEmptyParams(Object.assign({}, this.params.depictions, this.params.keywords, this.params.base, this.params.user, this.params.settings))
+      const params = this.filterEmptyParams(Object.assign({}, this.params.identifier, this.params.depictions, this.params.keywords, this.params.base, this.params.user, this.params.settings))
 
       this.getDepictions(params)
     },

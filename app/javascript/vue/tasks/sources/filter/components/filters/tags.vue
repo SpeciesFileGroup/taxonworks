@@ -39,7 +39,7 @@
               AND: true,
               OR: false
             }"
-            v-model="item.and"
+            v-model="keywords[index].and"
             @remove="removeKeyword(index)"
           />
         </template>
@@ -61,6 +61,7 @@ export default {
     SmartSelector,
     RowItem
   },
+
   props: {
     modelValue: {
       type: Object,
@@ -93,7 +94,7 @@ export default {
   },
   watch: {
     modelValue (newVal) {
-      if (!newVal.keyword_id_and.length && !newVal.keyword_id_and.length && this.keywords.length) {
+      if (!newVal.keyword_id_and.length && !newVal.keyword_id_or.length && this.keywords.length) {
         this.keywords = []
       }
     },

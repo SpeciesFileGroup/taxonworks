@@ -42,7 +42,7 @@ export default {
       default: 'object_tag'
     },
 
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -55,13 +55,16 @@ export default {
       })
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     fieldValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        return this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

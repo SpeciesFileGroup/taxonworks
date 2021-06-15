@@ -7,9 +7,11 @@
         <h3>Image</h3>
       </template>
       <template #body>
-        <img
-          class="img-maxsize"
-          :src="image.image_file_url">
+        <div class="horizontal-center-content">
+          <img
+            class="img-maxsize"
+            :src="image.image_file_url">
+        </div>
       </template>
     </modal-component>
     <div
@@ -18,14 +20,16 @@
         class="img-thumb"
         :src="image.alternatives.thumb.image_file_url"
         @click="setModalView(true)">
-      <pin-component
+      <div
         class="position-absolute"
         :style="{
           right: '4px',
           bottom: '4px'
-        }"
-        :object-id="image.id"
-        type="Image"/>
+        }">
+        <pin-component
+          :object-id="image.id"
+          type="Image"/>
+      </div>
     </div>
   </div>
 </template>
