@@ -450,7 +450,7 @@ namespace :tw do
                   collecting_event_id: collecting_event_id,
                   repository_id: repository_id,
 
-                  taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
+                  # taxon_determinations_attributes: [{otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id], project_id: project_id}],
                   # taxon_determination notes here?
 
                   # housekeeping for collection_object
@@ -645,20 +645,16 @@ namespace :tw do
                           project_id: project_id)})
                     end
 
-                    t = TaxonDetermination.find_or_initialize_by(
+                    t = TaxonDetermination.create!(
                       otu_id: otu_id,
                       biological_collection_object_id: o.id,
-                      project_id: project_id
-                    )
-                    t.assign_attributes(
                       citations_attributes: citations_attributes,
                       data_attributes_attributes: data_attributes_attributes,
                       notes_attributes: [text: identification['taxon_ident_note'], project_id: project_id],
-                      confidences_attributes: confidences_attributes
+                      confidences_attributes: confidences_attributes,
+                      project_id: project_id
                     )
-                    t.save!
                     t.move_to_bottom # so it's not the first record
-
 
                     if identification['verbatim_label'].present?
                       o.update_column(:buffered_collecting_event, identification['verbatim_label'])
@@ -728,6 +724,17 @@ namespace :tw do
                                               attribute_subject: o)
                       # puts "data_attribute for type_kind created for '#{type_kind}'"
                     end
+                  end
+                end
+
+                # Create determination from TaxonNameID only if last from SF identification history (reverse order) doesn't match
+                current_objects.each do |collection_object|
+                  unless collection_object.taxon_determinations.order(:position).first&.otu_id == get_otu_from_tw_taxon_id[tw_taxon_name_id].to_i
+                    TaxonDetermination.create!(
+                      biological_collection_object: collection_object,
+                      otu_id: get_otu_from_tw_taxon_id[tw_taxon_name_id],
+                      project_id: project_id
+                    ).move_to_top
                   end
                 end
               end
