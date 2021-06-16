@@ -50,7 +50,6 @@ export default {
 
   data () {
     return {
-      // componentsOrder: componentNames,
       keyStorage: 'tasks::digitize::verbatimOrder',
       componentsSection: 'ComponentVerbatim'
     }
