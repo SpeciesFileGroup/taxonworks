@@ -74,7 +74,8 @@ export default {
           token: ''
         }
       },
-      matrixRow: undefined
+      matrixRow: undefined,
+      app: undefined
     }
   },
   mounted() {
@@ -103,11 +104,11 @@ export default {
     loadMatrix () {
       const props = this.initializeData
       const store = newStore(new MatrixRowCoderRequest())
-      const app = createApp(MatrixRowCoder,
+      this.app = createApp(MatrixRowCoder,
         props
       )
-      app.use(store)
-      app.mount('#matrix_row_coder')
+      this.app.use(store)
+      this.app.mount('#matrix_row_coder')
 
       SetParam('/tasks/observation_matrices/row_coder/index', 'observation_matrix_row_id', props.rowId)
       this.getMatrix()
