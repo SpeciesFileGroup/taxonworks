@@ -29,18 +29,19 @@
         </span>
       </template>
     </div>
-    <nav>
+    <nav class="pagination">
       <span
         v-if="pagination.paginationPage > rangePages"
         class="page gap">...</span>
       <span
+        class="page"
         :class="{ current: n == pagination.paginationPage}"
         v-for="n in pagesCount">
         <template v-if="n < rangeMax && rangeMin < n">
           <span v-if="n == pagination.paginationPage">{{ n }}</span>
           <a
             v-else
-            class="cursor-pointer page"
+            class="cursor-pointer"
             @click="sendPage(n)">
             {{ n }}
           </a>
