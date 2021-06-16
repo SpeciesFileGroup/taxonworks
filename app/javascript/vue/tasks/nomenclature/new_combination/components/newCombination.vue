@@ -28,12 +28,12 @@
 
         <div class="flexbox">
           <template
-            v-for="(list, key) in rankLists"
+            v-for="(list, key, index) in rankLists"
             :key="key">
             <list-group
               v-if="parseRanks[key]"
               class="item1"
-              ref="listGroup"
+              :ref="(el) => listGroup[index] = el"
               @onTaxonSelect="newCombination.protonyms[key] = $event"
               @addToList="addTaxonToList"
               :selected="newCombination.protonyms[key]"
@@ -59,7 +59,7 @@
             ref="saveButton"
             :new-combination="newCombination"/>
           <button
-            class="normal-input button button-default"
+            class="normal-input button button-default margin-small-left"
             @click="expandAll()"
             tabindex="-1"
             type="button"><span data-icon="reset">Unlock</span>
@@ -122,6 +122,7 @@ export default {
   },
 
   emits: [
+    'save',
     'onSearchStart',
     'onSearchEnd'
   ],
@@ -153,7 +154,8 @@ export default {
       otherMatches: {},
       searching: false,
       saving: false,
-      newCombination: this.createNewCombination()
+      newCombination: this.createNewCombination(),
+      listGroup: []
     }
   },
 
@@ -222,8 +224,10 @@ export default {
     },
 
     expandAll () {
-      this.$refs.listGroup.forEach(component => {
-        component.expandList()
+      this.listGroup.forEach(component => {
+        if (component) {
+          component.expandList()
+        }
       })
     },
 
