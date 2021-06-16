@@ -11,7 +11,7 @@
         v-for="item in list[view]"
         :key="item.id"
         type="button"
-        :class="{ 'button-default': !(selectedList.hasOwnProperty(item.id))}"
+        :class="{ 'button-default': !selected.includes(item.id)}"
         class="button normal-input biocuration-toggle-button"
         @click="selectFor(item)">
         <span
@@ -34,6 +34,7 @@ export default {
     smartSelector,
     SpinnerComponent
   },
+
   props: {
     selectOptionsUrl: {
       type: String
@@ -48,7 +49,7 @@ export default {
     },
 
     modelValue: {
-      type: Object,
+      type: Object
     },
   },
 
@@ -57,16 +58,27 @@ export default {
     'selected_for'
   ],
 
+  computed: {
+    selected: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
+  },
+
   watch: {
     selectOptionsUrl() {
-      this.selectedList = {}   // clear the selected items list
+      this.selected = []
       this.list = {}           // clear the displayable lists
       this.view = undefined    // delelect which view of the displayable list
       this.tabs = []           // clear the tabs in the smart selector
     },
 
     onModel (newVal) {
-      this.selectedList = {}
+      this.selected = []
       if (this.selectOptionsUrl && newVal) { this.getSelectOptions(newVal) }
     }
   },
@@ -76,23 +88,22 @@ export default {
       list: {},
       tabs: [],
       view: undefined,
-      selectedList: {},
       isLoading: false
     }
   },
 
   methods: {
-    selectFor(item) {
-      if (this.selectedList.hasOwnProperty(item.id)) {
-        delete this.selectedList[item.id]
+    selectFor (item) {
+      const index = this.selected.findIndex(id => item.id === id)
+
+      if (index > -1) {
+        this.selected.splice(index, 1)
       } else {
-        this.selectedList[item.id] = item
+        this.selected.push(item.id)
       }
-      this.$emit('update:modelValue', this.selectedList)
-      this.$emit('selected_for', this.selectedList)
     },
 
-    getSelectOptions(onModel) {
+    getSelectOptions (onModel) {
       this.isLoading = true
       AjaxCall('get', this.selectOptionsUrl, { params: { klass: this.onModel } }).then(response => {
         this.tabs = OrderSmartSelector(Object.keys(response.body))
