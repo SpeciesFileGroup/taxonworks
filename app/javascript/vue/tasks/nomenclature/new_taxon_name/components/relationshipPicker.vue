@@ -191,6 +191,13 @@ export default {
     }
   },
   watch: {
+    taxon: {
+      handler (newVal, oldVal) {
+        if(newVal.id && newVal.id !== oldVal.id) {
+          this.refresh()
+        }
+      }
+    },
     parent: {
       handler (newVal) {
         if (newVal == null) return true
@@ -226,10 +233,11 @@ export default {
     },
 
     refresh () {
-      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode]))
-      this.objectLists.tree = Object.assign({}, JSON.parse(JSON.stringify(copyList.tree)))
-      this.objectLists.commonList = Object.assign({}, JSON.parse(JSON.stringify(copyList.common)))
-      this.objectLists.allList = Object.assign({}, JSON.parse(JSON.stringify(copyList.all)))
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
+
+      this.objectLists.tree = copyList.tree || {}
+      this.objectLists.commonList = copyList.common || {}
+      this.objectLists.allList = copyList.all || {}
       this.addType(this.objectLists.allList)
       this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
       this.getTreeList(this.objectLists.tree, copyList.all)

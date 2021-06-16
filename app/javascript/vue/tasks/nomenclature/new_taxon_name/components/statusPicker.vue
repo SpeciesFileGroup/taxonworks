@@ -200,7 +200,7 @@ export default {
     },
 
     refresh () {
-      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode]))
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
 
       this.objectLists = Object.assign({}, this.makeLists())
       this.objectLists.tree = Object.assign({}, copyList.tree)
