@@ -14,7 +14,7 @@
           param="term"
         />
         <default-element
-          class="separate-left"
+          class="margin-small-left margin-small-right"
           label="source"
           type="Source"
           @getItem="setSource"
