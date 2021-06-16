@@ -73,7 +73,7 @@ namespace :tw do
               if citation.nil?
                 logger.error "Couldn't find original citation for OTU #{otu.id}, source_id: #{source_id}"
               end
-              citation.update(pages: cite_pages, notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '1'}))])
+              citation.update(pages: cite_pages)
 
             else # not the first citation for this name, create new citation
               citation = Citation.new(
@@ -85,8 +85,7 @@ namespace :tw do
                   created_at: row['CreatedOn'],
                   updated_at: row['LastUpdate'],
                   created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                  notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '2'}))]
+                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
               )
               begin
                 citation.save!
@@ -916,7 +915,7 @@ namespace :tw do
                   orig_desc_source_id = [source_id, protonym.id] # prevents duplicate citation to same source being processed as original description
                   #citation.notes.create(text: row['Note'], project_id: project_id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate']) unless row['Note'].blank?
 
-                  citation.update(pages: row['CitePages'], notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '3'}))])
+                  citation.update(pages: row['CitePages'])
 
                   unless citation.id.nil?
                     unless row['Note'].blank?
@@ -940,8 +939,7 @@ namespace :tw do
                     end
                     unless info_flag_status_cvt_id.blank?
                       n = protonym.confidences.find_or_create_by(confidence_level_id: info_flag_status_cvt_id, project_id: project_id)
-                      n.citations.create(source_id: citation.source_id, project_id: project_id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'],
-                                         notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '4'}))])
+                      n.citations.create(source_id: citation.source_id, project_id: project_id, created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']], created_at: row['CreatedOn'], updated_at: row['LastUpdate'])
                     end
                   end
 
@@ -1043,8 +1041,7 @@ namespace :tw do
                         if tr.try(:id)
                           citation = Citation.create(
                             citation_common_attributes.merge({
-                              citation_object: tr,
-                              notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '5'}))]
+                              citation_object: tr
                             })
                           )
                           unless citation.id
@@ -1069,8 +1066,7 @@ namespace :tw do
                     if tr.try(:id)
                       citation = Citation.create(
                         citation_common_attributes.merge({
-                          citation_object: tr,
-                          notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '6'}))]
+                          citation_object: tr
                         })
                       )
                       missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED"] unless citation.id
@@ -1152,8 +1148,7 @@ namespace :tw do
                       if tr.nil? # Looks imposible to be false. Originally placed as if modifier of line below
                         citation = Citation.create(
                           citation_common_attributes.merge({
-                            citation_object: tr,
-                            notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '7'}))]
+                            citation_object: tr
                           })
                         )
                         missing_cites << [row['FileID'], row['TaxonNameID'], row['SeqNum'], "SYNONYM_TR_CITATION_CREATE_FAILED_2"] unless citation.id
@@ -1193,8 +1188,7 @@ namespace :tw do
                     citation_common_attributes.merge({
                       is_original: (row['SeqNum'] == '1' && protonym.source.nil? ? true : false),
                       citation_object_id: use_this_object_id,
-                      citation_object_type: this_object_type,
-                      notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '8'}))]
+                      citation_object_type: this_object_type
                     })
                   )
 
@@ -1237,8 +1231,7 @@ namespace :tw do
                       unless info_flag_status_cvt_id.blank?
                         n = protonym.confidences.find_or_create_by(confidence_level_id: info_flag_status_cvt_id, project_id: project_id)
                         # byebug if n.nil? || n.id.nil?
-                        n.citations.create(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']],
-                                           notes_attributes: [text: JSON.pretty_generate(row.to_h.merge!({LOC: '9'}))])
+                        n.citations.create(source_id: citation.source_id, project_id: project_id, created_at: row['CreatedOn'], updated_at: row['LastUpdate'], created_by_id: get_tw_user_id[row['CreatedBy']], updated_by_id: get_tw_user_id[row['ModifiedBy']])
                       end
                     end
                   rescue ActiveRecord::RecordInvalid # citation not valid
