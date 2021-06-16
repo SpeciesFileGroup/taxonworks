@@ -3,7 +3,7 @@
     <spinner-component
       v-if="showSpinner"/>
     <div class="flex-separate middle">
-      <h2>Taxon name classifications</h2>
+      <h2>Nomenclatural statuses</h2>
       <button
         @click="summarize"
         :disabled="!sourceID || !taxon_classification_cites_list.length"
