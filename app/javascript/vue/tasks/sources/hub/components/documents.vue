@@ -7,8 +7,8 @@
         <a
           class="btn-download circle-button"
           :href="item.document.file_url"
-          download>
-        </a>
+          download
+        />
       </li>
     </ul>
   </div>
@@ -16,7 +16,7 @@
 
 <script>
 
-import { GetDocumentsFromSourceID } from '../request/resources.js'
+import { Source } from 'routes/endpoints'
 
 export default {
   props: {
@@ -32,7 +32,7 @@ export default {
   },
 
   mounted () {
-    GetDocumentsFromSourceID(this.sourceId).then(response => {
+    Source.documentation(this.sourceId).then(response => {
       this.documents = response.body
     })
   }

@@ -59,6 +59,8 @@ import platformKey from 'helpers/getMacKey.js'
 import Draggable from 'vuedraggable'
 
 export default {
+  name: 'Comprehensive',
+
   mixins: [SortComponent],
 
   components: {
@@ -98,8 +100,9 @@ export default {
 
   data () {
     return {
-      componentsOrder: ['TaxonDeterminationLayout', 'BiologicalAssociation', 'TypeMaterial'],
-      keyStorage: 'tasks::digitize::LeftColumnOrder'
+      // componentsOrder: ['TaxonDeterminationLayout', 'BiologicalAssociation', 'TypeMaterial'],
+      keyStorage: 'tasks::digitize::LeftColumnOrder',
+      componentsSection: 'leftColumn'
     }
   },
 

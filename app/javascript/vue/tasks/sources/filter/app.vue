@@ -145,20 +145,25 @@ export default {
     csvFields () {
       return []
     },
+
     recordsFound () {
       return this.list.length
     },
+
     sourceIDs () {
       return this.list.map(item => item.id)
     },
+
     csvList () {
       return this.ids.length
         ? this.list.filter(item => this.ids.includes(item.id))
         : this.list
     },
+
     recordsAtCurrentPage () {
       return ((this.pagination.paginationPage - 1) * this.pagination.perPage) || 1
     },
+
     recordsAtNextPage () {
       const recordsCount = this.pagination.paginationPage * this.pagination.perPage
       return recordsCount > this.pagination.total ? this.pagination.total : recordsCount

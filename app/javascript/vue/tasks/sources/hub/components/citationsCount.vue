@@ -8,7 +8,7 @@
 
 <script>
 
-import { GetCitationsFromSourceID } from '../request/resources.js'
+import { Citation } from 'routes/endpoints'
 
 export default {
   props: {
@@ -31,7 +31,7 @@ export default {
 
   methods: {
     loadCitations () {
-      GetCitationsFromSourceID(this.sourceId).then(response => {
+      Citation.where({ source_id: this.sourceId }).then(response => {
         this.citations = response.body
       })
     }

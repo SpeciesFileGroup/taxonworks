@@ -78,6 +78,7 @@ export default {
     validateShortName () {
       return this.descriptor.short_name ? this.descriptor.short_name.length <= 6 : true
     },
+
     descriptor: {
       get () {
         return this.modelValue

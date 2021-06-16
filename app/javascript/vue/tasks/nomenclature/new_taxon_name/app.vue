@@ -30,7 +30,7 @@
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item">
           <spinner
-            :full-screen="true"
+            full-screen
             :legend="(loading ? 'Loading...' : 'Saving changes...')"
             :logo-size="{ width: '100px', height: '100px'}"
             v-if="loading"/>

@@ -6,7 +6,7 @@ import hotkey from 'plugins/v-hotkey'
 import App from './app.vue'
 
 
-function init() {
+function init () {
   const app = createApp(App)
   app.use(newStore())
   app.use(HelpSystem, {

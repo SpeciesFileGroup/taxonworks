@@ -2,6 +2,11 @@ import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
+import {
+  ComponentMap,
+  ComponentParse,
+  ComponentVerbatim
+} from '../const/components'
 import ceInit from '../const/collectingEvent'
 
 function makeInitialState () {
@@ -46,7 +51,7 @@ function makeInitialState () {
       year_made: undefined,
       month_made: undefined,
       day_made: undefined,
-      roles_attributes: [],
+      roles_attributes: []
     },
     identifier: {
       id: undefined,
@@ -92,8 +97,8 @@ function makeInitialState () {
       id: undefined,
       text: undefined,
       total: undefined,
-      label_object_id: undefined, 
-      label_object_type: "CollectingEvent"
+      label_object_id: undefined,
+      label_object_type: 'CollectingEvent'
     },
     geographicArea: undefined,
     tmpData: {
@@ -113,7 +118,17 @@ function makeInitialState () {
     biocurations: [],
     preparation_type_id: undefined,
     taxon_determinations: [],
-    namespaceSelected: ''
+    namespaceSelected: '',
+    componentsOrder: {
+      leftColumn: [
+        'TaxonDeterminationLayout',
+        'BiologicalAssociation',
+        'TypeMaterial'
+      ],
+      ComponentParse: Object.keys(ComponentParse),
+      ComponentVerbatim: Object.keys(ComponentVerbatim),
+      ComponentMap: Object.keys(ComponentMap)
+    }
   }
 }
 

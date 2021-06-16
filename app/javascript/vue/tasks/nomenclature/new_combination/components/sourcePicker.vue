@@ -49,9 +49,8 @@
 import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
     citation: {
       default: undefined

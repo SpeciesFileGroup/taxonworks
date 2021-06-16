@@ -4,7 +4,7 @@
     class="separate-bottom">
     <div class="panel">
       <div class="content">
-        <slot></slot>
+        <slot />
       </div>
     </div>
   </div>

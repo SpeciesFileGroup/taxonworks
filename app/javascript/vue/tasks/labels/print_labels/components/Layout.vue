@@ -52,18 +52,21 @@ export default {
   ],
 
   watch: {
-    rows(newVal) {
+    rows (newVal) {
       this.$emit('onRowsChange', newVal)
     },
-    columns(newVal) {
+
+    columns (newVal) {
       this.$emit('onColumnsChange', newVal)
     },
-    divisor(newVal) {
+
+    divisor (newVal) {
       this.$emit('onDivisorChange', newVal)
     },
-    separator(newVal) {
+
+    separator (newVal) {
       this.$emit('onSeparatorChange', newVal)
-    },
+    }
   },
   methods: {
     onClear () {

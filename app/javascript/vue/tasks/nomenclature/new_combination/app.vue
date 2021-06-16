@@ -71,10 +71,12 @@ export default {
       this.accept_taxon_name_ids = []
       this.taxon = event
     },
+
     resetInput () {
       this.$refs.inputSearch.reset()
       this.$refs.inputSearch.focusInput()
     },
+
     editCombination (combination) {
       const keys = Object.keys(combination.protonyms)
 
@@ -82,6 +84,7 @@ export default {
       this.$refs.combination.editCombination(combination.name_string, combination)
       this.$refs.inputSearch.disabledButton(true)
     },
+
     addToList (combination) {
       const position = this.combinations.findIndex(item => combination.id === item.id)
 
@@ -91,15 +94,18 @@ export default {
         this.combinations.push(combination)
       }
     },
+
     updatePlacement (combination) {
-      this.combinations[this.combinations.findIndex((item) => item.id === combination.id)].placement.same = true
+      this.combinations[this.combinations.findIndex(item => item.id === combination.id)].placement.same = true
     },
+
     deleteCombination (combination) {
       Combination.destroy(combination.id).then(() => {
-        this.combinations.splice(this.combinations.findIndex((item) => item.id === combination.id), 1)
+        this.combinations.splice(this.combinations.findIndex(item => item.id === combination.id), 1)
         TW.workbench.alert.create('Combination was successfully deleted.', 'notice')
       })
     },
+
     loadCombination () {
       const urlParams = new URLSearchParams(window.location.search)
       const combinationId = urlParams.get('id') || urlParams.get('taxon_name_id') || urlParams.get('combination_id')

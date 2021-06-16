@@ -7,9 +7,10 @@
         :options="options"/>
       <default-pin
         v-if="pinSection"
+        class="margin-small-left"
         :section="pinSection"
-        @getId="getObject"
-        :type="pinType"/>
+        :type="pinType"
+        @getId="getObject"/>
     </div>
     <slot name="header"/>
     <template v-if="!addTabs.includes(view)">
