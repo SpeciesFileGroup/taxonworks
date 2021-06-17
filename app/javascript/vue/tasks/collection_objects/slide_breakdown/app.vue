@@ -19,10 +19,9 @@
             :horizontal-lines="hlines"
             @onLines="setGrid"
             @grid="setGrid"/>
-          <template
-            v-for="(hline, index) in hlines"
-            v-if="index < hlines.length-1 && !disabledPanel">
+          <template v-for="(hline, index) in hlines">
             <add-line
+              v-if="index < hlines.length-1 && !disabledPanel"
               :style="{ 
                 top: `${getButtonPosition(hlines, index, style.viewer.marginTop)}px`,
                 transform: 'translateY(-50%)'
@@ -32,9 +31,9 @@
             />
           </template>
           <template
-            v-for="(vline, index) in vlines"
-            v-if="index < vlines.length-1 && !disabledPanel">
+            v-for="(vline, index) in vlines">
             <add-line
+              v-if="index < vlines.length-1 && !disabledPanel"
               :style="{ 
                 left: `${getButtonPosition(vlines, index, style.viewer.marginLeft)}px`,
                 transform: 'translateX(-50%)',
@@ -45,9 +44,9 @@
             />
           </template>
           <template
-            v-for="(hline, index) in hlines"
-            v-if="index > 0 && index < hlines.length-1 && !disabledPanel">
+            v-for="(hline, index) in hlines">
             <remove-line
+              v-if="index > 0 && index < hlines.length-1 && !disabledPanel"
               :style="{
                 top: `${removeButtonPosition(hline, style.viewer.marginTop)}px`,
                 right: 0,
@@ -58,9 +57,9 @@
             />
           </template>
           <template
-            v-for="(vline, index) in vlines"
-            v-if="index > 0 && index < vlines.length-1 && !disabledPanel">
+            v-for="(vline, index) in vlines">
             <remove-line
+              v-if="index > 0 && index < vlines.length-1 && !disabledPanel"
               :style="{ 
                 left: `${removeButtonPosition(vline, style.viewer.marginLeft)}px`,
                 transform: 'translateX(-50%)',
@@ -71,14 +70,14 @@
             />
           </template>
           <div :style="style.viewer">
-            <sled 
+            <sled
               ref="sled"
               :vertical-lines="vlines"
               :horizontal-lines="hlines"
               :image-width="image.width"
               :image-height="image.height"
               :line-weight="lineWeight"
-              :autosize="true"
+              autosize
               :metadata-assignment="metadata"
               :file-image="fileImage"
               :locked="sledImage.summary.length > 0"
@@ -221,38 +220,40 @@ export default {
   },
   watch: {
     identifier: {
-      handler(newVal) {
+      handler (newVal) {
         this.$refs.sled.cells = this.setIdentifiers(this.sledImage.metadata)
       },
       deep: true
     },
+
     sledImage: {
-      handler(newVal, oldVal) {
+      handler (newVal, oldVal) {
         this.$refs.sled.cells = this.setIdentifiers(newVal.metadata, newVal.summary)
       },
       deep: true
     }
   },
   mounted () {
-    let urlParams = new URLSearchParams(window.location.search)
-    let imageId = urlParams.get('image_id')
-    let sledId = urlParams.get('sled_image_id')
-    if(imageId && /^\d+$/.test(imageId)) {
+    const urlParams = new URLSearchParams(window.location.search)
+    const imageId = urlParams.get('image_id')
+    const sledId = urlParams.get('sled_image_id')
+
+    if (imageId && /^\d+$/.test(imageId)) {
       this.loadImage(imageId).then(response => {
         this.loadSled(response.sled_image_id)
       })
     }
-    if(sledId && /^\d+$/.test(sledId)) {
+    if (sledId && /^\d+$/.test(sledId)) {
       GetSledImage(sledId).then(sledResponse => {
         this.loadImage(sledResponse.body.image_id).then(response => {
-          if(sledResponse.body.metadata.length) {
+          if (sledResponse.body.metadata.length) {
             this.sledImage = sledResponse.body
           }
           else {
             sledResponse.body.metadata = this.sledImage.metadata
             this.sledImage = sledResponse.body
           }
-          if(sledResponse.body.metadata.length) {
+          if (sledResponse.body.metadata.length) {
             this.setLines(this.setIdentifiers(sledResponse.body.metadata, sledResponse.body.summary))
             this.$nextTick(() => {
               this.$refs.sled.cells = sledResponse.body.metadata
@@ -269,24 +270,24 @@ export default {
   methods: {
     loadPreferences () {
       GetUserPreferences().then(response => {
-        let that = this
         this.preferences = response.body
         if (this.sledImage.summary.length) return
-        let sizes = this.preferences.layout[this.configString]
+        const sizes = this.preferences.layout[this.configString]
         if(sizes) {
-          this.vlines = sizes.columns.map(column => column * this.image.width),
+          this.vlines = sizes.columns.map(column => column * this.image.width)
           this.hlines = sizes.rows.map(row => row * this.image.height)
+
           if(sizes.metadata)
             this.$nextTick(()=> {
-              that.$refs.sled.cells = that.$refs.sled.cells.map((cell, index) => { cell.metadata = sizes.metadata[index] == 'null' ? null : sizes.metadata[index]; return cell })
+              this.$refs.sled.cells = this.$refs.sled.cells.map((cell, index) => { cell.metadata = sizes.metadata[index] === 'null' ? null : sizes.metadata[index]; return cell })
             })
         }
       })
     },
     savePreferences () {
-      let columns = this.vlines.map(line => { return ScaleValue(line, 0, this.image.width, 0, 1) })
-      let rows = this.hlines.map(line => { return ScaleValue(line, 0, this.image.height, 0, 1) })
-      let metadata = this.$refs.sled.cells.map(cell => { return `${cell.metadata}` })
+      const columns = this.vlines.map(line => ScaleValue(line, 0, this.image.width, 0, 1))
+      const rows = this.hlines.map(line => ScaleValue(line, 0, this.image.height, 0, 1))
+      const metadata = this.$refs.sled.cells.map(cell => `${cell.metadata}`)
 
       UpdateUserPreferences(this.preferences.id, { [this.configString]: { columns: columns, rows: rows, metadata: metadata } }).then(response => {
         this.preferences = response.body
@@ -352,36 +353,34 @@ export default {
       return new Promise((resolve, reject) => {
         this.isLoading = true
         GetImage(imageId).then(response => {
-          
-          let that = this
-          let ajaxRequest = new XMLHttpRequest()
-          
+          const ajaxRequest = new XMLHttpRequest()
+
           this.image = response.body
           ajaxRequest.open('GET', response.body.image_display_url)
           ajaxRequest.responseType = 'blob'
           ajaxRequest.onload = () => {
-            let blob = ajaxRequest.response
-            let fr = new FileReader()
+            const blob = ajaxRequest.response
+            const fr = new FileReader()
 
             fr.onloadend = () => {
-              let dataUrl = fr.result
-              let image = new Image
+              const dataUrl = fr.result
+              const image = new Image
 
               image.onload = () => {
-                that.image.width = image.width
-                that.image.height = image.height
-                that.fileImage = dataUrl
-                that.vlines = [0, that.image.width]
-                that.hlines = [0 ,that.image.height]
+                this.image.width = image.width
+                this.image.height = image.height
+                this.fileImage = dataUrl
+                this.vlines = [0, this.image.width]
+                this.hlines = [0 ,this.image.height]
                 this.isLoading = false
                 this.loadPreferences()
                 resolve(response.body)
               }
 
               image.src = dataUrl
-            };
+            }
             fr.readAsDataURL(blob)
-          };
+          }
           ajaxRequest.send()
         }, () => {
           this.isLoading = false
@@ -423,11 +422,11 @@ export default {
     },
     metadataCount (matrix, c, r) {
       let inc = 0
-      for(let i = 0; i <= c; i++) {
-        for(let j = 0; j <= matrix.length-1; j++) {
-          if(i == c && j > r) break
+      for (let i = 0; i <= c; i++) {
+        for (let j = 0; j <= matrix.length-1; j++) {
+          if (i == c && j > r) break
           else {
-            if(matrix[j][i] == 0) {
+            if (matrix[j][i] == 0) {
               inc++
             }
           }

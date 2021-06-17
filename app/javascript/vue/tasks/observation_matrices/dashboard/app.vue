@@ -70,6 +70,7 @@ export default {
     RankTable,
     JsonBar
   },
+
   computed: {
     RouteNames: () => RouteNames,
 
@@ -82,6 +83,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       activeFilter: true,
@@ -91,6 +93,7 @@ export default {
       tableFilter: undefined
     }
   },
+
   watch: {
     rankTable: {
       handler (newVal) {
@@ -101,17 +104,20 @@ export default {
       deep: true
     }
   },
+
   methods: {
     resetTask () {
       this.rankTable = {}
       this.jsonUrl = undefined
       history.pushState(null, null, '/tasks/observation_matrices/dashboard')
     },
+
     loadRankTable (params) {
       const data = {
         fieldsets: this.fieldSet,
         limit: this.limit
       }
+
       TaxonName.rankTable({ ...data, ...params }).then(response => {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 

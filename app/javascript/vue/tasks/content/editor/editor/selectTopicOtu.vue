@@ -7,8 +7,10 @@
     <modal
       v-if="showModal"
       @close="closeModal()">
-      <h3 slot="header">Select</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Select</h3>
+      </template>
+      <template #body>
         <div class="flex-wrap-column middle">
           <button
             @click="closeAll(), topicPanel()"
@@ -28,7 +30,7 @@
             <span>Recent</span>
           </button>
         </div>
-      </div>
+      </template>
     </modal>
   </div>
 </template>

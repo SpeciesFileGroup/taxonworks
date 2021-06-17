@@ -1,15 +1,11 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
 import makeCollectingEvent from '../const/makeCollectingEvent'
 import makeLabel from '../const/makeLabel'
 import makeTripIdentifier from '../const/makeTripIdentifier'
 
+import { createStore } from 'vuex'
 import { ActionFunctions } from './actions/actions'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
-
-Vue.use(Vuex)
 
 const makeInitialState = () => {
   return {
@@ -30,7 +26,7 @@ const makeInitialState = () => {
 }
 
 const newStore = () =>
-  new Vuex.Store({
+  createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

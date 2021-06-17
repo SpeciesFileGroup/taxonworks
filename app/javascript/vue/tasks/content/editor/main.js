@@ -1,15 +1,12 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store.js'
 import App from './app.vue'
 
 function init() {
-  new Vue({
-    store: newStore,
-    el: '#content_editor',
-		render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.use(newStore())
+
+  app.mount('#content_editor')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

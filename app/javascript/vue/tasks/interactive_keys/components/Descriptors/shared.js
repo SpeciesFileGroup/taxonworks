@@ -4,18 +4,20 @@ export default {
       type: Object,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: Object,
       default: () => []
     }
   },
+
   computed: {
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

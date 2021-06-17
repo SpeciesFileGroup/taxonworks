@@ -35,11 +35,14 @@ export default {
       type: Object,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: String,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -51,12 +54,13 @@ export default {
     tabs () {
       return Object.keys(this.list)
     },
+
     typeSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

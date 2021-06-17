@@ -98,17 +98,21 @@ export default {
     Autocomplete,
     ListComponent
   },
+
   props: {
-    value: {
+    modelValue: {
 
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     smartOptions() {
       return OPTIONS
     }
   },
-  data() {
+  data () {
     return {
       options: Object.values(OPTIONS),
       lists: [],
@@ -134,13 +138,13 @@ export default {
     }
   },
   watch: {
-    value(newVal) {
+    modelValue (newVal) {
       if(newVal.length || !this.relationships.length) return
       this.taxon = undefined,
       this.typeSelected = undefined,
       this.relationships = []
     },
-    relationships() {
+    relationships () {
       let newList = this.relationships.map(item => {
         let name = item.type_name == 'subject_status_tag' ? 'subject_taxon_name_id' : 'object_taxon_name_id'
         return {
@@ -148,7 +152,7 @@ export default {
           [name]: item.taxonId
         }
       })
-      this.$emit('input', newList)
+      this.$emit('update:modelValue', newList)
     }
   },
   mounted () {
@@ -181,8 +185,8 @@ export default {
   },
   methods: {
     merge () {
-      let nomenclatureCodes = Object.keys(this.relationshipsList)
-      let newList = {
+      const nomenclatureCodes = Object.keys(this.relationshipsList)
+      const newList = {
         all: {},
         common: {},
         tree: {}
@@ -198,25 +202,29 @@ export default {
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
+
     getTreeList (list, ranksList) {
       for (var key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: ranksList[key].object_status_tag })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: ranksList[key].valid_subject_ranks })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
+
     addRelationshipType(relationship) {
       this.view = undefined
       this.typeSelected = relationship
       this.addRelationship()
     },
+
     setTaxon(taxon) {
       this.taxon = taxon
     },
+
     addRelationship() {
       this.relationships.push( 
         { 
@@ -232,23 +240,23 @@ export default {
       this.taxon = undefined
       this.view = OPTIONS.common
     },
+
     removeItem(key) {
-      this.$delete(this.relationships, key)
+      delete this.relationships[key]
     },
+
     flipRelationship(relationship) {
-      let index = this.relationships.findIndex(item => {
-        return item.type == relationship.type && item.type_name == relationship.type_name
-      })
-      let flipType = (relationship.type_name == 'subject_status_tag' ? 'object_status_tag' : 'subject_status_tag')
+      const index = this.relationships.findIndex(item => item.type == relationship.type && item.type_name == relationship.type_name)
+      const flipType = (relationship.type_name === 'subject_status_tag' ? 'object_status_tag' : 'subject_status_tag')
       relationship.type_name = flipType
       relationship.type_label = relationship.type_object[flipType]
-      this.$set(this.relationships, index, relationship)
+      this.relationships[index] = relationship
     }
   }
 }
 </script>
 <style scoped>
-::v-deep .vue-autocomplete-input {
+:deep(.vue-autocomplete-input) {
   width: 100%;
 }
 

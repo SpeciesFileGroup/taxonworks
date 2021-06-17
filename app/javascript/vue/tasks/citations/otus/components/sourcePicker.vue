@@ -4,30 +4,29 @@
       <button
         class="button button-default normal-input"
         @click="showModal = true"
-        v-if="source">Change source
-      </button>
-      <button
-        class="button button-default normal-input"
-        @click="showModal = true"
-        v-else>Select source
+      >
+        {{ source ? 'Change source' : 'Select source' }}
       </button>
     </div>
     <modal
       @close="showModal = false"
       v-if="showModal">
-      <h3 slot="header">Select source</h3>
-      <div
-        slot="body"
-        id="source_panel">
-        <autocomplete
-          url="/sources/autocomplete"
-          min="2"
-          param="term"
-          placeholder="Find source"
-          @getItem="loadSource"
-          label="label"
-          :autofocus="true"/>
-      </div>
+      <template #header>
+        <h3>Select source</h3>
+      </template>
+      <template #body>
+        <div
+          id="source_panel">
+          <autocomplete
+            url="/sources/autocomplete"
+            min="2"
+            param="term"
+            placeholder="Find source"
+            @getItem="loadSource"
+            label="label"
+            :autofocus="true"/>
+        </div>
+      </template>
     </modal>
   </div>
 </template>

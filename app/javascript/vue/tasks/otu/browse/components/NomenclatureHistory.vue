@@ -6,11 +6,12 @@
     menu
     @menu="showModal = true">
     <div class="switch-radio separate-top separate-bottom">
-      <template v-for="(item, index) in filterTabs">
+      <template
+        v-for="(item, index) in filterTabs"
+        :key="index">
         <input
           v-model="tabSelected"
           :id="`switch-filter-nomenclature-${index}`"
-          :key="index"
           name="switch-filter-nomenclature-options"
           type="radio"
           class="normal-input button-active"
@@ -18,10 +19,14 @@
         <label :for="`switch-filter-nomenclature-${index}`">{{ item.label }}</label>
       </template>
     </div>
-    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => { return { [item.key]: !item.value } }))">
+    <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => ({ [item.key]: !item.value })))">
       <h3>Citations ({{ filteredList.length }})</h3>
-      <ul class="taxonomic_history">
-        <template v-for="item in filteredList">
+      <ul
+        v-if="filteredList.length"
+        class="taxonomic_history">
+        <template 
+          v-for="(item, index) in filteredList"
+          :key="index">
           <li v-if="item.label_html">
             <span v-html="item.label_html"/>
           </li>
@@ -33,41 +38,44 @@
         class="no_bullets">
         <template
           v-if="selectedReferences.length">
-          <li
+          <template
             v-for="item in references"
             :key="item"
-            v-show="filterSource(nomenclature.sources.list[item])">
-            <label>
-              <input
-                v-model="references"
-                :value="item"
-                type="checkbox">
-              <span v-html="nomenclature.sources.list[item].cached"/>
-            </label>
-          </li>
+          >
+            <li
+              v-show="filterSource(nomenclature.sources.list[item])">
+              <label>
+                <input
+                  v-model="references"
+                  :value="item"
+                  type="checkbox">
+                <span v-html="nomenclature.sources.list[item].cached"/>
+              </label>
+            </li>
+          </template>
         </template>
-        <template 
-          v-else
-          v-for="(item, key) in nomenclature.sources.list">
-          <li
-            :key="key"
-            v-show="filterSource(item)">
-            <label>
-              <input
-                v-model="references"
-                :value="key"
-                type="checkbox">
-              <span v-html="item.cached"/>
-            </label>
-            <template v-if="showReferencesTopic">
-              <span
-                v-for="(topic, index) in getSourceTopics(item).map(key => { return nomenclature.topics.list[key] })"
-                class="pill topic references_topics"
-                :key="index"
-                :style="{ 'background-color': topic.css_color }"
-                v-html="topic.name"/>
-            </template>
-          </li>
+        <template v-else>
+          <template
+            v-for="(item, key) in nomenclature.sources.list"
+            :key="key">
+            <li v-show="filterSource(item)">
+              <label>
+                <input
+                  v-model="references"
+                  :value="key"
+                  type="checkbox">
+                <span v-html="item.cached"/>
+              </label>
+              <template v-if="showReferencesTopic">
+                <span
+                  v-for="(topic, index) in getSourceTopics(item).map(key => nomenclature.topics.list[key])"
+                  class="pill topic references_topics"
+                  :key="index"
+                  :style="{ 'background-color': topic.css_color }"
+                  v-html="topic.name"/>
+              </template>
+            </li>
+          </template>
         </template>
       </ul>
     </div>
@@ -75,51 +83,18 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Visualize</h3>
-      <div
-        class="flex-separate"
-        slot="body">
-        <div class="full_width">
-          <h4 class="capitalize separate-bottom">Time</h4>
-          <ul class="no_bullets">
-            <li
-              class="separate-right"
-              v-for="(item, key) in preferences.filterSections.and.time"
-              :key="key">
-              <label>
-                <input
-                  v-model="item.value"
-                  type="checkbox"/>
-                {{ item.label }}
-              </label>
-            </li>
-          </ul>
-          <h4 class="capitalize separate-bottom">Year</h4>
-          <year-picker 
-            v-model.number="preferences.filterSections.and.year[0].value"
-            :years="nomenclature.sources.year_metadata"/>
-        </div>
-        <div class="full_width">
-          <h4 class="capitalize separate-bottom">Filter</h4>
-          <ul class="no_bullets">
-            <li
-              class="separate-right"
-              v-for="(item, key) in preferences.filterSections.and.current"
-              :key="key">
-              <label>
-                <input
-                  v-model="item.value"
-                  type="checkbox"/>
-                {{ item.label }}
-              </label>
-            </li>
-          </ul>
-          <template v-for="section in preferences.filterSections.or">
+      <template #header>
+        <h3>Visualize</h3>
+      </template>
+      <template #body>
+        <div class="flex-separate">
+          <div class="full_width">
+            <h4 class="capitalize separate-bottom">Time</h4>
             <ul class="no_bullets">
               <li
-                v-for="(item, key) in section"
-                :key="key"
-                class="separate-right">
+                class="separate-right"
+                v-for="(item, key) in preferences.filterSections.and.time"
+                :key="key">
                 <label>
                   <input
                     v-model="item.value"
@@ -128,63 +103,98 @@
                 </label>
               </li>
             </ul>
-          </template>
+            <h4 class="capitalize separate-bottom">Year</h4>
+            <year-picker
+              v-model.number="preferences.filterSections.and.year[0].value"
+              :years="nomenclature.sources.year_metadata"/>
+          </div>
+          <div class="full_width">
+            <h4 class="capitalize separate-bottom">Filter</h4>
+            <ul class="no_bullets">
+              <li
+                class="separate-right"
+                v-for="(item, key) in preferences.filterSections.and.current"
+                :key="key">
+                <label>
+                  <input
+                    v-model="item.value"
+                    type="checkbox"/>
+                  {{ item.label }}
+                </label>
+              </li>
+            </ul>
+            <template v-for="section in preferences.filterSections.or">
+              <ul class="no_bullets">
+                <li
+                  v-for="(item, key) in section"
+                  :key="key"
+                  class="separate-right">
+                  <label>
+                    <input
+                      v-model="item.value"
+                      type="checkbox"/>
+                    {{ item.label }}
+                  </label>
+                </li>
+              </ul>
+            </template>
+          </div>
+          <div class="full_width">
+            <h4 class="capitalize separate-bottom">Show</h4>
+            <ul class="no_bullets">
+              <li
+                class="separate-right"
+                v-for="(item, key) in preferences.filterSections.show"
+                :key="key">
+                <label>
+                  <input
+                    v-model="item.value"
+                    type="checkbox"/>
+                  {{ item.label }}
+                </label>
+              </li>
+            </ul>
+            <h4 class="capitalize separate-bottom">Topic</h4>
+            <ul class="no_bullets">
+              <li
+                v-for="(item, key) in preferences.filterSections.topic"
+                :key="key">
+                <label>
+                  <input
+                    v-model="item.value"
+                    type="checkbox"/>
+                  {{ item.label }}
+                </label>
+              </li>
+              <li>
+                <label>
+                  <input
+                    v-model="showReferencesTopic"
+                    type="checkbox"/>
+                  On references
+                </label>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div class="separate-bottom"></div>
+            <ul
+              class="no_bullets topic-section">
+              <li
+                v-for="(topic, key) in nomenclature.topics.list"
+                :key="key">
+                <label>
+                  <input
+                    type="checkbox"
+                    :value="key"
+                    v-model="topicsSelected">
+                  {{ topic.name }}
+                </label>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div class="full_width">
-          <h4 class="capitalize separate-bottom">Show</h4>
-          <ul class="no_bullets">
-            <li
-              class="separate-right"
-              v-for="(item, key) in preferences.filterSections.show"
-              :key="key">
-              <label>
-                <input
-                  v-model="item.value"
-                  type="checkbox"/>
-                {{ item.label }}
-              </label>
-            </li>
-          </ul>
-          <h4 class="capitalize separate-bottom">Topic</h4>
-          <ul class="no_bullets">
-            <li
-              v-for="(item, key) in preferences.filterSections.topic"
-              :key="key">
-              <label>
-                <input
-                  v-model="item.value"
-                  type="checkbox"/>
-                {{ item.label }}
-              </label>
-            </li>
-            <li>
-              <label>
-                <input
-                  v-model="showReferencesTopic"
-                  type="checkbox"/>
-                On references
-              </label>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <div class="separate-bottom"></div>
-          <ul
-            class="no_bullets topic-section">
-            <li
-              v-for="(topic, key) in nomenclature.topics.list"
-              :key="key">
-              <label>
-                <input
-                  type="checkbox"
-                  :value="key"
-                  v-model="topicsSelected">
-                {{ topic.name }}
-              </label>
-            </li>
-          </ul>
-        </div>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -192,13 +202,13 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import { GetNomenclatureHistory } from '../request/resources.js'
 import ModalComponent from 'components/ui/Modal'
 import YearPicker from './nomenclature/yearsPick'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
 import extendSection from './shared/extendSections'
 import SoftValidationModal from './softValidationModal'
+import { GetterNames } from '../store/getters/getters'
+import { MutationNames } from '../store/mutations/mutations'
+import { Otu } from 'routes/endpoints'
 
 export default {
   mixins: [extendSection],
@@ -215,8 +225,8 @@ export default {
     itemsList () {
       return this.references.length
         ? this.nomenclature.items.filter(item =>
-            this.selectedReferences.find(ref => ref.objects.includes(item.data_attributes['history-object-id']))
-          )
+          this.selectedReferences.find(ref => ref.objects.includes(item.data_attributes['history-object-id']))
+        )
         : this.nomenclature.items
     },
     preferences: {
@@ -275,7 +285,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          GetNomenclatureHistory(this.otu.id).then(response => {
+          Otu.timeline(this.otu.id).then(response => {
             this.nomenclature = response.body
             this.isLoading = false
           })
@@ -288,13 +298,15 @@ export default {
     checkFilter (item) {
       const keysAND = Object.keys(this.preferences.filterSections.and)
       const keysOR = Object.keys(this.preferences.filterSections.or)
-      return (((!this.tabSelected?.equal || 
+
+      return (((!this.tabSelected?.equal ||
         this.tabSelected.equal
         ? item.data_attributes[this.tabSelected.key] === this.tabSelected.value
-        : item.data_attributes[this.tabSelected.key] != this.tabSelected.value) ||
+        : item.data_attributes[this.tabSelected.key] !== this.tabSelected.value) ||
         (this.tabSelected.label === 'All')) &&
         keysAND.every(key => {
-          if ((this.preferences.filterSections.and[key].every(filter => { return filter.value === false }))) return true
+          if ((this.preferences.filterSections.and[key].every(filter => filter.value === false))) return true
+
           return this.preferences.filterSections.and[key].every(filter => {
             if (filter.value === undefined) return true
             return (filter.equal
@@ -302,23 +314,24 @@ export default {
               : item.data_attributes[filter.key] !== filter.value)
           })
         }) &&
-        keysOR.every(key => {
-          return this.preferences.filterSections.or[key].some(filter => {
-            return (filter.equal 
+        keysOR.every(key =>
+          this.preferences.filterSections.or[key].some(filter =>
+            filter.equal
               ? item.data_attributes[filter.key] === filter.value
-              : item.data_attributes[filter.key] !== filter.value)
-          })
-        }) &&
+              : item.data_attributes[filter.key] !== filter.value
+          )
+        ) &&
         (this.topicsSelected.length
           ? item.topics.some(topic => this.topicsSelected.includes(topic))
           : true))
     },
+
     filterSource (source) {
-      let globalIds = source.objects
-      return (this.itemsList.filter(item => { return this.checkFilter(item) }).find(item => {
-        return globalIds.includes(item.data_attributes['history-object-id'])
-      }) != undefined)
+      const globalIds = source.objects
+
+      return (this.itemsList.filter(item => this.checkFilter(item)).find(item => globalIds.includes(item.data_attributes['history-object-id'])))
     },
+
     getSourceTopics (source) {
       const globalIds = source.objects
       const topics = this.itemsList.filter(item => this.checkFilter(item))
@@ -334,7 +347,7 @@ export default {
   .hidden {
     display: none;
   }
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 900px;
   }
   .topic-section {
@@ -347,20 +360,20 @@ export default {
   .references_topics {
     color: black;
   }
-  ::v-deep .annotation__note {
+  :deep(.annotation__note) {
     display: inline;
   }
-  ::v-deep .hide-validations {
+  :deep(.hide-validations) {
     .soft_validation_anchor {
       display: none !important;
     }
   }
-  ::v-deep .hide-notes {
+  :deep(.hide-notes) {
     .history__citation_notes {
       display: none !important;
     }
   }
-  ::v-deep .hide-topics {
+  :deep(.hide-topics) {
     .history__citation_topics {
       display: none !important;
     }

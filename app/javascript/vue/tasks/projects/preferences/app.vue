@@ -22,7 +22,6 @@
 
 import ModelComponent from './components/model'
 import PredicatesComponent from './components/predicates'
-
 import { Project } from 'routes/endpoints'
 
 export default {

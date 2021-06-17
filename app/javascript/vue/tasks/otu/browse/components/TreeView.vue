@@ -1,15 +1,15 @@
 <template>
   <ul class="tree">
-    <template v-for="taxon in list">
-      <li
-        v-if="currentTaxonId === taxon.parent_id && checkFilter(taxon)"
-        :key="taxon.id">
+    <template
+      v-for="taxon in list"
+      :key="taxon.id">
+      <li v-if="currentTaxonId === taxon.parent_id && checkFilter(taxon)">
         <a :href="`/tasks/otus/browse?taxon_name_id=${taxon.id}`">
           <span v-html="taxon.object_tag"/>
         </a>
         <span>{{ isValid(taxon) ? '✓' : '❌' }}</span>
         <tree-view
-          v-if="list.find(child => { return taxon.id === child.parent_id })"
+          v-if="list.find(child => taxon.id === child.parent_id)"
           :current-taxon-id="taxon.id"
           :list="list"/>
       </li>
@@ -23,13 +23,15 @@ import TreeView from './TreeView'
 
 export default {
   name: 'TreeView',
+
   components: {
     TreeView
   },
+
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     currentTaxonId: {
       type: Number,
@@ -40,9 +42,10 @@ export default {
       default: false
     }
   },
+
   methods: {
     getChilds (taxon) {
-      return this.list.filter(item => { return taxon.id === item.parent_id })
+      return this.list.filter(item => taxon.id === item.parent_id)
     },
     checkFilter (taxon) {
       return this.onlyValid ? taxon.id === taxon.cached_valid_taxon_name_id : true

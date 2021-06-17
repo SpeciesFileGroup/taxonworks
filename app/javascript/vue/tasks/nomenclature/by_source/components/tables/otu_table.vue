@@ -15,29 +15,32 @@
 
 <script>
 
-  import OtuRowComponent from './otu_row_component'
-  import SortArray from 'helpers/sortArray'
+import OtuRowComponent from './otu_row_component'
+import SortArray from 'helpers/sortArray'
 
-  export default {
-    components: {
-      OtuRowComponent
-    },
-    props: {
-      list: {
-        type: Array,
-        required: true
-      }
-    },
-    data () {
-      return {
-        ascending: true
-      }
-    },
-    methods: {
-      sortTable (sortProperty) {
-        this.list = SortArray(sortProperty, this.list, this.ascending)
-        this.ascending = !this.ascending
-      }
+export default {
+  components: {
+    OtuRowComponent
+  },
+
+  props: {
+    list: {
+      type: Array,
+      required: true
+    }
+  },
+
+  data () {
+    return {
+      ascending: true
+    }
+  },
+
+  methods: {
+    sortTable (sortProperty) {
+      this.list = SortArray(sortProperty, this.list, this.ascending)
+      this.ascending = !this.ascending
     }
   }
+}
 </script>

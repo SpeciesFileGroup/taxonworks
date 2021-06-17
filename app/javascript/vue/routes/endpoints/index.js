@@ -8,6 +8,7 @@ import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { CommonName } from './CommonName'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
@@ -64,6 +65,7 @@ export {
   CollectingEvent,
   CollectionObject,
   Combination,
+  CommonName,
   Container,
   ContainerItem,
   Content,

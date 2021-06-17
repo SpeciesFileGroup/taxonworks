@@ -26,7 +26,7 @@
         </li>
       </ul>
     </div>
-    <nav-bar>
+    <nav-bar v-hotkey="shortcuts">
       <div class="flex-separate full_width">
         <div class="middle margin-small-left">
           <template v-if="collectingEvent.id">
@@ -71,16 +71,12 @@
               Clone
             </button>
             <button
-              v-shortkey="[getOSKey(), 's']"
-              @shortkey="saveCollectingEvent"
               @click="saveCollectingEvent"
               class="button normal-input button-submit button-size margin-small-right"
               type="button">
               Save
             </button>
             <button
-              v-shortkey="[getOSKey(), 'n']"
-              @shortkey="reset"
               @click="reset"
               class="button normal-input button-default button-size"
               type="button">
@@ -118,7 +114,7 @@
           </div>
         </div>
         <right-section
-          :value="collectingEvent"
+          v-model="collectingEvent"
           @select="loadCollectingEvent($event.id)"
         />
       </div>
@@ -135,7 +131,7 @@ import RecentComponent from './components/Recent'
 
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetOSKey from 'helpers/getMacKey'
+import platformKey from 'helpers/getMacKey'
 import SetParam from 'helpers/setParam'
 
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
@@ -169,7 +165,17 @@ export default {
     NavigateComponent,
     SpinnerComponent
   },
+
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveCollectingEvent
+      keys[`${platformKey()}+n`] = this.reset
+
+      return keys
+    },
+
     collectingEvent: {
       get () {
         return this.$store.getters[GetterNames.GetCollectingEvent]
@@ -188,6 +194,7 @@ export default {
       return this.$store.getters[GetterNames.GetSettings].isSaving
     }
   },
+
   data () {
     return {
       settings: {
@@ -196,6 +203,7 @@ export default {
       showRecent: false
     }
   },
+
   watch: {
     collectingEvent: {
       handler (newVal) {
@@ -204,13 +212,14 @@ export default {
       deep: true
     }
   },
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+s`, 'Save', 'New collecting event')
-    TW.workbench.keyboard.createLegend(`${this.getOSKey()}+n`, 'New', 'New collecting event')
 
+  mounted () {
     const urlParams = new URLSearchParams(window.location.search)
     const collectingEventId = urlParams.get('collecting_event_id')
     const collectionObjectId = urlParams.get('collection_object_id')
+
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New collecting event')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New collecting event')
 
     if (/^\d+$/.test(collectingEventId)) {
       this.loadCollectingEvent(collectingEventId)
@@ -223,6 +232,7 @@ export default {
       })
     }
   },
+
   methods: {
     cloneCE () {
       this.$store.dispatch(ActionNames.CloneCollectingEvent)
@@ -244,8 +254,7 @@ export default {
     },
     openComprehensive () {
       window.open(`${RouteNames.DigitizeTask}?collecting_event_id=${this.collectingEvent.id}`, '_self')
-    },
-    getOSKey: GetOSKey
+    }
   }
 }
 </script>

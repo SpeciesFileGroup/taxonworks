@@ -48,6 +48,8 @@ export default {
     }
   },
 
+  emits: ['click'],
+
   computed: {
     tag () {
       return this.href ? 'a' : 'button'

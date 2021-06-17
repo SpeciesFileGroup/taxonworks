@@ -15,7 +15,9 @@
       </template>
     </div>
     <ul v-if="records.length">
-      <li v-for="record in records">
+      <li
+        v-for="record in records"
+        :key="record.id">
         <a
           :href="`/tasks/nomenclature/browse?taxon_name_id=${record.id}`"
           v-html="record.object_tag"/>
@@ -32,6 +34,7 @@ export default {
       type: String,
       required: true
     },
+
     records: {
       type: Array,
       required: true

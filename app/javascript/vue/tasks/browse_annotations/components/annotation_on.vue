@@ -3,10 +3,10 @@
     <ul class="no_bullets">
       <li
         v-for="(label, key) in annotationType.used_on"
-        :key=label >
+        :key="label">
         <button
           type="button"
-          :class="{ 'button-default': (key != value)}"
+          :class="{ 'button-default': (key != modelValue)}"
           class="button normal-input biocuration-toggle-button"
           @click="selectModel(key)">
           {{ label }}
@@ -19,7 +19,7 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: ''
     },
@@ -33,20 +33,24 @@ export default {
     }
   },
 
+  emits: ['update:modelValue'],
+
   watch: {
-    annotationType() {
-      this.$emit('input', undefined); // clear the selected annotation_on model button
+    annotationType () {
+      this.$emit('update:modelValue', undefined)
     }
   },
-  data() {
+
+  data () {
     return {
       list: {},
       result: undefined
-    };
+    }
   },
+
   methods: {
-    selectModel(type) {   // clicked one of the types provided from usedOn
-      this.$emit("input", type.valueOf());
+    selectModel (type) {
+      this.$emit('update:modelValue', type)
     }
   }
 };

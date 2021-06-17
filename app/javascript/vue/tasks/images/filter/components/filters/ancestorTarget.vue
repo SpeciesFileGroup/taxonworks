@@ -22,25 +22,30 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     },
+
     taxonName: {
       type: Array,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       options: [

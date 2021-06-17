@@ -14,22 +14,25 @@
   </div>
 </template>
 <script>
-  export default {
-    props: {
-      value: {
-        type: String,
-        default: ''
-      }
-    },
-    computed: {
-      bibtexInput: {
-        get() {
-          return this.value
-        },
-        set(value) {
-          this.$emit('input', value)
-        }
+export default {
+  props: {
+    value: {
+      type: String,
+      default: ''
+    }
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    bibtexInput: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   }
+}
 </script>

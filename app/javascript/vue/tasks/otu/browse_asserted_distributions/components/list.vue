@@ -16,10 +16,12 @@
           :key="item.id">
           <td>
             <span v-html="item.object_tag"/>
-          </td> 
+          </td>
           <td>
-            <template v-for="citation in item.citations">
-              <span :key="citation.id">{{ citation.citation_source_body }};</span>
+            <template
+              v-for="citation in item.citations"
+              :key="citation.id">
+              <span>{{ citation.citation_source_body }};</span>
             </template>
           </td>
           <td class="options-column">
@@ -53,10 +55,10 @@ export default {
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
-  data() {
+  data () {
     return {
       sortColumns: {
         name: undefined,
@@ -74,7 +76,7 @@ export default {
         if (a[sortProperty] < b[sortProperty])
           return (that.sortColumns[sortProperty] ? -1 : 1)
         if (a[sortProperty] > b[sortProperty])
-          return (that.sortColumns[sortProperty] ? 1 : -1);
+          return (that.sortColumns[sortProperty] ? 1 : -1)
         return 0
       }
       if(this.sortColumns[sortProperty] == undefined) {
@@ -83,11 +85,11 @@ export default {
       else {
         this.sortColumns[sortProperty] = !this.sortColumns[sortProperty]
       }
-      this.list.sort(compare);      
+      this.list.sort(compare)
     },
     classSort(value) {
-      if(this.sortColumns[value] == true) { return 'headerSortDown' }
-      if(this.sortColumns[value] == false) { return 'headerSortUp' }
+      if (this.sortColumns[value] == true) { return 'headerSortDown' }
+      if (this.sortColumns[value] == false) { return 'headerSortUp' }
       return ''
     }
   }

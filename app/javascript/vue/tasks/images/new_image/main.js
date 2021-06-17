@@ -1,22 +1,17 @@
-import Vue from 'vue'
-import App from './app.vue'
-import vueShortkey from 'vue-shortkey'
+import { createApp } from 'vue'
 import { newStore } from './store/store'
+import App from './app.vue'
+import hotkey from 'plugins/v-hotkey'
 
 function init() {
-  Vue.use(vueShortkey)
-  var store = newStore()
+  const app = createApp(App)
 
-  new Vue({
-    store,
-    el: '#vue-task-images-new',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.directive('hotkey', hotkey)
+  app.use(newStore())
+  app.mount('#vue-task-images-new')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#vue-task-images-new')) {
     init()
   }

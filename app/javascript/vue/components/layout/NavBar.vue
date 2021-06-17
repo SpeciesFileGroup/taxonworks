@@ -4,7 +4,7 @@
     :style="barStyle">
     <div class="panel">
       <div class="content">
-        <slot></slot>
+        <slot />
       </div>
     </div>
   </div>
@@ -36,10 +36,12 @@ export default {
       isFixed: false
     }
   },
+
   mounted () {
     this.position = this.$el.offsetTop
     window.addEventListener('scroll', this.setFixeable)
   },
+
   methods: {
     setFixeable () {
       if ((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0) > this.position) {
@@ -52,7 +54,8 @@ export default {
       }
     }
   },
-  destroyed () {
+
+  unmounted () {
     window.removeEventListener('scroll', this.setFixeable)
   }
 }

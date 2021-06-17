@@ -66,9 +66,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor/bundle
-        key: ${{ runner.os }}-gems-rev4-${{ hashFiles('**/Gemfile.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-gems-rev4
+        key: ${{ runner.os }}-gems-rev5-${{ hashFiles('**/Gemfile.lock') }}
 
     - name: Set up Node 14 LTS
       uses: actions/setup-node@v2
@@ -81,9 +79,7 @@ jobs:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-node-rev4-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-rev4
+        key: ${{ runner.os }}-node-rev5-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
       uses: actions/cache@v2
@@ -118,7 +114,7 @@ jobs:
           /usr/src/libheif-*
           /usr/src/libde265-*
           /usr/src/ImageMagick-7*
-        key: ${{ runner.os }}-imagemagick-${{ steps.datetime.outputs.year_week }}
+        key: ${{ runner.os }}-imagemagick-${{ hashFiles('**/Gemfile.lock') }}
 
     - name: Change ownership of /usr/src back to root
       run: |

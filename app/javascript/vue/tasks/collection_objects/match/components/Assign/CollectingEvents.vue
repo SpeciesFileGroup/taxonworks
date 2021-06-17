@@ -46,37 +46,43 @@ export default {
     SmartSelector,
     SpinnerComponent
   },
+
   props: {
     ids: {
       type: Array,
       required: true
     }
   },
+
   computed: {
     collectingEventLabel () {
-      if(!this.collectingEvent) return
-      return this.collectingEvent.hasOwnProperty('object_tag') ? this.collectingEvent.object_tag : this.collectingEvent.html_label
+      if (!this.collectingEvent) return
+      return this.collectingEvent?.object_tag || this.collectingEvent.html_label
     },
+
     validateFields () {
       return this.collectingEvent && this.ids.length
     }
   },
+
   data () {
     return {
       collectingEvent: undefined,
       isSaving: false,
-      maxPerCall: 1 
+      maxPerCall: 1
     }
   },
+
   methods: {
     setCollectingEvent (ce) {
       this.collectingEvent = ce
     },
-    addCollectingEvent (position = 0) {
-      let promises = []
 
-      for(let i = 0; i < this.maxPerCall; i++) {
-        if(position < this.ids.length) {
+    addCollectingEvent (position = 0) {
+      const promises = []
+
+      for (let i = 0; i < this.maxPerCall; i++) {
+        if (position < this.ids.length) {
           promises.push(new Promise((resolve, reject) => {
             UpdateCollectionObject(this.ids[position], { collecting_event_id: this.collectingEvent.id }).then(response => {
               resolve()
@@ -88,14 +94,14 @@ export default {
         }
       }
       Promise.all(promises).then(response => {
-        if(position < this.ids.length)
+        if (position < this.ids.length)
           this.addCollectingEvent(position)
         else {
           this.isSaving = false
           TW.workbench.alert.create('Collection objects was successfully updated.', 'notice')
         }
       })
-    },
+    }
   }
 }
 </script>

@@ -1,7 +1,9 @@
 <template>
   <modal-component @close="$emit('close')">
-    <h3 slot="header">Data links</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Data links</h3>
+    </template>
+    <template #body>
       <ul class="no_bullets context-menu">
         <li v-for="button in links">
           <button
@@ -18,7 +20,7 @@
           :model="selected.model"
           @selected="sendObject"/>
       </div>
-    </div>
+    </template>
   </modal-component>
 </template>
 
@@ -33,21 +35,30 @@ export default {
     ModalComponent,
     SmartSelector
   },
+
+  emits: [
+    'selected',
+    'close'
+  ],
+
   data () {
     return {
       links: buttonLinks(),
       selected: undefined
     }
   },
+
   methods: {
     setSelected (item) {
       this.selected = item
     },
+
     sendObject (item) {
       const data = {
         label: item[this.selected.propertyLabel],
         link: `${window.location.href.split('/').slice(0, 3).join('/')}${this.selected.link}?${this.selected.param}=${item.id}`
       }
+
       this.$emit('selected', data)
       this.$emit('close')
     }

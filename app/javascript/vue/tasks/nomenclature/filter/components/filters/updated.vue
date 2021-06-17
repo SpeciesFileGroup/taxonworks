@@ -9,7 +9,6 @@
     <input
       type="range"
       list="days"
-      value="0"
       min="0"
       max="4"
       step="0"
@@ -28,21 +27,25 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
-      get() {
-        return this.value ? this.value : 0
+      get () {
+        return this.modelValue || 0
       },
-      set(value) {
-        this.$emit('input', this.options[value].value)
+      set (value) {
+        this.$emit('update:modelValue', this.options[value].value)
       }
     }
   },
-  data() {
+
+  data () {
     return {
       options: [
         {
@@ -75,7 +78,7 @@ export default {
       const today = new Date()
       const diffInTyme = today.getTime() - date.getTime()
       const dffInDay = diffInTyme / (1000 * 3600 * 24)
-      this.$emit('input', Math.floor(dffInDay))
+      this.$emit('update:modelValue', Math.floor(dffInDay))
     }
   }
 }

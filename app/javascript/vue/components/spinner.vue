@@ -54,7 +54,6 @@
         <span v-if="showLegend" :style="legendStyle" v-html="legend"/>
       </div>
     </div>
-		</div>
   </transition>
 </template>
 
@@ -65,31 +64,36 @@ export default {
       type: String,
       default: undefined
     },
+
     fullScreen: {
       type: Boolean,
       default: false
     },
+
     legend: {
       type: String,
       default: 'Loading, please wait.'
     },
+
     resize: {
       default: true
     },
+
     legendStyle: {
       type: Object,
-      default: function () {
-        return {
+      default: () =>
+        ({
           color: '#444',
           marginTop: '30px',
           textAlign: 'center'
-        }
-      }
+        })
     },
+
     showLegend: {
       type: Boolean,
       default: true
     },
+
     showSpinner: {
       type: Boolean,
       default: true
@@ -98,56 +102,58 @@ export default {
       type: String,
       default: 'top'
     },
+
     logoSize: {
       type: Object,
-      default: function () {
-        return {
-          width: '50px',
-          height: '50px'
-			  }
-      }
+      default: () => ({
+        width: '50px',
+        height: '50px'
+      })
     }
   },
-  data: function () {
-    return {
-      cssProperties: {
-        width: undefined,
-        height: undefined,
-        position: 'absolute',
-        top: undefined,
-        zIndex: undefined,
-        left: undefined
-      },
-      resizeInterval: undefined
-    }
-  },
-  mounted: function () {
+
+  data: () => ({
+    cssProperties: {
+      width: undefined,
+      height: undefined,
+      position: 'absolute',
+      top: undefined,
+      zIndex: undefined,
+      left: undefined
+    },
+    resizeInterval: undefined
+  }),
+
+  mounted () {
     this.init()
     if (this.resize && !this.fullScreen) {
       this.checkResize()
     }
   },
-  destroyed: function () {
+
+  unmounted () {
     clearInterval(this.resizeInterval)
   },
+
   methods: {
-    outerWidth: function (el) {
-      var width = el.offsetWidth
-      var style = getComputedStyle(el)
+    outerWidth (el) {
+      const style = getComputedStyle(el)
+      let width = el.offsetWidth
 
       width += parseInt(style.marginLeft) + parseInt(style.marginRight)
       return width
     },
-    outerHeight: function (el) {
-      var height = el.offsetHeight
-      var style = getComputedStyle(el)
+    outerHeight (el) {
+      const style = getComputedStyle(el)
+      let height = el.offsetHeight
 
       height += parseInt(style.marginTop) + parseInt(style.marginBottom)
       return height
     },
-    init: function () {
-      let domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode
-      let copyCSS = Object.assign({}, this.cssProperties)
+    init () {
+      const domElement = this.target != undefined ? this.loadElement(this.target) : this.$el.parentNode
+      const copyCSS = Object.assign({}, this.cssProperties)
+
       if (this.fullScreen) {
         copyCSS.position = 'fixed'
         copyCSS.width = '100vw'
@@ -165,7 +171,8 @@ export default {
       }
       this.cssProperties = copyCSS
     },
-    loadElement: function (el) {
+
+    loadElement (el) {
       let domElement
 
       switch (el.substring(0, 1)) {
@@ -180,10 +187,10 @@ export default {
       }
       return domElement
     },
-    checkResize: function () {
-      let that = this
-      this.resizeInterval = setInterval(function () {
-        that.init()
+
+    checkResize () {
+      this.resizeInterval = setInterval(() => {
+        this.init()
       }, 500)
     }
   }

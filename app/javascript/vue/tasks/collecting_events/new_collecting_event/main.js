@@ -1,16 +1,14 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store'
+import App from './app.vue'
+import hotkey from 'plugins/v-hotkey'
 
 function init () {
-  const store = newStore()
-  const app = new Vue({
-    el: '#vue-new-collecting-event',
-    store,
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+
+  app.use(newStore())
+  app.directive('hotkey', hotkey)
+  app.mount('#vue-new-collecting-event')
 }
 
 document.addEventListener('turbolinks:load', () => {

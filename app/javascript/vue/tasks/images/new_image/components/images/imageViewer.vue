@@ -4,31 +4,35 @@
       v-if="viewMode"
       @close="viewMode = false"
       :container-style="{ width: ((fullSizeImage ? image.width : image.alternatives.medium.width) + 'px')}">
-      <h3 slot="header">Image viewer</h3>
-      <div slot="body">
-        <template>
-          <img
-            class="img-maxsize img-fullsize"
-            v-if="fullSizeImage"
-            @click="fullSizeImage = false"
-            :src="image.image_file_url"
-            :height="image.height"
-            :width="image.width">
-          <img
-            v-else
-            class="img-maxsize img-normalsize"
-            @click="fullSizeImage = true"
-            :src="image.alternatives.medium.image_file_url"
-            :height="image.alternatives.medium.height"
-            :width="image.alternatives.medium.width">
-        </template>
-        <div class="flex-separate">
-          <button
-            type="button"
-            @click="deleteImage"
-            class="normal-input button button-delete">Delete</button>
+      <template #header>
+        <h3>Image viewer</h3>
+      </template>
+      <template #body>
+        <div>
+          <template>
+            <img
+              class="img-maxsize img-fullsize"
+              v-if="fullSizeImage"
+              @click="fullSizeImage = false"
+              :src="image.image_file_url"
+              :height="image.height"
+              :width="image.width">
+            <img
+              v-else
+              class="img-maxsize img-normalsize"
+              @click="fullSizeImage = true"
+              :src="image.alternatives.medium.image_file_url"
+              :height="image.alternatives.medium.height"
+              :width="image.alternatives.medium.width">
+          </template>
+          <div class="flex-separate">
+            <button
+              type="button"
+              @click="deleteImage"
+              class="normal-input button button-delete">Delete</button>
+          </div>
         </div>
-      </div>
+      </template>
     </modal>
     <img
       class="img-thumb"
@@ -59,21 +63,26 @@ export default {
     RadialAnnotator,
     RadialObject
   },
+
   props: {
     image: {
       type: Object,
       required: true
     }
   },
-  data: function () {
+
+  emits: ['delete'],
+
+  data () {
     return {
       fullSizeImage: false,
       viewMode: false
     }
   },
+
   methods: {
     deleteImage () {
-      if(window.confirm("Are you sure you want to delete this image?")) {
+      if (window.confirm('Are you sure you want to delete this image?')) {
         this.$emit('delete', this.image)
       }
     }

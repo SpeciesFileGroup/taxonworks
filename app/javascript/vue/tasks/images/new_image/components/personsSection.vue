@@ -39,7 +39,6 @@ import { GetterNames } from '../store/getters/getters.js'
 import { MutationNames } from '../store/mutations/mutations.js'
 import SourceComponent from './source'
 
-
 export default {
   components: {
     PersonBox,
@@ -47,28 +46,31 @@ export default {
     CopyrightHolder,
     SourceComponent
   },
+
   computed: {
     owners: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].owners
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetOwners, value)
       }
     },
+
     authors: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].authors
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetAuthors, value)
       }
     },
+
     editors: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPeople].editors
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetEditors, value)
       }
     }

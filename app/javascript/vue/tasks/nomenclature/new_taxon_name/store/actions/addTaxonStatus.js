@@ -1,7 +1,7 @@
 import { TaxonNameClassification } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ dispatch, commit, state }, status) {
+export default ({ dispatch, commit, state }, status) => {
   const position = state.taxonStatusList.findIndex(item => item.type === status.type)
 
   if (position < 0) {

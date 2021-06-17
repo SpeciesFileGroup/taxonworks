@@ -11,8 +11,6 @@
         v-if="source.id"
         :object-id="source.id"
         :type="source.type"/>
-    </td>
-    <td>
       <add-to-project
         :id="source.id"
         :in_project="source.source_in_project"
@@ -23,32 +21,38 @@
 
 <script>
 
-  import Pin from 'components/ui/Pinboard/VPin.vue'
-  import AddToProject from 'components/addToProjectSource'
-  import RadialObject from 'components/radials/navigation/radial'
+import Pin from 'components/ui/Pinboard/VPin.vue'
+import AddToProject from 'components/addToProjectSource'
+import RadialObject from 'components/radials/navigation/radial'
 
-  export default {
-    components: {
-      RadialObject,
-      Pin,
-      AddToProject
+export default {
+  components: {
+    RadialObject,
+    Pin,
+    AddToProject
+  },
+
+  props: {
+    source: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+
+  emits: ['sources'],
+
+  methods: {
+    showSources (id) {
+      this.$emit('sources', id)
     },
-    props: {
-      source: {
-        type: Object,
-        default: () => { return {} }
-      },
+
+    showSource () {
+      window.open(`sources/${this.source.id}`, '_blank');
     },
-    methods: {
-      showSources(id) {
-        this.$emit("sources", id);
-      },
-      showSource() {
-        window.open(`sources/${this.source.id}`, '_blank');
-      },
-      uniquify() {
-        window.open(`/tasks/uniquify_people/index?last_name=${this.author.last_name}`, '_blank');
-      }
+
+    uniquify () {
+      window.open(`/tasks/uniquify_people/index?last_name=${this.author.last_name}`, '_blank');
     }
   }
+}
 </script>

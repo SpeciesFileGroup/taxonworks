@@ -21,21 +21,20 @@
         :depiction="item"
         edit
       >
-        <div
-          class="horizontal-left-content"
-          slot="thumbfooter">
-          <button
-            @click="removeDepiction(item)"
-            class="button circle-button btn-delete"
-          />
-          <zoom-image
-            :image-url="getImageDepictionUrl(item)"
-          />
-        </div>
+        <template #thumbfooter>
+          <div class="horizontal-left-content">
+            <button
+              @click="removeDepiction(item)"
+              class="button circle-button btn-delete"
+            />
+            <zoom-image
+              :image-url="getImageDepictionUrl(item)"
+            />
+          </div>
+        </template>
       </image-viewer>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -75,6 +74,12 @@ export default {
       default: 'Drop images or click here to add figures'
     }
   },
+
+  emits: [
+    'create',
+    'delete'
+  ],
+
   data () {
     return {
       creatingType: false,

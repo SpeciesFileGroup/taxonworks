@@ -31,25 +31,27 @@ import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
-  components: {
-    RecursiveList
-  },
   name: 'RecursiveList',
+
+  components: { RecursiveList },
+
   props: ['objectList', 'modalMutationName', 'actionMutationName', 'display', 'getterList', 'validProperty'],
+
+  emits: ['selected'],
+
   computed: {
     savedList () {
-      if (this.getterList != undefined) {
-        return this.$store.getters[GetterNames[this.getterList]]
-      } else {
-        return []
-      }
+      return this.getterList
+        ? this.$store.getters[GetterNames[this.getterList]]
+        : []
     },
+
     orderList() {
       let sortable = []
       let sortableObject = {}
 
       for (var key in this.objectList) {
-          sortable.push([key, this.objectList[key]]);
+        sortable.push([key, this.objectList[key]]);
       }
 
       sortable.sort((a, b) => {
@@ -61,26 +63,26 @@ export default {
         }
         return 0;
       })
-      
+
       sortable.forEach(item => {
         sortableObject[item[0]] = item[1]
       })
-      
+
       return sortableObject
     },
+
     taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
+
   methods: {
-    selectItem: function (optionSelected) {
+    selectItem (optionSelected) {
       this.$emit('selected', optionSelected)
       this.$store.commit(MutationNames[this.modalMutationName], false)
     },
-    findExist: function (status) {
-      return this.savedList.find(function (element) {
-        return (element.type == status.type)
-      })
+    findExist (status) {
+      return this.savedList.find(element => element.type == status.type)
     },
     isForThisRank (item) {
       return (item.hasOwnProperty(this.validProperty) ? !(item[this.validProperty].includes(this.taxon.rank_string)) : false)

@@ -9,17 +9,16 @@
       </span>
     </div>
     <spinner-component
-      :full-screen="true"
+      v-if="searching"
+      full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching" 
     />
     <div class="content">
-      <button 
+      <button
         class="button button-default normal-input full_width"
         type="button"
-        v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchForTaxonNames(parseParams)"
+        v-hotkey="shortcuts"
         @click="searchForTaxonNames(parseParams)">
         Search
       </button>
@@ -31,7 +30,6 @@
       <related-component
         v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
-
       <rank-component v-model="params.base.nomenclature_group"/>
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
@@ -72,10 +70,10 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
 
-import { TaxonName } from 'routes/endpoints'
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -97,9 +95,21 @@ export default {
     TagsComponent,
     WithComponent
   },
+
+  emits: [
+    'reset',
+    'result',
+    'urlRequest',
+    'pagination'
+  ],
+
   computed: {
-    getMacKey () {
-      return GetMacKey()
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+f`] = this.searchForTaxonNames
+
+      return keys
     },
     parseParams () {
       const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
@@ -107,6 +117,7 @@ export default {
       return params
     }
   },
+
   data () {
     return {
       params: this.initParams(),
@@ -114,18 +125,20 @@ export default {
       searching: false
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     if (Object.keys(params).length) {
       this.searchForTaxonNames(params)
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    searchForTaxonNames (params) {
+    searchForTaxonNames (params = this.parseParams) {
       this.searching = true
 
       TaxonName.where(params).then(response => {
@@ -143,6 +156,7 @@ export default {
         this.searching = false
       })
     },
+
     initParams () {
       return {
         taxon: {
@@ -191,11 +205,13 @@ export default {
         }
       }
     },
+
     setDays (days) {
-      var date = new Date();
-      date.setDate(date.getDate() - days);
-      return date.toISOString().slice(0,10);
+      const date = new Date()
+      date.setDate(date.getDate() - days)
+      return date.toISOString().slice(0,10)
     },
+
     filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
@@ -205,6 +221,7 @@ export default {
       })
       return object
     },
+
     loadPage (page) {
       this.params.settings.page = page
       this.searchForTaxonNames(this.parseParams)
@@ -213,7 +230,7 @@ export default {
 }
 </script>
 <style scoped>
-::v-deep .btn-delete {
+  :deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>

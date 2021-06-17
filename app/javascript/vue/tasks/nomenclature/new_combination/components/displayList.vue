@@ -53,6 +53,12 @@ export default {
       default: () => []
     }
   },
+
+  emits: [
+    'placement',
+    'edit',
+    'delete'
+  ]
 }
 </script>
 <style lang="scss" scoped>

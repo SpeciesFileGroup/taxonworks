@@ -1,17 +1,11 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 import { newStore } from './store/store.js'
 
-function init() {
-  var store = newStore()
-
-  new Vue({
-    store,
-    el: '#edit_loan_task',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+function init () {
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#edit_loan_task')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

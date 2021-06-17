@@ -10,7 +10,7 @@
         pin-type="Source"
         @selected="citation.source_id = $event.id; citation.author_year = getAuthorYear($event)"
         v-model="source">
-        <div slot="footer">
+        <template #footer>
           <div
             v-if="source"
             class="horizontal-left-content margin-medium-bottom margin-medium-top">
@@ -37,7 +37,7 @@
               </label>
             </li>
           </ul>
-        </div>
+        </template>
       </smart-selector>
     </div>
     <div class="separate-bottom">

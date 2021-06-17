@@ -1,11 +1,10 @@
 import SelectComponent from '../shared/select'
 
 export default {
-  components: {
-    SelectComponent
-  },
+  components: { SelectComponent },
+
   props: {
-    value: {
+    modelValue: {
       type: Object
     },
     layoutTypes: {
@@ -13,13 +12,16 @@ export default {
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     newType: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.value = value
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   }

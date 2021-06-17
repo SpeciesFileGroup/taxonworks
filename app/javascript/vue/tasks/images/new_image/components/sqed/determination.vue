@@ -46,14 +46,15 @@
           :filter-ids="taxonDetermination.roles_attributes.map(item => item.person_id)"
           @onTabSelected="view = $event"
           @selected="addRole">
-          <role-picker
-            slot="header"
-            class="role-picker"
-            :autofocus="false"
-            :hidden-list="true"
-            ref="rolepicker"
-            role-type="Determiner"
-            v-model="taxonDetermination.roles_attributes"/>
+          <template #header>
+            <role-picker
+              class="role-picker"
+              :autofocus="false"
+              hidden-list
+              ref="rolepicker"
+              role-type="Determiner"
+              v-model="taxonDetermination.roles_attributes"/>
+          </template>
           <role-picker
             class="role-picker"
             :autofocus="false"

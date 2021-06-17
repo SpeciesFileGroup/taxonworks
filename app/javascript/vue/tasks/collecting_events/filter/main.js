@@ -1,13 +1,11 @@
-import Vue from 'vue'
-import vueShortkey from 'vue-shortkey'
+import { createApp } from 'vue'
+import hotkey from 'plugins/v-hotkey'
 import App from './app.vue'
 
 function init () {
-  Vue.use(vueShortkey)
-  const app = new Vue({
-    el: '#search_locality',
-    render: (createElement) => createElement(App)
-  })
+  const app = createApp(App)
+  app.directive('hotkey', hotkey)
+  app.mount('#search_locality')
 }
 
 document.addEventListener('turbolinks:load', () => {

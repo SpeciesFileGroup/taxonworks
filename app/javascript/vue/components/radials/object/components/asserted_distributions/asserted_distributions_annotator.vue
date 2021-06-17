@@ -180,7 +180,7 @@ export default {
 
       this.getList(`/asserted_distributions/${item.id}.json`, { params: { geo_json: true }}).then(ad => {
         if (this.idIndex > -1) {
-          this.$set(this.list, this.idIndex, ad.body)
+          this.list[this.idIndex] = ad.body
         } else {
           this.list.push(ad.body)
         }
@@ -233,9 +233,7 @@ export default {
     .biological_relationships_annotator {
       position: relative;
       overflow-y: scroll;
-      button {
-        min-width: 100px;
-      }
+
       .switch-radio {
         label {
           min-width: 95px;

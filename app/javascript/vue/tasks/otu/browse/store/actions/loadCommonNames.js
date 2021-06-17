@@ -1,8 +1,7 @@
 import { MutationNames } from '../mutations/mutations'
-import { GetCommonNames } from '../../request/resources'
+import { CommonName } from 'routes/endpoints'
 
-export default ({ commit, state }, id) => {
-  GetCommonNames(id).then(response => {
+export default ({ commit, state }, id) =>
+  CommonName.where({ otu_id: id }).then(response => {
     commit(MutationNames.SetCommonNames, state.commonNames.concat(response.body))
   })
-}

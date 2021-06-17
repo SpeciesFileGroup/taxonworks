@@ -40,7 +40,7 @@
         v-for="(descriptor, index) in descriptors"
         :key="descriptor.id"
         :data-descriptor-id="descriptor.id">
-        <div
+        <component
           :is="descriptor.componentName"
           :index="(index+1)"
           :descriptor="descriptor"/>
@@ -79,7 +79,7 @@ export default {
     })
     this.$store.dispatch(ActionNames.RequestUnits)
   },
-  data() {
+  data () {
     return {
       isLoading: false
     }
@@ -93,7 +93,7 @@ export default {
   },
   computed,
   methods: {
-    setApiValues() {
+    setApiValues () {
       this.$store.state.request.setApi({
         apiBase: this.$props.apiBase,
         apiParams: this.$props.apiParams
@@ -115,7 +115,7 @@ export default {
       this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
         this.isLoading = false
       })
-      this.$store.dispatch(ActionNames.RequestConfidenceLevels)      
+      this.$store.dispatch(ActionNames.RequestConfidenceLevels)
     },
     destroyAllObservations() {
       this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {

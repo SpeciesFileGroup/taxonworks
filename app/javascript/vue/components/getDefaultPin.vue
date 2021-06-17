@@ -41,6 +41,12 @@ export default {
     }
   },
 
+  emits: [
+    'getId',
+    'getLabel',
+    'getItem'
+  ],
+
   data () {
     return {
       getDefault: undefined,
@@ -53,7 +59,7 @@ export default {
     document.addEventListener('pinboard:insert', this.handleEvent)
   },
 
-  destroyed () {
+  unmounted () {
     document.removeEventListener('pinboard:insert', this.handleEvent)
   },
 

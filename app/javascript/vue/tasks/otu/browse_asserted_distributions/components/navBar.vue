@@ -5,9 +5,9 @@
       <div class="flex-separate middle">
         {{ navList.current_otu.object_label }}
         <div class="horizontal-left-content">
-          <otu-radial :globalId="navList.current_otu.global_id"/>
-          <radial-annotator :globalId="navList.current_otu.global_id"/>
-          <radial-object :globalId="navList.current_otu.global_id"/>
+          <otu-radial :global-id="navList.current_otu.global_id"/>
+          <radial-annotator :global-id="navList.current_otu.global_id"/>
+          <radial-object :global-id="navList.current_otu.global_id"/>
         </div>
       </div>
       <template v-if="navList.parent_otus.length">
@@ -23,7 +23,7 @@
       <template v-if="navList.previous_otus.length">
         <h4>Previous</h4>
         <ul class="no_bullets">
-          <li 
+          <li
             v-for="item in navList.previous_otus"
             :key="item.id">
             <a :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${item.id}`"> {{ item.object_label }}</a>
@@ -57,20 +57,23 @@ export default {
     RadialObject,
     OtuRadial
   },
+
   props: {
     otuId: {
       type: [String, Number],
       default: undefined
     }
   },
+
   data () {
     return {
       navList: undefined
     }
   },
+
   watch: {
-    otuId(newVal) {
-      if(newVal) {
+    otuId (newVal) {
+      if (newVal) {
         this.loadNav(newVal)
       }
       else {
@@ -78,8 +81,9 @@ export default {
       }
     }
   },
+
   methods: {
-    loadNav(id) {
+    loadNav (id) {
       Otu.navigation(id).then(response => {
         this.navList = response.body
       })
@@ -87,7 +91,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

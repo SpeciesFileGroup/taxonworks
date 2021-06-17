@@ -25,15 +25,18 @@
 </template>
 <script>
 
-  import CRUD from '../request/crud.js'
-  import AnnotatorExtend from './radialObjectExtend.js'
+import CRUD from '../request/crud.js'
+import AnnotatorExtend from './radialObjectExtend.js'
 
-  export default {
-    mixins: [CRUD, AnnotatorExtend],
-    methods: {
-      sendGlobalId(item) {
-        this.$emit('onSelectedGlobalId', item.global_id)
-      }
+export default {
+  mixins: [CRUD, AnnotatorExtend],
+
+  emits: ['onSelectedGlobalId'],
+
+  methods: {
+    sendGlobalId (item) {
+      this.$emit('onSelectedGlobalId', item.global_id)
     }
   }
+}
 </script>

@@ -1,17 +1,12 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { newStore } from './store/store'
 import App from './app.vue'
 
-import { newStore } from './store/store'
+function init () {
+  const app = createApp(App)
 
-function init (){
-  var store = newStore()
-  new Vue({
-    el: '#vue-task-matrix-image',
-    store,
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.use(newStore())
+  app.mount('#vue-task-matrix-image')
 }
 
 document.addEventListener('turbolinks:load', () => {

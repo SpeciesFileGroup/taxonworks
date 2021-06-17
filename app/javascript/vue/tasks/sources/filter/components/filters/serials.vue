@@ -29,41 +29,49 @@ export default {
     SmartSelector,
     DisplayList
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       serials: [],
       allSerials: undefined
     }
   },
+
   watch: {
     value (newVal, oldVal) {
       if (!newVal.length && oldVal.length) {
         this.serials = []
       }
     },
+
     serials: {
       handler (newVal) {
-        this.params = this.serials.map(serial => { return serial.id })
+        this.params = this.serials.map(serial => serial.id)
       },
       deep: true
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (urlParams.serial_ids) {
@@ -74,12 +82,14 @@ export default {
       })
     }
   },
+
   methods: {
     addSerial (serial) {
       if (!this.params.includes(serial.id)) {
         this.serials.push(serial)
       }
     },
+
     removeSerial (index) {
       this.serials.splice(index, 1)
     }
@@ -87,7 +97,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>
