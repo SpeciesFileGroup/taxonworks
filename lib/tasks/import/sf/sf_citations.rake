@@ -113,15 +113,16 @@ namespace :tw do
             end
 
             if row['Note'].present?
-              Note.create!(
+              Note.create_with(
+                created_at: row['CreatedOn'],
+                updated_at: row['LastUpdate'],
+                created_by_id: get_tw_user_id[row['CreatedBy']],
+                updated_by_id: get_tw_user_id[row['ModifiedBy']]
+              ).find_or_create_by!(
                   text: row['Note'],
                   note_object_id: otu_id,
                   note_object_type: 'Otu',
-                  project_id: project_id,
-                  created_at: row['CreatedOn'],
-                  updated_at: row['LastUpdate'],
-                  created_by_id: get_tw_user_id[row['CreatedBy']],
-                  updated_by_id: get_tw_user_id[row['ModifiedBy']]
+                  project_id: project_id
               )
             end
 
