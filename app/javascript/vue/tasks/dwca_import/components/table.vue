@@ -171,7 +171,7 @@ export default {
           field: columnIndex,
           value: replaceValue
         }, this.params)).then(() => {
-          this.$set(this.params.filter, columnIndex, replaceValue)
+          this.params.filter[columnIndex] = replaceValue
         }).finally(() => {
           this.isSaving = false
         })
