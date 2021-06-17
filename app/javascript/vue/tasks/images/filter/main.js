@@ -1,13 +1,10 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init () {
-  new Vue({
-    el: '#vue-task-image-filter',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+
+  app.mount('#vue-task-image-filter')
 }
 
 document.addEventListener('turbolinks:load', () => {

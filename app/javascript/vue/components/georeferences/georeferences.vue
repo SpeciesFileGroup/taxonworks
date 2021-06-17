@@ -25,7 +25,7 @@
       :style="{
         height: height,
         width: width
-    }">
+      }">
       <spinner-component
         v-if="showSpinner || !collectingEventId"
         :legend="!collectingEventId ? 'Need collecting event ID' : 'Saving...'"/>

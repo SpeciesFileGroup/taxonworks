@@ -1,7 +1,9 @@
 <template>
   <block-layout>
-    <h3 slot="header">By</h3>
-    <div slot="body">
+    <template #header>
+      <h3>By</h3>
+    </template>
+    <template #body>
       <smart-selector
         model="people"
         :params="{ role_type: 'SourceAuthor' }"
@@ -14,7 +16,7 @@
         class="margin-medium-top"
         role-type="Extractor"
         v-model="extract.roles_attributes"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 

@@ -71,6 +71,12 @@ export default {
       default: () => []
     }
   },
+
+  emits: [
+    'onSort',
+    'onRowHover'
+  ],
+
   data () {
     return {
       ascending: false,
@@ -96,6 +102,7 @@ export default {
       }
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))

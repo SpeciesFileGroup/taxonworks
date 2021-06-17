@@ -72,13 +72,14 @@
 
 import Autocomplete from 'components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
-import AjaxCall from 'helpers/ajaxCall'
+import { Otu } from 'routes/endpoints'
 
 export default {
   components: {
     Autocomplete,
     MatchTaxonName
   },
+
   props: {
     inputId: {
       type: String,
@@ -89,14 +90,22 @@ export default {
       default: false
     }
   },
+
+  emits: [
+    'getItem',
+    'getInput'
+  ],
+
   computed: {
     validateFields () {
       return this.otu.name
     },
+
     taxonLabel () {
-      return this.taxon && this.taxon.hasOwnProperty('label_html') ? this.taxon.label_html : this.taxon['object_tag']
+      return this.taxon?.label_html || this.taxon?.object_tag
     }
   },
+
   data () {
     return {
       found: true,
@@ -109,9 +118,10 @@ export default {
       }
     }
   },
+
   watch: {
     type (newVal, oldVal) {
-      if(newVal != oldVal) {
+      if (newVal != oldVal) {
         this.resetPicker()
         this.otu.name = newVal
         this.found = true
@@ -119,32 +129,39 @@ export default {
       }
     }
   },
+
   methods: {
     resetPicker () {
       this.otu.name = undefined
       this.otu.taxon_name_id = undefined
       this.create = false
     },
+
     createOtu () {
       if (this.taxon) {
         this.otu.taxon_name_id = this.taxon.id
       }
-      AjaxCall('post', '/otus', { otu: this.otu }).then(response => {
+
+      Otu.create({ otu: this.otu }).then(response => {
         this.emitOtu(response.body)
         this.create = false
         this.found = true
       })
     },
+
     emitOtu(otu) {
       this.$emit('getItem', otu)
     },
-    callbackInput(event) {
+
+    callbackInput (event) {
       this.type = event
       this.$emit('getInput', event)
     },
+
     setTaxon (taxon) {
       this.taxon = taxon
     },
+
     createWith (data) {
       this.taxon = data.taxon
       this.otu.name = data.otuName

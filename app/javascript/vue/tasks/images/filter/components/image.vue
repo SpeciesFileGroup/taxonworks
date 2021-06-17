@@ -3,13 +3,16 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)">
-      <h3 slot="header">Image</h3>
-      <div
-        slot="body">
-        <img
-          class="img-maxsize"
-          :src="image.image_file_url">
-      </div>
+      <template #header>
+        <h3>Image</h3>
+      </template>
+      <template #body>
+        <div class="horizontal-center-content">
+          <img
+            class="img-maxsize"
+            :src="image.image_file_url">
+        </div>
+      </template>
     </modal-component>
     <div
       class="depiction-thumb-container depiction-thumb-image horizontal-center-content middle position-relative">
@@ -17,14 +20,16 @@
         class="img-thumb"
         :src="image.alternatives.thumb.image_file_url"
         @click="setModalView(true)">
-      <pin-component
+      <div
         class="position-absolute"
         :style="{
           right: '4px',
           bottom: '4px'
-        }"
-        :object-id="image.id"
-        type="Image"/>
+        }">
+        <pin-component
+          :object-id="image.id"
+          type="Image"/>
+      </div>
     </div>
   </div>
 </template>
@@ -39,17 +44,20 @@ export default {
     ModalComponent,
     PinComponent
   },
+
   props: {
     image: {
       type: Object,
       required: true
     }
   },
+
   data () {
     return {
       showModal: false
     }
   },
+
   methods: {
     setModalView(value) {
       this.showModal = value

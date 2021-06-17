@@ -3,14 +3,18 @@
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteTaxon()"
           type="button"
           class="normal-input button button-delete">Delete</button>
-      </div>
+      </template>
     </modal>
     <div class="panel basic-information">
       <div class="content header">
@@ -18,18 +22,14 @@
           v-if="taxon.id"
           class="flex-separate middle">
           <a
-            v-shortkey="[platformKey(), 'b']"
-            @shortkey="switchBrowse()"
+            v-hotkey="shortcuts"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
             class="taxonname">
             <span v-html="taxon.cached_html"/>
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div class="flex-wrap-column">
-            <div
-              v-shortkey="[platformKey(), 'o']"
-              @shortkey="switchBrowseOtu()"
-              class="horizontal-right-content">
+            <div class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
               <otu-radial
                 :object-id="taxon.id"
@@ -118,6 +118,14 @@ export default {
       })
 
       return stringRoles
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+b`] = this.switchBrowse
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+
+      return keys
     }
   },
 
@@ -127,8 +135,6 @@ export default {
   },
 
   methods: {
-    platformKey,
-
     deleteTaxon () {
       TaxonName.destroy(this.taxon.id).then(() => {
         this.reloadPage()
@@ -140,11 +146,9 @@ export default {
     },
 
     showAuthor () {
-      if (this.roles.length) {
-        return this.roles
-      } else {
-        return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
-      }
+      return this.roles.length
+        ? this.roles
+        : (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
     },
 
     switchBrowse () {

@@ -90,11 +90,20 @@ export default {
       type: Array,
       required: true
     },
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'onRemove',
+    'onRemoveAll',
+    'onEdit',
+    'onUpdate'
+  ],
+
   computed: {
     sortedList () {
       return this.list.slice(0).sort((a, b) => {
@@ -105,49 +114,58 @@ export default {
         return 0
       })
     },
+
     selected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     selectAll: {
       get () {
         return this.list.length === this.selected.length
       },
+
       set (value) {
         this.selected = value ? this.list.slice(0) : []
       }
     }
   },
+
   data () {
     return {
       currentSort: 'label',
-      currentSortDir: 'asc',
+      currentSortDir: 'asc'
     }
   },
+
   methods: {
     setEdit (label) {
       this.$emit('onEdit', label)
     },
+
     sort (s) {
       if (s === this.currentSort) {
         this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc' : 'asc')
       }
       this.currentSort = s
     },
+
     removeRow (label) {
-      if (window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+      if (window.confirm('You\'re trying to delete this record(s). Are you sure want to proceed?')) {
         this.$emit('onRemove', label)
       }
     },
+
     deleteLabels () {
-      if (window.confirm(`You're trying to delete this record(s). Are you sure want to proceed?`)) {
+      if (window.confirm('You\'re trying to delete this record(s). Are you sure want to proceed?')) {
         this.$emit('onRemoveAll')
       }
     },
+
     updateLabel (label) {
       this.$emit('onUpdate', label)
     }

@@ -7,15 +7,16 @@
         v-for="(column, key) in columns"
         v-model="columns[key]"
         :key="key"
+        :item-key="element => element"
         :disabled="!sortable"
         :group="{ name: 'components' }"
         @end="updatePreferences">
-        <component
-          class="separate-bottom separate-right"
-          v-for="componentName in column"
-          @onModal="setDraggable"
-          :key="componentName"
-          :is="componentName"/>
+        <template #item="{ element }">
+          <component
+            class="separate-bottom separate-right"
+            @onModal="setDraggable"
+            :is="element"/>
+        </template>
       </draggable>
     </div>
   </div>

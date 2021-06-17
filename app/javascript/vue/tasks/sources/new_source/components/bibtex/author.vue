@@ -14,14 +14,15 @@
       :filter-ids="peopleIds"
       :autocomplete="false"
       @selected="addRole">
-      <role-picker
-        slot="header"
-        ref="rolePicker"
-        v-model="roleAttributes"
-        :autofocus="false"
-        :hidden-list="true"
-        :filter-by-role="true"
-        role-type="SourceAuthor"/>
+      <template #header>
+        <role-picker
+          ref="rolePicker"
+          v-model="roleAttributes"
+          :autofocus="false"
+          :hidden-list="true"
+          :filter-by-role="true"
+          role-type="SourceAuthor"/>
+      </template>
       <role-picker
         :create-form="false"
         v-model="roleAttributes"

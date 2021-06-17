@@ -25,9 +25,9 @@ import RecursiveList from './recursiveList.vue'
 
 export default {
   name: 'RecursiveList',
-  components: {
-    RecursiveList
-  },
+
+  components: { RecursiveList },
+
   props: {
     objectList: {
       type: Object,
@@ -39,16 +39,19 @@ export default {
     },
     created: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['selected'],
+
   computed: {
     orderList() {
       let sortable = []
       let sortableObject = {}
 
       for (var key in this.objectList) {
-          sortable.push([key, this.objectList[key]]);
+        sortable.push([key, this.objectList[key]])
       }
 
       sortable.sort((a, b) => {
@@ -60,25 +63,26 @@ export default {
         }
         return 0;
       })
-      
+
       sortable.forEach(item => {
         sortableObject[item[0]] = item[1]
       })
-      
+
       return sortableObject
     }
   },
+
   methods: {
-    selectItem: function (optionSelected) {
+    selectItem (optionSelected) {
       this.$emit('selected', optionSelected)
     },
-    findExist: function (item) {
-      return this.created.find(function (element) {
-        return (element.type == item.type)
-      })
+
+    findExist (item) {
+      return this.created.find(element => element.type == item.type)
     },
-    isForThisRank(item) {
-      return (item.hasOwnProperty('valid_subject_ranks') ? !(item.valid_subject_ranks.includes(this.taxon.rank_string)) : false)
+
+    isForThisRank (item) {
+      return item.valid_subject_ranks?.includes(this.taxon.rank_string)
     }
   }
 }

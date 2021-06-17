@@ -69,20 +69,24 @@ export default {
       required: true
     }
   },
+
+  emits: ['nextPage'],
+
   computed: {
     pagesCount() {
-      if(Object.keys(this.pagination).length)
-        return this.pagination.totalPages
-      return 1
+      return Object.keys(this.pagination).length ?
+        this.pagination.totalPages
+        : 1
     },
-    rangeMax() {
+    rangeMax () {
       return this.pagination.paginationPage + this.rangePages
     },
-    rangeMin() {
+    rangeMin () {
       return this.pagination.paginationPage - this.rangePages
     }
   },
-  data() {
+
+  data () {
     return {
       rangePages: 5
     }

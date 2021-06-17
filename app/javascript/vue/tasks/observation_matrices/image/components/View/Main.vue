@@ -33,22 +33,22 @@
         title="OTU depictions"
         index="otu"
       />
-      <template v-for="(descriptor, index) in observationColumns">
+      <template
+        v-for="(descriptor, index) in observationColumns"
+        :key="descriptor.id">
         <cell-header
           v-if="!hideColumn.includes(index)"
           v-model="hideColumn"
-          :key="descriptor.id"
           :title="descriptor.name"
           :index="index"
         />
       </template>
       <template
-        v-for="(row, rIndex) in observationRows">
+        v-for="(row, rIndex) in observationRows"
+        :key="rIndex">
         <template v-if="!hideRows.includes(rIndex)">
-          <div
-            class="observation-cell"
-            :key="rIndex">
-            <tippy-component
+          <div class="observation-cell">
+            <tippy
               animation="scale"
               placement="bottom"
               size="small"
@@ -56,17 +56,13 @@
               inertia
               arrow
               content="Hide">
-              <template slot="trigger">
-                <input
-                  type="checkbox"
-                  v-model="hideRows"
-                  :value="rIndex">
-              </template>
-            </tippy-component>
+              <input
+                type="checkbox"
+                v-model="hideRows"
+                :value="rIndex">
+            </tippy>
           </div>
-          <div
-            :key="`${rIndex}-o`"
-            class="otu-cell padding-small">
+          <div class="otu-cell padding-small">
             <cell-link
               :label="row.object.object_tag"
               :row-object="row.object"
@@ -77,17 +73,17 @@
           <cell-depiction
             v-show="!hideColumn.includes('otu') && existingOTUDepictions"
             class="observation-cell padding-small"
-            :key="`${rIndex}-d`"
             descriptor="OTU depictions"
             :object="row.object"
             :depictions="row.objectDepictions"
           />
 
-          <template v-for="(rCol, cIndex) in row.depictions">
+          <template
+            v-for="(rCol, cIndex) in row.depictions"
+            :key="`${rIndex} ${cIndex}`">
             <cell-depiction
               v-if="!hideColumn.includes(cIndex)"
               class="observation-cell padding-small"
-              :key="`${rIndex} ${cIndex}`"
               :descriptor="observationColumns[cIndex].name"
               :object="row.object"
               :depictions="rCol"
@@ -111,14 +107,14 @@ import CellDepiction from './CellDepiction.vue'
 import CellLink from '../CellLink.vue'
 
 import { GetterNames } from '../../store/getters/getters'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 
 export default {
   components: {
     FilterLanguage,
     FilterRank,
     SpinnerComponent,
-    TippyComponent,
+    Tippy,
     CellDepiction,
     CellHeader,
     RadialObject,

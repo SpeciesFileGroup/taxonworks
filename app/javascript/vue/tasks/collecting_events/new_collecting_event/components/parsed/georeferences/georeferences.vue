@@ -23,86 +23,89 @@
         overflowY: 'scroll'
       }"
       v-if="showModal">
-      <h3 slot="header">Georeferences</h3>
-      <div
-        slot="body"
-        style="overflow-y: scroll">
-        <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
-          <wkt-component
-            @create="addToQueue"
-            class="margin-small-right"/>
-          <manually-component
-            class="margin-small-right"
-            @create="addGeoreference"/>
-          <geolocate-component
-            :disabled="!collectingEvent.id"
-            class="margin-small-right"
-            @create="addToQueue"/>
-          <button
-            type="button"
-            v-if="verbatimLat && verbatimLng"
-            :disabled="verbatimGeoreferenceAlreadyCreated"
-            @click="createVerbatimShape"
-            class="button normal-input button-submit">
-            Create georeference from verbatim
-          </button>
-        </div>
+      <template #header>
+        <h3>Georeferences</h3>
+      </template>
+      <template #body>
         <div
-          :style="{
-            height: height,
-            width: width
-          }">
-          <spinner-component
-            v-if="showSpinner"
-            legend="Saving..."/>
-          <map-component
-            ref="leaflet"
-            v-if="show"
-            :height="height"
-            :width="width"
-            :geojson="mapGeoreferences"
-            :zoom="zoom"
-            :fit-bounds="true"
-            :resize="true"
-            :draw-controls="true"
-            :draw-polyline="false"
-            :cut-polygon="false"
-            :removal-mode="false"
-            @geoJsonLayersEdited="updateGeoreference($event)"
-            @geoJsonLayerCreated="addGeoreference($event)"/>
+          style="overflow-y: scroll">
+          <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+            <wkt-component
+              @create="addToQueue"
+              class="margin-small-right"/>
+            <manually-component
+              class="margin-small-right"
+              @create="addGeoreference"/>
+            <geolocate-component
+              :disabled="!collectingEvent.id"
+              class="margin-small-right"
+              @create="addToQueue"/>
+            <button
+              type="button"
+              v-if="verbatimLat && verbatimLng"
+              :disabled="verbatimGeoreferenceAlreadyCreated"
+              @click="createVerbatimShape"
+              class="button normal-input button-submit">
+              Create georeference from verbatim
+            </button>
+          </div>
+          <div
+            :style="{
+              height: height,
+              width: width
+            }">
+            <spinner-component
+              v-if="showSpinner"
+              legend="Saving..."/>
+            <map-component
+              ref="leaflet"
+              v-if="show"
+              :height="height"
+              :width="width"
+              :geojson="mapGeoreferences"
+              :zoom="zoom"
+              :fit-bounds="true"
+              :resize="true"
+              :draw-controls="true"
+              :draw-polyline="false"
+              :cut-polygon="false"
+              :removal-mode="false"
+              @geoJsonLayersEdited="updateGeoreference($event)"
+              @geoJsonLayerCreated="addGeoreference($event)"/>
+          </div>
+          <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+            <wkt-component
+              @create="addToQueue"
+              class="margin-small-right"/>
+            <manually-component
+              class="margin-small-right"
+              @create="addGeoreference"/>
+            <geolocate-component
+              class="margin-small-right"
+              @create="addToQueue"/>
+            <button
+              type="button"
+              v-if="verbatimLat && verbatimLng"
+              :disabled="verbatimGeoreferenceAlreadyCreated"
+              @click="createVerbatimShape"
+              class="button normal-input button-submit">
+              Create georeference from verbatim
+            </button>
+          </div>
+          <display-list
+            v-if="collectingEventId"
+            :list="georeferences"
+            @delete="removeGeoreference"
+            @updateGeo="updateRadius"
+            label="object_tag"/>
+          <display-list
+            v-else
+            :list="queueGeoreferences"
+            @delete="removeGeoreference"
+            @updateGeo="updateRadius"
+            label="object_tag"/>
         </div>
-        <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
-          <wkt-component
-            @create="addToQueue"
-            class="margin-small-right"/>
-          <manually-component
-            class="margin-small-right"
-            @create="addGeoreference"/>
-          <geolocate-component
-            class="margin-small-right"
-            @create="addToQueue"/>
-          <button
-            type="button"
-            v-if="verbatimLat && verbatimLng"
-            :disabled="verbatimGeoreferenceAlreadyCreated"
-            @click="createVerbatimShape"
-            class="button normal-input button-submit">
-            Create georeference from verbatim
-          </button>
-        </div>
-        <display-list
-          v-if="collectingEventId"
-          :list="georeferences"
-          @delete="removeGeoreference"
-          @updateGeo="updateRadius"
-          label="object_tag"/>
-        <display-list
-          v-else
-          :list="queueGeoreferences"
-          @delete="removeGeoreference"
-          @updateGeo="updateRadius"
-          label="object_tag"/>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -128,6 +131,7 @@ import { ActionNames } from '../../../store/actions/actions'
 
 export default {
   mixins: [extendCE],
+
   components: {
     MapComponent,
     SpinnerComponent,
@@ -137,28 +141,34 @@ export default {
     ModalComponent,
     WktComponent
   },
+
   props: {
     height: {
       type: String,
       default: '500px'
     },
+
     width: {
       type: String,
       default: 'auto'
     },
+
     geolocationUncertainty: {
       type: [String, Number],
       default: undefined
     },
+
     zoom: {
       type: Number,
       default: 1
     },
+
     show: {
       type: Boolean,
       default: true
     }
   },
+
   computed: {
     georeferenceVerbatimLatitude () {
       return this.verbatimGeoreferenceAlreadyCreated ? truncateDecimal((this.verbatimGeoreferenceAlreadyCreated.geo_json ? this.verbatimGeoreferenceAlreadyCreated.geo_json.geometry.coordinates[1] : JSON.parse(this.verbatimGeoreferenceAlreadyCreated.geographic_item_attributes.shape).geometry.coordinates[1]), 6) : undefined
@@ -204,6 +214,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       isProcessing: false,
@@ -216,6 +227,7 @@ export default {
       showModal: false
     }
   },
+
   watch: {
     georeferences: {
       handler() {
@@ -236,6 +248,7 @@ export default {
       deep: true
     }
   },
+
   methods: {
     updateRadius (geo) {
       const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)

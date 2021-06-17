@@ -1,9 +1,9 @@
 <template>
   <ul class="tree">
-    <template v-for="taxon in list">
-      <li
-        v-if="currentTaxonId === taxon.parent_id && checkFilter(taxon)"
-        :key="taxon.id">
+    <template
+      v-for="taxon in list"
+      :key="taxon.id">
+      <li v-if="currentTaxonId === taxon.parent_id && checkFilter(taxon)">
         <a :href="`/tasks/otus/browse?taxon_name_id=${taxon.id}`">
           <span v-html="taxon.object_tag"/>
         </a>

@@ -27,18 +27,21 @@ export default {
   components: {
     BiologicalRelationships,
     EditComponent,
-    PropertiesComponent,
+    PropertiesComponent
   },
+
   data () {
     return {
       selected: undefined
     }
   },
+
   methods: {
     setBiologicalRelationship (value) {
       this.selected = value
     },
-    addRelationship(item) {
+
+    addRelationship (item) {
       this.$refs.biological.addRelationship(item)
     }
   }

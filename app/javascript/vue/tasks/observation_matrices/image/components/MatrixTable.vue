@@ -28,10 +28,11 @@
         </label>
       </div>
     </div>
-    <template v-for="(column, index) in imageColums">
+    <template
+      v-for="(column, index) in imageColums"
+      :key="column.id">
       <div
         class="header-cell"
-        :key="column.id"
         :class="{ 'collapse-cell': collapseColumns.includes(index)}">
         <div class="header-cell">
           <label
@@ -46,9 +47,10 @@
         </div>
       </div>
     </template>
-    <template v-for="(row, rowIndex) in rows">
+    <template
+      v-for="(row, rowIndex) in rows"
+      :key="row.object.id">
       <div
-        :key="row.object.id"
         class="observation-cell">
         <input
           type="checkbox"
@@ -56,7 +58,6 @@
           v-model="collapseRows">
       </div>
       <div
-        :key="`${row.object.id}-b`"
         class="otu-cell padding-small">
         <cell-link
           :row-object="row.object"
@@ -66,14 +67,13 @@
       <cell-depiction
         v-show="existingOTUDepictions"
         class="observation-cell padding-small edit-cell"
-        :key="`${row.object.id}-c`"
         :show="!filterCell('otu', rowIndex)"
         :depictions="row.objectDepictions || []"
         @removeDepiction="removeOtuDepiction({ rowIndex, index: $event })"/>
-      <template v-for="(depictions, columnIndex) in row.depictions">
-        <div
-          class="observation-cell padding-small edit-cell"
-          :key="`${columnIndex} ${row.object.id}`">
+      <template
+        v-for="(depictions, columnIndex) in row.depictions"
+        :key="`${columnIndex} ${row.object.id}`">
+        <div class="observation-cell padding-small edit-cell">
           <cell-observation
             class="full_width"
             :column="imageColums[columnIndex]"
@@ -94,7 +94,6 @@ import CellObservation from './CellObservation.vue'
 import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
 import CellLink from './CellLink.vue'
-import { RouteNames } from 'routes/routes'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {

@@ -2,10 +2,10 @@
   <section-panel
     :status="status"
     :title="title">
-    <template v-for="(item, key) in annotations">
-      <div
-        v-if="existAnnotations(item)"
-        :key="key">
+    <template 
+      v-for="(item, key) in annotations"
+      :key="key">
+      <div v-if="existAnnotations(item)">
         <h4 v-html="otus.find(otu => otu.id == key).object_tag"/>
         <list-component
           class="margin-medium-left"
@@ -64,9 +64,9 @@ export default {
     otus: {
       handler (newVal) {
         const that = this
-        async function processArray(array) {
+        async function processArray (array) {
           for (const item of array) {
-            that.$set(that.annotations, item.id, await that.loadAnnotations(item.id))
+            that.annotations[item.id] = await that.loadAnnotations(item.id)
           }
         }
         processArray(newVal)

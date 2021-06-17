@@ -1,3 +1,1 @@
-export default function (state) {
-  return state.original_combination
-}
+export default (state) => state.original_combination

@@ -41,19 +41,25 @@ export default {
       type: String,
       required: true
     },
+
     objectId: {
       required: true
     },
+
     objectType: {
       type: String,
       required: true
     },
+
     modelPreferences: {
       type: Array,
       required: false
     }
   },
-  data() {
+
+  emits: ['onUpdate'],
+
+  data () {
     return {
       loading: true,
       createdList: [],
@@ -63,6 +69,7 @@ export default {
       predicatesList: []
     }
   },
+
   watch: {
     objectId (newVal) {
       if (newVal && this.objectType) {
@@ -76,9 +83,11 @@ export default {
       }
     }
   },
+
   created () {
     this.loadPreferences()
   },
+
   methods: {
     loadPreferences () {
       if (this.modelPreferences?.length) {
@@ -90,6 +99,7 @@ export default {
         })
       }
     },
+
     loadPredicates (ids) {
       const promises = []
       if (ids?.length) {
@@ -110,14 +120,16 @@ export default {
         this.loading = false
       })
     },
+
     findExisting (id) {
       return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
     },
+
     addDataAttribute (dataAttribute) {
       const index = this.data_attributes.findIndex(item => item.controlled_vocabulary_term_id === dataAttribute.controlled_vocabulary_term_id)
 
       if (index > -1) {
-        this.$set(this.data_attributes, index, dataAttribute)
+        this.data_attributes[index] = dataAttribute
       } else {
         this.data_attributes.push(dataAttribute)
       }

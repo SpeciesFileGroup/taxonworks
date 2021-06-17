@@ -8,7 +8,7 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -17,16 +17,20 @@ export default {
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     lines: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   methods: {
     removeLine () {
       this.lines.splice(this.position, 1)

@@ -1,17 +1,11 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store.js'
+import App from './app.vue'
 
 function init () {
-  var store = newStore()
-  
-  new Vue({
-    store,
-    el: '#vue-task-slide-breakdown',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#vue-task-slide-breakdown')
 }
 
 document.addEventListener('turbolinks:load', () => {

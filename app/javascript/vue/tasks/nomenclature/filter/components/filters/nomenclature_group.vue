@@ -22,20 +22,24 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       options: [
@@ -47,21 +51,22 @@ export default {
           label: 'Higher',
           value: 'Higher'
         },
-        { 
+        {
           label: 'Family group',
           value: 'Family'
         },
-        { 
+        {
           label: 'Genus group',
           value: 'Genus'
         },
-        { 
+        {
           label: 'Species group',
           value: 'Species'
         }
       ]
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     this.optionValue = params.nomenclature_group

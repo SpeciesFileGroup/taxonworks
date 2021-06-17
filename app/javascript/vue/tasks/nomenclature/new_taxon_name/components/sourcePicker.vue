@@ -4,12 +4,10 @@
     v-help.section.author.container
     :spinner="!taxon.id"
   >
-    <h3 slot="header">
-      Author
-    </h3>
-    <div
-      slot="body"
-    >
+    <template #header>
+      <h3>Author</h3>
+    </template>
+    <template #body>
       <div class="separate-bottom">
         <div class="switch-radio">
           <input
@@ -150,7 +148,7 @@
       <div v-show="show == 'person'">
         <div class="flex-separate">
           <role-picker
-            v-model="roles"
+            v-model:modelValue="roles"
             @create="updateLastChange"
             @delete="updateLastChange"
             @sortable="updateLastChange"
@@ -169,7 +167,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -188,7 +186,7 @@ import RolePicker from 'components/role_picker.vue'
 import DefaultElement from 'components/getDefaultPin.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 
 export default {
@@ -221,19 +219,18 @@ export default {
     isAlreadyClone () {
       if (this.citation.source.author_roles.length === 0) return true
 
-      const authorsId = this.citation.source.author_roles.map(author => { return Number(author.person.id) })
-      const personsIds = this.roles.map(role => { return role.person.id })
+      const authorsId = this.citation.source.author_roles.map(author => Number(author.person.id))
+      const personsIds = this.roles.map(role => role.person.id)
 
-      return authorsId.every(id => {
-        return personsIds.includes(id)
-      })
+      return authorsId.every(id => personsIds.includes(id))
     },
     roles: {
       get () {
-        if (this.$store.getters[GetterNames.GetRoles] == undefined) return []
-        return this.$store.getters[GetterNames.GetRoles].sort((a, b) => {
-          return (a.position - b.position)
-        })
+        const roles = this.$store.getters[GetterNames.GetRoles]
+
+        return roles
+          ? this.$store.getters[GetterNames.GetRoles].sort((a, b) => a.position - b.position)
+          : []
       },
       set (value) {
         this.$store.commit(MutationNames.SetRoles, value)

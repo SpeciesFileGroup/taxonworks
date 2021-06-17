@@ -1,12 +1,12 @@
 <template>
   <div class="panel vue-filter-container">
-    <div class="flex-separate content middle action-line">
+    <div
+      class="flex-separate content middle action-line"
+      v-hotkey="shortcuts">
       <span>Filter</span>
       <span
         data-icon="reset"
         class="cursor-pointer"
-        v-shortkey="[platformKey, 'r']"
-        @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
     </div>
@@ -21,8 +21,6 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[platformKey, 'f']"
-        @shortkey="searchCollectingEvents"
         @click="searchCollectingEvents">
         Search
       </button>
@@ -103,11 +101,28 @@ export default {
     FilterMaterial,
     FilterCollectors
   },
-  computed: {
-    platformKey,
 
+  emits: [
+    'reset',
+    'newSearch',
+    'result',
+    'pagination',
+    'urlRequest',
+    'params'
+  ],
+
+  computed: {
     emptyParams () {
       return this.params === this.initParams()
+    },
+
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+r`] = this.resetFilter
+      keys[`${platformKey()}+f`] = this.searchCollectingEvents
+
+      return keys
     }
   },
 
@@ -133,12 +148,14 @@ export default {
       this.$emit('reset')
       this.params = this.initParams()
     },
+
     searchCollectingEvents () {
       if (this.emptyParams) return
       const params = this.filterEmptyParams(Object.assign({}, this.params.keywords, this.params.identifier, this.params.determination, this.params.geographic, this.params.byRecordsWith, this.params.user, this.params.settings, this.flatObject(this.params.collectingEvents, 'fields')))
 
       this.getCollectingEvents(params)
     },
+
     getCollectingEvents (params) {
       this.searching = true
       this.$emit('newSearch')
@@ -213,7 +230,7 @@ export default {
           geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
-          geographic_area_ids: []
+          geographic_area_id: []
         },
         types: {
           is_type: [],
@@ -231,11 +248,13 @@ export default {
       })
       return object
     },
+
     flatObject (object, key) {
       const tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
     },
+
     loadPage (page) {
       this.params.settings.page = page
       this.searchCollectingEvents()
@@ -244,7 +263,7 @@ export default {
 }
 </script>
 <style scoped>
-::v-deep .btn-delete {
+:deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>

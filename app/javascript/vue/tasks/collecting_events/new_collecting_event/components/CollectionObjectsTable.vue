@@ -19,114 +19,115 @@
         class="button normal-input button-default"
         :disabled="!ceId"
         @click="showModal = true">
-        Add/Current ({{ list.length }})</button>
+        Add/Current ({{ list.length }})
+      </button>
     </div>
     <modal-component
       v-if="showModal"
       @close="showModal = false"
-      :containerStyle="{ 
+      :container-style="{
         width: '1000px',
         height: '90vh',
         overflowX: 'scroll'
       }">
-      <div slot="header">
+      <template #header>
         <h3>Create collection objects</h3>
-      </div>
-      <div
-        slot="body"
-        class="horizontal-left-content align-start">
-        <spinner-component
-          v-if="isLoading || isSaving"
-          :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
-        <div class="full_width margin-medium-right">
-          <div class="flex-separate align-end">
-            <div class="field label-above">
-              <label>Number to create</label>
-              <input
-                min="1"
-                type="number"
-                max="100"
-                v-model.number="count">
+      </template>
+      <template #body>
+        <div class="horizontal-left-content align-start">
+          <spinner-component
+            v-if="isLoading || isSaving"
+            :legend="isSaving ? `Creating ${index} of ${count} collection object(s)...` : 'Loading...'"/>
+          <div class="full_width margin-medium-right">
+            <div class="flex-separate align-end">
+              <div class="field label-above">
+                <label>Number to create</label>
+                <input
+                  min="1"
+                  type="number"
+                  max="100"
+                  v-model.number="count">
+              </div>
+              <div class="field">
+                <button
+                  class="button normal-input button-submit"
+                  type="button"
+                  @click="noCreated = []; createCOs(0)">
+                  Create
+                </button>
+              </div>
             </div>
-            <div class="field">
-              <button
-                class="button normal-input button-submit"
-                type="button"
-                @click="noCreated = []; createCOs(0)">
-                Create
-              </button>
-            </div>
+            <label-component v-model="labelType"/>
+            <identifiers-component
+              v-model="identifier"
+              :count="count"/>
+            <preparation-types
+              class="margin-medium-bottom"
+              v-model="preparationType"/>
+            <repository-component v-model="repositoryId"/>
+            <biocuration-component
+              class="margin-medium-bottom"
+              v-model="biocurations"/>
+            <determiner-component v-model="determinations"/>
+            <tag-component v-model="tagList"/>
           </div>
-          <label-component v-model="labelType"/>
-          <identifiers-component
-            v-model="identifier"
-            :count="count"/>
-          <preparation-types
-            class="margin-medium-bottom"
-            v-model="preparationType"/>
-          <repository-component v-model="repositoryId"/>
-          <biocuration-component
-            class="margin-medium-bottom"
-            v-model="biocurations"/>
-          <determiner-component v-model="determinations"/>
-          <tag-component v-model="tagList"/>
-        </div>
-        <div
-          class="full_width">
-          <template v-if="noCreated.length">
-            <h3>Creation errors ({{ noCreated.length }})</h3>
-            <table
-              class="full_width margin-medium-bottom">
+          <div
+            class="full_width">
+            <template v-if="noCreated.length">
+              <h3>Creation errors ({{ noCreated.length }})</h3>
+              <table
+                class="full_width margin-medium-bottom">
+                <thead>
+                  <tr>
+                    <th>Identifier</th>
+                    <th>Error</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item, index) in noCreated"
+                    :key="index"
+                    class="contextMenuCells feedback feedback-warning">
+                    <td>{{ item.namespace }} {{ item.identifier }}</td>
+                    <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+            <span>{{ list.length }} object(s) are already associated with this collecting event</span>
+            <h3>Existing</h3>
+            <table class="full_width">
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Identifier</th>
-                  <th>Error</th>
+                  <th>Determination</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(item, index) in noCreated"
-                  :key="index"
-                  class="contextMenuCells feedback feedback-warning">
-                  <td>{{ item.namespace }} {{ item.identifier }}</td>
-                  <td>{{ Object.keys(item.error).map(k => item.error[k]).join(', ') }}</td>
+                  v-for="(item, index) in list"
+                  :key="item.id"
+                  class="contextMenuCells"
+                  :class="{ 'even': (index % 2 == 0) }">
+                  <td>{{ item.id }}</td>
+                  <td v-html="item.catalogNumber"/>
+                  <td v-html="item.scientificName"/>
+                  <td>
+                    <div
+                      v-if="item.global_id"
+                      class="horizontal-left-content">
+                      <radial-annotator :global-id="item.global_id"/>
+                      <radial-navigation :global-id="item.global_id"/>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
-          </template>
-          <span>{{ list.length }} object(s) are already associated with this collecting event</span>
-          <h3>Existing</h3>
-          <table class="full_width">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Identifier</th>
-                <th>Determination</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="(item, index) in list"
-                :key="item.id"
-                class="contextMenuCells"
-                :class="{ 'even': (index % 2 == 0) }">
-                <td>{{ item.id }}</td>
-                <td v-html="item.catalogNumber"/>
-                <td v-html="item.scientificName"/>
-                <td>
-                  <div
-                    v-if="item.global_id"
-                    class="horizontal-left-content">
-                    <radial-annotator :global-id="item.global_id"/>
-                    <radial-navigation :global-id="item.global_id"/>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          </div>
         </div>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -240,7 +241,8 @@ export default {
             : undefined
         }
         const promises = []
-        await CollectionObject({ collection_object: co }).then(response => {
+
+        await CollectionObject.create({ collection_object: co }).then(response => {
           this.determinations.forEach(determination => {
             determination.biological_collection_object_id = response.body.id
             promises.push(TaxonDetermination.create({ taxon_determination: determination }))

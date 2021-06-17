@@ -11,8 +11,10 @@
       v-if="showModal"
       :container-style="{ width: '600px' }"
       @close="closeModal">
-      <h3 slot="header">Add OTUs to matrix</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Add OTUs to matrix</h3>
+      </template>
+      <template #body>
         <spinner-component
           v-if="isLoading"
           legend="Loading..."/>
@@ -50,7 +52,7 @@
             Image matrix
           </button>
         </div>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -67,12 +69,16 @@ export default {
     ModalComponent,
     SpinnerComponent
   },
+
   props: {
     selectedIds: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['close'],
+
   data () {
     return {
       isLoading: false,
@@ -81,6 +87,7 @@ export default {
       matrix: undefined
     }
   },
+
   watch: {
     showModal: {
       handler (newVal) {
@@ -95,33 +102,36 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     addRows () {
       const promises = []
-      const data = this.selectedIds.map(id => {
-        return {
-          observation_matrix_id: this.matrix.id,
-          otu_id: id,
-          type: 'ObservationMatrixRowItem::Single::Otu'
-        }
-      })
+      const data = this.selectedIds.map(id => ({
+        observation_matrix_id: this.matrix.id,
+        otu_id: id,
+        type: 'ObservationMatrixRowItem::Single::Otu'
+      }))
 
-      data.forEach(row => { promises.push(ObservationMatrixRowItem({ observation_matrix_row_item: row })) })
+      data.forEach(row => { promises.push(ObservationMatrixRowItem.create({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
-        this.closeModal()
       })
     },
+
     closeModal () {
       this.showModal = false
       this.$emit('close')
     },
+
     openInteractiveKeys (id) {
       window.open(`${RouteNames.InteractiveKeys}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
+      this.closeModal()
     },
+
     openImageMatrix (id) {
       window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${id}&otu_filter=${this.selectedIds.join('|')}`, '_blank')
+      this.closeModal()
     }
   }
 }

@@ -35,8 +35,7 @@
         Is data depiction
       </label>
       <div class="separate-top separate-bottom">
-        <p /><h4>Move to</h4>
-        </p>
+        <h4>Move to</h4>
         <ul class="no_bullets">
           <li
             v-for="type in objectTypes"
@@ -108,37 +107,37 @@
         :autocomplete="false"
         :search="false"
         :target="objectType"
-        :addTabs="['new', 'filter']"
+        :add-tabs="['new', 'filter']"
         @selected="createDepiction">
-        <dropzone
-          slot="new"
-          class="dropzone-card separate-bottom"
-          @vdropzone-sending="sending"
-          @vdropzone-success="success"
-          ref="figure"
-          id="figure"
-          url="/depictions"
-          :use-custom-dropzone-options="true"
-          :dropzone-options="dropzone"
-        />
-        <div
-          class="horizontal-left-content align-start"
-          slot="filter">
-          <filter-image
-            @result="loadList"/>
-          <div class="margin-small-left flex-wrap-row">
-            <div
-              v-for="image in filterList"
-              :key="image.id"
-              class="thumbnail-container margin-small cursor-pointer"
-              @click="createDepiction(image)">
-              <img
-                :width="image.alternatives.thumb.width"
-                :height="image.alternatives.thumb.height"
-                :src="image.alternatives.thumb.image_file_url">
+        <template #new>
+          <dropzone
+            class="dropzone-card separate-bottom"
+            @vdropzone-sending="sending"
+            @vdropzone-success="success"
+            ref="figure"
+            url="/depictions"
+            :use-custom-dropzone-options="true"
+            :dropzone-options="dropzone"
+          />
+        </template>
+        <template #filter>
+          <div class="horizontal-left-content align-start">
+            <filter-image
+              @result="loadList"/>
+            <div class="margin-small-left flex-wrap-row">
+              <div
+                v-for="image in filterList"
+                :key="image.id"
+                class="thumbnail-container margin-small cursor-pointer"
+                @click="createDepiction(image)">
+                <img
+                  :width="image.alternatives.thumb.width"
+                  :height="image.alternatives.thumb.height"
+                  :src="image.alternatives.thumb.image_file_url">
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </smart-selector>
       <label>
         <input
@@ -196,6 +195,7 @@ import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     Dropzone,
     Autocomplete,
@@ -204,12 +204,14 @@ export default {
     RadialAnnotator,
     SmartSelector
   },
+
   computed: {
     updateObjectType () {
-      return (this.selectedObject && this.selectedType)
+      return this.selectedObject && this.selectedType
     }
   },
-  data: function () {
+
+  data () {
     return {
       depiction: undefined,
       dropzone: {
@@ -249,48 +251,58 @@ export default {
       filterList: []
     }
   },
+
   mounted () {
     this.$options.components.RadialAnnotator = RadialAnnotator
   },
+
   methods: {
-    success: function (file, response) {
+    success (file, response) {
       this.list.push(response)
       this.$refs.figure.removeFile(file)
     },
-    sending: function (file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('depiction[annotated_global_entity]', decodeURIComponent(this.globalId))
       formData.append('depiction[is_metadata_depiction]', this.isDataDepiction)
     },
+
     updateFigure () {
       if (this.updateObjectType) {
         this.depiction.depiction_object_type = this.selectedType.value
         this.depiction.depiction_object_id = this.selectedObject.id
       }
       this.update(`/depictions/${this.depiction.id}`, { depiction: this.depiction }).then(response => {
+        const index = this.list.findIndex(element => this.depiction.id === element.id)
+
         if (this.updateObjectType) {
-          this.$delete(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+          delete this.list[index]
         } else {
-          this.$set(this.list, this.list.findIndex(element => this.depiction.id == element.id), response.body)
+          this.list[index] = response.body
         }
         this.depiction = undefined
       })
     },
+
     confirmDelete (item) {
       if (window.confirm("You're trying to delete this record. Are you sure want to proceed?")) {
         this.removeItem(item)
       }
     },
+
     createDepiction (image) {
       const depiction = {
         image_id: image.id,
         annotated_global_entity: this.globalId,
         is_metadata_depiction: this.isDataDepiction
       }
+
       this.create('/depictions.json', { depiction: depiction }).then(({ body }) => {
         this.list.push(body)
         TW.workbench.alert.create('Depiction was successfully created.', 'notice')
       })
     },
+
     loadList (newList) {
       this.filterList = newList
     }
@@ -300,16 +312,16 @@ export default {
 
 <style lang="scss">
 .radial-annotator {
-	.depiction_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-	}
+  .depiction_annotator {
+    button {
+      min-width: 100px;
+    }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+  }
 }
 </style>

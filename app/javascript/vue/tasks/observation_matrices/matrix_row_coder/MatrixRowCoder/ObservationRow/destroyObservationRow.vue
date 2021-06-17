@@ -3,18 +3,22 @@
     <modal-component
       v-if="openModal"
       @close="openModal = false">
-      <h3 slot="header">Destroy all observations</h3>
-      <div slot="body">
-        <p>
-          This will destroy all observations in this row. Are you sure you want to proceed? Type "DELETE" to proceed.
-        </p>
-        <input
-          type="text"
-          class="full_width"
-          v-model="value"
-          placeholder="Write DELETE to continue">
-      </div>
-      <div slot="footer">
+      <template #header>
+        <h3>Destroy all observations</h3>
+      </template>
+      <template #body>
+        <div>
+          <p>
+            This will destroy all observations in this row. Are you sure you want to proceed? Type "DELETE" to proceed.
+          </p>
+          <input
+            type="text"
+            class="full_width"
+            v-model="value"
+            placeholder="Write DELETE to continue">
+        </div>
+      </template>
+      <template #footer>
         <button 
           type="button"
           class="button normal-input button-delete"
@@ -22,7 +26,7 @@
           @click="sendEvent()">
           Delete all
         </button>
-      </div>
+      </template>
     </modal-component>
     <button
       type="button"

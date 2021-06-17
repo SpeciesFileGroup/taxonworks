@@ -39,9 +39,8 @@ import { RouteNames } from 'routes/routes'
 import { TaxonName } from 'routes/endpoints'
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   computed: {
     taxon: {
       get () {
@@ -51,13 +50,16 @@ export default {
         this.$store.commit(MutationNames.SetTaxon, value)
       }
     },
+
     ranksList () {
       return this.$store.getters[GetterNames.GetRanks]
     }
   },
+
   mounted () {
     this.GetParams()
   },
+
   methods: {
     GetParams () {
       const urlParams = new URLSearchParams(window.location.search)
@@ -67,10 +69,12 @@ export default {
         this.getTaxon({ id: taxonId })
       }
     },
+
     checkRank (taxon) {
       const ranksFilter = [...new Set(this.getRankNames(this.ranksList))]
       return ranksFilter.find(rank => taxon.rank === rank)
     },
+
     getTaxon (event) {
       TaxonName.find(event.id).then(response => {
         if (this.checkRank(response.body)) {
@@ -81,6 +85,7 @@ export default {
         }
       })
     },
+
     getRankNames (list, nameList = []) {
       for (const key in list) {
         if (typeof list[key] === 'object') {
@@ -106,7 +111,7 @@ export default {
   .field-year {
     width: 60px;
   }
-  ::v-deep .vue-autocomplete-list {
+  :deep(.vue-autocomplete-list) {
     min-width: 800px;
   }
 </style>

@@ -35,6 +35,8 @@ export default {
     NewRelationship
   },
 
+  emits: ['selected'],
+
   data () {
     return {
       list: []
@@ -62,7 +64,7 @@ export default {
       const index = this.list.findIndex(item => item.id === relationship.id)
 
       if (index > -1) {
-        this.$set(this.list, index, relationship)
+        this.list[index] = relationship
       } else {
         this.list.unshift(relationship)
       }

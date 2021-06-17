@@ -68,18 +68,27 @@ import { ObservationMatrix, ObservationMatrixRow, ObservationMatrixRowItem } fro
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     DefaultPin,
     SpinnerComponent
   },
+
+  emits: [
+    'updateCount',
+    'close'
+  ],
+
   computed: {
     alreadyInMatrices () {
       return this.matrices.filter(item => this.rows.find(row => item.id === row.observation_matrix_id))
     },
+
     alreadyInCurrentMatrix () {
       return this.rows.filter(row => this.selectedMatrix.id === row.observation_matrix_id)
     }
   },
+
   data () {
     return {
       show: false,
@@ -102,11 +111,13 @@ export default {
       }
     }
   },
+
   watch: {
     alreadyInMatrices (newVal) {
       this.$emit('updateCount', newVal.length)
     }
   },
+
   mounted () {
     this.loading = true
     this.show = true
@@ -128,6 +139,7 @@ export default {
       this.rows = response.body
     })
   },
+
   methods: {
     loadMatrix (matrix) {
       this.selectedMatrix = matrix
@@ -137,11 +149,13 @@ export default {
         this.openMatrixRowCoder()
       }
     },
+
     reset () {
       this.selectedMatrix = undefined
       this.rows = []
       this.show = false
     },
+
     createRow () {
       return new Promise((resolve, reject) => {
         if (window.confirm(`Are you sure you want to add this ${this.metadata.object_type} to this matrix?`)) {

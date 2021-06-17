@@ -12,16 +12,16 @@
       target="Citation"
       :add-tabs="['all']"
       @selected="sendTopic">
-      <div
-        slot="all"
-        class="flex-wrap-row">
-        <div
-          v-for="item in topicsAllList"
-          :key="item.id"
-          class="margin-medium-bottom cursor-pointer"
-          v-html="item.object_tag"
-          @click="sendTopic(item)"/>
-      </div>
+      <template #all>
+        <div class="flex-wrap-row">
+          <div
+            v-for="item in topicsAllList"
+            :key="item.id"
+            class="margin-medium-bottom cursor-pointer"
+            v-html="item.object_tag"
+            @click="sendTopic(item)"/>
+        </div>
+      </template>
     </smart-selector>
     <div
       v-if="topicsSelected.length"

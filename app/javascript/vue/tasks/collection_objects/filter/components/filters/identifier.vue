@@ -68,25 +68,28 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Namespace } from 'routes/endpoints'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     identifier: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   watch: {
     identifier: {
       handler (newVal) {
@@ -97,6 +100,7 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       smartLists: {},
@@ -115,8 +119,10 @@ export default {
       ]
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
+
     this.identifier.identifier = urlParams.identifier
     this.identifier.identifier_exact = urlParams.identifier_exact
     this.identifier.identifier_start = urlParams.identifier_start
@@ -127,6 +133,7 @@ export default {
       })
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.namespace = namespace
@@ -141,7 +148,7 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

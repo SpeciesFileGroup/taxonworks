@@ -28,16 +28,21 @@
 import CustomStyle from './customStyle'
 
 export default {
-  components: {
-    CustomStyle
-  },
+  components: { CustomStyle },
+
   props: {
-    value: {
+    modelValue: {
       type: String,
       required: true
     }
   },
-  data() {
+
+  emits: [
+    'update:modelValue',
+    'onNewStyle'
+  ],
+
+  data () {
     return {
       list: [{
         label: '4pt Insect (TAMU style)',
@@ -57,9 +62,10 @@ export default {
       }]
     }
   },
+
   methods: {
-    onSelectedStyle(value) {
-      this.$emit('input', value)
+    onSelectedStyle (value) {
+      this.$emit('update:modelValue', value)
     }
   }
 }

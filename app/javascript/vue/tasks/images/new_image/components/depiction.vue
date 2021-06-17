@@ -20,13 +20,13 @@ import { MutationNames } from '../store/mutations/mutations.js'
 export default {
   computed: {
     depiction: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetDepiction].caption
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetDepictionCaption, value)
       }
-    },
-  },
+    }
+  }
 }
 </script>

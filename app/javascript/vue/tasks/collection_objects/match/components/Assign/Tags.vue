@@ -25,12 +25,14 @@ export default {
     SmartSelector,
     SpinnerComponent
   },
+
   props: {
     ids: {
       type: Array,
       required: true
     }
   },
+
   data () {
     return {
       view: undefined,
@@ -38,19 +40,20 @@ export default {
       isSaving: false
     }
   },
+
   methods: {
     addTag (selectedTag, position = 0) {
-      let promises = []
+      const promises = []
 
-      for(let i = 0; i < this.maxPerCall; i++) {
-        if(position < this.ids.length) {
+      for (let i = 0; i < this.maxPerCall; i++) {
+        if (position < this.ids.length) {
           promises.push(new Promise((resolve, reject) => {
             const tag = {
               keyword_id: selectedTag.id,
               tag_object_id: this.ids[i],
               tag_object_type: 'CollectionObject'
             }
-            CreateTag(tag).then(response => {
+            CreateTag(tag).then(() => {
               resolve()
             }, () => {
               resolve()
@@ -59,8 +62,8 @@ export default {
           position++
         }
       }
-      Promise.all(promises).then(response => {
-        if(position < this.ids.length)
+      Promise.all(promises).then(() => {
+        if (position < this.ids.length)
           this.addTag(selectedTag, position)
         else {
           this.isSaving = false

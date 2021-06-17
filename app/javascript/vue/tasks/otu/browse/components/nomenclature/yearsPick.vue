@@ -7,14 +7,14 @@
         @click="setYear(Number(year))"
         :key="year"
         :style="{
-          background: `linear-gradient(to right, ${value === Number(year) ? '#F5F5F5' : '#5D9ECE'} ${getSize(count)}%, transparent ${getSize(count)}% ${100-getSize(count)}%)`
-          }">
+          background: `linear-gradient(to right, ${modelValue === Number(year) ? '#F5F5F5' : '#5D9ECE'} ${getSize(count)}%, transparent ${getSize(count)}% ${100-getSize(count)}%)`
+        }">
         <div
           class="full_width year-string"
           :style="{
             background: `linear-gradient(to right, white ${getSize(count)}%, black ${getSize(count)}% ${100-getSize(count)}%)`,
             '-webkit-background-clip': 'text',
-            '-webkit-text-fill-color': value === Number(year) ? 'black' : 'transparent'
+            '-webkit-text-fill-color': modelValue === Number(year) ? 'black' : 'transparent'
           }"
           >{{ year }}</div>
       </li>
@@ -29,28 +29,35 @@ export default {
       type: Object,
       required: true
     },
-    value: {
+
+    modelValue: {
       type: [Number, String],
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   data () {
     return {
       max: undefined,
     }
   },
+
   watch: {
     years: {
-      handler(newVal) {
+      handler (newVal) {
         this.max = Math.max(...Object.values(newVal))
       },
       immediate: true
     }
   },
+
   methods: {
     setYear (year) {
-      this.$emit('input', this.value === year ? undefined : year)
+      this.$emit('update:modelValue', this.modelValue === year ? undefined : year)
     },
+
     getSize (value) {
       return (value / this.max) * 100
     }

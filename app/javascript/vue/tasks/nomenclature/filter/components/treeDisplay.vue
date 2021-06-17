@@ -2,15 +2,17 @@
   <modal
     class="transparent-modal"
     @close="$emit('close')">
-    <h3 slot="header">{{ modalTitle }}</h3>
-    <div
-      slot="body"
-      class="tree-list">
-      <recursive-list
-        :display="display"
-        @selected="$emit('selected', $event)"
-        :object-list="objectLists.tree"/>
-    </div>
+    <template #header>
+      <h3>{{ modalTitle }}</h3>
+    </template>
+    <template #body>
+      <div class="tree-list">
+        <recursive-list
+          :display="display"
+          @selected="$emit('selected', $event)"
+          :object-list="objectLists.tree"/>
+      </div>
+    </template>
   </modal>
 </template>
 <script>
@@ -19,10 +21,13 @@ import RecursiveList from './recursiveList.vue'
 import Modal from 'components/ui/Modal.vue'
 
 export default {
+  name: 'TreeDisplay',
+
   components: {
     RecursiveList,
     Modal
   },
+
   props: {
     objectLists: {
       type: Object,
@@ -37,18 +42,12 @@ export default {
       required: true
     }
   },
-  name: 'TreeDisplay',
-  data() {
+
+  data () {
     return {
       showAdvance: false,
       showModal: true
     }
-  },
-  mounted() {
-    var that = this
-    this.$on('closeModal', function () {
-      that.showModal = false
-    })
-  },
+  }
 }
 </script>

@@ -4,16 +4,17 @@
       type="button"
       class="button normal-input button-submit"
       :disabled="!taxon.id || isSaving"
-      v-shortkey="[getMacKey, 'l']"
-      @shortkey="showModal = taxon.id && !isSaving ? true : false"
+      v-hotkey="shortcuts"
       @click="showModal = true">
       Clone
     </button>
     <modal-component
       v-show="showModal"
       @close="showModal = false">
-      <h3 slot="header">Clone taxon name</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Clone taxon name</h3>
+      </template>
+      <template #body>
         <p>
           This will clone the current taxon name with the following information.
         </p>
@@ -36,8 +37,8 @@
           @keypress.enter.prevent="cloneTaxon()"
           ref="inputtext"
           :placeholder="`Write ${checkWord} to continue`">
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button 
           type="button"
           class="button normal-input button-submit"
@@ -45,7 +46,7 @@
           @click="cloneTaxon()">
           Clone
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -55,20 +56,25 @@
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/ui/Modal.vue'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   components: {
     ModalComponent
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+l`] = () => { this.showModal = this.taxon.id && !this.isSaving }
+
+      return keys
+    },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     checkInput () {
       return this.inputValue.toUpperCase() !== this.checkWord
-    },
-    getMacKey () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     },
     isSaving () {
       return this.$store.getters[GetterNames.GetSaving]
@@ -135,11 +141,11 @@ export default {
   watch: {
     showModal: {
       handler (newVal) {
-        if(newVal) {
+        if (newVal) {
           this.$nextTick(() => {
             this.$refs.inputtext.focus()
           })
-        }  
+        }
       }
     }
   },

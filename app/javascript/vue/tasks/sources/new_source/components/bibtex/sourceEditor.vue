@@ -14,19 +14,20 @@
       }"
       :autocomplete="false"
       @selected="addRole">
+      <template #header>
+        <role-picker
+          ref="rolePicker"
+          hidden-list
+          v-model="roleAttributes"
+          :autofocus="false"
+          filter-by-role
+          role-type="SourceEditor"/>
+      </template>
       <role-picker
-        slot="header"
-        ref="rolePicker"
-        :hidden-list="true"
         v-model="roleAttributes"
-        :autofocus="false"
-        :filter-by-role="true"
-        role-type="SourceEditor"/>
-      <role-picker
         :create-form="false"
-        v-model="roleAttributes"
         :autofocus="false"
-        :filter-by-role="true"
+        filter-by-role
         role-type="SourceEditor"/>
     </smart-selector>
   </fieldset>

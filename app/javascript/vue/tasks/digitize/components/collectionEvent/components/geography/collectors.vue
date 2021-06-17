@@ -13,13 +13,14 @@
       }"
       :autocomplete="false"
       @selected="addRole">
-      <role-picker
-        slot="header"
-        :hidden-list="true"
-        v-model="collectors"
-        ref="rolepicker"
-        :autofocus="false"
-        role-type="Collector"/>
+      <template #header>
+        <role-picker
+          hidden-list
+          v-model="collectors"
+          ref="rolepicker"
+          :autofocus="false"
+          role-type="Collector"/>
+      </template>
       <role-picker
         :create-form="false"
         v-model="collectors"
@@ -36,15 +37,16 @@ import RolePicker from 'components/role_picker.vue'
 
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
-import CreatePerson from '../../../../helpers/createPerson.js'
 import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     SmartSelector,
     RolePicker
   },
+
   computed: {
     collectors: {
       get() {
@@ -58,19 +60,19 @@ export default {
       return this.$store.getters[GetterNames.GetCollectionObject]
     }
   },
+
   data () {
     return {
       view: undefined
     }
   },
+
   methods: {
     roleExist (id) {
-      return (this.collectors.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.person_id == id
-      }) ? true : false)
+      return !!this.collectors.find(role => !role.hasOwnProperty('_destroy') && role.person_id === id)
     },
     addRole (role) {
-      if(!this.roleExist(role.id)) {
+      if (!this.roleExist(role.id)) {
         this.$refs.rolepicker.addCreatedPerson({ object_id: role.id, label: role.cached })
       }
     }

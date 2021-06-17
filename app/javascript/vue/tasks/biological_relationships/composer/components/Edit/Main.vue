@@ -54,6 +54,9 @@ export default {
       default: undefined
     }
   },
+
+  emits: ['update'],
+
   computed: {
     validate () {
       return this.biological_relationship.name
@@ -116,19 +119,15 @@ export default {
 
       data.biological_relationship_types_attributes = subject.concat(object, removed)
 
-      if (data.id) {
-        BiologicalRelationship.update(data.id, { biological_relationship: data }).then(response => {
-          this.$emit('update', response.body)
-          TW.workbench.alert.create('Biological relationship was successfully updated.', 'notice')
-        })
-      }
-      else {
-        BiologicalRelationship.create({ biological_relationship: data }).then(response => {
-          this.setBiologicalRelationship(response.body)
-          this.$emit('update', response.body)
-          TW.workbench.alert.create('Biological relationship was successfully created.', 'notice')
-        })
-      }
+      const saveRecord = data.id
+        ? BiologicalRelationship.update(data.id, { biological_relationship: data })
+        : BiologicalRelationship.create({ biological_relationship: data })
+
+      saveRecord.then(response => {
+        this.setBiologicalRelationship(response.body)
+        this.$emit('update', response.body)
+        TW.workbench.alert.create('Biological relationship was successfully saved.', 'notice')
+      })
     },
 
     getDestroyed (value) {

@@ -41,54 +41,60 @@
 </template>
 <script>
 
-  import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-  import CitationCount from '../shared/citationsCount.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import CitationCount from '../shared/citationsCount.vue'
 
-  export default {
-    components: {
-      RadialAnnotator,
-      CitationCount
+export default {
+  components: {
+    RadialAnnotator,
+    CitationCount
+  },
+
+  props: {
+    list: {
+      type: Array,
+      default: () => []
     },
-    props: {
-      list: {
-        type: Array,
-        default: () => {
-          return []
-        }
-      },
-      metadata: {
-        type: Object,
-        required: true
+    metadata: {
+      type: Object,
+      required: true
+    }
+  },
+
+  emits: [
+    'delete',
+    'edit'
+  ],
+
+  mounted () {
+    this.$options.components['RadialAnnotator'] = RadialAnnotator
+  },
+
+  methods: {
+    deleteItem (item) {
+      if (window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
+        this.$emit('delete', item)
       }
     },
-    mounted() {
-      this.$options.components['RadialAnnotator'] = RadialAnnotator
-    },
-    methods: {
-      deleteItem(item) {
-        if(window.confirm(`You're trying to delete this record. Are you sure want to proceed?`)) {
-          this.$emit('delete', item)
-        }
-      },
-      getSubjectOrObject(item) {
-        if(item.biological_association_object_id == this.metadata.object_id) {
-          return item.subject.object_tag
-        }
-        else {
-          return item.object.object_tag
-        }
-      },
-      getCitationString(object) {
-        if(object.hasOwnProperty('origin_citation')) {
-          let citation = object.origin_citation.source.cached_author_string
-          if(object.origin_citation.source.hasOwnProperty('year'))
-            citation = citation + ', ' + object.origin_citation.source.year
-          return citation
-        }
-        return ''
+    getSubjectOrObject (item) {
+      if(item.biological_association_object_id == this.metadata.object_id) {
+        return item.subject.object_tag
       }
+      else {
+        return item.object.object_tag
+      }
+    },
+    getCitationString (object) {
+      if (object.hasOwnProperty('origin_citation')) {
+        let citation = object.origin_citation.source.cached_author_string
+        if (object.origin_citation.source.hasOwnProperty('year'))
+          citation = citation + ', ' + object.origin_citation.source.year
+        return citation
+      }
+      return ''
     }
   }
+}
 </script>
 <style lang="scss" scoped>
 
