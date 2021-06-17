@@ -13,19 +13,21 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Imported objects</h3>
-      <ul
-        slot="body"
-        class="no_billets">
-        <li
-          v-for="(item, key) in importedObjects"
-          :key="(item + key)">
-          <a
-            :href="loadTask(key, item)"
-            target="_blank">{{ key }}
-          </a>
-        </li>
-      </ul>
+      <template #header>
+        <h3>Imported objects</h3>
+      </template>
+      <template #body>
+        <ul class="no_billets">
+          <li
+            v-for="(item, key) in importedObjects"
+            :key="(item + key)">
+            <a
+              :href="loadTask(key, item)"
+              target="_blank">{{ key }}
+            </a>
+          </li>
+        </ul>
+      </template>
     </modal-component>
   </div>
 </template>

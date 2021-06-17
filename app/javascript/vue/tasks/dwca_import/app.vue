@@ -36,6 +36,8 @@ import { disableStatus } from './const/datasetStatus'
 import SpinnerComponent from 'components/spinner'
 
 export default {
+  name: 'DWCImporter',
+
   components: {
     NewImport,
     ImportList,
@@ -45,6 +47,7 @@ export default {
     RequestImport,
     ImportRunning
   },
+
   computed: {
     datasetRecords: {
       get () {
@@ -54,9 +57,11 @@ export default {
         this.$store.commit(MutationNames.SetDatasetRecords, value)
       }
     },
+
     dataset () {
       return this.$store.getters[GetterNames.GetDataset]
     },
+
     pagination: {
       get () {
         return this.$store.getters[GetterNames.GetPagination]
@@ -66,12 +71,14 @@ export default {
       }
     }
   },
+
   data () {
     return {
       isLoading: false,
       disableStatus: Object.keys(disableStatus)
     }
   },
+
   mounted () {
     const ID = new URLSearchParams(window.location.search).get('import_dataset_id')
     if (ID) {
@@ -80,6 +87,7 @@ export default {
     document.addEventListener('turbolinks:load', () => { window.removeEventListener('scroll', this.checkScroll) })
     window.addEventListener('scroll', this.checkScroll)
   },
+
   methods: {
     loadDataset (id) {
       this.$store.dispatch(ActionNames.LoadDataset, id).then(() => {

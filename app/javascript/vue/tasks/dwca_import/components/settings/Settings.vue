@@ -13,31 +13,35 @@
         maxHeight: '80vh',
         overflow: 'scroll'
       }">
-      <h3 slot="header">Settings</h3>
-      <div slot="body">
-        <div><containerize-checkbox/></div>
-        <div><restrict-to-nomenclature-checkbox/></div>
-        <h3>Catalog number namespace mapping</h3>
-        <table class="full_width">
-          <thead>
-            <tr>
-              <th>institutionCode</th>
-              <th>collectionCode</th>
-              <th>Namespace</th>
-            </tr>
-          </thead>
-          <tbody>
-            <row-component
-              class="contextMenuCells"
-              v-for="(item, index) in catalogueNumbers"
-              :row="item"
-              :dataset-id="dataset.id"
-              :key="index"
-              @onUpdate="updateChanges"
-              @onRemove="updateChanges"/>
-          </tbody>
-        </table>
-      </div>
+      <template #header>
+        <h3>Settings</h3>
+      </template>
+      <template #body>
+        <div>
+          <div><containerize-checkbox/></div>
+          <div><restrict-to-nomenclature-checkbox/></div>
+          <h3>Catalog number namespace mapping</h3>
+          <table class="full_width">
+            <thead>
+              <tr>
+                <th>institutionCode</th>
+                <th>collectionCode</th>
+                <th>Namespace</th>
+              </tr>
+            </thead>
+            <tbody>
+              <row-component
+                class="contextMenuCells"
+                v-for="(item, index) in catalogueNumbers"
+                :row="item"
+                :dataset-id="dataset.id"
+                :key="index"
+                @onUpdate="updateChanges"
+                @onRemove="updateChanges"/>
+            </tbody>
+          </table>
+        </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -59,6 +63,7 @@ export default {
     ModalComponent,
     RowComponent
   },
+
   computed: {
     settings: {
       get () {
@@ -75,12 +80,14 @@ export default {
       return this.dataset.metadata?.catalog_numbers_namespaces || []
     }
   },
+
   data () {
     return {
       showModal: false,
       needUpdate: false
     }
   },
+
   watch: {
     showModal (newVal) {
       if (newVal) {
@@ -93,6 +100,7 @@ export default {
       }
     }
   },
+
   methods: {
     setModalView (value) {
       this.showModal = value

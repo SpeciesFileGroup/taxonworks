@@ -12,23 +12,27 @@
       :container-style="{
         width: '700px'
       }">
-      <h3 slot="header">Import dataset</h3>
-      <div slot="body">
-        <transition name="bounce">
-          <div
-            v-if="settings.isProcessing"
-            style="height: 200px">
-            <spinner-component
-              legend="Importing rows... please wait."
-            />
-          </div>
-        </transition>
-        <progress-bar :progress="dataset.progress"/>
-        <progress-list
-          class="no_bullets context-menu"
-          :progress="dataset.progress"/>
-      </div>
-      <template slot="footer">
+      <template #header>
+        <h3>Import dataset</h3>
+      </template>
+      <template #body>
+        <div>
+          <transition name="bounce">
+            <div
+              v-if="settings.isProcessing"
+              style="height: 200px">
+              <spinner-component
+                legend="Importing rows... please wait."
+              />
+            </div>
+          </transition>
+          <progress-bar :progress="dataset.progress"/>
+          <progress-list
+            class="no_bullets context-menu"
+            :progress="dataset.progress"/>
+        </div>
+      </template>
+      <template #footer>
         <button
           v-if="settings.isProcessing"
           type="button"
@@ -72,6 +76,7 @@ export default {
     ProgressBar,
     ProgressList
   },
+
   computed: {
     settings: {
       get () {
@@ -81,22 +86,27 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     dataset () {
       return this.$store.getters[GetterNames.GetDataset]
     }
   },
+
   data () {
     return {
       disableStatus: Object.keys(disableStatus)
     }
   },
+
   methods: {
     setModalView (value) {
       this.settings.importModalView = value
     },
+
     startImport () {
       this.$store.dispatch(ActionNames.ProcessImport)
     },
+
     stopImport () {
       this.settings.stopRequested = true
     }

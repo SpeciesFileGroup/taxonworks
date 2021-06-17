@@ -1,13 +1,14 @@
 <template>
   <td>
     <template v-if="importedCount">
-      <a
-        v-if="importedCount === 1"
-        v-for="(item, key) in importedObjects"
-        :key="key"
-        :href="taskUrl(key, item)"
-        target="_blank"
-        v-html="row.status"/>
+      <template v-if="importedCount === 1">
+        <a
+          v-for="(item, key) in importedObjects"
+          :key="key"
+          :href="taskUrl(key, item)"
+          target="_blank"
+          v-html="row.status"/>
+      </template>
       <a
         v-else
         v-html="row.status"
@@ -15,19 +16,21 @@
       <modal-component
         v-if="showModal"
         @close="showModal = false">
-        <h3 slot="header">Imported objects</h3>
-        <ul
-          slot="body"
-          class="no_billets">
-          <li
-            v-for="(item, key) in importedObjects"
-            :key="(item + key)">
-            <a
-              :href="loadTask(key, item)"
-              target="_blank">{{ key }}
-            </a>
-          </li>
-        </ul>
+        <template #header>
+          <h3>Imported objects</h3>
+        </template>
+        <template #body>
+          <ul class="no_billets">
+            <li
+              v-for="(item, key) in importedObjects"
+              :key="(item + key)">
+              <a
+                :href="loadTask(key, item)"
+                target="_blank">{{ key }}
+              </a>
+            </li>
+          </ul>
+        </template>
       </modal-component>
     </template>
     <template v-else>
@@ -35,22 +38,27 @@
         <modal-component
           v-if="showErrors"
           @close="showErrors = false">
-          <h3 slot="header">Errors</h3>
-          <div slot="body">
-            <template v-for="(messages, typeError) in importedErrors.messages">
-              <span
-                :key="typeError"
-                class="soft_validation"
-                data-icon="warning">
-                {{ typeError }}
-              </span>
-              <ul>
-                <li
-                  v-for="error in messages"
-                  v-html="error"/>
-              </ul>
-            </template>
-          </div>
+          <template #header>
+            <h3>Errors</h3>
+          </template>
+          <template #body>
+            <div>
+              <template
+                v-for="(messages, typeError) in importedErrors.messages"
+                :key="typeError">
+                <span
+                  class="soft_validation"
+                  data-icon="warning">
+                  {{ typeError }}
+                </span>
+                <ul>
+                  <li
+                    v-for="error in messages"
+                    v-html="error"/>
+                </ul>
+              </template>
+            </div>
+          </template>
         </modal-component>
         <a
           class="red"

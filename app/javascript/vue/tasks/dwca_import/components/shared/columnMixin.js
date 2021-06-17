@@ -1,15 +1,24 @@
 export default {
+
+  props: {
+    modelValue: {
+      required: true
+    }
+  },
+
+  emits: ['update:modelValue'],
+
   computed: {
     filter: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
     applied () {
-      return this.value
+      return this.modelValue
     }
   },
   data () {

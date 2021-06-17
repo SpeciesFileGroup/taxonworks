@@ -1,7 +1,7 @@
 <template>
   <div>
     <spinner-component
-      :full-screen="true"
+      full-screen
       legend="Uploading import..."
       v-if="isUploading"/>
     <div class="field label-above">
@@ -11,7 +11,7 @@
         v-model="description">
     </div>
     <div>
-      <spinner-component 
+      <spinner-component
         :show-spinner="false"
         legend="Fill description field first"
         v-if="!validate"/>
@@ -42,11 +42,13 @@ export default {
     Dropzone,
     SpinnerComponent
   },
+
   computed: {
     validate () {
       return this.description.length >= 2
     }
   },
+
   data () {
     return {
       description: '',
@@ -63,21 +65,25 @@ export default {
         },
         dictDefaultMessage: 'Drop import file here',
         acceptedFiles: '.zip,.txt,.xls,.xlsx,.ods'
-      },
+      }
     }
   },
+
   methods: {
     success (file, response) {
       this.$emit('onCreate', response)
       this.$refs.dwcDropzone.removeFile(file)
     },
+
     sending (file, xhr, formData) {
       this.isUploading = true
       formData.append('import_dataset[description]', this.description)
     },
+
     completeQueue (file, response) {
       this.isUploading = false
     },
+
     error (file, error, xhr) {
       if (typeof error === 'string') {
         TW.workbench.alert.create(`<span data-icon="warning">${error}</span>`, 'error')
@@ -92,7 +98,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

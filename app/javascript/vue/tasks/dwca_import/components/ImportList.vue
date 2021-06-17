@@ -29,6 +29,8 @@ export default {
     VSpinner
   },
 
+  emits: ['onSelect'],
+
   data: () => ({
     imports: [],
     isDeleting: false

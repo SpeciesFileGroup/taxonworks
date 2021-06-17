@@ -32,16 +32,15 @@
             per: per,
             ...paramsFilter
           }"
-          :send-label="value"
-          :autofocus="true"
+          autofocus
           param="value"
           @getItem="applyFilter"
-          :disabled="!!value"
+          :disabled="!!modelValue"
           placeholder="Search"
           type="text"
         />
         <span
-          v-if="value"
+          v-if="modelValue"
           @click="unselect"
           class="button circle-button btn-undo button-default"
         />
@@ -52,11 +51,11 @@
           class="margin-small-right item"
           placeholder="Replace"
           type="text"
-          :disabled="!value">
+          :disabled="!modelValue">
         <button
           type="button"
           class="button normal-input button-default"
-          :disabled="!value || !replace.length"
+          :disabled="!modelValue || !replace.length"
           @click="emitReplace">
           OK
         </button>
@@ -84,10 +83,6 @@ export default {
     field: {
       type: Number,
       required: true
-    },
-    value: {
-      type: String,
-      default: undefined
     },
     disabled: {
       type: Boolean,

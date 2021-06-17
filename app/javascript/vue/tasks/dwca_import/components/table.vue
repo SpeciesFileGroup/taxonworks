@@ -7,7 +7,7 @@
       class="dwca-vscroll"
       ref="table"
       @update="getPages">
-      <template slot-scope="{ items }">
+      <template #default="{ items }">
         <spinner-component
           legend="Updating records..."
           v-if="isSaving"/>
@@ -37,16 +37,16 @@
             </tr>
           </thead>
           <tbody>
-            <template v-for="(item, index) in items">
+            <template
+              v-for="(item, index) in items"
+              :key="index">
               <row-component
                 v-if="item"
-                :key="index"
                 class="contextMenuCells"
                 :row="item"/>
               <tr
                 v-else
-                class="row-empty contextMenuCells"
-                :key="index">
+                class="row-empty contextMenuCells">
                 <td style="height: 40px" colspan="100">
                   <div class="dwc-table-cell"/>
                 </td>
@@ -102,6 +102,9 @@ export default {
     datasetRecords () {
       return this.$store.getters[GetterNames.GetDatasetRecords]
     },
+    dataset() {
+      return this.$store.getters[GetterNames.GetDataset]
+    },
     list () {
       return [].concat(...this.datasetRecords.map(page => page.rows ? page.rows : new Array(page.count)))
     },
@@ -118,15 +121,18 @@ export default {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
     }
   },
+
   data () {
     return {
       isLoading: false,
       isSaving: false
     }
   },
+
   watch: {
     params: {
       handler () {
+        if (!this.dataset.id) return
         this.$refs.table.$el.scrollTop = 0
         this.isLoading = true
         this.$store.dispatch(ActionNames.LoadDatasetRecords).then(() => {
@@ -135,20 +141,24 @@ export default {
       },
       deep: true
     },
+
     currentVirtualPage () {
       this.$refs.table.$el.scrollTop = 0
     }
   },
+
   methods: {
     loadPage (pages) {
       pages.forEach(page => {
         this.$store.dispatch(ActionNames.LoadDatasetRecords, page)
       })
     },
+
     getPages (indexes) {
       const pages = [Math.floor(indexes.endIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
       this.loadPage(pages)
     },
+
     async replaceField ({ columnIndex, replaceValue, currentValue }) {
       const ok = await this.$refs.confirmation.show({
         title: this.datasetHeaders[columnIndex],

@@ -21,6 +21,7 @@ export default {
       required: true
     }
   },
+
   computed: {
     showButton () {
       return Object.keys(this.enableStatus).includes(this.row.status)
@@ -30,6 +31,7 @@ export default {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
     }
   },
+
   data () {
     return {
       enableStatus: {
@@ -39,6 +41,7 @@ export default {
       isProcessing: false
     }
   },
+
   methods: {
     async importRow () {
       this.isProcessing = true
@@ -48,7 +51,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

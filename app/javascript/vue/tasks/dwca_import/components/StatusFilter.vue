@@ -6,10 +6,10 @@
         <button
           class="button"
           :disabled="disabled"
-          :class="{
-            'button-data': applied.length,
-            'button-default': !applied.length
-          }"
+          :class="[applied.length
+            ? 'button-data'
+            : 'button-default'
+          ]"
           @click="show = !show"
         >
           ▼
@@ -47,16 +47,14 @@ import ColumnMixin from './shared/columnMixin.js'
 
 export default {
   mixins: [ColumnMixin],
+
   props: {
-    value: {
-      type: Array,
-      required: true
-    },
     disabled: {
       type: Boolean,
       default: false
     }
   },
+
   data () {
     return {
       options: Object.keys(FilterStatus)
