@@ -24,7 +24,7 @@ export default {
   props: {
     options: {
       type: [Array, Object],
-      default: () => { return [] }
+      default: () => []
     },
     url: {
       type: String,
@@ -81,7 +81,8 @@ export default {
       })
     },
     downloadCSV() {
-      var a = window.document.createElement('a');
+      const a = window.document.createElement('a')
+
       a.href = window.URL.createObjectURL(new Blob([this.csvFile], { type: 'text/csv' }))
       a.download = 'list.csv'
 

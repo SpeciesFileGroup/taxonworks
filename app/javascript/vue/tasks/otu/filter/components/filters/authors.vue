@@ -43,34 +43,40 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetPeople } from '../../request/resources'
+import { People } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
     DisplayList
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     source: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       authors: []
     }
   },
+
   watch: {
     value: {
       handler (newVal, oldVal) {
@@ -87,6 +93,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     this.source.author = params.author
@@ -94,12 +101,13 @@ export default {
     this.source.author_ids_or = params.author_ids_or
     if (params.author_ids) {
       params.author_ids.forEach(id => {
-        GetPeople(id).then(response => {
+        People.find(id).then(response => {
           this.addAuthor(response.body)
         })
       })
     }
   },
+
   methods: {
     addAuthor (author) {
       if (!this.source.author_ids.includes(author.id)) {
@@ -113,7 +121,7 @@ export default {
 }
 </script>
 <style scoped>
-  /deep/ .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

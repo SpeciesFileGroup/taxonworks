@@ -5,20 +5,18 @@
       <span
         data-icon="reset"
         class="cursor-pointer"
-        v-shortkey="[getMacKey, 'r']"
-        @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
     </div>
     <spinner-component
-      :full-screen="true"
+      full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="searching"
     />
 
     <spinner-component
-      :full-screen="true"
+      full-screen
       :legend="`Building ${ DWCACount } ... ${ DWCASearch.length } unindexed records`"
       :logo-size="{ width: '100px', height: '100px'}"
       v-if="loadingDWCA"
@@ -27,8 +25,6 @@
       <button
         class="button button-default normal-input full_width"
         type="button"
-        v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchOtus(parseParams)"
         @click="searchOtus(parseParams)">
         Search
       </button>
@@ -50,7 +46,7 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Otu } from 'routes/endpoints'
 
@@ -69,13 +65,21 @@ export default {
     CitationsComponent,
     WithComponent
   },
+
   computed: {
-    getMacKey () {
-      return GetMacKey()
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+r`] = this.resetFilter
+      keys[`${platformKey()}+f`] = this.searchOtus
+
+      return keys
     },
+
     parseParams () {
       return Object.assign({}, this.params.settings, this.filterEmptyParams(this.params.author), this.params.base, this.params.with)
     },
+
     emptyParams () {
       if (!this.params) return
       return !this.params.base.otu_id &&
@@ -86,6 +90,7 @@ export default {
         !this.params.base.data_attributes_attributes.length
     }
   },
+
   data () {
     return {
       params: this.initParams(),
@@ -99,6 +104,7 @@ export default {
       DWCASearch: 0
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
@@ -106,12 +112,14 @@ export default {
       this.searchOtus(urlParams)
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
       this.params = this.initParams()
     },
-    searchOtus (params) {
+
+    searchOtus (params = this.parseParams) {
       this.searching = true
 
       Otu.where(params).then(response => {
@@ -129,6 +137,7 @@ export default {
         this.searching = false
       })
     },
+
     initParams () {
       return {
         settings: {
@@ -153,7 +162,7 @@ export default {
           geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
-          geographic_area_ids: []
+          geographic_area_id: []
         },
         with: {
           biological_associations: undefined,
@@ -164,10 +173,12 @@ export default {
         }
       }
     },
+
     loadPage(page) {
       this.params.settings.page = page
       this.searchOtus(this.parseParams)
     },
+
     filterEmptyParams(object) {
       let keys = Object.keys(object)
       keys.forEach(key => {
@@ -177,6 +188,7 @@ export default {
       })
       return object
     },
+
     flatObject(object, key) {
       let tmp = Object.assign({}, object, object[key])
       delete tmp[key]
@@ -186,7 +198,7 @@ export default {
 }
 </script>
 <style scoped>
->>> .btn-delete {
+:deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>
