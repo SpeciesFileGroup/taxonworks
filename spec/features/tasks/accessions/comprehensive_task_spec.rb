@@ -61,7 +61,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
 
           click_button 'determination-add-button'
 
-          find('body').send_keys([OS.mac? ? :control : :alt, 's'])
+          find('#comprehensive-navbar').send_keys([OS.mac? ? :control : :alt, 's'])
           expect(page).to have_text('det. Foo')
         end
       end

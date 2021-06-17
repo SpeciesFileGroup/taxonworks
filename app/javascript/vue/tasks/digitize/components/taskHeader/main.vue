@@ -1,6 +1,7 @@
 <template>
   <nav-bar style="z-index: 1001">
     <div
+      id="comprehensive-navbar"
       v-hotkey="shortcuts"
       class="flex-separate">
       <div class="horizontal-left-content">
