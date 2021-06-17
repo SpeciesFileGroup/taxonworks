@@ -1,9 +1,10 @@
 <template>
   <button
     class="button normal-input button-default"
+    @click="openImageMatrix"
     :disabled="!otuIds.length"
-    @click="openImageMatrix">
-    View image matrix
+  >
+    Edit image matrix
   </button>
 </template>
 
@@ -15,13 +16,13 @@ export default {
   props: {
     otuIds: {
       type: Array,
-      default: () => []
+      required: true
     }
   },
 
   methods: {
     openImageMatrix () {
-      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}&view=true`, '_blank')
+      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}`, '_blank')
     }
   }
 }

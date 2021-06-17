@@ -21,8 +21,13 @@
         <add-to-matrix
           class="margin-small-right"
           :selected-ids="selectedIds"/>
-        <button-image-matrix
-          :otuIds="selectedIds"/>
+        <button-interactive-key
+          class="margin-small-right"
+          :otu-ids="selectedIds"/>
+        <button-edit-image-matrix
+          class="margin-small-right"
+          :otu-ids="selectedIds"/>
+        <button-image-matrix :otu-ids="selectedIds"/>
       </div>
       <ul class="no_bullets context-menu">
         <li>
@@ -105,13 +110,17 @@ import ModalList from './modalList'
 import SpinnerComponent from 'components/spinner'
 import AddToMatrix from './addToMatrix'
 import ButtonImageMatrix from './buttonImageMatrix.vue'
+import ButtonEditImageMatrix from './ButtonEditImageMatrix.vue'
+import ButtonInteractiveKey from './ButtonInteractiveKey.vue'
 
 export default {
   components: {
     ModalList,
     SpinnerComponent,
     AddToMatrix,
-    ButtonImageMatrix
+    ButtonImageMatrix,
+    ButtonEditImageMatrix,
+    ButtonInteractiveKey
   },
 
   props: {

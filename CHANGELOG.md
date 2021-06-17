@@ -7,8 +7,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Edit image matrix and view image matrix in observation matrices dashboard
+
 ### Changed
 - Updated ruby gems
+- Migrate Vue 2.6 to Vue 3.1.1
 
 ## [0.18.1] - 2021-06-09
 
