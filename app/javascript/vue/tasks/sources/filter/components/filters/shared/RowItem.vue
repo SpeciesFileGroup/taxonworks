@@ -5,8 +5,10 @@
     </td>
     <td>
       <div class="horizontal-center-content">
-        <template v-for="(value, key) in options">
-          <label :key="key">
+        <template
+          v-for="(value, key) in options"
+          :key="key">
+          <label>
             <input
               type="radio"
               v-model="fieldValue"
@@ -40,7 +42,7 @@ export default {
       default: 'object_tag'
     },
 
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -53,13 +55,19 @@ export default {
       })
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'remove'
+  ],
+
   computed: {
     fieldValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        return this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

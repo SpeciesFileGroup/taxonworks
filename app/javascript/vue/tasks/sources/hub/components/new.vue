@@ -19,17 +19,17 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
       tasks: [
-      {
-        label: 'New source',
-        url: '/tasks/sources/new_source'  
-      },
-      {
-        label: 'Batch load',
-        url: '/sources/batch_load'
-      }]
+        {
+          label: 'New source',
+          url: '/tasks/sources/new_source'
+        },
+        {
+          label: 'Batch load',
+          url: '/sources/batch_load'
+        }]
     }
   }
 }

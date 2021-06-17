@@ -58,12 +58,13 @@
           <th>
             Selected
           </th>
-          <th 
-            v-if="renderFromPosition <= index"
-            v-for="(header, index) in tableRanks.column_headers"
-            @click="sortBy(header)">
-            <span v-html="header.replace('_', '<br>')"/>
-          </th>
+          <template v-for="(header, index) in tableRanks.column_headers">
+            <th 
+              v-if="renderFromPosition <= index"
+              @click="sortBy(header)">
+              <span v-html="header.replace('_', '<br>')"/>
+            </th>
+          </template>
           <th>Code</th>
         </tr>
       </thead>
@@ -99,8 +100,8 @@
 
 <script>
 
-import ModalList from './modalList'
 import { GetterNames } from '../store/getters/getters'
+import ModalList from './modalList'
 import SpinnerComponent from 'components/spinner'
 import AddToMatrix from './addToMatrix'
 import ButtonImageMatrix from './buttonImageMatrix.vue'
@@ -112,24 +113,28 @@ export default {
     AddToMatrix,
     ButtonImageMatrix
   },
+
   props: {
     tableList: {
       type: Object,
-      default: () => { return {} }
+      default: () => ({})
     },
     filter: {
       type: Object,
       default: undefined
     }
   },
+
   computed: {
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
+
   data () {
     return {
       renderFromPosition: 4,
@@ -153,6 +158,7 @@ export default {
       selectedIds: []
     }
   },
+
   watch: {
     rankList: {
       handler (newVal) {
@@ -160,6 +166,7 @@ export default {
       },
       deep: true
     },
+
     tableList: {
       handler (newVal) {
         this.sorting = true
@@ -173,9 +180,10 @@ export default {
       }
     }
   },
+
   methods: {
     getRankNames (list, nameList = []) {
-      for (var key in list) {
+      for (const key in list) {
         if (typeof list[key] === 'object') {
           this.getRankNames(list[key], nameList)
         } else {
@@ -186,29 +194,25 @@ export default {
       }
       return nameList
     },
+
     getValueFromTable (header, rowIndex) {
-      const otuIndex = this.tableRanks.column_headers.findIndex(item => {
-        return item === header
-      })
+      const otuIndex = this.tableRanks.column_headers.findIndex(item => item === header)
+
       return this.tableRanks.data[rowIndex][otuIndex]
     },
+
     sortBy (headerName) {
       this.sorting = true
       setTimeout(() => {
-        const index = this.tableRanks.column_headers.findIndex(item => {
-          return item === headerName
+        const index = this.tableRanks.column_headers.findIndex(item => item === headerName)
+
+        this.tableRanks.data.sort(function (a, b) {
+          return this.ascending
+            ? (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
+            : (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
         })
-        if (this.ascending) {
-          this.tableRanks.data.sort(function (a, b) {
-            return (a[index] === null) - (b[index] === null) || +(a[index] > b[index]) || -(a[index] < b[index])
-          })
-          this.ascending = false
-        } else {
-          this.tableRanks.data.sort(function (a, b) {
-            return (a[index] === null) - (b[index] === null) || -(a[index] > b[index]) || +(a[index] < b[index])
-          })
-          this.ascending = true
-        }
+        this.ascending = !this.ascending
+
         this.$nextTick(() => {
           this.sorting = false
         })

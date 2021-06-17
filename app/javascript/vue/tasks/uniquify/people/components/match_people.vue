@@ -26,8 +26,10 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="person in matchList">
-            <tr :key="person.id">
+          <template
+            v-for="person in matchList"
+            :key="person.id">
+            <tr>
               <td>
                 <input
                   type="checkbox"
@@ -61,7 +63,7 @@ export default {
   components: { Autocomplete },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     },
@@ -77,13 +79,18 @@ export default {
     }
   },
 
+  emits: [
+    'update:modelValue',
+    'addToList'
+  ],
+
   computed: {
     selectedMergePerson: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
 

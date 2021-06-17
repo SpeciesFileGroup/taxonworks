@@ -23,6 +23,7 @@ import removeBiocuration from './removeBiocuration'
 import setLabel from './Label/setLabel'
 import setLabelText from './Label/setLabelText'
 import setLabelTotal from './Label/setLabelTotal'
+import setComponentsOrder from './setComponentsOrder'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import setCollectionObjectDataAttributes from './CollectionObject/setCollectionObjectDataAttributes'
@@ -128,7 +129,7 @@ const MutationNames = {
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
   SetSettings: 'setSettings',
-  
+
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
   SetPreferences: 'setPreferences',
@@ -239,7 +240,8 @@ const MutationNames = {
   SetCollectionObjectRangeLotId: 'setCollectionObjectRangeLotId',
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
-  SetProjectPreferences: 'setProjectPreferences'
+  SetProjectPreferences: 'setProjectPreferences',
+  SetComponentsOrder: 'setComponentsOrder'
 }
 
 const MutationFunctions = {
@@ -357,6 +359,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectRangeLotId]: setCollectionObjectRangeLotId,
   [MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+  [MutationNames.SetComponentsOrder]: setComponentsOrder,
 
   [MutationNames.SetLabel]: setLabel,
   [MutationNames.SetLabelText]: setLabelText,

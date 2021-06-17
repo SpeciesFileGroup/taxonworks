@@ -1,6 +1,6 @@
 import AjaxCall from 'helpers/ajaxCall'
 import { MutationNames } from '../mutations/mutations'
-import composeImage from 'tasks/observation_matrices/image/helpers/composeImage'
+import composeImage from 'tasks/observation_matrices/image/utils/composeImage'
 
 export default async ({ state, commit }, otus) => {
   const key = (await AjaxCall('get', '/tasks/observation_matrices/image_matrix/0/key', { params: { otu_filter: otus.map(otu => otu.id).join('|') } })).body

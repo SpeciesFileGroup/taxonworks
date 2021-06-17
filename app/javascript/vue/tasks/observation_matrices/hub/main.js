@@ -1,13 +1,9 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init () {
-  new Vue({
-    el: '#vue-task-observation-matrix-row',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.mount('#vue-task-observation-matrix-row')
 }
 
 document.addEventListener('turbolinks:load', () => {

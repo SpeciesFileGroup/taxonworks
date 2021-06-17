@@ -1,21 +1,9 @@
 <template>
   <block-layout :warning="!(typeMaterial.id || typeMaterials.length)">
-    <div slot="header">
-      <h3>Type material</h3>
-      <span
-        v-shortkey="[platformKey, 'm']"
-        @shortkey="switchTypeMaterial"/>
-      <span
-        v-shortkey="[platformKey, 't']"
-        @shortkey="switchNewTaxonName"/>
-      <span
-        v-shortkey="[platformKey, 'o']"
-        @shortkey="switchBrowseOtu"/>
-      <span
-        v-shortkey="[platformKey, 'b']"
-        @shortkey="switchBrowseNomenclature"/>
-    </div>
-    <div slot="body">
+    <template #header>
+      <h3 v-hotkey="shortcuts">Type material</h3>
+    </template>
+    <template #body>
       <ul
         class="no_bullets"
         v-if="typeMaterials.length">
@@ -45,49 +33,32 @@
         </li>
       </ul>
       <div v-show="!typeMaterials.length || editMode">
-        <div class="separate-bottom">
-          <fieldset>
-            <legend>Taxon name</legend>
-            <smart-selector
-              ref="smartSelector"
-              model="taxon_names"
-              klass="TypeMaterial"
-              :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
-              :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
-              pin-section="TaxonNames"
-              pin-type="TaxonName"
-              @selected="selectTaxon($event.id)"
+        <fieldset>
+          <legend>Taxon name</legend>
+          <smart-selector
+            ref="smartSelector"
+            model="taxon_names"
+            klass="TypeMaterial"
+            :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
+            :autocomplete-params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
+            pin-section="TaxonNames"
+            pin-type="TaxonName"
+            @selected="selectTaxon($event.id)"
+          />
+          <div
+            class="horizontal-left-content"
+            v-if="taxonSelected">
+            <a
+              :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
+              v-html="taxon.object_tag"
             />
-            <div
-              v-if="taxon"
-              class="horizontal-left-content">
-              <a
-                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
-                v-html="taxon.object_tag" />
-              <span
-                class="button circle-button btn-undo button-default"
-                @click="taxon = undefined"/>
-            </div>
-          </fieldset>
-        </div>
-        <div class="separate-bottom">
-          <p>Type type</p>
-          <ul
-            class="no_bullets"
-            v-if="checkForTypeList">
-            <li v-for="(item, key) in types[taxon.nomenclatural_code]">
-              <label>
-                <input
-                  class="capitalize"
-                  type="radio"
-                  v-model="type"
-                  :value="key">
-                {{ key }}
-              </label>
-            </li>
-          </ul>
-          <span v-else>Select a taxon name first</span>
-        </div>
+            <button
+              type="button"
+              class="button circle-button btn-undo button-default"
+              @click="taxon = undefined"/>
+          </div>
+        </fieldset>
+        <type-selector v-model="type"/>
         <fieldset>
           <legend>Source</legend>
           <smart-selector
@@ -113,7 +84,7 @@
             placeholder="Pages">
         </fieldset>
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -123,6 +94,7 @@ import { TypeMaterial, Source } from 'routes/endpoints'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
 import ActionNames from '../../store/actions/actionNames.js'
+import TypeSelector from './TypeSelector.vue'
 import BlockLayout from 'components/layout/BlockLayout.vue'
 import SmartSelector from 'components/ui/SmartSelector.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
@@ -134,37 +106,26 @@ export default {
     BlockLayout,
     SmartSelector,
     RadialAnnotator,
-    VIcon
+    VIcon,
+    TypeSelector
   },
   computed: {
-    platformKey,
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+m`] = this.switchTypeMaterial
+      keys[`${platformKey()}+t`] = this.switchNewTaxonName
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+      keys[`${platformKey()}+b`] = this.switchBrowseNomenclature
+
+      return keys
+    },
 
     taxonIdFormOtu () {
       const otu = this.$store.getters[GetterNames.GetTmpData].otu
       return otu?.taxon_name_id
     },
-    checkForTypeList () {
-      return this.types && this.taxon
-    },
-    typeMaterial: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterial, value)
-      }
-    },
-    typeMaterials () {
-      return this.$store.getters[GetterNames.GetTypeMaterials]
-    },
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTypeMaterialTaxon, value)
-      }
-    },
+
     type: {
       get () {
         return this.$store.getters[GetterNames.GetTypeMaterial].type_type
@@ -173,6 +134,33 @@ export default {
         this.$store.commit(MutationNames.SetTypeMaterialType, value)
       }
     },
+
+    typeMaterial: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial]
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterial, value)
+      }
+    },
+
+    typeMaterials () {
+      return this.$store.getters[GetterNames.GetTypeMaterials]
+    },
+
+    taxon: {
+      get () {
+        return this.$store.getters[GetterNames.GetTypeMaterial].taxon
+      },
+      set (value) {
+        this.$store.commit(MutationNames.SetTypeMaterialTaxon, value)
+      }
+    },
+
+    taxonSelected () {
+      return this.taxon
+    },
+
     citation: {
       get () {
         return this.$store.getters[GetterNames.GetTypeMaterial].origin_citation_attributes
@@ -188,7 +176,7 @@ export default {
   data () {
     return {
       editMode: false,
-      types: undefined,
+      types: {},
       sourceSelected: undefined,
       origin_citation_attributes: {
         source_id: undefined,
@@ -261,10 +249,13 @@ export default {
     },
 
     editTypeMaterial ({ id, origin_citation, protonym_id, type_type }) {
-      Source.find(origin_citation.source.id).then(({ body }) => {
-        this.selectSource(body)
-        this.origin_citation_attributes.id = origin_citation.id
-      })
+      if (origin_citation?.source) {
+        Source.find(origin_citation.source.id).then(({ body }) => {
+          this.selectSource(body)
+          this.origin_citation_attributes.id = origin_citation.id
+        })
+      }
+
       this.typeMaterial.id = id
       this.selectTaxon(protonym_id)
       this.type = type_type

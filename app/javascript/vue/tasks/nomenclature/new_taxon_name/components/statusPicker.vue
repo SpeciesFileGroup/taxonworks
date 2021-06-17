@@ -3,11 +3,10 @@
     :warning="checkValidation"
     anchor="status"
     :spinner="!taxon.id">
-    <h3 slot="header">
-      Status
-    </h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Status</h3>
+    </template>
+    <template #body>
       <tree-display
         v-if="taxon.id"
         :tree-list="treeList"
@@ -70,7 +69,7 @@
         :edit="true"
         :list="getStatusCreated"
         :display="['object_tag']"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -82,7 +81,7 @@ import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import Autocomplete from 'components/ui/Autocomplete.vue'
-import BlockLayout from'components/layout/BlockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import SwitchComponent from 'components/switch'
 
 export default {
@@ -201,7 +200,7 @@ export default {
     },
 
     refresh () {
-      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode]))
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
 
       this.objectLists = Object.assign({}, this.makeLists())
       this.objectLists.tree = Object.assign({}, copyList.tree)
@@ -233,13 +232,13 @@ export default {
 
     getTreeListForThisRank (list, ranksList, filteredList) {
       for (var key in list) {
-        Object.defineProperty(list[key], 'name', { value: ranksList[key].name })
-        Object.defineProperty(list[key], 'type', { value: ranksList[key].type })
+        Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
+        Object.defineProperty(list[key], 'type', { writable: true, value: ranksList[key].type })
 
         if (filteredList.find((item) => item.type === key)) {
-          Object.defineProperty(list[key], 'disabled', { value: false, configurable: true })
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: false, configurable: true })
         } else {
-          Object.defineProperty(list[key], 'disabled', { value: true, configurable: true })
+          Object.defineProperty(list[key], 'disabled', { writable: true, value: true, configurable: true })
         }
         this.getTreeListForThisRank(list[key], ranksList, filteredList)
       }

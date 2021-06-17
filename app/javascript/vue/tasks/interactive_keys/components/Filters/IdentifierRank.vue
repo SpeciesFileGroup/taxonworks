@@ -15,7 +15,7 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String,
       default: undefined
     }
@@ -24,17 +24,28 @@ export default {
   computed: {
     rankSelected: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
 
   data () {
     return {
-      ranks: [undefined, 'otu', 'subspecies', 'species', 'subgenus', 'genus', 'subtribe', 'tribe', 'subfamily', 'family']
+      ranks: [
+        undefined,
+        'otu',
+        'subspecies',
+        'species',
+        'subgenus',
+        'genus',
+        'subtribe',
+        'tribe',
+        'subfamily',
+        'family'
+      ]
     }
   }
 }

@@ -2,8 +2,7 @@
   <div>
     <h2>Properties</h2>
     <new-property
-      @create="addProperty"
-      @update="updateProperty"
+      @save="addProperty"
       ref="property"/>
     <table class="full_width">
       <thead>
@@ -15,20 +14,21 @@
         v-model="list"
         tag="tbody"
         :group="{ name: 'property', pull: 'clone', put: false }"
+        item-key="id"
         @start="drag=true"
         @end="drag=false">
-        <tr
-          v-for="item in list"
-          :key="item.id">
-          <td class="middle">
-            <span
-              @click="editProperty(item)"
-              class="button button-circle btn-edit"/>
-            <span
-              class="margin-small-left"
-              v-html="item.object_tag"/>
-          </td>
-        </tr>
+        <template #item="{ element }">
+          <tr>
+            <td class="middle">
+              <span
+                @click="editProperty(element)"
+                class="button button-circle btn-edit"/>
+              <span
+                class="margin-small-left"
+                v-html="element.object_tag"/>
+            </td>
+          </tr>
+        </template>
       </draggable>
     </table>
   </div>
@@ -61,11 +61,17 @@ export default {
 
   methods: {
     addProperty (property) {
-      this.list.unshift(property)
+      const index = this.list.findIndex(item => item.id === property.id)
+
+      if (index > -1) {
+        this.list[index] = property
+      } else {
+        this.list.unshift(property)
+      }
     },
 
     updateProperty (property) {
-      this.$set(this.list, this.list.findIndex(item => item.id === property.id), property)
+      this.list[this.list.findIndex(item => item.id === property.id)] = property
     },
 
     editProperty (property) {

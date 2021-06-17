@@ -69,11 +69,13 @@ export default {
       return (document.activeElement.tagName === 'INPUT' ||
           document.activeElement.tagName === 'TEXTAREA')
     },
-    keyPressed ({ key }) {
+    keyPressed (event) {
+      const { code, key } = event
+      const keyPressed = String(Object.keys(this.clipboard).findIndex(keyCode => `Digit${keyCode}` === code) + 1)
       const isClipboardKey = Object.keys(this.clipboard).includes(key)
       const iskeyCopyPressed = !!this.keys.find(key => key.toUpperCase() === this.keyCopy)
 
-      this.addKey(key)
+      this.addKey(isClipboardKey ? keyPressed : key)
 
       if (this.keys.includes(this.actionKey) && isClipboardKey) {
         if (iskeyCopyPressed) {
@@ -81,6 +83,7 @@ export default {
         } else {
           this.pasteClipboard(key)
         }
+        event.preventDefault()
       }
     },
     pasteClipboard (clipboardIndex) {

@@ -1,54 +1,48 @@
-let HelpSystem = {}
+const HelpSystem = {}
 let languages = {}
 let defaultLanguage = ''
 
 const getString = function(binding) {
-
-  let modifiers = binding.modifiers
+  const modifiers = binding.modifiers
   let string = languages[defaultLanguage]
-  
-  if(binding.hasOwnProperty('expression')) {
-    let expression = binding.value.split('.')
+
+  if (binding.hasOwnProperty('expression')) {
+    const expression = binding.value.split('.')
+
     expression.forEach(item => {
       string = string[item]
     })
     return string
   }
 
-  for(let key in modifiers) {
-    if(string.hasOwnProperty(key)) {
+  for (const key in modifiers) {
+    if (string.hasOwnProperty(key)) {
       string = string[key]
-    }
-    else {
+    } else {
       string = undefined
-      break;
+      break
     }
   }
 
   return string
 }
 
-const setHelpPresent = function() {
+const setHelpPresent = () => {
   document.querySelector('.help-button').classList.add('help-button-present')
 }
 
-HelpSystem.install = function (Vue, options) {
+HelpSystem.install = function (app, options) {
   languages = options.languages
-  
-  if(options.default) {
-    defaultLanguage = options.default
-  }
-  else {
-    defaultLanguage = Object.keys(languages)[0]
-  }
+  defaultLanguage = options.default || Object.keys(languages)[0]
 
-  Vue.directive('help', {
-    bind (el, binding, vnode, oldVnode) {
-      if(languages.hasOwnProperty(defaultLanguage)) {
-        let description = getString(binding)
-        if(description) {
-          el.setAttribute('data-help', description);
-          setHelpPresent();
+  app.directive('help', {
+    beforeMount (el, binding, vnode, oldVnode) {
+      if (languages.hasOwnProperty(defaultLanguage)) {
+        const description = getString(binding)
+
+        if (description) {
+          el.setAttribute('data-help', description)
+          setHelpPresent()
         }
       }
     }

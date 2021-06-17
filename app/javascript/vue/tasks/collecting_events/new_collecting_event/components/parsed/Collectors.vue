@@ -12,13 +12,14 @@
       }"
       :autocomplete="false"
       @selected="addRole">
-      <role-picker
-        slot="header"
-        :hidden-list="true"
-        v-model="collectingEvent.roles_attributes"
-        ref="rolepicker"
-        :autofocus="false"
-        role-type="Collector"/>
+      <template #header>
+        <role-picker
+          hidden-list
+          v-model="collectingEvent.roles_attributes"
+          ref="rolepicker"
+          :autofocus="false"
+          role-type="Collector"/>
+      </template>
       <role-picker
         :create-form="false"
         v-model="collectingEvent.roles_attributes"

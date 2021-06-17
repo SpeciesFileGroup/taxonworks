@@ -44,8 +44,11 @@ export default {
   },
 
   watch: {
-    topicsSelected () {
-      this.checkTopics()
+    topicsSelected:{
+      handler () {
+        this.checkTopics()
+      },
+      deep: true
     }
   },
 

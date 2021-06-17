@@ -54,19 +54,24 @@
 
 <script>
 
-import ajaxCall from 'helpers/ajaxCall'
 import SpinnerComponent from 'components/spinner'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
-  components: {
-    SpinnerComponent
-  },
+  components: { SpinnerComponent },
+
   props: {
     otuName: {
       type: String,
       default: undefined
     }
   },
+
+  emits: [
+    'selected',
+    'createNew'
+  ],
+
   data () {
     return {
       matches: [],
@@ -76,11 +81,13 @@ export default {
       searchDone: false
     }
   },
+
   watch: {
     otuName: {
       handler (newVal) {
         this.isSearching = true
         this.foundMatches = false
+
         clearTimeout(this.timeOut)
         this.timeOut = setTimeout(() => {
           this.searchByTaxonName()
@@ -89,22 +96,23 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     searchByTaxonName () {
-      ajaxCall('get', '/taxon_names.json', {
-        params: {
-          name: this.otuName,
-          exact: true
-        }
+      TaxonName.where({
+        name: this.otuName,
+        exact: true
       }).then(response => {
         this.matches = response.body
         this.isSearching = false
         this.foundMatches = response.body.length > 0
       })
     },
+
     send (taxon) {
       this.$emit('selected', taxon)
     },
+
     createNew () {
       this.$emit('createNew', true)
     }

@@ -44,15 +44,15 @@
               :id="source.id"/>
           </template>
         </div>
-        <div class="horizontal-right-content">
+        <div
+          class="horizontal-right-content"
+          v-hotkey="shortcuts">
           <span
             v-if="unsave"
             class="medium-icon margin-small-right"
             title="You have unsaved changes."
             data-icon="warning"/>
           <button
-            v-shortkey="[getMacKey(), 's']"
-            @shortkey="saveSource"
             @click="saveSource"
             :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
             class="button normal-input button-submit button-size separate-right separate-left"
@@ -86,8 +86,6 @@
             Recent
           </button>
           <button
-            v-shortkey="[getMacKey(), 'n']"
-            @shortkey="reset"
             @click="reset"
             class="button normal-input button-default button-size separate-left"
             type="button">
@@ -133,7 +131,6 @@ import Bibtex from './components/bibtex/main'
 import Human from './components/person/main'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialObject from 'components/radials/navigation/radial'
-import GetMacKey from 'helpers/getMacKey'
 import AddSource from 'components/addToProjectSource'
 import Autocomplete from 'components/ui/Autocomplete'
 import CloneSource from './components/cloneSource'
@@ -148,6 +145,7 @@ import { MutationNames } from './store/mutations/mutations'
 
 import RightSection from './components/rightSection'
 import NavBar from 'components/layout/NavBar'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   components: {
@@ -169,6 +167,14 @@ export default {
     SpinnerComponent
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+s`] = this.saveSource
+      keys[`${platformKey()}+n`] = this.reset
+
+      return keys
+    },
     section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
@@ -207,9 +213,9 @@ export default {
     }
   },
   mounted () {
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+s`, 'Save', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+n`, 'New', 'New source')
-    TW.workbench.keyboard.createLegend(`${this.getMacKey()}+c`, 'Clone source', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+c`, 'Clone source', 'New source')
 
     const urlParams = new URLSearchParams(window.location.search)
     const sourceId = urlParams.get('source_id')
@@ -238,8 +244,7 @@ export default {
     },
     loadSource (sourceId) {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    },
-    getMacKey: GetMacKey
+    }
   }
 }
 </script>

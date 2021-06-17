@@ -28,17 +28,20 @@ export default {
       type: Array,
       required: true
     },
-    value: {
+    modelValue: {
       required: true
     }
   },
+
+  emit: ['update:modelValue'],
+
   computed: {
     checked: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   }

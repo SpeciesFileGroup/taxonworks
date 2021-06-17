@@ -6,46 +6,47 @@
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
-        <h3
-          slot="header"
-          class="flex-separate">
-          <span v-html="title" />
-          <span
-            v-if="metadata"
-            class="separate-right">
-            {{ metadata.object_type }}
-          </span>
-        </h3>
-        <div
-          slot="body"
-          class="flex-separate">
-          <spinner v-if="!menuCreated" />
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu
-                v-if="menuCreated"
-                :options="menuOptions"
-                @onClick="selectComponent"/>
+        <template #header>
+          <h3 class="flex-separate">
+            <span v-html="title" />
+            <span
+              v-if="metadata"
+              class="separate-right">
+              {{ metadata.object_type }}
+            </span>
+          </h3>
+        </template>
+        <template #body>
+          <div
+            class="flex-separate">
+            <spinner v-if="!menuCreated" />
+            <div class="radial-annotator-menu">
+              <div>
+                <radial-menu
+                  v-if="menuCreated"
+                  :options="menuOptions"
+                  @onClick="selectComponent"/>
+              </div>
+            </div>
+            <div
+              class="radial-annotator-template panel"
+              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              v-if="currentAnnotator">
+              <h2 class="capitalize view-title">
+                {{ currentAnnotator.replace("_"," ") }}
+              </h2>
+              <component
+                class="radial-annotator-container"
+                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
+                :type="currentAnnotator"
+                :url="url"
+                :metadata="metadata"
+                :global-id="globalId"
+                :object-type="metadata.object_type"
+                @updateCount="setTotal"/>
             </div>
           </div>
-          <div
-            class="radial-annotator-template panel"
-            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-            v-if="currentAnnotator">
-            <h2 class="capitalize view-title">
-              {{ currentAnnotator.replace("_"," ") }}
-            </h2>
-            <component
-              class="radial-annotator-container"
-              :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-              :type="currentAnnotator"
-              :url="url"
-              :metadata="metadata"
-              :global-id="globalId"
-              :object-type="metadata.object_type"
-              @updateCount="setTotal"/>
-          </div>
-        </div>
+        </template>
       </modal>
       <span
         v-if="showBottom"

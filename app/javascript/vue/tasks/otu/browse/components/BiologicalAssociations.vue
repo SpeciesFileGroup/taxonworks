@@ -29,8 +29,10 @@
       v-if="showModal"
       @close="setModalView(false)"
       :containerStyle="{ width: '900px' }">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width margin-small-right">
             <h4>Year</h4>
@@ -62,7 +64,7 @@
             :list="sourcesList"
             v-model="sourcesFilter"/>
         </div>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -72,10 +74,10 @@
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
 import ModalComponent from 'components/ui/Modal'
-import { GetterNames } from '../store/getters/getters'
 import YearPicker from './nomenclature/yearsPick'
 import FilterList from './biologicalAssociations/filterList'
 import { getUnique } from 'helpers/arrays.js'
+import { GetterNames } from '../store/getters/getters'
 
 export default {
   mixins: [extendSection],

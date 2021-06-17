@@ -15,18 +15,18 @@
     </template>
     <button
       v-else
-    class="button normal-input button-default"
-    :disabled="citation"
+      class="button normal-input button-default"
+      :disabled="citation"
       @click="pressed = true"
-    type="button">
+      type="button">
       {{ label }}
-  </button>
+    </button>
   </div>
 </template>
 
 <script>
 
-import ajaxCall from 'helpers/ajaxCall'
+import { Citation } from 'routes/endpoints'
 
 export default {
   props: {
@@ -34,11 +34,13 @@ export default {
       type: [String, Number],
       required: true
     },
+
     globalId: {
       type: String,
       required: true
     }
   },
+
   data () {
     return {
       citation: undefined,
@@ -47,9 +49,10 @@ export default {
       pressed: false
     }
   },
+
   methods: {
     createCitation () {
-      ajaxCall('post', '/citations.json', {
+      Citation.create({
         citation: {
           source_id: this.sourceId,
           pages: this.pages,

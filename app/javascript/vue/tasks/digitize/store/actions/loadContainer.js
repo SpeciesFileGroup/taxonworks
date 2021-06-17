@@ -10,4 +10,4 @@ export default ({ commit }, globalId) =>
         commit(MutationNames.AddCollectionObject, response.body)
       })
     })
-  })
+  }).catch()

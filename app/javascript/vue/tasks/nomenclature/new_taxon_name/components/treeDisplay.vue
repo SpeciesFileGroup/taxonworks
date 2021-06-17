@@ -4,19 +4,22 @@
       class="transparent-modal"
       v-if="showModal"
       @close="activeModal(false)">
-      <h3 slot="header">{{ nameModule }}</h3>
-      <div
-        slot="body"
-        class="tree-list">
-        <recursive-list
-          :getter-list="getterList"
-          :display="displayName"
-          @selected="$emit('selected', $event)"
-          :modal-mutation-name="mutationNameModal"
-          :action-mutation-name="mutationNameAdd"
-          :valid-property="validProperty"
-          :object-list="objectLists.tree"/>
-      </div>
+      <template #header>
+        <h3>{{ nameModule }}</h3>
+      </template>
+      <template #body>
+        <div
+          class="tree-list">
+          <recursive-list
+            :getter-list="getterList"
+            :display="displayName"
+            @selected="$emit('selected', $event)"
+            :modal-mutation-name="mutationNameModal"
+            :action-mutation-name="mutationNameAdd"
+            :valid-property="validProperty"
+            :object-list="objectLists.tree"/>
+        </div>
+      </template>
     </modal>
   </form>
 </template>
@@ -32,9 +35,12 @@ export default {
     RecursiveList,
     Modal
   },
+
   name: 'TreeDisplay',
+
   props: ['treeList', 'parent', 'showModal', 'mutationNameAdd', 'mutationNameModal', 'objectLists', 'displayName', 'nameModule', 'getterList', 'validProperty'],
-  data: function () {
+
+  data () {
     return {
       showAdvance: false
     }
@@ -44,17 +50,9 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
-  mounted: function () {
-    var that = this
-    this.$on('closeModal', function () {
-      that.showModal = false
-    })
-    this.$on('autocompleteStatusSelected', function (status) {
-      that.addEntry(status)
-    })
-  },
+
   methods: {
-    activeModal: function (value) {
+    activeModal (value) {
       this.$emit('close', true)
       this.$store.commit(MutationNames[this.mutationNameModal], value)
     }

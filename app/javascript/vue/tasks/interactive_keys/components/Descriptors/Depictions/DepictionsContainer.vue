@@ -6,8 +6,10 @@
       maxHeight: '90vh',
       overflow: 'scroll'
     }">
-    <h3 slot="header">{{ descriptor.name }}</h3>
-    <div slot="body">
+    <template #header>
+      <h3>{{ descriptor.name }}</h3>
+    </template>
+    <template #body>
       <button
         type="button"
         class="button normal-input button-default"
@@ -34,10 +36,10 @@
         {{ descriptor.description }}
       </h3>
       <hr v-if="descriptor.description && depictions.find(d => d.caption != null)">
-      <template v-for="(row, rIndex) in chunkArray(descriptor.states, 3)">
-        <div
-          class="wrapper"
-          :key="`${rIndex}-depictions`">
+      <template
+        v-for="(row, rIndex) in chunkArray(descriptor.states, 3)"
+        :key="`${rIndex}-depictions`">
+        <div class="wrapper">
           <character-state
             v-for="(characterState, index) in row"
             :key="index"
@@ -45,9 +47,7 @@
             :character-state="characterState"
           />
         </div>
-        <div
-          :key="`${rIndex}-label`"
-          class="wrapper margin-medium-bottom">
+        <div class="wrapper margin-medium-bottom">
           <div
             v-for="(characterState, index) in row"
             :key="index">
@@ -61,16 +61,16 @@
           </div>
         </div>
       </template>
-      <div slot="footer">
-        <hr>
-        <button
-          type="button"
-          class="button normal-input button-default"
-          @click="closeAndSave">
-          Apply
-        </button>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <hr>
+      <button
+        type="button"
+        class="button normal-input button-default"
+        @click="closeAndSave">
+        Apply
+      </button>
+    </template>
   </modal-component>
 </template>
 
@@ -86,26 +86,35 @@ export default {
     ModalComponent,
     CharacterState
   },
+
   props: {
     descriptor: {
       type: Object,
       required: true
     },
-    value: {
+    modelValue: {
       type: Object,
       default: () => []
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'update',
+    'close'
+  ],
+
   computed: {
     filter: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       depictions: [],
@@ -113,14 +122,16 @@ export default {
       copy: []
     }
   },
+
   created () {
-    const data = this.value[this.descriptor.id]
+    const data = this.modelValue[this.descriptor.id]
     this.selected = data ? Array.isArray(data) ? data.slice(0) : [data] : []
     this.copy = this.selected.slice()
     GetDescriptorDepictions(this.descriptor.id).then(response => {
       this.depictions = response.body
     })
   },
+
   methods: {
     closeAndSave () {
       if (JSON.stringify(this.copy) !== JSON.stringify(this.selected)) {

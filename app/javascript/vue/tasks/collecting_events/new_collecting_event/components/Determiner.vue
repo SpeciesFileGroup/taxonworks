@@ -1,11 +1,7 @@
 <template>
   <div>
-    <div slot="header">
-      <h3>Determinations</h3>
-    </div>
-    <div
-      slot="body"
-      id="taxon-determination-digitize">
+    <h3>Determinations</h3>
+    <div id="taxon-determination-digitize">
       <fieldset
         class="separate-bottom">
         <legend>OTU</legend>
@@ -41,14 +37,15 @@
             target="Determiner"
             :autocomplete="false"
             @selected="addRole">
-            <role-picker
-              slot="header"
-              class="role-picker"
-              :autofocus="false"
-              :hidden-list="true"
-              ref="rolepicker"
-              role-type="Determiner"
-              v-model="taxonDetermination.roles_attributes"/>
+            <template #header>
+              <role-picker
+                class="role-picker"
+                :autofocus="false"
+                :hidden-list="true"
+                ref="rolepicker"
+                role-type="Determiner"
+                v-model="taxonDetermination.roles_attributes"/>
+            </template>
             <role-picker
               class="role-picker"
               :autofocus="false"
@@ -102,17 +99,17 @@
         element="ul"
         v-model="list"
         @end="updatePosition">
-        <li
-          class="list-complete-item flex-separate middle"
-          v-for="(item, index) in list">
-          <span><span v-html="item.otuSelected"/> {{ authorsString() }} {{ dateString() }}</span>
-          <div class="horizontal-left-content">
-            <span
-              class="circle-button btn-delete"
-              :class="{ 'button-default': !item.id }"
-              @click="removeTaxonDetermination(index)"/>
-          </div>
-        </li>
+        <template #item="{ element }">
+          <li class="list-complete-item flex-separate middle">
+            <span><span v-html="element.otuSelected"/> {{ authorsString() }} {{ dateString() }}</span>
+            <div class="horizontal-left-content">
+              <span
+                class="circle-button btn-delete"
+                :class="{ 'button-default': !element.id }"
+                @click="removeTaxonDetermination(index)"/>
+            </div>
+          </li>
+        </template>
       </draggable>
     </div>
   </div>
@@ -133,70 +130,86 @@ export default {
     RolePicker,
     Draggable
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     list: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       taxonDetermination: this.newDetermination()
     }
   },
+
   methods: {
     roleExist (id) {
       return this.taxonDetermination.roles_attributes.find(role => !role?._destroy && role.person_id === id)
     },
+
     addRole (role) {
       if (!this.roleExist(role.id)) {
         this.taxonDetermination.roles_attributes.push(CreatePerson(role, 'Determiner'))
       }
     },
+
     addDetermination () {
       this.list.push(this.taxonDetermination)
       this.taxonDetermination = this.newDetermination()
     },
+
     setActualDate () {
       const today = new Date()
       this.taxonDetermination.day_made = today.getDate()
       this.taxonDetermination.month_made = today.getMonth() + 1
       this.taxonDetermination.year_made = today.getFullYear()
     },
+
     setOtu (otu) {
       this.taxonDetermination.otu_id = otu.id
       this.taxonDetermination.otuSelected = otu.object_tag
     },
+
     authorsString (role) {
       return role ? `by ${role?.person ? role.person.last_name : role.last_name}` : ''
     },
+
     dateString () {
       if (this.taxonDetermination.day_made || this.taxonDetermination.month_made || this.taxonDetermination.year_made) {
         return `on ${this.taxonDetermination.day_made ? `${this.taxonDetermination.day_made}-` : ''}${this.taxonDetermination.month_made ? `${this.taxonDetermination.month_made}-` : ''}${this.taxonDetermination.year_made ? `${this.taxonDetermination.year_made}` : ''}`
       }
       return ''
     },
+
     openBrowseOtu (id) {
       return `${RouteNames.BrowseOtu}?otu_id=${id}`
     },
+
     updatePosition () {
       for (let i = 0; i < this.list.length; i++) {
         this.list[i].position = (i + 1)
       }
     },
+
     removeTaxonDetermination (index) {
       this.list.splice(index, 1)
     },
+
     newDetermination () {
       return {
         biological_collection_object_id: undefined,

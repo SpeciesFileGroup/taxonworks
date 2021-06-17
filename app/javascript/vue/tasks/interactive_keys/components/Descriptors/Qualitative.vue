@@ -31,23 +31,26 @@ import DepictionsContainer from './Depictions/DepictionsContainer'
 
 export default {
   mixins: [ExtendDescriptor],
-  components: {
-    DepictionsContainer
-  },
+
+  components: { DepictionsContainer },
+
   data () {
     return {
       openModal: false
     }
   },
+
   methods: {
     setModalView (value) {
       this.openModal = value
     },
+
     selectedOption (character) {
       return this.selected[this.descriptor.id] ? Array.isArray(this.selected[this.descriptor.id]) ? this.selected[this.descriptor.id].includes(character.id) : this.selected[this.descriptor.id] === character.id : false
     },
+
     setValue (value) {
-      this.$set(this.selected, this.descriptor.id, value)
+      this.selected[this.descriptor.id] = value
     }
   }
 }

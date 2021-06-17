@@ -25,35 +25,39 @@ export default {
   props: {
     name: {
       type: String,
-      default: () => { return (Math.random().toString(36).substr(2, 5)) }
+      default: () => Math.random().toString(36).substr(2, 5)
     },
     title: {
       type: String,
       required: true
     },
-    value: {
+    modelValue: {
       type: Boolean,
       default: undefined
     },
     values: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
     param: {
       type: String,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       options: [
@@ -72,13 +76,14 @@ export default {
       ]
     }
   },
+
   mounted () {
     if (this.param) {
       const params = URLParamsToJSON(location.href)
       this.optionValue = params[this.param]
     }
-
   },
+
   created () {
     if (this.values.length) {
       this.values.forEach((label, index) => {

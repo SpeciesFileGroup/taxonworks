@@ -2,8 +2,7 @@
   <button
     type="button"
     class="button button-circle btn-clipboard button-default"
-    @click="copyToClipboard()">
-  </button>
+    @click="copyToClipboard()"/>
 </template>
 
 <script>
@@ -14,6 +13,7 @@ export default {
       default: ''
     }
   },
+
   methods: {
     copyToClipboard () {
       const element = document.createElement('textarea')
@@ -28,7 +28,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

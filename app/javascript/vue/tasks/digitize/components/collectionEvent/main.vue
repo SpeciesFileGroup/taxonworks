@@ -1,14 +1,10 @@
 <template>
   <block-layout
     :warning="!collectingEvent.id">
-    <div
-      v-shortkey="[platformKey, 'v']"
-      @shortkey="openNewCollectingEvent"
-      slot="header">
-      <h3>Collecting Event</h3>
-    </div>
-    <div
-      slot="body">
+    <template #header>
+      <h3 v-hotkey="shortcuts">Collecting Event</h3>
+    </template>
+    <template #body>
       <fieldset class="separate-bottom">
         <legend>Selector</legend>
         <div class="horizontal-left-content align-start separate-bottom">
@@ -43,10 +39,7 @@
         >
           <p v-html="collectingEvent.object_tag" />
           <div class="horizontal-left-content">
-            <div
-              slot="options"
-              class="horizontal-left-content separate-right"
-            >
+            <div class="horizontal-left-content separate-right">
               <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
               <div
                 v-if="collectingEvent.id"
@@ -89,7 +82,7 @@
         <block-geography class="separate-left separate-right full_width" />
         <block-map class="separate-left full_width" />
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -127,7 +120,13 @@ export default {
     LockComponent
   },
   computed: {
-    platformKey,
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+v`] = this.openNewCollectingEvent
+
+      return keys
+    },
 
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]

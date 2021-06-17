@@ -1,18 +1,14 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from 'components/pinboard/navigator.vue'
-import vueShortkey from 'vue-shortkey'
+import hotkey from 'plugins/v-hotkey'
 
 function init () {
-  Vue.use(vueShortkey)
-  new Vue({
-    el: '#vue-pinboard-navigator',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+  app.directive('hotkey', hotkey)
+  app.mount('#vue-pinboard-navigator')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#vue-pinboard-navigator')) {
     init()
   }

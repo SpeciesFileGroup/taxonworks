@@ -121,6 +121,11 @@ class ImageMatrix
   #temporary hash of descriptors; used for calculation of useful and not useful descriptors and their states
   attr_accessor :descriptors_hash
 
+  # @! list_of_image_ids
+  #   @return [null]
+  #temporary array of image.ids; used to build the @image_hash
+  attr_accessor :list_of_image_ids
+
   def initialize(
       observation_matrix_id: nil,
       project_id: nil,
@@ -148,12 +153,14 @@ class ImageMatrix
     @descriptor_available_languages = descriptor_available_languages_list
     @language_to_use = language_to_use
     ###main_logic
+    @list_of_image_ids = []
     @list_of_descriptors = build_list_of_descriptors
     @depiction_matrix = descriptors_hash_initiate
     @image_hash = build_image_hash
     ###delete temporary data
     @row_hash = nil
     @rows_with_filter = []
+    @list_of_image_ids = nil
     @descriptors_with_filter = nil
   end
 
@@ -272,6 +279,7 @@ class ImageMatrix
     else
       depictions = @observation_matrix.observation_depictions
     end
+
     descriptors_count = @list_of_descriptors.count
     @row_hash.each do |r_key, r_value|
       if (@row_id_filter_array.nil? && @otu_id_filter_array.nil?) ||
@@ -290,6 +298,7 @@ class ImageMatrix
       if h[otu_collection_object]
         descriptor_index = @list_of_descriptors[o.descriptor_id][:index]
         h[otu_collection_object][:depictions][descriptor_index] += [o]
+        @list_of_image_ids.append(o.image_id)
       end
     end
     h
@@ -338,9 +347,14 @@ class ImageMatrix
   end
 
   def build_image_hash
-    img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
-    imgs = Image.where('id IN (?)', img_ids )
+#    if !@otu_filter.blank? || !@row_filter.blank?
+#      img_ids = observation_depictions_from_otu_filter.pluck(:image_id).uniq
+#    else
+#      img_ids = @observation_matrix.observation_depictions.pluck(:image_id).uniq
+#    end
     h = {}
+    #imgs = Image.where('id IN (?)', img_ids )
+    imgs = Image.where('id IN (?)', @list_of_image_ids )
     imgs.each do |d|
       i = {}
       i[:global_id] = d.to_global_id.to_s
@@ -353,7 +367,21 @@ class ImageMatrix
       i[:original_url] = d.image_file.url
       i[:medium_url] = d.image_file.url(:medium)
       i[:thumb_url] = d.image_file.url(:thumb)
+      i[:citations] = []
       h[d.id] = i
+    end
+
+    #cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', img_ids )
+    cit = Citation.where(citation_object_type: 'Image').where('citation_object_id IN (?)', @list_of_image_ids )
+    cit.each do |c|
+      i = {}
+      i[:id] = c.id
+      i[:source_id] = c.source_id
+      i[:pages] = c.pages
+      i[:is_original] = c.is_original
+      #i[:citation_object_id] = c.citation_object_id
+      #i[:citation_object_type] = c.citation_object_type
+      h[c.citation_object_id][:citations].push(i)
     end
     h
   end

@@ -1,15 +1,11 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
-import VueShortkey from 'vue-shortkey'
+import hotkey from 'plugins/v-hotkey'
 
-function init (){
-  Vue.use(VueShortkey)
-  new Vue({
-    el: '#vue-task-taxon-name-filter',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+function init () {
+  const app = createApp(App)
+  app.directive('hotkey', hotkey)
+  app.mount('#vue-task-taxon-name-filter')
 }
 
 document.addEventListener('turbolinks:load', () => {

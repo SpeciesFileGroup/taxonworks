@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="button button-default"
+      class="button button-default normal-input"
       type="button"
       @click="showModal = true"
       :disabled="!compare.length">
@@ -10,8 +10,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Compare collection objects</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Compare collection objects</h3>
+      </template>
+      <template #body>
         <switch-component
           v-model="view"
           :options="tabs"
@@ -38,7 +40,7 @@
               <td v-html="renderType[0][key]"/>
               <td v-html="renderType[1][key]"/>
             </tr>
-            <tr></tr>
+            <tr />
           </tbody>
           <thead>
             <tr>
@@ -56,7 +58,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(key, index) in ceProperties"
+            <tr
+              v-for="(key, index) in ceProperties"
               :key="key"
               class="contextMenuCells"
               :class="{ even: index % 2 }">
@@ -66,7 +69,7 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -88,17 +91,20 @@ export default {
     ModalComponent,
     SwitchComponent
   },
+
   props: {
     compare: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
   computed: {
-    renderType() {
+    renderType () {
       return this.view === TABS_TYPE.DWC ? this.dwcTable : this.compare
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -109,6 +115,7 @@ export default {
       dwcTable: {}
     }
   },
+
   watch: {
     showModal(newVal) {
       if (newVal) {
@@ -117,6 +124,7 @@ export default {
       }
     }
   },
+
   methods: {
     getCEs() {
       const ceId = this.compare[0]['collecting_event_id']
@@ -133,16 +141,17 @@ export default {
           this.ceProperties = Object.keys(response.body)
         })
     },
+
     LoadDWC () {
-      GetDWC(this.compare[0].id).then(response => { this.$set(this.dwcTable, 0, response.body) })
-      GetDWC(this.compare[1].id).then(response => { this.$set(this.dwcTable, 1, response.body) })
+      GetDWC(this.compare[0].id).then(response => { this.dwcTable[0] = response.body })
+      GetDWC(this.compare[1].id).then(response => { this.dwcTable[1] = response.body })
     }
   }
 }
 </script>
 <style scoped>
 
-::v-deep .modal-container {
+:deep(.modal-container) {
   width: 1024px;
   overflow-y: scroll;
   max-height: 80vh;

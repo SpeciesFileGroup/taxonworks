@@ -24,15 +24,19 @@
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete <span v-html="loan.object_tag"/>?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete <span v-html="loan.object_tag"/>?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteLoan()"
           type="button"
           class="normal-input button button-delete align-end">Delete
         </button>
-      </div>
+      </template>
     </modal>
     <div
       class="body horizontal-left-content align-start"

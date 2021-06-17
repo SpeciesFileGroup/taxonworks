@@ -1,19 +1,13 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store.js'
-import vueShortkey from 'vue-shortkey'
+import App from './app.vue'
+import hotkey from 'plugins/v-hotkey'
 
-function init() {
-  var store = newStore()
-  Vue.use(vueShortkey)
-  
-  new Vue({
-    store,
-		el: '#vue_type_specimens',
-		render: function (createElement) {
-      return createElement(App)
-		}
-  })
+function init () {
+  const app = createApp(App)
+  app.use(newStore())
+  app.directive('hotkey', hotkey)
+  app.mount('#vue_type_specimens')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

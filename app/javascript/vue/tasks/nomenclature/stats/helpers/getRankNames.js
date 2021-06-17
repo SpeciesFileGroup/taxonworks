@@ -1,5 +1,5 @@
 export default (list, nameList = []) => {
-  for (var key in list) {
+  for (const key in list) {
     if (typeof list[key] === 'object') {
       this.getRankNames(list[key], nameList)
     } else {

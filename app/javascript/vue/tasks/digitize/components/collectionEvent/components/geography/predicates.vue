@@ -4,7 +4,7 @@
     :object-id="collectingEvent.id"
     object-type="CollectingEvent"
     model="CollectingEvent"
-    :modelPreferences="projectPreferences.model_predicate_sets.CollectingEvent"
+    :model-preferences="projectPreferences.model_predicate_sets.CollectingEvent"
     @onUpdate="setAttributes"
   />
 </template>
@@ -20,7 +20,7 @@ export default {
     PredicatesComponent
   },
   computed: {
-    collectingEvent() {
+    collectingEvent () {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     },
     projectPreferences () {
@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    setAttributes(dataAttributes) {
+    setAttributes (dataAttributes) {
       this.$store.commit(MutationNames.SetCollectionEventDataAttributes, dataAttributes)
     }
   }

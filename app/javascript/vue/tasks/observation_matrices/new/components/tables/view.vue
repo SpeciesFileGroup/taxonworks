@@ -19,7 +19,7 @@
         :list="rowsList"
         :matrix-id="matrixId"
         :header="['Rows (all)', '']"
-        :filter-remove="(item) => item.cached_observation_matrix_row_item_id"
+        :filter-remove="item => item.cached_observation_matrix_row_item_id"
         :attributes="['observation_matrix_row_object_label']"
         :global-id-path="['observation_matrix_row_object_global_id']"
         warning-message="You are trying to delete the OTU/collection object row from the matrix. Deleting the row from the matrix, does not delete OTU/collection object itself; it does not also delete the observations on this OTU. Are you sure you want to proceed?"
@@ -55,7 +55,7 @@
         :header="['Columns (all)', '']"
         :attributes="[['descriptor', 'object_tag']]"
         :global-id-path="['descriptor', 'global_id']"
-        :filter-remove="(item) => item.cached_observation_matrix_column_item_id"
+        :filter-remove="item => item.cached_observation_matrix_column_item_id"
         @delete="removeColumn($event.cached_observation_matrix_column_item_id)"
         @order="updateColumnsOrder"/>
       <pagination-component

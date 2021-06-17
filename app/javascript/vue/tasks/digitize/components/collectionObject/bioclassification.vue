@@ -34,15 +34,18 @@ export default {
     biologicalId: {
       type: [String, Number]
     },
+
     biocutarionsType: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     },
+
     biocurationsGroups: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
   computed: {
     locked: {
       get() {
@@ -51,8 +54,9 @@ export default {
       set(value) {
         this.$store.commit([MutationNames.SetLocked, value])
       }
-    },
+    }
   },
+
   data() {
     return {
       addQueue: [],
@@ -61,6 +65,7 @@ export default {
       tags: []
     }
   },
+
   watch: {
     biologicalId: {
       handler (newVal, oldVal) {
@@ -89,16 +94,20 @@ export default {
         if (this.biologicalId && this.addQueue.length) {
           this.processQueue()
         }
-      }
+      },
+      deep: true
     }
   },
+
   methods: {
     getCreatedBiocurationIds () {
-      return this.createdBiocutarions.map(item => item.biocuration_class_id )
+      return this.createdBiocutarions.map(item => item.biocuration_class_id)
     },
+
     addToQueue (biocuration) {
       this.addQueue.push(biocuration)
     },
+
     processQueue () {
       this.addQueue.forEach((id) => {
         BiocurationClassification.create(this.createBiocurationObject(id)).then(response => {
@@ -107,15 +116,19 @@ export default {
         this.addQueue = []
       })
     },
+
     isCreated (id) {
       return !!this.createdBiocutarions.find(bio => id === bio.biocuration_class_id)
     },
+
     isInQueue (id) {
       return !!this.addQueue.find(biocurationId => id === biocurationId)
     },
+
     removeFromQueue (id) {
       this.addQueue.splice(this.addQueue.findIndex(itemId => itemId === id), 1)
     },
+
     removeEntry (biocurationClass) {
       const index = this.createdBiocutarions.findIndex(item => item.biocuration_class_id === biocurationClass.id)
 
@@ -124,6 +137,7 @@ export default {
         this.createdBiocutarions.splice(index, 1)
       })
     },
+
     createBiocurationObject (id) {
       return {
         biocuration_classification: {

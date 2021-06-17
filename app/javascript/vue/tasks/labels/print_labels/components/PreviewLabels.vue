@@ -17,26 +17,32 @@ export default {
       type: String,
       default: 'ce'
     },
+
     customStyle: {
       type: String,
       default: ''
     },
+
     rows: {
       type: [String, Number],
       required: true
     },
+
     columns: {
       type: [String, Number],
       required: true
     },
+
     labels: {
       type: Array,
-      default: () => { return [] }
+      default: () => ([])
     },
+
     divisor: {
       type: Boolean,
       default: false
     },
+
     separator: {
       type: String,
       default: ''
@@ -45,7 +51,7 @@ export default {
   },
   methods: {
     renderLabels() {
-      var w = window.open()
+      const w = window.open()
 
       w.document.write(createLabels(this.labels, this.columns, this.rows, this.divisor, this.classSelected, this.customStyle, this.separator, this.divisor))
       w.document.close()

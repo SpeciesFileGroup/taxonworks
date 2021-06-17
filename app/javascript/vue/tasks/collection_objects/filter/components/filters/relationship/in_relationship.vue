@@ -31,27 +31,32 @@ import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     inRelationships: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       biologicalRelationships: [],
       relationshipSelected: []
     }
   },
+
   mounted () {
     BiologicalRelationship.all().then(response => {
       this.biologicalRelationships = response.body
