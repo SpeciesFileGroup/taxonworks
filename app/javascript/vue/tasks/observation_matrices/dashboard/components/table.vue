@@ -20,7 +20,7 @@
         </button>
         <add-to-matrix
           class="margin-small-right"
-          :selected-ids="selectedIds"/>
+          :otu-ids="selectedIds"/>
         <button-interactive-key
           class="margin-small-right"
           :otu-ids="selectedIds"/>

@@ -4,7 +4,7 @@
       type="button"
       class="button normal-input button-default"
       @click="showModal = true"
-      :disabled="!selectedIds.length">
+      :disabled="!otuIds.length">
       Add to matrix
     </button>
     <modal-component
@@ -37,56 +37,17 @@
 
 <script>
 
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import {
-  ObservationMatrix,
-  ObservationMatrixRowItem
-} from 'routes/endpoints'
+import { ObservationMatrixRowItem } from 'routes/endpoints'
+
+import extendButton from './shared/extendButton'
 
 export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
-
-  props: {
-    selectedIds: {
-      type: Array,
-      required: true
-    }
-  },
-
-  emits: ['close'],
-
-  data () {
-    return {
-      isLoading: false,
-      showModal: false,
-      observationMatrices: [],
-      matrix: undefined
-    }
-  },
-
-  watch: {
-    showModal: {
-      handler (newVal) {
-        if (newVal) {
-          this.isLoading = true
-          ObservationMatrix.all().then(response => {
-            this.observationMatrices = response.body
-            this.isLoading = false
-          })
-        }
-      },
-      immediate: true
-    }
-  },
+  mixins: [extendButton],
 
   methods: {
     addRows (matrixId) {
       const promises = []
-      const data = this.selectedIds.map(id => ({
+      const data = this.otuIds.map(id => ({
         observation_matrix_id: matrixId,
         otu_id: id,
         type: 'ObservationMatrixRowItem::Single::Otu'
@@ -102,7 +63,6 @@ export default {
 
     closeModal () {
       this.showModal = false
-      this.$emit('close')
     }
   }
 }
