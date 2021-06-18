@@ -20,18 +20,7 @@
       </template>
     </div>
     <div :class="Object.assign({}, ...(preferences.filterSections.show.concat(preferences.filterSections.topic)).map(item => ({ [item.key]: !item.value })))">
-      <h3>Citations ({{ filteredList.length }})</h3>
-      <ul
-        v-if="filteredList.length"
-        class="taxonomic_history">
-        <template 
-          v-for="(item, index) in filteredList"
-          :key="index">
-          <li v-if="item.label_html">
-            <span v-html="item.label_html"/>
-          </li>
-        </template>
-      </ul>
+      <timeline-citations :citations="filteredList"/>
       <h3>References</h3>
       <ul
         v-if="nomenclature"
@@ -201,13 +190,14 @@
 
 <script>
 
-import SectionPanel from './shared/sectionPanel'
+import SectionPanel from '../shared/sectionPanel'
 import ModalComponent from 'components/ui/Modal'
-import YearPicker from './nomenclature/yearsPick'
-import extendSection from './shared/extendSections'
-import SoftValidationModal from './softValidationModal'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
+import YearPicker from './TimelineYearsPick.vue'
+import extendSection from '../shared/extendSections'
+import SoftValidationModal from '../softValidationModal'
+import TimelineCitations from './TimelineCitations.vue'
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations'
 import { Otu } from 'routes/endpoints'
 
 export default {
@@ -216,7 +206,8 @@ export default {
     SectionPanel,
     ModalComponent,
     YearPicker,
-    SoftValidationModal
+    SoftValidationModal,
+    TimelineCitations
   },
   computed: {
     selectedReferences () {

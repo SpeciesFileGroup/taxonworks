@@ -14,6 +14,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 - Migrate Vue 2.6 to Vue 3.1.1
 
+### Fixed
+- Timeline rendering error in Browse OTU
+
 ## [0.18.1] - 2021-06-09
 
 ### Added

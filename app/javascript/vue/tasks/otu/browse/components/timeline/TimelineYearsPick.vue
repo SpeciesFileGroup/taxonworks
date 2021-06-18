@@ -16,7 +16,7 @@
             '-webkit-background-clip': 'text',
             '-webkit-text-fill-color': modelValue === Number(year) ? 'black' : 'transparent'
           }"
-          >{{ year }}</div>
+        >{{ year }}</div>
       </li>
     </ul>
   </div>

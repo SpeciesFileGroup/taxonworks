@@ -74,7 +74,7 @@
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
 import ModalComponent from 'components/ui/Modal'
-import YearPicker from './nomenclature/yearsPick'
+import YearPicker from './timeline/TimelineYearsPick.vue'
 import FilterList from './biologicalAssociations/filterList'
 import { getUnique } from 'helpers/arrays.js'
 import { GetterNames } from '../store/getters/getters'
