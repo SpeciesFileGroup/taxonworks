@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 - Timeline rendering error in Browse OTU
+- Fix wildcard by attribute in Filter collection object
 
 ## [0.18.1] - 2021-06-09
 

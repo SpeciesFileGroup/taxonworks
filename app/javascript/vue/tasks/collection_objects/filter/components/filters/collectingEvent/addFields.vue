@@ -128,7 +128,7 @@ export default {
   watch: {
     selectedFields: {
       handler (newVal) {
-        const matches = newVal.filter(item => { return item.exact }).map(item => { return item.param })
+        const matches = newVal.filter(item => !item.exact).map(item => item.param)
         const fields = {
           collecting_event_wildcards: matches
         }
@@ -160,7 +160,7 @@ export default {
               param: field.name,
               value: urlParams[field.name],
               type: field.type,
-              exact: urlParams.collecting_event_wildcards ? urlParams.collecting_event_wildcards.includes(field.name) : undefined
+              exact: urlParams.collecting_event_wildcards ? !urlParams.collecting_event_wildcards.includes(field.name) : undefined
             })
           }
         })
