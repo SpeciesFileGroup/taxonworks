@@ -2,7 +2,6 @@ class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :reorder_rows, :reorder_columns]
-
   # GET /observation_matrices
   # GET /observation_matrices.json
   def index
@@ -174,6 +173,21 @@ class ObservationMatricesController < ApplicationController
   end
 
   def observation_matrix_params
-    params.require(:observation_matrix).permit(:name)
+    params.require(:observation_matrix).permit(:name, :otu_array)
   end
+
+  def otus_used_in_matrices
+    #ObservationMatrix.with_otu_ids_array([13597, 25680])
+    if params[:otu_array]
+      p = ObservationMatrix.with_otu_ids_array(:otu_array).pluck(:id)
+      if p.nil?
+        render json: {otus_used_in_matrices: ''}.to_json
+      else
+        render json: {otus_used_in_matrices: p}.to_json
+      end
+    else
+      render json: {otus_used_in_matrices: ''}.to_json
+    end
+  end
+
 end

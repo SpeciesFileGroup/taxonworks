@@ -376,6 +376,10 @@ resources :observation_matrices do
   resources :observation_matrix_row_items, shallow: true, only: [:index], defaults: {format: :json}
   resources :observation_matrix_column_items, shallow: true, only: [:index], defaults: {format: :json}
 
+  collection do
+    get :otus_used_in_matrices, {format: :json}
+  end
+
   member do
     get :nexml, defaults: {format: :rdf}
     get :tnt
@@ -386,7 +390,6 @@ resources :observation_matrices do
     get :reorder_rows, defaults: {format: :json}
     get :reorder_columns, defaults: {format: :json}
   end
-
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
