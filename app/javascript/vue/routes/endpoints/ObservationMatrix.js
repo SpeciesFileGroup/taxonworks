@@ -5,7 +5,7 @@ const controller = 'observation_matrices'
 const permitParams = {
   observation_matrix: {
     name: String,
-    otu_array: Array
+    otu_ids: Array
   }
 }
 
@@ -16,6 +16,6 @@ export const ObservationMatrix = {
 
   rows: (id, params) => AjaxCall('get', `/${controller}/${id}/observation_matrix_rows.json`, { params }),
 
-  otusUseInMatrix: (params) => AjaxCall('get', `/${controller}/otus_used_in_matrices`, { params })
+  otusUseInMatrix: (params) => AjaxCall('get', `/${controller}/otus_used_in_matrices.json`, { params })
 
 }

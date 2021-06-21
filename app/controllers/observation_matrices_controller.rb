@@ -145,6 +145,20 @@ class ObservationMatricesController < ApplicationController
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
 
+  def otus_used_in_matrices
+    #ObservationMatrix.with_otu_ids_array([13597, 25680])
+    if !params[:otu_ids].blank?
+      p = ObservationMatrix.with_otu_id_array(params[:otu_ids].split('|')).pluck(:id)
+      if p.nil?
+        render json: {otus_used_in_matrices: ''}.to_json
+      else
+        render json: {otus_used_in_matrices: p}.to_json
+      end
+    else
+      render json: {otus_used_in_matrices: ''}.to_json
+    end
+  end
+
   private
 
   # TODO: Not all params are supported yet.
@@ -173,21 +187,7 @@ class ObservationMatricesController < ApplicationController
   end
 
   def observation_matrix_params
-    params.require(:observation_matrix).permit(:name, :otu_array)
-  end
-
-  def otus_used_in_matrices
-    #ObservationMatrix.with_otu_ids_array([13597, 25680])
-    if params[:otu_array]
-      p = ObservationMatrix.with_otu_ids_array(:otu_array).pluck(:id)
-      if p.nil?
-        render json: {otus_used_in_matrices: ''}.to_json
-      else
-        render json: {otus_used_in_matrices: p}.to_json
-      end
-    else
-      render json: {otus_used_in_matrices: ''}.to_json
-    end
+    params.require(:observation_matrix).permit(:name)
   end
 
 end
