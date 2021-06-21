@@ -26,7 +26,8 @@
           :otu-ids="selectedIds"/>
         <button-edit-image-matrix
           class="margin-small-right"
-          :otu-ids="selectedIds"/>
+          :otu-ids="selectedIds"
+          @onCreate="openImageMatrix"/>
         <button-image-matrix :otu-ids="selectedIds"/>
       </div>
       <ul class="no_bullets context-menu">
@@ -106,6 +107,7 @@
 <script>
 
 import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from 'routes/routes'
 import ModalList from './modalList'
 import SpinnerComponent from 'components/spinner'
 import AddToMatrix from './addToMatrix'
@@ -227,17 +229,25 @@ export default {
         })
       }, 50)
     },
+
     filterRow (index) {
       return Object.keys(this.filter).every(key => {
         const value = this.getValueFromTable(key, index)
         return (this.filter[key] === undefined) || (this.filter[key] ? value : !value)
       })
     },
+
     unselect () {
       this.selectedIds = []
     },
+
     selectAll () {
       this.selectedIds = this.tableList.data.filter(column => column[1] != null).map(column => column[1])
+    },
+
+    openImageMatrix ({ matrixId, otuIds }) {
+      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&otu_filter=${otuIds.join('|')}`, '_blank')
+      this.showModal = false
     }
   }
 }

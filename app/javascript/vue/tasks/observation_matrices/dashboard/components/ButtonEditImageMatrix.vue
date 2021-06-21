@@ -21,7 +21,7 @@
         <pin-component
           class="button-circle"
           type="ObservationMatrix"
-          @getItem="openImageMatrix($event.id)"
+          @getItem="addRows($event.id)"
           section="ObservationMatrices"/>
         <ul class="no_bullets">
           <li
@@ -29,8 +29,13 @@
             v-for="item in observationMatrices"
             :key="item.id">
             <button
-              class="button normal-input button-default"
-              @click="openImageMatrix(item.id)">
+              class="button normal-input"
+              :class="[
+                isAlreadyInMatrix(item.id)
+                  ? 'button-default'
+                  : 'button-submit'
+              ]"
+              @click="addRows(item.id)">
               {{ item.name }}
             </button>
           </li>
@@ -42,16 +47,28 @@
 
 <script>
 
-import { RouteNames } from 'routes/routes'
+import {
+  ObservationMatrixRow,
+  ObservationMatrix
+} from 'routes/endpoints'
 import extendButton from './shared/extendButton'
 
 export default {
   mixins: [extendButton],
 
-  methods: {
-    openImageMatrix (matrixId) {
-      window.open(`${RouteNames.ImageMatrix}?observation_matrix_id=${matrixId}&otu_filter=${this.otuIds.join('|')}`, '_blank')
-      this.showModal = false
+  watch: {
+    showModal (newVal) {
+      if (newVal) {
+        const promises = []
+        this.isLoading = true
+
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
+
+        Promise.all(promises).then(() => {
+          this.isLoading = false
+        })
+      }
     }
   }
 }

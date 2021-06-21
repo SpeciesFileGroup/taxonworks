@@ -43,7 +43,6 @@
 <script>
 
 import {
-  ObservationMatrixRowItem,
   ObservationMatrixRow,
   ObservationMatrix
 } from 'routes/endpoints'
@@ -52,10 +51,6 @@ import extendButton from './shared/extendButton'
 
 export default {
   mixins: [extendButton],
-
-  data: () => ({
-    matrixObservationRows: []
-  }),
 
   watch: {
     showModal (newVal) {
@@ -70,41 +65,6 @@ export default {
           this.isLoading = false
         })
       }
-    }
-  },
-
-  methods: {
-    addRows (matrixId) {
-      const promises = []
-      const data = this.otuIds.map(id => ({
-        observation_matrix_id: matrixId,
-        otu_id: id,
-        type: 'ObservationMatrixRowItem::Single::Otu'
-      }))
-
-      data.forEach(row => {
-        if (!this.matrixObservationRows.find(item =>
-          row.otu_id === item.otu_id &&
-          item.observation_matrix_id === row.observation_matrix_id)
-        ) {
-          promises.push(ObservationMatrixRowItem.create({ observation_matrix_row_item: row }))
-        }
-      })
-
-      Promise.allSettled(promises).then(() => {
-        TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
-        this.closeModal()
-      })
-    },
-
-    closeModal () {
-      this.showModal = false
-    },
-
-    isAlreadyInMatrix (matrixId) {
-      const matrixRows = this.matrixObservationRows.filter(row => row.observation_matrix_id === matrixId)
-
-      return matrixRows.length === this.otuIds.length
     }
   }
 }
