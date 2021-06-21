@@ -792,7 +792,7 @@ namespace :tw do
             sf_rank_id = row['RankID']
             next if excluded_taxa.include? sf_taxon_name_id
             next if sf_rank_id == '90' # TaxonNameID = 1221948, Name = Deletable, RankID = 90 == Life, FileID = 1
-            next if [4, 19].include?(row['AccessCode'].to_i)
+            next if row['AccessCode'].to_i != 0 # Exclude all non-public taxa # next if [4, 19].include?(row['AccessCode'].to_i)
 
             project_id = get_tw_project_id[row['FileID']]
 

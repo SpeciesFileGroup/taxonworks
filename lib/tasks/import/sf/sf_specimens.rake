@@ -125,6 +125,8 @@ namespace :tw do
             next if get_sf_unique_id[specimen_id].nil?
             next if get_sf_identification_metadata[specimen_id].nil?
 
+            next unless row['AccessCode'].to_i == 0
+
             sf_file_id = row['FileID']
             project_id = get_tw_project_id[sf_file_id]
             sf_taxon_name_id = row['TaxonNameID']
