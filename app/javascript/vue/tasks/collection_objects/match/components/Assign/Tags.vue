@@ -17,8 +17,8 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import { CreateTag } from '../../request/resources'
 import SpinnerComponent from 'components/spinner'
+import { Tag } from 'routes/endpoints'
 
 export default {
   components: {
@@ -53,7 +53,7 @@ export default {
               tag_object_id: this.ids[i],
               tag_object_type: 'CollectionObject'
             }
-            CreateTag(tag).then(() => {
+            Tag.create({ tag }).then(() => {
               resolve()
             }, () => {
               resolve()

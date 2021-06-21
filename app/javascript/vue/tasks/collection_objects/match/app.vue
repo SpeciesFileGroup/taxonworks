@@ -46,6 +46,7 @@ import InputComponent from './components/InputComponent'
 import LineComponent from './components/LineComponent'
 import AssignComponent from './components/AssignComponent'
 import SpinnerComponent from 'components/spinner'
+import { CollectionObject } from 'routes/endpoints'
 import {
   GetCollectionObject,
   GetCollectionObjectById
@@ -88,7 +89,7 @@ export default {
           promises.push(new Promise((resolve, reject) => {
             const value = this.lines[position]
             if (this.paramSelected) {
-              GetCollectionObject({ [this.paramSelected]: true, identifier: value }).then(response => {
+              CollectionObject.where({ [this.paramSelected]: true, identifier: value }).then(response => {
                 this.matches[value] = response.body
                 resolve()
               }, () => {
@@ -97,7 +98,7 @@ export default {
               })
             } else {
               if(!Number(value)) return reject()
-              GetCollectionObjectById(value).then(response => {
+              CollectionObject.find(value).then(response => {
                 this.matches[value] = response.body
                 resolve()
               }, () => {

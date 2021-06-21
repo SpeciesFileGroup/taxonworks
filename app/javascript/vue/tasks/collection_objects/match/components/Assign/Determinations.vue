@@ -94,7 +94,7 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
 import ListComponent from 'components/displayList'
-import { CreateDetermination } from '../../request/resources'
+import { TaxonDetermination } from 'routes/endpoints'
 import { CreatePerson } from 'helpers/persons/createPerson'
 
 export default {
@@ -171,7 +171,7 @@ export default {
         this.taxon_determinations.forEach(determination => {
           determination.biological_collection_object_id = this.ids[position]
           promises.push(new Promise((resolve, reject) => {
-            CreateDetermination(determination).then(response => {
+            TaxonDetermination.create({ taxon_determination: determination }).then(response => {
               resolve()
             }, () => {
               resolve()
