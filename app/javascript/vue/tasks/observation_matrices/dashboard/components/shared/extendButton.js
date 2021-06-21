@@ -31,6 +31,16 @@ export default {
     }
   },
 
+  computed: {
+    matrixWithRows () {
+      return sortArray(this.observationMatrices.filter(matrix => this.isAlreadyInMatrix(matrix.id)), 'name')
+    },
+
+    matrixWithoutRows () {
+      return sortArray(this.observationMatrices.filter(matrix => !this.isAlreadyInMatrix(matrix.id)), 'name')
+    }
+  },
+
   watch: {
     showModal: {
       handler (newVal) {

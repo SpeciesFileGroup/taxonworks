@@ -21,15 +21,20 @@
         <ul class="no_bullets">
           <li
             class="margin-small-bottom"
-            v-for="item in observationMatrices"
+            v-for="item in matrixWithRows"
             :key="item.id">
             <button
-              class="button normal-input"
-              :class="[
-                isAlreadyInMatrix(item.id)
-                  ? 'button-default'
-                  : 'button-submit'
-              ]"
+              class="button normal-input button-default"
+              @click="addRows(item.id)">
+              {{ item.name }}
+            </button>
+          </li>
+          <li
+            class="margin-small-bottom"
+            v-for="item in matrixWithoutRows"
+            :key="item.id">
+            <button
+              class="button normal-input button-submit"
               @click="addRows(item.id)">
               {{ item.name }}
             </button>
@@ -46,7 +51,6 @@ import {
   ObservationMatrixRow,
   ObservationMatrix
 } from 'routes/endpoints'
-import { sortArray } from 'helpers/arrays'
 import extendButton from './shared/extendButton'
 
 export default {
@@ -58,7 +62,7 @@ export default {
         const promises = []
         this.isLoading = true
 
-        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = sortArray(response.body, 'name') }))
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
         promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
         Promise.all(promises).then(() => {

@@ -26,15 +26,20 @@
         <ul class="no_bullets">
           <li
             class="margin-small-bottom"
-            v-for="item in observationMatrices"
+            v-for="item in matrixWithRows"
             :key="item.id">
             <button
-              class="button normal-input"
-              :class="[
-                isAlreadyInMatrix(item.id)
-                  ? 'button-default'
-                  : 'button-submit'
-              ]"
+              class="button normal-input button-default"
+              @click="addRows(item.id)">
+              {{ item.name }}
+            </button>
+          </li>
+          <li
+            class="margin-small-bottom"
+            v-for="item in matrixWithoutRows"
+            :key="item.id">
+            <button
+              class="button normal-input button-submit"
               @click="addRows(item.id)">
               {{ item.name }}
             </button>
