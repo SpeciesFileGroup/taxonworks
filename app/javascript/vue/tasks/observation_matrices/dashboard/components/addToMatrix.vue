@@ -24,7 +24,12 @@
             v-for="item in observationMatrices"
             :key="item.id">
             <button
-              class="button normal-input button-submit"
+              class="button normal-input"
+              :class="[
+                isAlreadyInMatrix(item.id)
+                  ? 'button-default'
+                  : 'button-submit'
+              ]"
               @click="addRows(item.id)">
               {{ item.name }}
             </button>
@@ -37,12 +42,36 @@
 
 <script>
 
-import { ObservationMatrixRowItem } from 'routes/endpoints'
+import {
+  ObservationMatrixRowItem,
+  ObservationMatrixRow,
+  ObservationMatrix
+} from 'routes/endpoints'
 
 import extendButton from './shared/extendButton'
 
 export default {
   mixins: [extendButton],
+
+  data: () => ({
+    matrixObservationRows: []
+  }),
+
+  watch: {
+    showModal (newVal) {
+      if (newVal) {
+        const promises = []
+        this.isLoading = true
+
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
+
+        Promise.all(promises).then(() => {
+          this.isLoading = false
+        })
+      }
+    }
+  },
 
   methods: {
     addRows (matrixId) {
@@ -53,7 +82,14 @@ export default {
         type: 'ObservationMatrixRowItem::Single::Otu'
       }))
 
-      data.forEach(row => { promises.push(ObservationMatrixRowItem.create({ observation_matrix_row_item: row })) })
+      data.forEach(row => {
+        if (!this.matrixObservationRows.find(item =>
+          row.otu_id === item.otu_id &&
+          item.observation_matrix_id === row.observation_matrix_id)
+        ) {
+          promises.push(ObservationMatrixRowItem.create({ observation_matrix_row_item: row }))
+        }
+      })
 
       Promise.allSettled(promises).then(() => {
         TW.workbench.alert.create('Rows was successfully added to matrix.', 'notice')
@@ -63,6 +99,12 @@ export default {
 
     closeModal () {
       this.showModal = false
+    },
+
+    isAlreadyInMatrix (matrixId) {
+      const matrixRows = this.matrixObservationRows.filter(row => row.observation_matrix_id === matrixId)
+
+      return matrixRows.length === this.otuIds.length
     }
   }
 }
