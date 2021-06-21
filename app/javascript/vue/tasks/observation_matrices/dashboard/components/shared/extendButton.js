@@ -1,4 +1,5 @@
 import { ObservationMatrix, ObservationMatrixRowItem } from 'routes/endpoints'
+import { sortArray } from 'helpers/arrays'
 import ModalComponent from 'components/ui/Modal.vue'
 import SpinnerComponent from 'components/spinner.vue'
 import PinComponent from 'components/getDefaultPin.vue'
@@ -36,7 +37,7 @@ export default {
         if (newVal) {
           this.isLoading = true
           ObservationMatrix.all().then(response => {
-            this.observationMatrices = response.body
+            this.observationMatrices = sortArray(response.body, 'name', true)
             this.isLoading = false
           })
         }

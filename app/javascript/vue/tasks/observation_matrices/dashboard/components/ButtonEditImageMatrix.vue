@@ -9,7 +9,7 @@
     </button>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '600px' }"
+      :container-style="{ width: '700px' }"
       @close="showModal = false">
       <template #header>
         <h3>Select a matrix</h3>
@@ -52,6 +52,7 @@ import {
   ObservationMatrix
 } from 'routes/endpoints'
 import extendButton from './shared/extendButton'
+import { sortArray } from 'helpers/arrays'
 
 export default {
   mixins: [extendButton],
@@ -62,7 +63,7 @@ export default {
         const promises = []
         this.isLoading = true
 
-        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = sortArray(response.body, 'name') }))
         promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
         Promise.all(promises).then(() => {

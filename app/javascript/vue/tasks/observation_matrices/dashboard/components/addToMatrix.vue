@@ -9,7 +9,7 @@
     </button>
     <modal-component
       v-if="showModal"
-      :container-style="{ width: '600px' }"
+      :container-style="{ width: '700px' }"
       @close="closeModal">
       <template #header>
         <h3>Add OTUs to matrix</h3>
@@ -46,7 +46,7 @@ import {
   ObservationMatrixRow,
   ObservationMatrix
 } from 'routes/endpoints'
-
+import { sortArray } from 'helpers/arrays'
 import extendButton from './shared/extendButton'
 
 export default {
@@ -58,7 +58,7 @@ export default {
         const promises = []
         this.isLoading = true
 
-        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = sortArray(response.body, 'name') }))
         promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
         Promise.all(promises).then(() => {
