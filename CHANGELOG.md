@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 - Edit image matrix and view image matrix in observation matrices dashboard
+- WTK component in comprehensive digitization form [#2245]
 
 ### Changed
 - Updated ruby gems
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix empty search in Filter collection objects
 
 
+[#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
 
 

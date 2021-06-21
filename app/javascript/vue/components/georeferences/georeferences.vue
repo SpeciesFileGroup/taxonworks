@@ -6,6 +6,9 @@
       overflowY: 'scroll'
   }">
     <div class="horizontal-left-content margin-medium-top margin-medium-bottom">
+      <wtk-component
+        class="margin-small-right"
+        @create="saveWTK"/>
       <manually-component
         class="margin-small-right"
         @create="saveGeoreference"/>
@@ -79,6 +82,7 @@ import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
 import ManuallyComponent from './manuallyComponent'
 import GeolocateComponent from './geolocateComponent'
+import WtkComponent from 'tasks/collecting_events/new_collecting_event/components/parsed/georeferences/wkt.vue'
 import { Georeference } from 'routes/endpoints'
 
 export default {
@@ -87,7 +91,8 @@ export default {
     SpinnerComponent,
     DisplayList,
     ManuallyComponent,
-    GeolocateComponent
+    GeolocateComponent,
+    WtkComponent
   },
   props: {
     collectingEventId: {
@@ -137,6 +142,13 @@ export default {
       default: undefined
     }
   },
+
+  emits: [
+    'updated',
+    'created',
+    'onGeoreferences'
+  ],
+
   computed: {
     verbatimGeoreferenceAlreadyCreated () {
       return this.georeferences.find(item => item.type === 'Georeference::VerbatimData')
@@ -178,6 +190,23 @@ export default {
       Georeference.update(shape.id, { georeference }).then(response => {
         this.$emit('updated', response.body)
         this.getGeoreferences()
+      }).finally(() => {
+        this.showSpinner = false
+      })
+    },
+
+    saveWTK (georeference) {
+      georeference.collecting_event_id = this.collectingEventId
+      this.showSpinner = true
+
+      Georeference.create({ georeference }).then(response => {
+        if (response.body.error_radius) {
+          response.body.geo_json.properties.radius = response.body.error_radius
+        }
+        this.georeferences.push(response.body)
+        this.$refs.leaflet.addGeoJsonLayer(response.body.geo_json)
+        this.$emit('created', response.body)
+        this.$emit('onGeoreferences', this.georeferences)
       }).finally(() => {
         this.showSpinner = false
       })
