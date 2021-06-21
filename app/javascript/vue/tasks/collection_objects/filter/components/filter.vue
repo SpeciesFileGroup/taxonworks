@@ -25,7 +25,7 @@
       <button
         class="button button-default normal-input full_width"
         type="button"
-        :disabled="emptyParams"
+        :disabled="isParamsEmpty"
         @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
@@ -149,30 +149,29 @@ export default {
       return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
-    emptyParams () {
-      if (!this.params) return
-      return !this.params.biocurations.biocuration_class_ids.length &&
-        !this.params.geographic.geographic_area_id.length &&
-        !this.params.geographic.geo_json.length &&
-        !this.params.relationships.biological_relationship_ids.length &&
-        !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_id_and.length &&
-        !this.params.keywords.keyword_id_or.length &&
-        !this.params.collectors.collector_id.length &&
-        !this.params.determination.otu_ids.length &&
-        !this.params.determination.determiner_id.length &&
-        !this.params.determination.ancestor_id &&
-        !this.params.repository.repository_id &&
-        !Object.keys(this.params.collectingEvents.fields).length &&
-        !this.params.collectingEvents.collecting_event_ids.length &&
-        !this.params.preparation_type_id.length &&
-        Object.keys(this.params.collectingEvents.fields).length <= 1 &&
-        !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
-        !Object.values(this.params.user).find(item => item !== undefined) &&
-        !Object.values(this.params.loans).find(item => item !== undefined) &&
-        !Object.values(this.params.identifier).find(item => item !== undefined) &&
-        !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
-        !Object.values(this.params.buffered).find(item => item !== undefined )
+    isParamsEmpty () {
+      return !(this.params.biocurations.biocuration_class_ids.length ||
+        this.params.geographic.geographic_area_id?.length ||
+        this.params.geographic.geo_json?.length ||
+        this.params.relationships.biological_relationship_ids.length ||
+        this.params.types.is_type.length ||
+        this.params.keywords.keyword_id_and.length ||
+        this.params.keywords.keyword_id_or.length ||
+        this.params.collectors.collector_id.length ||
+        this.params.determination.otu_ids.length ||
+        this.params.determination.determiner_id.length ||
+        this.params.determination.ancestor_id ||
+        this.params.repository.repository_id ||
+        this.params.collectingEvents.collecting_event_ids.length ||
+        this.params.preparation_type_id.length ||
+        Object.keys(this.params.collectingEvents.fields).length ||
+        Object.values(this.params.collectingEvents).find(item => item && item.length) ||
+        Object.values(this.params.user).find(item => item) ||
+        Object.values(this.params.loans).find(item => item) ||
+        Object.values(this.params.identifier).find(item => item) ||
+        Object.values(this.params.byRecordsWith).some(item => item !== undefined) ||
+        Object.values(this.params.buffered.text).find(item => item)
+      )
     }
   },
 
