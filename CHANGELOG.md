@@ -8,6 +8,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+- Added new ICZN status: Invalid family group name due to synonymy of type genus replaced before 1961
 - Edit image matrix and view image matrix in observation matrices dashboard
 - WTK component in comprehensive digitization form [#2245]
 
