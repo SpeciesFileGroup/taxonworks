@@ -595,6 +595,9 @@ namespace :tw do
                   row['Note'].downcase.include?('syn.')
                 )
 
+                # LSF produces false positives more often than not, it is best to ignore synonym notes.
+                nomenclator_is_synonym &= row['FileID'].to_i != 87
+
                 # Assume synonym when stem compare of taxon against nomenclator doesn't match (AKA "virtual syn. note")
                 if !nomenclator_is_synonym && synonym_taxa[row['TaxonNameID']]
                   taxon_name_parsed = Biodiversity::Parser.parse(TaxonName.find(taxon_name_id).cached)
