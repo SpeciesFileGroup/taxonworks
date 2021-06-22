@@ -15,6 +15,8 @@
 
 <script>
 export default {
+  name: 'VLock',
+
   props: {
     modelValue: {
       type: Boolean,

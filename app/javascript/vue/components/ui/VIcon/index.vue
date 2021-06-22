@@ -30,6 +30,8 @@ import mixinColors from '../mixins/colors.js'
 import { Icons } from './icons.js'
 
 export default {
+  name: 'VIcon',
+
   mixins: [
     mixinSizes,
     mixinColors
@@ -48,10 +50,6 @@ export default {
   },
 
   computed: {
-    isComponentExist () {
-      return this.$options.components[this.iconName]
-    },
-
     iconPaths () {
       return Icons[this.name]?.paths || []
     }

@@ -39,6 +39,7 @@ import { PinboardItem } from './PinboardItem'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
+import { ProjectSource } from './ProjectSource'
 import { ProtocolRelationship } from './ProtocolRelationship'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
@@ -96,6 +97,7 @@ export {
   PreparationType,
   Project,
   ProjectMember,
+  ProjectSource,
   ProtocolRelationship,
   Repository,
   Serial,

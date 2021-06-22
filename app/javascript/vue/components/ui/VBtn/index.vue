@@ -3,6 +3,8 @@
     :is="tag"
     :class="buttonClasses"
     :disabled="disabled"
+    :download="download"
+    :href="href"
     type="button"
     @click="$emit('click')"
   >
@@ -16,6 +18,8 @@ import mixinSizes from '../mixins/sizes.js'
 import mixinColor from '../mixins/colors.js'
 
 export default {
+  name: 'VBtn',
+
   mixins: [
     mixinSizes,
     mixinColor
@@ -23,6 +27,11 @@ export default {
 
   props: {
     disabled: {
+      type: Boolean,
+      default: false
+    },
+
+    download: {
       type: Boolean,
       default: false
     },
