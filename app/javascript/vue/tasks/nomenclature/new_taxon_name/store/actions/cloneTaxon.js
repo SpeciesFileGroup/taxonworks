@@ -1,6 +1,9 @@
 import { TaxonName, TaxonNameRelationship } from 'routes/endpoints'
 
 const INVALID_RELATIONSHIP_TYPES = {
+  icn: 'TaxonNameRelationship::Icn::Unaccepting',
+  icnp: 'TaxonNameRelationship::Icnp::Unaccepting',
+  icvcn: 'TaxonNameRelationship::Icvcn::Unaccepting',
   iczn: 'TaxonNameRelationship::Iczn::Invalidating'
 }
 
