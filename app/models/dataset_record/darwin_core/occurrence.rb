@@ -6,7 +6,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   class ImportProtonym
     class CreateIfNotExists
       def self.execute(origins, parent, name)
-        Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+        otu_attributes = name.delete(:otu_attributes)
+        protonym = Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] => name[:rank_class].present? ?
@@ -15,6 +16,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             })
           end
         end
+        protonym.tap {|p| p.otus.first.update!(otu_attributes) if otu_attributes }
       end
     end
 
@@ -45,8 +47,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
             name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
           end
-
-          import_protonym_strategy.execute(origins, parent, name)
+          protonym = import_protonym_strategy.execute(origins, parent, name)
         end
 
         attributes = parse_record_level_class
@@ -683,11 +684,24 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     parse_details = parse_results[:details]
     parse_details = (parse_details&.keys - PARSE_DETAILS_KEYS).empty? ? parse_details.values.first : nil if parse_details
 
+    # raise DarwinCore::InvalidData.new({
+    #   "scientificName": parse_results[:qualityWarnings] ?
+    #     parse_results[:qualityWarnings].map { |q| q[:warning] } :
+    #     ["Unable to parse scientific name. Please make sure it is correctly spelled."]
+    # }) unless (1..3).include?(parse_results[:quality]) && parse_details
+
+    unless (1..3).include?(parse_results[:quality]) && parse_details
+      parse_details = parse_results[:details]&.values&.first
+      otu_attributes = {name: get_field_value(:scientificName)}
+    else
+      otu_attributes = nil
+    end
+
     raise DarwinCore::InvalidData.new({
       "scientificName": parse_results[:qualityWarnings] ?
         parse_results[:qualityWarnings].map { |q| q[:warning] } :
         ["Unable to parse scientific name. Please make sure it is correctly spelled."]
-    }) unless (1..3).include?(parse_results[:quality]) && parse_details
+    }) unless parse_details
 
     unless parse_details[:uninomial]
       origins[
@@ -715,10 +729,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
 
     names.reject! { |v| v[:name].nil? }
+    names.last&.merge!({ otu_attributes: otu_attributes }) if otu_attributes
 
     # taxonRank: [Rank of innermost protonym]
     rank = get_field_value(:taxonRank)
-    if rank
+    if rank && otu_attributes.nil?
       names.last[:rank_class] = Ranks.lookup(code, rank)
       raise DarwinCore::InvalidData.new({ "taxonRank": ["Unknown #{code.upcase} rank #{rank}"] }) unless names.last[:rank_class]
     end
