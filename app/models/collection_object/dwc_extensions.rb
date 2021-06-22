@@ -82,6 +82,7 @@ module CollectionObject::DwcExtensions
   end
 
   # @return [Hash]
+  #   
   def set_georeference_attributes
     case collecting_event&.dwc_georeference_source
     when :georeference 

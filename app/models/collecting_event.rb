@@ -822,13 +822,13 @@ class CollectingEvent < ApplicationRecord
     # !! avoid loading the whole geographic item, just grab the bits we need:
     # self.georeferences(true)  # do this to
     to_simple_json_feature.merge({
-                                   'properties' => {
-                                     'collecting_event' => {
-                                       'id'  => self.id,
-                                       'tag' => "Collecting event #{self.id}."
-                                     }
-                                   }
-                                 })
+      'properties' => {
+        'collecting_event' => {
+          'id'  => self.id,
+          'tag' => "Collecting event #{self.id}."
+        }
+      }
+    })
   end
 
   # TODO: parametrize to include gazetteer
@@ -849,6 +849,7 @@ class CollectingEvent < ApplicationRecord
 
   # rubocop:enable Style/StringHashKeys
 
+  # TODO: move to helper
   # @return [CollectingEvent]
   #   return the next collecting event without a georeference in this collecting events project sort order
   #   1.  verbatim_locality
@@ -885,7 +886,7 @@ class CollectingEvent < ApplicationRecord
   def map_center_method
     return :preferred_georeference if preferred_georeference # => { georeferenceProtocol => ?  }
     return :verbatim_map_center if verbatim_map_center # => { }
-    return :geographic_area if geographic_area.try(:has_shape?)
+    return :geographic_area if geographic_area&.has_shape?
     nil
   end
 
@@ -897,7 +898,7 @@ class CollectingEvent < ApplicationRecord
     when :verbatim_map_center
       verbatim_map_center
     when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid
+      geographic_area.default_geographic_item.centroid
     else
       nil
     end

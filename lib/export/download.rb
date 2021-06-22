@@ -25,6 +25,7 @@ module Export::Download
     tbl = CSV::Table.new([headers])
 
     puts Rainbow('building rows').yellow
+
     # Pluck rows is from postgresql_cursor gem
     scope.pluck_rows(*column_names).each do |o|
       tbl << o.collect{|v| Utilities::Strings.sanitize_for_csv(v) }

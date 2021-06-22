@@ -1009,8 +1009,8 @@ class GeographicItem < ApplicationRecord
   #   a WKT POINT representing the centroid of the geographic item
   def st_centroid
     GeographicItem.where(id: to_param)
-        .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
-        .first.gsub(/SRID=\d*;/, '')
+      .pluck(Arel.sql("ST_AsEWKT(ST_Centroid(#{GeographicItem::GEOMETRY_SQL.to_sql}))"))
+      .first.gsub(/SRID=\d*;/, '')
   end
 
   # @return [Integer]

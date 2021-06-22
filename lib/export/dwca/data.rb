@@ -27,7 +27,9 @@ module Export::Dwca
 
     attr_accessor :core_scope
 
-    attr_accessor :total # todo, update
+    attr_accessor :biological_extension_scope
+
+    attr_accessor :total #TODO update
 
     attr_reader :filename
 
@@ -35,7 +37,7 @@ module Export::Dwca
     def initialize(core_scope: nil, extension_scopes: {} )
       # raise ArgumentError, 'must pass a core_scope' if !record_core_scope.kind_of?( ActiveRecord::Relation )
       @core_scope = get_scope(core_scope)
-      # @extensio_scope = get_scope(core_scope)
+      @biological_extension_scope = extension_scopes[:biological_extension_scope] #  = get_scope(core_scope)
     end
 
     def total
@@ -73,7 +75,7 @@ module Export::Dwca
     end
 
     # @return [Tempfile]
-    #    the csv data as a tempfile
+    #   the csv data as a tempfile
     def data
       return @data if @data
       if no_records?
@@ -95,6 +97,8 @@ module Export::Dwca
     # See also
     #    https://github.com/gbif/ipt/wiki/resourceMetadata
     #    https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets
+    #
+    # TODO: reference biological_resource_extension.csv
     def eml
       return @eml if @eml
       @eml = Tempfile.new('eml.xml')
@@ -148,9 +152,9 @@ module Export::Dwca
                   xml.dateStamp
                   xml.hierarchyLevel
                   xml.citation(identifier: 'STUB').text 'DATASET CITATION STUB'
-                  xml.resourceLogoURL 'SOME URL'
-                  xml.formationPeriod 'SOME PERIOD'
-                  xml.livingTimePeriod 'SOME PERIOD'
+                  xml.resourceLogoURL 'SOME RESOURCE LOGO URL'
+                  xml.formationPeriod 'SOME FORMAATION PERIOD'
+                  xml.livingTimePeriod 'SOME LIVINGI TIME PERIOD'
                   xml[:dc].replaces 'PRIOR IDENTIFIER'
                 }
               }
@@ -162,6 +166,29 @@ module Export::Dwca
       @eml.write(builder.to_xml)
       @eml.flush
       @eml
+    end
+
+    def biological_resource_relationship 
+      return nil if biological_extension_scope.nil?
+      @biological_resource_relationship = Tempfile.new('biological_resource_relationship.xml')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        content = ::Export::Download.generate_csv(
+          biological_extension_scope.computed_columns,
+          #          exclude_columns: []
+          trim_columns: false,
+          trim_rows: false,
+          header_converters: []
+        )
+      end
+
+      @biological_resource_relationship.write(content)
+      @biological_resource_relationship.flush
+      @biological_resource_relationship.rewind
+      @biological_resource_relationship
     end
 
     def meta

@@ -22,7 +22,7 @@ class Georeference::GoogleMap < Georeference
       georeferenceRemarks: 'Created from a TaxonWorks interface that integrates Google Maps.',
       georeferenceProtocol: 'Shape "drawn" on a Google Map.',
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; '), 
-      georeferencedBy: created_by.name,
+      georeferencedBy: creator.name,
       georeferencedDate: created_at
     }
 

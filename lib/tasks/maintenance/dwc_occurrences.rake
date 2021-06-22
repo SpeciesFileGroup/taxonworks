@@ -84,8 +84,8 @@ namespace :tw do
             z = o.set_dwc_occurrence #}.to_s
           rescue RGeo::Error::InvalidGeometry => e
             puts Rainbow("Error [#{o.id}] bad geometry not written. #{e}").red.bold
-          rescue
-            puts Rainbow("Error (other) [#{o.id}] record not written. #{e}").red.bold
+          #rescue => e
+          #  puts Rainbow("Error (other) [#{o.id}] record not written. #{e}").red.bold
           end
           i = i + 1
         end
