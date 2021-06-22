@@ -83,6 +83,7 @@ export default {
   }
   .float-box {
     top: 70px;
+    width: 400px;
     position: fixed;
   }
 </style>
