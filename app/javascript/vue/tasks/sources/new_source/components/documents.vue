@@ -42,7 +42,9 @@
             v-for="item in list"
             :key="item.id"
             class="contextMenuCells">
-            <td><span v-html="item.document.object_tag" /></td>
+            <td class="full_width"><span
+              class="word_break"
+              v-html="item.document.object_tag" /></td>
             <td>
               <input
                 type="checkbox"
