@@ -12,7 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Edit image matrix and view image matrix in observation matrices dashboard
 - WTK component in comprehensive digitization form [#2245]
 - Add invalid relationship checkbox on clone button in New taxon name task [#2171]
-- Download PDF button for documents in New source task
+- Download PDF button for documents in New source task [#2102]
 - PDF viewer button for sources in New asserted distribution task
 
 ### Changed
@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clean documents list on reset in New source
 
 
+[#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
