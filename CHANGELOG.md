@@ -13,7 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - WTK component in comprehensive digitization form [#2245]
 - Add invalid relationship checkbox on clone button in New taxon name task [#2171]
 - Download PDF button for documents in New source task
-- Download PDF button for sources in New asserted distribution task
+- PDF viewer button for sources in New asserted distribution task
 
 ### Changed
 - Updated ruby gems

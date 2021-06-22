@@ -16,19 +16,10 @@
               <span data-icon="ok"/>
               <div>
                 <span v-html="assertedDistribution.citation.source.object_tag"/>
-                <v-btn
+                <pdf-button
                   v-for="item in documentation"
                   :key="item.id"
-                  circle
-                  class="circle-button"
-                  color="primary"
-                  :download="item.document.object_tag"
-                  :href="item.document.file_url">
-                  <v-icon
-                    color="white"
-                    x-small
-                    name="download"/>
-                </v-btn>
+                  :pdf="item.document"/>
               </div>
               <span
                 class="button circle-button btn-undo button-default"
@@ -72,15 +63,13 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import VIcon from 'components/ui/VIcon/index'
-import VBtn from 'components/ui/VBtn/index'
+import PdfButton from 'components/pdfButton.vue'
 import { Source } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
-    VBtn,
-    VIcon
+    PdfButton
   },
 
   props: {
