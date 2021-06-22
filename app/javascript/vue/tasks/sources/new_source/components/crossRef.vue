@@ -53,6 +53,7 @@ import SpinnerComponent from 'components/spinner'
 import ModalComponent from 'components/ui/Modal'
 import { MutationNames } from '../store/mutations/mutations'
 import { Serial } from 'routes/endpoints'
+import { ActionNames } from '../store/actions/actions'
 
 export default {
   components: {
@@ -73,6 +74,7 @@ export default {
   methods: {
     getSource () {
       this.searching = true
+      this.$store.dispatch(ActionNames.ResetSource)
       AjaxCall('get', `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`).then(response => {
         if (response.body.title) {
           response.body.roles_attributes = []
