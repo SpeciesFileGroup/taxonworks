@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Added new ICZN status: Invalid family group name due to synonymy of type genus replaced before 1961
 - Edit image matrix and view image matrix in observation matrices dashboard
 - WTK component in comprehensive digitization form [#2245]
+- Add invalid relationship checkbox on clone button in New taxon name task [#2171]
 
 ### Changed
 - Updated ruby gems
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix empty search in Filter collection objects
 
 
+[#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
 
