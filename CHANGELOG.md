@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix wildcard by attribute in Filter collection object
 - Confidences modal height in radial annotator [#2304]
 - Fix empty search in Filter collection objects
+- Clean documents list on reset in New source
 
 
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171

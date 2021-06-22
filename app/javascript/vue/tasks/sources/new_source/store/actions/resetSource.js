@@ -13,7 +13,10 @@ export default ({ state, commit }) => {
   if (!locked.type) {
     source.type = 'Source::Bibtex'
   }
+
   commit(MutationNames.SetSoftValidation, undefined)
   commit(MutationNames.SetSource, source)
+  commit(MutationNames.SetDocumentation, [])
+
   history.pushState(null, null, `/tasks/sources/new_source`)
 }
