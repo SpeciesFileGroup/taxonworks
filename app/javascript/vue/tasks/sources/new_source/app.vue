@@ -35,6 +35,7 @@
           <span v-else>New record</span>
           <template v-if="source.id">
             <pin-component
+              class="margin-medium-left"
               :object-id="source.id"
               type="Source"/>
             <radial-annotator :global-id="source.global_id"/>
