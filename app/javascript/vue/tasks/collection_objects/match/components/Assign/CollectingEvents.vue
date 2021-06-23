@@ -39,7 +39,7 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import SpinnerComponent from 'components/spinner'
-import { UpdateCollectionObject } from '../../request/resources'
+import { CollectionObject } from 'routes/endpoints'
 
 export default {
   components: {
@@ -84,7 +84,9 @@ export default {
       for (let i = 0; i < this.maxPerCall; i++) {
         if (position < this.ids.length) {
           promises.push(new Promise((resolve, reject) => {
-            UpdateCollectionObject(this.ids[position], { collecting_event_id: this.collectingEvent.id }).then(response => {
+            const collection_object = { collecting_event_id: this.collectingEvent.id }
+
+            CollectionObject.update(this.ids[position], { collection_object }).then(response => {
               resolve()
             }, () => {
               resolve()

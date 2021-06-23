@@ -318,6 +318,7 @@ class CollectingEventsController < ApplicationController
       :spatial_geographic_areas,
       :start_date, # used in date range
       :wkt,
+      collecting_event_wildcards: [],
       collector_id: [],
       geographic_area_id: [],
       keyword_id_and: [],

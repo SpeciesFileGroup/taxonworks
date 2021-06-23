@@ -395,13 +395,16 @@ export default {
       top: 30px;
       right: 20px;
     }
+
     .modal-mask {
       background-color: rgba(0, 0, 0, 0.7);
     }
+
     .modal-container {
       min-width: 1024px;
       width: 1200px;
     }
+
     .radial-annotator-template {
       border-radius: 3px;
       background: #FFFFFF;
@@ -410,6 +413,7 @@ export default {
       max-width: 100%;
       min-height: 600px;
     }
+
     .radial-annotator-container {
       display: flex;
       height: 600px;
@@ -417,18 +421,26 @@ export default {
       overflow-y: scroll;
       position: relative;
     }
+
+    .radial-annotator-inner-modal {
+      height: 700px;
+    }
+
     .radial-annotator-menu {
       padding-top: 1em;
       padding-bottom: 1em;
       width: 700px;
       min-height: 650px;
     }
+
     .annotator-buttons-list {
       overflow-y: scroll;
     }
+
     .save-annotator-button {
       width: 100px;
     }
+
     .circle-count {
       bottom: -6px;
     }

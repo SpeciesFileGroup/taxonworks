@@ -401,6 +401,9 @@ resources :observation_matrices do
     get :reorder_columns, defaults: {format: :json}
   end
 
+  collection do
+    get :otus_used_in_matrices, {format: :json}
+  end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do

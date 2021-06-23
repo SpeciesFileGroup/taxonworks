@@ -14,6 +14,7 @@
 
 import TableList from './table.vue'
 import AjaxCall from 'helpers/ajaxCall'
+import { ProjectMember } from 'routes/endpoints'
 
 export default {
   components: { TableList },
@@ -66,7 +67,7 @@ export default {
   },
 
   created () {
-    AjaxCall('get', '/project_members.json').then(response => {
+    ProjectMember.all().then(response => {
       this.membersList = response.body
     })
   },
@@ -74,7 +75,7 @@ export default {
   methods: {
     setAuthorsToList(list) {
       list.forEach((item, index) => {
-        const member = this.membersList.find((o) => o.user.id == item.created_by_id)
+        const member = this.membersList.find((o) => o.user.id === item.created_by_id)
 
         if (member) {
           list[index]['created_by'] = member.user.name

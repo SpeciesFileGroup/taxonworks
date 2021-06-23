@@ -33,6 +33,7 @@ export default {
   components: {
     LockComponent
   },
+
   computed: {
     source: {
       get () {
@@ -42,6 +43,7 @@ export default {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
+
     sourceType: {
       get () {
         return this.$store.getters[GetterNames.GetType]
@@ -50,6 +52,7 @@ export default {
         this.$store.commit(MutationNames.SetType, value)
       }
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -59,6 +62,7 @@ export default {
       }
     }
   },
+
   watch: {
     sourceType (newVal) {
       if (!this.source.id) {
@@ -68,6 +72,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       types: [

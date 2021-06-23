@@ -148,6 +148,8 @@ import NavBar from 'components/layout/NavBar'
 import platformKey from 'helpers/getMacKey'
 
 export default {
+  name: 'NewSource',
+
   components: {
     Autocomplete,
     CloneSource,
@@ -166,6 +168,7 @@ export default {
     RecentComponent,
     SpinnerComponent
   },
+
   computed: {
     shortcuts () {
       const keys = {}
@@ -175,13 +178,16 @@ export default {
 
       return keys
     },
+
     section () {
       const type = this.$store.getters[GetterNames.GetType]
       return type ? type.split('::')[1] : undefined
     },
+
     source () {
       return this.$store.getters[GetterNames.GetSource]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -190,11 +196,13 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     unsave() {
-      let settings = this.$store.getters[GetterNames.GetSettings]
+      const settings = this.$store.getters[GetterNames.GetSettings]
       return settings.lastSave < settings.lastEdit
     }
   },
+
   data () {
     return {
       showModal: false,
@@ -202,6 +210,7 @@ export default {
       showRecent: false
     }
   },
+
   watch: {
     source: {
       handler (newVal, oldVal) {
@@ -212,6 +221,7 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
     TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
@@ -228,6 +238,7 @@ export default {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },
+
   methods: {
     reset () {
       this.$store.dispatch(ActionNames.ResetSource)

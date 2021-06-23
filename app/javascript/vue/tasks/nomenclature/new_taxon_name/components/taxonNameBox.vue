@@ -24,10 +24,9 @@
           <a
             v-hotkey="shortcuts"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
-            class="taxonname">
-            <span v-html="taxon.cached_html"/>
-            <span v-html="taxon.cached_author_year"/>
-          </a>
+            class="taxonname"
+            v-html="taxonNameAndAuthor"
+          />
           <div class="flex-wrap-column">
             <div class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
@@ -92,6 +91,10 @@ export default {
   computed: {
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
+    },
+
+    taxonNameAndAuthor () {
+      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
     },
 
     parent () {

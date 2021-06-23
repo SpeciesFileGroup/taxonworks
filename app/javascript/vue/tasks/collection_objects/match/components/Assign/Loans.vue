@@ -48,7 +48,7 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import { UpdateLoan } from '../../request/resources'
+import { Loan } from 'routes/endpoints'
 
 export default {
   components: { SmartSelector },
@@ -88,19 +88,19 @@ export default {
     }
   },
   methods: {
-    setLoan(loan) {
+    setLoan (loan) {
       this.loan = loan
     },
 
     CreateLoanItems () {
-      UpdateLoan(this.loan.id, {
-        loan_items_attributes: this.ids.map(id => ({
-          loan_item_object_id: id,
-          loan_item_object_type: 'CollectionObject',
-          disposition: this.loanItem.disposition,
-          date_returned: this.loanItem.date_returned
-        }))
-      }).then(response => {
+      const loan_items_attributes = this.ids.map(id => ({
+        loan_item_object_id: id,
+        loan_item_object_type: 'CollectionObject',
+        disposition: this.loanItem.disposition,
+        date_returned: this.loanItem.date_returned
+      }))
+
+      Loan.update(this.loan.id, { loan: { loan_items_attributes } }).then(response => {
         TW.workbench.alert.create('Loan items was successfully created.', 'notice')
       })
     }

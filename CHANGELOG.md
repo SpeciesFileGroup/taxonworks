@@ -7,8 +7,32 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Added new ICZN status: Invalid family group name due to synonymy of type genus replaced before 1961
+- Edit image matrix and view image matrix in observation matrices dashboard
+- WTK component in comprehensive digitization form [#2245]
+- Add invalid relationship checkbox on clone button in New taxon name task [#2171]
+- Download PDF button for documents in New source task [#2102]
+- PDF viewer button for sources in New asserted distribution task
+
 ### Changed
 - Updated ruby gems
+- Migrate Vue 2.6 to Vue 3.1.1
+- `geographic_area_ids` to `geographic_area_id` in collection objects contoller
+
+### Fixed
+- Timeline rendering error in Browse OTU
+- Fix wildcard by attribute in Filter collection object
+- Confidences modal height in radial annotator [#2304]
+- Fix empty search in Filter collection objects
+- Clean documents list on reset in New source
+
+
+[#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
+[#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
+[#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
+[#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
+
 
 ## [0.18.1] - 2021-06-09
 

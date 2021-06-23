@@ -12,13 +12,19 @@
       <template #footer>
         <div>
           <template v-if="assertedDistribution.citation.source">
-            <p class="horizontal-left-content">
+            <div class="horizontal-left-content margin-small-top margin-small-bottom">
               <span data-icon="ok"/>
-              <span v-html="assertedDistribution.citation.source.object_tag"/>
+              <div>
+                <span v-html="assertedDistribution.citation.source.object_tag"/>
+                <pdf-button
+                  v-for="item in documentation"
+                  :key="item.id"
+                  :pdf="item.document"/>
+              </div>
               <span
                 class="button circle-button btn-undo button-default"
                 @click="unset"/>
-            </p>
+            </div>
           </template>
           <div
             class="horizontal-left-content middle margin-medium-top">
@@ -57,9 +63,14 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
+import PdfButton from 'components/pdfButton.vue'
+import { Source } from 'routes/endpoints'
 
 export default {
-  components: { SmartSelector },
+  components: {
+    SmartSelector,
+    PdfButton
+  },
 
   props: {
     modelValue: {
@@ -70,6 +81,10 @@ export default {
 
   emits: ['update:modelValue'],
 
+  data: () => ({
+    documentation: []
+  }),
+
   computed: {
     assertedDistribution: {
       get () {
@@ -78,6 +93,26 @@ export default {
       set (value) {
         this.$emit('update:modelValue', value)
       }
+    },
+    source () {
+      return this.assertedDistribution.citation.source
+    }
+  },
+
+  watch: {
+    source: {
+      handler (newVal, oldVal) {
+        if (newVal?.id) {
+          if (newVal?.id !== oldVal?.id) {
+            Source.documentation(newVal.id).then(response => {
+              this.documentation = response.body
+            })
+          } else {
+            this.documentation = []
+          }
+        }
+      },
+      deep: true
     }
   },
 

@@ -1,23 +1,28 @@
 <template>
   <div>
     <button
-      type="button"
       class="button normal-input button-default"
       @click="showModal = true"
-      :disabled="!otuIds.length">
-      Add to matrix
+      :disabled="!otuIds.length"
+    >
+      Edit image matrix
     </button>
     <modal-component
       v-if="showModal"
       :container-style="{ width: '700px' }"
-      @close="closeModal">
+      @close="showModal = false">
       <template #header>
-        <h3>Add OTUs to matrix</h3>
+        <h3>Select a matrix</h3>
       </template>
       <template #body>
         <spinner-component
           v-if="isLoading"
           legend="Loading..."/>
+        <pin-component
+          class="button-circle"
+          type="ObservationMatrix"
+          @getItem="addRows($event.id)"
+          section="ObservationMatrices"/>
         <ul class="no_bullets">
           <li
             class="margin-small-bottom"
@@ -52,6 +57,7 @@ import {
   ObservationMatrix
 } from 'routes/endpoints'
 import extendButton from './shared/extendButton'
+import { sortArray } from 'helpers/arrays'
 
 export default {
   mixins: [extendButton],
@@ -62,7 +68,7 @@ export default {
         const promises = []
         this.isLoading = true
 
-        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = response.body }))
+        promises.push(ObservationMatrix.all().then(response => { this.observationMatrices = sortArray(response.body, 'name') }))
         promises.push(ObservationMatrixRow.where({ otu_ids: this.otuIds.join('|') }).then(({ body }) => { this.matrixObservationRows = body }))
 
         Promise.all(promises).then(() => {

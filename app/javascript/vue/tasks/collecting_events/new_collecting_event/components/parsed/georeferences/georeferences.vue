@@ -118,10 +118,10 @@ import DisplayList from './list'
 import convertDMS from 'helpers/parseDMS.js'
 import ManuallyComponent from 'components/georeferences/manuallyComponent'
 import GeolocateComponent from './geolocate'
-import AjaxCall from 'helpers/ajaxCall'
 import ModalComponent from 'components/ui/Modal'
 import extendCE from '../../mixins/extendCE'
 import WktComponent from './wkt'
+import { Georeference } from 'routes/endpoints'
 import { truncateDecimal } from 'helpers/math.js'
 
 import GeoreferenceTypes from '../../../const/georeferenceTypes'
@@ -141,6 +141,8 @@ export default {
     ModalComponent,
     WktComponent
   },
+
+  emits: ['onGeoreferences'],
 
   props: {
     height: {
@@ -292,7 +294,7 @@ export default {
     removeGeoreference (geo) {
       const index = geo.id ? this.georeferences.findIndex(item => item.id === geo.id) : this.queueGeoreferences.findIndex(item => item.tmpId === geo.tmpId)
       if (geo.id) {
-        AjaxCall('delete', `/georeferences/${geo.id}.json`).then(() => {
+        Georeference.destroy(geo.id).then(() => {
           this.georeferences.splice(index, 1)
           this.$emit('onGeoreferences', this.georeferences)
           this.populateShapes()

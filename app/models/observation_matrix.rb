@@ -26,6 +26,8 @@ class ObservationMatrix < ApplicationRecord
   # TODO: restrict these- you can not directly create these!
   has_many :descriptors, through: :observation_matrix_columns, inverse_of: :observation_matrices
 
+  scope :with_otu_id_array, ->  (otu_id_array) { joins('LEFT OUTER JOIN "observation_matrix_rows" ON "observation_matrix_rows"."observation_matrix_id" = "observation_matrices"."id"').where("otu_id in (?)", otu_id_array) }
+
   def qualitative_descriptors
     descriptors.where(type: 'Descriptor::Qualitative')
   end 
