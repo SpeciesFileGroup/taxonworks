@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Confidences modal height in radial annotator [#2304]
 - Fix empty search in Filter collection objects
 - Clean documents list on reset in New source
+- Missing hexagon soft validation in comprehensive specimen digitization task
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
