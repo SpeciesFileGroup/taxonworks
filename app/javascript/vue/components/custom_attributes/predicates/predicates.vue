@@ -29,7 +29,11 @@
 
 import SpinnerComponent from 'components/spinner'
 import PredicateRow from './components/predicateRow'
-import { GetPredicates, GetPredicatesCreated, GetProjectPreferences } from './request/resources.js'
+import {
+  Project,
+  ControlledVocabularyTerm,
+  DataAttribute
+} from 'routes/endpoints'
 
 export default {
   components: {
@@ -74,7 +78,11 @@ export default {
     objectId (newVal) {
       if (newVal && this.objectType) {
         this.loading = true
-        GetPredicatesCreated(this.objectType, this.objectId).then(response => {
+        DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
           this.createdList = response.body
           this.loading = false
         })
@@ -93,7 +101,7 @@ export default {
       if (this.modelPreferences?.length) {
         this.loadPredicates(this.modelPreferences)
       } else {
-        GetProjectPreferences().then(response => {
+        Project.preferences().then(response => {
           this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
           this.loadPredicates(this.modelPreferencesIds)
         })
@@ -103,7 +111,7 @@ export default {
     loadPredicates (ids) {
       const promises = []
       if (ids?.length) {
-        promises.push(GetPredicates(ids).then(response => {
+        promises.push(ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids }).then(response => {
           this.predicatesList = response.body
         }))
       } else {
@@ -111,7 +119,11 @@ export default {
       }
 
       if (this.objectId) {
-        promises.push(GetPredicatesCreated(this.objectType, this.objectId).then(response => {
+        promises.push(DataAttribute.where({
+          attribute_subject_type: this.objectType,
+          attribute_subject_id: this.objectId,
+          type: 'InternalAttribute'
+        }).then(response => {
           this.createdList = response.body
         }))
       }

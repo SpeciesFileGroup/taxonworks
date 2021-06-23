@@ -1,9 +1,9 @@
-import { RemoveRow } from '../../request/resources'
+import { ObservationMatrixRowItem } from 'routes/endpoints'
 import ActionNames from '../actions/actionNames'
 
-export default function ({ commit, state, dispatch }, id) {
-  return new Promise((resolve, reject) => {
-    return RemoveRow(id).then(response => {
+export default ({ state, dispatch }, id) =>
+  new Promise((resolve, reject) => {
+    return ObservationMatrixRowItem.destroy(id).then(response => {
       dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       dispatch(ActionNames.GetMatrixObservationRowsDynamic, state.matrix.id)
       return resolve(response)
@@ -11,4 +11,3 @@ export default function ({ commit, state, dispatch }, id) {
       return reject(response)
     })
   })
-}

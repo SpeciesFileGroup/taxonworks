@@ -103,7 +103,11 @@ import getPagination from 'helpers/getPagination'
 
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-import { GetMatrixObservationRows, GetObservationMatrices, CreateRowItem } from '../../request/resources'
+import { GetMatrixObservationRows } from '../../request/resources'
+import {
+  ObservationMatrix,
+  ObservationMatrixRowItem
+} from 'routes/endpoints'
 import ObservationTypes from '../../const/types.js'
 
 export default {
@@ -143,7 +147,7 @@ export default {
       handler (newVal) {
         if (newVal) {
           this.isLoading = true
-          GetObservationMatrices().then(response => {
+          ObservationMatrix.all().then(response => {
             response.body.splice(response.body.findIndex(item => this.matrixId === item.id), 1)
             this.observationMatrices = response.body
             this.isLoading = false
@@ -191,7 +195,7 @@ export default {
       data.sort((a, b) => a - b)
       console.log(data.sort((a, b) => a.position - b.position))
 
-      data.forEach(row => { promises.push(CreateRowItem({ observation_matrix_row_item: row })) })
+      data.forEach(row => { promises.push(ObservationMatrixRowItem({ observation_matrix_row_item: row })) })
 
       Promise.all(promises).then(() => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows)

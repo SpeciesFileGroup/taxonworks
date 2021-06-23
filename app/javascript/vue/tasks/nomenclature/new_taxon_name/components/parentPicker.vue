@@ -61,7 +61,6 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { TaxonName } from 'routes/endpoints'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -76,15 +75,15 @@ export default {
 
     parent: {
       get () {
-        let value = this.$store.getters[GetterNames.GetParent]
-        return (value != undefined ? value : '')
+        const parent = this.$store.getters[GetterNames.GetParent]
+        return parent || ''
       }
     },
 
     getCodes: {
       get () {
-        let codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
-        return (codes != undefined ? codes : '')
+        const codes = Object.keys(this.$store.getters[GetterNames.GetRankList])
+        return codes || ''
       }
     },
 

@@ -52,9 +52,8 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import RowItem from './shared/RowItem'
-import { GetKeyword } from '../../request/resources'
+import { ControlledVocabularyTerm } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import ajaxCall from 'helpers/ajaxCall.js'
 
 export default {
   components: {
@@ -92,6 +91,7 @@ export default {
       tags: { all: [] }
     }
   },
+
   watch: {
     modelValue (newVal) {
       if (!newVal.keyword_id_and.length && !newVal.keyword_id_or.length && this.keywords.length) {
@@ -108,6 +108,7 @@ export default {
       deep: true
     }
   },
+
   created () {
     const urlParams = URLParamsToJSON(location.href)
     const {
@@ -118,17 +119,18 @@ export default {
     this.loadTags()
 
     keyword_id_and.forEach(id => {
-      GetKeyword(id).then(response => {
+      ControlledVocabularyTerm.find(id).then(response => {
         this.addKeyword(response.body, true)
       })
     })
 
     keyword_id_or.forEach(id => {
-      GetKeyword(id).then(response => {
+      ControlledVocabularyTerm.find(id).then(response => {
         this.addKeyword(response.body, false)
       })
     })
   },
+
   methods: {
     addKeyword (keyword, and = true) {
       if (!this.keywords.find(item => item.id === keyword.id)) {
@@ -141,7 +143,7 @@ export default {
     },
 
     loadTags () {
-      ajaxCall('get', '/controlled_vocabulary_terms.json?type[]=Keyword').then(response => {
+      ControlledVocabularyTerm.where({ type: ['Keyword'] }).then(response => {
         this.tags = { all: response.body }
       })
     }
