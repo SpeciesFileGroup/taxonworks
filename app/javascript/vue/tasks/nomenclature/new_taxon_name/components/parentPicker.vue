@@ -15,6 +15,7 @@
         :send-label="parent.object_label"
         param="term"/>
       <default-taxon
+        class="margin-small-left"
         section="TaxonNames"
         @getId="parentSelected"
         type="TaxonName"/>
@@ -38,7 +39,9 @@
       v-if="!taxon.id && parent && parent.parent_id == null">
       <h4>Nomenclature code</h4>
       <ul class="no_bullets">
-        <li v-for="code in getCodes">
+        <li
+          v-for="code in getCodes"
+          :key="code">
           <label class="middle uppercase">
             <input
               type="radio"
@@ -104,7 +107,6 @@ export default {
 
   data () {
     return {
-      code: undefined,
       validParent: undefined
     }
   },

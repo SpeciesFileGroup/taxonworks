@@ -14,7 +14,7 @@
             <span v-html="taxon.cached_author_year"/>
           </a>
           <div>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content margin-small-bottom">
               <otu-radial
                 ref="browseOtu"
                 :object-id="taxon.id"
@@ -24,10 +24,11 @@
             </div>
             <div class="horizontal-right-content">
               <pin-component
+                class="circle-button"
                 type="TaxonName"
                 :object-id="taxon.id"/>
               <a
-                class=" button-circle btn-edit button-default"
+                class="circle-button btn-edit button-default"
                 :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
             </div>
           </div>
@@ -144,17 +145,7 @@ export default {
     display: flex;
     justify-content: space-between;
   }
-  .radial-annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-    .circle-button {
-     margin: 0px;
-   }
-  }
+
   .taxonname {
     font-size: 14px;
   }

@@ -131,7 +131,6 @@
 .button-circle {
   @extend .circle-button;
   display: inline-block;
-  margin: 0px;
 }
 
 .btn-add {
@@ -275,7 +274,8 @@
 }
 
 .circle-button-margin {
-  margin: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 .box-button {
   cursor: pointer;
