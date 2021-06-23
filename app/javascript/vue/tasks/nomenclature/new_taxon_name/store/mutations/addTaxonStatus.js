@@ -1,14 +1,9 @@
-import Vue from 'vue'
+export default (state, status) => {
+  const position = state.taxonStatusList.findIndex(item => item.id === status.id || item.type === status.type)
 
-export default function (state, status) {
-  var position = state.taxonStatusList.findIndex(item => {
-    if (item.id == status.id || item.type == status.type) {
-      return true
-    }
-  })
   if (position < 0) {
     state.taxonStatusList.push(status)
   } else {
-    Vue.set(state.taxonStatusList, position, status)
+    state.taxonStatusList[position] = status
   }
 }

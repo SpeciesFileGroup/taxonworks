@@ -16,16 +16,16 @@ import TableList from './table.vue'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  components: {
-    TableList,
-  },
+  components: { TableList },
+
   props: {
     list: {
       type: Array,
       required: true
     }
   },
-  data() {
+
+  data () {
     return {
       header: ['Type', 'Object type', 'Object', 'Annotation', 'Value', 'Object attribute', 'Created by', 'Created at', ''],
       types: {
@@ -58,42 +58,44 @@ export default {
       membersList: []
     }
   },
+
   watch: {
-    list(newVal) {
+    list (newVal) {
       this.listWithCreators = this.setAuthorsToList(newVal)
     }
   },
-  mounted() {
+
+  created () {
     AjaxCall('get', '/project_members.json').then(response => {
       this.membersList = response.body
     })
   },
+
   methods: {
     setAuthorsToList(list) {
-      let that = this;
-
       list.forEach((item, index) => {
-        let member = that.membersList.find((o) => { return o.user.id == item.created_by_id })
+        const member = this.membersList.find((o) => o.user.id == item.created_by_id)
 
-        if(member) {
+        if (member) {
           list[index]['created_by'] = member.user.name
         }
       })
       return list
     },
+
     removeItem(item) {
       AjaxCall('delete', `${item.object_url}.json`).then(response => {
-        let index = this.listWithCreators.findIndex(obj => {
-          return (obj.id == item.id && obj.base_class == item.base_class)
-        })
-        if(index > -1) {
+        const index = this.listWithCreators.findIndex(obj => (obj.id === item.id && obj.base_class === item.base_class))
+
+        if (index > -1) {
           this.listWithCreators.splice(index, 1)
         }
         TW.workbench.alert.create('Annotation was successfully deleted.', 'notice')
       })
     },
-    editItem(item) {
-      window.open(`${item.annotated_object.object_url}/edit`, '_blank');
+
+    editItem (item) {
+      window.open(`${item.annotated_object.object_url}/edit`, '_blank')
     }
   }
 }

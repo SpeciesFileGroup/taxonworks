@@ -1,33 +1,37 @@
 <template>
-    <div class="panel basic-information">
+  <div class="panel basic-information">
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete {{ descriptor.object_tag }} ?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete {{ descriptor.object_tag }} ?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteDescriptor()"
           type="button"
           class="normal-input button button-delete align-end">Delete</button>
-      </div>
+      </template>
     </modal>
-      <div class="content header">
-        <h3
-          v-if="descriptor.id"
-          class="flex-separate middle">
-          <span> {{ descriptor.object_tag }} </span>
-          <div class="descriptor-preview-options middle">
-            <radial-annotator
-              :global-id="descriptor.global_id"/>
-            <span
-              @click="showModal = true"
-              class="circle-button btn-delete"/>
-          </div>
-        </h3>
-        <p>{{ descriptor.description }}</p>
-      </div>
+    <div class="content header">
+      <h3
+        v-if="descriptor.id"
+        class="flex-separate middle">
+        <span> {{ descriptor.object_tag }} </span>
+        <div class="descriptor-preview-options middle">
+          <radial-annotator
+            :global-id="descriptor.global_id"/>
+          <span
+            @click="showModal = true"
+            class="circle-button btn-delete"/>
+        </div>
+      </h3>
+      <p>{{ descriptor.description }}</p>
     </div>
+  </div>
 </template>
 <script>
 
@@ -39,17 +43,22 @@ export default {
     RadialAnnotator,
     Modal
   },
+
   props: {
     descriptor: {
       type: Object,
       required: true
     }
   },
-  data() {
+
+  emits: ['remove'],
+
+  data () {
     return {
       showModal: false
     }
   },
+
   methods: {
     deleteDescriptor() {
       this.$emit('remove', this.descriptor)
@@ -57,6 +66,7 @@ export default {
   }
 }
 </script>
+
 <style lang="scss" scoped>
   .descriptor-preview-options {
     display: flex;

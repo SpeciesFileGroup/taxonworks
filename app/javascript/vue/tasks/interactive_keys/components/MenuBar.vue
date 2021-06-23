@@ -94,6 +94,7 @@ export default {
     SortingComponent,
     RefreshComponent
   },
+
   computed: {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
@@ -125,6 +126,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       layouts: {
@@ -133,10 +135,12 @@ export default {
       }
     }
   },
+
   methods: {
     setLayout (layout) {
       this.settings.gridLayout = this.layouts[layout]
     },
+
     loadMatrix (id) {
       if (!this.observationMatrix || id !== this.observationMatrix.observation_matrix_id) {
         SetParam('/tasks/observation_matrices/interactive_key', 'observation_matrix_id', id)
@@ -145,10 +149,12 @@ export default {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
       document.querySelector('.descriptors-view div').scrollIntoView(0)
     },
+
     proceed (id) {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, id)
       document.querySelector('.descriptors-view div').scrollIntoView(0)
     },
+
     resetView () {
       this.$store.commit(MutationNames.SetDescriptorsFilter, {})
       this.$store.commit(MutationNames.SetRowFilter, [])

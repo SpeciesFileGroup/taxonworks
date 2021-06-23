@@ -51,28 +51,33 @@ export default {
     DisplayList
   },
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     source: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       authors: []
     }
   },
+
   watch: {
-    value: {
+    modelValue: {
       handler (newVal, oldVal) {
         if (!newVal.author_ids.length && oldVal.author_ids.length) {
           this.authors = []
@@ -82,13 +87,15 @@ export default {
     },
     authors: {
       handler (newVal) {
-        this.source.author_ids = this.authors.map(author => { return author.id })
+        this.source.author_ids = this.authors.map(author => author.id)
       },
       deep: true
     }
   },
+
   mounted () {
     const params = URLParamsToJSON(location.href)
+
     this.source.author = params.author
     this.source.exact_author = params.exact_author
     this.source.author_ids_or = params.author_ids_or
@@ -100,12 +107,14 @@ export default {
       })
     }
   },
+
   methods: {
     addAuthor (author) {
       if (!this.source.author_ids.includes(author.id)) {
         this.authors.push(author)
       }
     },
+
     removeAuthor (index) {
       this.authors.splice(index, 1)
     }
@@ -113,7 +122,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

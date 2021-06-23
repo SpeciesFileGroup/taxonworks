@@ -6,7 +6,7 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th></th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -32,39 +32,43 @@ export default {
     RadialAnnotator,
     RadialObject
   },
+
   props: {
     list: {
       type: Array,
       default: () => []
     },
-    value: {
+
+    modelValue: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
+
   computed: {
     ids: {
       get () {
         return this.value
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       ascending: false
     }
   },
+
   methods: {
     sortTable (sortProperty) {
-      let that = this
-      function compare (a,b) {
+      const compare = (a,b) => {
         if (a[sortProperty] < b[sortProperty])
-          return (that.ascending ? -1 : 1)
+          return (this.ascending ? -1 : 1)
         if (a[sortProperty] > b[sortProperty])
-          return (that.ascending ? 1 : -1)
+          return (this.ascending ? 1 : -1)
         return 0
       }
       this.list.data.sort(compare)

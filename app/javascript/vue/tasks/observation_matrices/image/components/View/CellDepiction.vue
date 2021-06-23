@@ -4,7 +4,7 @@
     <div
       v-for="depiction in depictions"
       :key="depiction.id">
-      <tippy-component
+      <tippy
         animation="scale"
         placement="bottom"
         size="small"
@@ -15,14 +15,12 @@
           ? 'mouseenter focus'
           : 'manual'"
         :content="depiction.source_cached">
-        <template slot="trigger">
-          <image-viewer
-            :depiction="depiction"
-          >
-            <img :src="depiction.image.alternatives.medium.image_file_url">
-            <div
-              class="panel content full_width margin-small-right"
-              slot="infoColumn">
+        <image-viewer
+          :depiction="depiction"
+        >
+          <img :src="depiction.image.alternatives.medium.image_file_url">
+          <template #infoColumn>
+            <div class="panel content full_width margin-small-right">
               <h3>Image matrix</h3>
               <ul class="no_bullets">
                 <li>Column: <b>{{ descriptor }}</b></li>
@@ -34,23 +32,23 @@
                 </li>
               </ul>
             </div>
-          </image-viewer>
-        </template>
-      </tippy-component>
+          </template>
+        </image-viewer>
+      </tippy>
     </div>
   </div>
 </template>
 
 <script>
 
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
 import CellLink from '../CellLink'
 
 export default {
   components: {
     ImageViewer,
-    TippyComponent,
+    Tippy,
     CellLink
   },
 

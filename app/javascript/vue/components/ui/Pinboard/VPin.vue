@@ -74,7 +74,7 @@ export default {
     document.addEventListener('pinboard:remove', this.clearPin)
   },
 
-  destroyed () {
+  unmounted () {
     document.removeEventListener('pinboard:remove', this.clearPin)
   },
 

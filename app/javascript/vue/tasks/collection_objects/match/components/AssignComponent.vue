@@ -25,12 +25,14 @@ export default {
     LoanComponent,
     CollectingEventComponent
   },
+
   props: {
     ids: {
       type: Array,
       required: true
     }
   },
+
   data () {
     return {
       tabs: ['Tag', 'Loan', 'Determination', 'Collecting Event'],
@@ -39,7 +41,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

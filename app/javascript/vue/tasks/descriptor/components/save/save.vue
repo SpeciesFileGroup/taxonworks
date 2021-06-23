@@ -16,11 +16,15 @@ export default {
       required: true
     }
   },
+
+  emits: ['save'],
+
   computed: {
     validate () {
       return !this.descriptor.name
     }
   },
+
   methods: {
     saveDescriptor () {
       this.$emit('save')

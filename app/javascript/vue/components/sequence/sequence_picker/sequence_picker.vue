@@ -24,34 +24,37 @@
     <modal-component
       v-if="create"
       @close="create = false">
-      <h3 slot="header">Create sequence</h3>
-      <div slot="body">
-        <label>Name</label>
-        <input 
-          class="separate-bottom"
-          type="text"
-          v-model="sequence.name">
-        <label>Sequence</label>
-        <textarea
-          class="separate-bottom"
-          v-model="sequence.sequence"
-          rows="5">
-        </textarea>
-        <ul class="no_bullets">
-          <li
-            v-for="item in sequenceTypes"
-            :key="item">
-            <label>
-              <input
-              type="radio"
-              :value="item"
-              v-model="sequence.sequence_type">
-              {{ item }}
-            </label>
-          </li>
-        </ul>
-      </div>
-      <div slot="footer">
+      <template #header>
+        <h3>Create sequence</h3>
+      </template>
+      <template #body>
+        <div>
+          <label>Name</label>
+          <input 
+            class="separate-bottom"
+            type="text"
+            v-model="sequence.name">
+          <label>Sequence</label>
+          <textarea
+            class="separate-bottom"
+            v-model="sequence.sequence"
+            rows="5"/>
+          <ul class="no_bullets">
+            <li
+              v-for="item in sequenceTypes"
+              :key="item">
+              <label>
+                <input
+                  type="radio"
+                  :value="item"
+                  v-model="sequence.sequence_type">
+                {{ item }}
+              </label>
+            </li>
+          </ul>
+        </div>
+      </template>
+      <template #footer>
         <button
           class="button normal-input button-submit"
           type="button"
@@ -59,13 +62,13 @@
           @click="createSequence">
           Create
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 <script>
 
-import Autocomplete from '../../ui/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import ModalComponent from 'components/ui/Modal.vue'
 import AjaxCall from 'helpers/ajaxCall'
 
@@ -76,18 +79,26 @@ export default {
     Autocomplete,
     ModalComponent
   },
+
   props: {
     clearAfter: {
       type: Boolean,
       default: false
     }
   },
+
+  emits: [
+    'getInput',
+    'getItem'
+  ],
+
   computed: {
-    validateFields() {
+    validateFields () {
       return this.sequence.name && this.sequence.sequence && this.sequence.sequence_type
     }
   },
-  data() {
+
+  data () {
     return {
       found: true,
       create: false,
@@ -100,9 +111,10 @@ export default {
       }
     }
   },
+
   watch: {
-    type(newVal, oldVal) {
-      if(newVal != oldVal) {
+    type (newVal, oldVal) {
+      if (newVal != oldVal) {
         this.resetPicker()
         this.sequence.name = newVal
         this.found = true
@@ -110,28 +122,35 @@ export default {
       }
     }
   },
+
   methods: {
-    resetPicker() {
-      this.sequence.name = undefined,
-      this.sequence.sequence = undefined,
-      this.sequence.sequence_type = undefined,
+    resetPicker () {
+      this.sequence = {
+        name: undefined,
+        sequence: undefined,
+        sequence_type: undefined
+      }
       this.create = false
     },
-    createSequence() {
+
+    createSequence () {
       CreateSequence(this.sequence).then(response => {
         this.$emit('getItem', response.body)
         this.create = false
         this.found = true
       })
     },
-    emitSequence(sequence) {
+
+    emitSequence (sequence) {
       AjaxCall('get', `/sequences/${sequence.id}.json`).then(response => {
         this.$emit('getItem', response.body)
       })
     },
-    callbackInput(event) {
+
+    callbackInput (event) {
       this.type = event
       this.$emit('getInput', event)
     }
   }
 }
+</script>

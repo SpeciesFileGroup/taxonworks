@@ -79,7 +79,7 @@ export default {
       set (value) {
         this.$store.commit(MutationNames.SetParamsFilter, value)
       }
-    },
+    }
   },
 
   data () {

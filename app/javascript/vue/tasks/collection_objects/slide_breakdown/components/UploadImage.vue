@@ -7,7 +7,6 @@
         @vdropzone-sending="sending"
         @vdropzone-queue-complete="completeQueue"
         ref="imageDropzone"
-        id="image-dropzone"
         url="/images"
         :use-custom-dropzone-options="true"
         :dropzone-options="dropzone"/>
@@ -20,9 +19,10 @@
 import Dropzone from 'components/dropzone'
 
 export default {
-  components: {
-    Dropzone
-  },
+  components: { Dropzone },
+
+  emits: ['created'],
+
   data () {
     return {
       dropzone: {
@@ -44,13 +44,15 @@ export default {
   methods: {
     success (file, response) {
       this.$refs.imageDropzone.removeFile(file)
-      if(!this.firstUploaded) {
+      if (!this.firstUploaded) {
         this.firstUploaded = response
       }
     },
-    sending: function (file, xhr, formData) {
+
+    sending (file, xhr, formData) {
       formData.append('image[sled_image_attributes][metadata]', '[]')
     },
+
     completeQueue(file, response) {
       this.$emit('created', this.firstUploaded)
       this.firstUploaded = undefined
@@ -58,7 +60,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

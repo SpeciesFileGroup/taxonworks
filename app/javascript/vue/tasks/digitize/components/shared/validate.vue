@@ -15,24 +15,24 @@
   </div>
 </template>
 <script>
-  export default {
-    props: {
-      showMessage: {
-        type: Boolean,
-        default: false
-      },
-      legend: {
-        type: String,
-        required: false,
-        default: ''
-      }
+export default {
+  props: {
+    showMessage: {
+      type: Boolean,
+      default: false
     },
-    data() {
-      return {
-        showLegend: false
-      }
+    legend: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
+  data() {
+    return {
+      showLegend: false
     }
   }
+}
 </script>
 <style lang="scss" module>
   .warning-component {

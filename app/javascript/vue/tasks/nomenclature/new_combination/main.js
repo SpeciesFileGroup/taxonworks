@@ -1,26 +1,21 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import HelpSystem from 'plugins/help/help'
 import en from './lang/help/en'
-import vueShortkey from 'vue-shortkey'
+import hotkey from 'plugins/v-hotkey'
 import App from './app.vue'
 
 function init () {
-  Vue.use(vueShortkey)
-  Vue.use(HelpSystem, {
+  const app = createApp(App)
+  app.directive('hotkey', hotkey)
+  app.use(HelpSystem, {
     languages: {
       en: en
     }
   })
-
-  new Vue({
-    el: '#vue_new_combination',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.mount('#vue_new_combination')
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('#vue_new_combination')) {
     init()
   }

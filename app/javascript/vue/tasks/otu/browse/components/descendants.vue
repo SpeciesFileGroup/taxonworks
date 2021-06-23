@@ -12,8 +12,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li>
             <label>
@@ -32,7 +34,7 @@
             </label>
           </li>
         </ul>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>

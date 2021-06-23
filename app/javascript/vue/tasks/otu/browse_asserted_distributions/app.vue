@@ -113,7 +113,7 @@ export default {
       this.assertedDistribution = []
     },
 
-    loadList(newList) {
+    loadList (newList) {
       if (this.append) {
         let concat = newList.concat(this.assertedDistribution)
         concat = concat.filter((item, index, self) =>
@@ -137,7 +137,7 @@ export default {
       width: 400px;
       min-width: 400px;
     }
-    ::v-deep .vue-autocomplete-input {
+    :deep(.vue-autocomplete-input) {
       width: 100%;
     }
   }

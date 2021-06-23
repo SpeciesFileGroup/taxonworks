@@ -1,12 +1,12 @@
 <template>
   <div class="panel vue-filter-container">
-    <div class="flex-separate content middle action-line">
+    <div
+      class="flex-separate content middle action-line"
+      v-hotkey="shortcuts">
       <span>Filter</span>
       <span
         data-icon="reset"
         class="cursor-pointer"
-        v-shortkey="[getMacKey, 'r']"
-        @shortkey="resetFilter"
         @click="resetFilter">Reset
       </span>
     </div>
@@ -21,8 +21,6 @@
         class="button button-default normal-input full_width"
         type="button"
         :disabled="emptyParams"
-        v-shortkey="[getMacKey, 'f']"
-        @shortkey="searchSources"
         @click="searchSources">
         Search
       </button>
@@ -65,7 +63,7 @@
 
 import TitleComponent from './filters/title'
 import SpinnerComponent from 'components/spinner'
-import GetMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import AuthorsComponent from './filters/authors'
 import DateComponent from './filters/date'
 import TagsComponent from './filters/tags'
@@ -79,7 +77,6 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-
 import { GetSources } from '../request/resources.js'
 
 const parseAttributeParams = (attributes) => ({
@@ -104,15 +101,32 @@ export default {
     SomeValueComponent,
     TaxonNameComponent
   },
+
+  emits: [
+    'reset',
+    'newSearch',
+    'result',
+    'urlRequest',
+    'pagination',
+    'params'
+  ],
+
   computed: {
-    getMacKey () {
-      return GetMacKey()
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+r`] = this.resetFilter
+      keys[`${platformKey()}+f`] = this.searchSources
+
+      return keys
     },
+
     emptyParams () {
       if (!this.params) return
       return !this.params.source
     }
   },
+
   data () {
     return {
       params: this.initParams(),
@@ -121,6 +135,7 @@ export default {
       perRequest: 10
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
 
@@ -128,6 +143,7 @@ export default {
       this.getSources(urlParams)
     }
   },
+
   methods: {
     resetFilter () {
       this.$emit('reset')
@@ -214,6 +230,7 @@ export default {
         }
       }
     },
+
     filterEmptyParams (object) {
       const keys = Object.keys(object)
       keys.forEach(key => {
@@ -223,11 +240,13 @@ export default {
       })
       return object
     },
+
     flatObject (object, key) {
       const tmp = Object.assign({}, object, object[key])
       delete tmp[key]
       return tmp
     },
+
     loadPage (page) {
       this.params.settings.page = page
       this.searchSources()
@@ -236,7 +255,7 @@ export default {
 }
 </script>
 <style scoped>
-::v-deep .btn-delete {
+:deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>

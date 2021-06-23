@@ -41,7 +41,7 @@ export const parsedProperties = {
 
   TripCode: ({ ce, tripCode }) => DOMPurify.sanitize(tripCode.object_tag, { FORBID_TAGS: ['span'], KEEP_CONTENT: true }),
 
-  Georeferences: ({ georeferences }) => georeferences
+  Georeferences: ({ georeferences }) => (georeferences || [])
     .filter(geo => geo?.geo_json?.geometry?.type === 'Point')
     .map(geo => `${truncateDecimal(geo.geo_json.geometry.coordinates[1], 6)}, ${truncateDecimal(geo.geo_json.geometry.coordinates[0], 6)}`)
     .join('\n')

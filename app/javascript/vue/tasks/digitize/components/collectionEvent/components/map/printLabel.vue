@@ -38,11 +38,13 @@
     <textarea
       v-model="documentLabel"
       cols="45"
-      rows="6"/>
+      rows="6"
+    />
   </div>
 </template>
 
 <script>
+
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { MutationNames } from '../../../../store/mutations/mutations.js'
 import { parsedProperties } from 'tasks/collecting_events/new_collecting_event/helpers/parsedProperties.js'
@@ -50,59 +52,71 @@ import { verbatimProperties } from 'tasks/collecting_events/new_collecting_event
 
 export default {
   computed: {
-    label() {
+    label () {
       return this.$store.getters[GetterNames.GetLabel]
     },
+
     printLabel: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLabel].text
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLabelText, value)
       }
     },
+
     que: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetLabel].total
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetLabelTotal, value)
       }
     },
+
     documentLabel: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetCollectionEvent].document_label
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetCollectionEventDocumentLabel, value)
       }
     },
-    verbatimLabel() {
+
+    verbatimLabel () {
       return this.$store.getters[GetterNames.GetCollectionEvent].verbatim_label
     },
+
     collectingEvent () {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     },
+
     preferences () {
       return this.$store.getters[GetterNames.GetPreferences]
     },
+
     componentsOrder () {
-      return this.preferences.layout['tasks::collectingEvent::componentsOrder']
+      return this.$store.getters[GetterNames.GetComponentsOrder]
     },
+
     tripCode () {
       return this.$store.getters[GetterNames.GetCollectingEventIdentifier]
     }
   },
+
   methods: {
     copyLabel () {
       this.printLabel = this.verbatimLabel
     },
+
     generateVerbatimLabel () {
-      return this.componentsOrder.componentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
+      return this.componentsOrder.ComponentVerbatim.map(componentName => this.collectingEvent[verbatimProperties[componentName]]).filter(item => item)
     },
+
     generateParsedLabel () {
-      return this.componentsOrder.componentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
+      return this.componentsOrder.ComponentParse.map(componentName => parsedProperties[componentName]).filter(func => func).map(func => func(Object.assign({}, { ce: this.collectingEvent, tripCode: this.tripCode })))
     },
+
     generateLabel () {
       this.printLabel = [].concat(this.generateVerbatimLabel(), this.generateParsedLabel().filter(label => label)).join('\n')
     }

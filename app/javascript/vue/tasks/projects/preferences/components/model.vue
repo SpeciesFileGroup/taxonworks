@@ -22,7 +22,9 @@
 
 <script>
 export default {
-  data() {
+  emits: ['onSelect'],
+
+  data () {
     return {
       list: [
         {
@@ -49,6 +51,7 @@ export default {
       selected: undefined
     }
   },
+
   methods: {
     selectOption (item) {
       this.selected = item
@@ -57,7 +60,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

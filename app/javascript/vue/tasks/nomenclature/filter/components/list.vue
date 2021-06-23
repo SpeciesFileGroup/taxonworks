@@ -59,17 +59,22 @@ export default {
     RadialAnnotator,
     RadialObject
   },
+
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
-  data() {
+
+  emits: ['onSort'],
+
+  data () {
     return {
       ascending: false
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))

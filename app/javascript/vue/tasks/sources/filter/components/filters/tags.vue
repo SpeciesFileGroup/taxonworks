@@ -20,8 +20,8 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th></th>
-          <th></th>
+          <th />
+          <th />
         </tr>
       </thead>
       <transition-group
@@ -29,17 +29,17 @@
         tag="tbody">
         <template
           v-for="(item, index) in keywords"
+          :key="index"
           class="table-entrys-list">
           <row-item
             class="list-complete-item"
-            :key="index"
             :item="item"
             label="object_tag"
             :options="{
               AND: true,
               OR: false
             }"
-            v-model="item.and"
+            v-model="keywords[index].and"
             @remove="removeKeyword(index)"
           />
         </template>
@@ -61,21 +61,26 @@ export default {
     SmartSelector,
     RowItem
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: () => ({})
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     params: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     },
+
     allFiltered () {
       const keywordsId = this.keywords.map(({ id }) => id)
       return { all: this.tags.all.filter(item => !keywordsId.includes(item.id)) }
@@ -88,8 +93,8 @@ export default {
     }
   },
   watch: {
-    value (newVal) {
-      if (!newVal.keyword_id_and.length && !newVal.keyword_id_and.length && this.keywords.length) {
+    modelValue (newVal) {
+      if (!newVal.keyword_id_and.length && !newVal.keyword_id_or.length && this.keywords.length) {
         this.keywords = []
       }
     },
@@ -144,7 +149,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

@@ -19,25 +19,26 @@
         v-if="view == smartOptions.common"
         class="no_bullets"
       >
-        <li
+        <template
           v-for="(item, key) in mergeLists.common"
-          :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
-          <label>
-            <input
-              :value="key"
-              @click="addRelationship(item)"
-              type="radio">
-            {{ item.name }}
-          </label>
-        </li>
+          :key="key">
+          <li v-if="!filterAlreadyPicked(item.type)">
+            <label>
+              <input
+                :value="key"
+                @click="addRelationship(item)"
+                type="radio">
+              {{ item.name }}
+            </label>
+          </li>
+        </template>
       </ul>
       <autocomplete
         v-if="view == smartOptions.advanced"
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
         label="name"
-        :clear-after="true"
+        clear-after
         min="3"
         time="0"
         @getItem="addRelationship"
@@ -79,10 +80,13 @@ export default {
   },
 
   props: {
-    value: {
-
+    modelValue: {
+      type: Array,
+      required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   computed: {
     smartOptions() {
@@ -105,12 +109,16 @@ export default {
   },
 
   watch: {
-    value(newVal) {
+    modelValue (newVal) {
       if (newVal.length || !this.relationshipSelected.length) return
       this.relationshipSelected = []
     },
-    relationshipSelected(newVal) {
-      this.$emit('input', newVal.map(relationship => { return relationship.type }))
+
+    relationshipSelected: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
+      },
+      deep: true
     }
   },
 
@@ -153,20 +161,20 @@ export default {
     },
 
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'name', { value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].subject_status_tag })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
 
-    removeItem(relationship) {
-      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type),1)
+    removeItem (relationship) {
+      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type), 1)
     },
 
-    addRelationship(item) {
+    addRelationship (item) {
       this.relationshipSelected.push(item)
       this.view = OPTIONS.common
     },

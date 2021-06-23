@@ -9,7 +9,7 @@
 
 <script>
 import { parse } from 'json2csv'
- 
+
 const fields = [
   'id',
   { label: 'name', value: 'cached' }, 
@@ -19,37 +19,41 @@ const fields = [
   'rank',
   { label: 'parent', value: 'parent.cached' }];
 const opts = { fields };
- 
+
 export default {
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
-  data() {
+
+  data () {
     return {
       csvFile: undefined,
     }
   },
+
   watch: {
-    list(newVal) {
-      if(newVal.length)
+    list (newVal) {
+      if (newVal.length)
         this.parseJSONToCSV()
       else {
         this.csvFile = undefined
       }
     }
   },
+
   methods: {
-    parseJSONToCSV() {
+    parseJSONToCSV () {
       try {
         this.csvFile = parse(this.list, opts);
       } catch (err) {
         console.error(err);
       }
     },
-    downloadCSV() {
+
+    downloadCSV () {
       window.open(encodeURI(`data:text/csv;charset=utf-8,${this.csvFile}`));
     }
   }

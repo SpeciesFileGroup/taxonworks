@@ -6,11 +6,11 @@
         <label>{{ group.name }}</label>
         <br>
         <template
-          v-for="item in group.list">
+          v-for="item in group.list"
+          :key="item.id">
           <button
             class="bottom normal-input biocuration-toggle-button"
             type="button"
-            :key="item.id"
             :class="{ 'button-default': !biocurations.includes(item.id) }"
             @click="toggleBiocuration(item)">{{ item.name }}
           </button>
@@ -29,19 +29,21 @@ import {
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
     biocurations: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
@@ -74,7 +76,7 @@ export default {
       this.biocurationGroups.forEach((item, index) => {
         Tag.where({ keyword_id: item.id }).then(response => {
           const list = this.biocurationTypes.filter(biocurationType => response.body.find(item => biocurationType.id === item.tag_object_id))
-          this.$set(this.biocurationGroups[index], 'list', list)
+          this.biocurationGroups[index]['list'] = list
         })
       })
     }

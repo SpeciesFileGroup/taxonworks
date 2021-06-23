@@ -8,23 +8,23 @@
         <select
           class="normal-input full_width"
           v-model="selectedField">
-          <option
-            :value="field"
-            :key="field.name"
-            v-if="!selectedFields.find(item => item.param === field.name)"
-            v-for="field in fields">
-            {{ field.name }}
-          </option>
+          <template
+            v-for="field in fields"
+            :key="field.name">
+            <option
+              v-if="!selectedFields.find(item => item.param === field.name)"
+              :value="field"
+            >
+              {{ field.name }}
+            </option>
+          </template>
         </select>
       </div>
       <div
         v-if="selectedField && checkForMatch(selectedField.type)"
-        class="field separate-right">
-        <label>
-          Exact?
-        </label>
-        <br>
-        <input 
+        class="field separate-right label-above">
+        <label>Exact?</label>
+        <input
           :disabled="!checkForMatch(selectedField.type)"
           type="checkbox"
           v-model="exact">
@@ -107,11 +107,15 @@ export default {
       required: true
     }
   },
+
+  emits: ['fields'],
+
   computed: {
     types () {
       return TYPES
     }
   },
+
   data () {
     return {
       fields: ['verbatim_locality', 'habitat'],

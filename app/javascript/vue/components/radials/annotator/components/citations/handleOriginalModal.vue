@@ -1,8 +1,10 @@
 <template>
   <modal-component
     @close="$emit('close')">
-    <h3 slot="header">Select original citation</h3>
-    <div slot="body">
+    <template #header>
+      <h3>Select original citation</h3>
+    </template>
+    <template #body>
       <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
       <ul class="no_bullets">
         <li v-for="option in options">
@@ -16,15 +18,15 @@
           </label>
         </li>
       </ul>
-    </div>
-    <div slot="footer">
+    </template>
+    <template #footer>
       <button
         type="button"
         class="button normal-input button-submit"
         @click="handleCitation">
         Save
       </button>
-    </div>
+    </template>
   </modal-component>
 </template>
 
@@ -35,19 +37,26 @@ import CRUD from '../../request/crud.js'
 
 export default {
   mixins: [CRUD],
-  components: {
-    ModalComponent
-  },
+
+  components: { ModalComponent },
+
   props: {
     citation: {
       type: Object,
       required: true
     },
+
     originalCitation: {
       type: Object,
       required: true
     }
   },
+
+  emits: [
+    'create',
+    'close'
+  ],
+
   data () {
     return {
       options: [
@@ -63,6 +72,7 @@ export default {
       keepOriginal: true
     }
   },
+
   methods: {
     createNonOriginal () {
       this.create('/citations.json', { citation: Object.assign({}, this.citation, { is_original: false }) }).then(response => {
@@ -70,6 +80,7 @@ export default {
         this.$emit('close')
       })
     },
+
     changeOriginal () {
       this.update(`/citations/${this.originalCitation.id}.json`, { citation: Object.assign({}, this.originalCitation, { is_original: false }) }).then(response => {
         this.create('/citations.json', { citation: this.citation }).then(response => {
@@ -78,6 +89,7 @@ export default {
         })
       })
     },
+
     handleCitation () {
       if (this.keepOriginal) {
         this.createNonOriginal()

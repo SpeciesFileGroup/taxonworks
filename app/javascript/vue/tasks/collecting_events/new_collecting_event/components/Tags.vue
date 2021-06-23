@@ -32,7 +32,7 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
@@ -41,10 +41,10 @@ export default {
   computed: {
     list: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },

@@ -12,33 +12,37 @@
 
 import SmartSelector from 'components/smartSelector'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetOtu } from '../../request/resources'
+import { Otu } from 'routes/endpoints'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     otuId: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   data () {
     return {
       otuSelected: undefined,
     }
   },
+
   watch: {
     otuId: {
       handler (newVal) {
@@ -48,20 +52,24 @@ export default {
       }
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
+
     if (Object.keys(urlParams).length) {
       if (urlParams.otu_id) {
-        GetOtu(urlParams.otu_id).then(response => {
+        Otu.find(urlParams.otu_id).then(response => {
           this.setOtu(response.body)
         })
       }
     }
   },
+
   methods: {
     setOtu (value) {
       this.otu = value
     },
+
     removeOtu () {
       this.otuSelected = undefined
     }

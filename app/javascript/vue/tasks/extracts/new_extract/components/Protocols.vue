@@ -1,10 +1,14 @@
 <template>
   <block-layout>
-    <h3 slot="header">Protocols</h3>
-    <div slot="options">
-      <a href="/protocols/new">Create new</a>
-    </div>
-    <div slot="body">
+    <template #header>
+      <h3>Protocols</h3>
+    </template>
+    <template #options>
+      <div>
+        <a href="/protocols/new">Create new</a>
+      </div>
+    </template>
+    <template #body>
       <div class="horizontal-left-content align-start">
         <smart-selector
           class="full_width"
@@ -19,7 +23,7 @@
         :list="protocols"
         @deleteIndex="removeProtocol"
         label="object_tag"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 

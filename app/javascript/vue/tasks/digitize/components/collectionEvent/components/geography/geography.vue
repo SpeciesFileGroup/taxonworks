@@ -35,10 +35,10 @@
         v-if="showModal"
         @close="showModal = false"
       >
-        <h3 slot="header">
-          Select geographic area
-        </h3>
-        <div slot="body">
+        <template #header>
+          <h3>Select geographic area</h3>
+        </template>
+        <template #body>
           <ul class="no_bullets">
             <li
               class="separate-bottom"
@@ -55,7 +55,7 @@
               </label>
             </li>
           </ul>
-        </div>
+        </template>
       </modal-component>
     </template>
     <template v-if="selected">
@@ -84,10 +84,12 @@ import refreshSmartSelector from '../../../shared/refreshSmartSelector'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     SmartSelector,
     ModalComponent
   },
+
   computed: {
     geographicArea: {
       get () {
@@ -109,6 +111,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       moreOptions: ['search'],
@@ -123,6 +126,7 @@ export default {
       geoId: undefined
     }
   },
+
   watch: {
     collectingEvent: {
       handler (newVal) {
@@ -143,10 +147,9 @@ export default {
           }
         }
       }
-    },
-    deep: true,
-    immediate: true
+    }
   },
+
   methods: {
     clearSelection () {
       this.selected = undefined

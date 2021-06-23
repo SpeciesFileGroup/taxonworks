@@ -19,18 +19,19 @@
         v-if="view == smartOptions.common"
         class="no_bullets"
       >
-        <li
+        <template
           v-for="(item, key) in mergeLists.common"
-          :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
-          <label>
-            <input
-              :value="key"
-              @click="addStatus(item)"
-              type="radio">
-            {{ item.name }}
-          </label>
-        </li>
+          :key="key">
+          <li v-if="!filterAlreadyPicked(item.type)">
+            <label>
+              <input
+                :value="key"
+                @click="addStatus(item)"
+                type="radio">
+              {{ item.name }}
+            </label>
+          </li>
+        </template>
       </ul>
       <autocomplete
         v-if="view == smartOptions.advanced"
@@ -77,11 +78,15 @@ export default {
     Autocomplete,
     DisplayList
   },
-  props: {
-    value: {
 
+  props: {
+    modelValue: {
+      type: Array,
+      required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   computed: {
     smartOptions () {
@@ -108,8 +113,12 @@ export default {
       if (newVal.length || !this.statusSelected.length) return
       this.statusSelected = []
     },
-    statusSelected(newVal) {
-      this.$emit('input', newVal.map(status => { return status.type }))
+
+    statusSelected: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(status => status.type))
+      },
+      deep: true
     }
   },
 
@@ -126,6 +135,7 @@ export default {
       }
     })
   },
+
   methods: {
     merge () {
       const nomenclatureCodes = Object.keys(this.statusList)
@@ -145,24 +155,28 @@ export default {
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
+
     getTreeList (list, ranksList) {
       for (var key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'name', { value: ranksList[key].name })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
+
     removeItem (status) {
       this.statusSelected.splice(this.statusSelected.findIndex(item => item.type === status.type),1)
     },
+
     addStatus (item) {
       this.statusSelected.push(item)
       this.view = OPTIONS.common
     },
+
     filterAlreadyPicked (type) {
-      return this.statusSelected.find(item => item.type == type)
+      return this.statusSelected.find(item => item.type === type)
     }
   }
 }

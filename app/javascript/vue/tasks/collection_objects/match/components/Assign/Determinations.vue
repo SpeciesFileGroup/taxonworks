@@ -31,7 +31,7 @@
         @selected="addRole">
         <role-picker
           class="margin-medium-top"
-          roleType="Determiner"
+          role-type="Determiner"
           v-model="taxon_determination.roles_attributes"/>
       </smart-selector>
     </fieldset>
@@ -93,11 +93,9 @@
 
 import SmartSelector from 'components/ui/SmartSelector'
 import RolePicker from 'components/role_picker'
+import ListComponent from 'components/displayList'
 import { CreateDetermination } from '../../request/resources'
 import { CreatePerson } from 'helpers/persons/createPerson'
-
-import ListComponent from 'components/displayList'
-
 
 export default {
   components: {
@@ -134,22 +132,23 @@ export default {
       this.taxon_determination.month_made = today.getMonth() + 1
       this.taxon_determination.year_made = today.getFullYear()
     },
+
     roleExist(id) {
-      return (this.taxon_determination.roles_attributes.find((role) => {
-        return !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person_id') && role.person_id == id
-      }) ? true : false)
+      return !!this.taxon_determination.roles_attributes.find((role) => !role.hasOwnProperty('_destroy') && role.hasOwnProperty('person_id') && role.person_id === id)
     },
+
     addRole(role) {
       if(!this.roleExist(role.id)) {
         this.taxon_determination.roles_attributes.push(CreatePerson(role, 'Determiner'))
       }
     },
+
     addDetermination() {
-      if(this.taxon_determinations.find((determination) => { return determination.otu_id == this.taxon_determination.otu_id })) { return }
+      if (this.taxon_determinations.find((determination) => determination.otu_id === this.taxon_determination.otu_id )) { return }
       this.taxon_determination.object_tag = this.selectedOtu.object_tag
       this.taxon_determinations.push(this.taxon_determination)
       this.selectedOtu = undefined
-      
+
       this.resetDetermination()
     },
     resetDetermination () {
@@ -158,7 +157,7 @@ export default {
         year_made: undefined,
         month_made: undefined,
         day_made: undefined,
-        roles_attributes: [],
+        roles_attributes: []
       }
     },
     setOtu (otu) {
@@ -166,8 +165,9 @@ export default {
       this.selectedOtu = otu
     },
     createTaxonDeterminations (position = 0) {
-      let promises = []
-      if(position < this.ids.length) {
+      const promises = []
+
+      if (position < this.ids.length) {
         this.taxon_determinations.forEach(determination => {
           determination.biological_collection_object_id = this.ids[position]
           promises.push(new Promise((resolve, reject) => {
@@ -180,8 +180,9 @@ export default {
         })
         position++
       }
+
       Promise.all(promises).then(response => {
-        if(position < this.ids.length)
+        if (position < this.ids.length)
           this.createTaxonDeterminations(position)
         else {
           this.isSaving = false
@@ -189,6 +190,7 @@ export default {
         }
       })
     },
+
     removeTaxonDetermination(index) {
       this.taxon_determinations.splice(index, 1)
     }

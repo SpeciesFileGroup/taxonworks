@@ -1,14 +1,16 @@
 <template>
   <div>
-    <block-layout :warning="!list.find(item => { return item['id'] })">
-      <div slot="header">
+    <block-layout :warning="!list.find(item => item['id'])">
+      <template #header>
         <h3>Biological Associations</h3>
-      </div>
-      <div slot="body">
+      </template>
+      <template #body>
         <div class="separate-bottom">
           <template>
             <div class="flex-separate middle">
-              <h3 v-if="biologicalRelationship" class="relationship-title">
+              <h3
+                v-if="biologicalRelationship"
+                class="relationship-title">
                 <template v-if="flip">
                   <span 
                     v-for="item in biologicalRelationship.object_biological_properties"
@@ -110,7 +112,7 @@
           class="separate-top"
           @delete="removeFromQueue"
           :list="queueAssociations"/>
-      </div>
+      </template>
     </block-layout>
   </div>
 </template>
@@ -141,12 +143,9 @@ export default {
       return this.biologicalRelationship && this.biologicalRelation
     },
     displayRelated() {
-      if(this.biologicalRelation) {
-        return (this.biologicalRelation['object_tag'] ? this.biologicalRelation.object_tag : this.biologicalRelation.label_html)
-      }
-      else {
-        return undefined
-      }
+      return this.biologicalRelation
+        ? (this.biologicalRelation?.object_tag || this.biologicalRelation.label_html)
+        : undefined
     },
     collectionObject() {
       return this.$store.getters[GetterNames.GetCollectionObject]
@@ -178,9 +177,9 @@ export default {
           this.processQueue()
         })
       }
-      if(!this.settings.locked.biological_association.relationship)
+      if (!this.settings.locked.biological_association.relationship)
         this.biologicalRelationship = undefined
-      if(!this.settings.locked.biological_association.related) {
+      if (!this.settings.locked.biological_association.related) {
         this.biologicalRelation = undefined
       }
     },

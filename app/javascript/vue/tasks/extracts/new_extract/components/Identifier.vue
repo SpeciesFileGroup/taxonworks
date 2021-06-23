@@ -1,75 +1,75 @@
 <template>
   <block-layout>
-    <h3 slot="header">Identifier</h3>
-    <div
-      slot="body"
-      class="full_width">
-      <template v-if="typeListSelected">
-        <div class="horizontal-left-content middle">
-          <span class="capitalize">{{ typeListSelected }}</span>
-          <tippy-component
-            animation="scale"
-            placement="bottom"
-            size="small"
-            inertia
-            arrow
-            content="Change">
-            <template slot="trigger">
+    <template #header>
+      <h3>Identifier</h3>
+    </template>
+    <template #body>
+      <div class="full_width">
+        <template v-if="typeListSelected">
+          <div class="horizontal-left-content middle">
+            <span class="capitalize">{{ typeListSelected }}</span>
+            <tippy
+              animation="scale"
+              placement="bottom"
+              size="small"
+              inertia
+              arrow
+              content="Change">
               <button
                 class="button button-circle button-default btn-undo"
                 @click="typeListSelected = undefined"/>
-            </template>
-          </tippy-component>
+            </tippy>
+          </div>
+          <select-type
+            :list="typeList[typeListSelected]"
+            v-model="typeSelected"/>
+        </template>
+
+        <ul
+          v-else
+          class="no_bullets">
+          <li
+            v-for="(item, key) in typeList"
+            :key="key">
+            <label class="capitalize">
+              <input
+                type="radio"
+                v-model="typeListSelected"
+                :value="key"
+              >
+              {{ key }}
+            </label>
+          </li>
+        </ul>
+
+        <template v-if="typeSelected">
+          <namespace-component
+            v-if="isTypeListLocal"
+            v-model="namespace"/>
+          <identifier-component
+            class="margin-small-bottom"
+            v-model="identifier"/>
+        </template>
+
+        <div class="horizontal-left-content margin-small-top">
+          <button
+            type="button"
+            class="button button-submit normal-input"
+            :disabled="isMissingData"
+            @click="addIdentifier(); resetIdentifier()">
+            Add
+          </button>
+          <lock-component
+            class="margin-small-left"
+            v-model="settings.lock.identifiers"/>
         </div>
-        <select-type
-          :list="typeList[typeListSelected]"
-          v-model="typeSelected"/>
-      </template>
-
-      <ul
-        v-else
-        class="no_bullets">
-        <li
-          v-for="(item, key) in typeList"
-          :key="key">
-          <label class="capitalize">
-            <input
-              type="radio"
-              v-model="typeListSelected"
-              :value="key"
-            >
-            {{ key }}
-          </label>
-        </li>
-      </ul>
-
-      <template v-if="typeSelected">
-        <namespace-component
-          v-if="isTypeListLocal"
-          v-model="namespace"/>
-        <identifier-component
-          class="margin-small-bottom"
-          v-model="identifier"/>
-      </template>
-
-      <div class="horizontal-left-content margin-small-top">
-        <button
-          type="button"
-          class="button button-submit normal-input"
-          :disabled="isMissingData"
-          @click="addIdentifier(); resetIdentifier()">
-          Add
-        </button>
-        <lock-component
-          class="margin-small-left"
-          v-model="settings.lock.identifiers"/>
       </div>
-    </div>
-    <display-list
-      :list="identifiers"
-      label="object_tag"
-      @deleteIndex="removeIdentifier"
-    />
+      <display-list
+        :list="identifiers"
+        label="object_tag"
+        @deleteIndex="removeIdentifier"
+      />
+    </template>
   </block-layout>
 </template>
 
@@ -78,7 +78,7 @@
 import { Identifier } from 'routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { TippyComponent } from 'vue-tippy'
+import { Tippy } from 'vue-tippy'
 
 import componentExtend from './mixins/componentExtend'
 import SelectType from './Identifiers/SelectType'
@@ -97,7 +97,7 @@ export default {
     NamespaceComponent,
     IdentifierComponent,
     LockComponent,
-    TippyComponent,
+    Tippy,
     BlockLayout
   },
 
