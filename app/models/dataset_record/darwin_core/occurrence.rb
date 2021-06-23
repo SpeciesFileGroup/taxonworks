@@ -6,8 +6,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   class ImportProtonym
     class CreateIfNotExists
       def self.execute(origins, parent, name)
-        otu_attributes = name.delete(:otu_attributes)
-        protonym = Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
+        Protonym.create_with(also_create_otu: true).find_or_create_by(name.merge({ parent: parent })).tap do |protonym|
           unless protonym&.persisted?
             raise DatasetRecord::DarwinCore::InvalidData.new({
               origins[name.object_id] => name[:rank_class].present? ?
@@ -16,7 +15,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             })
           end
         end
-        protonym.tap {|p| p.otus.first.update!(otu_attributes) if otu_attributes }
       end
     end
 
@@ -42,12 +40,18 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         names, origins = parse_taxon_class
         import_protonym_strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym::MatchExisting : ImportProtonym::CreateIfNotExists
 
+        innermost_otu = nil
         innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
-          unless name[:rank_class]
+          otu_attributes = name.delete(:otu_attributes)
+
+          unless name[:rank_class] || otu_attributes.nil?
             name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
             name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
           end
-          protonym = import_protonym_strategy.execute(origins, parent, name)
+
+          import_protonym_strategy.execute(origins, parent, name).tap do |protonym|
+            innermost_otu = Otu.find_or_create_by!({taxon_name: protonym}.merge!(otu_attributes)) if otu_attributes
+          end
         end
 
         attributes = parse_record_level_class
@@ -89,7 +93,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         specimen.taxon_determinations.create!({
-          otu: innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
+          otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens?
