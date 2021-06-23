@@ -87,7 +87,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           import_dataset.core_records.where(status: "NotReady")
             .where(id: import_dataset.core_records_fields
-              .at([get_fields_mapping["parentNameUsageID"], get_fields_mapping["acceptedNameUsageID"]])
+              .at([get_field_mapping(:parentNameUsageID), get_field_mapping(:acceptedNameUsageID)])
               .with_value(taxon_id)
               .select(:dataset_record_id)
             ).update_all(status: "Ready")
@@ -112,14 +112,14 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
   def get_parent
     import_dataset.core_records.where(id: import_dataset.core_records_fields
-      .at(get_fields_mapping["taxonID"])
-      .with_value(get_field_value("parentNameUsageID"))
+      .at(get_field_mapping(:taxonID))
+      .with_value(get_field_value(:parentNameUsageID))
       .select(:dataset_record_id)
     ).first
   end
 
   def data_field_changed(index, value)
-    if get_fields_mapping[index] == "parentNameUsageID" && status == "NotReady"
+    if index == get_field_mapping(:parentNameUsageID) && status == "NotReady"
       self.status = "Ready" if ["Ready", "Imported"].include? get_parent&.status
     end
   end
