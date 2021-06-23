@@ -38,26 +38,26 @@
 </template>
 
 <script>
+
+import { Citation } from 'routes/endpoints'
 import { TippyComponent } from 'vue-tippy'
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
     TippyComponent
   },
+
   props: {
     globalId: {
-      type: String
-    },
-    isOriginal: {
-      type: Boolean,
-      default: false
+      type: String,
+      required: true
     },
     citations: {
       type: Array,
       default: () => []
     }
   },
+
   data () {
     return {
       citationItem: undefined,
@@ -65,6 +65,7 @@ export default {
       created: false
     }
   },
+
   created () {
     const citationCreated = this.citations.find(item => item.source_id === Number(this.sourceId))
     if (citationCreated) {
@@ -78,6 +79,7 @@ export default {
       }
     })
   },
+
   methods: {
     getDefault () {
       const defaultSource = this.getDefaultElement()
@@ -87,28 +89,20 @@ export default {
       return document.querySelector('[data-pinboard-section="Sources"] [data-insert="true"]')
     },
     createCitation () {
-      const citationItem = {
-        citation: {
-          source_id: this.sourceId,
-          annotated_global_entity: this.globalId,
-          is_original: this.isOriginal
-        }
+      const citation = {
+        source_id: this.sourceId,
+        annotated_global_entity: this.globalId,
+        is_original: true
       }
-      AjaxCall('post', '/citations', citationItem).then(response => {
-        this.citationItem = response.body
+
+      Citation.create({ citation }).then(response => {
         this.created = true
+        this.citationItem = response.body
         TW.workbench.alert.create('Citation item was successfully created.', 'notice')
-      }, (response) => {
-        TW.workbench.alert.create(JSON.stringify(response.body), 'error')
       })
     },
     deleteCitation () {
-      const citationItem = this.citationItem
-      const data = {
-        annotated_global_entity: this.globalId,
-        _destroy: true
-      }
-      AjaxCall('delete', `/citations/${citationItem.id}`, { citation: data }).then(response => {
+      Citation.destroy(this.citationItem.id).then(() => {
         this.created = false
         TW.workbench.alert.create('Citation item was successfully destroyed.', 'notice')
       })

@@ -10,6 +10,7 @@ Vue.use(Vuex)
 function makeInitialState () {
   return {
     isSaving: false,
+    languages: [],
     observationRows: [],
     observationColumns: [],
     observationMatrix: undefined,

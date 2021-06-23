@@ -36,47 +36,52 @@
         <div class="header-cell">
           <label
             class="header-label cursor-pointer ellipsis"
-            :title="column.descriptor.name">
+            :title="column.name">
             <input
               type="checkbox"
               :value="index"
               v-model="collapseColumns">
-            {{ column.descriptor.name }}
+            {{ column.name }}
           </label>
         </div>
       </div>
     </template>
-    <template v-for="(row, index) in rows">
+    <template v-for="(row, rowIndex) in rows">
       <div
-        :key="row.id"
+        :key="row.object.id"
         class="observation-cell">
         <input
           type="checkbox"
-          :value="index"
+          :value="rowIndex"
           v-model="collapseRows">
       </div>
       <div
-        :key="`${row.id}-b`"
+        :key="`${row.object.id}-b`"
         class="otu-cell padding-small">
-        <a
-          v-html="row.row_object.object_tag"
-          :href="browseOtu(row.row_object.id)"/>
+        <cell-link
+          :row-object="row.object"
+          :label="row.object.object_tag"
+        />
       </div>
       <cell-depiction
         v-show="existingOTUDepictions"
         class="observation-cell padding-small edit-cell"
-        :key="`${row.id}-c`"
-        :show="!filterCell('otu', index)"
-        :depictions="row.otuDepictions"/>
-      <template v-for="(column, cIndex) in imageColums">
+        :key="`${row.object.id}-c`"
+        :show="!filterCell('otu', rowIndex)"
+        :depictions="row.objectDepictions || []"
+        @removeDepiction="removeOtuDepiction({ rowIndex, index: $event })"/>
+      <template v-for="(depictions, columnIndex) in row.depictions">
         <div
           class="observation-cell padding-small edit-cell"
-          :key="`${row.id} ${column.id}`">
-          <cell-component
+          :key="`${columnIndex} ${row.object.id}`">
+          <cell-observation
             class="full_width"
-            :column="column"
-            :show="!filterCell(cIndex, index)"
-            :row="row"/>
+            :column="imageColums[columnIndex]"
+            :show="!filterCell(columnIndex, rowIndex)"
+            :row-object="row.object"
+            :depictions="depictions"
+            @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
+            @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"/>
         </div>
       </template>
     </template>
@@ -85,16 +90,19 @@
 
 <script>
 
-import CellComponent from './Cell.vue'
+import CellObservation from './CellObservation.vue'
 import CellDepiction from './CellDepiction'
 import TableGrid from 'components/layout/Table/TableGrid'
+import CellLink from './CellLink.vue'
 import { RouteNames } from 'routes/routes'
+import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     TableGrid,
-    CellComponent,
-    CellDepiction
+    CellObservation,
+    CellDepiction,
+    CellLink
   },
 
   props: {
@@ -121,7 +129,7 @@ export default {
     },
 
     imageColums () {
-      return this.columns.filter(column => column.descriptor.type === 'Descriptor::Media')
+      return this.columns.filter(column => column.type === 'Descriptor::Media')
     },
 
     staticColumns () {
@@ -129,27 +137,46 @@ export default {
     },
 
     existingOTUDepictions () {
-      return this.rows.some(row => row.otuDepictions?.length)
+      return this.rows.some(row => row.objectDepictions?.length)
     }
   },
 
   methods: {
-    browseOtu (id) {
-      return `${RouteNames.BrowseOtu}?otu_id=${id}`
-    },
-
     reset () {
       this.collapseRows = []
       this.collapseColumns = []
     },
 
     collapseAll () {
-      this.collapseRows = this.rows.map(row => row.id)
-      this.collapseColumns = this.columns.map(column => column.id)
+      this.collapseRows = [...Array(this.rows.length).keys()]
+      this.collapseColumns = ['otu', ...Array(this.columns.length).keys()]
     },
 
     filterCell (cIndex, index) {
       return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
+    },
+
+    addDepiction ({ rowIndex, columnIndex, depiction }) {
+      this.$store.commit(MutationNames.AddDepiction, {
+        rowIndex,
+        columnIndex,
+        depiction
+      })
+    },
+
+    removeDepiction ({ rowIndex, columnIndex, index }) {
+      this.$store.commit(MutationNames.RemoveDepiction, {
+        rowIndex,
+        columnIndex,
+        index
+      })
+    },
+
+    removeOtuDepiction ({ rowIndex, index }) {
+      this.$store.commit(MutationNames.RemoveOtuDepiction, {
+        rowIndex,
+        index
+      })
     }
   }
 }
