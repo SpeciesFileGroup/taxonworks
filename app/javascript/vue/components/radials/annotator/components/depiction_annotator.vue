@@ -21,12 +21,14 @@
           placeholder="Label"
         >
       </div>
-      <textarea
-        class="normal-input separate-bottom"
-        type="text"
-        v-model="depiction.caption"
-        placeholder="Caption"
-      />
+      <div class="field">
+        <textarea
+          class="normal-input"
+          type="text"
+          v-model="depiction.caption"
+          placeholder="Caption"
+        />
+      </div>
       <label>
         <input
           type="checkbox"
@@ -87,7 +89,7 @@
       <div>
         <button
           type="button"
-          class="normal-input button button-submit"
+          class="normal-input button button-submit margin-small-right"
           @click="updateFigure()"
         >
           Update

@@ -18,7 +18,10 @@ export default {
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: [
+    'update:modelValue',
+    'update'
+  ],
 
   computed: {
     topic: {
