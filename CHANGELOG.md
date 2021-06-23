@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add invalid relationship checkbox on clone button in New taxon name task [#2171]
 - Download PDF button for documents in New source task [#2102]
 - PDF viewer button for sources in New asserted distribution task
+- Radial annotator for references in Browse Nomenclature/OTU tasks
 
 ### Changed
 - Updated ruby gems
