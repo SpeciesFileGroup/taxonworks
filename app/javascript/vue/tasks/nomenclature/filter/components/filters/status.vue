@@ -83,6 +83,10 @@ export default {
     modelValue: {
       type: Array,
       required: true
+    },
+    nomenclatureCode: {
+      type: String,
+      default: undefined
     }
   },
 
@@ -119,6 +123,12 @@ export default {
         this.$emit('update:modelValue', newVal.map(status => status.type))
       },
       deep: true
+    },
+
+    nomenclatureCode: {
+      handler () {
+        this.merge()
+      }
     }
   },
 
@@ -138,26 +148,32 @@ export default {
 
   methods: {
     merge () {
-      const nomenclatureCodes = Object.keys(this.statusList)
+      const statusList = JSON.parse(JSON.stringify(this.statusList))
       const newList = {
         all: {},
         common: {},
         tree: {}
       }
+      const nomenclatureCodes = this.nomenclatureCode
+        ? [this.nomenclatureCode.toLowerCase()]
+        : Object.keys(statusList)
+
       nomenclatureCodes.forEach(key => {
-        newList.all = Object.assign(newList.all, this.statusList[key].all)
-        newList.tree = Object.assign(newList.tree, this.statusList[key].tree)
-        for (var keyType in this.statusList[key].common) {
-          this.statusList[key].common[keyType].name = `${this.statusList[key].common[keyType].name} (${key})`
+        if (statusList[key]) {
+          newList.all = Object.assign(newList.all, statusList[key].all)
+          newList.tree = Object.assign(newList.tree, statusList[key].tree)
+          for (const keyType in statusList[key].common) {
+            statusList[key].common[keyType].name = `${statusList[key].common[keyType].name} (${key})`
+          }
+          newList.common = Object.assign(newList.common, statusList[key].common)
         }
-        newList.common = Object.assign(newList.common, this.statusList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
 
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
           Object.defineProperty(list[key], 'type', { writable: true, value: key })
           Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].name })

@@ -47,21 +47,21 @@ export default {
           label: 'Any code',
           value: undefined
         },
-        { 
+        {
           label: 'ICZN (animals)',
           value: 'Iczn'
         },
-        { 
+        {
           label: 'ICN (plants)',
           value: 'Icn'
         },
-        { 
+        {
           label: 'ICNP (bacteria)',
           value: 'Icnp'
         },
-        { 
-          label: 'ICTV (viruses)',
-          value: 'Ictv'
+        {
+          label: 'ICVCN (viruses)',
+          value: 'Icvcn'
         }
       ]
     }

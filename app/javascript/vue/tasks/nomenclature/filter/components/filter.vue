@@ -35,7 +35,9 @@
       <validity-component v-model="params.base.validity" />
       <taxon-name-type-component v-model="params.base.taxon_name_type"/>
       <relationships-component v-model="params.base.taxon_name_relationship"/>
-      <status-component v-model="params.base.taxon_name_classification"/>
+      <status-component
+        v-model="params.base.taxon_name_classification"
+        :nomenclature-code="params.base.nomenclature_code"/>
       <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
       <tags-component v-model="params.keywords"/>
       <users-component v-model="params.user"/>
