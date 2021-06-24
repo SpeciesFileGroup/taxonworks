@@ -21,7 +21,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Migrate Vue 2.6 to Vue 3.1.1
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
 - Manage synonyms display only one level children in New taxon name
-- Filter status and relationships by nomenclatural code in Filter nomenclature task [#2157]
+- Filter status and relationships according nomenclatural code in Filter nomenclature task [#2157]
+- User facet data range now allows to search for both criteria (`updated_at`, `created_at`) [#2317]
 
 ### Fixed
 - Timeline rendering error in Browse OTU
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
+[#2317]: https://github.com/SpeciesFileGroup/taxonworks/issues/2317
 
 
 ## [0.18.1] - 2021-06-09

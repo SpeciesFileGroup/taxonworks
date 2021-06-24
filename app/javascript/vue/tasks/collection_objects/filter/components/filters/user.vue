@@ -102,15 +102,15 @@ export default {
       users: [],
       options: [
         {
-          label: '--None--',
+          label: 'Both',
           value: undefined
         },
         {
-          label: 'created at',
+          label: 'Created at',
           value: 'created'
         },
         {
-          label: 'updated',
+          label: 'Updated at',
           value: 'updated'
         }
       ]
