@@ -164,8 +164,7 @@ export default {
             this.validTaxon = res.body
             this.isLoading = true
             TaxonName.where({
-              taxon_name_id: [this.taxon.id],
-              descendants: true,
+              parent_id: [this.taxon.id],
               taxon_name_type: 'Protonym'
             }).then(response => {
               this.childrenList = response.body.filter(item => item.id !== this.taxon.id)
