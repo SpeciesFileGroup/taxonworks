@@ -339,7 +339,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICVCN') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
     end
   end
 
