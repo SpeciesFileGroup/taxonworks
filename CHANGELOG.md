@@ -20,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated ruby gems
 - Migrate Vue 2.6 to Vue 3.1.1
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
+- Manage synonyms display only one level children in New taxon name
 
 ### Fixed
 - Timeline rendering error in Browse OTU
