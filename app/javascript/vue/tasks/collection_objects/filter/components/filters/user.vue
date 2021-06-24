@@ -18,7 +18,7 @@
         </option>
       </select>
     </div>
-    <h3>Date range</h3>
+    <h3>Target</h3>
     <div class="field">
       <ul class="no_bullets">
         <li
@@ -34,11 +34,12 @@
         </li>
       </ul>
     </div>
+    <h3>Date range</h3>
     <div class="horizontal-left-content">
       <div class="field separate-right">
         <label>Start date:</label>
         <br>
-        <input 
+        <input
           type="date"
           class="date-input"
           v-model="user.user_date_start">
