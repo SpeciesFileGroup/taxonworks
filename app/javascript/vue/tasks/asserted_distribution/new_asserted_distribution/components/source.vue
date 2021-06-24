@@ -14,12 +14,10 @@
           <template v-if="assertedDistribution.citation.source">
             <div class="horizontal-left-content margin-small-top margin-small-bottom">
               <span data-icon="ok"/>
-              <div>
+              <div class="horizontal-left-content">
                 <span v-html="assertedDistribution.citation.source.object_tag"/>
-                <pdf-button
-                  v-for="item in documentation"
-                  :key="item.id"
-                  :pdf="item.document"/>
+                <radial-annotator
+                  :global-id="assertedDistribution.citation.source.global_id"/>
               </div>
               <span
                 class="button circle-button btn-undo button-default"
@@ -63,13 +61,13 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import PdfButton from 'components/pdfButton.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import { Source } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
-    PdfButton
+    RadialAnnotator
   },
 
   props: {

@@ -7,7 +7,7 @@
       v-if="loading || saving"
     />
     <div class="flex-separate middle">
-      <h1>{{ (descriptor['id'] ? 'Edit' : 'New') }} descriptor</h1>
+      <h1>{{ (descriptor.id ? 'Edit' : 'New') }} descriptor</h1>
       <ul class="context-menu">
         <li>
           <div class="horizontal-left-content">
@@ -59,7 +59,7 @@
         <div class="ccenter item separate-right">
           <type-component
             class="separate-bottom"
-            :descriptor-id="descriptor['id']"
+            :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
           <template v-if="descriptor.type">
@@ -94,7 +94,7 @@
         </div>
         <div
           id="cright-panel"
-          v-if="descriptor['id']"
+          v-if="descriptor.id"
         >
           <preview-component
             class="separate-left"

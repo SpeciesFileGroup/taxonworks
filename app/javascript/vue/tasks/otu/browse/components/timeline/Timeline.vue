@@ -42,6 +42,7 @@
                 <span v-html="nomenclature.sources.list[item].cached"/>
               </label>
               <radial-annotator :global-id="item"/>
+              <radial-navigation :global-id="item"/>
             </li>
           </template>
         </template>
@@ -68,6 +69,7 @@
                   v-html="topic.name"/>
               </template>
               <radial-annotator :global-id="key"/>
+              <radial-navigation :global-id="key"/>
             </li>
           </template>
         </template>
@@ -202,6 +204,7 @@ import extendSection from '../shared/extendSections'
 import SoftValidationModal from '../softValidationModal'
 import TimelineCitations from './TimelineCitations.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { Otu } from 'routes/endpoints'
@@ -214,7 +217,8 @@ export default {
     YearPicker,
     SoftValidationModal,
     TimelineCitations,
-    RadialAnnotator
+    RadialAnnotator,
+    RadialNavigation
   },
   computed: {
     selectedReferences () {
