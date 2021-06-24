@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Migrate Vue 2.6 to Vue 3.1.1
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
 - Manage synonyms display only one level children in New taxon name
+- Filter status and relationships by nomenclatural code in Filter nomenclature task [#2157]
 
 ### Fixed
 - Timeline rendering error in Browse OTU
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
+[#2157]: https://github.com/SpeciesFileGroup/taxonworks/issues/2157
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304

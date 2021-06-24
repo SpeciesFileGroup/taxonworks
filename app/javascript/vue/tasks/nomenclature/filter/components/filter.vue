@@ -34,11 +34,15 @@
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
       <taxon-name-type-component v-model="params.base.taxon_name_type"/>
-      <relationships-component v-model="params.base.taxon_name_relationship"/>
+      <relationships-component
+        v-model="params.base.taxon_name_relationship"
+        :nomenclature-code="params.base.nomenclature_code"/>
       <status-component
         v-model="params.base.taxon_name_classification"
         :nomenclature-code="params.base.nomenclature_code"/>
-      <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
+      <in-relationship-component
+        v-model="params.base.taxon_name_relationship_type"
+        :nomenclature-code="params.base.nomenclature_code"/>
       <tags-component v-model="params.keywords"/>
       <users-component v-model="params.user"/>
       <updated-component v-model="params.base.updated_since"/>

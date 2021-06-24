@@ -127,7 +127,9 @@ export default {
 
     nomenclatureCode: {
       handler () {
-        this.merge()
+        if (Object.keys(this.statusList).length) {
+          this.merge()
+        }
       }
     }
   },
