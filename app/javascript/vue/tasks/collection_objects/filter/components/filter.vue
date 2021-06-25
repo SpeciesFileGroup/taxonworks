@@ -35,6 +35,9 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <repository-component
+        class="margin-large-bottom"
+        v-model="params.repository.repository_id"/>
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
@@ -69,9 +72,6 @@
         class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <repository-component
-        class="margin-large-bottom"
-        v-model="params.repository.repository_id"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"
