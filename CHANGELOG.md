@@ -13,14 +13,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - WTK component in comprehensive digitization form [#2245]
 - Add invalid relationship checkbox on clone button in New taxon name task [#2171]
 - Download PDF button for documents in New source task [#2102]
-- PDF viewer button for sources in New asserted distribution task
-- Radial annotator for references in Browse Nomenclature/OTU tasks
+- Padial annotator for sources in New asserted distribution task [#2105]
+- Radial annotator for references in Browse Nomenclature/OTU tasks [#2103]
 
 ### Changed
 - Updated ruby gems
 - Migrate Vue 2.6 to Vue 3.1.1
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
-- Manage synonyms display only one level children in New taxon name
+- Manage synonyms display only one level children in New taxon name [#2213]
 - Filter status and relationships according nomenclatural code in Filter nomenclature task [#2157]
 - User facet data range now allows to search for both criteria (`updated_at`, `created_at`) [#2317]
 
@@ -34,8 +34,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
+[#2103]: https://github.com/SpeciesFileGroup/taxonworks/issues/2103
+[#2105]: https://github.com/SpeciesFileGroup/taxonworks/issues/2105
 [#2157]: https://github.com/SpeciesFileGroup/taxonworks/issues/2157
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
+[#2213]: https://github.com/SpeciesFileGroup/taxonworks/issues/2213
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
 [#2317]: https://github.com/SpeciesFileGroup/taxonworks/issues/2317
