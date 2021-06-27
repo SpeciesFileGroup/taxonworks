@@ -45,17 +45,23 @@ module Queries
         nil
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
+      def base_and_clauses
         clauses = []
-       
         clauses += [
           asserted_distribution_attribute_equals(:otu_id),
           asserted_distribution_attribute_equals(:geographic_area_id),
         ].compact
-        
-        return nil if clauses.empty?
+      end
 
+      # TODO: not used
+      def base_merge_clauses
+        []
+      end
+
+      # @return [ActiveRecord::Relation]
+      def and_clauses
+        clauses = base_and_clauses 
+        return nil if clauses.empty?
         a = clauses.shift
         clauses.each do |b|
           a = a.and(b)

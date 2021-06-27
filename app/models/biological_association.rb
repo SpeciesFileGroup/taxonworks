@@ -52,10 +52,12 @@ class BiologicalAssociation < ApplicationRecord
   attr_accessor :subject_global_id
   attr_accessor :object_global_id
 
+  # TODO: Why?! this is just biological_association.biological_association_subject_type
   def subject_class_name
     biological_association_subject.try(:class).base_class.name
   end
 
+  # TODO: Why?! this is just biological_association.biological_association_object_type
   def object_class_name
     biological_association_object.try(:class).base_class.name
   end

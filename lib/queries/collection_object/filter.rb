@@ -15,6 +15,11 @@ module Queries
 
       # TODO: look for name collisions with CE filter
 
+
+      # @param [String, nil]
+      #    Array or Integer of CollectionObject ids 
+      attr_accessor :collection_object_id
+
       # @param [String, nil]
       #    one of 'Specimen', 'Lot', or 'RangedLot'
       attr_accessor :collection_object_type
@@ -190,6 +195,8 @@ module Queries
           params.select{|a,b| collecting_event_params.include?(a.to_s) }
         )
 
+        @collection_object_id = params[:collection_object_id]
+      
         @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
         @biocuration_class_ids = params[:biocuration_class_ids] || []
         @biological_relationship_ids = params[:biological_relationship_ids] || []
@@ -267,12 +274,22 @@ module Queries
         ::TaxonDetermination.arel_table
       end
 
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact
+      end
+
       def determiner_id
         [@determiner_id].flatten.compact
       end
 
       def preparation_type_id
         [@preparation_type_id].flatten.compact
+      end
+
+      def collection_object_id_facet
+        return nil if collection_object_id.empty?
+        table[:id].eq_any(collection_object_id)
       end
 
       def taxon_determinations_facet
@@ -479,9 +496,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       def and_clauses
         clauses = base_and_clauses
-
         return nil if clauses.empty?
-
         a = clauses.shift
         clauses.each do |b|
           a = a.and(b)
@@ -494,6 +509,7 @@ module Queries
         clauses = []
 
         clauses += [
+          collection_object_id_facet,
           attribute_exact_facet(:buffered_determinations),
           attribute_exact_facet(:buffered_collecting_event),
           attribute_exact_facet(:buffered_other_labels),

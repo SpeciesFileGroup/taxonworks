@@ -9,6 +9,37 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
 
+      PARAMS = %w{
+        ancestors
+        author
+        authors
+        citations
+        descendants
+        descendants_max_dept
+        etymology
+        exact
+        leaves
+        name
+        nomenclature_code
+        nomenclature_group
+        not_specified
+        otus
+        parent_id
+        project_id
+        sort
+        taxon_name_author_ids_or
+        taxon_name_classification
+        taxon_name_id 
+        taxon_name_ids
+        taxon_name_relationship
+        taxon_name_relationship_type
+        taxon_name_type
+        type_metadata
+        updated_since
+        validity
+        year
+      }
+
       # @param name [String]
       #  Matches against cached.  See also exact.
       attr_accessor :name
@@ -26,7 +57,6 @@ module Queries
       #   true if matching must be exact, false if partial matches are allowed.
       attr_accessor :exact
 
-      #
       # TODO: deprecate for Queries::Concerns::User
       #
       # @param updated_since [String] in format yyyy-mm-dd
@@ -444,9 +474,10 @@ module Queries
         table[:id].eq_any(taxon_name_id)
       end
 
-      # @return [ActiveRecord::Relation]
-      def and_clauses
+
+      def base_and_clauses
         clauses = []
+        # clauses += attribute_clauses
 
         clauses += [
           parent_id_facet,
@@ -459,8 +490,16 @@ module Queries
           with_nomenclature_group,
           with_nomenclature_code,
           taxon_name_type_facet
-        ].compact
+        ].compact!
 
+        clauses
+ 
+
+      end
+        
+      # @return [ActiveRecord::Relation]
+      def and_clauses
+        clauses = base_and_clauses
         return nil if clauses.empty?
 
         a = clauses.shift
@@ -470,7 +509,7 @@ module Queries
         a
       end
 
-      def merge_clauses
+      def base_merge_clauses
         clauses = [
           ancestor_facet,
           authors_facet,
@@ -486,11 +525,17 @@ module Queries
           taxon_name_relationship_type_facet,
           type_metadata_facet,
           with_etymology_facet
-        ].compact
+        ]
 
         taxon_name_relationship.each do |hsh|
           clauses << taxon_name_relationship_facet(hsh)
         end
+
+        clauses.compact
+      end 
+
+      def merge_clauses
+        clauses = base_merge_clauses
 
         return nil if clauses.empty?
 

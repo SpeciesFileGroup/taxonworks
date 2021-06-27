@@ -22,11 +22,10 @@ module Shared::BiologicalAssociations
     has_many :related_biological_associations, as: :biological_association_object, inverse_of: :biological_association_object, class_name: 'BiologicalAssociation'
 
     define_singleton_method :with_biological_associations do
-      joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = '#{related_class }'"). # OTU
+      joins("LEFT OUTER JOIN biological_associations tnr1 ON otus.id = tnr1.biological_association_subject_id AND tnr1.biological_association_object_type = '#{related_class }'"). # Otu
         joins("LEFT OUTER JOIN biological_associations tnr2 ON otus.id = tnr2.biological_association_object_id AND tnr2.biological_association_object_type = '#{related_class}'").
         where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
     end
-
   end
 
   # @return [Array]
@@ -51,18 +50,6 @@ module Shared::BiologicalAssociations
   #   where('tnr1.biological_association_object_id IS NOT NULL OR tnr2.biological_association_object_id IS NOT NULL')
   # }
 
-#   attr_accessor :origin
-#   accepts_nested_attributes_for :origin_relationships, reject_if: :reject_origin_relationships
-#   before_validation :set_origin, if: -> {origin.present?}
-
-#  end
-
-  # def set_origin
-  #   [origin].flatten.each do |object|
-  #     related_origin_relationships.build(old_object: object)
-#   end
-# end
-
   module ClassMethods
 
     # @param relationship [Array, String]
@@ -74,58 +61,14 @@ module Shared::BiologicalAssociations
     end
   
     # @param biological_relationship_ids [Array]
-# def self.with_biological_relationship_ids(biological_relationship_ids)
-#   a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
-#   b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
-#   TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-# end
+    # def self.with_biological_relationship_ids(biological_relationship_ids)
+    #   a = TaxonName.joins(:taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
+    #   b = TaxonName.joins(:related_taxon_name_relationships).where(taxon_name_relationships: {type: relationship})
+    #   TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+    # end
 
-    
-    
-    #   def is_origin_for(*args)
-#     if args.length == 0
-#       raise ArgumentError.new('is_origin_for must have an array full of valid target tables supplied!')
-#     end
-
-#     # @return [Array of Strings]
-#     #   valid new_object Classes
-#     define_method :valid_new_object_classes do
-#       args
-#     end
-
-#     # @return [Array of Strings]
-#     #   valid new_object Classes
-#     define_singleton_method :valid_new_object_classes do
-#       args
-#     end
-
-#     args.each do |a|
-#       relationship = 'derived_' + a.demodulize.tableize
-#       has_many relationship.to_sym, source_type: a, through: :origin_relationships, source: :new_object
-#     end
-#   end
   end
-
-# # @return [Objects]
-# #   an array of instances, the source of this object
-# def old_objects
-#   related_origin_relationships.collect{|a| a.old_object}
-# end
-
-# # @return [Objects]
-# #   an array of instances
-# def new_objects
-#   origin_relationships.collect{|a| a.new_object}
-# end
 
   private
 
-# def reject_origin_relationships(attributes)
-#   o = attributes['new_object']
-#   if !defined? valid_new_object_classes
-#     raise NoMethodError.new("#{self.class.name} missing module 'Shared::OriginRelationship' or \"is_origin_for()\" is not being called")
-#   end
-
-#   o.blank? || !valid_new_object_classes.include?(o.class.name)
-# end
 end

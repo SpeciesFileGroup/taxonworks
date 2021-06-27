@@ -3,20 +3,103 @@ require 'support/shared_contexts/shared_geo'
 
 describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
 
+  let(:q) { Queries::Otu::Filter.new({}) }
+
+  let!(:o1) { Otu.create!(name: 'Abc 1') }
+  let!(:o2) { Otu.create!(name: 'Def 2') }
+
+  specify 'otu_id' do
+    q.otu_id = o1.id
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'otu_id []' do
+    q.otu_id = [o1.id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'name' do
+    q.name = 'A' 
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'name []' do
+    q.name = ['A']
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+    
+  specify 'name, name_exact' do
+    q.name = ['A']
+    q.name_exact = true
+    expect(q.all.map(&:id)).to contain_exactly()
+  end
+
+  specify 'name, name_exact' do
+    q.name = 'Abc 1'
+    q.name_exact = true 
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'taxon_name_id' do
+    o1.update(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
+    q.taxon_name_id = o1.taxon_name_id
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'taxon_name_id []' do
+    o1.update(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
+    q.taxon_name_id = [o1.taxon_name_id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  # Queries::TaxonName::Filter integration
+
+  specify 'Queries::TaxonName::Filter integration' do
+    o1.update!(
+      taxon_name:  Protonym.create!(name: 'Aus', rank_class:  Ranks.lookup(:iczn, :genus), parent: find_or_create_root_taxon_name)
+    )
+    q.taxon_name_query.name = 'Aus'
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'Queries::CollectionObject::Filter integration' do
+    a = FactoryBot.create(:valid_taxon_determination, otu: o1)
+    q.collection_object_query.collection_object_id= [a.biological_collection_object_id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'Queries::CollectingEvent::Filter integration' do
+    a = FactoryBot.create(:valid_taxon_determination, otu: o1)
+    a.biological_collection_object.update!(collecting_event: FactoryBot.create(:valid_collecting_event))
+
+    q.collecting_event_query.collecting_event_id = [a.biological_collection_object.collecting_event.id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+  specify 'Queries::AssertedDistribution::Filter integration' do
+    a = FactoryBot.create(:valid_asserted_distribution, otu: o1)
+    q.asserted_distribution_query.otu_id = [o1.id]
+    expect(q.all.map(&:id)).to contain_exactly(o1.id)
+  end
+
+
+=begin
   context 'no geo world:' do
     let!(:t1) { find_or_create_root_taxon_name }
-    let!(:t2) do
-      Protonym.create!(name: 'Vlorf',
-                       verbatim_author: 'Smith',
-                       rank_class: Ranks.lookup(:iczn, :genus),
-                       parent: t1)
-    end
-    let!(:t3) do
-      Protonym.create!(name: 'Glorf',
-                       verbatim_author: 'Jones',
-                       rank_class: Ranks.lookup(:iczn, :genus),
-                       parent: t1)
-    end
+    let!(:t2) {
+      Protonym.create!(
+        name: 'Vlorf',
+        verbatim_author: 'Smith',
+        rank_class: Ranks.lookup(:iczn, :genus),
+        parent: t1)
+    }
+    let!(:t3) {
+      Protonym.create!(
+        name: 'Glorf',
+        verbatim_author: 'Jones',
+        rank_class: Ranks.lookup(:iczn, :genus),
+        parent: t1)
+    }
 
     let!(:otu1) { Otu.create!(name: 'one') }
     let!(:otu2) { Otu.create!(name: 'two') }
@@ -25,24 +108,29 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:biological_relationship) { FactoryBot.create(:valid_biological_relationship) }
 
     let!(:ba1) do
-      BiologicalAssociation.create!(biological_association_subject: otu1,
-                                    biological_relationship: biological_relationship,
-                                    biological_association_object: otu2)
+      BiologicalAssociation.create!(
+        biological_association_subject: otu1,
+        biological_relationship: biological_relationship,
+        biological_association_object: otu2)
     end
+
     let!(:ba2) do
-      BiologicalAssociation.create!(biological_association_subject: otu2,
-                                    biological_relationship: biological_relationship,
-                                    biological_association_object: otu3)
+      BiologicalAssociation.create!(
+        biological_association_subject: otu2,
+        biological_relationship: biological_relationship,
+        biological_association_object: otu3)
     end
 
     let!(:tnc1) do
-      TaxonNameClassification.create!(taxon_name: t2,
-                                      type: 'TaxonNameClassification::Iczn::Available')
+      TaxonNameClassification.create!(
+        taxon_name: t2,
+        type: 'TaxonNameClassification::Iczn::Available')
     end
     let!(:tnr1) do
-      TaxonNameRelationship.create!(subject_taxon_name: t2,
-                                    type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
-                                    object_taxon_name: t3)
+      TaxonNameRelationship.create!(
+        subject_taxon_name: t2,
+        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+        object_taxon_name: t3)
     end
 
     let!(:ad1) { FactoryBot.create(:valid_asserted_distribution, otu: otu2) }
@@ -50,7 +138,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let(:query) { Queries::Otu::Filter.new({}) }
 
     context 'query params' do
-      
+
       specify '#name' do
         query.name = otu1.name
         expect(query.all).to contain_exactly(otu1)
@@ -74,25 +162,25 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       specify '#asserted_distribution_ids 2' do
         # and queries find nothing, but execute
         query.asserted_distribution_ids = [ad1.id]
-        query.taxon_name_ids = [t1.id]
+        query.taxon_name_id = [t1.id]
         expect(query.all.map(&:id)).to contain_exactly()
       end
 
-      specify '#taxon_name_ids 1' do
-        expect(query.taxon_name_ids).to eq([])
+      specify '#taxon_name_id 1' do
+        expect(query.taxon_name_id).to eq([])
       end
 
-      specify '#taxon_name_ids 2' do
-        query.taxon_name_ids = [t2.id]
+      specify '#taxon_name_id 2' do
+        query.taxon_name_id = [t2.id]
         expect(query.ids_for_taxon_name).to contain_exactly(t2.id)
       end
 
-      specify '#otu_ids' do
-        expect(query.otu_ids).to eq([])
+      specify '#otu_id' do
+        expect(query.otu_id).to eq([])
       end
 
-      specify '#otu_ids 2' do
-        query.otu_ids = [otu1.id, otu3.id]
+      specify '#otu_id 2' do
+        query.otu_id = [otu1.id, otu3.id]
         expect(query.ids_for_otu).to contain_exactly(otu1.id, otu3.id)
       end
 
@@ -121,8 +209,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         expect(query.all.map(&:id)).to contain_exactly(otu3.id)
       end
 
-      specify '#taxon_name_ids' do
-        query.taxon_name_ids = [t2.id]
+      specify '#taxon_name_id' do
+        query.taxon_name_id = [t2.id]
         expect(query.all.map(&:id)).to contain_exactly(otu3.id)
       end
 
@@ -131,14 +219,14 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         expect(query.all.map(&:id)).to contain_exactly(otu1.id)
       end
 
-      specify '#otu_ids' do
-        query.otu_ids = [otu1.id, otu2.id]
+      specify '#otu_id' do
+        query.otu_id = [otu1.id, otu2.id]
         expect(query.all.map(&:id)).to contain_exactly(otu1.id, otu2.id)
       end
 
       specify 'all ids' do
         query.biological_association_ids = [ba2.id]
-        query.otu_ids = [otu3.id]
+        query.otu_id = [otu3.id]
         query.taxon_name_ids = [t2.id]
         query.taxon_name_classification_ids = [tnc1.id]
 
@@ -201,9 +289,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         let(:params) { {drawn_area_shape: area_a.to_simple_json_feature,
                         selection_objects: ['CollectionObject', 'AssertedDistribution']} }
         let(:ad2a) do
-          ad2.geographic_area = sub_area_a
-          ad2.save!
-          ad2
+          ad2.update(geographic_area:  sub_area_a)
         end
 
         specify 'nomen count' do
@@ -225,27 +311,27 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       context 'with descendants' do
         specify 'with rank' do
           params_with = {
-              taxon_name_id: top_dog.taxon_name_id,
-              descendants: '1',
-              rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
+            taxon_name_id: top_dog.taxon_name_id,
+            descendants: '1',
+            rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species'}
           result = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(spooler, cadabra)
         end
 
         specify 'with same rank' do
           params_with = {
-              taxon_name_id: top_dog.taxon_name_id,
-              descendants: '1',
-              rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family'}
+            taxon_name_id: top_dog.taxon_name_id,
+            descendants: '1',
+            rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family'}
           result = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(top_dog, by_bill)
         end
 
         specify 'without rank' do
           params_with = {
-              taxon_name_id: top_dog.taxon_name_id,
-              descendants: '1',
-              rank_class: nil}
+            taxon_name_id: top_dog.taxon_name_id,
+            descendants: '1',
+            rank_class: nil}
           result = Queries::Otu::Filter.new(params_with).result
           expect(result).to contain_exactly(spooler, top_dog, abra, by_bill, cadabra, alakazam)
         end
@@ -253,8 +339,8 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
 
       specify 'without descendants' do
         params_without = {
-            taxon_name_id: top_dog.taxon_name_id,
-            rank_class: Ranks.lookup(:iczn, :species)}
+          taxon_name_id: top_dog.taxon_name_id,
+          rank_class: Ranks.lookup(:iczn, :species)}
         result = Queries::Otu::Filter.new(params_without).result
         expect(result).to contain_exactly(top_dog, by_bill)
       end
@@ -309,15 +395,17 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
         params.merge!({author_ids: [bill.id, daryl.id], and_or_select: '_or_'})
         params.merge!({verbatim_author: 'Bill A'})
         params.merge!({geographic_area_ids: [area_a.id]})
+
         params.merge!({
-                          taxon_name_id: top_dog.taxon_name_id,
-                          descendants: '1',
-                          rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
-                      })
+          taxon_name_id: top_dog.taxon_name_id,
+          descendants: '1',
+          rank_class: 'NomenclaturalRank::Iczn::SpeciesGroup::Species'
+        })
 
         result = Queries::Otu::Filter.new(params).result
         expect(result).to contain_exactly(tn.otus.first)
       end
     end
   end
+=end
 end

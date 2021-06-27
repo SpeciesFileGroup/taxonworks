@@ -18,18 +18,23 @@ module Queries
 
       PARAMS = %w{collector_id
         collector_ids_or
-        spatial_geographic_areas
-        wkt
-        geographic_area_id
-        start_date
         end_date
-        radius
-        partial_overlap_dates
-        md5_verbatim_label
-        in_verbatim_locality
-        in_labels
         geo_json
+        geographic_area_id
+        in_labels
+        in_verbatim_locality
+        md5_verbatim_label
+        partial_overlap_dates
+        radius
+        spatial_geographic_areas
+        start_date
+        wkt
       }
+
+
+      # @param collecting_event_id [ Array, Integer, nil] 
+      #   One or more collecting_event_ids 
+      attr_accessor :collecting_event_id
 
       # Wildcard wrapped matching any label
       attr_accessor :in_labels
@@ -110,6 +115,8 @@ module Queries
         @spatial_geographic_areas = (params[:spatial_geographic_areas]&.downcase == 'true' ? true : false) if !params[:spatial_geographic_areas].nil?
         @wkt = params[:wkt]
 
+        @collecting_event_id = params[:collecting_event_id]
+
         set_identifier(params)
         set_tags_params(params)
         set_attributes(params)
@@ -120,6 +127,10 @@ module Queries
         ATTRIBUTES.each do |a|
           send("#{a}=", params[a.to_sym])
         end
+      end
+
+      def collecting_event_id 
+        [@collecting_event_id].flatten.compact
       end
 
       def collector_id
@@ -252,6 +263,11 @@ module Queries
         table[:md5_of_verbatim_label].eq(md5)
       end
 
+      def matching_collecting_event_id
+        return nil if collecting_event_id.empty?
+        table[:id].eq_any(collecting_event_id)
+      end
+
       def matching_geographic_area_id
         return nil if geographic_area_id.empty? || spatial_geographic_areas
         table[:geographic_area_id].eq_any(geographic_area_id)
@@ -274,6 +290,7 @@ module Queries
         clauses += attribute_clauses
 
         clauses += [
+          matching_collecting_event_id,
           between_date_range,
           matching_geographic_area_id,
           matching_verbatim_label_md5,
