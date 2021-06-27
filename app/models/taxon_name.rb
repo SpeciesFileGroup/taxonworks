@@ -245,14 +245,14 @@ class TaxonName < ApplicationRecord
 
   has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
 
-  scope :with_same_cached_valid_id, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :with_different_cached_valid_id, -> { where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+  scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
+  scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
 
   scope :that_is_valid, -> {where(cached_is_valid: true) }
   scope :that_is_invalid, -> {where(cached_is_valid: false) }
 
   def self.calculated_invalid
-    a = TaxonName.where('taxon_names.id != taxon_names.cached_valid_taxon_name_id') # that_is_invalid
+    a = TaxonName.with_different_cached_valid_id # that_is_invalid
     b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
     TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
   end
@@ -260,7 +260,7 @@ class TaxonName < ApplicationRecord
   def self.calculated_valid
     # Alt format: TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
     TaxonName
-      .where('taxon_names.id = taxon_names.cached_valid_taxon_name_id')
+      .with_same_cached_valid_id
       .where.not(
         id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
       )
