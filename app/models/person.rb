@@ -55,6 +55,7 @@ class Person < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::Notes
+  include Shared::Depictions
   include Shared::Tags
   include Shared::SharedAcrossProjects
   include Shared::HasPapertrail
