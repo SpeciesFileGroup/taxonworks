@@ -31,6 +31,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix empty search in Filter collection objects
 - Clean documents list on reset in New source
 - Missing hexagon soft validation in comprehensive specimen digitization task
+- Match by collection object is and tag creation in Collection object match
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
