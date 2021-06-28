@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Download PDF button for documents in New source task [#2102]
 - Padial annotator for sources in New asserted distribution task [#2105]
 - Radial annotator for references in Browse Nomenclature/OTU tasks [#2103]
+- Depict person in New image task [#2321]
 
 ### Changed
 - Updated ruby gems
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
 [#2317]: https://github.com/SpeciesFileGroup/taxonworks/issues/2317
+[#2321]: https://github.com/SpeciesFileGroup/taxonworks/issues/2321
 
 
 ## [0.18.1] - 2021-06-09
