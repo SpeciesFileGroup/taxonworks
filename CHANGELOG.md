@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Padial annotator for sources in New asserted distribution task [#2105]
 - Radial annotator for references in Browse Nomenclature/OTU tasks [#2103]
 - Depict person in New image task [#2321]
+- Mode to `person` option for Depictions slice in Radial annotator
 
 ### Changed
 - Updated ruby gems
