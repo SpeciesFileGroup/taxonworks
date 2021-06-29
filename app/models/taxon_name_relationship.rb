@@ -425,10 +425,11 @@ class TaxonNameRelationship < ApplicationRecord
 
           t.send(:set_cached)
 
-          if type_name =~/OriginalCombination/ 
+          if type_name =~/(OriginalCombination|Basionym)/
             t.update_columns(
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html,
+              cached_author_year: t.get_author_and_year,
             )
           end
 

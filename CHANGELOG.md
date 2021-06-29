@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - User facet data range now allows to search for both criteria (`updated_at`, `created_at`) [#2317]
 
 ### Fixed
+- Updated author string for botanical names
 - Timeline rendering error in Browse OTU
 - Fix wildcard by attribute in Filter collection object
 - Confidences modal height in radial annotator [#2304]

@@ -1202,23 +1202,51 @@ class TaxonName < ApplicationRecord
   #   the author and year of the name, adds parenthesis where asserted
   #   abstract, see Protonym and Combination
   def get_author_and_year
-    true
+    if self.type == 'Combination'
+      c = protonyms_by_rank
+      return nil if c.empty?
+      taxon = c[c.keys.last]
+    else
+      taxon = self
+    end
+
+    case taxon.rank_class.try(:nomenclatural_code)
+    when :iczn
+      ay = iczn_author_and_year(taxon)
+    when :icvcn
+      ay = icn_author_and_year(taxon)
+    when :icnp
+      ay = icn_author_and_year(taxon)
+    when :icn
+      ay = icn_author_and_year(taxon)
+    else
+      ay = ([author_string] + [year_integer]).compact.join(' ')
+    end
+    ay.blank? ? nil : ay
   end
 
-  def icn_author_and_year
+  def icn_author_and_year(taxon)
     ay = nil
 
-    basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
+    basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
     b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-    t  = [self.author_string]
-    t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-    ay = t.compact.join(' ')
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    unless mobj.blank?
+      ay = mobj.try(:author_string)
+    else
+      ay = self.try(:author_string)
+    end
+
+    #t  = [self.author_string]
+    #t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
+    #ay = t.compact.join(' ')
 
     unless basionym.empty? || b_sub.author_string.blank?
       ay = '(' + b_sub.author_string + ') ' + ay
@@ -1235,17 +1263,9 @@ class TaxonName < ApplicationRecord
 
   # @return [String, nil]
   #   the authors, and year, with parentheses as inferred by the data
-  def iczn_author_and_year
+  def iczn_author_and_year(taxon)
     ay = nil
     p = nil
-
-    if self.type == 'Combination'
-      c = protonyms_by_rank
-      return nil if c.empty?
-      taxon = c[c.keys.last]
-    else
-      taxon = self
-    end
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
