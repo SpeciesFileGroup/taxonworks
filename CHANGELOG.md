@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Clean documents list on reset in New source
 - Missing hexagon soft validation in comprehensive specimen digitization task
 - Match by collection object is and tag creation in Collection object match
+- Destroy container when all other objects in container are deleted [#2322]
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
@@ -46,6 +47,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
 [#2317]: https://github.com/SpeciesFileGroup/taxonworks/issues/2317
 [#2321]: https://github.com/SpeciesFileGroup/taxonworks/issues/2321
+[#2322]: https://github.com/SpeciesFileGroup/taxonworks/issues/2322
 
 
 ## [0.18.1] - 2021-06-09

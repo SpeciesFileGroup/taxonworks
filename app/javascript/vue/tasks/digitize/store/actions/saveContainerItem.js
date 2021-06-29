@@ -1,5 +1,5 @@
 import { MutationNames } from '../mutations/mutations'
-import { Identifier, ContainerItem } from 'routes/endpoints'
+import { Identifier, ContainerItem, CollectionObject } from 'routes/endpoints'
 
 export default ({ commit, state }) =>
   new Promise((resolve, reject) => {
@@ -8,8 +8,9 @@ export default ({ commit, state }) =>
         container_id: state.container.id,
         global_entity: state.collection_object.global_id
       }
-      ContainerItem.create({ container_item: item }).then(response => {
-        commit(MutationNames.AddContainerItem, response.body)
+
+      ContainerItem.create({ container_item: item }).then(({ body }) => {
+        commit(MutationNames.AddContainerItem, body)
         if (state.containerItems.length === 1 && state.identifiers.length) {
           const identifier = {
             id: state.identifiers[0].id,
@@ -17,11 +18,16 @@ export default ({ commit, state }) =>
             identifier_object_id: state.container.id
           }
 
-          Identifier.update({ identifier }).then(response => {
+          Identifier.update(identifier.id, { identifier }).then(response => {
             state.identifiers[0] = response.body
           })
         }
-        return resolve(response.body)
+        if (state.collection_object.id === body.contained_object_id) {
+          CollectionObject.find(body.contained_object_id).then(response => {
+            commit(MutationNames.SetCollectionObject, response.body)
+          })
+        }
+        return resolve(body)
       })
     }
   })
