@@ -23,5 +23,5 @@ const permitParams = {
 export const Tag = {
   ...baseCRUD(controller, permitParams),
 
-  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, { params })
+  createBatch: (params) => AjaxCall('post', `/${controller}/batch_create`, params)
 }
