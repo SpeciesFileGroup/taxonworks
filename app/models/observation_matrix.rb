@@ -224,5 +224,4 @@ class ObservationMatrix < ApplicationRecord
     observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) }
     h
   end
-
 end

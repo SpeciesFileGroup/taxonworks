@@ -1,7 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :reorder_rows, :reorder_columns]
+  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :otu_contents, :reorder_rows, :reorder_columns]
   # GET /observation_matrices
   # GET /observation_matrices.json
   def index
@@ -113,6 +113,18 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  def otu_contents
+    @options = otu_contents_params
+    respond_to do |format|
+      base =  '/observation_matrices/export/otu_contents/otu_contents'
+      format.html { render base }
+      format.text {
+        s = render_to_string(base, layout: false)
+        send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
+      }
+    end
+  end
+
   def tnt
     respond_to do |format|
       base = '/observation_matrices/export/tnt/'
@@ -142,6 +154,10 @@ class ObservationMatricesController < ApplicationController
   end
 
   def download
+    send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
+  end
+
+  def download_contents
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
 
@@ -180,6 +196,28 @@ class ObservationMatricesController < ApplicationController
           :rdf
         ).to_h
       )
+  end
+
+  def otu_contents_params
+    { observation_matrix: @observation_matrix,
+      target: '',
+      include_otus: 'true',
+      include_collection_objects: 'false',
+      include_matrix: 'true',
+      include_distribution: 'true',
+      include_nomenclature: 'true',
+      include_depictions: 'true',
+      rdf: false }.merge!(
+      params.permit(
+        :include_otus,
+        :include_collection_objects,
+        :include_matrix,
+        :include_distribution,
+        :include_nomenclature,
+        :include_depictions,
+        :rdf
+      ).to_h
+    )
   end
 
   def set_observation_matrix
