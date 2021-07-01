@@ -1,2 +1,11 @@
 <% m = @observation_matrix %>
+<% descriptors = m.descriptors %>
+<% observations_hash = m.observations_hash %>
+<% observation_rows = m.observation_matrix_rows %>
+<%= descriptors.map { |d| descriptor_matrix_label(d) }.join(',') -%>
+
+<%= observation_rows.each do |r| -%>
+  '<%= observation_matrix_row_label(r) %>',<%= descriptors.map {|d| observations_cell_label(observations_hash, d, r.row_object_global_id, :csv) }.join(',') %>
+<% end %>
+
 ;

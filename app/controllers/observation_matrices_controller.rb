@@ -116,10 +116,10 @@ class ObservationMatricesController < ApplicationController
   def otu_contents
     @options = otu_contents_params
     respond_to do |format|
-      base =  '/observation_matrices/export/otu_contents/otu_contents'
-      format.html { render base }
+      base =  '/observation_matrices/export/otu_contents/'
+      format.html { render base + 'index' }
       format.text {
-        s = render_to_string(base, layout: false)
+        s = render_to_string(partial: base + 'otu_contents', layout: false, locals: { as_file: true }, layout: false, formats: [:html])
         send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
