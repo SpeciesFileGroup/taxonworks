@@ -639,6 +639,22 @@ class TaxonName < ApplicationRecord
     end
   end
 
+  # @return [array]
+  # returns array of hashes for history of taxon. Could be used for catalogue construction
+  def nomeclatural_history
+    history = []
+    TaxonName.where(cached_valid_taxon_name_id: self.id).order(:cached_nomenclature_date).each do |t|
+      item = {}
+      source_author_string = t.is_combination? ? [t.origin_citation&.source&.authority_name, t.origin_citation&.source&.year].join(', ') : nil
+      source_author_string = ' in ' + source_author_string unless source_author_string.nil?
+      item[:name] = t.is_combination? ? t.cached_html : t.cached_original_combination_html
+      item[:author_year] = t.is_combination? ? t.cached_author_year + source_author_string : t.original_author_year
+      item[:statuses] = t.combined_statuses
+      history.append(item)
+    end
+    return history
+  end
+
   # @return [Class, nil]
   #   gender of a genus as class
   def gender_class

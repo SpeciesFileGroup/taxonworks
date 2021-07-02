@@ -934,6 +934,7 @@ class Protonym < TaxonName
         cached_original_combination != get_original_combination ||
         cached_original_combination_html != get_original_combination_html ||
         cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_nomenclature_date != nomenclature_date ||
         cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
         rank_string =~ /Species/ &&
             (cached_secondary_homonym != get_genus_species(:current, :self) ||
