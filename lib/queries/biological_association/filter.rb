@@ -4,11 +4,20 @@ module Queries
     # !! does not inherit from base query
     class Filter 
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      # only collection objects
+
+      # ----
+      #
+      # subject property
+      # object property
+      # any property
+      #
+      # nomenclature
+      # descendants of subject
+      # descendants of object
+      # descendants of any
+      #
+      # ----
 
       # Params specific to AlternateValue
       attr_accessor :subject_global_id, :object_global_id, :biological_relationship_id, :any_global_id
@@ -18,8 +27,6 @@ module Queries
         @object_global_id = params[:object_global_id]
         @biological_relationship_id = params[:biological_relationship_id]
         @any_global_id = params[:any_global_id]
-
-        @options = params 
       end
 
       # @return [ActiveRecord::Relation]
