@@ -20,10 +20,12 @@ xml.nex(:nexml,
 'xmlns:xi'           => 'http://www.w3.org/2003/XInclude' # IS THIS NECESSARY?
 ) do
 
- nexml_otus(@options) if @options[:include_otus] == 'true'  #   true  #if params[:include_otus]
- nexml_descriptors(@options) if @options[:include_descriptors] == 'true'  # if params[:include_descriptors]
+  nexml_otus(@options) if @options[:include_otus] == 'true'  #   true  #if params[:include_otus]
+  nexml_descriptors(@options) if @options[:include_descriptors] == 'true'  # if params[:include_descriptors]
 
- # This block format is not supported, they are presently rendered inline
- # nexml_depictions(@options) if true # @options[:include_depictions] == 'true'  # if params[:include_descriptors]
- # include_trees(opt) if opt[:include_trees]
+  # This block format is not supported, they are presently rendered inline
+  # nexml_depictions(@options) if true # @options[:include_depictions] == 'true'  # if params[:include_descriptors]
+  # include_trees(opt) if opt[:include_trees]
 end # end document
+
+
