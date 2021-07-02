@@ -116,10 +116,10 @@ class ObservationMatricesController < ApplicationController
   def otu_contents
     @options = otu_contents_params
     respond_to do |format|
-      base =  '/observation_matrices/export/otu_contents/'
-      format.html { render base + 'index' }
+      #base =  '/observation_matrices/export/otu_contents/'
+      #format.html { render base + 'index' }
       format.text {
-        s = render_to_string(partial: base + 'otu_contents', layout: false, locals: { as_file: true }, layout: false, formats: [:html])
+        s = ObservationMatrices::Export::OtuContentsHelper.get_otu_contents(@options)
         send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
       }
     end
@@ -203,8 +203,9 @@ class ObservationMatricesController < ApplicationController
       target: '',
       include_otus: 'true',
       include_collection_objects: 'false',
-      include_matrix: 'true',
+      include_contents: 'true',
       include_distribution: 'true',
+      include_type: 'true',
       include_nomenclature: 'true',
       include_depictions: 'true',
       rdf: false }.merge!(
@@ -212,7 +213,9 @@ class ObservationMatricesController < ApplicationController
         :include_otus,
         :include_collection_objects,
         :include_matrix,
+        :include_contents,
         :include_distribution,
+        :include_type,
         :include_nomenclature,
         :include_depictions,
         :rdf

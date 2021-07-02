@@ -716,6 +716,12 @@ class TaxonName < ApplicationRecord
     [cached_html, cached_author_year].compact.join(' ')
   end
 
+  # @return [String]
+  #   combination of cached_original_combination_html and original_author_year.
+  def cached_html_original_name_and_author_year
+    [cached_original_combination_html, original_author_year].compact.join(' ')
+  end
+
   # @return [String] combination of cached and cached_author_year.
   def cached_name_and_author_year
     [cached, cached_author_year].compact.join(' ')

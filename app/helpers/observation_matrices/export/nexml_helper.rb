@@ -27,7 +27,7 @@ module ObservationMatrices::Export::NexmlHelper
                       xml.meta(
                         'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
-                        'href' => root_url + d.image.image_file.url(:large)[1..-1]
+                        'href' => root_url + d.image.image_file.url(:original)[1..-1]
                       )
                     end
                   end
@@ -238,7 +238,7 @@ module ObservationMatrices::Export::NexmlHelper
               'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "cs#{d.depiction_object_id}",
-              'href' => root_url + d.image.image_file.url(:large)[1..-1]
+              'href' => root_url + d.image.image_file.url(:original)[1..-1]
             )
           end
         end
