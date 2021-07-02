@@ -56,6 +56,8 @@ const SortColumns = function(ids) {
   return ajaxCall('patch', `/observation_matrix_columns/sort`, { ids: ids })
 }
 
+const SortMatrixByNomenclature = (matrixId) => ajaxCall('get', `/observation_matrices/${matrixId}/reorder_rows`, { params: { by: 'nomenclature' } })
+
 export {
   CreateRowBatchLoad,
   CreateColumnBatchLoad,
@@ -68,5 +70,6 @@ export {
   BatchRemoveKeyword,
   GetSmartSelector,
   SortColumns,
+  SortMatrixByNomenclature,
   SortRows
 }
