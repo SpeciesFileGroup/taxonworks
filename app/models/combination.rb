@@ -437,12 +437,12 @@ class Combination < TaxonName
 
   def sv_cached_names
     is_cached = true
+    is_cached = false if cached_author_year != get_author_and_year
 
-    if cached_author_year != get_author_and_year ||
-      cached_is_valid.nil? ||
-      cached_html != get_full_name_html ||
-      cached_nomenclature_date != nomenclature_date
-
+    if  is_cached && (
+        cached_is_valid.nil? ||
+        cached_html != get_full_name_html ||
+        cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
 
