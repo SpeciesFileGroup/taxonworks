@@ -21,7 +21,19 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}")
+                if cs.depictions.load.any?
+                  xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
+                    cs.depictions.each do |d|
+                      xml.meta(
+                        'xsi:type' => 'ResourceMeta', 
+                        'rel' => 'foaf:depiction',
+                        'href' => root_url + d.image.image_file.url(:large)[1..-1]
+                      ) 
+                    end
+                  end
+                else
+                  xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}")
+                end
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -206,6 +218,7 @@ module ObservationMatrices::Export::NexmlHelper
     return opt[:target]
   end
 
+  # TODO: if semantics change we can add them as block later.
   def nexml_depictions(options = {})
     opt = {target: '', descriptors: []}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
