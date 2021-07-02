@@ -21,12 +21,13 @@
 import { GetMetadata } from '../request/resources.js'
 
 export default {
-  data() {
+  data () {
     return {
       tasks: []
     }
   },
-  mounted() {
+
+  mounted () {
     GetMetadata().then(response => {
       this.tasks = response.body
     })

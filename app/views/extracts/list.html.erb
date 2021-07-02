@@ -2,34 +2,31 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Quantity value') -%>
-    <%= fancy_th_tag(name: 'Quantity unit') -%>
-    <%= fancy_th_tag(name: 'Concentration value') -%>
-    <%= fancy_th_tag(name: 'Concentration unit') -%>
-    <%= fancy_th_tag(name: 'Verbatim anatomical origin') -%>
-    <%= fancy_th_tag(name: 'Year made') -%>
-    <%= fancy_th_tag(name: 'Month made') -%>
-    <%= fancy_th_tag(name: 'Day made') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Otus') -%>
+      <%= fancy_th_tag(name: 'Origin(s)') -%>
+      <%= fancy_th_tag(name: 'Repository') -%>
+      <%= fancy_th_tag(name: 'Verbatim anatomical origin') -%>
+      <%= fancy_th_tag(name: 'Year made') -%>
+      <%= fancy_th_tag(name: 'Month made') -%>
+      <%= fancy_th_tag(name: 'Day made') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @extracts.each do |extract| %>
+    <% @extracts.each do |extract| %>
       <%= content_tag(:tr, class: [:contextMenuCells, :btn, 'btn-neutral']) do -%>
-          <td><%= extract.quantity_value -%></td>
-          <td><%= extract.quantity_unit -%></td>
-          <td><%= extract.concentration_value -%></td>
-          <td><%= extract.concentration_unit -%></td>
-          <td><%= extract.verbatim_anatomical_origin -%></td>
-          <td><%= extract.year_made -%></td>
-          <td><%= extract.month_made -%></td>
-          <td><%= extract.day_made -%></td>
-          <%= fancy_metadata_cells_tag(extract) -%>
+        <td><%= extract.referenced_otus.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
+        <td><%= extract.old_objects.collect{|o| object_link(o)}.join('; ').html_safe -%></td>
+        <td><%= object_tag(extract.repository) -%></td>
+        <td><%= extract.verbatim_anatomical_origin -%></td>
+        <td><%= extract.year_made -%></td>
+        <td><%= extract.month_made -%></td>
+        <td><%= extract.day_made -%></td>
+        <%= fancy_metadata_cells_tag(extract) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
-

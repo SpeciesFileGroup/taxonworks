@@ -8,7 +8,7 @@
           v-for="content in contents"
           :key="content.id">
           <b><span v-html="content.topic.name"/></b>
-          <p 
+          <p
             class="pre"
             v-html="markdownToHtml(content.text)"/>
         </li>
@@ -19,7 +19,7 @@
 
 <script>
 
-import { GetContent } from '../request/resources.js'
+import { Content } from 'routes/endpoints'
 import SectionPanel from './shared/sectionPanel'
 import extendSection from './shared/extendSections'
 import EasyMDE from 'easymde'
@@ -27,24 +27,27 @@ import DOMPurify from 'dompurify'
 
 export default {
   mixins: [extendSection],
-  components: {
-    SectionPanel,
-  },
+
+  components: { SectionPanel },
+
   props: {
     otu: {
-      type: Object
+      type: Object,
+      required: true
     }
   },
-  data() {
+
+  data () {
     return {
       contents: []
     }
   },
+
   watch: {
     otu: {
       handler (newVal) {
-        if(newVal) {
-          GetContent(this.otu.id).then(response => {
+        if (newVal) {
+          Content.where({ otu_id: this.otu.id, most_recent_updates: 100 }).then(response => {
             this.contents = response.body
           })
         }
@@ -52,6 +55,7 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     markdownToHtml (text) {
       const markdown = new EasyMDE()

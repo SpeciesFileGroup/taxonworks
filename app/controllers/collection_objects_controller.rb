@@ -31,7 +31,7 @@ class CollectionObjectsController < ApplicationController
 
   def biocuration_classifications
     @biocuration_classifications = @collection_object.biocuration_classifications
-   render '/biocuration_classifications/index'
+    render '/biocuration_classifications/index'
   end
 
   def navigation
@@ -203,7 +203,7 @@ class CollectionObjectsController < ApplicationController
       Queries::CollectionObject::Autocomplete.new(
         params[:term],
         project_id: sessions_current_project_id
-    ).autocomplete
+      ).autocomplete
   end
 
   # GET /collection_objects/download
@@ -467,7 +467,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [], #
       determiner_id: [],
-      geographic_area_ids: [],
+      geographic_area_id: [],
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
@@ -545,7 +545,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [],
       determiner_id: [],
-      geographic_area_ids: [], # CE filter
+      geographic_area_id: [], # CE filter
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],

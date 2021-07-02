@@ -1,10 +1,10 @@
 <template>
   <modal-component
     @close="$emit('close', true)">
-    <h3 slot="header">
-      New predicate
-    </h3>
-    <div slot="body">
+    <template #header>
+      <h3>New predicate</h3>
+    </template>
+    <template #body>
       <div class="field">
         <label>Name</label>
         <input
@@ -14,15 +14,15 @@
       </div>
       <div class="field">
         <label>Definition</label>
-        <textarea 
-          type="text" 
+        <textarea
+          type="text"
           v-model="predicate.definition"
         />
       </div>
       <div class="field">
         <label>Uri</label>
-        <textarea 
-          type="text" 
+        <textarea
+          type="text"
           v-model="predicate.uri"
         />
       </div>
@@ -46,27 +46,29 @@
       >
         Create
       </button>
-    </div>
+    </template>
   </modal-component>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 
 export default {
   components: {
     ModalComponent
   },
+
   computed: {
-    validate() {
+    validate () {
       return this.predicate.name && 
         this.predicate.name.length &&
         this.predicate.definition &&
         this.predicate.definition.length >= this.minDefinitionLength
     }
   },
-  data() {
+
+  data () {
     return {
       minDefinitionLength: 20,
       uriRelationList: [
@@ -79,6 +81,7 @@ export default {
       predicate: this.newPredicate()
     }
   },
+
   methods: {
     newPredicate() {
       return {
@@ -89,6 +92,7 @@ export default {
         uri_relation: undefined
       }
     },
+
     sendPredicate(predicate) {
       this.$emit('onNew', predicate)
       this.$emit('close', true)

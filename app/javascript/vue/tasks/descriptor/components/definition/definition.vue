@@ -66,24 +66,29 @@
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     validateShortName () {
       return this.descriptor.short_name ? this.descriptor.short_name.length <= 6 : true
     },
+
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     }
   },
+
   data () {
     return {
       show: false

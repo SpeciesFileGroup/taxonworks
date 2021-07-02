@@ -1279,7 +1279,7 @@ module Protonym::SoftValidationExtensions
         parent = self.parent
 
         if !is_higher_rank? && parent && rank_group == parent.rank_class.parent
-          unless unavailable_or_invalid?
+          unless !is_valid? #  unavailable_or_invalid?
             date1 = self.nomenclature_date
             date2 = parent.nomenclature_date
             unless date1.nil? || date2.nil?
@@ -1293,7 +1293,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_homotypic_synonyms
-      unless unavailable_or_invalid?
+      unless !is_valid? # unavailable_or_invalid?
         if self.id == self.lowest_rank_coordinated_taxon.id
           possible_synonyms = []
           if rank_string =~ /Species/
@@ -1301,7 +1301,6 @@ module Protonym::SoftValidationExtensions
             unless primary_types.empty?
               p                 = primary_types.collect {|t| t.collection_object_id}
               possible_synonyms = Protonym.with_type_material_array(p).without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
-              #              possible_synonyms = Protonym.with_type_material_array(p).that_is_valid.without_taxon_name_classification_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID).not_self(self).with_project(self.project_id)
             end
           elsif rank_string =~ /Family/ && self.name == Protonym.family_group_base(self.name)
             # do nothing
@@ -1309,7 +1308,6 @@ module Protonym::SoftValidationExtensions
             type = self.type_taxon_name
             unless type.nil?
               possible_synonyms = Protonym.with_type_of_taxon_names(type.id).not_self(self).with_project(self.project_id)
-              #              possible_synonyms = Protonym.with_type_of_taxon_names(type.id).that_is_valid.not_self(self).with_project(self.project_id)
             end
           end
 
@@ -1505,7 +1503,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied?
+      if self.roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
       end
     end
@@ -1539,7 +1537,9 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      if !self.roles.empty? && self.source && has_misspelling_relationship?
+      #DD: do not use .has_misspelling_relationship?
+      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
+      if !self.roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
           success_message: 'Roles were deleted',

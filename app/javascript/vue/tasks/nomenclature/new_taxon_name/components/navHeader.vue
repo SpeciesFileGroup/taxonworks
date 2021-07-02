@@ -2,21 +2,23 @@
   <nav-bar class="position-relative">
     <div class="flex-separate">
       <ul class="no_bullets context-menu">
-        <li
-          class="navigation-item context-menu-option"
+        <template
           v-for="(link, key, index) in menu"
-          v-if="link">
-          <a
-            data-turbolinks="false"
-            :class="{ active : (activePosition == index)}"
-            :href="'#' + key.toLowerCase().replace(' ','-')"
-            @click="activePosition = index">{{ key }}
-          </a>
-        </li>
+          :key="key">
+          <li
+            class="navigation-item context-menu-option"
+            v-if="link">
+            <a
+              data-turbolinks="false"
+              :class="{ active : (activePosition == index)}"
+              :href="'#' + key.toLowerCase().replace(' ','-')"
+              @click="activePosition = index">{{ key }}
+            </a>
+          </li>
+        </template>
       </ul>
       <div class="horizontal-center-content">
         <save-taxon-name
-          v-if="taxon.id"
           class="normal-input button button-submit separate-right"/>
         <clone-taxon-name
           v-help.section.navbar.clone
@@ -49,7 +51,7 @@
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
-import NavBar from 'components/navBar'
+import NavBar from 'components/layout/NavBar'
 import Autosave from './autosave'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from 'routes/routes'
@@ -62,34 +64,42 @@ export default {
     NavBar,
     Autosave
   },
+
   props: {
     menu: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     unsavedChanges () {
       return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
+
     isAutosaveActive () {
       return this.$store.getters[GetterNames.GetAutosave]
     },
+
     parentId () {
-      return this.parent && this.parent.hasOwnProperty('id') ? this.parent.id : undefined
+      return this.parent?.id
     }
   },
+
   data () {
     return {
       activePosition: 0
     }
   },
+
   methods: {
     createNew (id) {
       this.url = `${RouteNames.NewTaxonName}?parent_id=${id}`
@@ -104,9 +114,10 @@ export default {
   }
 }
 </script>
+
 <style lang="scss" scoped>
 
-  ::v-deep button {
+  :deep(button) {
     min-width: 80px;
     width: 100%;
   }

@@ -93,7 +93,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import DeterminerComponent from './shared/people'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import {
@@ -108,11 +108,13 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -153,10 +155,10 @@ export default {
   computed: {
     determination: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
@@ -225,7 +227,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

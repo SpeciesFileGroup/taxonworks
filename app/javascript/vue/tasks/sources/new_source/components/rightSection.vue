@@ -64,10 +64,7 @@ export default {
       const newHeight = (window.innerHeight - sectionSize.top) < totalHeight ? `${(window.innerHeight - sectionSize.top)}px` : 'auto'
 
       if (element.offsetTop < document.documentElement.scrollTop + 50) {
-        const size = element.getBoundingClientRect()
-
         this.$refs.section.classList.add('float-box')
-        this.$refs.section.style.width = `${size.width}px`
       } else {
         this.$refs.section.classList.remove('float-box')
       }
@@ -81,10 +78,12 @@ export default {
 <style lang="scss" scoped>
   .right-section {
     position: relative;
-    width: 400px;
+    min-width: 400px;
+    max-width: 400px;
   }
   .float-box {
     top: 70px;
+    width: 400px;
     position: fixed;
   }
 </style>

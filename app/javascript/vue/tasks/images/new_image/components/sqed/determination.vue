@@ -46,14 +46,15 @@
           :filter-ids="taxonDetermination.roles_attributes.map(item => item.person_id)"
           @onTabSelected="view = $event"
           @selected="addRole">
-          <role-picker
-            slot="header"
-            class="role-picker"
-            :autofocus="false"
-            :hidden-list="true"
-            ref="rolepicker"
-            role-type="Determiner"
-            v-model="taxonDetermination.roles_attributes"/>
+          <template #header>
+            <role-picker
+              class="role-picker"
+              :autofocus="false"
+              hidden-list
+              ref="rolepicker"
+              role-type="Determiner"
+              v-model="taxonDetermination.roles_attributes"/>
+          </template>
           <role-picker
             class="role-picker"
             :autofocus="false"
@@ -124,12 +125,12 @@
 
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
 import CreatePerson from '../../helpers/createPerson.js'
 import makeTaxonDetermination from '../../const/makeTaxonDetermination'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 
 export default {
   components: {

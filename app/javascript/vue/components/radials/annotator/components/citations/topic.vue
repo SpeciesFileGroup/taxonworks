@@ -12,16 +12,16 @@
       target="Citation"
       :add-tabs="['all']"
       @selected="sendTopic">
-      <div
-        slot="all"
-        class="flex-wrap-row">
-        <div
-          v-for="item in topicsAllList"
-          :key="item.id"
-          class="margin-medium-bottom cursor-pointer"
-          v-html="item.object_tag"
-          @click="sendTopic(item)"/>
-      </div>
+      <template #all>
+        <div class="flex-wrap-row">
+          <div
+            v-for="item in topicsAllList"
+            :key="item.id"
+            class="margin-medium-bottom cursor-pointer"
+            v-html="item.object_tag"
+            @click="sendTopic(item)"/>
+        </div>
+      </template>
     </smart-selector>
     <div
       v-if="topicsSelected.length"
@@ -41,13 +41,13 @@
 <script>
 
 import CRUD from '../../request/crud'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD],
-  components: {
-    SmartSelector
-  },
+
+  components: { SmartSelector },
+
   props: {
     globalId: {
       type: String,
@@ -62,22 +62,28 @@ export default {
       required: true
     }
   },
+
+  emits: ['create'],
+
   computed: {
     validateFields () {
       return this.topicsSelected.length
     }
   },
+
   data() {
     return {
       topicsSelected: [],
       topicsAllList: undefined
     }
   },
+
   mounted () {
     this.getList('/controlled_vocabulary_terms.json?type[]=Topic').then(response => {
       this.topicsAllList = response.body
     })
   },
+
   methods: {
     sendTopic (topic) {
       this.$emit('create', {

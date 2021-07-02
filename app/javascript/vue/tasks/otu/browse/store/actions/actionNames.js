@@ -9,6 +9,7 @@ const ActionNames = {
   LoadAssertedDistributions: 'loadAssertedDistributions',
   LoadDescendants: 'loadDescendants',
   LoadTaxonName: 'loadTaxonName',
+  LoadObservationDepictions: 'loadObservationDepictions',
   LoadOtus: 'loadOtus',
   ResetStore: 'resetStore'
 }

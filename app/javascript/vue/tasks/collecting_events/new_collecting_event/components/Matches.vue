@@ -17,7 +17,7 @@
 
 <script>
 
-import AjaxCall from 'helpers/ajaxCall'
+import { CollectingEvent } from 'routes/endpoints'
 import DisplayList from 'components/displayList'
 import SpinnerComponent from 'components/spinner'
 
@@ -26,20 +26,26 @@ export default {
     DisplayList,
     SpinnerComponent
   },
+
   props: {
     collectingEvent: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['select'],
+
   computed: {
     verbatimLabel () {
       return this.collectingEvent.verbatim_label
     },
+
     founded () {
-      return this.list.filter(item => { return item.id !== this.collectingEvent.id })
+      return this.list.filter(item => item.id !== this.collectingEvent.id)
     }
   },
+
   data () {
     return {
       list: [],
@@ -48,6 +54,7 @@ export default {
       searching: false
     }
   },
+
   watch: {
     verbatimLabel (newVal) {
       clearTimeout(this.timer)
@@ -60,14 +67,13 @@ export default {
       }
     }
   },
+
   methods: {
     getRecent () {
       this.searching = true
-      AjaxCall('get', '/collecting_events.json', {
-        params: {
-          verbatim_label: this.verbatimLabel,
-          per: 5
-        }
+      CollectingEvent.where({
+        verbatim_label: this.verbatimLabel,
+        per: 5
       }).then(response => {
         this.list = response.body
         this.searching = false

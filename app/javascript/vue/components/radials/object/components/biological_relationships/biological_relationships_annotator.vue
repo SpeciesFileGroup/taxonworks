@@ -114,7 +114,7 @@ import Biological from './biological.vue'
 import Related from './related.vue'
 import NewCitation from './newCitation.vue'
 import TableList from './table.vue'
-import LockComponent from 'components/lock'
+import LockComponent from 'components/ui/VLock/index.vue'
 import { convertType } from 'helpers/types'
 
 export default {
@@ -193,9 +193,11 @@ export default {
       }
       if (this.alreadyExist) {
         this.update(`/biological_associations/${this.alreadyExist.id}.json`, { biological_association: data }).then(response => {
+          const index = this.list.findIndex(item => item.id === response.body.id)
+
           this.reset()
           TW.workbench.alert.create('Citation was successfully added to biological association.', 'notice')
-          this.$set(this.list, this.list.findIndex(item => item.id === response.body.id), response.body)
+          this.list[index] = response.body
         })
       } else {
         this.create('/biological_associations.json', { biological_association: data }).then(response => {
@@ -206,7 +208,7 @@ export default {
       }
     },
     updateAssociation () {
-      let data = {
+      const data = {
         id: this.edit.id,
         biological_relationship_id: this.biologicalRelationship.id,
         object_global_id: (this.flip ? this.globalId : this.biologicalRelation.global_id),
@@ -218,11 +220,11 @@ export default {
       }
 
       this.update(`/biological_associations/${data.id}.json`, { biological_association: data }).then(response => {
+        const index = this.list.findIndex(item => item.id === response.body.id)
+
         this.reset()
+        this.list[index] = response.body
         TW.workbench.alert.create('Biological association was successfully updated.', 'notice')
-        this.$set(this.list, this.list.findIndex(item => {
-          return item.id === response.body.id
-        }), response.body)
       })
     },
     editBiologicalRelationship (bioRelation) {

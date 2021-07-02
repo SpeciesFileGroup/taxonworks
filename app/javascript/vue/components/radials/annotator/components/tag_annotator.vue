@@ -4,8 +4,8 @@
       class="switch-radio separate-bottom"
       v-if="preferences">
       <template
-      v-for="(item, index) in tabOptions">
-        <template v-if="item == 'new keyword' || preferences[item].length && preferences[item].find(keyword => { return !tagAlreadyCreated(keyword) })">
+        v-for="(item, index) in tabOptions">
+        <template v-if="item == 'new keyword' || preferences[item].length && preferences[item].find(keyword => !tagAlreadyCreated(keyword))">
           <input
             v-model="view"
             :value="item"
@@ -26,18 +26,22 @@
       class="transparent-modal"
       v-if="view == 'all'"
       @close="view = 'new keyword'">
-      <h3 slot="header">Keywords</h3>
-      <div slot="body">
-        <template v-for="keyword in preferences[view]">
-          <button
-            v-if="!tagAlreadyCreated(keyword)"
-            @click="createWithId(keyword.id)"
-            type="button"
-            class="button normal-input button-submit margin-small-right margin-small-bottom"> 
-            <span v-html="keyword.object_tag"/>
-          </button>
-        </template>
-      </div>
+      <template #header>
+        <h3>Keywords</h3>
+      </template>
+      <template #body>
+        <div>
+          <template v-for="keyword in preferences[view]">
+            <button
+              v-if="!tagAlreadyCreated(keyword)"
+              @click="createWithId(keyword.id)"
+              type="button"
+              class="button normal-input button-submit margin-small-right margin-small-bottom"> 
+              <span v-html="keyword.object_tag"/>
+            </button>
+          </template>
+        </div>
+      </template>
     </modal>
 
     <template v-if="preferences && view != 'new keyword' && view != 'all'">
@@ -52,7 +56,9 @@
       </div>
     </template>
 
-    <div class="separate-bottom" v-if="view == 'new keyword'">
+    <div
+      class="separate-bottom"
+      v-if="view == 'new keyword'">
       <autocomplete
         url="/controlled_vocabulary_terms/autocomplete"
         label="label"
@@ -89,27 +95,30 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/autocomplete.vue'
-import modal from 'components/modal.vue'
+import autocomplete from 'components/ui/Autocomplete.vue'
+import modal from 'components/ui/Modal.vue'
 import displayList from './displayList.vue'
 
 export default {
   mixins: [CRUD, annotatorExtend],
+
   components: {
     autocomplete,
     modal,
     displayList
   },
-  mounted: function () {
+
+  mounted () {
     this.loadTabList('Keyword')
   },
+
   computed: {
     validateFields () {
       return (this.tag.keyword_attributes.name.length > 1 &&
-						this.tag.keyword_attributes.definition.length > 20)
+            this.tag.keyword_attributes.definition.length > 20)
     }
   },
-  data: function () {
+  data () {
     return {
       preferences: undefined,
       view: 'quick',
@@ -123,9 +132,10 @@ export default {
       }
     }
   },
+
   methods: {
     createWithId (id) {
-      let tag = {
+      const tag = {
         tag: {
           keyword_id: id,
           annotated_global_entity: decodeURIComponent(this.globalId)
@@ -135,19 +145,21 @@ export default {
         this.list.push(response.body)
       })
     },
+
     createWithoutId () {
       this.create('/tags', { tag: this.tag }).then(response => {
         this.list.push(response.body)
       })
     },
+
     tagAlreadyCreated (keyword) {
-      return this.list.find(item => { return keyword.id == item.keyword_id })
+      return this.list.find(item => keyword.id === item.keyword_id)
     },
+
     loadTabList (type) {
+      const promises = []
       let tabList
       let allList
-      let promises = []
-      let that = this
 
       promises.push(this.getList(`/keywords/select_options?klass=${this.objectType}`).then(response => {
         tabList = response.body
@@ -158,7 +170,7 @@ export default {
 
       Promise.all(promises).then(() => {
         tabList['all'] = allList
-        that.preferences = tabList
+        this.preferences = tabList
       })
     }
   }
@@ -166,22 +178,25 @@ export default {
 </script>
 <style lang="scss">
 .radial-annotator {
-	.tag_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-		.vue-autocomplete-input {
-			width: 100%;
-		}
+  .tag_annotator {
+    button {
+      min-width: 100px;
+    }
+
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+
+    .vue-autocomplete-input {
+      width: 100%;
+    }
+
     .switch-radio label {
       width: 80px;
     }
-	}
+  }
 }
 </style>

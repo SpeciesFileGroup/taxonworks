@@ -1,13 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
-
 import newSource from '../const/source'
-
-Vue.use(Vuex)
 
 function makeInitialState () {
   return {
@@ -26,9 +21,7 @@ function makeInitialState () {
       addToSource: false,
       sortable: false
     },
-    preferences: {
-
-    },
+    preferences: {},
     documentations: [],
     documents: [],
     source: newSource(),
@@ -37,7 +30,7 @@ function makeInitialState () {
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

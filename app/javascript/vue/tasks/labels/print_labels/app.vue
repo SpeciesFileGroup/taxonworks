@@ -30,21 +30,23 @@
       </div>
     </navbar-component>
     <block-layout class="margin-medium-bottom">
-      <h3 slot="header">Settings</h3>
-      <div
-        slot="body"
-        class="horizontal-left-content align-start">
-        <style-selector
-          class="full_width"
-          @onNewStyle="customStyle = $event"
-          v-model="styleSelected"/>
-        <layout-component
-          class="full_width"
-          @onRowsChange="layout.rows = $event"
-          @onColumnsChange="layout.columns = $event"
-          @onSeparatorChange="layout.separator = $event"
-          @onDivisorChange="layout.divisor = $event"/>
-      </div>
+      <template #header>
+        <h3>Settings</h3>
+      </template>
+      <template #body>
+        <div class="horizontal-left-content align-start">
+          <style-selector
+            class="full_width"
+            @onNewStyle="customStyle = $event"
+            v-model="styleSelected"/>
+          <layout-component
+            class="full_width"
+            @onRowsChange="layout.rows = $event"
+            @onColumnsChange="layout.columns = $event"
+            @onSeparatorChange="layout.separator = $event"
+            @onDivisorChange="layout.divisor = $event"/>
+        </div>
+      </template>
     </block-layout>
     <table-component
       :list="list"
@@ -58,12 +60,12 @@
 
 <script>
 
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from 'components/layout/BlockLayout'
 import StyleSelector from './components/StyleSelector'
 import LayoutComponent from './components/Layout'
 import TableComponent from './components/Table/TableComponent'
 import PreviewLabels from './components/PreviewLabels'
-import NavbarComponent from 'components/navBar'
+import NavbarComponent from 'components/layout/NavBar'
 import LabelForm from './components/LabelForm'
 import { RouteNames } from 'routes/routes'
 import { Label } from 'routes/endpoints'
@@ -78,6 +80,7 @@ export default {
     NavbarComponent,
     LabelForm
   },
+
   data () {
     return {
       label: undefined,
@@ -101,6 +104,7 @@ export default {
       customStyle: ''
     }
   },
+
   created () {
     const urlParams = new URLSearchParams(window.location.search)
     const labelId = urlParams.get('label_id')
@@ -120,6 +124,7 @@ export default {
       }
     })
   },
+
   methods: {
     removeLabel (label) {
       Label.destroy(label.id).then(() => {
@@ -143,7 +148,7 @@ export default {
       Label.update(label.id, { label }).then(response => {
         const index = this.list.findIndex(item => item.id === label.id)
 
-        this.$set(this.list, index, response.body)
+        this.list[index] = response.body
         TW.workbench.alert.create('Label item was successfully updated.', 'notice')
       })
     },

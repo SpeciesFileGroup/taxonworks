@@ -1,8 +1,7 @@
 class ObservationMatricesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :reorder_rows, :reorder_columns]
-
+  before_action :set_observation_matrix, only: [:show, :edit, :update, :destroy, :nexml, :tnt, :nexus, :otu_contents, :reorder_rows, :reorder_columns]
   # GET /observation_matrices
   # GET /observation_matrices.json
   def index
@@ -114,6 +113,18 @@ class ObservationMatricesController < ApplicationController
     end
   end
 
+  def otu_contents
+    @options = otu_contents_params
+    respond_to do |format|
+      base =  '/observation_matrices/export/otu_contents/'
+      format.html { render base + 'index' }
+      format.text {
+        s = render_to_string(partial: base + 'otu_contents', layout: false, locals: { as_file: true }, layout: false, formats: [:html])
+        send_data(s, filename: "otu_contents_#{DateTime.now}.csv", type: 'text/plain')
+      }
+    end
+  end
+
   def tnt
     respond_to do |format|
       base = '/observation_matrices/export/tnt/'
@@ -146,6 +157,24 @@ class ObservationMatricesController < ApplicationController
     send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
   end
 
+  def download_contents
+    send_data Export::Download.generate_csv(ObservationMatrix.where(project_id: sessions_current_project_id)), type: 'text', filename: "observation_matrices_#{DateTime.now}.csv"
+  end
+
+  def otus_used_in_matrices
+    #ObservationMatrix.with_otu_ids_array([13597, 25680])
+    if !params[:otu_ids].blank?
+      p = ObservationMatrix.with_otu_id_array(params[:otu_ids].split('|')).pluck(:id)
+      if p.nil?
+        render json: {otus_used_in_matrices: ''}.to_json
+      else
+        render json: {otus_used_in_matrices: p}.to_json
+      end
+    else
+      render json: {otus_used_in_matrices: ''}.to_json
+    end
+  end
+
   private
 
   # TODO: Not all params are supported yet.
@@ -169,6 +198,28 @@ class ObservationMatricesController < ApplicationController
       )
   end
 
+  def otu_contents_params
+    { observation_matrix: @observation_matrix,
+      target: '',
+      include_otus: 'true',
+      include_collection_objects: 'false',
+      include_matrix: 'true',
+      include_distribution: 'true',
+      include_nomenclature: 'true',
+      include_depictions: 'true',
+      rdf: false }.merge!(
+      params.permit(
+        :include_otus,
+        :include_collection_objects,
+        :include_matrix,
+        :include_distribution,
+        :include_nomenclature,
+        :include_depictions,
+        :rdf
+      ).to_h
+    )
+  end
+
   def set_observation_matrix
     @observation_matrix = ObservationMatrix.where(project_id: sessions_current_project_id).find(params[:id])
   end
@@ -176,4 +227,5 @@ class ObservationMatricesController < ApplicationController
   def observation_matrix_params
     params.require(:observation_matrix).permit(:name)
   end
+
 end

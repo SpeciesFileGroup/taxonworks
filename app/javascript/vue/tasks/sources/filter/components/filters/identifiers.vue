@@ -63,30 +63,31 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
-import { GetNamespace } from '../../request/resources'
+import SmartSelector from 'components/ui/SmartSelector'
+import { Namespace } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
   computed: {
     identifier: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   watch: {
     identifier: {
       handler (newVal) {
@@ -97,6 +98,7 @@ export default {
       deep: true
     }
   },
+
   data () {
     return {
       smartLists: {},
@@ -115,6 +117,7 @@ export default {
       ]
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     this.identifier = {
@@ -124,16 +127,18 @@ export default {
       identifier_end: urlParams.identifier_end
     }
     if (urlParams.namespace_id) {
-      GetNamespace(urlParams.namespace_id).then(response => {
+      Namespace.find(urlParams.namespace_id).then(response => {
         this.setNamespace(response.body)
       })
     }
   },
+
   methods: {
     setNamespace (namespace) {
       this.namespace = namespace
       this.identifier.namespace_id = namespace.id
     },
+
     unsetNamespace () {
       this.namespace = undefined
       this.identifier.namespace_id = undefined
@@ -143,7 +148,7 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

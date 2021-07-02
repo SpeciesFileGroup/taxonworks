@@ -1,10 +1,10 @@
 <template>
-  <block-layout :warning="!collectingEvent.id">
-    <div slot="header">
-      <h3>Collecting Event</h3>
-    </div>
-    <div
-      slot="body">
+  <block-layout
+    :warning="!collectingEvent.id">
+    <template #header>
+      <h3 v-hotkey="shortcuts">Collecting Event</h3>
+    </template>
+    <template #body>
       <fieldset class="separate-bottom">
         <legend>Selector</legend>
         <div class="horizontal-left-content align-start separate-bottom">
@@ -18,12 +18,10 @@
             pin-type="CollectingEvent"
             v-model="collectingEvent"
             @selected="setCollectingEvent"/>
-          <div class="horizontal-right-content">
-            <lock-component
-              class="circle-button-margin"
-              v-model="locked.collecting_event"
-            />
-          </div>
+          <lock-component
+            class="margin-small-left"
+            v-model="locked.collecting_event"
+          />
         </div>
         <div>
           <span data-icon="warning"/>
@@ -41,10 +39,7 @@
         >
           <p v-html="collectingEvent.object_tag" />
           <div class="horizontal-left-content">
-            <div
-              slot="options"
-              class="horizontal-left-content separate-right"
-            >
+            <div class="horizontal-left-content separate-right">
               <span v-if="collectingEvent.id">Sequential uses: {{ (this.subsequentialUses == 0 ? '-' : this.subsequentialUses) }}</span>
               <div
                 v-if="collectingEvent.id"
@@ -53,21 +48,20 @@
                 <radial-annotator :global-id="collectingEvent.global_id" />
                 <radial-object :global-id="collectingEvent.global_id" />
                 <pin-component
+                  class="circle-button"
                   :object-id="collectingEvent.id"
                   type="CollectingEvent"
+                />
+                <button
+                  type="button"
+                  class="button circle-button button-default btn-undo"
+                  @click="cleanCollectionEvent"
                 />
               </div>
             </div>
             <button
               type="button"
-              class="button normal-input button-default margin-small-right"
-              @click="cleanCollectionEvent"
-            >
-              New
-            </button>
-            <button
-              type="button"
-              class="button normal-input button-default margin-small-right"
+              class="button normal-input button-default margin-small-left margin-small-right"
               @click="openBrowse"
             >
               Browse
@@ -87,7 +81,7 @@
         <block-geography class="separate-left separate-right full_width" />
         <block-map class="separate-left full_width" />
       </div>
-    </div>
+    </template>
   </block-layout>
 </template>
 
@@ -97,17 +91,19 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { CollectingEvent, CollectionObject } from 'routes/endpoints'
+import { RouteNames } from 'routes/routes'
 import BlockVerbatin from './components/verbatimLayout.vue'
 import BlockGeography from './components/GeographyLayout.vue'
-import SmartSelector from 'components/smartSelector.vue'
-import LockComponent from 'components/lock.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
+import LockComponent from 'components/ui/VLock/index.vue'
 import BlockMap from './components/map/main.vue'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
-import PinComponent from 'components/pin.vue'
+import PinComponent from 'components/ui/Pinboard/VPin.vue'
 import makeCollectingEvent from '../../const/collectingEvent.js'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   mixins: [refreshSmartSelector],
@@ -123,6 +119,14 @@ export default {
     LockComponent
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+v`] = this.openNewCollectingEvent
+
+      return keys
+    },
+
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
@@ -192,8 +196,16 @@ export default {
         this.$store.dispatch(ActionNames.SaveDigitalization)
       })
     },
+
     openBrowse () {
       window.open(`/tasks/collecting_events/browse?collecting_event_id=${this.collectingEvent.id}`)
+    },
+
+    openNewCollectingEvent () {
+      window.open(this.collectingEvent.id
+        ? `${RouteNames.NewCollectingEvent}?collecting_event_id=${this.collectingEvent.id}`
+        : RouteNames.NewCollectingEvent
+      )
     }
   }
 }

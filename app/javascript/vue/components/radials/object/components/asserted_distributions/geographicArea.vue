@@ -21,26 +21,30 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud'
 
 export default {
   mixins: [CRUD],
-  components: {
-    SmartSelector
-  },
+
+  components: { SmartSelector },
+
   props: {
     sourceLock: {
       type: Boolean,
       required: true
     }
   },
+
+  emits: ['select'],
+
   data () {
     return {
       smartGeographics: [],
       selected: undefined
     }
   },
+
   methods: {
     sendGeographic (item) {
       this.selected = ''

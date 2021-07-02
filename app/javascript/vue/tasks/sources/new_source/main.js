@@ -1,27 +1,21 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
+import { newStore } from './store/store.js'
 import App from './app.vue'
 import HelpSystem from 'plugins/help/help'
-import vueShortkey from 'vue-shortkey'
-
-import { newStore } from './store/store.js'
-
+import hotkey from 'plugins/v-hotkey'
 import en from './lang/help/en'
 
 function init () {
-  Vue.use(vueShortkey)
-  Vue.use(HelpSystem, { 
+  const app = createApp(App)
+
+  app.directive('hotkey', hotkey)
+  app.use(HelpSystem, {
     languages: {
       en: en
     }
   })
-  var store = newStore()
-  new Vue({
-    el: '#vue-task-new-source',
-    store,
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.use(newStore())
+  app.mount('#vue-task-new-source')
 }
 
 document.addEventListener('turbolinks:load', () => {

@@ -17,44 +17,46 @@
     </div>
     <span
       class="horizontal-left-content"
-      v-if="value">
-      <span v-html="value.object_tag"/>
+      v-if="modelValue">
+      <span v-html="modelValue.object_tag"/>
       <span
         class="button circle-button btn-undo button-default"
-        @click="$emit('input', undefined)"/>
+        @click="$emit('update:modelValue', undefined)"/>
     </span>
   </div>
 </template>
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
-
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
+  components: { Autocomplete },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
-  components: {
-    Autocomplete
-  },
+
+  emits: ['update:modelValue'],
+
   mounted () {
     const params = URLParamsToJSON(location.href)
     if (params.ancestor_id) {
       this.getTaxon({ id: params.ancestor_id })
     }
   },
+
   methods: {
     getTaxon (event) {
       TaxonName.find(event.id).then(response => {
         this.$store.commit(MutationNames.SetTaxon, response.body)
-        this.$emit('input', response.body)
+        this.$emit('update:modelValue', response.body)
       })
     }
   }
@@ -70,7 +72,7 @@ export default {
   .field-year {
     width: 60px;
   }
-  ::v-deep .vue-autocomplete-list {
+  :deep(.vue-autocomplete-list) {
     min-width: 800px;
   }
 </style>

@@ -21,7 +21,7 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import TableList from 'components/table_list'
 import { MutationNames } from '../store/mutations/mutations'
 import { GetterNames } from '../store/getters/getters'
@@ -31,30 +31,26 @@ export default {
     SmartSelector,
     TableList
   },
+
   computed: {
     tags: {
       get () {
         return this.$store.getters[GetterNames.GetTags]
       },
       set (value) {
-        this.$store.commit(MutationNames.SetTags)
+        this.$store.commit(MutationNames.SetTags, value)
       }
     }
   },
+
   methods: {
     addTag (tag) {
       this.$store.commit(MutationNames.AddTag, tag)
     },
-    removeTag(tag) {
-      this.tags.splice(this.tags.findIndex(item => {
-        return item.id === tag.id
-      }), 1)
+    removeTag (tag) {
+      this.tags.splice(this.tags.findIndex(item => item.id === tag.id), 1)
     }
   }
 
 }
 </script>
-
-<style>
-
-</style>

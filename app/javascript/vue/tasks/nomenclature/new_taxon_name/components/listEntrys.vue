@@ -40,7 +40,6 @@
             type="button"
             class="circle-button btn-edit"
             @click="$emit('edit', item)"/>
-          </span>
           <span
             type="button"
             class="circle-button btn-delete"

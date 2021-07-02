@@ -268,10 +268,11 @@ export default {
       }
     },
     flipPerson (personIndex) {
-      this.haltWatcher = true
       const tmp = this.selectedPerson
+
+      this.haltWatcher = true
       this.selectedPerson = this.mergeList[personIndex]
-      this.$set(this.mergeList, personIndex, tmp)
+      this.mergeList[personIndex] = tmp
     },
     findPerson (event) {
       event.preventDefault()
@@ -314,7 +315,7 @@ export default {
         this.matchPeople = this.matchPeople.filter(people => mergePerson.id !== people.id)
 
         if (personIndex > -1) {
-          this.$set(this.foundPeople, personIndex, this.selectedPerson)
+          this.foundPeople[personIndex] = this.selectedPerson
         }
       }).finally(() => {
         if (mergeList.length) {

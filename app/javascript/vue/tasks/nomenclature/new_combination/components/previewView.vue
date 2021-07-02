@@ -6,8 +6,11 @@
       <span>
         <i>
           <span
-            v-for="rank in reverse(combination.protonyms)"
-            v-if="combination.protonyms[rank]"> {{ combination.protonyms[rank].name }}
+            v-for="rank in Object.keys(combination.protonyms).reverse()"
+            :key="rank">
+            <template v-if="combination.protonyms[rank]">
+              {{ combination.protonyms[rank].name }}
+            </template>
           </span>
         </i>
         <template v-if="incomplete">
@@ -24,22 +27,37 @@
       <edit-in-place
         legend="Click to edit verbatim"
         v-model="verbatimField"/>
-      <span 
+      <tippy
         v-if="verbatimField"
-        class="separate-left"
-        title="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature"
-        data-icon="warning"/>
+        animation="scale"
+        placement="bottom"
+        size="small"
+        inertia
+        arrow
+        content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature">
+        <v-icon
+          class="margin-small-left"
+          name="attention"
+          color="attention"
+          small
+        />
+      </tippy>
     </h3>
   </div>
 </template>
 <script>
 
 import EditInPlace from 'components/editInPlace.vue'
+import { Tippy } from 'vue-tippy'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {
-    EditInPlace
+    Tippy,
+    EditInPlace,
+    VIcon
   },
+
   props: {
     combination: {
       type: Object,
@@ -50,30 +68,31 @@ export default {
       default: false
     }
   },
-  data() {
+
+  emits: ['onVerbatimChange'],
+
+  data () {
     return {
       verbatimField: ''
     }
   },
+
   watch: {
-    verbatimField(newVal) {
+    verbatimField (newVal) {
       this.$emit('onVerbatimChange', newVal)
     }
   },
-  mounted() {
+
+  mounted () {
     this.verbatimField = this.combination.verbatim_name
   },
+
   methods: {
     searchLastExistingRank (combination) {
-      return combination[Object.keys(combination).find((key) => {
-        return combination[key]
-      })]
+      return combination[Object.keys(combination).find(key => combination[key])]
     },
     showAuthorCitation (taxon) {
-      return (taxon.hasOwnProperty('origin_citation') && taxon.origin_citation.hasOwnProperty('citation_source_body') ? taxon.origin_citation.citation_source_body : undefined)
-    },
-    reverse (value) {
-      return Object.keys(value).splice(0).reverse()
+      return taxon?.origin_citation?.citation_source_body || undefined
     }
   }
 }

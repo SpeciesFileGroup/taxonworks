@@ -2,7 +2,7 @@
   "extends": [
     "standard",
     "eslint:recommended",
-    "plugin:vue/strongly-recommended"
+    "plugin:vue/vue3-strongly-recommended"
   ],
   "plugins": [
     "vue",

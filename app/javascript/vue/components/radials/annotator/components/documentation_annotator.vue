@@ -89,6 +89,17 @@
             <div class="horizontal-right-content">
               <radial-annotator :global-id="item.global_id"/>
               <pdf-button :pdf="item.document"/>
+              <v-btn
+                circle
+                class="circle-button"
+                color="primary"
+                :download="item.document.object_tag"
+                :href="item.document.file_url">
+                <v-icon
+                  color="white"
+                  x-small
+                  name="download"/>
+              </v-btn>
               <span
                 class="button circle-button btn-delete"
                 @click="removeItem(item)"/>
@@ -103,10 +114,12 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import Dropzone from 'components/dropzone.vue'
 import PdfButton from 'components/pdfButton.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator'
+import VIcon from 'components/ui/VIcon/index'
+import VBtn from 'components/ui/VBtn/index'
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -114,7 +127,9 @@ export default {
     RadialAnnotator,
     Autocomplete,
     PdfButton,
-    Dropzone
+    Dropzone,
+    VBtn,
+    VIcon
   },
   computed: {
     validateFields () {

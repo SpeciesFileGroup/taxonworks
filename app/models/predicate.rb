@@ -22,23 +22,25 @@ class Predicate < ControlledVocabularyTerm
 
     Predicate.used_on_klass(klass).joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['controlled_vocabulary_term_id'].eq(p['id'])))
-    ).pluck(:id).uniq
+    ).select('distinct controlled_vocabulary_terms.id').pluck(:id)
   end
 
   def self.select_optimized(user_id, project_id, klass)
-    r = used_recently(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass).first(10)
+
     h = {
-        quick: [],
-        pinboard: Predicate.pinned_by(user_id).where(project_id: project_id).to_a,
-        recent: []
+      quick: [],
+      pinboard: Predicate.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
     }
 
     if r.empty?
       h[:quick] = Predicate.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = Predicate.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(10) ).order(:name).to_a
-      h[:quick] = (Predicate.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-          Predicate.where('"controlled_vocabulary_terms"."id" IN (?)', r.first(4) ).order(:name).to_a).uniq
+      h[:recent] = Predicate.where('"controlled_vocabulary_terms"."id" IN (?)', r[0..9] ).order(:name).to_a
+      h[:quick] = (
+        Predicate.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Predicate.where('"controlled_vocabulary_terms"."id" IN (?)', r[0..3] ).order(:name).to_a).uniq
     end
 
     h

@@ -9,8 +9,10 @@
     <modal-component
       v-if="showModal"
       @close="setModalState(false)">
-      <h3 slot="header">Accession metadata</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Accession metadata</h3>
+      </template>
+      <template #body>
         <div class="field">
           <label>
             Accessioned at
@@ -47,14 +49,14 @@
           class="button normal-input button-submit">
           Save
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
@@ -97,7 +99,7 @@ export default {
 </script>
 
 <style scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     width: 300px !important
   }
 </style>

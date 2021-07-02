@@ -13,6 +13,7 @@ export default {
       required: true
     }
   },
+
   methods: {
     loadPDF () {
       let details
@@ -37,7 +38,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

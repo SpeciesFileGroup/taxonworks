@@ -65,6 +65,8 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #   latinized version of the name (Protonym#name, Combination#cached) from what was originally transcribed.
 #   This string should NOT include the author year (see verbatim_author and year_of_publication for those data).
 #
+#   If at all possible this field SHOULD NOT be used, it has very little downstream inference use.
+#
 #   If a subgenus it should ____TODO____ (not?) contain parens.
 #
 # @!attribute etymology
@@ -82,10 +84,6 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 # @attribute cached_author_year
 #   @return [String, nil]
 #      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
-#
-# @!attribute cached_higher_classification
-#   @return [String]
-#   a concatenated list of higher rank taxa. !! Currently deprecated.
 #
 # @!attribute cached_original_combination
 #   @return [String]
@@ -121,7 +119,11 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
-#   Stores a taxon_name_id of a valid taxon_name based on taxon_name_relationships and taxon_name_classifications.
+#   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a claster of taxon_names which should be shown on the same Browse Nomenclature page.
+#
+# @!cached_is_valid
+#   @return [Boolean]
+#   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
 class TaxonName < ApplicationRecord
 
@@ -241,11 +243,30 @@ class TaxonName < ApplicationRecord
   accepts_nested_attributes_for :taxon_name_authors, :taxon_name_author_roles, allow_destroy: true
   accepts_nested_attributes_for :taxon_name_classifications, allow_destroy: true, reject_if: proc { |attributes| attributes['type'].blank?  }
 
-  scope :that_is_valid, -> { where('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
-  scope :that_is_invalid, -> { where.not('taxon_names.id = taxon_names.cached_valid_taxon_name_id') }
+  has_many :classified_as_unavailable_or_invalid, -> { where type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }, class_name: 'TaxonNameClassification'
+
+  scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
+  scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#
+
+  scope :that_is_valid, -> {where(cached_is_valid: true) }
+  scope :that_is_invalid, -> {where(cached_is_valid: false) }
+
+  def self.calculated_invalid
+    a = TaxonName.with_different_cached_valid_id # that_is_invalid
+    b = TaxonName.joins(:taxon_name_classifications).where(taxon_name_classifications: {type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID }) # - 16115
+    TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
+  end
+
+  def self.calculated_valid
+    # Alt format: TaxonName.that_is_valid.left_joins(:classified_as_unavailable_or_invalid).merge(TaxonNameClassification.where(id: nil))
+    TaxonName
+      .with_same_cached_valid_id
+      .where.not(
+        id: TaxonNameClassification.select(:taxon_name_id).where(type: TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID)
+      )
+  end
 
   scope :with_type, -> (type) {where(type: type)}
-
   scope :descendants_of, -> (taxon_name) { with_ancestor(taxon_name )}
 
   scope :ancestors_of, -> (taxon_name) {
@@ -322,7 +343,7 @@ class TaxonName < ApplicationRecord
   scope :with_parent_id, -> (parent_id) {where(parent_id: parent_id)}
   scope :with_cached_valid_taxon_name_id, -> (cached_valid_taxon_name_id) {where(cached_valid_taxon_name_id: cached_valid_taxon_name_id)}
   scope :with_cached_original_combination, -> (original_combination) { where(cached_original_combination: original_combination) }
-  
+
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
@@ -354,7 +375,7 @@ class TaxonName < ApplicationRecord
       )
 
     # This was particularly useful in debugging the join chain:
-    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a} 
+    # ap TaxonNameHierarchy.connection.execute(b.to_sql).collect{|a| a}
 
     b = b.as('abc')
 
@@ -502,7 +523,7 @@ class TaxonName < ApplicationRecord
   end
 
   # @see .out_of_scope_combinations
-  def out_of_scope_combinations 
+  def out_of_scope_combinations
     ::TaxonName
       .where(project_id: project_id)
       .out_of_scope_combinations(id)
@@ -661,7 +682,7 @@ class TaxonName < ApplicationRecord
 
   # @return [Scope]
   def taxon_name_classifications_for_statuses
-    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICTV_TAXON_NAME_CLASSIFICATION_NAMES)
+    taxon_name_classifications.with_type_array(ICZN_TAXON_NAME_CLASSIFICATION_NAMES + ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES)
   end
 
   # @return [Array of String]
@@ -743,6 +764,7 @@ class TaxonName < ApplicationRecord
 
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
+  # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
   def unavailable_or_invalid?
     return false if classification_valid?
     classification_invalid_or_unavailable? || relationship_invalid?
@@ -752,7 +774,7 @@ class TaxonName < ApplicationRecord
   #   after all inference on the validity of a name, the result is stored
   #   in cached_valid_taxon_name_id, #is_valid checks that result
   def is_valid?
-    id == cached_valid_taxon_name_id
+    cached_is_valid
   end
 
   # @return [Boolean]
@@ -920,6 +942,7 @@ class TaxonName < ApplicationRecord
       cached_classified_as: nil,
       cached: nil,
       cached_valid_taxon_name_id: nil,
+      cached_is_valid: nil,
       cached_original_combination: nil,
       cached_nomenclature_date: nil
     )
@@ -938,6 +961,7 @@ class TaxonName < ApplicationRecord
       cached_nomenclature_date: nomenclature_date)
 
     set_cached_valid_taxon_name_id
+    set_cached_is_valid
 
     # These two can be isolated as they are not always pertinent to a generalized cascading cache setting
     # For example, when a TaxonName relationship forces a cached reload it may/not need to call these two things
@@ -945,8 +969,13 @@ class TaxonName < ApplicationRecord
     set_cached_author_year
   end
 
-  def set_cached_valid_taxon_name_id
+  def set_cached_is_valid
     update_column(:cached_valid_taxon_name_id, get_valid_taxon_name.id)
+  end
+
+  def set_cached_valid_taxon_name_id
+    v = is_combination? ? false : !unavailable_or_invalid?
+    update_column(:cached_is_valid, v)
   end
 
   def set_cached_warnings
@@ -1094,7 +1123,6 @@ class TaxonName < ApplicationRecord
   #  a monomial if names is above genus, or a full epithet if below.
   def get_full_name
     return name_with_misspelling(nil) if type != 'Combination' && !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string)
-#    return name if not_binomial?
     return name if rank_class.to_s =~ /Icvcn/
     return verbatim_name if !verbatim_name.nil? && type == 'Combination'
 
@@ -1117,17 +1145,19 @@ class TaxonName < ApplicationRecord
 
   def get_full_name_html(name = nil)
     name = get_full_name if name.nil?
-    n = name
-    # n = verbatim_name.blank? ? name : verbatim_name
-    return  "\"<i>Candidatus</i> #{n}\"" if is_candidatus?
-    if !n.blank? && is_hybrid?
-      w = n.split(' ')
+    #m = name
+    # m = verbatim_name.blank? ? name : verbatim_name
+    return  "\"<i>Candidatus</i> #{name}\"" if is_candidatus?
+    if !name.blank? && is_hybrid?
+      w = name.split(' ')
       w[-1] = ('×' + w[-1]).gsub('×(', '(×')
-      n = w.join(' ')
+      name = w.join(' ')
     end
-    n = Utilities::Italicize.taxon_name(n) if is_italicized?
-    n = '† ' + n if is_fossil?
-    n
+
+    m = name
+    m = Utilities::Italicize.taxon_name(name) if is_italicized?
+    m = '† ' + m if is_fossil?
+    m
   end
 
   # @return [String]
@@ -1172,23 +1202,51 @@ class TaxonName < ApplicationRecord
   #   the author and year of the name, adds parenthesis where asserted
   #   abstract, see Protonym and Combination
   def get_author_and_year
-    true
+    if self.type == 'Combination'
+      c = protonyms_by_rank
+      return nil if c.empty?
+      taxon = c[c.keys.last]
+    else
+      taxon = self
+    end
+
+    case taxon.rank_class.try(:nomenclatural_code)
+    when :iczn
+      ay = iczn_author_and_year(taxon)
+    when :icvcn
+      ay = icn_author_and_year(taxon)
+    when :icnp
+      ay = icn_author_and_year(taxon)
+    when :icn
+      ay = icn_author_and_year(taxon)
+    else
+      ay = ([author_string] + [year_integer]).compact.join(' ')
+    end
+    ay.blank? ? nil : ay
   end
 
-  def icn_author_and_year
+  def icn_author_and_year(taxon)
     ay = nil
 
-    basionym = TaxonNameRelationship.where_object_is_taxon_name(self).
+    basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
     b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
 
-    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(self).
+    misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
-    t  = [self.author_string]
-    t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
-    ay = t.compact.join(' ')
+    mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
+    unless mobj.blank?
+      ay = mobj.try(:author_string)
+    else
+      ay = self.try(:author_string)
+    end
+
+    #t  = [self.author_string]
+    #t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
+    #ay = t.compact.join(' ')
 
     unless basionym.empty? || b_sub.author_string.blank?
       ay = '(' + b_sub.author_string + ') ' + ay
@@ -1205,20 +1263,12 @@ class TaxonName < ApplicationRecord
 
   # @return [String, nil]
   #   the authors, and year, with parentheses as inferred by the data
-  def iczn_author_and_year
+  def iczn_author_and_year(taxon)
     ay = nil
     p = nil
 
-    if self.type == 'Combination'
-      c = protonyms_by_rank
-      return nil if c.empty?
-      taxon = c[c.keys.last]
-    else
-      taxon = self
-    end
-
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_string('TaxonNameRelationship::Iczn::Invalidating::Misapplication')
-    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
+    misspelling = TaxonNameRelationship.where_subject_is_taxon_name(taxon).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING)
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
     unless mobj.blank?
@@ -1457,14 +1507,12 @@ class TaxonName < ApplicationRecord
   # TODO: this needs to go.
   def sv_missing_confidence_level # should be removed once the alternative solution is implemented. It is heavily used now.
     confidence_level_array = [93]
-
     confidence_level_array = confidence_level_array & ConfidenceLevel.where(project_id: self.project_id).pluck(:id)
     soft_validations.add(:base, 'Confidence level is missing') if !confidence_level_array.empty? && (self.confidences.pluck(:confidence_level_id) & confidence_level_array).empty?
   end
 
   def sv_missing_original_publication
-    if true #!self.cached_misspelling && !self.name_is_misapplied?
-
+    if rank_class.nil? || is_family_or_genus_or_species_rank?
       if self.source.nil?
         soft_validations.add(:base, 'Original publication is not selected')
       elsif self.origin_citation.try(:pages).blank?

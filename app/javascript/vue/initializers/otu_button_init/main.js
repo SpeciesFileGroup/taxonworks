@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init (element) {
@@ -9,28 +9,21 @@ function init (element) {
   const redirect = element.getAttribute('data-redirect')
 
   if (objectId && taxonName) {
-    element.setAttribute('id', id)
-
-    const app = new Vue({
-      el: `#${id}`,
-      render: function (createElement) {
-        return createElement(App, {
-          props: {
-            id: id,
-            taxonName: taxonName,
-            objectId: objectId,
-            klass: klass,
-            redirect: (redirect === 'true')
-          }
-        })
-      }
-    })
+    const props = {
+      id: id,
+      taxonName: taxonName,
+      objectId: objectId,
+      klass: klass,
+      redirect: (redirect === 'true')
+    }
+    const app = createApp(App, props)
+    app.mount(element)
   }
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('[data-otu-button="true"]')) {
-    document.querySelectorAll('[data-otu-button="true"]').forEach((element) => {
+    document.querySelectorAll('[data-otu-button="true"]').forEach(element => {
       init(element)
     })
   }

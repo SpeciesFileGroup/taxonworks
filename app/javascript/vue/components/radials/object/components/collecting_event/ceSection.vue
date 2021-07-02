@@ -24,18 +24,20 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
-  components: {
-    SmartSelector
-  },
+  components: { SmartSelector },
+
   props: {
     collectingEvent: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['onSelect'],
+
   methods: {
     setCE (ce) {
       this.$emit('onSelect', ce)

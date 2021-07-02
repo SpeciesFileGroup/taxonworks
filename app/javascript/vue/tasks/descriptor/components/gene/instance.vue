@@ -52,20 +52,21 @@
           class="horizontal-left-content expression-box full_width"
           :class="{ 'warning-box': (isParensOpen || !validateExpression)}"
           v-model="expression"
+          item-key="key"
           :group="randomGroup">
-          <div
-            class="drag-expression-element horizontal-left-content feedback"
-            :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`"
-            v-for="element in expression"
-            :key="element.key">
-            {{ element.name }}
-          </div>
+          <template #item="{ element }">
+            <div
+              class="drag-expression-element horizontal-left-content feedback"
+              :class="`${(element.type == 'Operator' ? 'feedback-secondary' : 'feedback-primary')}`">
+              {{ element.name }}
+            </div>
+          </template>
         </draggable>
       </div>
       <div
         v-if="isParensOpen || !validateExpression"
         class="warning-message">
-        Invalid expression: 
+        Invalid expression:
         <span
           v-if="isParensOpen">
           Close parentheses.
@@ -100,24 +101,28 @@ export default {
       type: String,
       required: true
     },
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     },
-    composeExpression() {
-      let formatExpression = []
+
+    composeExpression () {
+      const formatExpression = []
       this.expression.forEach(item => {
-        if(item.type == 'Sequence') {
+        if (item.type === 'Sequence') {
           formatExpression.push(`${item.relationshipType}.${item.value}`)
         }
         else {

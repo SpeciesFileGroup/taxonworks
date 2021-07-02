@@ -1,12 +1,8 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createStore } from 'vuex'
 import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import componentNames from '../const/componentNames'
-
-Vue.use(Vuex)
 
 function makeInitialState () {
   return {
@@ -16,7 +12,7 @@ function makeInitialState () {
       collectionObjects: true,
       descendants: true,
       descendantsDistribution: true,
-      distribution: true,
+      distribution: true
     },
     preferences: {
       preferenceSchema: 20200807,
@@ -121,12 +117,13 @@ function makeInitialState () {
       collecting_events: [],
       georeferences: []
     },
+    observationsDepictions: [],
     userId: undefined
   }
 }
 
 function newStore () {
-  return new Vuex.Store({
+  return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
     mutations: MutationFunctions,

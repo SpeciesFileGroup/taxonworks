@@ -22,6 +22,8 @@ const ActionNames = {
   RemoveCollectionObject: 'removeCollectionObject',
   NewCollectionObject: 'newCollectionObject',
   NewCollectionEvent: 'newCollectionEvent',
+  RemoveContainer: 'removeContainer',
+  RemoveContainerItem: 'removeContainerItem',
   NewIdentifier: 'newIdentifier',
   NewTypeMaterial: 'newTypeMaterial',
   NewTaxonDetermination: 'newTaxonDetermination',

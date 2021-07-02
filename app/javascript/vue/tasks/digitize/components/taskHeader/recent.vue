@@ -7,8 +7,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Recent collection objects</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Recent collection objects</h3>
+      </template>
+      <template #body>
         <spinner-component v-if="isLoading"/>
         <table class="full_width">
           <thead>
@@ -56,46 +58,50 @@
             </tr>
           </tbody>
         </table>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-  import ModalComponent from 'components/modal'
-  import SpinnerComponent from 'components/spinner'
-  import { GetRecentCollectionObjects } from '../../request/resources.js'
+import ModalComponent from 'components/ui/Modal'
+import SpinnerComponent from 'components/spinner'
+import { GetRecentCollectionObjects } from '../../request/resources.js'
 
-  export default {
-    components: {
-      ModalComponent,
-      SpinnerComponent
-    },
-    data() {
-      return {
-        showModal: false,
-        list: [],
-        isLoading: false
-      }
-    },
-    watch: {
-      showModal (newVal) {
-        if(newVal) {
-          this.isLoading = true
-          GetRecentCollectionObjects().then(response => {
-            this.list = response.body
-            this.isLoading = false
-          })
-        }
-      }
-    },
-    methods: {
-      sendCO(item) {
-        this.showModal = false
-        this.$emit('selected', item)
+export default {
+  components: {
+    ModalComponent,
+    SpinnerComponent
+  },
+
+  emits: ['selected'],
+
+  data () {
+    return {
+      showModal: false,
+      list: [],
+      isLoading: false
+    }
+  },
+
+  watch: {
+    showModal (newVal) {
+      if(newVal) {
+        this.isLoading = true
+        GetRecentCollectionObjects().then(response => {
+          this.list = response.body
+          this.isLoading = false
+        })
       }
     }
-  }
-</script>
+  },
 
+  methods: {
+    sendCO (item) {
+      this.showModal = false
+      this.$emit('selected', item)
+    }
+  }
+}
+</script>

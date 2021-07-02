@@ -2,9 +2,10 @@
   <block-layout
     class="basic-information"
     anchor="basic-information">
-    <h3 slot="header">Basic information</h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Basic information</h3>
+    </template>
+    <template #body>
       <div class="horizontal-left-content align-start">
         <div class="column-left">
           <div class="field separate-right label-above">
@@ -12,15 +13,16 @@
               v-help.section.basic.name
               for="taxon-name">Name</label>
             <hard-validation field="name">
-              <input
-                id="taxon-name"
-                slot="body"
-                ref="inputTaxonname"
-                class="taxonName-input"
-                type="text"
-                autocomplete="off"
-                name="name"
-                v-model="taxonName">
+              <template #body>
+                <input
+                  id="taxon-name"
+                  ref="inputTaxonname"
+                  class="taxonName-input"
+                  type="text"
+                  autocomplete="off"
+                  name="name"
+                  v-model="taxonName">
+              </template>
             </hard-validation>
           </div>
           <div class="field separate-top">
@@ -29,7 +31,7 @@
               for="parent-name">Parent</label>
             <parent-picker/>
           </div>
-          <rank-selector v-if="validateInfo"/>
+          <rank-selector/>
           <hard-validation field="rank_class"/>
         </div>
         <div class="column-right item">
@@ -49,12 +51,14 @@
         class="margin-large-top">
         <save-taxon-name class="normal-input button button-submit create-button"/>
       </div>
-    </div>
+    </template>
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Non latinized name</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Non latinized name</h3>
+      </template>
+      <template #body>
         <p>{{ taxon.id ? 'Update' : 'Create' }} this name and apply the non-latin status?</p>
         <button
           class="button normal-input button-submit"
@@ -62,7 +66,7 @@
           @click="createNonLatin">
           {{ taxon.id ? 'Update' : 'Create' }}
         </button>
-      </div>
+      </template>
     </modal-component>
   </block-layout>
 </template>
@@ -78,8 +82,8 @@ import ParentPicker from './parentPicker.vue'
 import CheckExist from './findExistTaxonName.vue'
 import RankSelector from './rankSelector.vue'
 import HardValidation from './hardValidation.vue'
-import ModalComponent from 'components/modal'
-import BlockLayout from 'components/blockLayout'
+import ModalComponent from 'components/ui/Modal'
+import BlockLayout from 'components/layout/BlockLayout'
 
 export default {
   components: {
@@ -91,21 +95,16 @@ export default {
     ModalComponent,
     BlockLayout
   },
+
   computed: {
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
-    taxon: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxon]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxon)
-      }
+
+    taxon () {
+      return this.$store.getters[GetterNames.GetTaxon]
     },
-    validateInfo () {
-      return true
-    },
+
     taxonName: {
       get () {
         return this.$store.getters[GetterNames.GetTaxonName]
@@ -121,16 +120,18 @@ export default {
       return this.$store.getters[GetterNames.GetHardValidation]
     }
   },
-  data: function () {
+
+  data () {
     return {
       showModal: false
     }
   },
+
   watch: {
     errors: {
-      handler(newVal) {
-        if(this.existError('name')) {
-          if(this.displayError('name').find(item => { return item.includes('must be latinized') })) {
+      handler (newVal) {
+        if (this.existError('name')) {
+          if (this.displayError('name').find(item => item.includes('must be latinized'))) {
             this.showModal = true
           }
         }
@@ -138,10 +139,12 @@ export default {
       deep: true
     }
   },
-  mounted() {
+
+  mounted () {
+    const urlParams = new URLSearchParams(window.location.search)
+    const name = urlParams.get('name')
+
     this.$refs.inputTaxonname.focus()
-    let urlParams = new URLSearchParams(window.location.search)
-    let name = urlParams.get('name')
 
     if (name) {
       this.taxonName = ''
@@ -150,21 +153,23 @@ export default {
       })
     }
   },
+
   methods: {
     existError: function (type) {
       return (this.errors && this.errors.hasOwnProperty(type))
     },
+
     displayError (type) {
-      if (this.existError(type)) {
-        return this.errors[type]
-      } else {
-        return undefined
-      }
+      return this.existError(type)
+        ? this.errors[type]
+        : undefined
     },
+
     createNonLatin() {
-      let code = this.$store.getters[GetterNames.GetNomenclaturalCode]
-      let statusList = this.$store.getters[GetterNames.GetStatusList][code]
-      let statusType = Object.values(statusList.all).find(item => { return item.name.includes('not latin')})
+      const code = this.$store.getters[GetterNames.GetNomenclaturalCode]
+      const statusList = this.$store.getters[GetterNames.GetStatusList][code]
+      const statusType = Object.values(statusList.all).find(item => item.name.includes('not latin'))
+
       if (this.taxon.id) {
         this.$store.dispatch(ActionNames.AddTaxonStatus, {
           type: statusType.type,

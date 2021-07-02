@@ -67,6 +67,7 @@ export default {
   components: {
     NukeComponent
   },
+
   computed: {
     navigate () {
       return this.$store.getters[GetterNames.GetNavigation]
@@ -95,9 +96,9 @@ export default {
     },
     countCO () {
       let count = 0
-      
+
       this.sledImage.metadata.forEach(cell => {
-        if(cell.metadata == null) {
+        if (cell.metadata == null) {
           count++
         }
       })
@@ -107,7 +108,7 @@ export default {
   methods: {
     updateSled () {
       this.$store.dispatch(ActionNames.Nuke)
-    },
+    }
   }
 }
 </script>

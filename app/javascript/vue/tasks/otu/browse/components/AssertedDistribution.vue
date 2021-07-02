@@ -5,10 +5,12 @@
     :title="title"
     menu
     @menu="setModalView(true)">
-    <a
-      v-if="currentOtu"
-      :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
-      slot="title">Expand</a>
+    <template #title>
+      <a
+        v-if="currentOtu"
+        :href="`/tasks/otus/browse_asserted_distributions/index?otu_id=${currentOtu.id}`"
+      >Expand</a>
+    </template>
     <table class="full_width">
       <thead>
         <tr>
@@ -43,8 +45,10 @@
       v-if="showModal"
       @close="setModalView(false)"
       :containerStyle="{ width: '900px' }">
-      <h3 slot="header">Filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Filter</h3>
+      </template>
+      <template #body>
         <div class="horizontal-left-content align-start">
           <div class="full_width margin-left-margin">
             <h4>Level 0</h4>
@@ -68,7 +72,7 @@
               v-model="level2Filter"/>
           </div>
         </div>
-      </div>
+      </template>
     </modal-component>
   </section-panel>
 </template>
@@ -76,7 +80,7 @@
 <script>
 
 import SectionPanel from './shared/sectionPanel'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import extendSection from './shared/extendSections'
 import { GetterNames } from '../store/getters/getters'
 import { getUnique } from 'helpers/arrays'

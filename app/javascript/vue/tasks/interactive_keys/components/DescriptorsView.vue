@@ -68,22 +68,28 @@ export default {
     QualitativeDescriptor,
     PresenceAbsenceDescriptor
   },
+
   computed: {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
+
     descriptors () {
       return this.$store.getters[GetterNames.GetObservationMatrix] ? this.$store.getters[GetterNames.GetObservationMatrix].list_of_descriptors : []
     },
+
     descriptorsUsed () {
       return this.descriptors.filter(d => d.status === 'used')
     },
+
     descriptorsUseless () {
       return this.descriptors.filter(d => d.status === 'useless')
     },
+
     descriptorsUseful () {
       return this.descriptors.filter(d => d.status === 'useful')
     },
+
     filter: {
       get () {
         return this.$store.getters[GetterNames.GetDescriptorsFilter]
@@ -92,9 +98,11 @@ export default {
         this.$store.commit(MutationNames.SetDescriptorsFilter, value)
       }
     },
+
     filters () {
       return this.$store.getters[GetterNames.GetParamsFilter]
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -103,36 +111,41 @@ export default {
         this.$store.commit(MutationNames.SetSettings)
       }
     },
+
     rowFilter () {
       return this.$store.getters[GetterNames.GetRowFilter]
     },
+
     settingRowFilter () {
       return this.settings.rowFilter
     }
   },
+
   watch: {
     filter: {
-      handler (newVal) {
+      handler () {
         this.refreshKey()
       },
       deep: true
     },
     filters: {
-      handler (newVal) {
+      handler () {
         this.loadMatrix()
       },
       deep: true
     },
     settingRowFilter: {
-      handler (newVal) {
+      handler () {
         this.loadMatrix()
       }
     }
   },
+
   methods: {
     componentName (type) {
       return `${type.split('::').pop()}Descriptor`
     },
+
     refreshKey () {
       if (this.settings.refreshOnlyTaxa) {
         this.$store.dispatch(ActionNames.LoadUpdatedRemaining)
@@ -141,7 +154,9 @@ export default {
         document.querySelector('.descriptors-view div').scrollIntoView(0)
       }
     },
+
     loadMatrix () {
+      if (!this.observationMatrix) return
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id)
     }
   }

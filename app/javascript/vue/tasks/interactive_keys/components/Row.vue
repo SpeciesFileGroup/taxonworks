@@ -16,10 +16,10 @@
       :container-style="{ width: '500px' }"
       v-if="showModal"
     >
-      <h3 slot="header">
-        Error
-      </h3>
-      <div slot="body">
+      <template #header>
+        <h3>Error</h3>
+      </template>
+      <template #body>
         <ul>
           <li
             class="margin-small-bottom"
@@ -29,42 +29,45 @@
             {{ error }}
           </li>
         </ul>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import RanksList from '../const/ranks'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from 'routes/routes'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   props: {
     row: {
       type: Object,
       required: true
     }
   },
+
   data () {
     return {
       showModal: false
     }
   },
+
   computed: {
     filters () {
       return this.$store.getters[GetterNames.GetParamsFilter]
     }
   },
+
   methods: {
     displayLabel (obj) {
       return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow' ? obj[RanksList[this.filters.identified_to_rank].label] : obj.object_tag
     },
+
     getLink (obj) {
       return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow' ? RanksList[this.filters.identified_to_rank].link(obj.id) : obj.otu_id ? `${RouteNames.BrowseOtu}?otu_id=${obj.otu_id}` : undefined
     }

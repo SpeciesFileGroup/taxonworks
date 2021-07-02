@@ -21,7 +21,7 @@ module ObservationMatrices::Export::NexmlHelper
             if c.qualitative?
 
               c.character_states.each_with_index do |cs,i|
-                xml.state(id: "cs#{cs.id}", label: cs.name, symbol: "#{i}")
+                xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}")
               end
 
               # Add a missing state for each character regardless of whether we use it or not
@@ -53,7 +53,7 @@ module ObservationMatrices::Export::NexmlHelper
           end
         end  # end character loop for multistate states
 
-        descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.name)}
+        descriptors.collect{|c| xml.char(id: "c#{c.id}", states: "states_for_chr_#{c.id}", label: c.target_name(:key, nil))}
       end # end format
       include_multistate_matrix(opt.merge(descriptors: descriptors)) if opt[:include_matrix]
     end # end characters
@@ -67,7 +67,7 @@ module ObservationMatrices::Export::NexmlHelper
       'xsi:type' => 'nex:ContinuousCells',
       label: "Continuous characters for matrix #{m.name}") do
         xml.format do
-          d.collect{|c| xml.char(id: "c#{c.id}", label: c.name)}
+          d.collect{|c| xml.char(id: "c#{c.id}", label: c.target_name(:key, nil))}
         end # end format
 
         include_continuous_matrix(opt.merge(descriptors: d)) if opt[:include_matrix]

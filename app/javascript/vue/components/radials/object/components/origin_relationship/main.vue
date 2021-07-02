@@ -70,13 +70,15 @@
         element="tbody"
         v-model="list"
         @end="onSortable">
-        <tr v-for="(item, index) in list">
-          <td v-html="item.new_object_object_tag"/>
-          <td v-html="item.old_object_object_tag"/>
-          <span
-            class="circle-button btn-delete"
-            @click="removeOrigin(index)"/>
-        </tr>
+        <template #item="{ element, index }">
+          <tr>
+            <td v-html="element.new_object_object_tag"/>
+            <td v-html="element.old_object_object_tag"/>
+            <span
+              class="circle-button btn-delete"
+              @click="removeOrigin(index)"/>
+          </tr>
+        </template>
       </draggable>
     </table>
   </div>
@@ -84,10 +86,18 @@
 
 <script>
 
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud'
 import annotatorExtend from '../annotatorExtend'
 import Draggable from 'vuedraggable'
+
+const controllerRoute = {
+  AssertedDistribution: 'asserted_distributions',
+  Extract: 'extracts',
+  Lot: 'collection_objects',
+  Sequence: 'sequences',
+  Specimen: 'collection_objects'
+}
 
 export default {
   mixins: [CRUD, annotatorExtend],
@@ -120,7 +130,7 @@ export default {
     },
 
     modelSelected () {
-      return this.typeList[this.typeSelected]
+      return controllerRoute[this.typeSelected]
     }
   },
 
@@ -157,7 +167,7 @@ export default {
       }
 
       this.update(`/origin_relationships/${originRelationship.id}.json`, { origin_relationship: originRelationship }).then(({ body }) => {
-        this.$set(this.list, newIndex, body)
+        this.list[newIndex] = body
       })
     }
   }

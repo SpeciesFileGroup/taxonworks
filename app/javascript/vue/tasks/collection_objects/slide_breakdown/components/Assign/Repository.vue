@@ -28,14 +28,14 @@
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { GetRepository } from '../../request/resource'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import SharedComponent from '../shared/lock.js'
 
 export default {
   mixins: [SharedComponent],
-  components: {
-    SmartSelector
-  },
+
+  components: { SmartSelector },
+
   computed: {
     collectionObject: {
       get () {
@@ -46,11 +46,13 @@ export default {
       }
     }
   },
+
   data () {
     return {
       repository: undefined
     }
   },
+
   mounted () {
     if (this.collectionObject.repository_id) {
       GetRepository(this.collectionObject.repository_id).then(response => {
@@ -58,11 +60,13 @@ export default {
       })
     }
   },
+
   methods: {
     setRepository (repository) {
       this.repository = repository
       this.collectionObject.repository_id = repository.id
     },
+
     removeRepository () {
       this.repository_id = undefined
       this.collectionObject.repository_id = undefined

@@ -39,7 +39,7 @@
             type="text">
           <button
             type="button"
-            :disabled="!this.pixels || !imagesCreated"
+            :disabled="!pixels || !imagesCreated"
             class="button normal-input button-submit separate-left"
             @click="applyPxToCm">
             Apply
@@ -49,7 +49,7 @@
       <button
         class="button normal-input button-submit item button-apply-both "
         type="button"
-        :disabled="!((validateDepic || validateSqedObject && validateAttr) && imagesCreated && this.pixels)"
+        :disabled="!((validateDepic || validateSqedObject && validateAttr) && imagesCreated && pixels)"
         @click="applyAttr(); applyDepic(); applyPxToCm()">
         Apply all
       </button>

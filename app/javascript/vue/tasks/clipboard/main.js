@@ -1,15 +1,10 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
-function init() {
-  Vue.use(require('vue-shortkey'))
+function init () {
+  const app = createApp(App)
 
-  new Vue({
-    el: '#vue-clipboard-app',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  app.mount('#vue-clipboard-app')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

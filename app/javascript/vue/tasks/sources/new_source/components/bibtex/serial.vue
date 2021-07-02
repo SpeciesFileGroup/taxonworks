@@ -19,7 +19,7 @@
             pin-type="Serial"
             @selected="setSelected"/>
           <lock-component
-            class="circle-button-margin"
+            class="margin-small-left"
             v-model="settings.lock.serial_id"/>
           <a
             class="margin-small-top margin-small-left"
@@ -48,12 +48,11 @@
 
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
+import { Serial } from 'routes/endpoints'
 
-import LockComponent from 'components/lock'
-import SmartSelector from 'components/smartSelector'
+import LockComponent from 'components/ui/VLock/index.vue'
+import SmartSelector from 'components/ui/SmartSelector'
 import RadialObject from 'components/radials/navigation/radial'
-
-import AjaxCall from 'helpers/ajaxCall'
 
 export default {
   components: {
@@ -61,6 +60,7 @@ export default {
     LockComponent,
     RadialObject
   },
+
   computed: {
     source: {
       get () {
@@ -70,6 +70,7 @@ export default {
         this.$store.commit(MutationNames.SetSource, value)
       }
     },
+
     serialId: {
       get () {
         return this.$store.getters[GetterNames.GetSerialId]
@@ -78,6 +79,7 @@ export default {
         this.$store.commit(MutationNames.SetSerialId, value)
       }
     },
+
     settings: {
       get () {
         return this.$store.getters[GetterNames.GetSettings]
@@ -90,17 +92,19 @@ export default {
       return this.$store.getters[GetterNames.GetLastSave]
     }
   },
+
   data () {
     return {
       selected: undefined
     }
   },
+
   watch: {
     serialId: {
-      handler(newVal, oldVal) {
-        if(newVal) {
-          if(oldVal !== newVal) {
-            AjaxCall('get', `/serials/${newVal}.json`).then(response => {
+      handler (newVal, oldVal) {
+        if (newVal) {
+          if (oldVal !== newVal) {
+            Serial.find(newVal).then(response => {
               this.selected = response.body
             })
           }
@@ -112,6 +116,7 @@ export default {
       immediate: true,
       deep: true
     },
+
     lastSave: {
       handler (newVal, oldVal) {
         if (newVal !== oldVal) {
@@ -120,17 +125,20 @@ export default {
       }
     }
   },
+
   methods: {
     setSelected (serial) {
       this.source.serial_id = serial.id
       this.selected = serial
     },
+
     unset () {
       this.selected = undefined
       this.source.serial_id = null
     },
+
     getDefault (id) {
-      AjaxCall('get', `/serials/${id}.json`).then(response => {
+      Serial.find(id).then(response => {
         this.selected = response.body
       })
     }

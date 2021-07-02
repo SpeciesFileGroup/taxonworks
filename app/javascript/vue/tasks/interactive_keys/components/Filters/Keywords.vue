@@ -9,8 +9,10 @@
     <modal-component
       v-if="showModal"
       @close="setModalView(false)">
-      <h3 slot="header">Keywords</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Keywords</h3>
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li
             v-for="keyword in observationMatrix.descriptor_available_keywords"
@@ -24,34 +26,34 @@
             </label>
           </li>
         </ul>
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button
           type="button"
           class="button normal-input button-default"
           @click="applyChanges">
           Apply
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { ActionNames } from '../../store/actions/actions'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
   computed: {
     observationMatrix () {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
+
     filters: {
       get () {
         return this.$store.getters[GetterNames.GetParamsFilter]
@@ -61,15 +63,18 @@ export default {
       }
     }
   },
+
   data () {
     return {
       showModal: false
     }
   },
+
   methods: {
     setModalView (value) {
       this.showModal = value
     },
+
     applyChanges () {
       this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id).then(() => {
         this.setModalView(false)
@@ -79,7 +84,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

@@ -70,6 +70,7 @@ export default {
       return this.isInputFilled ? (this.pixels / (this.unitValue * this.selected)) : null
     }
   },
+
   data () {
     return {
       unitToCm: unitToCm,
@@ -78,6 +79,7 @@ export default {
       unitValue: null
     }
   },
+
   watch: {
     pixelValue (newVal) {
       this.pixelsToCm = newVal

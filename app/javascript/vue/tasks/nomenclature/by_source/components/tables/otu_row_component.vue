@@ -1,8 +1,8 @@
 <template>
   <tr>
-    <td> 
+    <td>
       <a
-        :href="`/otus/${otu.id}`"
+        :href="`${routeNames.BrowseOtu}?otu_id=${otu.id}`"
         v-html="otu.object_tag"/>
     </td>
     <td>
@@ -18,41 +18,31 @@
       <otu-radial
         :taxon-id="otu.global_id"
         :otu="otu"
-        :redirect="true"/>
+        redirect/>
     </td>
   </tr>
 </template>
 <script>
-  import RadialAnnotator from 'components/radials/annotator/annotator'
-  import OtuRadial from 'components/otu/otu'
-  export default {
-    components: {
-      RadialAnnotator,
-      OtuRadial
-    },
-    props: {
-      otu: {
-        type: Object,
-        required: true
-      }
-    },
-    data () {
-      return {
-        pages: undefined,
-        autoSave: undefined,
-        time: 3000
-      }
-    },
-    methods: {
-      changePage() {
-        let that = this
-        if(this.autoSave) {
-          clearTimeout(this.autoSave)
-        }
-        this.autoSave = setTimeout(() => {
-          that.$http.post('/otu.json', { otu: this.otu })
-        }, this.time)
-      }
+
+import { RouteNames } from 'routes/routes'
+import RadialAnnotator from 'components/radials/annotator/annotator'
+import OtuRadial from 'components/otu/otu'
+
+export default {
+  components: {
+    RadialAnnotator,
+    OtuRadial
+  },
+
+  props: {
+    otu: {
+      type: Object,
+      required: true
     }
+  },
+
+  computed: {
+    routeNames: () => RouteNames
   }
+}
 </script>

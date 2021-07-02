@@ -1,15 +1,11 @@
-import Vue from 'vue'
-import App from './app.vue'
+import { createApp } from 'vue'
 import { newStore } from './store/store.js'
+import App from './app.vue'
 
-function init() {
-  new Vue({
-    store: newStore,
-    el: '#cite_otus',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+function init () {
+  const app = createApp(App)
+  app.use(newStore())
+  app.mount('#cite_otus')
 }
 
 document.addEventListener('turbolinks:load', (event) => {

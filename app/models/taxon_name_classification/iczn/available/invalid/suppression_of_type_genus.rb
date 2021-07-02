@@ -14,6 +14,7 @@ class TaxonNameClassification::Iczn::Available::Invalid::SuppressionOfTypeGenus 
     self.parent.disjoint_taxon_name_classes +
         self.collect_to_s(TaxonNameClassification::Iczn::Available::Invalid,
                           TaxonNameClassification::Iczn::Available::Invalid::Homonym,
+                          TaxonNameClassification::Iczn::Available::Invalid::SynonymyOfTypeGenusBefore1961,
                           TaxonNameClassification::Iczn::Available::Invalid::HomonymyOfTypeGenus)
   end
 

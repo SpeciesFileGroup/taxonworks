@@ -9,8 +9,10 @@
     <modal-component
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Create biological relationship</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Create biological relationship</h3>
+      </template>
+      <template #body>
         <div class="field">
           <label>Name</label>
           <br>
@@ -49,26 +51,28 @@
           @click="create">
           Create
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
-  components: {
-    ModalComponent
-  },
+  components: { ModalComponent },
+
+  emits: ['create'],
+
   data () {
     return {
       biologicalRelationship: this.newBiologicalRelationship(),
       showModal: false
     }
   },
+
   methods: {
     create () {
       BiologicalRelationship.create({ biological_relationship: this.biologicalRelationship }).then(response => {
@@ -76,6 +80,7 @@ export default {
         this.showModal = false
       })
     },
+
     newBiologicalRelationship () {
       return {
         name: undefined,
@@ -84,6 +89,7 @@ export default {
         is_reflexive: undefined
       }
     },
+
     openModal () {
       this.biologicalRelationship = this.newBiologicalRelationship()
       this.showModal = true
@@ -91,7 +97,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

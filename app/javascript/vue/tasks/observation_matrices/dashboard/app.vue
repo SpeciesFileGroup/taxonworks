@@ -4,6 +4,9 @@
       <h1>Observation matrices dashboard</h1>
       <ul class="context-menu">
         <li>
+          <a :href="RouteNames.ObservationMatricesHub">Observation matrix hub</a>
+        </li>
+        <li>
           <label>
             <input
               type="checkbox"
@@ -59,6 +62,7 @@ import JsonBar from './components/headerBar'
 import { TaxonName } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
+import { RouteNames } from 'routes/routes'
 
 export default {
   components: {
@@ -66,7 +70,10 @@ export default {
     RankTable,
     JsonBar
   },
+
   computed: {
+    RouteNames: () => RouteNames,
+
     rankTable: {
       get () {
         return this.$store.getters[GetterNames.GetRankTable]
@@ -76,6 +83,7 @@ export default {
       }
     }
   },
+
   data () {
     return {
       activeFilter: true,
@@ -85,6 +93,7 @@ export default {
       tableFilter: undefined
     }
   },
+
   watch: {
     rankTable: {
       handler (newVal) {
@@ -95,17 +104,20 @@ export default {
       deep: true
     }
   },
+
   methods: {
     resetTask () {
       this.rankTable = {}
       this.jsonUrl = undefined
       history.pushState(null, null, '/tasks/observation_matrices/dashboard')
     },
+
     loadRankTable (params) {
       const data = {
         fieldsets: this.fieldSet,
         limit: this.limit
       }
+
       TaxonName.rankTable({ ...data, ...params }).then(response => {
         const urlParams = new URLSearchParams(response.request.responseURL.split('?')[1])
 

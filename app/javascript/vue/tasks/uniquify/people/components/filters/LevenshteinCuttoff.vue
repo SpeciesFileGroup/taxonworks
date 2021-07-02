@@ -9,7 +9,6 @@
     <input
       type="range"
       list="days"
-      value="0"
       min="0"
       max="6"
       step="0"
@@ -25,18 +24,21 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: [Number, String],
       default: 0
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     optionValue: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value === 0 ? undefined : value)
+        this.$emit('update:modelValue', value === 0 ? undefined : value)
       }
     }
   }

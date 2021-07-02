@@ -13,7 +13,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
       }
     end
   end
@@ -289,6 +289,7 @@ class TaxonNamesController < ApplicationController
       :name,
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
+      :not_specified,
       :otus,
       :page,
       :per,
@@ -328,6 +329,7 @@ class TaxonNamesController < ApplicationController
       :nomenclature_code,
       :nomenclature_group, # !! different than autocomplete
       :otus,
+      :not_specified,
 #     :page, # TODO: yes or no?
 #     :per,
       :taxon_name_type,

@@ -16,7 +16,7 @@
         pin-type="BiologicalRelationship"
         @selected="setBiologicalAssociation"
       >
-        <template slot="all">
+        <template #all>
           <tag-item
             v-for="item in allItems"
             :key="item.id"
@@ -33,25 +33,31 @@
 <script>
 
 import TagItem from '../shared/item_tag.vue'
-import SmartSelector from 'components/smartSelector.vue'
+import SmartSelector from 'components/ui/SmartSelector.vue'
 import refreshSmartSelector from '../shared/refreshSmartSelector'
 import { BiologicalRelationship } from 'routes/endpoints'
 
 export default {
   mixins: [refreshSmartSelector],
+
   components: {
     TagItem,
     SmartSelector
   },
+
+  emits: ['select'],
+
   data () {
     return {
       view: undefined,
       allItems: {}
     }
   },
+
   mounted () {
     this.loadTabList()
   },
+
   methods: {
     loadTabList () {
       BiologicalRelationship.all().then(response => {

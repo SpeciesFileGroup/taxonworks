@@ -1,22 +1,35 @@
 <template>
   <div>
     <span
-      @click="$emit('input', false)"
-      data-icon="contract"
-      v-if="value"/>
-    <span
-      @click="$emit('input', true)"
-      data-icon="expand"
-      v-else/>
+      @click="expand = !expand"
+      :data-icon="icon"
+    />
   </div>
 </template>
 <script>
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Boolean,
       default: false
+    }
+  },
+
+  emits: ['update:modelValue'],
+
+  computed: {
+    expand: {
+      get () {
+        return this.modelValue
+      },
+      set (value) {
+        this.$emit('update:modelValue', value)
+      }
+    },
+
+    icon () {
+      return this.expand ? 'contract' : 'expand'
     }
   }
 }

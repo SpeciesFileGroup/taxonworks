@@ -57,7 +57,7 @@
 <script>
 
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import AddField from './addFields'
 import { CollectingEvent } from 'routes/endpoints'
 
@@ -68,19 +68,21 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
     cEvent: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
@@ -131,7 +133,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%
   }
 </style>

@@ -81,6 +81,8 @@ module Queries::Concerns::Users
         q = q.where(updated_by_id: user_id)
       when 'created'
         q = q.where(created_by_id: user_id)
+      else
+        q = q.where(created_by_id: user_id).or(q.where(updated_by_id: user_id))
       end
     end
     q

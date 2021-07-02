@@ -43,7 +43,11 @@
 
       <div class="separate-bottom">
         <div class="field">
-          <input type="text" class="normal-input" v-model="alternate_value.value" placeholder="Value">
+          <input
+            type="text"
+            class="normal-input"
+            v-model="alternate_value.value"
+            placeholder="Value">
         </div>
         <button
           type="button"
@@ -66,59 +70,64 @@
 </template>
 <script>
 
-  import CRUD from '../request/crud.js'
-  import annotatorExtend from '../components/annotatorExtend.js'
-  import autocomplete from 'components/autocomplete.vue'
-  import displayList from './displayList.vue'
+import CRUD from '../request/crud.js'
+import annotatorExtend from '../components/annotatorExtend.js'
+import autocomplete from 'components/ui/Autocomplete.vue'
+import displayList from './displayList.vue'
 
-  export default {
-    mixins: [CRUD, annotatorExtend],
-    components: {
-      displayList,
-      autocomplete
-    },
-    computed: {
-      validateFields() {
-        return (this.alternate_value.value &&
-          this.alternate_value.alternate_value_object_attribute)
-      }
-    },
-    mounted: function () {
-      var that = this
-      this.getList(`/alternate_values/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-        that.values = response.body
-      })
-    },
-    data: function () {
-      return {
-        values: undefined,
-        typeList: {
-          'AlternateValue::Translation': 'translation',
-          'AlternateValue::Abbreviation': 'abbreviation',
-          'AlternateValue::Misspelling': 'misspelled',
-          'AlternateValue::AlternateSpelling': 'alternate spelling'
-        },
-        alternate_value: this.newAlternate()
-      }
-    },
-    methods: {
-      newAlternate() {
-        return {
-          type: undefined,
-          value: undefined,
-          language_id: undefined,
-          alternate_value_object_attribute: undefined,
-          annotated_global_entity: decodeURIComponent(this.globalId)
-        }
+export default {
+  mixins: [CRUD, annotatorExtend],
+
+  components: {
+    displayList,
+    autocomplete
+  },
+
+  computed: {
+    validateFields() {
+      return (this.alternate_value.value &&
+        this.alternate_value.alternate_value_object_attribute)
+    }
+  },
+
+  mounted () {
+    this.getList(`/alternate_values/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
+      this.values = response.body
+    })
+  },
+
+  data () {
+    return {
+      values: undefined,
+      typeList: {
+        'AlternateValue::Translation': 'translation',
+        'AlternateValue::Abbreviation': 'abbreviation',
+        'AlternateValue::Misspelling': 'misspelled',
+        'AlternateValue::AlternateSpelling': 'alternate spelling'
       },
-      createNew() {
-        this.create('/alternate_values', {alternate_value: this.alternate_value}).then(response => {
-          this.list.push(response.body)
-          this.alternate_value = this.newAlternate()
-        })
+      alternate_value: this.newAlternate()
+    }
+  },
+
+  methods: {
+    newAlternate () {
+      return {
+        type: undefined,
+        value: undefined,
+        language_id: undefined,
+        alternate_value_object_attribute: undefined,
+        annotated_global_entity: decodeURIComponent(this.globalId)
       }
+    },
+
+    createNew () {
+      this.create('/alternate_values', {alternate_value: this.alternate_value}).then(response => {
+        this.list.push(response.body)
+        this.alternate_value = this.newAlternate()
+      })
     }
   }
+}
 </script>
 <style lang="scss">
   .radial-annotator {

@@ -6,15 +6,13 @@
         type="button"
         data-icon="w_reset"
         class="button circle-button button-default center-icon no-margin"
-        v-shortkey="[OSKey, 'r']"
-        @shortkey="resetFilter"
         @click="resetFilter"/>
     </div>
     <spinner-component
-      :full-screen="true"
+      v-if="searching"
+      full-screen
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px'}"
-      v-if="searching"
     />
 
     <spinner-component
@@ -27,9 +25,7 @@
       <button
         class="button button-default normal-input full_width"
         type="button"
-        :disabled="emptyParams"
-        v-shortkey="[OSKey, 'f']"
-        @shortkey="searchForCollectionObjects(parseParams)"
+        :disabled="isParamsEmpty"
         @click="searchForCollectionObjects(parseParams)">
         Search
       </button>
@@ -39,6 +35,9 @@
       <otu-component
         class="margin-large-bottom"
         v-model="params.determination"/>
+      <repository-component
+        class="margin-large-bottom"
+        v-model="params.repository.repository_id"/>
       <identifier-component
         class="margin-large-bottom"
         v-model="params.identifier"/>
@@ -54,7 +53,7 @@
         role="Collector"
         title="Collectors"
         klass="CollectingEvent"
-        param-people="collector_ids"
+        param-people="collector_id"
         param-any="collector_ids_or"
         v-model="params.collectors"/>
       <keywords-component
@@ -73,9 +72,6 @@
         class="margin-large-bottom"
         @onUserslist="usersList = $event"
         v-model="params.user"/>
-      <repository-component
-        class="margin-large-bottom"
-        v-model="params.repository.repository_id"/>
       <buffered-component v-model="params.buffered"/>
       <with-component
         class="margin-large-bottom"
@@ -107,7 +103,7 @@ import PreparationTypes from './filters/preparationTypes'
 import CollectorsComponent from './filters/shared/people'
 
 import SpinnerComponent from 'components/spinner'
-import OSKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { CollectionObject } from 'routes/endpoints'
 
@@ -130,37 +126,52 @@ export default {
     PreparationTypes,
     CollectorsComponent
   },
+
+  emits: [
+    'newSearch',
+    'reset',
+    'result',
+    'urlRequest',
+    'pagination'
+  ],
+
   computed: {
-    OSKey,
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+r`] = this.resetFilter
+      keys[`${platformKey()}+f`] = this.searchForCollectionObjects
+
+      return keys
+    },
 
     parseParams () {
       return Object.assign({}, { preparation_type_id: this.params.preparation_type_id }, this.params.collectors, this.params.settings, this.params.buffered.text, this.params.buffered.exact, this.params.byRecordsWith, this.params.biocurations, this.params.relationships, this.params.loans, this.params.types, this.params.determination, this.params.identifier, this.params.keywords, this.params.geographic, this.params.repository, this.flatObject(this.params.collectingEvents, 'fields'), this.filterEmptyParams(this.params.user))
     },
 
-    emptyParams () {
-      if (!this.params) return
-      return !this.params.biocurations.biocuration_class_ids.length &&
-        !this.params.geographic.geographic_area_ids.length &&
-        !this.params.geographic.geo_json.length &&
-        !this.params.relationships.biological_relationship_ids.length &&
-        !this.params.types.is_type.length &&
-        !this.params.keywords.keyword_id_and.length &&
-        !this.params.keywords.keyword_id_or.length &&
-        !this.params.collectors.collector_ids.length &&
-        !this.params.determination.otu_ids.length &&
-        !this.params.determination.determiner_id.length &&
-        !this.params.determination.ancestor_id &&
-        !this.params.repository.repository_id &&
-        !Object.keys(this.params.collectingEvents.fields).length &&
-        !this.params.collectingEvents.collecting_event_ids.length &&
-        !this.params.preparation_type_id.length &&
-        Object.keys(this.params.collectingEvents.fields).length <= 1 &&
-        !Object.values(this.params.collectingEvents).find(item => item && item.length) &&
-        !Object.values(this.params.user).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.loans).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.identifier).find(item => { return item !== undefined }) &&
-        !Object.values(this.params.byRecordsWith).find(item => (item !== undefined)) &&
-        !Object.values(this.params.buffered).find(item => { return item !== undefined })
+    isParamsEmpty () {
+      return !(this.params.biocurations.biocuration_class_ids.length ||
+        this.params.geographic.geographic_area_id?.length ||
+        this.params.geographic.geo_json?.length ||
+        this.params.relationships.biological_relationship_ids.length ||
+        this.params.types.is_type.length ||
+        this.params.keywords.keyword_id_and.length ||
+        this.params.keywords.keyword_id_or.length ||
+        this.params.collectors.collector_id.length ||
+        this.params.determination.otu_ids.length ||
+        this.params.determination.determiner_id.length ||
+        this.params.determination.ancestor_id ||
+        this.params.repository.repository_id ||
+        this.params.collectingEvents.collecting_event_ids.length ||
+        this.params.preparation_type_id.length ||
+        Object.keys(this.params.collectingEvents.fields).length ||
+        Object.values(this.params.collectingEvents).find(item => item && item.length) ||
+        Object.values(this.params.user).find(item => item) ||
+        Object.values(this.params.loans).find(item => item) ||
+        Object.values(this.params.identifier).find(item => item) ||
+        Object.values(this.params.byRecordsWith).some(item => item !== undefined) ||
+        Object.values(this.params.buffered.text).find(item => item)
+      )
     }
   },
 
@@ -193,7 +204,7 @@ export default {
       this.params = this.initParams()
     },
 
-    searchForCollectionObjects (params) {
+    searchForCollectionObjects (params = this.parseParams) {
       if (this.loadingDWCA) return
       this.searching = true
       this.result = []
@@ -286,7 +297,7 @@ export default {
           keyword_id_or: []
         },
         collectors: {
-          collector_ids: [],
+          collector_id: [],
           collector_ids_or: false
         },
         determination: {
@@ -315,7 +326,7 @@ export default {
           geo_json: [],
           radius: undefined,
           spatial_geographic_areas: undefined,
-          geographic_area_ids: []
+          geographic_area_id: []
         },
         repository: {
           repository_id: undefined
@@ -351,13 +362,13 @@ export default {
     },
 
     getDWCATable (list) {
-      const IDS = list.map(item => { return item[0] })
+      const IDS = list.map(item => item[0])
       const chunk = IDS.length / this.perRequest
+      const chunkArray = []
+      let i, j
 
-      var i, j;
-      let chunkArray = []
       for (i = 0,j = IDS.length; i < j; i += chunk) {
-        chunkArray.push(IDS.slice(i,i+chunk))
+        chunkArray.push(IDS.slice(i, i + chunk))
       }
       this.getDWCA(chunkArray)
     },
@@ -372,8 +383,10 @@ export default {
         const promises = []
         ids[0].forEach(id => {
           promises.push(CollectionObject.dwc(id).then(response => {
+            const index = this.coList.data.findIndex(item => item[0] === id)
+
             this.DWCACount++
-            this.$set(this.coList.data, this.coList.data.findIndex(item => { return item[0] === id }), response.body)
+            this.coList.data[index] = response.body
           }, (response) => {
             this.loadingDWCA = false
             TW.workbench.alert.create(`Error: ${response}`, 'warning')
@@ -392,7 +405,7 @@ export default {
 }
 </script>
 <style scoped>
-::v-deep .btn-delete {
+:deep(.btn-delete) {
     background-color: #5D9ECE;
   }
 </style>

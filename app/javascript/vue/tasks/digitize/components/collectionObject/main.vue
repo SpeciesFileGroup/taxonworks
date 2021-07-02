@@ -1,26 +1,26 @@
 <template>
   <div class="flexbox align-start">
     <block-layout :warning="!collectionObject.id">
-      <div slot="header">
+      <template #header>
         <h3>Collection Object</h3>
-      </div>
-      <div
-        v-shortkey="[getMacKey(), 'e']"
-        @shortkey="openBrowse"
-        slot="options"
-        v-if="collectionObject.id"
-        class="horizontal-left-content">
-        <radial-annotator
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
-        <default-tag
-          classs="separate-right"
-          :global-id="collectionObject.global_id"/>
-        <radial-object
+      </template>
+      <template #options>
+        <div
+          v-hotkey="shortcuts"
           v-if="collectionObject.id"
-          :global-id="collectionObject.global_id"/>
-      </div>
-      <div slot="body">
+          class="horizontal-left-content">
+          <radial-annotator
+            classs="separate-right"
+            :global-id="collectionObject.global_id"/>
+          <default-tag
+            classs="separate-right"
+            :global-id="collectionObject.global_id"/>
+          <radial-object
+            v-if="collectionObject.id"
+            :global-id="collectionObject.global_id"/>
+        </div>
+      </template>
+      <template #body>
         <div
           class="horizontal-left-content align-start flexbox separate-bottom">
           <div class="separate-right">
@@ -83,12 +83,12 @@
             :object-id="collectionObject.id"
             object-type="CollectionObject"
             model="CollectionObject"
-            :modelPreferences="projectPreferences.model_predicate_sets.CollectionObject"
+            :model-preferences="projectPreferences.model_predicate_sets.CollectionObject"
             @onUpdate="setAttributes"
           />
         </div>
         <container-items/>
-      </div>
+      </template>
     </block-layout>
   </div>
 </template>
@@ -106,14 +106,15 @@ import RepositoryComponent from './repository.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import BlockLayout from 'components/blockLayout.vue'
+import BlockLayout from 'components/layout/BlockLayout.vue'
 import RadialAnnotator from 'components/radials/annotator/annotator.vue'
 import RadialObject from 'components/radials/navigation/radial.vue'
 import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
 import DefaultTag from 'components/defaultTag.vue'
+import platformKey from 'helpers/getMacKey'
 
-import { GetCollectionObjectDepictions, CreateDepiction, UpdateUserPreferences } from '../../request/resources.js'
-import { CollectionObject, Depiction, User } from 'routes/endpoints'
+import { GetCollectionObjectDepictions } from '../../request/resources.js'
+import { Depiction, User } from 'routes/endpoints'
 
 export default {
   components: {
@@ -133,10 +134,10 @@ export default {
   },
   computed: {
     preferences: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetPreferences]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
     },
@@ -164,6 +165,13 @@ export default {
       set(value) {
         this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
       }
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+e`] = this.openBrowse
+
+      return keys
     },
   },
   data() {
@@ -205,9 +213,6 @@ export default {
       User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
         this.preferences.layout = response.body.preferences.layout
       })
-    },
-    getMacKey: function () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     },
     newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)

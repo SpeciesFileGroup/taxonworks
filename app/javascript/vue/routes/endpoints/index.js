@@ -8,19 +8,23 @@ import { CitationTopic } from './CitationTopic'
 import { CollectingEvent } from './CollectingEvents'
 import { CollectionObject } from './CollectionObject'
 import { Combination } from './Combination'
+import { CommonName } from './CommonName'
 import { Container } from './Container'
 import { ContainerItem } from './ContainerItem'
 import { Content } from './Content'
 import { ControlledVocabularyTerm } from './ControlledVocabularyTerm'
+import { DataAttribute } from './DataAttribute'
 import { Depiction } from './Depiction'
 import { Descriptor } from './Descriptor'
 import { Document } from './Document'
 import { Documentation } from './Documentation'
+import { Extract } from './Extract'
 import { GeographicArea } from './GeographicArea'
 import { Georeference } from './Georeference'
 import { Identifier } from './Identifier'
 import { Image } from './Image'
 import { Label } from './Label'
+import { Language } from './Language'
 import { Loan } from './Loan'
 import { LoanItem } from './LoanItem'
 import { Namespace } from './Namespace'
@@ -31,10 +35,14 @@ import { ObservationMatrixColumnItem } from './ObservationMatrixColumnItem'
 import { ObservationMatrixRow } from './ObservationMatrixRow'
 import { ObservationMatrixRowItem } from './ObservationMatrixRowItem'
 import { Otu } from './Otu'
+import { OriginRelationship } from './OriginRelationship'
 import { People } from './People'
+import { PinboardItem } from './PinboardItem'
 import { PreparationType } from './PreparationType'
 import { Project } from './Project'
 import { ProjectMember } from './ProjectMember'
+import { ProjectSource } from './ProjectSource'
+import { ProtocolRelationship } from './ProtocolRelationship'
 import { Repository } from './Repository'
 import { Serial } from './Serial'
 import { SoftValidation } from './SoftValidation'
@@ -60,19 +68,23 @@ export {
   CollectingEvent,
   CollectionObject,
   Combination,
+  CommonName,
   Container,
   ContainerItem,
   Content,
   ControlledVocabularyTerm,
+  DataAttribute,
   Depiction,
   Descriptor,
   Document,
   Documentation,
+  Extract,
   GeographicArea,
   Georeference,
   Identifier,
   Image,
   Label,
+  Language,
   Loan,
   LoanItem,
   Namespace,
@@ -83,10 +95,14 @@ export {
   ObservationMatrixRow,
   ObservationMatrixRowItem,
   Otu,
+  OriginRelationship,
   People,
+  PinboardItem,
   PreparationType,
   Project,
   ProjectMember,
+  ProjectSource,
+  ProtocolRelationship,
   Repository,
   Serial,
   SoftValidation,

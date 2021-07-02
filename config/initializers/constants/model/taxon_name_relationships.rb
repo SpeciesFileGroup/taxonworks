@@ -59,11 +59,11 @@ begin
     # Array of all ICNP TaxonNameRelationship classes, as Strings
     ICNP_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icnp.descendants.collect{|d| d.to_s}.freeze
 
-    # Array of all ICTV TaxonNameRelationship classes, as Strings
-    ICTV_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icvcn.descendants.collect{|d| d.to_s}.freeze
+    # Array of all ICVCN TaxonNameRelationship classes, as Strings
+    ICVCN_TAXON_NAME_RELATIONSHIP_NAMES = TaxonNameRelationship::Icvcn.descendants.collect{|d| d.to_s}.freeze
 
     # Array of all ICZN + ICN TaxonNameRelationship classes, as Strings
-    STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNP_TAXON_NAME_RELATIONSHIP_NAMES + ICTV_TAXON_NAME_RELATIONSHIP_NAMES).freeze
+    STATUS_TAXON_NAME_RELATIONSHIP_NAMES = (ICZN_TAXON_NAME_RELATIONSHIP_NAMES + ICN_TAXON_NAME_RELATIONSHIP_NAMES + ICNP_TAXON_NAME_RELATIONSHIP_NAMES + ICVCN_TAXON_NAME_RELATIONSHIP_NAMES).freeze
 
     # Array of all assignable TaxonNameRelationship classes, as Strings
     TAXON_NAME_RELATIONSHIP_NAMES = TAXON_NAME_RELATIONSHIPS.select{|i| i.assignable}.collect{|d| d.to_s}.freeze
@@ -95,6 +95,13 @@ begin
                                                  'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze
+
+    TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING = ['TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling',
+                                                 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameOriginalForm',
                                                  'TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling'].freeze

@@ -13,6 +13,7 @@ import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
 import getTaxonNames from './getTaxonNames'
 import getOtus from './getOtus'
+import getObservationsDepictions from './getObservationsDepictions'
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
@@ -25,6 +26,7 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
+  GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
@@ -47,7 +49,8 @@ const GetterFunctions = {
   [GetterNames.GetLoadState]: getLoadState,
   [GetterNames.GetTaxonName]: getTaxonName,
   [GetterNames.GetTaxonNames]: getTaxonNames,
-  [GetterNames.GetOtus]: getOtus
+  [GetterNames.GetOtus]: getOtus,
+  [GetterNames.GetObservationsDepictions]: getObservationsDepictions
 }
 
 export {

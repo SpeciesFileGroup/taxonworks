@@ -5,47 +5,47 @@
         v-if="display"
         :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
         @close="closeModal()">
-        <h3
-          slot="header"
-          class="flex-separate">
-          <span v-html="title" />
-          <span
-            v-if="metadata"
-            class="separate-right"> {{ metadata.type }}</span>
-        </h3>
-        <div
-          slot="body"
-          class="flex-separate">
-          <spinner v-if="loading" />
-          <div class="radial-annotator-menu">
-            <div>
-              <radial-menu
-                v-if="menuCreated"
-                :options="menuOptions"
-                @onClick="selectedRadialOption"/>
+        <template #header>
+          <h3 class="flex-separate">
+            <span v-html="title" />
+            <span
+              v-if="metadata"
+              class="separate-right"> {{ metadata.type }}</span>
+          </h3>
+        </template>
+        <template #body>
+          <div class="flex-separate">
+            <spinner v-if="loading" />
+            <div class="radial-annotator-menu">
+              <div>
+                <radial-menu
+                  v-if="menuCreated"
+                  :options="menuOptions"
+                  @onClick="selectedRadialOption"/>
+              </div>
             </div>
+            <div
+              class="radial-annotator-template panel"
+              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
+              v-if="currentView">
+              <h2 class="capitalize view-title">
+                {{ currentView.replace("_"," ") }}
+              </h2>
+              <component
+                class="radial-annotator-container"
+                :is="(currentView ? currentView + 'Component' : undefined)"
+                :type="currentView"
+                :metadata="metadata"
+                :global-id="globalId"
+                @onSelectedGlobalId="loadMetadata"
+                @updateCount="setTotal"/>
+            </div>
+            <destroy-confirmation
+              v-if="showDestroyModal"
+              @close="showDestroyModal = false"
+              @confirm="destroyObject"/>
           </div>
-          <div
-            class="radial-annotator-template panel"
-            :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-            v-if="currentView">
-            <h2 class="capitalize view-title">
-              {{ currentView.replace("_"," ") }}
-            </h2>
-            <component
-              class="radial-annotator-container"
-              :is="(currentView ? currentView + 'Component' : undefined)"
-              :type="currentView"
-              :metadata="metadata"
-              :global-id="globalId"
-              @onSelectedGlobalId="loadMetadata"
-              @updateCount="setTotal"/>
-          </div>
-          <destroy-confirmation
-            v-if="showDestroyModal"
-            @close="showDestroyModal = false"
-            @confirm="destroyObject"/>
-        </div>
+        </template>
       </modal>
       <span
         v-if="showBottom"
@@ -61,7 +61,7 @@
 <script>
 
 import RadialMenu from 'components/radials/RadialMenu.vue'
-import Modal from 'components/modal.vue'
+import Modal from 'components/ui/Modal.vue'
 import Spinner from 'components/spinner.vue'
 
 import CRUD from './request/crud'
@@ -90,42 +90,50 @@ export default {
     Spinner,
     DestroyConfirmation
   },
+
   props: {
     reload: {
       type: Boolean,
       default: false
     },
+
     globalId: {
       type: String,
       required: true
     },
+
     showBottom: {
       type: Boolean,
       default: true
     },
+
     buttonClass: {
       type: String,
       default: 'btn-radial-object'
     },
+
     buttonTitle: {
       type: String,
       default: 'Navigate radial'
     },
+
     maxTaskInPie: {
       type: Number,
       default: 4
     },
+
     components: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => ({})
     },
+
     filterOptions: {
       type: [String, Array],
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['close'],
 
   computed: {
     menuOptions () {
@@ -193,6 +201,7 @@ export default {
         slices: slices
       }
     },
+
     defaultSlices () {
       const filterOptions = this.filterOptions
 
@@ -202,12 +211,15 @@ export default {
 
       return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
     },
+
     menuCreated () {
       return this.metadata
     },
+
     isPinned () {
       return this.metadata['pinboard_item']
     },
+
     middleButton () {
       return {
         name: 'circleButton',
@@ -259,6 +271,7 @@ export default {
         ...attr
       }
     },
+
     selectedRadialOption ({ name }) {
       if (Object.keys(defaultOptions).includes(name) || this.customOptions.includes(name)) {
         this.currentView = undefined
@@ -287,6 +300,7 @@ export default {
         }
       }
     },
+
     defaultLinks () {
       return {
         [defaultOptions.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
@@ -294,16 +308,19 @@ export default {
         [defaultOptions.Show]: this.metadata.resource_path
       }
     },
+
     closeModal () {
       this.display = false
       this.eventClose()
       this.$emit('close')
     },
+
     displayRadialObject () {
       this.display = true
       this.currentView = undefined
       this.loadMetadata(this.globalId)
     },
+
     loadMetadata (globalId) {
       if (globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
       this.globalIdSaved = globalId
@@ -316,9 +333,11 @@ export default {
         this.loading = false
       })
     },
+
     setTotal (total) {
       this.recentTotal = total
     },
+
     eventClose () {
       const event = new CustomEvent('radialObject:close', {
         detail: {
@@ -327,6 +346,7 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     eventDestroy () {
       const event = new CustomEvent('radialObject:destroy', {
         detail: {
@@ -335,9 +355,11 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     windowHeight () {
       return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
     },
+
     createPin () {
       const pinItem = {
         pinboard_item: {
@@ -347,18 +369,20 @@ export default {
         }
       }
       this.create('/pinboard_items', pinItem).then(response => {
-        this.$set(this.metadata, 'pinboard_item', { id: response.body.id })
+        this.metadata['pinboard_item'] = { id: response.body.id }
         TW.workbench.pinboard.addToPinboard(response.body)
         TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
       })
     },
-    destroyPin: function () {
+
+    destroyPin () {
       this.destroy(`/pinboard_items/${this.metadata.pinboard_item.id}`, { _destroy: true }).then(response => {
         TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
         TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
-        this.$delete(this.metadata, 'pinboard_item')
+        delete this.metadata.pinboard_item
       })
     },
+
     destroyObject () {
       this.showDestroyModal = false
       this.destroy(`${this.metadata.resource_path}.json`).then((response) => {
@@ -367,7 +391,10 @@ export default {
           this.eventDestroy()
           this.deleted = true
         }
-        if (window.location.pathname == this.metadata.resource_path) {
+
+        if (this.metadata.destroyed_redirect) {
+          window.open(this.metadata.destroyed_redirect, '_self')
+        } else if (window.location.pathname === this.metadata.resource_path) {
           window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
         } else {
           window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')

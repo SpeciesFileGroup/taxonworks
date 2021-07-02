@@ -27,7 +27,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { CollectionObject } from 'routes/endpoints'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 
@@ -35,11 +35,13 @@ export default {
   components: { Autocomplete },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -49,7 +51,7 @@ export default {
 
   watch: {
     coStore (newVal) {
-      this.$emit('input', newVal.map(otu => otu.id))
+      this.$emit('update:modelValue', newVal.map(otu => otu.id))
     }
   },
 

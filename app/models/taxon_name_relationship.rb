@@ -340,7 +340,7 @@ class TaxonNameRelationship < ApplicationRecord
 
   def validate_subject_and_object_share_code
     if object_taxon_name.type  == 'Protonym' && subject_taxon_name.type == 'Protonym'
-      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICTV') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
+      errors.add(:object_taxon_name_id, 'The related taxon is not in the same monenclatural group (ICZN, ICN, ICNP, ICVCN') if subject_taxon_name.rank_class.try(:nomenclatural_code) != object_taxon_name.rank_class.try(:nomenclatural_code)
     end
   end
 
@@ -378,7 +378,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       if subject_taxon_name
         if subject_taxon_name.type == 'Protonym' || subject_taxon_name.type == 'Hybrid'
-          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.parent.rank_string)
+          unless self.type_class.valid_subject_ranks.include?(self.subject_taxon_name.rank_string)
             soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.rank_class.rank_name.capitalize} rank of #{self.subject_taxon_name.cached_html} is not compatible with the #{self.subject_status} relationship")
             soft_validations.add(:type, "Relationship #{self.subject_status} is not compatible with the #{self.subject_taxon_name.rank_class.rank_name} rank of #{self.subject_taxon_name.cached_html}")
           end
@@ -426,18 +426,20 @@ class TaxonNameRelationship < ApplicationRecord
 
           t.send(:set_cached)
 
-          if type_name =~/OriginalCombination/ 
+          if type_name =~/(OriginalCombination|Basionym)/
             t.update_columns(
               cached_original_combination: t.get_original_combination,
               cached_original_combination_html: t.get_original_combination_html,
+              cached_author_year: t.get_author_and_year,
             )
           end
 
         elsif type_name =~/TaxonNameRelationship::Hybrid/ # TODO: move to Hybrid
           t = object_taxon_name
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html
+            cached: n,
+            cached_html: t.get_full_name_html(n)
           )
 
         elsif type_name =~/SourceClassifiedAs/
@@ -466,16 +468,20 @@ class TaxonNameRelationship < ApplicationRecord
 
           vn = t.get_valid_taxon_name
 
+          n = t.get_full_name
           t.update_columns(
-            cached: t.get_full_name,
-            cached_html: t.get_full_name_html, # OK to force reload here, otherwise we need an exception in #set_cached 
-            cached_valid_taxon_name_id: vn.id)
+            cached: n,
+            cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+            cached_valid_taxon_name_id: vn.id,
+            cached_is_valid: !t.unavailable_or_invalid?)
           t.combination_list_self.each do |c|
             c.update_column(:cached_valid_taxon_name_id, vn.id)
           end
 
           vn.list_of_invalid_taxon_names.each do |s|
-            s.update_column(:cached_valid_taxon_name_id, vn.id)
+            s.update_columns(
+              cached_valid_taxon_name_id: vn.id,
+              cached_is_valid: !s.unavailable_or_invalid?)
             s.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end

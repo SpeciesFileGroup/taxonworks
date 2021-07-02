@@ -4,9 +4,10 @@
     :warning="checkValidation"
     :spinner="!taxon.id"
     v-help.section.relationship.container>
-    <h3 slot="header">Relationship</h3>
-    <div
-      slot="body">
+    <template #header>
+      <h3>Relationship</h3>
+    </template>
+    <template #body>
       <div v-if="editMode">
         <p class="inline">
           <span class="separate-right">Editing relationship: </span>
@@ -18,9 +19,7 @@
         </p>
       </div>
       <div v-if="!taxonRelation">
-        <div
-          class="horizontal-left-content"
-          slot="body">
+        <div class="horizontal-left-content">
           <autocomplete
             url="/taxon_names/autocomplete"
             label="label_html"
@@ -104,7 +103,7 @@
         @edit="editRelationship"
         :list="GetRelationshipsCreated"
         :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'object_object_tag', param: 'object_taxon_name_id'}]"/>
-    </div>
+    </template>
   </block-layout>
 </template>
 <script>
@@ -115,10 +114,10 @@ import { MutationNames } from '../store/mutations/mutations'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
-import Autocomplete from 'components/autocomplete.vue'
+import Autocomplete from 'components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from 'components/switch'
-import BlockLayout from 'components/blockLayout'
+import BlockLayout from'components/layout/BlockLayout'
 
 export default {
   components: {
@@ -192,6 +191,13 @@ export default {
     }
   },
   watch: {
+    taxon: {
+      handler (newVal, oldVal) {
+        if(newVal.id && newVal.id !== oldVal.id) {
+          this.refresh()
+        }
+      }
+    },
     parent: {
       handler (newVal) {
         if (newVal == null) return true
@@ -227,10 +233,11 @@ export default {
     },
 
     refresh () {
-      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode]))
-      this.objectLists.tree = Object.assign({}, JSON.parse(JSON.stringify(copyList.tree)))
-      this.objectLists.commonList = Object.assign({}, JSON.parse(JSON.stringify(copyList.common)))
-      this.objectLists.allList = Object.assign({}, JSON.parse(JSON.stringify(copyList.all)))
+      const copyList = JSON.parse(JSON.stringify(this.treeList[this.nomenclaturalCode] || {}))
+
+      this.objectLists.tree = copyList.tree || {}
+      this.objectLists.commonList = copyList.common || {}
+      this.objectLists.allList = copyList.all || {}
       this.addType(this.objectLists.allList)
       this.objectLists.allList = Object.keys(this.objectLists.allList).map(key => this.objectLists.allList[key])
       this.getTreeList(this.objectLists.tree, copyList.all)
@@ -289,25 +296,25 @@ export default {
     getTreeList (list, ranksList) {
       for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: ranksList[key].object_status_tag })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: ranksList[key].subject_status_tag })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: ranksList[key].valid_subject_ranks })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: ranksList[key].object_status_tag })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: ranksList[key].valid_subject_ranks })
         }
         else {
           const label = key.split('::')
 
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'object_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
-          Object.defineProperty(list[key], 'subject_status_tag', { value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
-          Object.defineProperty(list[key], 'valid_subject_ranks', { value: [] })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'object_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'subject_status_tag', { writable: true, value: label[label.length - 1].replace(/\.?([A-Z])/g, (x, y) => ' ' + y.toLowerCase()).replace(/^_/, '').toLowerCase().trim() })
+          Object.defineProperty(list[key], 'valid_subject_ranks', { writable: true, value: [] })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
     addType (list) {
       for (const key in list) {
-        Object.defineProperty(list[key], 'type', { value: key })
+        Object.defineProperty(list[key], 'type', { writable: true, value: key })
       }
     }
   }

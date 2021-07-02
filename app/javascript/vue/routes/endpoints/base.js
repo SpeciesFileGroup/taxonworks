@@ -46,9 +46,21 @@ export {
 }
 
 export const annotations = (model) => ({
+  attributions: (id) => AjaxCall('get', `/${model}/${id}/attributions.json`),
+
   citations: (id) => AjaxCall('get', `/${model}/${id}/citations.json`),
+
+  dataAttributes: (id) => AjaxCall('get', `/${model}/${id}/data_attributes.json`),
 
   depictions: (id) => AjaxCall('get', `/${model}/${id}/depictions.json`),
 
-  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation.json`)
+  documentation: (id) => AjaxCall('get', `/${model}/${id}/documentation.json`),
+
+  identifiers: (id) => AjaxCall('get', `/${model}/${id}/identifiers.json`),
+
+  notes: (id) => AjaxCall('get', `/${model}/${id}/notes.json`),
+
+  tags: (id) => AjaxCall('get', `/${model}/${id}/tags.json`),
+
+  protocolRelationships: (id) => AjaxCall('get', `/${model}/${id}/protocol_relationships.json`)
 })

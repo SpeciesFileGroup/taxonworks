@@ -15,7 +15,7 @@
 
 import CRUD from '../request/crud.js'
 import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/autocomplete.vue'
+import autocomplete from 'components/ui/Autocomplete.vue'
 import displayList from './displayList.vue'
 
 export default {
@@ -49,7 +49,9 @@ export default {
     },
     updateNote () {
       this.update(`/notes/${this.note.id}`, { note: this.note }).then(response => {
-        this.$set(this.list, this.list.findIndex(element => element.id == this.note.id), response.body)
+        const index = this.list.findIndex(element => element.id === this.note.id)
+
+        this.list[index] = response.body
         this.note = this.newNote()
       })
     }
@@ -58,16 +60,16 @@ export default {
 </script>
 <style lang="scss">
 .radial-annotator {
-	.notes_annotator {
-		button {
-			min-width: 100px;
-		}
-		textarea {
-			padding-top: 14px;
-			padding-bottom: 14px;
-			width: 100%;
-			height: 100px;
-		}
-	}
+  .notes_annotator {
+    button {
+      min-width: 100px;
+    }
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+  }
 }
 </style>

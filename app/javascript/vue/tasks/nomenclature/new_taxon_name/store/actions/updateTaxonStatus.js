@@ -1,7 +1,7 @@
 import { TaxonNameClassification } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, state, dispatch }, status) {
+export default ({ commit, state, dispatch }, status) => {
   return new Promise((resolve, reject) => {
     const taxon_name_classification = {
       id: status.id,

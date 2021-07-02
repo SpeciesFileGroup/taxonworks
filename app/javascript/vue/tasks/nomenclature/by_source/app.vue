@@ -53,54 +53,56 @@
 </template>
 <script>
 
-  import NomenSource from './components/nomen_source'
-  import CiteTaxonName from './components/cite_taxon_name'
-  import OtusByMatch from './components/otus_by_match'
-  import TaxonNames from './components/taxon_names'
-  import TaxonNameRelationships from './components/taxon_name_relationships'
-  import TaxonNameClassifications from './components/taxon_name_classifications'
-  import BiologicalAssociations from './components/biological_associations'
-  import AssertedDistributions from './components/asserted_distributions'
-  import OtusMatchProxy from './components/otus_match_proxy'
-  import Spinner from 'components/spinner.vue'
+import NomenSource from './components/nomen_source'
+import OtusByMatch from './components/otus_by_match'
+import TaxonNames from './components/taxon_names'
+import TaxonNameRelationships from './components/taxon_name_relationships'
+import TaxonNameClassifications from './components/taxon_name_classifications'
+import BiologicalAssociations from './components/biological_associations'
+import AssertedDistributions from './components/asserted_distributions'
+import OtusMatchProxy from './components/otus_match_proxy'
+import Spinner from 'components/spinner.vue'
 
-  export default {
-    components: {
-      NomenSource,
-      OtusByMatch,
-      TaxonNames,
-      TaxonNameRelationships,
-      TaxonNameClassifications,
-      BiologicalAssociations,
-      AssertedDistributions,
-      OtusMatchProxy,
-      Spinner
+export default {
+  components: {
+    NomenSource,
+    OtusByMatch,
+    TaxonNames,
+    TaxonNameRelationships,
+    TaxonNameClassifications,
+    BiologicalAssociations,
+    AssertedDistributions,
+    OtusMatchProxy,
+    Spinner
+  },
+
+  data () {
+    return {
+      sourceID: undefined,
+      isLoading: false,
+      newTaxonNameCitation: {},
+      lists: this.initStoreList(),
+      summarize: undefined
+    }
+  },
+
+  methods: {
+    enableButton () {
+      this.updateOtus = true
     },
-    data() {
+
+    initStoreList () {
       return {
-        sourceID: undefined,
-        isLoading: false,
-        newTaxonNameCitation: {},
-        lists: this.initStoreList(),
-        summarize: undefined
-      }
-    },
-    methods: {
-      enableButton() {
-        this.updateOtus = true;
-      },
-      initStoreList() {
-        return {
-          otu_names_cites: [],
-          taxon_names_cites: [],
-          taxon_relationship_cites: [],
-          taxon_classification_cites: [],
-          biological_association_cites: [],
-          distribution_cites: [],
-        }
+        otu_names_cites: [],
+        taxon_names_cites: [],
+        taxon_relationship_cites: [],
+        taxon_classification_cites: [],
+        biological_association_cites: [],
+        distribution_cites: [],
       }
     }
   }
+}
 </script>
 
 <style lang="scss">

@@ -12,7 +12,7 @@
       @close="modalOpen = false"
       v-if="modalOpen"
     >
-      <div slot="header">
+      <template #header>
         <h3>
           <span v-if="list.length">
             <span v-html="taxonName" /> is linked to {{ list.length }} Otus, go to:
@@ -21,8 +21,8 @@
             <span v-html="taxonName" /> is not linked to an OTU
           </span>
         </h3>
-      </div>
-      <div slot="body">
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li
             v-for="item in list"
@@ -39,7 +39,7 @@
           v-if="creatingOtu"
           legend="Creating Otu..."
         />
-      </div>
+      </template>
     </modal>
     <otu-radial
       ref="annotator"
@@ -52,10 +52,10 @@
 
 <script>
 
-import Modal from '../modal.vue'
-import Spinner from '../spinner.vue'
+import Modal from 'components/ui/Modal.vue'
+import Spinner from 'components/spinner.vue'
 import OtuRadial from 'components/radials/object/radial'
-import { GetOtu, GetOtus, CreateOtu } from './request/resources'
+import { Otu, TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
@@ -63,33 +63,40 @@ export default {
     Spinner,
     OtuRadial
   },
+
   props: {
     objectId: {
       type: [String, Number],
       required: false
     },
+
     otu: {
       type: Object,
       default: undefined
     },
+
     taxonName: {
       type: String,
       default: ''
     },
+
     redirect: {
       type: Boolean,
       default: true
     },
+
     klass: {
       type: String,
       default: undefined
     }
   },
+
   computed: {
     emptyList () {
       return !this.list.length
     }
   },
+
   data () {
     return {
       globalId: '',
@@ -113,22 +120,25 @@ export default {
   methods: {
     getOtuList () {
       if (this.klass === 'Otu') {
-        GetOtu(this.objectId).then(response => {
+        Otu.find(this.objectId).then(response => {
           this.list.push(response.body)
           this.loaded = true
         })
       } else {
-        GetOtus(this.objectId).then(response => {
+        TaxonName.otus(this.objectId).then(response => {
           this.loaded = true
           this.list = response.body
         })
       }
     },
+
     openApp (newTab = false) {
       if (this.loaded) {
         if (this.emptyList) {
+          const otu = { taxon_name_id: this.objectId }
           this.creatingOtu = true
-          CreateOtu(this.objectId).then(response => {
+
+          Otu.create({ otu }).then(response => {
             this.list.push(response.body)
             this.sendCreatedEvent()
             this.processCall(response.body, newTab)
@@ -140,12 +150,14 @@ export default {
         }
       }
     },
+
     openRadial (otu) {
       this.globalId = otu.global_id
       this.$nextTick(() => {
         this.$refs.annotator.displayAnnotator()
       })
     },
+
     sendCreatedEvent () {
       const event = new CustomEvent('vue-otu:created', {
         detail: {
@@ -155,6 +167,7 @@ export default {
       })
       document.dispatchEvent(event)
     },
+
     processCall (otu, newTab) {
       if (this.redirect) {
         this.redirectTo(otu.id, newTab)
@@ -162,6 +175,7 @@ export default {
         this.openRadial(otu)
       }
     },
+
     redirectTo (id, newTab = false) {
       window.open(`/tasks/otus/browse/${id}`, `${newTab ? '_blank' : '_self'}`)
     }

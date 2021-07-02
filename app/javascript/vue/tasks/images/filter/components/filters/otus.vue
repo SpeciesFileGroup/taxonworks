@@ -27,7 +27,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
 import { Otu } from 'routes/endpoints'
 
@@ -37,11 +37,13 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
       type: Array,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -51,7 +53,7 @@ export default {
 
   watch: {
     otusStore (newVal) {
-      this.$emit('input', newVal.map(otu => otu.id))
+      this.$emit('update:modelValue', newVal.map(otu => otu.id))
     }
   },
 

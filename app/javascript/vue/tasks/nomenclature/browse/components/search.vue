@@ -19,7 +19,7 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { RouteNames } from 'routes/routes'
 
 const SettingsStore = {
@@ -27,14 +27,14 @@ const SettingsStore = {
 }
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   data () {
     return {
       validName: true
     }
   },
+
   watch: {
     validName: {
       handler (newVal) {
@@ -42,12 +42,14 @@ export default {
       }
     }
   },
+
   mounted () {
     const value = sessionStorage.getItem(SettingsStore.redirectValid)
     if (value !== null) {
       this.validName = value === 'true'
     }
   },
+
   methods: {
     redirect (event) {
       window.open(`${RouteNames.BrowseNomenclature}?taxon_name_id=${this.validName ? event.valid_taxon_name_id : event.id}`, '_self')

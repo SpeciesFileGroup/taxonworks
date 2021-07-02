@@ -4,7 +4,7 @@
       @click="openModal"
       type="button"
       :disabled="!collectingEvent.id"
-      class="button normal-input button-default">
+      class="button normal-input button-default margin-small-right">
       Georeferences
       <template v-if="count > 0">
         ({{ count }})
@@ -25,8 +25,10 @@
       class="modal-georeferences"
       @close="closeModal"
       v-show="show">
-      <h3 slot="header">Georeferences</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Georeferences</h3>
+      </template>
+      <template #body>
         <georeferences
           :show="show"
           ref="georeference"
@@ -39,14 +41,14 @@
           :verbatim-lat="collectingEvent.verbatim_latitude"
           :verbatim-lng="collectingEvent.verbatim_longitude"
           :collecting-event-id="collectingEvent.id"/>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import Georeferences from 'components/georeferences/georeferences'
 import { GetterNames } from '../../../../store/getters/getters.js'
 import { ActionNames } from '../../../../store/actions/actions'
@@ -59,6 +61,9 @@ export default {
     ModalComponent,
     Georeferences
   },
+
+  emits: ['onModal'],
+
   computed: {
     collectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionEvent]

@@ -1,11 +1,7 @@
 <template>
   <div>
-    <div slot="header">
-      <h3>Determinations</h3>
-    </div>
-    <div
-      slot="body"
-      id="taxon-determination-digitize">
+    <h3>Determinations</h3>
+    <div id="taxon-determination-digitize">
       <fieldset
         class="separate-bottom">
         <legend>OTU</legend>
@@ -92,7 +88,7 @@
 
 import RolePicker from 'components/role_picker.vue'
 import DisplayList from 'components/displayList.vue'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import CRUD from '../../request/crud.js'
 import AnnotatorExtend from '../annotatorExtend.js'
 
@@ -103,7 +99,7 @@ export default {
     RolePicker,
     DisplayList
   },
-  data() {
+  data () {
     return {
       taxon_determination: this.newDetermination(),
       selectedOtu: undefined

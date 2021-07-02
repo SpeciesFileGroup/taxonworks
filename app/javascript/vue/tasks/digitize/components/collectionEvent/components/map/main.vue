@@ -3,39 +3,42 @@
     <draggable
       v-model="componentsOrder"
       :disabled="!settings.sortable"
+      :item-key="item => item"
       @end="updatePreferences">
-      <component
-        class="separate-bottom"
-        v-for="component in componentsOrder"
-        :key="component"
-        :validations="validations"
-        :is="component"/>
+      <template #item="{ element }">
+        <component
+          class="separate-bottom"
+          :validations="validations"
+          :is="element"/>
+      </template>
     </draggable>
   </div>
 </template>
 
 <script>
 
-import LeafMap from './map.vue'
-import PrintLabel from './printLabel'
-import SoftValidationComponent from 'components/soft_validations/panel'
-import DepictionComponent from './depictions'
 import Draggable from 'vuedraggable'
 import sortComponent from '../../../shared/sortComponenets.vue'
 
 import { SoftValidation } from 'routes/endpoints'
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
+import {
+  ComponentMap,
+  VueComponents
+} from '../../../../const/components'
+
+const componentNames = Object.keys(ComponentMap)
+const MapComponents = Object.fromEntries(componentNames.map(componentName => [componentName, VueComponents[componentName]]))
 
 export default {
   mixins: [sortComponent],
+
   components: {
-    LeafMap,
-    DepictionComponent,
-    PrintLabel,
     Draggable,
-    SoftValidationComponent
+    ...MapComponents
   },
+
   computed: {
     settings: {
       get () {
@@ -45,22 +48,21 @@ export default {
         this.$store.commit(MutationNames.SetSettings, value)
       }
     },
+
     lastSave () {
       return this.$store.getters[GetterNames.GetSettings].lastSave
     },
+
     collectingEvent () {
       return this.$store.getters[GetterNames.GetCollectionEvent]
     }
   },
+
   data () {
     return {
-      componentsOrder: [
-        'SoftValidationComponent',
-        'LeafMap',
-        'PrintLabel',
-        'DepictionComponent'
-      ],
+      componentsOrder: componentNames,
       keyStorage: 'tasks::digitize::mapOrder',
+      componentsSection: 'ComponentMap',
       validations: {}
     }
   },
@@ -78,6 +80,7 @@ export default {
       deep: true,
       immediate: true
     },
+
     collectingEvent (newVal, oldVal) {
       if (newVal.id && newVal.id != oldVal.id) {
         SoftValidation.find(this.collectingEvent.global_id).then(response => {

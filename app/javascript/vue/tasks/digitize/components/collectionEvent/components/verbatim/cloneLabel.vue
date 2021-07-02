@@ -3,21 +3,24 @@
     <spinner-component
       v-if="searching"
       :show-legend="false"
-      :logo-size="{ 
-        width: '14px', 
-        height: '14px' 
-    }"/>
+      :logo-size="{
+        width: '14px',
+        height: '14px'
+      }"/>
     <button
       type="button"
       class="button normal-input button-default"
       @click="cloneLabel"
-      :disabled="!bufferedCollectingEvent">Clone from specimen
+      :disabled="!bufferedCollectingEvent">
+      Clone from specimen
     </button>
     <modal-component
       v-if="showModal"
       @close="closeModal">
-      <h3 slot="header">Existing collecting events</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Existing collecting events</h3>
+      </template>
+      <template #body>
         <ul class="no_bullets">
           <li
             v-for="ce in list"
@@ -39,7 +42,7 @@
             Set collecting event
           </button>
         </ul>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -49,7 +52,7 @@
 import { GetterNames } from '../../../../store/getters/getters'
 import { MutationNames } from '../../../../store/mutations/mutations'
 import { CollectingEvent } from 'routes/endpoints'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import SpinnerComponent from 'components/spinner'
 
 export default {
@@ -57,6 +60,7 @@ export default {
     ModalComponent,
     SpinnerComponent
   },
+
   computed: {
     label: {
       get() {
@@ -66,6 +70,7 @@ export default {
         this.$store.commit(MutationNames.SetCollectionEventLabel, value)
       }
     },
+
     bufferedCollectingEvent() {
       return this.$store.getters[GetterNames.GetCollectionObject].buffered_collecting_event
     },
@@ -78,7 +83,8 @@ export default {
       }
     }
   },
-  data() {
+
+  data () {
     return {
       selectedCE: undefined,
       showModal: false,
@@ -86,6 +92,7 @@ export default {
       list: []
     }
   },
+
   watch: {
     list(newVal) {
       if(newVal.length > 0) {
@@ -96,6 +103,7 @@ export default {
       }
     }
   },
+
   methods: {
     cloneLabel () {
       this.searching = true
@@ -115,11 +123,13 @@ export default {
         })
       })
     },
-    setCE(ce) {
+
+    setCE (ce) {
       this.$store.commit(MutationNames.SetCollectionEvent, ce)
       this.closeModal()
     },
-    closeModal() {
+
+    closeModal () {
       this.showModal = false
       this.selectedCE = false
     }

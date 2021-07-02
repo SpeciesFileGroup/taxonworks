@@ -40,34 +40,38 @@
             pin-type="Source"
             @selected="selectSource"
           >
-            <div slot="body">
-              <p
-                v-if="showSource && citation.source_id"
-                class="horizontal-left-content">
-                <span v-html="showSource"/>
-                <span
-                  class="circle-button button-default btn-undo"
-                  @click="resetCitation"/>
-              </p>
-            </div>
-            <div slot="footer">
-              <ul class="no_bullets context-menu">
-                <li>
-                  <input
-                    type="text"
-                    v-model="citation.pages"
-                    placeholder="Pages">
-                </li>
-                <li>
-                  <label>
+            <template #body>
+              <div>
+                <p
+                  v-if="showSource && citation.source_id"
+                  class="horizontal-left-content">
+                  <span v-html="showSource"/>
+                  <span
+                    class="circle-button button-default btn-undo"
+                    @click="resetCitation"/>
+                </p>
+              </div>
+            </template>
+            <template #footer>
+              <div>
+                <ul class="no_bullets context-menu">
+                  <li>
                     <input
-                      type="checkbox"
-                      v-model="citation.is_original">
-                    Is original
-                  </label>
-                </li>
-              </ul>
-            </div>
+                      type="text"
+                      v-model="citation.pages"
+                      placeholder="Pages">
+                  </li>
+                  <li>
+                    <label>
+                      <input
+                        type="checkbox"
+                        v-model="citation.is_original">
+                      Is original
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </template>
           </smart-selector>
         </fieldset>
         <div
@@ -91,7 +95,7 @@
 <script>
 
 import Expand from './expand.vue'
-import SmartSelector from 'components/smartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 import Spinner from 'components/spinner.vue'
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 

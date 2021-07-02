@@ -6,8 +6,7 @@
           :disabled="!collectionObjects.length"
           type="button"
           @click="addToContainer"
-          v-shortkey="[getMacKey(), 'p']"
-          @shortkey="addToContainer"
+          v-hotkey="shortcuts"
           class="button normal-input button-default">Add to container
         </button>
       </div>
@@ -22,7 +21,7 @@ import TableCollectionObjects from '../collectionObject/tableCollectionObjects'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
-import GetMacKey from 'helpers/getMacKey.js'
+import platformKey from 'helpers/getMacKey.js'
 
 export default {
   components: {
@@ -34,6 +33,13 @@ export default {
     },
     collectionObjects() {
       return this.$store.getters[GetterNames.GetCollectionObjects]
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+p`] = this.addToContainer
+
+      return keys
     },
   },
   methods: {
@@ -54,8 +60,7 @@ export default {
           })
         })
       })
-    },
-    getMacKey: GetMacKey,
+    }
   }
 }
 </script>

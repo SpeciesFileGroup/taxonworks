@@ -35,35 +35,39 @@
 
 <script>
 
-import Autocomplete from 'components/autocomplete'
+import Autocomplete from 'components/ui/Autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
-  components: {
-    Autocomplete
-  },
+  components: { Autocomplete },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       default: undefined
     }
   },
+
+  emits: ['update:modelValue'],
+
   data () {
     return {
       taxon: undefined
     }
   },
+
   computed: {
     nomenclature: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   mounted () {
     const urlParams = URLParamsToJSON(location.href)
     if (Object.keys(urlParams).length) {
@@ -73,13 +77,15 @@ export default {
       this.nomenclature.citations_on_otus = urlParams?.citations_on_otus
     }
   },
+
   methods: {
     setTaxon (id) {
-      GetTaxonName(id).then(response => {
+      TaxonName.find(id).then(response => {
         this.taxon = response.body
         this.nomenclature.ancestor_id = response.body.id
       })
     },
+
     removeTaxon () {
       this.taxon = undefined
       this.determination.ancestor_id = undefined

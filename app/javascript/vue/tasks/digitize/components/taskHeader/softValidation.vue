@@ -21,13 +21,17 @@
     <modal-component
       v-if="showValidation"
       @close="showValidation = false">
-      <h3 slot="header">Soft validation</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Soft validation</h3>
+      </template>
+      <template #body>
         <template v-if="validation.collectionObject.length">
           <h3>Collection object</h3>
           <ul class="no_bullets">
             <li v-for="item in validation.collectionObject">
-              <span data-icon="warning" v-html="item.message"/>
+              <span
+                data-icon="warning"
+                v-html="item.message"/>
             </li>
           </ul>
         </template>
@@ -35,27 +39,27 @@
           <h3>Collecting event</h3>
           <ul class="no_bullets">
             <li v-for="item in validation.collectingEvent">
-              <span data-icon="warning" v-html="item.message"/>
+              <span
+                data-icon="warning"
+                v-html="item.message"/>
             </li>
           </ul>
         </template>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
 
 <script>
 
-
 import { GetterNames } from '../../store/getters/getters'
 import { SoftValidation } from 'routes/endpoints'
-import ModalComponent from 'components/modal'
+import ModalComponent from 'components/ui/Modal'
 import AjaxCall from 'helpers/ajaxCall'
 
 export default {
-  components: {
-    ModalComponent,
-  },
+  components: { ModalComponent },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
@@ -73,6 +77,7 @@ export default {
       return this.$store.getters[GetterNames.GetTaxonDeterminations]
     }
   },
+
   data () {
     return {
       validation: {
@@ -92,23 +97,29 @@ export default {
       }
     }
   },
+
   watch: {
     lastSave: {
-      handler(newVal) {
-        if(newVal && this.collectionObject.id) {
+      handler (newVal) {
+        if (newVal && this.collectionObject.id) {
           this.getBadge(this.collectionObject.id)
         }
       },
-      deep: true,
-      immediate: true
+      deep: true
     }
   },
-  methods:{
+
+  created () {
+    this.getBadge(this.collectionObject.id)
+  },
+
+  methods: {
     getBadge (id) {
       AjaxCall('get', `/collection_objects/${id}/metadata_badge`).then(response => {
         this.badge = response.body.svg
       })
     },
+
     loadSoftValidation () {
       const promises = []
       this.showValidation = true
@@ -132,7 +143,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  ::v-deep .modal-container {
+  :deep(.modal-container) {
     max-width: 500px;
   }
 

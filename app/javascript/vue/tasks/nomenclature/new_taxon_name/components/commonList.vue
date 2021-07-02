@@ -1,19 +1,20 @@
 <template>
   <div class="flex-wrap-row">
     <ul class="flex-wrap-column no_bullets">
-      <li
-        class="status-item"
-        v-for="item in objectLists"
-        v-if="!filter || filterAlreadyPicked(listCreated, item.base_class) == undefined">
-        <label>
-          <input
-            type="radio"
-            name="status-item"
-            @click="$emit('addEntry', item)"
-            :value="item.base_class">
-          <span>{{ item[display] }}</span>
-        </label>
-      </li>
+      <template v-for="item in objectLists">
+        <li
+          class="status-item"
+          v-if="!filter || !filterAlreadyPicked(listCreated, item.base_class)">
+          <label>
+            <input
+              type="radio"
+              name="status-item"
+              @click="$emit('addEntry', item)"
+              :value="item.base_class">
+            <span>{{ item[display] }}</span>
+          </label>
+        </li>
+      </template>
     </ul>
   </div>
 </template>
@@ -21,7 +22,8 @@
 export default {
   props: {
     objectLists: {
-      required: true
+      required: true,
+      default: () => []
     },
     listCreated: {
       type: Array,
@@ -37,10 +39,8 @@ export default {
     }
   },
   methods: {
-    filterAlreadyPicked: function (list, type) {
-      return list.find(function (item) {
-        return (item.base_class == type)
-      })
+    filterAlreadyPicked (list, type) {
+      return list.find(item => item.base_class === type)
     }
   }
 }

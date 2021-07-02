@@ -1,5 +1,6 @@
-import baseCRUD from './base'
+import baseCRUD, { annotations } from './base'
 
+const controller = 'images'
 const permitParams = {
   image: {
     image_file: String,
@@ -24,5 +25,6 @@ const permitParams = {
 }
 
 export const Image = {
-  ...baseCRUD('images', permitParams)
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller)
 }
