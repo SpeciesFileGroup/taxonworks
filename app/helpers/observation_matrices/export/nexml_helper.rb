@@ -25,10 +25,10 @@ module ObservationMatrices::Export::NexmlHelper
                   xml.state(id: "cs#{cs.id}", label: cs.target_name(:key, nil), symbol: "#{i}") do
                     cs.depictions.each do |d|
                       xml.meta(
-                        'xsi:type' => 'ResourceMeta', 
+                        'xsi:type' => 'ResourceMeta',
                         'rel' => 'foaf:depiction',
                         'href' => root_url + d.image.image_file.url(:large)[1..-1]
-                      ) 
+                      )
                     end
                   end
                 else
@@ -113,11 +113,11 @@ module ObservationMatrices::Export::NexmlHelper
             observations = cells[ x  ][ y ]
 
             case observations.size
-            when 0 
+            when 0
               state = "missing#{d.id}"
             when 1
               o = observations.first
-              if d.qualitative? 
+              if d.qualitative?
                 state = "cs#{o.character_state_id}"
               elsif d.presence_absence?
                 # WRONG
@@ -125,7 +125,7 @@ module ObservationMatrices::Export::NexmlHelper
               else
                 state = "ERROR"
               end
-            else # > 1 
+            else # > 1
               if d.qualitative?
                 state = "cs#{d.id}unc_#{observations.collect{|i| i.character_state_id}.sort.join}" # should just unify identifiers with above.
               elsif d.presence_absence?
@@ -133,7 +133,7 @@ module ObservationMatrices::Export::NexmlHelper
               end
             end
 
-            #byebug if state == 'cs' # d.id == 37 
+            #byebug if state == 'cs' # d.id == 37
 
             xml.cell(char: "c#{d.id}", state: state)
           end
@@ -149,7 +149,7 @@ module ObservationMatrices::Export::NexmlHelper
     xml = Builder::XmlMarkup.new(target: opt[:target])
     m = opt[:observation_matrix]
 
-    # the matrix 
+    # the matrix
     cells = m.observations_in_grid({})[:grid]
 
     z = m.observation_matrix_rows.map.collect{|i| i.row_object.to_global_id}
@@ -200,17 +200,17 @@ module ObservationMatrices::Export::NexmlHelper
   def include_collection_objects(options = {})
     opt = {target: ''}.merge!(options)
     xml = Builder::XmlMarkup.new(target: opt[:target])
-    otu = opt[:otu] 
+    otu = opt[:otu]
 
     # otu.collection_objects.with_identifiers.each do |s|
     otu.current_collection_objects.each do |s|
       xml.meta('xsi:type' => 'ResourceMeta', 'rel' => 'dwc:individualID') do
         if a = s.preferred_catalog_number
-          xml.meta(a.namespace.name, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID') 
-          xml.meta(a.identifier, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber') 
+          xml.meta(a.namespace.name, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID')
+          xml.meta(a.identifier, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber')
         else
-          xml.meta('UNDEFINED', 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID') 
-          xml.meta(s.id, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber') 
+          xml.meta('UNDEFINED', 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:collectionID')
+          xml.meta(s.id, 'xsi:type' => 'LiteralMeta', 'property' => 'dwc:catalogNumber')
         end
       end
     end # end specimens
@@ -235,11 +235,11 @@ module ObservationMatrices::Export::NexmlHelper
         ) do
           ::Depiction.joins(image: [:character_states]).merge(m.character_states).each do |d|
             xml.meta(
-              'xsi:type' => 'ResourceMeta', 
+              'xsi:type' => 'ResourceMeta',
               'rel' => 'foaf:depiction',
               'about' => "cs#{d.depiction_object_id}",
               'href' => root_url + d.image.image_file.url(:large)[1..-1]
-            ) 
+            )
           end
         end
       end
