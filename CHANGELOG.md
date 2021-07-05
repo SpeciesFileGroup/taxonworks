@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depict person in New image task [#2321]
 - Move to `person` option for Depictions slice in Radial annotator
 - Sort by nomenclature in edit/new observation matrix task
+- Added authors facet in Filter nomenclature task
 
 ### Changed
 - Updated ruby gems

@@ -22,25 +22,45 @@
         @click="searchForTaxonNames(parseParams)">
         Search
       </button>
-      <taxon-name-component v-model="params.taxon"/>
-      <precision-component v-model="params.base.exact" />
+      <taxon-name-component
+        class="margin-medium-bottom"
+        v-model="params.taxon"/>
+      <precision-component
+        class="margin-medium-bottom"
+        v-model="params.base.exact" />
+      <authors-component
+        class="margin-medium-bottom"
+        v-model="params.authors"/>
       <scope-component
+        class="margin-medium-bottom"
         :autocomplete-params="{ no_leaves: true }"
         v-model="params.base.taxon_name_id"/>
       <related-component
+        class="margin-medium-bottom"
         v-model="params.includes"
         :taxon-name="params.base.taxon_name_id"/>
-      <rank-component v-model="params.base.nomenclature_group"/>
-      <code-component v-model="params.base.nomenclature_code"/>
-      <validity-component v-model="params.base.validity" />
-      <taxon-name-type-component v-model="params.base.taxon_name_type"/>
+      <rank-component
+        class="margin-medium-bottom"
+        v-model="params.base.nomenclature_group"/>
+      <code-component
+        class="margin-medium-bottom"
+        v-model="params.base.nomenclature_code"/>
+      <validity-component
+        class="margin-medium-bottom"
+        v-model="params.base.validity" />
+      <taxon-name-type-component
+        class="margin-medium-bottom"
+        v-model="params.base.taxon_name_type"/>
       <relationships-component
+        class="margin-medium-bottom"
         v-model="params.base.taxon_name_relationship"
         :nomenclature-code="params.base.nomenclature_code"/>
       <status-component
+        class="margin-medium-bottom"
         v-model="params.base.taxon_name_classification"
         :nomenclature-code="params.base.nomenclature_code"/>
       <in-relationship-component
+        class="margin-medium-bottom"
         v-model="params.base.taxon_name_relationship_type"
         :nomenclature-code="params.base.nomenclature_code"/>
       <tags-component
@@ -67,7 +87,7 @@
 
 <script>
 
-import taxonNameComponent from './filters/name'
+import TaxonNameComponent from './filters/name'
 import PrecisionComponent from './filters/precision.vue'
 import UpdatedComponent from './filters/updated'
 import ValidityComponent from './filters/validity'
@@ -83,6 +103,7 @@ import TaxonNameTypeComponent from './filters/taxon_name_type'
 import UsersComponent from 'tasks/collection_objects/filter/components/filters/user'
 import TagsComponent from 'tasks/sources/filter/components/filters/tags'
 import WithComponent from 'tasks/sources/filter/components/filters/with'
+import AuthorsComponent from './filters/authors.vue'
 
 import SpinnerComponent from 'components/spinner'
 import platformKey from 'helpers/getMacKey.js'
@@ -91,7 +112,8 @@ import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: {
-    taxonNameComponent,
+    AuthorsComponent,
+    TaxonNameComponent,
     PrecisionComponent,
     UpdatedComponent,
     ValidityComponent,
@@ -126,7 +148,7 @@ export default {
       return keys
     },
     parseParams () {
-      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
+      const params = Object.assign({}, this.filterEmptyParams(this.params.taxon), this.params.authors, this.params.with, this.params.keywords, this.params.related, this.params.base, this.params.user, this.params.includes, this.params.settings)
       params.updated_since = params.updated_since ? this.setDays(params.updated_since) : undefined
       return params
     }
@@ -173,6 +195,10 @@ export default {
 
     initParams () {
       return {
+        authors: {
+          taxon_name_author_ids: [],
+          taxon_name_author_ids_or: undefined,
+        },
         taxon: {
           name: undefined,
           author: undefined,
