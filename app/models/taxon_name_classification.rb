@@ -256,6 +256,8 @@ class TaxonNameClassification < ApplicationRecord
           t.combination_list_self.each do |c|
             c.update_columns(cached_valid_taxon_name_id: vn.id)
           end
+        else
+          t.update_columns(cached_is_valid: false)
         end
       end
     rescue ActiveRecord::RecordInvalid

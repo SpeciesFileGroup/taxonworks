@@ -218,11 +218,11 @@ class Protonym < TaxonName
 #        if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
-            .that_is_valid
             .ancestors_and_descendants_of(self)
-            .not_self(self)
             .with_rank_class_including(search_rank)
             .where(name: search_name)
+            .not_self(self)
+            .that_is_valid
         else
           list = []
         end

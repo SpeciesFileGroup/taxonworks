@@ -8,13 +8,14 @@ module ObservationMatrices::Export::OtuContentsHelper
     otu_ids = m.otus.collect{|i| i.id}
     CSV.generate do |csv|
       csv << ['otu_id', 'topic', 'text']
-      if options[:include_contents] == 'true'
-        contents = Content.select('contents.*, controlled_vocabulary_terms.name, observation_matrix_rows.id AS row_id').
-          joins(:topic).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.otu_id = contents.otu_id').
-          where('contents.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
-          order(:otu_id, :topic_id)
-        contents.each do |i|
-          csv << ['row_' + i.row_id.to_s, i.name, i.text]
+
+      if options[:taxon_name] == 'true'
+        protonyms = Protonym.select('taxon_names.*, observation_matrix_rows.id AS row_id').
+          joins(:otus).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.otu_id = otus.id').
+          where('otus.id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+          order(:otu_id)
+        protonyms.each do |p|
+          csv << ['row_' + p.row_id.to_s, 'Taxon name', p.cached_html_name_and_author_year ]
         end
       end
 
@@ -32,6 +33,16 @@ module ObservationMatrices::Export::OtuContentsHelper
             end
             csv << ['row_' + p.row_id.to_s, 'Nomenclature', st ]
           end
+        end
+      end
+
+      if options[:include_contents] == 'true'
+        contents = Content.select('contents.*, controlled_vocabulary_terms.name, observation_matrix_rows.id AS row_id').
+          joins(:topic).joins('INNER JOIN observation_matrix_rows ON observation_matrix_rows.otu_id = contents.otu_id').
+          where('contents.otu_id IN (?)', otu_ids).where('observation_matrix_rows.observation_matrix_id = (?)', m.id).
+          order(:otu_id, :topic_id)
+        contents.each do |i|
+          csv << ['row_' + i.row_id.to_s, i.name, i.text]
         end
       end
 
