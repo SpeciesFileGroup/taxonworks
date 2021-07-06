@@ -22,7 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Updated ruby gems
-- Migrate Vue 2.6 to Vue 3.1.1
+- Migrate Vue 2.6 to Vue 3.1.4
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
 - Manage synonyms display only one level children in New taxon name [#2213]
 - Filter status and relationships according nomenclatural code in Filter nomenclature task [#2157]
