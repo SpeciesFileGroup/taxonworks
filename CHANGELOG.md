@@ -13,25 +13,44 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - WTK component in comprehensive digitization form [#2245]
 - Add invalid relationship checkbox on clone button in New taxon name task [#2171]
 - Download PDF button for documents in New source task [#2102]
-- PDF viewer button for sources in New asserted distribution task
+- Padial annotator for sources in New asserted distribution task [#2105]
+- Radial annotator for references in Browse Nomenclature/OTU tasks [#2103]
+- Depict person in New image task [#2321]
+- Move to `person` option for Depictions slice in Radial annotator
 
 ### Changed
 - Updated ruby gems
 - Migrate Vue 2.6 to Vue 3.1.1
 - `geographic_area_ids` to `geographic_area_id` in collection objects controller
+- Manage synonyms display only one level children in New taxon name [#2213]
+- Filter status and relationships according nomenclatural code in Filter nomenclature task [#2157]
+- User facet data range now allows to search for both criteria (`updated_at`, `created_at`) [#2317]
 
 ### Fixed
+- Updated author string for botanical names
 - Timeline rendering error in Browse OTU
 - Fix wildcard by attribute in Filter collection object
 - Confidences modal height in radial annotator [#2304]
 - Fix empty search in Filter collection objects
 - Clean documents list on reset in New source
+- Missing hexagon soft validation in comprehensive specimen digitization task
+- Match by collection object is and tag creation in Collection object match
+- Destroy container when all other objects in container are deleted [#2322]
+- Clicking on "Tag" in Filter collection objects does not add tag [#2323]
 
 
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
+[#2103]: https://github.com/SpeciesFileGroup/taxonworks/issues/2103
+[#2105]: https://github.com/SpeciesFileGroup/taxonworks/issues/2105
+[#2157]: https://github.com/SpeciesFileGroup/taxonworks/issues/2157
 [#2171]: https://github.com/SpeciesFileGroup/taxonworks/issues/2171
+[#2213]: https://github.com/SpeciesFileGroup/taxonworks/issues/2213
 [#2245]: https://github.com/SpeciesFileGroup/taxonworks/issues/2245
 [#2304]: https://github.com/SpeciesFileGroup/taxonworks/issues/2304
+[#2317]: https://github.com/SpeciesFileGroup/taxonworks/issues/2317
+[#2321]: https://github.com/SpeciesFileGroup/taxonworks/issues/2321
+[#2322]: https://github.com/SpeciesFileGroup/taxonworks/issues/2322
+[#2323]: https://github.com/SpeciesFileGroup/taxonworks/issues/2323
 
 
 ## [0.18.1] - 2021-06-09

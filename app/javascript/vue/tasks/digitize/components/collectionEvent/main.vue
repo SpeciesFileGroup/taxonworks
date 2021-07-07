@@ -48,21 +48,20 @@
                 <radial-annotator :global-id="collectingEvent.global_id" />
                 <radial-object :global-id="collectingEvent.global_id" />
                 <pin-component
+                  class="circle-button"
                   :object-id="collectingEvent.id"
                   type="CollectingEvent"
+                />
+                <button
+                  type="button"
+                  class="button circle-button button-default btn-undo"
+                  @click="cleanCollectionEvent"
                 />
               </div>
             </div>
             <button
               type="button"
-              class="button normal-input button-default margin-small-right"
-              @click="cleanCollectionEvent"
-            >
-              New
-            </button>
-            <button
-              type="button"
-              class="button normal-input button-default margin-small-right"
+              class="button normal-input button-default margin-small-left margin-small-right"
               @click="openBrowse"
             >
               Browse

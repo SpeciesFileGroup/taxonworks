@@ -74,14 +74,14 @@
         <recent-component
           class="separate-right"
           @selected="loadCollectionObject($event)"/>
-        <button 
+        <button
           type="button"
           class="button normal-input button-submit separate-right"
-          @click="saveDigitalization">Save</button>  
-        <button 
+          @click="saveDigitalization">Save</button>
+        <button
           type="button"
           class="button normal-input button-submit separate-right"
-          @click="saveAndNew">Save and new</button> 
+          @click="saveAndNew">Save and new</button>
         <div
           class="cursor-pointer"
           @click="resetStore">

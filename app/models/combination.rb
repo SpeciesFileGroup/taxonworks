@@ -395,11 +395,6 @@ class Combination < TaxonName
     protonyms_by_rank.values.last
   end
 
-  def get_author_and_year
-    ay = iczn_author_and_year
-    ay.blank? ? nil : ay
-  end
-
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association

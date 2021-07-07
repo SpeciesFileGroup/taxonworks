@@ -32,7 +32,8 @@
             :key="item"
           >
             <li
-              v-show="filterSource(nomenclature.sources.list[item])">
+              v-show="filterSource(nomenclature.sources.list[item])"
+              class="horizontal-left-content">
               <label>
                 <input
                   v-model="references"
@@ -40,6 +41,8 @@
                   type="checkbox">
                 <span v-html="nomenclature.sources.list[item].cached"/>
               </label>
+              <radial-annotator :global-id="item"/>
+              <radial-navigation :global-id="item"/>
             </li>
           </template>
         </template>
@@ -47,7 +50,9 @@
           <template
             v-for="(item, key) in nomenclature.sources.list"
             :key="key">
-            <li v-show="filterSource(item)">
+            <li
+              v-show="filterSource(item)"
+              class="horizontal-left-content">
               <label>
                 <input
                   v-model="references"
@@ -63,6 +68,8 @@
                   :style="{ 'background-color': topic.css_color }"
                   v-html="topic.name"/>
               </template>
+              <radial-annotator :global-id="key"/>
+              <radial-navigation :global-id="key"/>
             </li>
           </template>
         </template>
@@ -196,6 +203,8 @@ import YearPicker from './TimelineYearsPick.vue'
 import extendSection from '../shared/extendSections'
 import SoftValidationModal from '../softValidationModal'
 import TimelineCitations from './TimelineCitations.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import RadialNavigation from 'components/radials/navigation/radial.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { Otu } from 'routes/endpoints'
@@ -207,7 +216,9 @@ export default {
     ModalComponent,
     YearPicker,
     SoftValidationModal,
-    TimelineCitations
+    TimelineCitations,
+    RadialAnnotator,
+    RadialNavigation
   },
   computed: {
     selectedReferences () {
@@ -344,9 +355,6 @@ export default {
   .topic-section {
     overflow-y: scroll;
     max-height: 480px;
-  }
-  li {
-    margin-top: 4px;
   }
   .references_topics {
     color: black;

@@ -52,56 +52,63 @@
 </template>
 
 <script>
-  import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from 'components/ui/SmartSelector'
 
-  export default {
-    components: {
-      SmartSelector
+export default {
+  components: { SmartSelector },
+
+  props: {
+    globalId: {
+      type: String,
+      required: true
     },
-    props: {
-      globalId: {
-        type: String,
-        required: true
-      },
-      objectType: {
-        type: String,
-        required: true
-      }
-    },
-    computed: {
-      validateFields() {
-        return this.citation.source_id
-      }
-    },
-    data() {
+    objectType: {
+      type: String,
+      required: true
+    }
+  },
+
+  emits: ['create'],
+
+  computed: {
+    validateFields () {
+      return this.citation.source_id
+    }
+  },
+
+  data () {
+    return {
+      citation: this.newCitation(),
+      source: undefined
+    }
+  },
+
+  methods: {
+    newCitation () {
       return {
-        citation: this.newCitation(),
-        source: undefined
+        annotated_global_entity: decodeURIComponent(this.globalId),
+        source_id: undefined,
+        is_original: false,
+        pages: undefined,
+        citation_topics_attributes: [],
+        author_year: undefined
       }
     },
-    methods: {
-      newCitation() {
-        return {
-          annotated_global_entity: decodeURIComponent(this.globalId),
-          source_id: undefined,
-          is_original: false,
-          pages: undefined,
-          citation_topics_attributes: [],
-          author_year: undefined
-        }
-      },
-      sendCitation() {
-        this.$emit('create', this.citation)
-        this.citation = this.newCitation()
-        this.source = undefined
-      },
-      unsetSource () {
-        this.citation.source_id = undefined,
-        this.source = undefined
-      },
-      getAuthorYear (source) {
-        return `${source.cached_author_string}, ${source.year}`
-      }
+
+    sendCitation () {
+      this.$emit('create', this.citation)
+      this.citation = this.newCitation()
+      this.source = undefined
+    },
+
+    unsetSource () {
+      this.citation.source_id = undefined
+      this.source = undefined
+    },
+
+    getAuthorYear (source) {
+      return `${source.cached_author_string}, ${source.year}`
     }
   }
+}
 </script>

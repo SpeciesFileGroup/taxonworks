@@ -43,10 +43,10 @@
 
 <script>
 
-import { CreateMatrix } from '../../request/resources'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
+import { ObservationMatrix } from 'routes/endpoints'
 
 import SwitchComponent from './switch.vue'
 
@@ -92,12 +92,14 @@ export default {
             !this.$store.getters[GetterNames.GetMatrix].id
     }
   },
+
   methods: {
     create () {
-      CreateMatrix(this.matrix).then(response => {
+      ObservationMatrix.create({ observation_matrix: this.matrix }).then(response => {
         this.matrix = response.body
       })
     },
+
     updateMatrix () {
       this.$store.dispatch(ActionNames.UpdateMatrix)
     }

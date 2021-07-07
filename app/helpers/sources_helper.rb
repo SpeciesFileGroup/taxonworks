@@ -123,6 +123,7 @@ module SourcesHelper
   def source_nomenclature_tag(source, topics)
     t = [content_tag(:span, source_tag(source))]
     t.push [':', topic_list_tag(topics).html_safe] if !topics.blank?
+    t.push radial_annotator(source)
     t.push radial_navigation_tag(source)
     t.flatten.compact.join(' ').html_safe
   end

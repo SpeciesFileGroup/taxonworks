@@ -26,7 +26,6 @@
 import SmartSelector from 'components/ui/SmartSelector'
 import DisplayList from 'components/displayList'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetKeyword } from '../../request/resources'
 import { ControlledVocabularyTerm } from 'routes/endpoints'
 
 export default {
@@ -85,7 +84,7 @@ export default {
 
     if (urlParams.topic_ids) {
       urlParams.topic_ids.forEach(id => {
-        GetKeyword(id).then(response => {
+        ControlledVocabularyTerm.find(id).then(response => {
           this.addTopic(response.body)
         })
       })

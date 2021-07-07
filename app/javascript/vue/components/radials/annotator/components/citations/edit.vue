@@ -3,7 +3,7 @@
     <div class="horizontal-left-content">
       <span v-html="editCitation.object_tag"/>
     </div>
-    <div class="flex-separate separate-top field">
+    <div class="flex-separate">
       <label class="inline middle">
         <input
           type="text"
@@ -19,26 +19,27 @@
     <soft-validation
       :in-place="true"
       :global-id="editCitation.global_id"/>
-    <button
-      class="button button-submit normal-input separate-bottom margin-medium-top"
-      :disabled="!validateFields"
-      @click="sendCitation()"
-      type="button">Update
-    </button>
-    <button
-      class="button button-default normal-input separate-bottom"
-      @click="newCitation()"
-      type="button">New
-    </button>
+    <div class="margin-small-top">
+      <button
+        class="button button-submit normal-input margin-small-right"
+        :disabled="!validateFields"
+        @click="sendCitation()"
+        type="button">Update
+      </button>
+      <button
+        class="button button-default normal-input"
+        @click="newCitation()"
+        type="button">New
+      </button>
+    </div>
   </div>
 </template>
 <script>
 
 import SoftValidation from 'components/soft_validations/objectValidation.vue'
 export default {
-  components: {
-    SoftValidation
-  },
+  components: { SoftValidation },
+
   props: {
     citation: {
       type: Object,
@@ -49,26 +50,29 @@ export default {
       required: true
     }
   },
+
+  emits: [
+    'update',
+    'new'
+  ],
+
   computed: {
-    validateFields() {
+    validateFields () {
       return this.citation.source_id
     }
   },
-  data() {
+
+  data () {
     return {
-      editCitation: this.citation,
+      editCitation: this.citation
     }
   },
-  watch: {
-    citation(newVal) {
-      this.citation = newVal
-    }
-  },
+
   methods: {
-    sendCitation() {
+    sendCitation () {
       this.$emit('update', this.editCitation)
     },
-    newCitation() {
+    newCitation () {
       this.$emit('new', true)
     }
   }

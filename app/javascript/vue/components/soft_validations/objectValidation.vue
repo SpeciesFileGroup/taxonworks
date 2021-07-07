@@ -40,7 +40,7 @@
 <script>
 
 import ModalComponent from 'components/ui/Modal.vue'
-import AjaxCall from 'helpers/ajaxCall'
+import { SoftValidation } from 'routes/endpoints'
 
 export default {
   components: { ModalComponent },
@@ -86,7 +86,7 @@ export default {
 
   methods: {
     getSoftValidation () {
-      AjaxCall('get', '/soft_validations/validate', { params: { global_id: this.globalId } }).then(response => {
+      SoftValidation.find(this.globalId).then(response => {
         this.validations = response.body.soft_validations.map(validation => validation.message)
       })
     },

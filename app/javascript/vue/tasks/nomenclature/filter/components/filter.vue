@@ -34,13 +34,27 @@
       <code-component v-model="params.base.nomenclature_code"/>
       <validity-component v-model="params.base.validity" />
       <taxon-name-type-component v-model="params.base.taxon_name_type"/>
-      <relationships-component v-model="params.base.taxon_name_relationship"/>
-      <status-component v-model="params.base.taxon_name_classification"/>
-      <in-relationship-component v-model="params.base.taxon_name_relationship_type"/>
-      <tags-component v-model="params.keywords"/>
-      <users-component v-model="params.user"/>
-      <updated-component v-model="params.base.updated_since"/>
-      <citations-component v-model="params.base.citations"/>
+      <relationships-component
+        v-model="params.base.taxon_name_relationship"
+        :nomenclature-code="params.base.nomenclature_code"/>
+      <status-component
+        v-model="params.base.taxon_name_classification"
+        :nomenclature-code="params.base.nomenclature_code"/>
+      <in-relationship-component
+        v-model="params.base.taxon_name_relationship_type"
+        :nomenclature-code="params.base.nomenclature_code"/>
+      <tags-component
+        class="margin-medium-bottom"
+        v-model="params.keywords"/>
+      <users-component
+        class="margin-medium-bottom"
+        v-model="params.user"/>
+      <updated-component
+        class="margin-medium-bottom"
+        v-model="params.base.updated_since"/>
+      <citations-component
+        class="margin-medium-bottom"
+        v-model="params.base.citations"/>
       <with-component
         v-for="(param, key) in params.with"
         :key="key"

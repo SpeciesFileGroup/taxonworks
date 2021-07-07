@@ -16,8 +16,8 @@
           class="normal-input button button-delete">Delete</button>
       </template>
     </modal>
-    <div class="panel basic-information">
-      <div class="content header">
+    <div class="panel">
+      <div class="content">
         <div
           v-if="taxon.id"
           class="flex-separate middle">
@@ -40,7 +40,7 @@
                 :taxon-name="taxon.object_tag"/>
               <radial-object :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
                 :pin-object="taxon['pinboard_item']"
@@ -172,20 +172,9 @@ export default {
   }
 }
 </script>
+
 <style lang="scss">
 #taxonNameBox {
-  .annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .separate-options {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-  }
   .taxonname {
     font-size: 14px;
   }

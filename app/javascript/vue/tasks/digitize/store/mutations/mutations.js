@@ -7,6 +7,7 @@ import lockAll from './lockAll'
 import setSettings from './setSettings'
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
+import removeContainerItem from './Container/removeContainerItem'
 import setPreferences from './setPreferences'
 import setPreparationType from './setPreparationType'
 
@@ -132,6 +133,7 @@ const MutationNames = {
 
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
+  RemoveContainerItem: 'removeContainerItem',
   SetPreferences: 'setPreferences',
 
   ResetStore: 'resetStore',
@@ -256,6 +258,7 @@ const MutationFunctions = {
 
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,
+  [MutationNames.RemoveContainerItem]: removeContainerItem,
   [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetPreparationType]: setPreparationType,

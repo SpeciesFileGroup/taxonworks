@@ -12,8 +12,7 @@
         target="_blank"
         class="list-item"
       >
-        <span v-html="item.cached_html"/>
-        <span v-html="item.cached_author_year"/>
+        <span v-html="composeName(item)" />
       </a>
       <div class="list-controls">
         <placement-component
@@ -47,6 +46,7 @@ export default {
     PlacementComponent,
     ConfidenceButton
   },
+
   props: {
     list: {
       type: Array,
@@ -58,7 +58,13 @@ export default {
     'placement',
     'edit',
     'delete'
-  ]
+  ],
+
+  methods: {
+    composeName (taxon) {
+      return `${taxon.cached_html} ${taxon.cached_author_year || ''}`
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>

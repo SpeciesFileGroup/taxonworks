@@ -78,8 +78,8 @@
 </template>
 <script>
 
+import { Depiction } from 'routes/endpoints'
 import Modal from 'components/ui/Modal.vue'
-import { UpdateDepiction } from './request/resources'
 import RadialAnnotator from 'components/radials/annotator/annotator'
 import RadialNavigation from 'components/radials/navigation/radial'
 import MarkdownEditor from 'components/markdown-editor.vue'
@@ -127,7 +127,7 @@ export default {
         is_metadata_depiction: this.depiction.is_metadata_depiction
       }
 
-      UpdateDepiction(this.depiction.id, { depiction: depiction }).then(response => {
+      Depiction.update(this.depiction.id, { depiction }).then(_ => {
         TW.workbench.alert.create('Depiction was successfully updated.', 'notice')
       })
     },

@@ -77,7 +77,7 @@ import UsersComponent from 'tasks/collection_objects/filter/components/filters/u
 import SomeValueComponent from './filters/SomeValue/SomeValue'
 import TaxonNameComponent from './filters/TaxonName'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetSources } from '../request/resources.js'
+import { Source } from 'routes/endpoints'
 
 const parseAttributeParams = (attributes) => ({
   empty: attributes.filter(item => item.empty).map(item => item.name),
@@ -158,7 +158,7 @@ export default {
     getSources (params) {
       this.searching = true
       this.$emit('newSearch')
-      GetSources(params).then(response => {
+      Source.where(params).then(response => {
         this.$emit('result', response.body)
         this.$emit('urlRequest', response.request.responseURL)
         this.$emit('pagination', response)

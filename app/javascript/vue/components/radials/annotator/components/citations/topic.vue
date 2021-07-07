@@ -45,9 +45,9 @@ import SmartSelector from 'components/ui/SmartSelector'
 
 export default {
   mixins: [CRUD],
-  components: {
-    SmartSelector
-  },
+
+  components: { SmartSelector },
+
   props: {
     globalId: {
       type: String,
@@ -62,22 +62,28 @@ export default {
       required: true
     }
   },
+
+  emits: ['create'],
+
   computed: {
     validateFields () {
       return this.topicsSelected.length
     }
   },
+
   data() {
     return {
       topicsSelected: [],
       topicsAllList: undefined
     }
   },
+
   mounted () {
     this.getList('/controlled_vocabulary_terms.json?type[]=Topic').then(response => {
       this.topicsAllList = response.body
     })
   },
+
   methods: {
     sendTopic (topic) {
       this.$emit('create', {

@@ -138,8 +138,7 @@ import CloneSource from './components/cloneSource'
 
 import PinComponent from 'components/ui/Pinboard/VPin.vue'
 
-import { GetUserPreferences } from './request/resources'
-
+import { User } from 'routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { MutationNames } from './store/mutations/mutations'
@@ -235,7 +234,7 @@ export default {
       this.$store.dispatch(ActionNames.LoadSource, sourceId)
     }
 
-    GetUserPreferences().then(response => {
+    User.preferences().then(response => {
       this.$store.commit(MutationNames.SetPreferences, response.body)
     })
   },

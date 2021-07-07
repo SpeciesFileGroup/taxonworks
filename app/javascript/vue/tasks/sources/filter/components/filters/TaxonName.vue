@@ -37,7 +37,7 @@
 
 import Autocomplete from 'components/ui/Autocomplete'
 import { URLParamsToJSON } from 'helpers/url/parse.js'
-import { GetTaxonName } from '../../request/resources'
+import { TaxonName } from 'routes/endpoints'
 
 export default {
   components: { Autocomplete },
@@ -80,7 +80,7 @@ export default {
 
   methods: {
     setTaxon (id) {
-      GetTaxonName(id).then(response => {
+      TaxonName.find(id).then(response => {
         this.taxon = response.body
         this.nomenclature.ancestor_id = response.body.id
       })

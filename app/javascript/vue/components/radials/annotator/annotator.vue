@@ -36,6 +36,7 @@
                 {{ currentAnnotator.replace("_"," ") }}
               </h2>
               <component
+                v-if="metadataLoaded"
                 class="radial-annotator-container"
                 :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
                 :type="currentAnnotator"
@@ -265,12 +266,12 @@ export default {
   watch: {
     metadataLoaded () {
       if (this.defaultView) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     },
     display (newVal) {
       if (newVal && this.metadataLoaded) {
-        this.currentAnnotator = this.defaultView ? (this.isComponentExist(this.defaultView) ? this.defaultView : undefined) : undefined
+        this.currentAnnotator = this.isComponentExist(this.defaultView)
       }
     }
   },
@@ -281,7 +282,7 @@ export default {
   },
   methods: {
     isComponentExist (componentName) {
-      return this.$options.components[componentName] ? true : false
+      return this.$options.components[`${componentName}Annotator`] ? componentName : undefined
     },
     loadContextMenu () {
       this.showContextMenu = true

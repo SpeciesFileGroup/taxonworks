@@ -9,22 +9,20 @@
       </template>
       <template #body>
         <div>
-          <template>
-            <img
-              class="img-maxsize img-fullsize"
-              v-if="fullSizeImage"
-              @click="fullSizeImage = false"
-              :src="image.image_file_url"
-              :height="image.height"
-              :width="image.width">
-            <img
-              v-else
-              class="img-maxsize img-normalsize"
-              @click="fullSizeImage = true"
-              :src="image.alternatives.medium.image_file_url"
-              :height="image.alternatives.medium.height"
-              :width="image.alternatives.medium.width">
-          </template>
+          <img
+            class="img-maxsize img-fullsize"
+            v-if="fullSizeImage"
+            @click="fullSizeImage = false"
+            :src="image.image_file_url"
+            :height="image.height"
+            :width="image.width">
+          <img
+            v-else
+            class="img-maxsize img-normalsize"
+            @click="fullSizeImage = true"
+            :src="image.alternatives.medium.image_file_url"
+            :height="image.alternatives.medium.height"
+            :width="image.alternatives.medium.width">
           <div class="flex-separate">
             <button
               type="button"

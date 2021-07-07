@@ -257,26 +257,6 @@ class Protonym < TaxonName
     end
   end
 
-  # @return [String, nil]
-  # TODO: not true, *has* parens?!
-  #   a string, without parenthesis, that includes author and year
-  def get_author_and_year
-    # times_called
-    case rank_class.try(:nomenclatural_code)
-      when :iczn
-        ay = iczn_author_and_year
-      when :icvcn
-        ay = icn_author_and_year
-      when :icnp
-        ay = icn_author_and_year
-      when :icn
-        ay = icn_author_and_year
-      else
-        ay = ([author_string] + [year_integer]).compact.join(' ')
-    end
-    ay.blank? ? nil : ay
-  end
-
   # This method is currently only used for setting cached_primary_homonym
   # @return [nil, false, String]
   #   !! Why both?
@@ -678,7 +658,7 @@ class Protonym < TaxonName
     return nil if e.none?
 
     # Weird, why?
-    # DD: in ICTV the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
+    # DD: in ICVCN the species name is "Potato spindle tuber viroid", the genus name is only used for classification...
     #
     # @proceps: then we should exclude or alter elements before we get to this point, not here, so that the renderer still works, exceptions at this point are bad
     # and this didn't do what you think it did, it's was returning an Array of two things

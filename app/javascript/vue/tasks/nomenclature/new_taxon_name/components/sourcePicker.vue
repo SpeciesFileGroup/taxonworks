@@ -81,16 +81,17 @@
           <autocomplete
             url="/sources/autocomplete"
             min="3"
-            :autofocus="true"
+            autofocus
             param="term"
             label="label_html"
             placeholder="Type for search..."
             display="label"
-            :clear-after="true"
+            clear-after
             @getItem="setSource($event.id)"
           />
           <default-element
             v-if="!citation"
+            class="margin-small-left"
             label="source"
             type="Source"
             section="Sources"
@@ -148,7 +149,7 @@
       <div v-show="show == 'person'">
         <div class="flex-separate">
           <role-picker
-            v-model:modelValue="roles"
+            v-model="roles"
             @create="updateLastChange"
             @delete="updateLastChange"
             @sortable="updateLastChange"
@@ -229,7 +230,7 @@ export default {
         const roles = this.$store.getters[GetterNames.GetRoles]
 
         return roles
-          ? this.$store.getters[GetterNames.GetRoles].sort((a, b) => a.position - b.position)
+          ? roles.sort((a, b) => a.position - b.position)
           : []
       },
       set (value) {
