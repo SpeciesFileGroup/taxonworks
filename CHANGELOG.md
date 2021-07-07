@@ -17,7 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Radial annotator for references in Browse Nomenclature/OTU tasks [#2103]
 - Depict person in New image task [#2321]
 - Move to `person` option for Depictions slice in Radial annotator
-- Sort by nomenclature in edit/new observation matrix task
+- Sort by nomenclature in edit/new observation matrix task [#1748]
 - Added authors facet in Filter nomenclature task
 
 ### Changed
@@ -40,7 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Destroy container when all other objects in container are deleted [#2322]
 - Clicking on "Tag" in Filter collection objects does not add tag [#2323]
 
-
+[#1748]: https://github.com/SpeciesFileGroup/taxonworks/issues/1748
 [#2102]: https://github.com/SpeciesFileGroup/taxonworks/issues/2102
 [#2103]: https://github.com/SpeciesFileGroup/taxonworks/issues/2103
 [#2105]: https://github.com/SpeciesFileGroup/taxonworks/issues/2105
