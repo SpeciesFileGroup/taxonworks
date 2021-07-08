@@ -33,12 +33,14 @@ export default ({ commit, dispatch, state }, id) =>
 
         state.identifiers = []
 
-        commit(MutationNames.SetIdentifier, {
-          identifier: identifier.identifier,
-          identifier_object_id: co.id,
-          namespace_id: identifier.namespace_id,
-          type: 'Identifier::Local::CatalogNumber'
-        })
+        if (identifier) {
+          commit(MutationNames.SetIdentifier, {
+            identifier: identifier.identifier,
+            identifier_object_id: co.id,
+            namespace_id: identifier.namespace_id,
+            type: 'Identifier::Local::CatalogNumber'
+          })
+        }
         dispatch(ActionNames.SaveIdentifier, state.collection_objects[0].id)
       })
     }

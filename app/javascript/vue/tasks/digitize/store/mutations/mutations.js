@@ -45,6 +45,7 @@ import setCollectionObjectPreparationId from './CollectionObject/setCollectionOb
 import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjectRangeLotId'
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
+import setCOCitations from './setCOCitations'
 
 import setCollectionEvent from './CollectionEvent/setCollectionEvent'
 import setCollectionEventDataAttributes from './CollectionEvent/setCollectionEventDataAttributes'
@@ -223,6 +224,7 @@ const MutationNames = {
   SetCollectionEventRoles: 'setCollectionEventRoles',
   SetCollectionEventIdentifier: 'setCollectionEventIdentifier',
 
+  SetCOCitations: 'setCOCitations',
   SetCollectionObjectDataAttributes: 'setCollectionObjectDataAttributes',
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
@@ -343,6 +345,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
   [MutationNames.SetCollectionEventIdentifier]: setCollectionEventIdentifier,
 
+  [MutationNames.SetCOCitations]: setCOCitations,
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectDataAttributes]: setCollectionObjectDataAttributes,
   [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,

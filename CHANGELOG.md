@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Move to `person` option for Depictions slice in Radial annotator
 - Sort by nomenclature in edit/new observation matrix task [#1748]
 - Added authors facet in Filter nomenclature task
+- Citations panel for Collection object section with lock option in comprehensive specimen digitization task [#2328]
 
 ### Changed
 - Updated ruby gems

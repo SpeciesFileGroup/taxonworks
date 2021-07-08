@@ -2,6 +2,7 @@ import isSaving from './isSaving'
 import isLoading from './isLoading'
 import getLocked from './getLocked'
 import getSettings from './getSettings'
+import getCOCitations from './getCOCitations'
 import getCollectionEvent from './getCollectionEvent'
 import getCollectionObject from './getCollectionObject'
 import getCollectionObjects from './getCollectionObjects'
@@ -36,6 +37,7 @@ const GetterNames = {
   GetLocked: 'getLocked',
   GetSettings: 'getSettings',
   GetTaxonDetermination: 'getTaxonDetermination',
+  GetCOCitations: 'getCOCitations',
   GetCollectingEventIdentifier: 'getCollectingEventIdentifier',
   GetCollectionEvent: 'getCollectionEvent',
   GetCollectionObject: 'getCollectionObject',
@@ -71,6 +73,7 @@ const GetterFunctions = {
   [GetterNames.GetSettings]: getSettings,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetGeographicArea]: getGeographicArea,
+  [GetterNames.GetCOCitations]: getCOCitations,
   [GetterNames.GetCollectionEventLabel]: getCollectionEventLabel,
   [GetterNames.GetCollectingEventIdentifier]: getCollectingEventIdentifier,
   [GetterNames.GetCollectionEvent]: getCollectionEvent,
