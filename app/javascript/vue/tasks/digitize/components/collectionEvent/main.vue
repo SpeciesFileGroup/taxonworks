@@ -160,7 +160,8 @@ export default {
   },
   data () {
     return {
-      alreadyUsed: 0
+      alreadyUsed: 0,
+      checkingForAlreadyUsed: false
     }
   },
   watch: {
@@ -174,11 +175,6 @@ export default {
         this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.id] })).body.length
       } else {
         this.alreadyUsed = 0
-      }
-    },
-    async collectionObject (newVal, oldVal) {
-      if (newVal?.id !== oldVal?.id && newVal.collecting_event_id) {
-        this.alreadyUsed = (await CollectionObject.where({ collecting_event_ids: [newVal.collecting_event_id] })).body.length
       }
     }
   },
