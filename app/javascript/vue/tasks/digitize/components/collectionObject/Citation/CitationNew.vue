@@ -33,6 +33,7 @@
       >
       <label>
         <input
+          v-model="is_original"
           type="checkbox">
         Is original
       </label>
