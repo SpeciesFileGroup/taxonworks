@@ -160,8 +160,7 @@ export default {
   },
   data () {
     return {
-      alreadyUsed: 0,
-      checkingForAlreadyUsed: false
+      alreadyUsed: 0
     }
   },
   watch: {
