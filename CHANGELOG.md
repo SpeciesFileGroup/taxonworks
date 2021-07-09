@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+- Show selected options for biological associations in comprehensive specimen digitization task [#2332]
+
+[#2332]: https://github.com/SpeciesFileGroup/taxonworks/issues/2332
+
 
 ## [0.19.0] - 2021-07-08
 
