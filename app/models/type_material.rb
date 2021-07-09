@@ -104,6 +104,10 @@ class TypeMaterial < ApplicationRecord
     end
   end
 
+  def type_string
+
+  end
+
   protected
 
   def check_type_type

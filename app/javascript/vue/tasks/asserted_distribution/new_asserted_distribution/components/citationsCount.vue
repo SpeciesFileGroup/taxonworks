@@ -11,26 +11,27 @@
     <modal-component
       v-if="showCitations"
       @close="setModalView(false)">
-      <h3 slot="header">Citations</h3>
-      <div
-        slot="body">
+      <template #header>
+        <h3>Citations</h3>
+      </template>
+      <template #body>
         <display-list
           :list="citations"
           :validations="true"
           :label="['citation_source_body']"
           @delete="removeCitation"
           :edit="false">
-          <div
-            slot="options"
-            slot-scope="slotProps">
-            <a
-              :title="slotProps.item.source.object_tag"
-              class="button-default circle-button btn-citation"
-              :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
-              target="blank"/>
-          </div>
+          <template #options="slotProps">
+            <div>
+              <a
+                :title="slotProps.item.source.object_tag"
+                class="button-default circle-button btn-citation"
+                :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
+                target="blank"/>
+            </div>
+          </template>
         </display-list>
-      </div>
+      </template>
     </modal-component>
   </span>
 </template>
@@ -45,17 +46,20 @@ export default {
     DisplayList,
     ModalComponent
   },
+
   props: {
     citations: {
       type: Array,
       required: true
-    },
+    }
   },
+
   data () {
     return {
       showCitations: false
     }
   },
+
   methods: {
     setModalView (value) {
       this.showCitations = value

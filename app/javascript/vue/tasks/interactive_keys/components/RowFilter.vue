@@ -14,8 +14,10 @@
         overflow: 'scroll',
         maxHeight: '80vh'
       }">
-      <h3 slot="header">Row filter</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Row filter</h3>
+      </template>
+      <template #body>
         <div class="margin-small-bottom">
           <button
             v-if="allSelected"
@@ -54,31 +56,33 @@
             </label>
           </li>
         </ul>
-      </div>
-      <div slot="footer">
-        <button
-          v-if="allSelected"
-          type="button"
-          class="button normal-input button-default margin-small-bottom"
-          @click="unselectAll">
-          Unselect all
-        </button>
-        <button
-          v-else
-          type="button"
-          class="button normal-input button-default margin-small-bottom"
-          @click="selectAll">
-          Select all
-        </button>
-        <button
-          type="button"
-          class="button normal-input button-default"
-          @click="closeAndApply">
-          Apply filter
-        </button>
-        <button-image-matrix
-          :otu-ids="this.selectedRows"/>
-      </div>
+      </template>
+      <template #footer>
+        <div>
+          <button
+            v-if="allSelected"
+            type="button"
+            class="button normal-input button-default margin-small-bottom"
+            @click="unselectAll">
+            Unselect all
+          </button>
+          <button
+            v-else
+            type="button"
+            class="button normal-input button-default margin-small-bottom"
+            @click="selectAll">
+            Select all
+          </button>
+          <button
+            type="button"
+            class="button normal-input button-default"
+            @click="closeAndApply">
+            Apply filter
+          </button>
+          <button-image-matrix
+            :otu-ids="this.selectedRows"/>
+        </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -105,9 +109,11 @@ export default {
     remaining () {
       return this.observationMatrix ? this.observationMatrix.remaining : []
     },
+
     filters () {
       return this.$store.getters[GetterNames.GetParamsFilter]
     },
+
     rowFilter: {
       get () {
         return this.$store.getters[GetterNames.GetRowFilter]
@@ -116,6 +122,7 @@ export default {
         this.$store.commit(MutationNames.SetRowFilter, value)
       }
     },
+
     allSelected () {
       return Object.keys(this.selectedRows).length === this.remaining.length
     }

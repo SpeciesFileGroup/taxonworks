@@ -217,7 +217,7 @@ class TaxonNameClassification < ApplicationRecord
             )
           end
         elsif type_name =~ /Latinized::Gender/
-          t.descendants.select{|t| t.id == t.cached_valid_taxon_name_id}.uniq.each do |t1|
+          t.descendants.with_same_cached_valid_id.each do |t1|
             n = t1.get_full_name
             t1.update_columns(
                 cached: n,
@@ -256,6 +256,8 @@ class TaxonNameClassification < ApplicationRecord
           t.combination_list_self.each do |c|
             c.update_columns(cached_valid_taxon_name_id: vn.id)
           end
+        else
+          t.update_columns(cached_is_valid: false)
         end
       end
     rescue ActiveRecord::RecordInvalid

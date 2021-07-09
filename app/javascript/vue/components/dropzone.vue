@@ -14,7 +14,7 @@ export default {
   props: {
     id: {
       type: String,
-      required: true
+      default: undefined
     },
     url: {
       type: String,
@@ -129,8 +129,10 @@ export default {
     if (this.$isServer) {
       return
     }
-    Dropzone.autoDiscover = false
     const element = this.id ? document.getElementById(this.id) : this.$el
+
+    Dropzone.autoDiscover = false
+
     if (!this.useCustomDropzoneOptions) {
       this.dropzone = new Dropzone(element, {
         clickable: this.clickable,
@@ -192,7 +194,7 @@ export default {
       vm.$emit('vdropzone-queue-complete', file, xhr, formData)
     })
   },
-  beforeDestroy () {
+  beforeUnmount () {
     this.dropzone.destroy()
   }
 }

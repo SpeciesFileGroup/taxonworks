@@ -5,7 +5,7 @@
       :value="type"
       :key="type"
     >
-      {{ type | humanize }}
+      {{ humanize(type) }}
     </option>
   </select>
 </template>
@@ -13,7 +13,7 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String
     },
     layoutTypes: {
@@ -21,18 +21,22 @@ export default {
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     mapOption: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },
-  filters: {
-    humanize: function (value) {
+
+  methods: {
+    humanize (value) {
       if (!value) return ''
       value = value.toString().replace(/_/g, ' ')
       return value.charAt(0).toUpperCase() + value.slice(1)

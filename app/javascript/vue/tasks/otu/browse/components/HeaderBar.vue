@@ -2,7 +2,9 @@
   <div class="panel separate-bottom">
     <div
       class="content"
-      :class="{ 'feedback-warning': isInvalid }">
+      :class="{ 'feedback-warning': isInvalid }"
+      v-hotkey="shortcuts"
+    >
       <ul
         v-if="navigation"
         class="breadcrumb_list">
@@ -34,13 +36,8 @@
           v-html="navigation.current_otu.object_label"/>
       </ul>
       <div class="horizontal-left-content middle">
-        <h2
-          v-shortkey="[platformKey(), 't']"
-          @shortkey="switchNewTaxonName()"
-          v-html="otu.object_tag"/>
+        <h2 v-html="otu.object_tag"/>
         <div
-          v-shortkey="[platformKey(), 'b']"
-          @shortkey="switchBrowse()"
           class="horizontal-left-content">
           <browse-taxon
             v-if="otu.taxon_name_id"
@@ -62,19 +59,16 @@
           </button>
         </div>
       </div>
-      <span
-        v-shortkey="[platformKey(), 'm']"
-        @shortkey="switchTypeMaterial()"/>
-      <span
-        v-shortkey="[platformKey(), 'e']"
-        @shortkey="switchComprehensive()"/>
       <ul
         class="context-menu no_bullets">
-        <template v-for="item in menu">
-          <li
-            :key="item"
-            v-show="showForRanks(item)">
-            <a data-turbolinks="false" :href="`#${item}`">{{item}}</a>
+        <template
+          v-for="item in menu"
+          :key="item">
+          <li v-show="showForRanks(item)">
+            <a
+              data-turbolinks="false"
+              :href="`#${item}`"
+            >{{item}}</a>
           </li>
         </template>
       </ul>
@@ -115,9 +109,21 @@ export default {
   },
 
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+t`] = this.switchNewTaxonName
+      keys[`${platformKey()}+b`] = this.switchBrowse
+      keys[`${platformKey()}+m`] = this.switchTypeMaterial
+      keys[`${platformKey()}+e`] = this.switchComprehensive
+
+      return keys
+    },
+
     taxonName () {
       return this.$store.getters[GetterNames.GetTaxonName]
     },
+
     isInvalid () {
       return this.taxonName && this.taxonName.id !== this.taxonName.cached_valid_taxon_name_id
     }
@@ -141,26 +147,29 @@ export default {
   },
 
   created () {
-    TW.workbench.keyboard.createLegend(`${this.platformKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.platformKey()}+m`, 'Go to new type specimen', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.platformKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
-    TW.workbench.keyboard.createLegend(`${this.platformKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+t`, 'Go to new taxon name task', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+m`, 'Go to new type specimen', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+e`, 'Go to comprehensive specimen digitization', 'Browse OTU')
+    TW.workbench.keyboard.createLegend(`${platformKey()}+b`, 'Go to browse nomenclature', 'Browse OTU')
   },
 
   methods: {
-    platformKey,
     loadOtu (event) {
       window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
     },
+
     switchBrowse () {
       this.$refs.browseTaxon.redirect()
     },
+
     switchNewTaxonName () {
       window.open(`/tasks/nomenclature/new_taxon_name?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },
+
     switchTypeMaterial () {
       window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },
+
     switchComprehensive () {
       window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.otu.taxon_name_id}`, '_self')
     },

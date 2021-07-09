@@ -31,21 +31,25 @@ export default {
       type: Object,
       required: true
     },
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     label: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set (value) {
-        this.$emit('input', value)
+        this.$emit('update:modelValue', value)
       }
     }
   },
+
   created () {
     this.label.text = this.identifier.cached
   }

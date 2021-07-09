@@ -15,7 +15,7 @@ class CitationsController < ApplicationController
       format.json {
         @citations = Queries::Citation::Filter.new(params).all.where(project_id: sessions_current_project_id).includes(:source)
           .order(:source_id, :pages)
-          .page(params[:page]).per(params[:per] || 500)
+          .page(params[:page]).per(params[:per] || 5)
         @verbose_object = params[:verbose_object]
       }
     end

@@ -16,6 +16,7 @@ import loadTaxonStatus from './loadTaxonStatus'
 import loadRanks from './loadRanks'
 import loadStatus from './loadStatus'
 import loadRelationships from './loadRelationships'
+import loadOriginalCombination from './loadOriginalCombination'
 import changeTaxonSource from './changeTaxonSource'
 import removeSource from './removeSource'
 import updateClassification from './updateClassification'
@@ -43,6 +44,7 @@ const ActionNames = {
   LoadRanks: 'loadRanks',
   LoadStatus: 'loadStatus',
   LoadRelationships: 'loadRelationships',
+  LoadOriginalCombination: 'loadOriginalCombination',
   ChangeTaxonSource: 'changeTaxonSource',
   RemoveSource: 'removeSource',
   UpdateClassification: 'updateClassification',
@@ -60,6 +62,7 @@ const ActionFunctions = {
   [ActionNames.LoadRelationships]: loadRelationships,
   [ActionNames.LoadTaxonRelationships]: loadTaxonRelationships,
   [ActionNames.LoadTaxonStatus]: loadTaxonStatus,
+  [ActionNames.LoadOriginalCombination]: loadOriginalCombination,
   [ActionNames.SetParentAndRanks]: setParentAndRanks,
   [ActionNames.AddTaxonStatus]: addTaxonStatus,
   [ActionNames.AddTaxonType]: addTaxonType,

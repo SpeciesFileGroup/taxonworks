@@ -198,14 +198,6 @@ class CollectionObjectsController < ApplicationController
     end
   end
 
-  def autocomplete
-    @collection_objects =
-      Queries::CollectionObject::Autocomplete.new(
-        params[:term],
-        project_id: sessions_current_project_id
-      ).autocomplete
-  end
-
   # GET /collection_objects/download
   def download
     send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
@@ -304,11 +296,13 @@ class CollectionObjectsController < ApplicationController
   end
 
   def autocomplete
-    @collection_objects = Queries::CollectionObject::Autocomplete.new(
-      params[:term],
-      project_id: sessions_current_project_id
-    ).autocomplete
+    @collection_objects =
+      Queries::CollectionObject::Autocomplete.new(
+        params[:term],
+        project_id: sessions_current_project_id
+      ).autocomplete
   end
+
 
   # GET /api/v1/collection_objects
   def api_index
@@ -467,7 +461,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [], #
       determiner_id: [],
-      geographic_area_ids: [],
+      geographic_area_id: [],
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],
@@ -545,7 +539,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_ids: [],
       collector_ids: [],
       determiner_id: [],
-      geographic_area_ids: [], # CE filter
+      geographic_area_id: [], # CE filter
       is_type: [],
       keyword_id_and: [],
       keyword_id_or: [],

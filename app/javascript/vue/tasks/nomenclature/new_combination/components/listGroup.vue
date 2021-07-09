@@ -109,9 +109,16 @@ export default {
     },
     acceptTaxonIds: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: [
+    'rankPicked',
+    'addToList',
+    'onTaxonSelect'
+  ],
+
   computed: {
     rankChoose: {
       get () {
@@ -122,26 +129,28 @@ export default {
         this.selectTaxon(taxon)
       }
     },
-    searchGroup() {
-      switch(this.rankName) {
+    searchGroup () {
+      switch (this.rankName) {
         case 'subgenus':
-        return 'genus'
+          return 'genus'
         case 'subspecies':
-        return 'species'
+          return 'species'
         case 'variety':
-        return 'species'
+          return 'species'
         default:
-        return this.rankName
+          return this.rankName
       }
     }
   },
-  data: function () {
+
+  data () {
     return {
       expanded: true,
       haltWatcher: false,
       displaySearch: false
     }
   },
+
   watch: {
     list: {
       handler (newVal) {
@@ -166,16 +175,20 @@ export default {
       immediate: true
     }
   },
+
   methods: {
     checkRankSelected (taxon) {
       return this.rankChoose && taxon.id === this.rankChoose.id
     },
+
     expandList () {
       this.displaySearch = false
       this.expanded = true
     },
+
     inOrder (list) {
-      let newOrder = list.slice(0)
+      const newOrder = list.slice(0)
+
       newOrder.sort((a, b) => {
         if (a.original_combination < b.original_combination) { return -1 }
         if (a.original_combination > b.original_combination) { return 1 }
@@ -183,6 +196,7 @@ export default {
       })
       return newOrder
     },
+
     getFromAutocomplete (event) {
       TaxonName.find(event.id).then(response => {
         this.selectTaxon(response.body)
@@ -191,10 +205,12 @@ export default {
         this.$emit('addToList', { rank:this.rankName, taxon: response.body })
       })
     },
+
     selectTaxon (taxon) {
       this.expanded = false
       this.$emit('onTaxonSelect', taxon)
     },
+
     setFocus () {
       if (this.$refs.rankRadio.length > 1) {
         if (this.selected) {
@@ -206,6 +222,7 @@ export default {
         this.$refs.rankRadio.$el.focus()
       }
     },
+
     isSelected (taxon) {
       return this.selected?.id === taxon.id
     }

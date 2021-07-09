@@ -39,11 +39,15 @@ export default {
       type: Object,
       default: () => ({})
     },
+
     containerStyle: {
       type: Object,
       default: () => ({})
     }
   },
+
+  emits: ['close'],
+
   mounted () {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {

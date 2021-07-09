@@ -1537,7 +1537,9 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      if !self.roles.empty? && self.source && has_misspelling_relationship?
+      #DD: do not use .has_misspelling_relationship?
+      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
+      if !self.roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
           success_message: 'Roles were deleted',

@@ -1,15 +1,18 @@
 <template>
   <block-layout>
-    <h3 slot="header">Custom attributes</h3>
-    <custom-attributes
-      v-if="projectPreferences"
-      slot="body"
-      :object-id="extractId"
-      object-type="Extract"
-      model="Extract"
-      :model-preferences="projectPreferences.model_predicate_sets.Extract"
-      @onUpdate="setAttributes"
-    />
+    <template #header>
+      <h3>Custom attributes</h3>
+    </template>
+    <template #body>
+      <custom-attributes
+        v-if="projectPreferences"
+        :object-id="extractId"
+        object-type="Extract"
+        model="Extract"
+        :model-preferences="projectPreferences.model_predicate_sets.Extract"
+        @onUpdate="setAttributes"
+      />
+    </template>
   </block-layout>
 </template>
 

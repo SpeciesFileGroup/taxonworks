@@ -1,29 +1,22 @@
 
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
-function init(element) {
-  let id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
-  let globalId = element.getAttribute('data-global-id')
+function init (element) {
+  const id = `otu-radial-${(Math.random().toString(36).substr(2, 5))}`
+  const globalId = element.getAttribute('data-global-id')
 
   if (globalId) {
-    element.setAttribute('id', id)
-
-    new Vue({
-      el: `#${id}`,
-      render: function (createElement) {
-        return createElement(App, {
-          props: {
-            id: id,
-            globalId: globalId
-          }
-        })
-      }
-    })
+    const props = {
+      id: id,
+      globalId: globalId
+    }
+    const app = createApp(App, props)
+    app.mount(element)
   }
 }
 
-document.addEventListener('turbolinks:load', (event) => {
+document.addEventListener('turbolinks:load', () => {
   if (document.querySelector('[data-otu-radial="true"]')) {
     document.querySelectorAll('[data-otu-radial="true"]').forEach((element) => {
       init(element)

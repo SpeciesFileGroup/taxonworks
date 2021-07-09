@@ -274,6 +274,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:s1) { Protonym.create!(name: 'aus', parent: root, rank_class: Ranks.lookup(:iczn, :species)) }
     let(:s2) { Protonym.create!(name: 'aus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)) }
 
+    specify 'list_of_coordinated_names' do
+      g3 = Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus))
+      c1 = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: g3)
+      g1.reload
+      expect(g3.cached_is_valid).to be_falsey
+      expect(g3.list_of_coordinated_names.count).to eq(0)
+      expect(g2.list_of_coordinated_names.count).to eq(1)
+      expect(g1.list_of_coordinated_names.count).to eq(1)
+    end
+
     specify '#nominotypical_sub_of? 1' do
       expect(g1.nominotypical_sub_of?(g2)).to be_falsey
     end

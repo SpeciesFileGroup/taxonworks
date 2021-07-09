@@ -10,10 +10,11 @@
       :add-tabs="['search']"
       :search="false"
     >
-      <sequence-picker
-        slot="search"
-        :clear-after="true"
-        @getItem="sendSelected($event.id)"/>
+      <template #search>
+        <sequence-picker
+          clear-after
+          @getItem="sendSelected($event.id)"/>
+      </template>
     </smart-selector>
   </fieldset>
 </template>
@@ -24,16 +25,20 @@ import SmartSelector from 'components/ui/SmartSelector'
 import SequencePicker from 'components/sequence/sequence_picker/sequence_picker.vue'
 
 export default {
+  components: {
+    SmartSelector,
+    SequencePicker
+  },
+
   props: {
     title: {
       type: String,
       required: true
     }
   },
-  components: {
-    SmartSelector,
-    SequencePicker
-  },
+
+  emits: ['selected'],
+
   data () {
     return {
       lists: [],
@@ -50,7 +55,7 @@ export default {
 }
 </script>
 <style scoped>
-  ::v-deep .vue-autocomplete-input {
+  :deep(.vue-autocomplete-input) {
     width: 100%;
   }
 </style>

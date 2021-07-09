@@ -1,10 +1,11 @@
 <template>
   <div>
-    <template v-for="(object, key) in keywords.totals">
+    <template
+      v-for="(object, key) in keywords.totals"
+      :key="key">
       <div
         class="tag_list"
         v-if="object"
-        :key="key"
       >
         <div class="capitalize tag_label">
           {{ key }}

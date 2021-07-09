@@ -203,7 +203,7 @@ export default {
       })
       this.observeMap.observe(this.$el)
     },
-    destroyed () {
+    unmounted () {
       this.observeMap.disconnect()
     },
     clearFound () {

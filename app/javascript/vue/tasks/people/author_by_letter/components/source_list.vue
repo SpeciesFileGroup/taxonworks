@@ -4,7 +4,6 @@
       <tr>
         <th>Source</th>
         <th/>
-        <th/>
       </tr>
       <source-row-component
         v-for="src in list"
@@ -17,17 +16,18 @@
   </div>
 </template>
 <script>
-  import SourceRowComponent from './source_row_component'
+import SourceRowComponent from './source_row_component'
 
-  export default {
-    components: {
-      SourceRowComponent
-    },
-    props: {
-      list: {
-        type: Array,
-        required: true
-      },
+export default {
+  components: {
+    SourceRowComponent
+  },
+
+  props: {
+    list: {
+      type: Array,
+      required: true
     }
   }
+}
 </script>

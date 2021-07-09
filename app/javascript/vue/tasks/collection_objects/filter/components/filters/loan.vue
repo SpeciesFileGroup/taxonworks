@@ -36,18 +36,21 @@ import { URLParamsToJSON } from 'helpers/url/parse.js'
 
 export default {
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true,
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     loans: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
   },

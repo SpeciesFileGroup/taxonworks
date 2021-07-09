@@ -395,11 +395,6 @@ class Combination < TaxonName
     protonyms_by_rank.values.last
   end
 
-  def get_author_and_year
-    ay = iczn_author_and_year
-    ay.blank? ? nil : ay
-  end
-
   # @return [Array of TaxonNames, nil]
   #   return the component names for this combination prior to it being saved
   def protonyms_by_association
@@ -443,9 +438,11 @@ class Combination < TaxonName
   def sv_cached_names
     is_cached = true
     is_cached = false if cached_author_year != get_author_and_year
-    is_cached = false if cached_is_valid.nil?
 
-    if is_cached && cached_html != get_full_name_html
+    if  is_cached && (
+        cached_is_valid.nil? ||
+        cached_html != get_full_name_html ||
+        cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
 

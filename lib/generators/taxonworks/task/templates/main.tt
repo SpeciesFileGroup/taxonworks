@@ -1,17 +1,14 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './app.vue'
 
 function init (){
-  new Vue({
-    el: '#vue-task',
-    render: function (createElement) {
-      return createElement(App)
-    }
-  })
+  const app = createApp(App)
+
+  app.mount('#<%= controller_base_name %>_task')
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#vue-task')) {
+  if (document.querySelector('#<%= controller_base_name %>_task')) {
     init()
   }
 })

@@ -1,35 +1,53 @@
 
 <template>
   <div v-if="keyId">
-    <tippy-component
+    <tippy
       v-if="!created"
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <template v-slot:trigger>
-        <div
-          class="default_tag_widget circle-button btn-tag-add"
-          @click="createTag()"/>
+      inertia
+      arrow
+    >
+      <template #trigger>
+        <p>Create tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
       </template>
-    </tippy-component>
+      <v-btn
+        @click="createTag()"
+        circle
+        color="create"
+      >
+        <v-icon
+          color="white"
+          name="label"
+          x-small
+        />
+      </v-btn>
+    </tippy>
 
-    <tippy-component
+    <tippy
       v-else
       animation="scale"
       placement="bottom"
       size="small"
       :inertia="true"
       :arrow="true"
-      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <template v-slot:trigger>
-        <div
-          class="default_tag_widget circle-button btn-tag-delete"
-          @click="deleteTag()"/>
+    >
+      <template #trigger>
+        <p>Remove tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
       </template>
-    </tippy-component>
+      <v-btn
+        @click="deleteTag()"
+        circle
+        color="destroy"
+      >
+        <v-icon
+          color="white"
+          name="label"
+          x-small
+        />
+      </v-btn>
+    </tippy>
   </div>
   <div
     v-else
@@ -37,27 +55,37 @@
 </template>
 
 <script>
-import { TippyComponent } from 'vue-tippy'
+
 import AjaxCall from 'helpers/ajaxCall'
+import { Tippy } from 'vue-tippy'
+import { Tag } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
   components: {
-    TippyComponent
+    Tippy,
+    VBtn,
+    VIcon
   },
+
   props: {
     globalId: {
       type: String
     },
+
     showCount: {
       type: Boolean,
       default: false
     },
+
     count: {
       type: [Number, String],
       default: undefined
     }
   },
-  data: function () {
+
+  data () {
     return {
       tagItem: undefined,
       keyId: this.getDefault(),
@@ -65,6 +93,7 @@ export default {
       created: false
     }
   },
+
   watch: {
     count: {
       handler (newVal) {
@@ -73,11 +102,12 @@ export default {
       immediate: true
     }
   },
+
   mounted () {
     this.alreadyTagged()
-    document.addEventListener('pinboard:insert', (event) => {
+    document.addEventListener('pinboard:insert', event => {
       const details = event.detail
-      console.log(details)
+
       if (details.type === 'ControlledVocabularyTerm') {
         this.keyId = this.getDefault()
         if (this.showCount) {
@@ -87,58 +117,57 @@ export default {
       }
     })
   },
+
   methods: {
     getDefault () {
       const defaultTag = this.getDefaultElement()
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
+      return defaultTag?.getAttribute('data-pinboard-object-id')
     },
+
     getDefaultElement () {
       return document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
     },
-    alreadyTagged: function(element) {
-      if(!this.keyId) return
 
-      let params = {
+    alreadyTagged (element) {
+      if (!this.keyId) return
+
+      const params = {
         global_id: this.globalId,
         keyword_id: this.keyId
       }
       AjaxCall('get', '/tags/exists', { params: params }).then(response => {
-        if (response.body) {
-          this.created = true
-        } else {
-          this.created = false
-        }
+        this.created = !!response.body
+        this.tagItem = response.body
       })
     },
+
     getCount () {
       if (!this.keyId) return
       const params = {
         keyword_id: [this.keyId],
         per: 100
       }
-      AjaxCall('get', '/tags', { params: params }).then(response => {
+
+      Tag.where(params).then(response => {
         this.countTag = response.body.length
       })
     },
-    createTag: function () {
-      let tagItem = {
-        tag: {
-          keyword_id: this.keyId,
-          annotated_global_entity: this.globalId
-        }
+
+    createTag () {
+      const tag = {
+        keyword_id: this.keyId,
+        annotated_global_entity: this.globalId
       }
-      AjaxCall('post', '/tags', tagItem).then(response => {
+
+      Tag.create({ tag }).then(response => {
         this.tagItem = response.body
         this.created = true
         TW.workbench.alert.create('Tag item was successfully created.', 'notice')
       })
     },
-    deleteTag: function () {
-			let tag = {
-				annotated_global_entity: this.globalId,
-				_destroy: true
-			}
-      AjaxCall('delete', `/tags/${this.tagItem.id}`, { tag: tag }).then(response => {
+
+    deleteTag () {
+      Tag.destroy(this.tagItem.id).then(() => {
         this.created = false
         TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
       })

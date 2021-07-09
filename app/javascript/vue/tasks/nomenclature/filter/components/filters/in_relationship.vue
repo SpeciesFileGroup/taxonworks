@@ -19,25 +19,26 @@
         v-if="view == smartOptions.common"
         class="no_bullets"
       >
-        <li
+        <template
           v-for="(item, key) in mergeLists.common"
-          :key="key"
-          v-if="!filterAlreadyPicked(item.type)">
-          <label>
-            <input
-              :value="key"
-              @click="addRelationship(item)"
-              type="radio">
-            {{ item.name }}
-          </label>
-        </li>
+          :key="key">
+          <li v-if="!filterAlreadyPicked(item.type)">
+            <label>
+              <input
+                :value="key"
+                @click="addRelationship(item)"
+                type="radio">
+              {{ item.name }}
+            </label>
+          </li>
+        </template>
       </ul>
       <autocomplete
         v-if="view == smartOptions.advanced"
         url=""
         :array-list="Object.keys(mergeLists.all).map(key => mergeLists.all[key])"
         label="name"
-        :clear-after="true"
+        clear-after
         min="3"
         time="0"
         @getItem="addRelationship"
@@ -79,13 +80,21 @@ export default {
   },
 
   props: {
-    value: {
+    modelValue: {
+      type: Array,
+      required: true
+    },
 
+    nomenclatureCode: {
+      type: String,
+      default: undefined
     }
   },
 
+  emits: ['update:modelValue'],
+
   computed: {
-    smartOptions() {
+    smartOptions () {
       return OPTIONS
     }
   },
@@ -105,12 +114,24 @@ export default {
   },
 
   watch: {
-    value(newVal) {
+    modelValue (newVal) {
       if (newVal.length || !this.relationshipSelected.length) return
       this.relationshipSelected = []
     },
-    relationshipSelected(newVal) {
-      this.$emit('input', newVal.map(relationship => { return relationship.type }))
+
+    relationshipSelected: {
+      handler (newVal) {
+        this.$emit('update:modelValue', newVal.map(relationship => relationship.type))
+      },
+      deep: true
+    },
+
+    nomenclatureCode: {
+      handler () {
+        if (this.relationshipsList.length) {
+          this.merge()
+        }
+      }
     }
   },
 
@@ -133,40 +154,44 @@ export default {
 
   methods: {
     merge () {
-      const nomenclatureCodes = Object.keys(this.relationshipsList)
+      const relationshipsList = JSON.parse(JSON.stringify(this.relationshipsList))
       const newList = {
         all: {},
         common: {},
         tree: {}
       }
+      const nomenclatureCodes = this.nomenclatureCode
+        ? [this.nomenclatureCode.toLowerCase()]
+        : Object.keys(relationshipsList)
+
       nomenclatureCodes.forEach(key => {
-        newList.all = Object.assign(newList.all, this.relationshipsList[key].all)
-        newList.tree = Object.assign(newList.tree, this.relationshipsList[key].tree)
-        for (var keyType in this.relationshipsList[key].common) {
-          this.relationshipsList[key].common[keyType].name = `${this.relationshipsList[key].common[keyType].subject_status_tag} (${key})`
-          this.relationshipsList[key].common[keyType].type = keyType
+        newList.all = Object.assign(newList.all, relationshipsList[key].all)
+        newList.tree = Object.assign(newList.tree, relationshipsList[key].tree)
+        for (const keyType in relationshipsList[key].common) {
+          relationshipsList[key].common[keyType].name = `${relationshipsList[key].common[keyType].subject_status_tag} (${key})`
+          relationshipsList[key].common[keyType].type = keyType
         }
-        newList.common = Object.assign(newList.common, this.relationshipsList[key].common)
+        newList.common = Object.assign(newList.common, relationshipsList[key].common)
       })
       this.getTreeList(newList.tree, newList.all)
       this.mergeLists = newList
     },
 
     getTreeList (list, ranksList) {
-      for (var key in list) {
+      for (const key in list) {
         if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', { value: key })
-          Object.defineProperty(list[key], 'name', { value: ranksList[key].subject_status_tag })
+          Object.defineProperty(list[key], 'type', { writable: true, value: key })
+          Object.defineProperty(list[key], 'name', { writable: true, value: ranksList[key].subject_status_tag })
         }
         this.getTreeList(list[key], ranksList)
       }
     },
 
-    removeItem(relationship) {
-      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type),1)
+    removeItem (relationship) {
+      this.relationshipSelected.splice(this.relationshipSelected.findIndex(item => item.type === relationship.type), 1)
     },
 
-    addRelationship(item) {
+    addRelationship (item) {
       this.relationshipSelected.push(item)
       this.view = OPTIONS.common
     },

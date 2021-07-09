@@ -21,23 +21,27 @@
 <script>
 export default {
   props: {
-    value: {
+    modelValue: {
       type: String
     },
+
     colors: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
+
+  emits: ['update:modelValue'],
+
   computed: {
     selected: {
-      get() {
-        return this.value
+      get () {
+        return this.modelValue
       },
-      set(value) {
-        this.$emit('input', value)
+      set (value) {
+        this.$emit('update:modelValue', value)
       }
     }
-  },
+  }
 }
 </script>

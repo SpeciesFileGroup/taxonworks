@@ -17,20 +17,22 @@
 <script>
 
 import SmartSelector from 'components/ui/SmartSelector'
-import { CreateTag } from '../../request/resources'
 import SpinnerComponent from 'components/spinner'
+import { Tag } from 'routes/endpoints'
 
 export default {
   components: {
     SmartSelector,
     SpinnerComponent
   },
+
   props: {
     ids: {
       type: Array,
       required: true
     }
   },
+
   data () {
     return {
       view: undefined,
@@ -38,36 +40,29 @@ export default {
       isSaving: false
     }
   },
-  methods: {
-    addTag (selectedTag, position = 0) {
-      let promises = []
 
-      for(let i = 0; i < this.maxPerCall; i++) {
-        if(position < this.ids.length) {
-          promises.push(new Promise((resolve, reject) => {
-            const tag = {
-              keyword_id: selectedTag.id,
-              tag_object_id: this.ids[i],
-              tag_object_type: 'CollectionObject'
-            }
-            CreateTag(tag).then(response => {
-              resolve()
-            }, () => {
-              resolve()
-            })
-          }))
-          position++
+  methods: {
+    addTag (selectedTag, arrayIds = this.ids) {
+      const ids = arrayIds.slice(0, 5)
+      const nextIds = arrayIds.slice(5)
+      const promises = ids.map(id => Tag.create({
+        tag: {
+          keyword_id: selectedTag.id,
+          tag_object_id: id,
+          tag_object_type: 'CollectionObject'
         }
-      }
-      Promise.all(promises).then(response => {
-        if(position < this.ids.length)
-          this.addTag(selectedTag, position)
-        else {
+      }))
+
+      Promise.allSettled(promises).then(() => {
+        if (nextIds.length) {
+          console.log(nextIds)
+          this.addTag(selectedTag, nextIds)
+        } else {
           this.isSaving = false
           TW.workbench.alert.create('Tag items was successfully created.', 'notice')
         }
       })
-    },
+    }
   }
 }
 </script>

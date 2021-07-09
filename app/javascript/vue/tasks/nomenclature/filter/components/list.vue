@@ -21,15 +21,15 @@
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.id}`"
               v-html="item.cached_html"/>
           </td>
-          <td>{{item.cached_author_year}}</td>
-          <td v-html="item.original_combination"></td>
+          <td>{{ item.cached_author_year }}</td>
+          <td v-html="item.original_combination" />
           <td>{{ item.id === item.cached_valid_taxon_name_id }}</td>
           <td>{{ item.rank }}</td>
           <td>
             <a
               :href="`/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}`"
               v-html="item.parent.cached_html"/>
-          </td> 
+          </td>
           <td class="options-column">
             <div class="horizontal-left-content">
               <radial-object :global-id="item.global_id"/>
@@ -59,17 +59,22 @@ export default {
     RadialAnnotator,
     RadialObject
   },
+
   props: {
     list: {
       type: Array,
-      default: () => { return [] }
+      default: () => []
     }
   },
-  data() {
+
+  emits: ['onSort'],
+
+  data () {
     return {
       ascending: false
     }
   },
+
   methods: {
     sortTable (sortProperty) {
       this.$emit('onSort', sortArray(this.list, sortProperty, this.ascending))

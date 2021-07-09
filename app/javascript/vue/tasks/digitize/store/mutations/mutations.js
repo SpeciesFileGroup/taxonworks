@@ -7,6 +7,7 @@ import lockAll from './lockAll'
 import setSettings from './setSettings'
 import setContainer from './Container/SetContainer'
 import addContainerItem from './Container/AddContainerItem'
+import removeContainerItem from './Container/removeContainerItem'
 import setPreferences from './setPreferences'
 import setPreparationType from './setPreparationType'
 
@@ -23,6 +24,7 @@ import removeBiocuration from './removeBiocuration'
 import setLabel from './Label/setLabel'
 import setLabelText from './Label/setLabelText'
 import setLabelTotal from './Label/setLabelTotal'
+import setComponentsOrder from './setComponentsOrder'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
 import setCollectionObjectDataAttributes from './CollectionObject/setCollectionObjectDataAttributes'
@@ -43,6 +45,7 @@ import setCollectionObjectPreparationId from './CollectionObject/setCollectionOb
 import setCollectionObjectRangeLotId from './CollectionObject/setCollectionObjectRangeLotId'
 import setCollectionObjectRepositoryId from './CollectionObject/setCollectionObjectRepositoryId'
 import setCollectionObjectTotal from './CollectionObject/setCollectionObjectTotal'
+import setCOCitations from './setCOCitations'
 
 import setCollectionEvent from './CollectionEvent/setCollectionEvent'
 import setCollectionEventDataAttributes from './CollectionEvent/setCollectionEventDataAttributes'
@@ -128,9 +131,10 @@ const MutationNames = {
   SetLocked: 'setLocked',
   LockAll: 'lockAll',
   SetSettings: 'setSettings',
-  
+
   SetContainer: 'setContainer',
   AddContainerItem: 'addContainerItem',
+  RemoveContainerItem: 'removeContainerItem',
   SetPreferences: 'setPreferences',
 
   ResetStore: 'resetStore',
@@ -220,6 +224,7 @@ const MutationNames = {
   SetCollectionEventRoles: 'setCollectionEventRoles',
   SetCollectionEventIdentifier: 'setCollectionEventIdentifier',
 
+  SetCOCitations: 'setCOCitations',
   SetCollectionObjectDataAttributes: 'setCollectionObjectDataAttributes',
   SetCollectionObjectTypes: 'setCollectionObjectTypes',
   SetCollectionObject: 'setCollectionObject',
@@ -239,7 +244,8 @@ const MutationNames = {
   SetCollectionObjectRangeLotId: 'setCollectionObjectRangeLotId',
   SetCollectionObjectRepositoryId: 'setCollectionObjectRepositoryId',
   SetCollectionObjectTotal: 'setCollectionObjectTotal',
-  SetProjectPreferences: 'setProjectPreferences'
+  SetProjectPreferences: 'setProjectPreferences',
+  SetComponentsOrder: 'setComponentsOrder'
 }
 
 const MutationFunctions = {
@@ -254,6 +260,7 @@ const MutationFunctions = {
 
   [MutationNames.SetContainer]: setContainer,
   [MutationNames.AddContainerItem]: addContainerItem,
+  [MutationNames.RemoveContainerItem]: removeContainerItem,
   [MutationNames.SetPreferences]: setPreferences,
 
   [MutationNames.SetPreparationType]: setPreparationType,
@@ -338,6 +345,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionEventRoles]: setCollectionEventRoles,
   [MutationNames.SetCollectionEventIdentifier]: setCollectionEventIdentifier,
 
+  [MutationNames.SetCOCitations]: setCOCitations,
   [MutationNames.SetCollectionObject]: setCollectionObject,
   [MutationNames.SetCollectionObjectDataAttributes]: setCollectionObjectDataAttributes,
   [MutationNames.SetCollectionObjectTypes]: setCollectionObjectTypes,
@@ -357,6 +365,7 @@ const MutationFunctions = {
   [MutationNames.SetCollectionObjectRangeLotId]: setCollectionObjectRangeLotId,
   [MutationNames.SetCollectionObjectRepositoryId]: setCollectionObjectRepositoryId,
   [MutationNames.SetCollectionObjectTotal]: setCollectionObjectTotal,
+  [MutationNames.SetComponentsOrder]: setComponentsOrder,
 
   [MutationNames.SetLabel]: setLabel,
   [MutationNames.SetLabelText]: setLabelText,

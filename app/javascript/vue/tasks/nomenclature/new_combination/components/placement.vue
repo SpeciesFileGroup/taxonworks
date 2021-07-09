@@ -18,6 +18,9 @@ export default {
       required: true
     }
   },
+
+  emits: ['created'],
+
   computed: {
     parentName () {
       if (!this.parent) return
@@ -67,8 +70,9 @@ export default {
       })
     },
     mapOrder (array, order, key) {
-      array.sort( function (a, b) {
-        var A = a[key], B = b[key]
+      array.sort((a, b) => {
+        const A = a[key]
+        const B = b[key]
         if (order.indexOf(A) > order.indexOf(B)) {
           return 1
         } else {

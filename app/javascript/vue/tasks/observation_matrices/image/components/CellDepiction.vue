@@ -4,17 +4,30 @@
       <draggable-component
         class="flex-wrap-row matrix-image-draggable"
         :group="{ name: 'cells', put: false }"
+        :list="depictions"
+        item-key="id"
         @choose="setObservationDragged"
-        @remove="removedObservationFromList">
-        <div
-          v-for="depiction in depictions"
-          :key="depiction.id"
-          class="drag-container">
-          <depiction-modal-viewer
-            :depiction="depiction"
-            is-original
-          />
-        </div>
+        @remove="removeDepiction">
+        <template #item="{ element }">
+          <div class="drag-container">
+            <image-viewer
+              edit
+              :depiction="element"
+            >
+              <template #thumbfooter>
+                <div class="horizontal-left-content">
+                  <radial-annotator
+                    type="annotations"
+                    :global-id="element.image.global_id"/>
+                  <button-citation
+                    :global-id="element.image.global_id"
+                    :citations="element.image.citations"
+                  />
+                </div>
+              </template>
+            </image-viewer>
+          </div>
+        </template>
       </draggable-component>
     </div>
     <v-icon
@@ -26,15 +39,19 @@
 <script>
 
 import DraggableComponent from 'vuedraggable'
-import DepictionModalViewer from 'components/depictionModalViewer/depictionModalViewer.vue'
 import VIcon from 'components/ui/VIcon/index.vue'
+import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+import ButtonCitation from './ButtonCitation.vue'
 import { MutationNames } from '../store/mutations/mutations'
 
 export default {
   components: {
     DraggableComponent,
-    DepictionModalViewer,
-    VIcon
+    VIcon,
+    ImageViewer,
+    ButtonCitation,
+    RadialAnnotator
   },
 
   props: {
@@ -49,12 +66,15 @@ export default {
     }
   },
 
+  emits: ['removeDepiction'],
+
   methods: {
     setObservationDragged (event) {
       this.$store.commit(MutationNames.SetDepictionMoved, this.depictions[event.oldIndex])
     },
-    removedObservationFromList (event) {
-      this.depictions.splice([event.oldIndex], 1)
+
+    removeDepiction ({ oldIndex }) {
+      this.$emit('removeDepiction', oldIndex)
     }
   }
 }

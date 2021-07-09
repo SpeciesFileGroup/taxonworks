@@ -47,16 +47,16 @@
       <draggable
         class="container"
         handle=".handle"
+        :item-key="element => element"
         v-model="preferences.sections">
-        <template v-for="component in preferences.sections">
+        <template #item="{ element }">
           <component
-            v-if="showForRanks(componentNames[component])"
+            v-if="showForRanks(componentNames[element])"
             class="separate-bottom full_width"
-            :key="component"
-            :title="componentNames[component].title"
-            :status="componentNames[component].status"
+            :title="componentNames[element].title"
+            :status="componentNames[element].status"
             :otu="otu"
-            :is="component"/>
+            :is="element"/>
         </template>
       </draggable>
     </template>
@@ -76,7 +76,7 @@ import ContentComponent from './components/Content'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
-import NomenclatureHistory from './components/NomenclatureHistory'
+import NomenclatureHistory from './components/timeline/Timeline.vue'
 import CollectingEvents from './components/CollectingEvents'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'

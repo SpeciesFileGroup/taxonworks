@@ -3,33 +3,32 @@
     <modal
       v-if="showModal"
       @close="showModal = false">
-      <h3 slot="header">Confirm delete</h3>
-      <div slot="body">Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
-      <div slot="footer">
+      <template #header>
+        <h3>Confirm delete</h3>
+      </template>
+      <template #body>
+        <div>Are you sure you want to delete <span v-html="parent.object_tag"/> {{ taxon.name }} ?</div>
+      </template>
+      <template #footer>
         <button
           @click="deleteTaxon()"
           type="button"
           class="normal-input button button-delete">Delete</button>
-      </div>
+      </template>
     </modal>
-    <div class="panel basic-information">
-      <div class="content header">
+    <div class="panel">
+      <div class="content">
         <div
           v-if="taxon.id"
           class="flex-separate middle">
           <a
-            v-shortkey="[platformKey(), 'b']"
-            @shortkey="switchBrowse()"
+            v-hotkey="shortcuts"
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
-            class="taxonname">
-            <span v-html="taxon.cached_html"/>
-            <span v-html="taxon.cached_author_year"/>
-          </a>
+            class="taxonname"
+            v-html="taxonNameAndAuthor"
+          />
           <div class="flex-wrap-column">
-            <div
-              v-shortkey="[platformKey(), 'o']"
-              @shortkey="switchBrowseOtu()"
-              class="horizontal-right-content">
+            <div class="horizontal-right-content">
               <radial-annotator :global-id="taxon.global_id" />
               <otu-radial
                 :object-id="taxon.id"
@@ -41,7 +40,7 @@
                 :taxon-name="taxon.object_tag"/>
               <radial-object :global-id="taxon.global_id" />
             </div>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content margin-small-top">
               <pin-object
                 v-if="taxon.id"
                 :pin-object="taxon['pinboard_item']"
@@ -94,6 +93,10 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
+    taxonNameAndAuthor () {
+      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
+    },
+
     parent () {
       return this.$store.getters[GetterNames.GetParent]
     },
@@ -118,6 +121,14 @@ export default {
       })
 
       return stringRoles
+    },
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+b`] = this.switchBrowse
+      keys[`${platformKey()}+o`] = this.switchBrowseOtu
+
+      return keys
     }
   },
 
@@ -127,8 +138,6 @@ export default {
   },
 
   methods: {
-    platformKey,
-
     deleteTaxon () {
       TaxonName.destroy(this.taxon.id).then(() => {
         this.reloadPage()
@@ -140,11 +149,9 @@ export default {
     },
 
     showAuthor () {
-      if (this.roles.length) {
-        return this.roles
-      } else {
-        return (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
-      }
+      return this.roles.length
+        ? this.roles
+        : (this.taxon.verbatim_author ? (this.taxon.verbatim_author + (this.taxon.year_of_publication ? (', ' + this.taxon.year_of_publication) : '')) : (this.citation ? this.citation.source.author_year : ''))
     },
 
     switchBrowse () {
@@ -165,20 +172,9 @@ export default {
   }
 }
 </script>
+
 <style lang="scss">
 #taxonNameBox {
-  .annotator {
-    width:30px;
-    margin-left: 14px;
-  }
-  .separate-options {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-  .header {
-    padding: 1em;
-    border: 1px solid #f5f5f5;
-  }
   .taxonname {
     font-size: 14px;
   }

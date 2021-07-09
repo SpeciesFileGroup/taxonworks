@@ -32,16 +32,19 @@ export default {
     SpecimenInformation,
     TypeData
   },
+
   props: {
     specimen: {
       type: Object,
       required: true
     },
+
     types: {
       type: Array,
       default: () => []
     }
   },
+
   computed: {
     ceLabel () {
       const levels = ['country', 'stateProvince', 'county', 'verbatimLocality']
@@ -52,6 +55,7 @@ export default {
       return tmp.join(', ')
     }
   },
+
   data () {
     return {
       expand: false

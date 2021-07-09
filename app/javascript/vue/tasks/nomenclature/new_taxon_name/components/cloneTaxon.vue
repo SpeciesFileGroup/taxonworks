@@ -4,27 +4,31 @@
       type="button"
       class="button normal-input button-submit"
       :disabled="!taxon.id || isSaving"
-      v-shortkey="[getMacKey, 'l']"
-      @shortkey="showModal = taxon.id && !isSaving ? true : false"
+      v-hotkey="shortcuts"
       @click="showModal = true">
       Clone
     </button>
     <modal-component
       v-show="showModal"
       @close="showModal = false">
-      <h3 slot="header">Clone taxon name</h3>
-      <div slot="body">
+      <template #header>
+        <h3>Clone taxon name</h3>
+      </template>
+      <template #body>
         <p>
           This will clone the current taxon name with the following information.
         </p>
         <ul class="no_bullets">
-          <li v-for="field in fieldsToCopy">
+          <li
+            v-for="field in fieldsToCopy"
+            :key="field.value">
             <label>
               <input
                 v-model="copyValues"
                 :value="field.value"
                 :disabled="field.lock"
-                type="checkbox"> {{ field.label }} 
+                type="checkbox">
+              {{ field.label }}
             </label>
           </li>
         </ul>
@@ -36,8 +40,8 @@
           @keypress.enter.prevent="cloneTaxon()"
           ref="inputtext"
           :placeholder="`Write ${checkWord} to continue`">
-      </div>
-      <div slot="footer">
+      </template>
+      <template #footer>
         <button 
           type="button"
           class="button normal-input button-submit"
@@ -45,7 +49,7 @@
           @click="cloneTaxon()">
           Clone
         </button>
-      </div>
+      </template>
     </modal-component>
   </div>
 </template>
@@ -55,20 +59,25 @@
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import ModalComponent from 'components/ui/Modal.vue'
+import platformKey from 'helpers/getMacKey'
 
 export default {
   components: {
     ModalComponent
   },
   computed: {
+    shortcuts () {
+      const keys = {}
+
+      keys[`${platformKey()}+l`] = () => { this.showModal = this.taxon.id && !this.isSaving }
+
+      return keys
+    },
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     },
     checkInput () {
       return this.inputValue.toUpperCase() !== this.checkWord
-    },
-    getMacKey () {
-      return (navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt')
     },
     isSaving () {
       return this.$store.getters[GetterNames.GetSaving]
@@ -128,24 +137,33 @@ export default {
           value: 'original_combination',
           lock: false,
           default: false
+        },
+        {
+          label: 'Add invalid relationship',
+          value: 'invalid_relationship',
+          lock: false,
+          default: false
         }
       ]
     }
   },
+
   watch: {
     showModal: {
       handler (newVal) {
-        if(newVal) {
+        if (newVal) {
           this.$nextTick(() => {
             this.$refs.inputtext.focus()
           })
-        }  
+        }
       }
     }
   },
+
   mounted () {
-    this.copyValues = this.fieldsToCopy.filter(item => { return item.default }).map(item => { return item.value })
+    this.copyValues = this.fieldsToCopy.filter(item => item.default).map(item => item.value)
   },
+
   methods: {
     cloneTaxon () {
       if (!this.checkInput) {

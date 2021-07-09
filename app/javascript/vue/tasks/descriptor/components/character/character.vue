@@ -74,26 +74,25 @@
       class="table-entrys-list">
       <draggable
         v-model="list"
+        item-key="id"
         @end="onSortable"
       >
-        <li
-          class="flex-separate middle"
-          v-for="(character, index) in list"
-          :key="character.id"
-        >
-          <span> {{ character.object_tag }} </span>
-          <div class="horizontal-left-content middle">
-            <span
-              class="circle-button btn-edit"
-              @click="editCharacter(index)"
-            />
-            <radial-annotator :global-id="character.global_id" />
-            <span
-              class="circle-button btn-delete"
-              @click="removeCharacter(index)"
-            />
-          </div>
-        </li>
+        <template #item="{ element, index }">
+          <li class="flex-separate middle">
+            <span> {{ element.object_tag }} </span>
+            <div class="horizontal-left-content middle">
+              <span
+                class="circle-button btn-edit"
+                @click="editCharacter(index)"
+              />
+              <radial-annotator :global-id="element.global_id" />
+              <span
+                class="circle-button btn-delete"
+                @click="removeCharacter(index)"
+              />
+            </div>
+          </li>
+        </template>
       </draggable>
     </ul>
   </div>
@@ -108,25 +107,33 @@ export default {
     Draggable,
     RadialAnnotator
   },
+
   props: {
-    value: {
+    modelValue: {
       type: Object,
       required: true
     }
   },
+
+  emits: [
+    'update:modelValue',
+    'save'
+  ],
+
   computed: {
     validateFields () {
       return this.characterState.label && this.characterState.name && this.descriptor.name
     },
     descriptor: {
       get () {
-        return this.value
+        return this.modelValue
       },
       set () {
-        this.$emit('input', this.value)
+        this.$emit('update:modelValue', this.value)
       }
     }
   },
+
   data () {
     return {
       show: false,
@@ -134,6 +141,7 @@ export default {
       characterState: this.newCharacter()
     }
   },
+
   watch: {
     descriptor: {
       handler (newVal, oldVal) {
@@ -142,17 +150,20 @@ export default {
       deep: true
     }
   },
+
   mounted () {
     if (this.descriptor.hasOwnProperty('character_states')) {
       this.list = this.sortPosition(this.descriptor.character_states)
     }
   },
+
   methods: {
     createCharacter () {
       this.descriptor.character_states_attributes = [this.characterState]
       this.$emit('save', this.descriptor)
       this.resetInputs()
     },
+
     newCharacter () {
       return {
         label: undefined,
@@ -162,15 +173,18 @@ export default {
         id: undefined
       }
     },
+
     resetInputs () {
       this.characterState = this.newCharacter()
     },
+
     removeCharacter (index) {
       if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
         this.list[index]._destroy = true
         this.onSortable()
       }
     },
+
     editCharacter (index) {
       this.characterState.id = this.list[index].id
       this.characterState.label = this.list[index].label
@@ -178,25 +192,29 @@ export default {
       this.characterState.key_name = this.list[index].key_name
       this.characterState.description_name = this.list[index].description_name
     },
+
     updateCharacter () {
-      const index = this.list.findIndex((item) => { return item.id === this.characterState.id })
+      const index = this.list.findIndex((item) => item.id === this.characterState.id)
+
       if (index > -1) {
         this.descriptor.character_states_attributes = [this.characterState]
         this.$emit('save', this.descriptor)
       }
       this.resetInputs()
     },
+
     onSortable () {
       this.updateIndex()
       this.descriptor.character_states_attributes = this.list
       this.$emit('save', this.descriptor)
     },
+
     updateIndex () {
-      var that = this
-      this.list.forEach(function (element, index) {
-        that.list[index].position = (index + 1)
+      this.list.forEach((element, index) => {
+        this.list[index].position = (index + 1)
       })
     },
+
     sortPosition (list) {
       list.sort((a, b) => {
         if (a.position > b.position) {

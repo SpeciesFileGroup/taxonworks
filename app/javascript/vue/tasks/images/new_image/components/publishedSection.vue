@@ -19,24 +19,20 @@ export default {
     SmartSelector,
     RolePicker
   },
+
   props: {
     title: {
       type: String,
       required: true
     }
   },
+
   data() {
     return {
       options: [],
       view: undefined,
       roles_attributes: []
     }
-  },
-  mounted() {
-
-  },
-  methods: {
-
   }
 }
 </script>

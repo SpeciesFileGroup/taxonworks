@@ -82,7 +82,6 @@ import CombinationsFilter from './components/filters/combinations'
 import SpinnerComponent from 'components/spinner'
 
 import { TaxonName } from 'routes/endpoints'
-
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 
@@ -95,6 +94,7 @@ export default {
     RankTable,
     JsonBar
   },
+
   computed: {
     rankTable: {
       get () {
@@ -104,16 +104,20 @@ export default {
         this.$store.commit(MutationNames.SetRankTable, value)
       }
     },
+
     combinations () {
       return this.$store.getters[GetterNames.GetCombinations]
     },
+
     rankList () {
       return this.$store.getters[GetterNames.GetRanks]
     },
+
     taxon () {
       return this.$store.getters[GetterNames.GetTaxon]
     }
   },
+
   data () {
     return {
       activeFilter: true,
@@ -127,6 +131,7 @@ export default {
       halt: false
     }
   },
+
   watch: {
     rankTable: {
       handler (newVal) {
@@ -144,10 +149,12 @@ export default {
       this.rankData.push(newVal.rank)
     }
   },
+
   methods: {
     resetTask () {
       this.list = []
     },
+
     loadRankTable () {
       const params = {
         ancestor_id: this.taxon.id,
@@ -162,16 +169,17 @@ export default {
       TaxonName.rankTable(params).then(response => {
         this.jsonUrl = response.request.responseURL
         this.rankTable = response.body
-        this.isLoading = false
-      }, () => {
+      }).finally(() => {
         this.isLoading = false
       })
     },
+
     orderRanks (list) {
       const rankNames = [...new Set(this.getRankNames(this.rankList))]
 
       return rankNames.filter(rank => list.includes(rank))
     },
+
     getRankNames (list, nameList = []) {
       for (var key in list) {
         if (typeof list[key] === 'object') {
@@ -195,7 +203,7 @@ export default {
     .filter {
       min-width: 300px;
     }
-    ::v-deep .vue-autocomplete-input {
+    :deep(.vue-autocomplete-input) {
       width: 100%;
     }
   }
