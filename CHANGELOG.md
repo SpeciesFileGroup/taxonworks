@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.19.0] - 2021-07-08
+
 ### Added
 - Added new ICZN status: Invalid family group name due to synonymy of type genus replaced before 1961
 - Edit image matrix and view image matrix in observation matrices dashboard
@@ -1373,7 +1377,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
 
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.19.0...development
+[0.19.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.1...v0.19.0
 [0.18.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.17.0...v0.17.1
