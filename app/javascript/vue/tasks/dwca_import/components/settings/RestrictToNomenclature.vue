@@ -17,7 +17,7 @@ export default {
   computed: {
     restrictToExistingNomenclature: {
       get () {
-        return this.$store.getters[GetterNames.GetDataset].metadata.import_settings?.restrict_to_existing_nomenclature
+        return this.$store.getters[GetterNames.GetDataset].metadata?.import_settings?.restrict_to_existing_nomenclature
       },
       set (value) {
         UpdateImportSettings({
