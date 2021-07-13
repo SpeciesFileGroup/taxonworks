@@ -1,4 +1,7 @@
 # Contains methods used to build an image_matrix table
+#
+# http://localhost:3000/tasks/observation_matrices/image_matrix/0/key?otu_filter=30947|22978|23065
+#
 class ImageMatrix
 
   ##### FILTER PARAMETERS #####

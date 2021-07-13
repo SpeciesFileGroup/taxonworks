@@ -277,7 +277,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify 'list_of_coordinated_names' do
       g3 = Protonym.create!(name: 'Aus', parent: g1, rank_class: Ranks.lookup(:iczn, :subgenus))
       c1 = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: g3)
-      g1.reload
       expect(g3.cached_is_valid).to be_falsey
       expect(g3.list_of_coordinated_names.count).to eq(0)
       expect(g2.list_of_coordinated_names.count).to eq(1)

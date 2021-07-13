@@ -490,7 +490,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       end
 
-    # no point in rescuing and not returning somthing
+    # no point in rescuing and not returning something
     rescue ActiveRecord::RecordInvalid
       raise
     end

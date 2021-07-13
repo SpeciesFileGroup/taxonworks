@@ -463,5 +463,19 @@ describe InteractiveKey, type: :model, group: :observation_matrix do
       expect(ik.eliminated.count).to eq(6)
     end
 
+    specify 'otu_description 1' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id,
+        otu_id: otu4.id)
+      expect(description.generated_description).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
+    end
+
+    specify 'otu_description 2' do
+      description =  Catalog::DescriptionFromObservationMatrix.new(
+        project_id: observation_matrix.project_id,
+        otu_id: otu4.id)
+      expect(description.generated_description).to eq('Descriptor 1 State1. Descriptor 2 State6. Descriptor 5 3–4. Descriptor 6 4. Descriptor 7 absent.')
+    end
   end
 end

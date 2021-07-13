@@ -373,6 +373,10 @@ scope :tasks do
       get 'set', as: 'set_row_coder_task'
     end
 
+    scope :description_from_observation_matrix, controller: 'tasks/observation_matrices/description_from_observation_matrix' do
+      get ':observation_matrix_id/description', action: :description, defaults: {format: :json}
+    end
+
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
       get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
       get '', action: :index, as: 'interactive_key_task'
