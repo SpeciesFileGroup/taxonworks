@@ -1,13 +1,13 @@
 <template>
   <div
     v-help.sections.collectionObject.buffered
-    class="flexbox buffered-component">
+    class="flexbox full_width">
     <div class="separate-right">
       <label>Buffered determination</label>
       <br>
       <div class="horizontal-left-content align-start">
         <textarea
-          class="buffered-textarea separate-right"
+          class="full_width separate-right"
           v-model="bufferedDetermination"
           rows="5"/>
         <div>
@@ -27,7 +27,7 @@
       <br>
       <div class="horizontal-left-content align-start">
         <textarea
-          class="buffered-textarea separate-right"
+          class="full_width separate-right"
           v-model="bufferedCollectionEvent"
           style="width: 100%"
           rows="5"/>
@@ -47,7 +47,7 @@
       <br>
       <div class="horizontal-left-content align-start">
         <textarea
-          class="buffered-textarea separate-right"
+          class="full_width separate-right"
           v-model="bufferedOtherLabels"
           rows="5"/>
         <div>
@@ -116,13 +116,3 @@ export default {
   }
 }
 </script>
-<style lang="scss" scoped>
-  .buffered-component {
-    width: 100%;
-
-    .buffered-textarea {
-      width: 100%
-    }
-  }
-
-</style>

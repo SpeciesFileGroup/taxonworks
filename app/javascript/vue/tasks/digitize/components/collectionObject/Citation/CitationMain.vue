@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Citations</h2>
     <citation-new
       v-model:lock="lock.coCitations"
       @onAdd="addCitation"/>
