@@ -97,7 +97,7 @@ class Otu < ApplicationRecord
       else
         joins(:taxon_name).
         where('cached_valid_taxon_name_id IN (?)', o.taxon_name.self_and_descendants.pluck(:id)).
-        where( rank_class: rank_class)
+        where( 'taxon_names.rank_class = ?', rank_class)
       end
     else # no taxon name just return self in scope
       Otu.where(id: otu_id)
