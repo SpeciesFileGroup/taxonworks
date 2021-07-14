@@ -14,10 +14,10 @@ describe 'Otu - SoftValidation', type: :model, group: [:otu, :soft_validation] d
     o2 = FactoryBot.build_stubbed(:otu, name: 'Aus')
     
     o1.soft_validate(only_sets: :duplicate_otu)
-    expect(o1.soft_validations.messages_on(:taxon_name_id).empty?).to be_truthy
+    expect(o1.soft_validations.messages_on(:base).empty?).to be_truthy
 
     o2.soft_validate(only_sets: :duplicate_otu)
-    expect(o2.soft_validations.messages_on(:taxon_name_id).count).to eq(1)
+    expect(o2.soft_validations.messages_on(:base).count).to eq(1)
   end
 
 end
