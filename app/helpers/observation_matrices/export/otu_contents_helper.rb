@@ -97,7 +97,27 @@ module ObservationMatrices::Export::OtuContentsHelper
       end
 
       if options[:include_depictions] == 'true'
-
+        tw_url = 'https://sfg.taxonworks.org'
+        im =  ImageMatrix.new(
+          project_id: m.project_id,
+          otu_filter: otu_ids.join('|'))
+        descriptors = im.list_of_descriptors.values
+        im.depiction_matrix.each do |object|
+          list = ''
+          object[1][:depictions].each_with_index do |depictions, index|
+            depictions.each do |depiction|
+              list += "<span class='tw_depiction'><br>\n"
+              image_url = tw_url + im.image_hash[depiction[:image_id]][:original_url]
+              list += "<img class='tw_image' src='#{image_url}'><br>\n"
+              list += "<b>Object:</b> #{object[1][:object].otu_name}<br>\n" unless object[1][:object].otu_name.blank?
+              list += "<b>Description:</b> #{descriptors[index][:name]}<br>\n" unless descriptors[index].blank?
+              list += "<b>Label:</b> #{depiction[:figure_label]}<br>\n" unless depiction[:figure_label].blank?
+              list += "<b>Citation:</b> #{depiction[:source_cached]}<br>\n" unless depiction[:source_cached].blank?
+              list += "</span>\n"
+            end
+          end
+          csv << ['row_' + object[1][:row_id].to_s, 'Illustrations', list ] unless list.blank?
+        end
       end
 
     end
