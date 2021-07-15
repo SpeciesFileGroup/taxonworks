@@ -8,12 +8,16 @@ module Queries
     # `geographic_area_ids` -> `geographic_area_id
     # `otu_ids` -> `otu_id (String or Array)
     # removed `taxon_name_ids`, allowed Array for `taxon_name_id`
+    # created Queries::Concerns::Citations  Citation concern and refactor filters referencing citations accordingly
 
     include Queries::Helpers
 
     # include Queries::Concerns::Tags
     # include Queries::Concerns::Users
     # include Queries::Concerns::Identifiers
+
+    # include Queries::Concerns::Citations
+
 
     # matching some nomenclature query
     # taxon_name_params

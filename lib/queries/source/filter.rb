@@ -347,8 +347,10 @@ module Queries
         end
       end
 
-      def merge_clauses
-        clauses = [
+      def base_merge_clauses
+        clauses = []
+
+        clauses += [
           ancestors_facet,
           author_ids_facet,
           topic_ids_facet,
@@ -368,10 +370,15 @@ module Queries
           created_updated_facet, # See Queries::Concerns::Users
           empty_fields_facet,    # See Queries::Concerns::Empty
           not_empty_fields_facet,
-        ].compact
+        ]
+        clauses.compact!
+        clauses
+      end
 
+      # @return [ActiveRecord::Relation]
+      def merge_clauses
+        clauses = base_merge_clauses
         return nil if clauses.empty?
-
         a = clauses.shift
         clauses.each do |b|
           a = a.merge(b)

@@ -8,6 +8,7 @@ module Queries
 
       include Queries::Concerns::Tags
       include Queries::Concerns::Users
+      include Queries::Concerns::Citations
 
       PARAMS = %w{
         ancestors
@@ -117,11 +118,6 @@ module Queries
       # TODO: unify globally as to whether param belongs here, or at controller level.
       attr_accessor :project_id
 
-      # @params citations [String]
-      #  'without_citations' - names without citations
-      #  'without_origin_citation' - names without an origin citation
-      attr_accessor :citations
-
       # @param otus [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has an Otu
@@ -187,7 +183,6 @@ module Queries
       def initialize(params)
         @author = params[:author]
         @authors = boolean_param(params, :authors )
-        @citations = params[:citations]
         @descendants = boolean_param(params,:descendants )
         @descendants_max_depth = params[:descendants_max_depth]
         @ancestors = boolean_param(params,:ancestors )
@@ -217,6 +212,7 @@ module Queries
 
         set_tags_params(params)
         set_user_dates(params)
+        set_citations_params(params)
       end
 
       # @return [Arel::Table]
@@ -392,20 +388,6 @@ module Queries
         return nil if otus.nil?
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
         ::TaxonName.where(otus ? subquery : subquery.not)
-      end
-
-      # @return Scope
-      def citations_facet
-        return nil if citations.nil?
-
-        citation_conditions = ::Citation.arel_table[:citation_object_id].eq(::TaxonName.arel_table[:id]).and(
-          ::Citation.arel_table[:citation_object_type].eq('TaxonName'))
-
-        if citations == 'without_origin_citation'
-          citation_conditions = citation_conditions.and(::Citation.arel_table[:is_original].eq(true))
-        end
-
-        ::TaxonName.where.not(::Citation.where(citation_conditions).arel.exists)
       end
 
       # @return [Arel::Nodes::Grouping, nil]

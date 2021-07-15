@@ -170,7 +170,7 @@ class GeographicArea < ApplicationRecord
   end
 
   # @param [GeographicArea]
-  # @return [Scope] of geographic_areas
+  # @return [Scope] of geographic_areas # also nil
   def self.is_contained_by(geographic_area)
     pieces = nil
     if geographic_area.geographic_items.any?

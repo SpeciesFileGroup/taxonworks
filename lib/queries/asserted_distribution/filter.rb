@@ -4,32 +4,51 @@ module Queries
     # !! does not inherit from base query
     class Filter 
 
-      # @return [Array]
-      # @param otu_id [Array, Integer, String]
-      attr_accessor :otu_id
 
-      # @return [Array]
+      include Queries::Concerns::Citations
+
       # @param otu_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :otu_id
+     
+      # @param otu_id [Array, Integer, String]
+      # @return [Array]
       attr_accessor :geographic_area_id
 
+      # Add citations extension
+
+      # @param sourceid [Array, Integer, String]
+      # @return [Array]
+      # attr_accessor :source_id
+
+      # @param otu_id [Array, Integer, String]
+      # @return [Array]
+      # attr_accessor :is_original
+
+      # TODO: replicate the TaxonName Parenthood params here
+      # attr_accessor ancestor
+
+      # TODO add spatial option for ancestor
+      # @param attr_accessor ancestor_scope [String, Symbol, nil]
+      # @return [Symbol, nil]
+      #   `spatial` - treat spatial 
+      #   `parent` - use closure tree (parenthood)
+      #   `expanded` - start with spatial, then for each spatial use parent
+      #   `inverse_expanded` - start with parent, then for each use spatial (only make sense for non-spatial parents with some spatial children)
+      
       def initialize(params)
-        if p = params[:otu_id]
-          if p.kind_of? Array
-            @otu_id = params[:otu_id]
-          else
-            @otu_id = [params[:otu_id]]
-          end
-        end
+        @otu_id = params[:otu_id]
+        @geographic_area_id = params[:geographic_area_id]
 
-        if p = params[:geographic_area_id]
-          if p.kind_of? Array
-            @geographic_area_id = params[:geographic_area_id]
-          else
-            @geographic_area_id = [params[:geographic_area_id]]
-          end
-        end
+        set_citations_params(params)
+      end
 
-        @recent = params[:recent] ? true : nil
+      def otu_id
+        [@otu_id].flatten.compact
+      end
+
+      def geographic_area_id
+        [@geographic_area_id].flatten.compact
       end
 
       # @return [Arel::Table]

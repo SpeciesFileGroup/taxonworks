@@ -19,6 +19,9 @@ module Queries
       # Boolean
       attr_accessor :is_original
 
+      # Params from Queries::Source::Filter
+      attr_accessor :source_query
+
       # @params params [Hash]
       #   already Permitted params, or new Hash
       def initialize(params)
@@ -27,12 +30,41 @@ module Queries
         @source_id = params[:source_id]
         @is_original = params[:is_original]
         @options = params
+
+        @source_query = Queries::Source::Filter.new(
+          params.select{|a,b| source_params.include?(a.to_s) }
+        )
+      end
+
+      def merge_clauses
+        c = []
+        c = c + source_merge_clauses + source_and_clauses
+        c.compact!
+        c
+      end
+
+      def source_merge_clauses
+        c = []
+        # Convert base and clauses to merge clauses
+        source_query.base_merge_clauses.each do |i|
+          c.push ::Citation.joins(:source).merge( i )
+        end
+        c
+      end
+
+      def source_and_clauses
+        c = []
+        # Convert base and clauses to merge clauses
+        source_query.base_and_clauses.each do |i|
+          c.push ::Citation.joins(:source).where( i )
+        end
+        c
       end
 
       # @return [ActiveRecord::Relation, nil]
       def and_clauses
         clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Citation),
+          ::Queries::Annotator.annotator_params(options, ::Citation), # TODO: remove
           matching_citation_object_type,
           matching_citation_object_id,
           matching_source_id,
@@ -48,6 +80,10 @@ module Queries
         a
       end
 
+      def source_id
+        [@source_id].flatten.compact
+      end
+
       # @return [Arel::Node, nil]
       def matching_citation_object_type
         citation_object_type.blank? ? nil : table[:citation_object_type].eq(citation_object_type) 
@@ -60,7 +96,7 @@ module Queries
 
       # @return [Arel::Node, nil]
       def matching_source_id
-        source_id.blank? ? nil : table[:source_id].eq(source_id)  
+        source_id.blank? ? nil : table[:source_id].eq_any(source_id)  
       end
 
       def matching_is_original
