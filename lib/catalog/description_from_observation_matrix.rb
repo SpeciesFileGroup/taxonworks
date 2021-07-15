@@ -249,7 +249,7 @@ class Catalog::DescriptionFromObservationMatrix
       next if (d_value[:descriptor].type == 'Descriptor::Qualitative' && d_value[:char_states].empty?) ||
         ((d_value[:descriptor].type == 'Descriptor::Continuous' || d_value[:descriptor].type == 'Descriptor::Sample') && d_value[:min] == 999999) ||
         (d_value[:descriptor].type == 'Descriptor::PresenceAbsence' && d_value[:presence].nil?)
-      descriptor_name_new = d_value[:descriptor].target_name(:description, language).capitalize
+      descriptor_name_new = d_value[:descriptor].target_name(:description, language)
       if descriptor_name != descriptor_name_new
         descriptor_name = descriptor_name_new
         str += '. ' unless str.blank?
