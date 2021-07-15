@@ -117,7 +117,7 @@ class Catalog::DescriptionFromObservationMatrix
     if @observation_matrix_row_id.blank?
       ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
     else
-      ObservationMatrixRow.find(@observation_matrix_row_id).try(observation_matrix)
+      ObservationMatrixRow.find(@observation_matrix_row_id)&.observation_matrix
     end
   end
 
@@ -242,6 +242,7 @@ class Catalog::DescriptionFromObservationMatrix
     language = @language_id.blank? ? nil : @language_id.to_i
     str = ''
     descriptor_name = ''
+    state_name = ''
     descriptor_hash.each do |d_key, d_value|
       next if (d_value[:descriptor].type == 'Descriptor::Qualitative' && d_value[:char_states].empty?) ||
         ((d_value[:descriptor].type == 'Descriptor::Continuous' || d_value[:descriptor].type == 'Descriptor::Sample') && d_value[:min] == 999999) ||
@@ -260,7 +261,7 @@ class Catalog::DescriptionFromObservationMatrix
         d_value[:char_states].each do |cs|
           st_str.append(cs.target_name(:description, language))
         end
-        str += st_str.join(or_separator)
+        str += st_str.uniq.join(or_separator)
       when 'Descriptor::Continuous'
         if d_value[:min] == d_value[:max]
           str += ["%g" % d_value[:min], d_value[:descriptor].default_unit].compact.join(' ')
