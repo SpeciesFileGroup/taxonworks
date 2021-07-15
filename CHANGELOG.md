@@ -14,6 +14,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 - Update `per` value from 5 to 500 in citations controller [#2336]
+- Updated ruby gems
+- Upgraded biodiversity gem to 5.3.1 (uses named params)
 
 ### Fixed
 - Show selected options for biological associations in comprehensive specimen digitization task [#2332]
