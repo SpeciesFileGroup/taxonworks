@@ -26,7 +26,7 @@ import {
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
 
-const componentNames = Object.keys(ComponentVerbatim)
+const componentNames = Object.values(ComponentVerbatim)
 const VerbatimComponents = Object.fromEntries(componentNames.map(componentName => [componentName, VueComponents[componentName]]))
 
 export default {

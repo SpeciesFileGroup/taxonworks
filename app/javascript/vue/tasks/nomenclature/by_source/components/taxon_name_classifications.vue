@@ -60,7 +60,7 @@ export default {
       this.showSpinner = true
 
       Citation.where(params).then(response => {
-        this.taxon_classification_cites_list = response.body;
+        this.taxon_classification_cites_list = response.body
         this.showSpinner = false
       })
     },

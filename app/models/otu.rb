@@ -92,9 +92,12 @@ class Otu < ApplicationRecord
   def self.self_and_descendants_of(otu_id, rank_class = nil)
     if o = Otu.joins(:taxon_name).find(otu_id)
       if rank_class.nil?
-        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants)
+        joins(:taxon_name).
+        where('cached_valid_taxon_name_id IN (?)', o.taxon_name.self_and_descendants.pluck(:id)) #this also covers synonyms of self
       else
-        joins(:taxon_name).where(taxon_name: o.taxon_name.self_and_descendants.where( rank_class: rank_class))
+        joins(:taxon_name).
+        where('cached_valid_taxon_name_id IN (?)', o.taxon_name.self_and_descendants.pluck(:id)).
+        where( 'taxon_names.rank_class = ?', rank_class)
       end
     else # no taxon name just return self in scope
       Otu.where(id: otu_id)
@@ -397,8 +400,7 @@ class Otu < ApplicationRecord
   def sv_duplicate_otu
     unless Otu.with_taxon_name_id(taxon_name_id).with_name(name).not_self(self).with_project_id(project_id).empty?
       m = "Another OTU with an identical nomenclature (taxon name) and name exists in this project"
-      soft_validations.add(:taxon_name_id, m)
-      soft_validations.add(:name, m )
+      soft_validations.add(:base, m )
     end
   end
 

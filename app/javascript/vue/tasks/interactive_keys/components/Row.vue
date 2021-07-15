@@ -69,7 +69,11 @@ export default {
     },
 
     getLink (obj) {
-      return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow' ? RanksList[this.filters.identified_to_rank].link(obj.id) : obj.otu_id ? `${RouteNames.BrowseOtu}?otu_id=${obj.otu_id}` : undefined
+      return this.filters.identified_to_rank && obj.base_class !== 'ObservationMatrixRow'
+        ? RanksList[this.filters.identified_to_rank].link(obj.id)
+        : obj.otu_id
+          ? `${RouteNames.BrowseOtu}?otu_id=${obj.otu_id}&observation_matrix_id=${obj.observation_matrix_id}`
+          : undefined
     }
   }
 }

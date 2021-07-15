@@ -184,6 +184,12 @@ class Combination < TaxonName
     name: 'Combination older than protonyms',
     description: 'The combination is older than protonyms in the combination' )
 
+  soft_validate(
+    :sv_combination_linked_to_valid_name,
+    set: :combination_linked_to_valid_name,
+    fix: :sv_fix_combination_parent_update,
+    name: 'Combination has valid parent',
+    description: 'The combination should have the same parent as protonym' )
 
   # @return [Protonym Scope]
   # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
@@ -433,6 +439,28 @@ class Combination < TaxonName
   def sv_combination_duplicates
     duplicate = Combination.not_self(self).where(cached: cached)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
+  end
+
+  def sv_combination_linked_to_valid_name
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      soft_validations.add(:base, "Combination #{cached_html_name_and_author_year} should have the same parent and rank with  #{check.cached_html_name_and_author_year}",
+                           success_message: 'The parent was updated', failure_message:  'The parent was not updated')
+    end
+  end
+
+  def sv_fix_combination_parent_update
+    check = protonyms.first
+    if parent_id && check && check.parent_id && parent_id != check.parent_id
+      begin
+        TaxonName.transaction do
+          update_column(:parent_id, check.parent_id)
+          return true
+        end
+      rescue
+      end
+    end
+    false
   end
 
   def sv_cached_names

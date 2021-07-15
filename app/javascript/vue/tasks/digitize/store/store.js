@@ -89,9 +89,9 @@ function makeInitialState () {
         'BiologicalAssociation',
         'TypeMaterial'
       ],
-      ComponentParse: Object.keys(ComponentParse),
-      ComponentVerbatim: Object.keys(ComponentVerbatim),
-      ComponentMap: Object.keys(ComponentMap)
+      ComponentParse: Object.values(ComponentParse),
+      ComponentVerbatim: Object.values(ComponentVerbatim),
+      ComponentMap: Object.values(ComponentMap)
     }
   }
 }

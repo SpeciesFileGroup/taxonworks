@@ -9,9 +9,11 @@
 import { RouteNames } from 'routes/routes'
 
 const BROWSE_LINK = {
-  CollectionObject: id => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
-  Otu: id => `${RouteNames.BrowseOtu}?otu_id=${id}`,
-  TaxonName: id => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+  CollectionObject: (id, _) => `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
+  TaxonName: (id, _) => `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`,
+  Otu: (id, rowObject) => rowObject.observation_matrix_id
+    ? `${RouteNames.BrowseOtu}?otu_id=${id}&observation_matrix_id=${rowObject.observation_matrix_id}`
+    : `${RouteNames.BrowseOtu}?otu_id=${id}`
 }
 
 export default {
@@ -39,8 +41,8 @@ export default {
         ? ['id', 'Otu']
         : Object.entries(objectClass).find(([key, value]) => object[key])
 
-      return BROWSE_LINK[klass](object[property])
-    },
+      return BROWSE_LINK[klass](object[property], object)
+    }
   }
 }
 </script>

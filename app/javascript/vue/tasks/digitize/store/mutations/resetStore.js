@@ -1,11 +1,15 @@
 import { makeInitialState } from '../store.js'
 
 export default state => {
-  const preferences = state.preferences
-  const COTypes = state.COTypes
+  const {
+    preferences,
+    project_preferences,
+    COTypes
+  } = state
 
   history.pushState(null, null, '/tasks/accessions/comprehensive')
   state = Object.assign(state, makeInitialState())
   state.preferences = preferences
+  state.project_preferences = project_preferences
   state.COTypes = COTypes
 }
