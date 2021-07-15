@@ -40,16 +40,18 @@ export default {
     }
   },
 
-  mounted () {
-
-  },
-
   methods: {
     loadDescription () {
+      const urlParams = new URLSearchParams(window.location.search)
+      const matrixId = urlParams.get('observation_matrix_id')
+
       ajaxCall('get', '/tasks/observation_matrices/description_from_observation_matrix/description', {
         params: {
           otu_id: this.otu.id,
-          include_descendants: true
+          include_descendants: true,
+          observation_matrix_id: /^\d+$/.test(matrixId)
+            ? matrixId
+            : undefined
         }
       }).then(({ body }) => {
         this.generatedDescription = body.generated_description
