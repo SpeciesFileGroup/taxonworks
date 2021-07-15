@@ -115,10 +115,12 @@ class Catalog::DescriptionFromObservationMatrix
   def find_matrix
     return nil if (@observation_matrix_id.blank? || @observation_matrix_id.to_s == '0') && @observation_matrix_row_id.blank?
     if @observation_matrix_row_id.blank?
-      ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
+      m = ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
     else
-      ObservationMatrixRow.find(@observation_matrix_row_id)&.observation_matrix
+      m = ObservationMatrixRow.find(@observation_matrix_row_id)&.observation_matrix
+      @observation_matrix_id = m.id.to_s
     end
+    m
   end
 
   def descriptor_available_languages
