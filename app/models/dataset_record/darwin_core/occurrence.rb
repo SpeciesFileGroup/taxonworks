@@ -73,7 +73,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         if attributes[:catalog_number]
           namespace = attributes.dig(:catalog_number, :namespace)
-          attributes.dig(:catalog_number, :identifier)&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name) if namespace
+          attributes.dig(:catalog_number, :identifier)&.delete_prefix!(namespace.verbatim_short_name || namespace.short_name)&.delete_prefix!(namespace.delimiter) if namespace
 
           identifier = Identifier::Local::CatalogNumber
                       .create_with(identifier_object: specimen)
