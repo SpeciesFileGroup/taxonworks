@@ -374,7 +374,7 @@ scope :tasks do
     end
 
     scope :description_from_observation_matrix, controller: 'tasks/observation_matrices/description_from_observation_matrix' do
-      get ':observation_matrix_id/description', action: :description, defaults: {format: :json}
+      get 'description', action: :description, defaults: {format: :json}
     end
 
     scope :interactive_key, controller: 'tasks/observation_matrices/interactive_key' do
