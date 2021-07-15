@@ -17,10 +17,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 - Show selected options for biological associations in comprehensive specimen digitization task [#2332]
 - Option to hide "Attributes", "Buffered", "Citations" and "Depictions" sections in comprehensive specimen digitization task [#2333]
+- Missing fields in comprehensive form
+- Fields not showing in "original combination and rank" section in New taxon name [#2346]
 
 [#2332]: https://github.com/SpeciesFileGroup/taxonworks/issues/2332
 [#2333]: https://github.com/SpeciesFileGroup/taxonworks/issues/2333
 [#2336]: https://github.com/SpeciesFileGroup/taxonworks/issues/2336
+[#2346]: https://github.com/SpeciesFileGroup/taxonworks/issues/2346
 
 
 ## [0.19.0] - 2021-07-08
