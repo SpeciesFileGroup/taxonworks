@@ -26,10 +26,10 @@ class Catalog::DescriptionFromObservationMatrix
   # Optional attribute to display the descriptors and character_states in a particular language (when translations are available)
   attr_accessor :language_id
 
-  # @!row_id
+  # @!observation_matrix_row_id
   #   @return [String or null]
   # Optional attribute to provide a rowID
-  attr_accessor :row_id
+  attr_accessor :observation_matrix_row_id
 
   # @!otu_id
   #   @return [String or null]
@@ -89,12 +89,13 @@ class Catalog::DescriptionFromObservationMatrix
     include_descendants: nil,
     language_id: nil,
     keyword_ids: nil,
-    row_id: nil,
+    observation_matrix_row_id: nil,
     otu_id: nil)
 
     # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
+    @observation_matrix_row_id = observation_matrix_row_id
     @observation_matrix = find_matrix
     @include_descendants = include_descendants
     @language_to_use = language_to_use
@@ -103,7 +104,6 @@ class Catalog::DescriptionFromObservationMatrix
     @descriptor_available_languages = descriptor_available_languages
     @language_id = language_id
     @otu_id = otu_id
-    @row_id = row_id
     @otu_id_filter_array = otu_id_array
     @collection_object_id_filter_array = collection_object_id_array
     ###main_logic
@@ -113,8 +113,12 @@ class Catalog::DescriptionFromObservationMatrix
   end
 
   def find_matrix
-    return nil if @observation_matrix_id.blank? || @observation_matrix_id.to_s == '0'
-    ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
+    return nil if (@observation_matrix_id.blank? || @observation_matrix_id.to_s == '0') && @observation_matrix_row_id.blank?
+    if @observation_matrix_row_id.blank?
+      ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
+    else
+      ObservationMatrixRow.find(@observation_matrix_row_id).try(observation_matrix)
+    end
   end
 
   def descriptor_available_languages
@@ -165,8 +169,8 @@ class Catalog::DescriptionFromObservationMatrix
   end
 
   def otu_id_array
-    if !@row_id.blank?
-      @otu_id = ObservationMatrixRow.find(@row_id.to_i)&.otu_id
+    if !@observation_matrix_row_id.blank?
+      @otu_id = ObservationMatrixRow.find(@observation_matrix_row_id.to_i)&.otu_id
     end
     if @otu_id.blank?
       nil
@@ -180,8 +184,8 @@ class Catalog::DescriptionFromObservationMatrix
   def collection_object_id_array
     if @include_descendants = 'true' && !@otu_id_filter_array.blank?
       CollectionObject.joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu_id: @otu_id_filter_array}).pluck(:id)
-    elsif !@row_id.blank?
-      [ObservationMatrixRow.find(@row_id.to_i)&.collection_object_id.to_i]
+    elsif !@observation_matrix_row_id.blank?
+      [ObservationMatrixRow.find(@observation_matrix_row_id.to_i)&.collection_object_id.to_i]
     else
       [0]
     end
