@@ -1,4 +1,7 @@
 # Contains methods used to build an otu description from the matrix
+
+# http://localhost:3000/tasks/observation_matrices/description_from_observation_matrix/description?otu_id=45291&observation_matrix_id=24
+#
 class Catalog::DescriptionFromObservationMatrix
 
   ##### FILTER PARAMETERS #####
@@ -110,7 +113,7 @@ class Catalog::DescriptionFromObservationMatrix
   end
 
   def find_matrix
-    return nil if @observation_matrix_id.blank?
+    return nil if @observation_matrix_id.blank? || @observation_matrix_id.to_s == '0'
     ObservationMatrix.where(project_id: project_id).find(@observation_matrix_id)
   end
 
@@ -140,12 +143,14 @@ class Catalog::DescriptionFromObservationMatrix
   end
 
   def descriptors
+    t = ['Descriptor::Continuous', 'Descriptor::PresenceAbsence', 'Descriptor::Sample', 'Descriptor::Qualitative']
     if @observation_matrix_id.blank?
-      Descriptor.not_weight_zero.order(:position)
+      Descriptor.not_weight_zero.where('type IN (?)', t).order(:position)
     else
       Descriptor.select('descriptors.*, observation_matrix_columns.position AS column_position').
         joins(:observation_matrix_columns).
         not_weight_zero.
+        where('type IN (?)', t).
         where('observation_matrix_columns.observation_matrix_id = ?', @observation_matrix_id).
         order('observation_matrix_columns.position')
     end
@@ -275,116 +280,4 @@ class Catalog::DescriptionFromObservationMatrix
 
 
 
-
-
-
-=begin
-  def description_from_observation_matrix(observation_matrix_id, include_descendants: false)
-    if rst1("DescriptionType") > 0 and rst1("DescriptionType") < 5 and autoDescription then
-      if keyN <> "" then
-        response.write "<h2>Diagnosis</h2>" & sp
-        response.write "<p><a class='h1' href='diagnos.asp?key=" & key1 & "&lng=" & lng & "&hc=" & key & "&keyN=" & keyN & "&r=&title=" & Server.URLEncode(title) & "'>Generate Diagnosis</a></p>" & sp
-      end if
-        if rst1("DescriptionType") = 3 or rst1("DescriptionType") = 4 then
-        where = "AND Characters.KeyN&'' Like '%" & KeyN & "%' "
-        else
-          where = ""
-        end if
-
-        rst.Close
-      strSQL = "SELECT Taxon.Hiercode, Morph.Morph" & lng & ", Characters.Char" & lng & ", Characters.KeyN, Characters.Numeric, State.State" & lng & ", Morph.Morph, Characters.Char, State.State, CharTable.NumericFrom, CharTable.NumericTo " &_
-      "FROM Taxon INNER JOIN ((Morph RIGHT JOIN (Characters INNER JOIN State ON Characters.Key1 = State.Key1) ON Morph.Morph = Characters.Morph) INNER JOIN CharTable ON State.Key2 = CharTable.Key2) ON Taxon.Key = CharTable.Key " &_
-      "GROUP BY Taxon.Hiercode, Morph.Morph" & lng & ", Characters.Weight, Characters.Char" & lng & ", Characters.KeyN, State.State" & lng & ", Morph.Morph, Characters.Char, State.State, Characters.Numeric, CharTable.NumericFrom, CharTable.NumericTo " &_
-      "HAVING Taxon.Hiercode Like '" & hc & "%' AND (Characters.Weight is Null or Characters.Weight Not Like '0') " & where &_
-      "ORDER BY Morph.Morph, Characters.Char, State.State, CharTable.NumericFrom"
-      rst.Open strSQL, Conn
-      if not rst.EOF then
-        response.write "<h2>" & rst1("Descript") & "</h2>" & sp
-        morph = rst("Morph") & ""
-        char = rst("Char")
-        state = brackets(rst("State" & lng))
-        i = 0
-        stFrom = rst("NumericFrom")
-        stTo = rst("NumericTo")
-        response.write "<p>"
-        if morph <> "" then response.write "<b>" & brackets(rst("Morph" & lng)) & ".</b> "
-        if inStr(rst("State" & lng), "inapplicable") = 0 then
-        text = brackets(rst("Char" & lng))
-        char1 = ucase(left(text, 1)) & right(text, len(text) - 1)
-        if rst1("DescriptionType") = 1 or rst1("DescriptionType") = 3 then response.write char1 & " "
-        if rst("Numeric") = False then
-        response.write state
-        elseIf rst("NumericFrom") = rst("NumericTo") and rst("Hiercode") = hc then
-        response.write rst("NumericFrom") & " " & state
-        i = 1
-        elseIf rst("Hiercode") = hc then
-        response.write rst("NumericFrom") & "-" & rst("NumericTo") & " " & state
-        i = 1
-        end if
-        end if ' inapplicable
-    Do until rst.Eof
-    text = brackets(rst("Char" & lng))
-    char2 = ucase(left(text, 1)) & right(text, len(text) - 1)
-    if char <> rst("Char") and stFrom > 0 then
-      If stFrom = stTo and i = 0 then
-      response.write stFrom & " " & state
-      elseif i = 0 then
-      response.write stFrom & "&#1038;¡ì§À&#1038;¡ì§ÀC" & stTo & " " & state
-    end if
-      stFrom = 0
-    stTo = 0
-    i = 0
-  end if
-    if morph <> rst("Morph") & "" then
-      response.write ".</p>" & sp & "<p><b>" & brackets(rst("Morph" & lng)) & ".</b> "
-      morph = rst("Morph") & ""
-      elseIf char <> rst("Char") and char1 = char2 and inStr(rst("State" & lng), "inapplicable") = 0 then
-      response.write ", "
-      elseif char <> rst("Char") and inStr(rst("State" & lng), "inapplicable") = 0 then
-      response.write ". "
-    end if
-    if state <> brackets(rst("State" & lng) & "") or stFrom & "a" & stTo <> rst("NumericFrom") & "a" & rst("NumericTo") or char <> rst("Char") then
-      state = brackets(rst("State" & lng) & "")
-      if inStr(rst("State" & lng), "inapplicable") = 0 then
-      if char <> rst("Char") then
-        text = char2
-        if (rst1("DescriptionType") = 1 or rst1("DescriptionType") = 3) and char1 <> char2 then response.write char2 & " "
-        char = rst("Char")
-        char1 = char2
-        orStr = ""
-        i = 0
-        else
-          orStr = rst1("OrSeparator") & " "
-        end if
-          if rst("Numeric") = False then
-          response.write orStr & state
-          elseIf rst("Hiercode") = hc then
-          If rst("NumericFrom") = rst("NumericTo") then
-          response.write orStr & rst("NumericFrom") & " " & state
-          else
-            response.write orStr & rst("NumericFrom") & "-" & rst("NumericTo") & " " & state
-          end if
-          i = 1
-      else
-        if stFrom = 0 or stFrom > rst("NumericFrom") then stFrom = rst("NumericFrom")
-        if stTo < rst("NumericTo") then stTo = rst("NumericTo")
-        end if
-        end if ' inapplicable
-        end if
-          rst.moveNext
-        Loop
-        if stFrom > 0 and i = 0 then
-          If stFrom = stTo then
-          response.write stFrom & " " & state
-        else
-          response.write stFrom & "&#1038;¡ì§À&#1038;¡ì§ÀC" & stTo & " " & state
-        end if
-          stFrom = 0
-        stTo = 0
-        end if
-          response.write ".</p>" & sp
-      end if
-    end if
-  end
-=end
 end
