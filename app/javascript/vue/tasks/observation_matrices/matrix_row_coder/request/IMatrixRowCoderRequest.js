@@ -64,4 +64,8 @@ export default class IMatrixRowCoderRequest {
   getUnits () {
     throw IllegalBaseClassCallError
   }
+
+  getDescription () {
+    throw IllegalBaseClassCallError
+  }
 }

@@ -10,6 +10,7 @@ export function makeInitialState (requestModule) {
     taxonTitle: '',
     taxonId: null,
     matrixRow: undefined,
+    description: undefined,
     descriptors: [],
     observations: [],
     confidenceLevels: null,

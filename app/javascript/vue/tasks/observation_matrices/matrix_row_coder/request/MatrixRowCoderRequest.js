@@ -159,4 +159,13 @@ export default class MatrixRowCoderRequest extends IMatrixRowCoderRequest {
     const url = this.buildGetUrl('/confidence_levels.json')
     return getJSON(url)
   }
+
+  getDescription (rowId) {
+    const extraParams = {
+      observation_matrix_row_id: rowId
+    }
+    const url = this.buildGetUrl('/tasks/observation_matrices/description_from_observation_matrix/description', extraParams)
+
+    return getJSON(url)
+  }
 }
