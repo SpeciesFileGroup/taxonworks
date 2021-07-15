@@ -13,8 +13,10 @@ export default ({ commit, dispatch, state }) =>
         commit(MutationNames.AddCollectionObject, coCreated)
 
         promises.push(dispatch(ActionNames.SaveTypeMaterial))
+        promises.push(dispatch(ActionNames.SaveCOCitations))
         promises.push(dispatch(ActionNames.SaveIdentifier, coCreated.id))
         promises.push(dispatch(ActionNames.SaveDeterminations))
+
         Promise.all(promises).then(() => {
           state.settings.saving = false
           state.settings.lastSave = Date.now()

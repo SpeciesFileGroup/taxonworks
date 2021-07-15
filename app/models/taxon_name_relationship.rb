@@ -79,6 +79,7 @@ class TaxonNameRelationship < ApplicationRecord
       :validate_rank_group
   end
 
+  # TODO: isolate to an include file sensu protonym
   soft_validate(
     :sv_validate_required_relationships,
     set: :validate_required_relationships,
@@ -489,7 +490,7 @@ class TaxonNameRelationship < ApplicationRecord
 
       end
 
-    # no point in rescuing and not returning somthing
+    # no point in rescuing and not returning something
     rescue ActiveRecord::RecordInvalid
       raise
     end

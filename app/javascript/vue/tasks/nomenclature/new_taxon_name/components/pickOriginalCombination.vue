@@ -171,6 +171,13 @@ export default {
         this.createTaxonOriginal()
       },
       immediate: true
+    },
+    taxon: {
+      handler (newVal, oldVal) {
+        if(newVal.id && !oldVal.id) {
+          this.createTaxonOriginal()
+        }
+      }
     }
   },
   methods: {

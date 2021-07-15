@@ -6,12 +6,23 @@
       animation="scale"
       placement="bottom"
       size="small"
-      :inertia="true"
-      :arrow="true"
-      :content="`<p>Create tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-tag-add"
-        @click="createTag()"/>
+      inertia
+      arrow
+    >
+      <template #trigger>
+        <p>Create tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
+      </template>
+      <v-btn
+        @click="createTag()"
+        circle
+        color="create"
+      >
+        <v-icon
+          color="white"
+          name="label"
+          x-small
+        />
+      </v-btn>
     </tippy>
 
     <tippy
@@ -21,10 +32,21 @@
       size="small"
       :inertia="true"
       :arrow="true"
-      :content="`<p>Remove tag: ${getDefaultElement().firstChild.firstChild.textContent}.${showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects</p>` : ''}`">
-      <div
-        class="default_tag_widget circle-button btn-tag-delete"
-        @click="deleteTag()"/>
+    >
+      <template #trigger>
+        <p>Remove tag: {{ getDefaultElement().firstChild.firstChild.textContent }}.{{ showCount ? `<br>Used already on ${countTag} ${countTag > 200 ? 'or more' : '' } objects` : ''}}</p>
+      </template>
+      <v-btn
+        @click="deleteTag()"
+        circle
+        color="destroy"
+      >
+        <v-icon
+          color="white"
+          name="label"
+          x-small
+        />
+      </v-btn>
     </tippy>
   </div>
   <div
@@ -33,12 +55,19 @@
 </template>
 
 <script>
-import { Tippy } from 'vue-tippy'
+
 import AjaxCall from 'helpers/ajaxCall'
+import { Tippy } from 'vue-tippy'
 import { Tag } from 'routes/endpoints'
+import VBtn from 'components/ui/VBtn/index.vue'
+import VIcon from 'components/ui/VIcon/index.vue'
 
 export default {
-  components: { Tippy },
+  components: {
+    Tippy,
+    VBtn,
+    VIcon
+  },
 
   props: {
     globalId: {
@@ -108,6 +137,7 @@ export default {
       }
       AjaxCall('get', '/tags/exists', { params: params }).then(response => {
         this.created = !!response.body
+        this.tagItem = response.body
       })
     },
 

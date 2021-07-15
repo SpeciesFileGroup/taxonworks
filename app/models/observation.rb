@@ -44,8 +44,13 @@ class Observation < ApplicationRecord
   def self.in_observation_matrix(observation_matrix_id)
     om = ObservationMatrix.find(observation_matrix_id)
 
-    where(descriptor: om.descriptors, otu: om.otus).or(
-    where(descriptor: om.descriptors, collection_object: om.collection_objects))
+    # where(descriptor: om.descriptors, otu: om.otus).or(
+    # where(descriptor: om.descriptors, collection_object: om.collection_objects))
+
+    a = Observation.where(descriptor: om.descriptors, otu: om.otus)
+    b = Observation.where(descriptor: om.descriptors, collection_object: om.collection_objects)
+
+    Observation.from("((#{a.to_sql}) UNION (#{b.to_sql})) as observations").distinct
   end
 
   # @params row_object_global_ids [Array of global_id instances (not string)

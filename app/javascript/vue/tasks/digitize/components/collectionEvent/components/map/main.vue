@@ -28,7 +28,7 @@ import {
   VueComponents
 } from '../../../../const/components'
 
-const componentNames = Object.keys(ComponentMap)
+const componentNames = Object.values(ComponentMap)
 const MapComponents = Object.fromEntries(componentNames.map(componentName => [componentName, VueComponents[componentName]]))
 
 export default {
@@ -60,7 +60,6 @@ export default {
 
   data () {
     return {
-      componentsOrder: componentNames,
       keyStorage: 'tasks::digitize::mapOrder',
       componentsSection: 'ComponentMap',
       validations: {}

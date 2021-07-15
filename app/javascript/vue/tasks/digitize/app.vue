@@ -100,7 +100,6 @@ export default {
 
   data () {
     return {
-      // componentsOrder: ['TaxonDeterminationLayout', 'BiologicalAssociation', 'TypeMaterial'],
       keyStorage: 'tasks::digitize::LeftColumnOrder',
       componentsSection: 'leftColumn'
     }

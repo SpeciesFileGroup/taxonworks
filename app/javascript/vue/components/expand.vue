@@ -4,7 +4,7 @@
       @click="$emit('update:modelValue', false)"
       data-icon="contract"
       title="Contract"
-      v-if="value"/>
+      v-if="modelValue"/>
     <span
       @click="$emit('update:modelValue', true)"
       title="Expand"

@@ -6,74 +6,69 @@
       </template>
       <template #body>
         <div class="separate-bottom">
-          <template>
-            <div class="flex-separate middle">
-              <h3
-                v-if="biologicalRelationship"
-                class="relationship-title">
-                <template v-if="flip">
-                  <span 
-                    v-for="item in biologicalRelationship.object_biological_properties"
-                    :key="item.id"
-                    class="separate-right background-info"
-                    v-html="item.name"/>
-                  <span
-                    v-html="biologicalRelationship.inverted_name"/>
-                  <span 
-                    v-for="item in biologicalRelationship.subject_biological_properties"
-                    :key="item.id"
-                    class="separate-left background-info"
-                    v-html="item.name"/>
-                </template>
-                <template v-else>
-                  <span 
-                    v-for="item in biologicalRelationship.subject_biological_properties"
-                    :key="item.id"
-                    class="separate-right background-info"
-                    v-html="item.name"/>
-                  <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
-                  <span 
-                    v-for="item in biologicalRelationship.object_biological_properties"
-                    :key="item.id"
-                    class="separate-left background-info"
-                    v-html="item.name"/>
-                </template>
-                <button
-                  v-if="biologicalRelationship.inverted_name"
-                  class="separate-left button button-default flip-button"
-                  type="button"
-                  @click="flip = !flip">
-                  Flip
-                </button>
+          <div class="flex-separate middle">
+            <h3
+              v-if="biologicalRelationship"
+              class="relationship-title">
+              <template v-if="flip">
+                <span 
+                  v-for="item in biologicalRelationship.object_biological_properties"
+                  :key="item.id"
+                  class="separate-right background-info"
+                  v-html="item.name"/>
                 <span
-                  @click="biologicalRelationship = undefined; flip = false"
-                  class="separate-left"
-                  data-icon="reset"/>
-              </h3>
-              <h3
-                class="subtle relationship-title"
-                v-else>Choose relationship</h3>
-              <lock-component v-model="settings.locked.biological_association.relationship"/>
-            </div>
-          </template>
-
-          <template>
-            <div class="flex-separate middle">
-              <h3
-                v-if="biologicalRelation"
-                class="relation-title">
-                <span v-html="displayRelated"/>
+                  v-html="biologicalRelationship.inverted_name"/>
+                <span 
+                  v-for="item in biologicalRelationship.subject_biological_properties"
+                  :key="item.id"
+                  class="separate-left background-info"
+                  v-html="item.name"/>
+              </template>
+              <template v-else>
                 <span
-                  @click="biologicalRelation = undefined"
-                  class="separate-left"
-                  data-icon="reset"/>
-              </h3>
-              <h3
-                v-else
-                class="subtle relation-title">Choose relation</h3>
-              <lock-component v-model="settings.locked.biological_association.related"/>
-            </div>
-          </template>
+                  v-for="item in biologicalRelationship.subject_biological_properties"
+                  :key="item.id"
+                  class="separate-right background-info"
+                  v-html="item.name"/>
+                <span>{{ (biologicalRelationship.hasOwnProperty('label') ? biologicalRelationship.label : biologicalRelationship.name) }}</span>
+                <span
+                  v-for="item in biologicalRelationship.object_biological_properties"
+                  :key="item.id"
+                  class="separate-left background-info"
+                  v-html="item.name"/>
+              </template>
+              <button
+                v-if="biologicalRelationship.inverted_name"
+                class="separate-left button button-default flip-button"
+                type="button"
+                @click="flip = !flip">
+                Flip
+              </button>
+              <span
+                @click="biologicalRelationship = undefined; flip = false"
+                class="separate-left"
+                data-icon="reset"/>
+            </h3>
+            <h3
+              class="subtle relationship-title"
+              v-else>Choose relationship</h3>
+            <lock-component v-model="settings.locked.biological_association.relationship"/>
+          </div>
+          <div class="flex-separate middle">
+            <h3
+              v-if="biologicalRelation"
+              class="relation-title">
+              <span v-html="displayRelated"/>
+              <span
+                @click="biologicalRelation = undefined"
+                class="separate-left"
+                data-icon="reset"/>
+            </h3>
+            <h3
+              v-else
+              class="subtle relation-title">Choose relation</h3>
+            <lock-component v-model="settings.locked.biological_association.related"/>
+          </div>
         </div>
         <div
           v-if="!biologicalRelationship"

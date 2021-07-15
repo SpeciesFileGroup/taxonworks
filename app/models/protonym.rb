@@ -104,7 +104,7 @@ class Protonym < TaxonName
     end
   end
 
-  # TODO: this is not really needed
+  # TODO: remove
   scope :named, -> (name) {where(name: name)}
 
   scope :with_name_in_array, -> (array) {where(name: array) }
@@ -218,11 +218,11 @@ class Protonym < TaxonName
 #        if !search_name.nil? && r.empty?
         if !search_name.nil? && is_available?
           list = Protonym
-            .that_is_valid
             .ancestors_and_descendants_of(self)
-            .not_self(self)
             .with_rank_class_including(search_rank)
             .where(name: search_name)
+            .not_self(self)
+            .that_is_valid
         else
           list = []
         end
@@ -448,9 +448,6 @@ class Protonym < TaxonName
 
   def is_latin?
     !NOT_LATIN.match(name) || has_latinized_exceptions?
-  end
-
-  def is_homonym_or_suppressed?
   end
 
   # @return [Boolean]
@@ -937,6 +934,7 @@ class Protonym < TaxonName
         cached_original_combination != get_original_combination ||
         cached_original_combination_html != get_original_combination_html ||
         cached_primary_homonym != get_genus_species(:original, :self) ||
+        cached_nomenclature_date != nomenclature_date ||
         cached_primary_homonym_alternative_spelling != get_genus_species(:original, :alternative) ||
         rank_string =~ /Species/ &&
             (cached_secondary_homonym != get_genus_species(:current, :self) ||

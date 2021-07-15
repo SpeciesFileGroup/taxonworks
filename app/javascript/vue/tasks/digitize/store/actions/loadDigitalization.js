@@ -1,8 +1,8 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, dispatch, state }, coId) {
-  return new Promise((resolve, reject) => {
+export default ({ commit, dispatch, state }, coId) => 
+  new Promise((resolve, reject) => {
     state.settings.loading = true
     dispatch(ActionNames.GetCollectionObject, coId).then(coObject => {
       const promises = []
@@ -28,21 +28,18 @@ export default function ({ commit, dispatch, state }, coId) {
       }
 
       promises.push(dispatch(ActionNames.GetTypeMaterial, coId))
+      promises.push(dispatch(ActionNames.GetCOCitations, coId))
       promises.push(dispatch(ActionNames.GetLabels, coObject.collecting_event_id))
       promises.push(dispatch(ActionNames.GetTaxonDeterminations, coId))
       commit(MutationNames.AddCollectionObject, coObject)
 
-      Promise.all(promises).then(() => {
+      Promise.allSettled(promises).then(() => {
         state.settings.loading = false
         state.settings.lastChange = 0
         resolve()
-      }, () => {
-        state.settings.loading = false
-        reject()
       })
     }, error => {
       state.settings.loading = false
       reject(error)
     })
   })
-}

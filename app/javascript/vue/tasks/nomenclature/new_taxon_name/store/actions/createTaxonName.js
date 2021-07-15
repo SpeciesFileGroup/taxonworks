@@ -1,7 +1,7 @@
 import { TaxonName } from 'routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-export default function ({ commit, dispatch }, taxon) {
+export default ({ commit, dispatch }, taxon) => {
   const taxon_name = {
     name: taxon.name,
     parent_id: taxon.parent_id,
@@ -18,6 +18,7 @@ export default function ({ commit, dispatch }, taxon) {
       history.pushState(null, null, `/tasks/nomenclature/new_taxon_name?taxon_name_id=${response.body.id}`)
       TW.workbench.alert.create(`Taxon name ${response.body.object_tag} was successfully created.`, 'notice')
       commit(MutationNames.SetTaxon, response.body)
+      commit(MutationNames.SetOriginalCombination, {})
       commit(MutationNames.SetHardValidation, undefined)
       dispatch('loadSoftValidation', 'taxon_name')
       commit(MutationNames.UpdateLastSave)

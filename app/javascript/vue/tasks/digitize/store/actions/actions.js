@@ -12,12 +12,14 @@ import getTaxonDeterminations from './getTaxonDeterminations'
 import getTypeMaterial from './getTypeMaterial'
 import loadContainer from './loadContainer'
 import loadDigitalization from './loadDigitalization'
+import getCOCitations from './getCOCitations'
 import newCollectionEvent from './newCollectionEvent'
 import newCollectionObject from './newCollectionObject'
 import newIdentifier from './newIdentifier'
 import newLabel from './newLabel'
 import newTaxonDetermination from './newTaxonDetermination'
 import newTypeMaterial from './newTypeMaterial'
+import removeCOCitation from './removeCOCitation'
 import removeCollectionObject from './removeCollectionObject'
 import removeContainer from './removeContainer'
 import removeContainerItem from './removeContainerItem'
@@ -25,6 +27,7 @@ import removeDepictionsByImageId from './removeDepictionsByImageId'
 import removeTaxonDetermination from './removeTaxonDetermination'
 import removeTypeMaterial from './removeTypeMaterial'
 import resetWithDefault from './resetWithDefault'
+import saveCOCitations from './saveCOCitations'
 import saveCollectionEvent from './saveCollectionEvent'
 import saveCollectionObject from './saveCollectionObject'
 import saveContainer from './saveContainer'
@@ -48,6 +51,7 @@ const ActionFunctions = {
   [ActionNames.GetTaxon]: getTaxon,
   [ActionNames.GetTypeMaterial]: getTypeMaterial,
   [ActionNames.LoadContainer]: loadContainer,
+  [ActionNames.GetCOCitations]: getCOCitations,
   [ActionNames.LoadDigitalization]: loadDigitalization,
   [ActionNames.NewCollectionEvent]: newCollectionEvent,
   [ActionNames.NewCollectionObject]: newCollectionObject,
@@ -55,6 +59,7 @@ const ActionFunctions = {
   [ActionNames.NewLabel]: newLabel,
   [ActionNames.NewTaxonDetermination]: newTaxonDetermination,
   [ActionNames.NewTypeMaterial]: newTypeMaterial,
+  [ActionNames.RemoveCOCitation]: removeCOCitation,
   [ActionNames.RemoveCollectionObject]: removeCollectionObject,
   [ActionNames.RemoveContainer]: removeContainer,
   [ActionNames.RemoveContainerItem]: removeContainerItem,
@@ -62,6 +67,7 @@ const ActionFunctions = {
   [ActionNames.RemoveTaxonDetermination]: removeTaxonDetermination,
   [ActionNames.RemoveTypeMaterial]: removeTypeMaterial,
   [ActionNames.ResetWithDefault]: resetWithDefault,
+  [ActionNames.SaveCOCitations]: saveCOCitations,
   [ActionNames.SaveCollectionEvent]: saveCollectionEvent,
   [ActionNames.SaveCollectionObject]: saveCollectionObject,
   [ActionNames.SaveContainerItem]: saveContainerItem,
@@ -74,4 +80,7 @@ const ActionFunctions = {
   [ActionNames.SaveTypeMaterial]: saveTypeMaterial
 }
 
-export { ActionNames, ActionFunctions }
+export {
+  ActionNames,
+  ActionFunctions
+}

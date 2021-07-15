@@ -394,6 +394,7 @@ resources :observation_matrices do
     get :nexml, defaults: {format: :rdf}
     get :tnt
     get :nexus
+    get :otu_contents
     #  get :csv
     #  get :biom
 

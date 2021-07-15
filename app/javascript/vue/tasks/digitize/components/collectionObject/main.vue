@@ -22,7 +22,7 @@
       </template>
       <template #body>
         <div
-          class="horizontal-left-content align-start flexbox separate-bottom">
+          class="horizontal-left-content align-start flexbox">
           <div class="separate-right">
             <catalogue-number/>
           </div>
@@ -33,24 +33,33 @@
             <preparation-type/>
           </div>
         </div>
-        <div class="horizontal-right-content">
-          <buffered-component
-            v-if="showBuffered"
-            class="separate-top separate-right"/>
-          <div class="middle">
+        <div>
+          <h2 class="horizontal-left-content">
+            Buffered
             <expand-component
-              :value="showBuffered"
-              @input="showBuffered = $event; updatePreferences('tasks::digitize::collectionObjects::showBuffered', showBuffered)"/>
-            <span
-              v-if="!showBuffered"
-              class="separate-left">Show buffered fields
-            </span>
+              class="margin-small-left"
+              v-model="showBuffered"
+              @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
+            />
+          </h2>
+          <div
+            v-if="showBuffered"
+            class="horizontal-right-content">
+            <buffered-component
+              class="separate-top separate-right"/>
           </div>
         </div>
-        <div class="horizontal-right-content separate-top separate-bottom">
+        <div>
+          <h2 class="horizontal-left-content">
+            Depictions
+            <expand-component
+              class="margin-small-left"
+              v-model="showDepictions"
+              @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
+            />
+          </h2>
           <depictions-component
-            v-show="showDepictions"
-            class="separate-top separate-right"
+            v-if="showDepictions"
             :object-value="collectionObject"
             :get-depictions="GetCollectionObjectDepictions"
             object-type="CollectionObject"
@@ -58,34 +67,49 @@
             @delete="removeAllDepictionsByImageId"
             default-message="Drop images or click here<br> to add collection object figures"
             action-save="SaveCollectionObject"/>
-          <div class="middle">
-            <expand-component
-              :value="showDepictions"
-              @input="showDepictions = $event; updatePreferences('tasks::digitize::collectionObjects::showDepictions', showDepictions)"
-            />
-            <span
-              v-if="!showDepictions"
-              class="separate-left">Show depictions
-            </span>
-          </div>
         </div>
         <div>
-          <spinner-component
-            v-if="!collectionObject.id"
-            :show-spinner="false"
-            :legend-style="{
-              color: '#444',
-              textAlign: 'center'
-            }"
-            legend="Locked until first save"/>
-          <predicates-component
-            v-if="projectPreferences"
-            :object-id="collectionObject.id"
-            object-type="CollectionObject"
-            model="CollectionObject"
-            :model-preferences="projectPreferences.model_predicate_sets.CollectionObject"
-            @onUpdate="setAttributes"
-          />
+          <div class="full_width">
+            <h2 class="horizontal-left-content">
+              Citations
+              <expand-component
+                class="margin-small-left"
+                v-model="showCitations"
+                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
+              />
+            </h2>
+            <citation-component
+              v-if="showCitations"
+              class="full_width"/>
+          </div>
+          <div class="full_width">
+            <h2 class="horizontal-left-content">
+              Attributes
+              <expand-component
+                class="margin-small-left"
+                v-model="showAttributes"
+                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showAttributes', $event)"
+              />
+            </h2>
+            <div v-if="showAttributes">
+              <spinner-component
+                v-if="!collectionObject.id"
+                :show-spinner="false"
+                :legend-style="{
+                  color: '#444',
+                  textAlign: 'center'
+                }"
+                legend="Locked until first save"/>
+              <predicates-component
+                v-if="projectPreferences"
+                :object-id="collectionObject.id"
+                object-type="CollectionObject"
+                model="CollectionObject"
+                :model-preferences="projectPreferences.model_predicate_sets.CollectionObject"
+                @onUpdate="setAttributes"
+              />
+            </div>
+          </div>
         </div>
         <container-items/>
       </template>
@@ -96,13 +120,14 @@
 <script>
 
 import SpinnerComponent from 'components/spinner'
-import ExpandComponent from 'components/expand.vue'
 import ContainerItems from './containerItems.vue'
 import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
 import BufferedComponent from './bufferedData.vue'
 import DepictionsComponent from '../shared/depictions.vue'
 import RepositoryComponent from './repository.vue'
+import CitationComponent from './Citation/CitationMain.vue'
+import ExpandComponent from 'components/expand.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
@@ -118,6 +143,7 @@ import { Depiction, User } from 'routes/endpoints'
 
 export default {
   components: {
+    CitationComponent,
     SpinnerComponent,
     ContainerItems,
     PreparationType,
@@ -128,9 +154,9 @@ export default {
     BlockLayout,
     RadialAnnotator,
     PredicatesComponent,
-    ExpandComponent,
     RadialObject,
-    DefaultTag
+    DefaultTag,
+    ExpandComponent
   },
   computed: {
     preferences: {
@@ -141,23 +167,28 @@ export default {
         this.$store.commit(MutationNames.SetPreferences, value)
       }
     },
+
     projectPreferences () {
       return this.$store.getters[GetterNames.GetProjectPreferences]
     },
+
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
+
     collectionObjects() {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
+
     depictions: {
-      get() {
+      get () {
         return this.$store.getters[GetterNames.GetDepictions]
       },
-      set(value) {
+      set (value) {
         this.$store.commit(MutationNames.SetDepictions)
       }
     },
+
     total: {
       get() {
         return this.$store.getters[GetterNames.GetCollectionObject].total
@@ -166,21 +197,24 @@ export default {
         this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
       }
     },
+
     shortcuts () {
       const keys = {}
 
       keys[`${platformKey()}+e`] = this.openBrowse
 
       return keys
-    },
+    }
   },
   data() {
     return {
       types: [],
       labelRepository: undefined,
       labelEvent: undefined,
-      showDepictions: true,
+      showAttributes: true,
       showBuffered: true,
+      showCitations: true,
+      showDepictions: true,
       GetCollectionObjectDepictions
     }
   },
@@ -192,13 +226,17 @@ export default {
     },
     preferences: {
       handler(newVal) {
-        if(newVal) {
-          let layout = newVal['layout']
-          if(layout) {
-            let sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
-            let sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
-            this.showDepictions = (sDepictions != undefined ? sDepictions : true)
-            this.showBuffered = (sBuffered != undefined ? sBuffered : true)
+        if (newVal) {
+          const layout = newVal['layout']
+          if (layout) {
+            const sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
+            const sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
+            const sAttributes = layout['tasks::digitize::collectionObjects::showAttributes']
+            const sCitations = layout['tasks::digitize::collectionObjects::showCitations']
+            this.showDepictions = sDepictions !== undefined ? sDepictions : true
+            this.showBuffered = sBuffered !== undefined ? sBuffered : true
+            this.showAttributes = sAttributes !== undefined ? sAttributes : true
+            this.showCitations = sCitations !== undefined ? sCitations : true
           }
         }
       },

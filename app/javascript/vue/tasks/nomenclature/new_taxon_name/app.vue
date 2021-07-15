@@ -97,6 +97,8 @@ import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
 
 export default {
+  name: 'NewTaxonName',
+
   components: {
     AuthorSection,
     Autocomplete,

@@ -24,14 +24,13 @@ import { ActionNames } from '../../store/actions/actions'
 import platformKey from 'helpers/getMacKey.js'
 
 export default {
-  components: {
-    TableCollectionObjects,
-  },
+  components: { TableCollectionObjects },
+
   computed: {
     collectionObject () {
       return this.$store.getters[GetterNames.GetCollectionObject]
     },
-    collectionObjects() {
+    collectionObjects () {
       return this.$store.getters[GetterNames.GetCollectionObjects]
     },
     shortcuts () {
@@ -40,21 +39,21 @@ export default {
       keys[`${platformKey()}+p`] = this.addToContainer
 
       return keys
-    },
+    }
   },
+
   methods: {
-    newDigitalization() {
+    newDigitalization () {
       this.$store.dispatch(ActionNames.NewCollectionObject)
       this.$store.dispatch(ActionNames.NewIdentifier)
       this.$store.commit(MutationNames.NewTaxonDetermination)
       this.$store.commit(MutationNames.SetTaxonDeterminations, [])
     },
-    addToContainer() {
-      if(!this.collectionObjects.length) return
+    addToContainer () {
+      if (!this.collectionObjects.length) return
       this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        let that = this
         this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject).then(() => {
-          that.newDigitalization()
+          this.newDigitalization()
           this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
             this.$store.dispatch(ActionNames.AddToContainer, this.collectionObject)
           })

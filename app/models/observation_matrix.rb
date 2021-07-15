@@ -62,6 +62,10 @@ class ObservationMatrix < ApplicationRecord
     descriptors.where(type: ['Descriptor::PresenceAbsence', 'Descriptor::Qualitative']).order('observation_matrix_columns.position')
   end
 
+  def character_states
+    CharacterState.joins(descriptor: [:observation_matrices]).merge(descriptors)
+  end
+
   def cell_count
     observation_matrix_rows.count * observation_matrix_columns.count 
   end
@@ -224,5 +228,4 @@ class ObservationMatrix < ApplicationRecord
     observations.each {|o| h[o.descriptor_id][o.observation_object_global_id].push(o) }
     h
   end
-
 end

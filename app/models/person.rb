@@ -309,7 +309,7 @@ class Person < ApplicationRecord
           end
 
           # TODO: handle prefix and suffix
-          if prefix.blank?
+          if false && prefix.blank? ## DD: do not change the name of verified person
             write_attribute(:prefix, r_person.prefix)
           else
             unless r_person.prefix.blank?
@@ -317,7 +317,7 @@ class Person < ApplicationRecord
             end
           end
 
-          if suffix.blank?
+          if false && suffix.blank? ## DD: do not change the name of verified person
             self.suffix = r_person.suffix
           else
             unless r_person.suffix.blank?

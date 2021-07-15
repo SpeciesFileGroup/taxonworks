@@ -26,7 +26,7 @@ import {
   VueComponents
 } from '../../../const/components'
 
-const componentNames = Object.keys(ComponentParse)
+const componentNames = Object.values(ComponentParse)
 const ParseComponents = Object.fromEntries(componentNames.map(componentName => [componentName, VueComponents[componentName]]))
 
 export default {
@@ -47,7 +47,6 @@ export default {
   },
   data () {
     return {
-      componentsOrder: componentNames,
       keyStorage: 'tasks::digitize::GeographyOrder',
       componentsSection: 'ComponentParse'
     }

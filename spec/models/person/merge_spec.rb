@@ -180,7 +180,7 @@ describe Person, type: :model, group: :people do
     specify 'source is nil' do
       person1.update(prefix: nil)
       person1.merge_with(person1b.id)
-      expect(person1.prefix).to eq(person1b.prefix)
+      expect(person1.prefix).to eq(nil) # eq(person1b.prefix) #DD removed to preserve properly curated names
     end
   end
 
@@ -193,7 +193,7 @@ describe Person, type: :model, group: :people do
       person1.update(suffix: nil)
       # expect(person1.suffix).to eq(nil)
       person1.merge_with(person1b.id)
-      expect(person1.suffix).to eq(person1b.suffix)
+      expect(person1.suffix).to eq(nil) # eq(person1b.suffix) #DD removed to preserve properly curated names
     end
   end
 
@@ -297,7 +297,7 @@ describe Person, type: :model, group: :people do
       specify 'cached get updated' do
         person1.update(prefix: nil)
         person1.merge_with(person1b.id)
-        expect(person1.cached.include?('Dr.')).to be_truthy
+        expect(person1.cached.include?('Dr.')).to be_falsey # be_truthy #DD removed to preserve properly curated names
       end
     end
   end
