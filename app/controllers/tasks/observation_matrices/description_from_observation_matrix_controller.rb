@@ -19,7 +19,7 @@ class Tasks::ObservationMatrices::DescriptionFromObservationMatrixController < A
       :observation_matrix_id,
       :include_descendants,
       :language_id,
-      :row_id,
+      :observation_matrix_row_id,
       :otu_id,
       keyword_ids: [] # arrays must be at the end
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
