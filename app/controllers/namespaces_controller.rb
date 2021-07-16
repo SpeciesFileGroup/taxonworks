@@ -6,8 +6,15 @@ class NamespacesController < ApplicationController
   # GET /namespaces
   # GET /namespaces.json
   def index
-    @recent_objects = Namespace.order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Namespace.order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @namespaces = Queries::Namespace::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
   # GET /namespaces/1
@@ -119,8 +126,11 @@ class NamespacesController < ApplicationController
     render :batch_load
   end
 
-
   private
+
+  def filter_params
+    params.permit(:name, :short_name, :verbatim_name, :institution)
+  end
 
   def set_namespace
     @namespace = Namespace.find(params[:id])
