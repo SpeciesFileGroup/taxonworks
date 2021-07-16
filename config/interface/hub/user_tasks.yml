@@ -631,3 +631,11 @@ new_extract_task:
     - new
   status: prototype
   description: 'Create new extracts, e.g. for DNA purposes.'
+
+index_new_namespace_task:
+  hub: true
+  name: 'New namespace'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
