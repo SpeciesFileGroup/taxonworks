@@ -1,5 +1,6 @@
 import ActionNames from './actionNames'
 
+import requestDescription from './requestDescription'
 import requestMatrixRow from './requestMatrixRow'
 import requestConfidenceLevels from './requestConfidenceLevels'
 import requestObservations from './requestObservations'
@@ -18,6 +19,7 @@ import saveObservationsFor from './saveObservationsFor'
 import removeObservationsRow from './removeObservationsRow'
 
 const ActionFunctions = {
+  [ActionNames.RequestDescription]: requestDescription,
   [ActionNames.RequestMatrixRow]: requestMatrixRow,
   [ActionNames.RequestConfidenceLevels]: requestConfidenceLevels,
   [ActionNames.RequestObservations]: requestObservations,

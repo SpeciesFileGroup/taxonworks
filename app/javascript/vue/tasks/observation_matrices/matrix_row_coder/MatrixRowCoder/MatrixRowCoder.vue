@@ -9,21 +9,24 @@
       <h1 class="matrix-row-coder__title" v-html="title"/>
     </div>
     <div>
-      <div class="flex-separate">
-        <div class="align-start">
-          <ul
-            class="matrix-row-coder__descriptor-menu flex-wrap-column"
-            v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
-            <li v-for="descriptor in descriptorGroup">
-              <div>
-                <a
-                  class="matrix-row-coder__descriptor-item"
-                  :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
-                  @click="zoomDescriptor(descriptor.id)"
-                  v-html="descriptor.title"/>
-              </div>
-            </li>
-          </ul>
+      <div class="flex-separate margin-medium-bottom">
+        <div>
+          <div class="align-start">
+            <ul
+              class="matrix-row-coder__descriptor-menu flex-wrap-column"
+              v-for="descriptorGroup in descriptors.chunk(Math.ceil(descriptors.length/3))">
+              <li v-for="descriptor in descriptorGroup">
+                <div>
+                  <a
+                    class="matrix-row-coder__descriptor-item"
+                    :data-icon="observationsCount(descriptor.id) ? 'ok' : false"
+                    @click="zoomDescriptor(descriptor.id)"
+                    v-html="descriptor.title"/>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <description-component />
         </div>
         <div>
           <destroy-all-observations
@@ -34,6 +37,7 @@
         </div>
       </div>
     </div>
+
     <ul class="matrix-row-coder__descriptor-list no_bullets">
       <li
         class="matrix-row-coder__descriptor-container"
@@ -65,6 +69,7 @@ import MediaDescriptor from './MediaDescriptor/MediaDescriptor.vue'
 import Spinner from 'components/spinner'
 import CloneScoring from './Clone/Clone'
 import DestroyAllObservations from './ObservationRow/destroyObservationRow'
+import DescriptionComponent from './Description/Description.vue'
 
 const computed = mapState({
   title: state => state.taxonTitle,
@@ -115,9 +120,10 @@ export default {
       this.$store.dispatch(ActionNames.RequestMatrixRow, matrixRow).then(() => {
         this.isLoading = false
       })
+      this.$store.dispatch(ActionNames.RequestDescription, matrixRow.rowId)
       this.$store.dispatch(ActionNames.RequestConfidenceLevels)
     },
-    destroyAllObservations() {
+    destroyAllObservations () {
       this.$store.dispatch(ActionNames.RemoveObservationsRow, this.rowId).then(() => {
         this.loadMatrixRow({
           rowId: this.rowId,
@@ -155,7 +161,8 @@ export default {
     SampleDescriptor,
     MediaDescriptor,
     Spinner,
-    DestroyAllObservations
+    DestroyAllObservations,
+    DescriptionComponent
   }
 }
 </script>
