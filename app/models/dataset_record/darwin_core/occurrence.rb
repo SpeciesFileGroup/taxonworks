@@ -32,7 +32,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     end
   end
 
-  def import
+  def import(dwc_data_attributes = {})
     begin
       DatasetRecord.transaction do
         self.metadata.delete("error_data")
@@ -65,6 +65,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         attributes.deep_merge!(parse_tw_collection_object_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_attributes)
+
+        append_dwc_attributes(dwc_data_attributes['CollectionObject'], attributes[:specimen])
+        append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
 
         specimen = Specimen.create!({
             no_dwc_occurrence: true
@@ -880,4 +883,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       }
     end
   end
+
+  def append_dwc_attribute(attributes, predicate, value)
+    attributes << {
+      type: 'InternalAttribute',
+      predicate: predicate,
+      value: value
+    } if value
+  end
+
+  def append_dwc_attributes(dwc_attributes, target)
+    dwc_attributes.each do |field, predicate|
+      append_dwc_attribute(target[:data_attributes_attributes], predicate, get_field_value(field))
+    end
+  end
+
 end

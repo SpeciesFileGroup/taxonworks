@@ -134,8 +134,18 @@ class ImportDataset::DarwinCore < ImportDataset
       records = records.all
       start_time = Time.now - lock_time
 
+      dwc_data_attributes = project.preferences["model_predicate_sets"].map do |model, predicate_ids|
+        [model, Hash[
+          *Predicate.where(id: predicate_ids)
+            .select { |p| /^http:\/\/rs.tdwg.org\/dwc\/terms\/.*/ =~ p.uri }
+            .map {|p| [p.uri.split('/').last, p]}
+            .flatten
+          ]
+        ]
+      end.to_h
+
       records.each do |record|
-        imported << record.import
+        imported << record.import(dwc_data_attributes)
 
         break if 1000.0*(Time.now - start_time).abs > max_time
       end
