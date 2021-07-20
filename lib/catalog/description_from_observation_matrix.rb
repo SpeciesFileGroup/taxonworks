@@ -78,6 +78,11 @@ class Catalog::DescriptionFromObservationMatrix
   # Array of collection_object_ids
   attr_accessor :collection_object_id_filter_array
 
+  # @!descriptor_hash
+  #   @return [hash]
+  # Temporary attribute. Used to generated description and diagnosis
+  attr_accessor :descriptor_hash
+
   # @!generated_description
   #   @return [string]
   # Returns generated description for OTU
@@ -107,9 +112,11 @@ class Catalog::DescriptionFromObservationMatrix
     @otu_id_filter_array = otu_id_array
     @collection_object_id_filter_array = collection_object_id_array
     ###main_logic
+    @descriptor_hash = get_descriptor_hash
     @generated_description = get_description
     ###delete temporary data
     @descriptors_with_filter = nil
+    @descriptor_hash = nil
   end
 
   def find_matrix
@@ -193,30 +200,33 @@ class Catalog::DescriptionFromObservationMatrix
     end
   end
 
-  def get_description
-
-    or_separator = ' or '
-
+  def get_descriptor_hash
     descriptor_ids = @descriptors_with_filter.collect{|i| i.id}
     t = ['Observation::Continuous', 'Observation::PresenceAbsence', 'Observation::Sample']
-
-    char_states = CharacterState.joins(:observations).
-      where('character_states.descriptor_id IN (?) AND (otu_id IN (?) OR collection_object_id IN (?) )', descriptor_ids, @otu_id_filter_array, @collection_object_id_filter_array).
-      uniq
-    observations = Observation.where('observations.type IN (?) AND descriptor_id IN (?) AND (otu_id IN (?) OR collection_object_id IN (?) )', t, descriptor_ids, @otu_id_filter_array, @collection_object_id_filter_array).uniq
-
+    otu_ids = @otu_id_filter_array + [0]
+    collection_objet_ids = @collection_object_id_filter_array + [0]
     descriptor_hash = {}
     @descriptors_with_filter.each do |d|
       descriptor_hash[d.id] = {}
       descriptor_hash[d.id][:descriptor] = d
+      descriptor_hash[d.id][:similar_otu_ids] = []
+      descriptor_hash[d.id][:similar_collection_object_ids] = []
       descriptor_hash[d.id][:char_states] = [] if d.type == 'Descriptor::Qualitative'
+      descriptor_hash[d.id][:char_states_ids] = [] if d.type == 'Descriptor::Qualitative'
       descriptor_hash[d.id][:min] = 999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # min value used as continuous or sample
       descriptor_hash[d.id][:max] = -999999 if d.type == 'Descriptor::Continuous' || d.type == 'Descriptor::Sample' # max value used as continuous or sample
       descriptor_hash[d.id][:presence] = nil if d.type == 'Descriptor::PresenceAbsence'
     end
+
+    char_states = CharacterState.joins(:observations).
+      where('character_states.descriptor_id IN (?) AND (otu_id IN (?) OR collection_object_id IN (?) )', descriptor_ids, otu_ids, collection_objet_ids).
+      uniq
     char_states.each do |cs|
       descriptor_hash[cs.descriptor_id][:char_states].append(cs)
+      descriptor_hash[cs.descriptor_id][:char_states_ids].append(cs.id)
     end
+
+    observations = Observation.where('observations.type IN (?) AND descriptor_id IN (?) AND (otu_id IN (?) OR collection_object_id IN (?) )', t, descriptor_ids, otu_ids, collection_objet_ids).uniq
     observations.each do |o|
       if !o.continuous_value.nil?
         descriptor_hash[o.descriptor_id][:min] = o.continuous_value if descriptor_hash[o.descriptor_id][:min] > o.continuous_value
@@ -230,22 +240,86 @@ class Catalog::DescriptionFromObservationMatrix
         end
       elsif !o.presence.nil?
         if o.presence == true && descriptor_hash[o.descriptor_id][:presence].nil?
-            descriptor_hash[o.descriptor_id][:presence] = 'present'
+          descriptor_hash[o.descriptor_id][:presence] = 'present'
         elsif o.presence == false && descriptor_hash[o.descriptor_id][:presence].nil?
           descriptor_hash[o.descriptor_id][:presence] = 'absent'
         elsif o.presence == true && descriptor_hash[o.descriptor_id][:presence] == 'absent'
-            descriptor_hash[o.descriptor_id][:presence] = 'present or absent'
+          descriptor_hash[o.descriptor_id][:presence] = 'present or absent'
         elsif o.presence == false && descriptor_hash[o.descriptor_id][:presence] == 'present'
-            descriptor_hash[o.descriptor_id][:presence] = 'present or absent'
+          descriptor_hash[o.descriptor_id][:presence] = 'present or absent'
         end
       end
     end
 
+    unless @observation_matrix_id.nil?
+      otu_ids_count = {}
+      collection_object_ids_count = {}
+
+      char_states = ObservationMatrix.
+        select('descriptors.id AS d_id, character_states.id AS cs_id, observations.id AS o_id, observations.otu_id AS o_otu_id, observations.collection_object_id AS o_collection_object_id, observation_matrix_rows.otu_id AS r_otu_id, observation_matrix_rows.collection_object_id AS r_collection_object_id, observations.character_state_id AS o_cs_id').
+        joins(:descriptors).
+        left_outer_joins(:observation_matrix_rows).
+        joins('LEFT OUTER JOIN character_states ON descriptors.id = character_states.descriptor_id').
+        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.otu_id = observation_matrix_rows.otu_id OR observations.collection_object_id = observation_matrix_rows.collection_object_id)').
+        where('descriptors.id IN (?) AND (observation_matrix_rows.otu_id NOT IN (?) AND observation_matrix_rows.collection_object_id NOT IN (?) ) AND observation_matrices.id = ?', descriptor_ids, otu_ids, collection_objet_ids, @observation_matrix_id)
+      char_states.each do |cs|
+        if !descriptor_hash[cs.d_id][:similar_otu_ids].include(cs.r_otu_id) &&
+           !descriptor_hash[cs.d_id][:similar_collection_object_ids].include(cs.r_collection_object_id)
+          if !cs.r_otu_id.nil? && (descriptor_hash[cs.d_id][:char_states_ids].include(cs.cs_id) || cs.o_id.nil?)
+            descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_otu_id)
+            otu_ids_count[cs.r_otu_id] = otu_ids_count[cs.r_otu_id].to_i + 1
+          elsif !cs.r_collection_object_id.nil? && (descriptor_hash[cs.d_id][:char_states_ids].include(cs.cs_id) || cs.o_id.nil?)
+            descriptor_hash[cs.d_id][:similar_collection_object_ids].append(cs.r_collection_object_id)
+            collection_object_ids_count[cs.r_collection_object_id] = collection_object_ids_count[cs.r_collection_object_id].to_i + 1
+          end
+        end
+      end
+
+      observations = ObservationMatrix.
+        select('descriptors.id AS d_id, observations.id AS o_id, observations.otu_id AS o_otu_id, observations.collection_object_id AS o_collection_object_id, observations.type, observations.continuous_value, observations.sample_min, observations.sample_max, observations.presence, observation_matrix_rows.otu_id AS r_otu_id, observation_matrix_rows.collection_object_id AS r_collection_object_id, observations.character_state_id AS o_cs_id').
+        joins(:descriptors).
+        left_outer_joins(:observation_matrix_rows).
+        joins('LEFT OUTER JOIN observations ON observations.descriptor_id = descriptors.id AND (observations.otu_id = observation_matrix_rows.otu_id OR observations.collection_object_id = observation_matrix_rows.collection_object_id)').
+        where('observations.type IN (?) AND observations.descriptor_id IN (?) AND observation_matrix_rows.otu_id NOT IN (?) AND observation_matrix_rows.collection_object_id NOT IN (?) AND observation_matrices.id = ?', t, descriptor_ids, otu_ids, collection_objet_ids, @observation_matrix_id)
+      observations.each do |o|
+        if !descriptor_hash[cs.d_id][:similar_otu_ids].include(cs.r_otu_id) &&
+           !descriptor_hash[cs.d_id][:similar_collection_object_ids].include(cs.r_collection_object_id)
+          yes = false
+          if o.continuous_value.nil? && !o.sample_min.nil? && !o.presence.nil?
+            yes = true
+          elsif !o.continuous_value.nil? && o.continuous_value >= descriptor_hash[o.descriptor_id][:min] && o.continuous_value <= descriptor_hash[o.descriptor_id][:max]
+            yes = true
+          elsif !o.sample_max.nil? && o.sample_max >= descriptor_hash[o.descriptor_id][:min] && o.sample_max <= descriptor_hash[o.descriptor_id][:max]
+            yes = true
+          elsif !o.sample_min.nil? && o.sample_min >= descriptor_hash[o.descriptor_id][:min] && o.sample_min <= descriptor_hash[o.descriptor_id][:max]
+            yes = true
+          elsif !o.presence.nil? && o.presence == true && descriptor_hash[o.descriptor_id][:presence].include('present')
+            yes = true
+          elsif !o.presence.nil? && o.presence == false && descriptor_hash[o.descriptor_id][:presence].include('absent')
+            yes = true
+          end
+          if !cs.r_otu_id.nil? && yes
+            descriptor_hash[cs.d_id][:similar_otu_ids].append(cs.r_otu_id)
+            otu_ids_count[cs.r_otu_id] = otu_ids_count[cs.r_otu_id].to_i + 1
+          elsif !cs.r_collection_object_id.nil? && yes
+            descriptor_hash[cs.d_id][:similar_collection_object_ids].append(cs.r_collection_object_id)
+            collection_object_ids_count[cs.r_collection_object_id] = collection_object_ids_count[cs.r_collection_object_id].to_i + 1
+          end
+        end
+
+      end
+    end
+
+    descriptor_hash
+  end
+
+  def get_description
+    or_separator = ' or '
     language = @language_id.blank? ? nil : @language_id.to_i
     str = ''
     descriptor_name = ''
     state_name = ''
-    descriptor_hash.each do |d_key, d_value|
+    @descriptor_hash.each do |d_key, d_value|
       next if (d_value[:descriptor].type == 'Descriptor::Qualitative' && d_value[:char_states].empty?) ||
         ((d_value[:descriptor].type == 'Descriptor::Continuous' || d_value[:descriptor].type == 'Descriptor::Sample') && d_value[:min] == 999999) ||
         (d_value[:descriptor].type == 'Descriptor::PresenceAbsence' && d_value[:presence].nil?)

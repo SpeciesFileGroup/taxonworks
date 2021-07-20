@@ -160,7 +160,7 @@ begin
           TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic,
           TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic,
           TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling,
-          TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym,
+          TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym,
           TaxonNameRelationship::Icn::Unaccepting::Homonym
         ])
       },

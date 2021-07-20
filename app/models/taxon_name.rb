@@ -1222,7 +1222,6 @@ class TaxonName < ApplicationRecord
 
   # return [String]
   #   the author and year of the name, adds parenthesis where asserted
-  #   abstract, see Protonym and Combination
   def get_author_and_year
     if self.type == 'Combination'
       c = protonyms_by_rank
@@ -1250,9 +1249,14 @@ class TaxonName < ApplicationRecord
   def icn_author_and_year(taxon)
     ay = nil
 
-    basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
-      with_type_string('TaxonNameRelationship::Icn::Unaccepting::Usage::Basionym')
-    b_sub = basionym.empty? ? nil : basionym.first.subject_taxon_name
+    basionym = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
+    with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
+    if basionym.nil?
+      basionym = TaxonNameRelationship.where_object_is_taxon_name(taxon).
+        with_type_string('TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym').first
+    end
+    b_sub = basionym.nil? ? nil : basionym.subject_taxon_name
+
 
     misapplication = TaxonNameRelationship.where_subject_is_taxon_name(taxon).
       with_type_string('TaxonNameRelationship::Icn::Unaccepting::Misapplication')
@@ -1260,7 +1264,7 @@ class TaxonName < ApplicationRecord
     m_obj = misapplication.empty? ? nil : misapplication.first.object_taxon_name
 
     mobj = misspelling.empty? ? nil : misspelling.first.object_taxon_name
-    unless mobj.blank?
+    if !mobj.blank?
       ay = mobj.try(:author_string)
     else
       ay = self.try(:author_string)
@@ -1270,7 +1274,7 @@ class TaxonName < ApplicationRecord
     #t  += ['(' + self.year_integer.to_s + ')'] unless self.year_integer.nil?
     #ay = t.compact.join(' ')
 
-    unless basionym.empty? || b_sub.author_string.blank?
+    if !basionym.nil? && !b_sub.author_string.blank? && b_sub.id != self.id
       ay = '(' + b_sub.author_string + ') ' + ay
     end
 
