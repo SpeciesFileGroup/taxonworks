@@ -95,6 +95,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           end
         end
 
+        Identifier::Local::Import.create!(
+          namespace: get_core_record_identifier_namespace,
+          identifier_object: specimen,
+          identifier: get_field_value(:occurrenceID)
+        ) unless get_field_value(:occurrenceID).nil? || get_core_record_identifier_namespace.nil?
+
         specimen.taxon_determinations.create!({
           otu: innermost_otu || innermost_protonym.otus.find_by(name: nil) || innermost_protonym.otus.first # TODO: Might require select-and-confirm functionality
         }.merge(attributes[:taxon_determination]))

@@ -8,6 +8,10 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     DatasetRecord::DarwinCore::Taxon
   end
 
+  def core_records_identifier_name
+    'taxonID'
+  end
+
   # Stages core (Taxon) records and all extension records.
   def perform_staging
     records, headers = get_records(source)

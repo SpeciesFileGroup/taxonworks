@@ -3,15 +3,27 @@ class ImportDataset::DarwinCore < ImportDataset
 
   after_create -> (dwc) { ImportDatasetStageJob.perform_later(dwc) }
 
+  before_destroy :destroy_namespace
+
   CHECKLIST_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Taxon"
   OCCURRENCES_ROW_TYPE = "http://rs.tdwg.org/dwc/terms/Occurrence"
 
   def initialize(params)
     super(params)
 
+    random = SecureRandom.hex(4)
+    project_name = Project.find(Current.project_id).name
+    namespace_name = "#{core_records_identifier_name} namespace for \"#{params[:description]}\" dataset in \"#{project_name}\" project [#{random}]"
+
     self.metadata = {
       core_headers: [],
       nomenclature_code: nil,
+      identifier_namespace: Namespace.create!(
+        name: namespace_name,
+        short_name: "#{core_records_identifier_name}-#{random}",
+        verbatim_short_name: core_records_identifier_name,
+        delimiter: ':'
+      ).id
     }
   end
 
@@ -270,6 +282,10 @@ class ImportDataset::DarwinCore < ImportDataset
     term = field[:term].match(/\/([^\/]+)\/terms\/.*(?<=\/)([^\/]+)\/?$/)
     #headers[field[:index]] = term ? term[1..2].join(":") : field[:term]
     term ? term[2] : field[:term]
+  end
+
+  def destroy_namespace
+    Namespace.find_by(id: metadata["identifier_namespace"])&.destroy # If in use or gone no deletion happens
   end
 
 end

@@ -12,16 +12,22 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     DatasetRecord::DarwinCore::Occurrence
   end
 
+  def core_records_identifier_name
+    'occurrenceID'
+  end
+
   # Stages core (Occurrence) records and all extension records.
   def perform_staging
     records, headers = get_records(source)
 
-    update!(metadata: {
-      core_headers: headers[:core],
-      extensions_headers: headers[:extensions],
-      nomenclature_code: "ICZN",
-      catalog_numbers_namespaces: []
-    })
+    update!(metadata:
+      metadata.merge({
+        core_headers: headers[:core],
+        extensions_headers: headers[:extensions],
+        nomenclature_code: "ICZN",
+        catalog_numbers_namespaces: []
+      })
+    )
 
     core_records = records[:core].map do |record|
       {
