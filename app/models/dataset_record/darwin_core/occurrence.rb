@@ -148,7 +148,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   private
 
   def term_value_changed(name, value)
-    if ['institutionCode', 'collectionCode', 'catalogNumber'].include?(name) and self.status != 'Imported'
+    if ['institutioncode', 'collectioncode', 'catalognumber'].include?(name.downcase) and self.status != 'Imported'
       ready = get_field_value('catalogNumber').blank?
       ready ||= !!self.import_dataset.get_catalog_number_namespace(get_field_value('institutionCode'), get_field_value('collectionCode'))
 
